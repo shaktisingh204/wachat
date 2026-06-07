@@ -374,15 +374,14 @@ export function TechnicianConsole({
                     onClick={() => setColor(c)}
                     aria-pressed={color === c}
                     aria-label={`Use color ${c}`}
-                    className="size-6 rounded-full p-0"
-                    style={{
-                      // Runtime-computed: the swatch reflects a user-picked color.
-                      background: c,
-                      boxShadow:
-                        color === c
-                          ? '0 0 0 2px var(--st-bg), 0 0 0 4px var(--st-accent)'
-                          : 'inset 0 0 0 1px var(--st-border)',
-                    }}
+                    className={[
+                      'size-6 rounded-full p-0',
+                      color === c
+                        ? 'ring-2 ring-[var(--st-accent)] ring-offset-2 ring-offset-[var(--st-bg)]'
+                        : 'ring-1 ring-inset ring-[var(--st-border)]',
+                    ].join(' ')}
+                    // Runtime-computed: the swatch reflects a user-picked color.
+                    style={{ background: c }}
                   />
                 ))}
               </div>

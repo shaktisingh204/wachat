@@ -621,8 +621,8 @@ const EventLogsView = () => {
                   </Tr>
 
                   {expandedLogId === log.id && (
-                    <tr className="u-tr">
-                      <td className="u-td" colSpan={6}>
+                    <Tr>
+                      <Td colSpan={6}>
                         <div className="grid grid-cols-1 gap-6 bg-[var(--st-bg-secondary)] p-2 lg:grid-cols-2">
                           {/* Request */}
                           <div className="space-y-4">
@@ -650,8 +650,8 @@ const EventLogsView = () => {
                             <JsonViewer data={log.response} />
                           </div>
                         </div>
-                      </td>
-                    </tr>
+                      </Td>
+                    </Tr>
                   )}
                 </React.Fragment>
               ))}

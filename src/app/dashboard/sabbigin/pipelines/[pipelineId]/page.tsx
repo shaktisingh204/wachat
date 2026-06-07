@@ -6,12 +6,11 @@
  * ladder and metadata strip. Pure 20ui design system.
  */
 
-import Link from 'next/link';
 import {
   notFound,
   redirect,
 } from 'next/navigation';
-import { Pencil, Layers } from 'lucide-react';
+import { Layers } from 'lucide-react';
 
 import {
   Badge,
@@ -27,6 +26,8 @@ import {
 } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getPipelineById } from '@/app/actions/crm-pipelines.actions';
+
+import { PipelineEditButton } from './_components/pipeline-edit-button';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,15 +63,7 @@ export default async function PipelineDetailPage({
         eyebrow="PIPELINE"
         status={{ label: status, tone }}
         back={{ href: BASE, label: 'Pipelines' }}
-        actions={
-          <Link
-            href={`${BASE}/${pipelineId}/edit`}
-            className="u-btn u-btn--primary u-btn--md"
-          >
-            <Pencil size={14} aria-hidden="true" />
-            <span className="u-btn__label">Edit</span>
-          </Link>
-        }
+        actions={<PipelineEditButton href={`${BASE}/${pipelineId}/edit`} />}
       >
         {/* Summary card */}
         <Card padding="lg">

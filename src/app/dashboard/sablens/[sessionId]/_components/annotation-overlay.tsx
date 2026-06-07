@@ -7,20 +7,20 @@
  * re-projects across any aspect ratio. The overlay measures its own
  * bounding rect, converts pointer events to normalized space, and emits
  * completed strokes via `onCommit`. Live in-flight strokes are local
- * state — the parent only learns about a stroke when the pointer is
+ * state, the parent only learns about a stroke when the pointer is
  * released.
  *
  * Five tools are wired:
- *   - arrow    — two-point line with arrowhead
- *   - rect     — drag-rectangle
- *   - circle   — drag-radius circle (start = centre)
- *   - freehand — captures every pointer-move
- *   - text     — single click + prompt() label (kept synchronous so the
- *                stroke stays in this component's local state until the
- *                user finalises the label)
+ *   - arrow:    two-point line with arrowhead
+ *   - rect:     drag-rectangle
+ *   - circle:   drag-radius circle (start = centre)
+ *   - freehand: captures every pointer-move
+ *   - text:     single click + prompt() label (kept synchronous so the
+ *               stroke stays in this component's local state until the
+ *               user finalises the label)
  */
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 import type {
   LensAnnotation,
@@ -30,7 +30,7 @@ import type {
 
 export interface AnnotationOverlayProps {
   annotations: LensAnnotation[];
-  /** Active tool — `null` disables drawing (cursor mode). */
+  /** Active tool. `null` disables drawing (cursor mode). */
   tool: LensAnnotationKind | null;
   color: string;
   strokeWidth: number;
@@ -117,8 +117,6 @@ export function AnnotationOverlay({
     setActive(null);
   }
 
-  const cursor = tool ? 'crosshair' : 'default';
-
   return (
     <svg
       ref={svgRef}
@@ -126,8 +124,7 @@ export function AnnotationOverlay({
       aria-label="SabLens annotation overlay"
       viewBox="0 0 1 1"
       preserveAspectRatio="none"
-      className="absolute inset-0 size-full select-none"
-      style={{ cursor, touchAction: 'none' }}
+      className={`absolute inset-0 size-full select-none touch-none ${tool ? 'cursor-crosshair' : 'cursor-default'}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -144,7 +141,7 @@ export function AnnotationOverlay({
 }
 
 function strokePx(width: number): number {
-  // The viewBox is 0..1 — convert px to "normalized stroke" by dividing
+  // The viewBox is 0..1, convert px to "normalized stroke" by dividing
   // by ~1000 (renders crisply across typical viewport widths).
   return Math.max(0.001, width / 1000);
 }
@@ -219,7 +216,7 @@ function RenderAnnotation({ annotation }: { annotation: LensAnnotation }) {
         y={p[1]}
         fill={color}
         fontSize={size}
-        style={{ fontFamily: 'system-ui, sans-serif' }}
+        fontFamily="system-ui, sans-serif"
       >
         {geometry.text ?? ''}
       </text>

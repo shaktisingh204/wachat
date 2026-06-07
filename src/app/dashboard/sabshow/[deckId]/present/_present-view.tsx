@@ -12,7 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MonitorOff, X } from 'lucide-react';
 
-import { Button, EmptyState } from '@/components/sabcrm/20ui';
+import { Button, EmptyState, Kbd } from '@/components/sabcrm/20ui';
 import type { SabshowSlideDoc } from '@/lib/rust-client/sabshow-slides';
 import type { SabshowElementDoc } from '@/lib/rust-client/sabshow-elements';
 
@@ -83,15 +83,8 @@ export function PresentView({
             <div className="flex items-center justify-between px-4 py-2 text-xs">
                 <span className="font-medium">{deckTitle}</span>
                 <span className="text-white/70">
-                    {idx + 1} / {total}. Press{' '}
-                    <kbd className="rounded-[var(--st-radius)] border border-white/30 px-1.5 py-0.5 font-mono text-[10px]">
-                        n
-                    </kbd>{' '}
-                    for presenter view, or{' '}
-                    <kbd className="rounded-[var(--st-radius)] border border-white/30 px-1.5 py-0.5 font-mono text-[10px]">
-                        esc
-                    </kbd>{' '}
-                    to exit.
+                    {idx + 1} / {total}. Press <Kbd>n</Kbd> for presenter view, or{' '}
+                    <Kbd>esc</Kbd> to exit.
                 </span>
                 <Button size="sm" variant="ghost" iconLeft={X} onClick={() => router.back()}>
                     Exit
@@ -175,7 +168,6 @@ export function SlideCanvas({
         <div
             className="relative aspect-video max-h-full w-full max-w-full origin-top-left overflow-hidden rounded-[var(--st-radius)] bg-white shadow-2xl"
             style={{
-                aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
                 transform: scale !== 1 ? `scale(${scale})` : undefined,
             }}
         >

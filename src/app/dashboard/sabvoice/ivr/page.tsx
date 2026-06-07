@@ -1,7 +1,28 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Badge, Card, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Input,
+  Field,
+  Label,
+  Badge,
+  Card,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -98,7 +119,7 @@ function NodeEditor({
           value={node.type}
           onValueChange={(v) => update('type', v as VoiceIvrNodeType)}
         >
-          <SelectTrigger className="w-36">
+          <SelectTrigger className="w-36" aria-label="Node type">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -112,6 +133,7 @@ function NodeEditor({
         {node.type === 'menu' && (
           <Input
             placeholder="Prompt..."
+            aria-label="Menu prompt"
             value={(node.prompt as string) ?? ''}
             onChange={(e) => update('prompt', e.target.value)}
             className="flex-1"
@@ -120,6 +142,7 @@ function NodeEditor({
         {node.type === 'forward' && (
           <Input
             placeholder="Forward to (queue id / user id / number)"
+            aria-label="Forward target"
             value={(node.to as string) ?? ''}
             onChange={(e) => update('to', e.target.value)}
             className="flex-1"
@@ -128,6 +151,7 @@ function NodeEditor({
         {node.type === 'conditional' && (
           <Input
             placeholder="Condition expression..."
+            aria-label="Condition expression"
             value={(node.condition as string) ?? ''}
             onChange={(e) => update('condition', e.target.value)}
             className="flex-1"
@@ -142,24 +166,31 @@ function NodeEditor({
           </SabFilePickerButton>
         )}
         {onMoveUp && (
-          <Button variant="ghost" size="icon-sm" onClick={onMoveUp}>
-            <ArrowUp className="h-3 w-3" />
-          </Button>
+          <IconButton
+            label="Move node up"
+            icon={ArrowUp}
+            variant="ghost"
+            size="sm"
+            onClick={onMoveUp}
+          />
         )}
         {onMoveDown && (
-          <Button variant="ghost" size="icon-sm" onClick={onMoveDown}>
-            <ArrowDown className="h-3 w-3" />
-          </Button>
+          <IconButton
+            label="Move node down"
+            icon={ArrowDown}
+            variant="ghost"
+            size="sm"
+            onClick={onMoveDown}
+          />
         )}
         {onDelete && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-[var(--st-text)]"
+          <IconButton
+            label="Delete node"
+            icon={Trash2}
+            variant="danger"
+            size="sm"
             onClick={onDelete}
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
+          />
         )}
       </div>
 
@@ -183,10 +214,9 @@ function NodeEditor({
             key={t}
             variant="outline"
             size="sm"
+            iconLeft={Plus}
             onClick={() => addChild(t)}
-            className="text-xs h-7"
           >
-            <Plus className="h-3 w-3 mr-1" />
             {t}
           </Button>
         ))}
@@ -196,6 +226,7 @@ function NodeEditor({
 }
 
 export default function VoiceIvrPage() {
+  const { toast } = useToast();
   const [data, setData] = React.useState<IvrRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -272,9 +303,10 @@ export default function VoiceIvrPage() {
         });
       }
       setIsEditorOpen(false);
+      toast.success(editing ? 'IVR updated' : 'IVR created');
       void load();
     } catch (e) {
-      alert(`Save failed: ${(e as Error).message}`);
+      toast.error(`Save failed: ${(e as Error).message}`);
     } finally {
       setSubmitting(false);
     }
@@ -283,6 +315,7 @@ export default function VoiceIvrPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Archive this IVR?')) return;
     await deleteVoiceIvr(id);
+    toast.success('IVR archived');
     void load();
   };
 
@@ -290,25 +323,38 @@ export default function VoiceIvrPage() {
     <>
       <EntityListShell
         title="IVR Flows"
-        subtitle="Design call routing trees — menus, playback, forwards, voicemail."
+        subtitle="Design call routing trees: menus, playback, forwards, voicemail."
         primaryAction={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
             New IVR
           </Button>
         }
         search={{ value: search, onChange: setSearch, placeholder: 'Search IVRs...' }}
         loading={loading}
+        empty={
+          data.length === 0 ? (
+            <EmptyState
+              icon={Workflow}
+              title="No IVR flows yet"
+              description="Create your first call routing tree to greet and direct incoming calls."
+              action={
+                <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                  New IVR
+                </Button>
+              }
+            />
+          ) : undefined
+        }
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {data.map((ivr) => (
             <Card key={ivr._id} className="p-4 flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Workflow className="h-4 w-4 text-[var(--st-accent)]" />
-                  <span className="font-medium">{ivr.name}</span>
+                  <Workflow className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                  <span className="font-medium text-[var(--st-text)]">{ivr.name}</span>
                 </div>
-                <Badge variant={ivr.status === 'active' ? 'default' : 'outline'}>
+                <Badge tone={ivr.status === 'active' ? 'success' : 'neutral'}>
                   {ivr.status}
                 </Badge>
               </div>
@@ -317,20 +363,20 @@ export default function VoiceIvrPage() {
               )}
               <div className="text-xs text-[var(--st-text-secondary)]">
                 Root: <span className="font-mono">{ivr.rootNode.type}</span>
-                {' · '}
-                {(ivr.rootNode.children?.length ?? 0)} child node(s)
+                {' . '}
+                {ivr.rootNode.children?.length ?? 0} child node(s)
               </div>
               <div className="flex gap-2 mt-1">
-                <Button size="sm" variant="outline" onClick={() => openEdit(ivr)}>
-                  <Edit2 className="h-3 w-3 mr-1" /> Edit
+                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(ivr)}>
+                  Edit
                 </Button>
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="text-[var(--st-text)]"
+                  variant="danger"
+                  iconLeft={Trash2}
                   onClick={() => handleDelete(ivr._id)}
                 >
-                  <Trash2 className="h-3 w-3 mr-1" /> Archive
+                  Archive
                 </Button>
               </div>
             </Card>
@@ -341,20 +387,16 @@ export default function VoiceIvrPage() {
       <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editing ? 'Edit IVR' : 'New IVR'}
-            </DialogTitle>
+            <DialogTitle>{editing ? 'Edit IVR' : 'New IVR'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-3 py-2">
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="mb-1.5 block">Name</Label>
+              <Field label="Name">
                 <Input value={name} onChange={(e) => setName(e.target.value)} />
-              </div>
-              <div>
-                <Label className="mb-1.5 block">Status</Label>
+              </Field>
+              <Field label="Status">
                 <Select value={status} onValueChange={(v) => setStatus(v as never)}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Status">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -363,16 +405,15 @@ export default function VoiceIvrPage() {
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
-            <div>
-              <Label className="mb-1.5 block">Description</Label>
+            <Field label="Description">
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
               />
-            </div>
+            </Field>
             <div>
               <Label className="mb-1.5 block">Default Greeting (audio)</Label>
               <SabFilePickerButton
@@ -383,8 +424,8 @@ export default function VoiceIvrPage() {
               </SabFilePickerButton>
             </div>
             <div className="border-t border-[var(--st-border)] pt-3">
-              <Label className="mb-2 block flex items-center gap-1">
-                <ChevronRight className="h-3 w-3" /> Call-Flow Tree
+              <Label className="mb-2 flex items-center gap-1">
+                <ChevronRight className="h-3 w-3" aria-hidden="true" /> Call-Flow Tree
               </Label>
               <NodeEditor node={tree} onChange={setTree} depth={0} />
             </div>
@@ -393,7 +434,12 @@ export default function VoiceIvrPage() {
             <Button variant="outline" onClick={() => setIsEditorOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={submitting || !name.trim()}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              loading={submitting}
+              disabled={submitting || !name.trim()}
+            >
               {submitting ? 'Saving...' : 'Save IVR'}
             </Button>
           </DialogFooter>

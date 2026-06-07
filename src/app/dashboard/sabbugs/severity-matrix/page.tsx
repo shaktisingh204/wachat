@@ -33,7 +33,7 @@ import { BUG_PRIORITIES, BUG_SEVERITIES } from '../_components/bug-shared';
 export const dynamic = 'force-dynamic';
 
 export default async function SeverityMatrixPage() {
-  // Pull the first 500 active bugs; for very large tenants the Rust side
+  // Pull the first 100 active bugs. For very large tenants the Rust side
   // gains a dedicated aggregation endpoint later (see TODOs in report).
   const res = await listBugs({ limit: 100, status: 'all' });
   const active = res.bugs.filter((b) => b.status !== 'closed');
@@ -95,18 +95,19 @@ export default async function SeverityMatrixPage() {
                 {BUG_PRIORITIES.map((p) => {
                   const count = matrix[s][p];
                   const intensity = Math.round((count / max) * 100);
+                  // Only the bg tint is data-driven (heat-map ramp); the text
+                  // colour is a fixed two-state token choice, so it lives in
+                  // Tailwind rather than inline style.
+                  const textClass =
+                    intensity > 60
+                      ? 'text-[var(--st-text-inverted)]'
+                      : 'text-[var(--st-text)]';
                   return (
                     <Td key={p} align="center" className="p-0">
                       <Link
                         href={`/dashboard/sabbugs?severity=${s}&priority=${p}`}
-                        className="block rounded-[var(--st-radius)] p-3 text-center font-semibold"
-                        style={{
-                          backgroundColor: cellColor(intensity),
-                          color:
-                            intensity > 60
-                              ? 'var(--st-text-inverted)'
-                              : 'inherit',
-                        }}
+                        className={`block rounded-[var(--st-radius)] p-3 text-center font-semibold ${textClass}`}
+                        style={{ backgroundColor: cellColor(intensity) }}
                       >
                         {count}
                       </Link>
@@ -123,8 +124,9 @@ export default async function SeverityMatrixPage() {
 }
 
 function cellColor(intensity: number): string {
-  // Plain CSS so we don't pull in another library; ranges from neutral
-  // to a saturated red as intensity rises.
+  // Heat ramp from a neutral surface token up to a saturated red as intensity
+  // rises. The non-zero steps are a data-visualisation ramp, not chrome, so the
+  // hex stops are intentional and computed from the live bug counts.
   if (intensity <= 0) return 'var(--st-bg-secondary)';
   if (intensity < 25) return '#fef3c7';
   if (intensity < 50) return '#fdba74';

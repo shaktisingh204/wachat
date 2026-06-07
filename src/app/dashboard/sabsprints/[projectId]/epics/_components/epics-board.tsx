@@ -1,13 +1,25 @@
 'use client';
 
 /**
- * Epics module — left pane is a list of epics with a create form. Right
+ * Epics module. The left pane is a list of epics with a create form. The right
  * pane is a roadmap timeline: one row per epic, bar position derived from
- * `startDate` / `endDate`, with a stacked count of attached stories.
+ * startDate / endDate, with a stacked count of attached stories.
  */
 import { useMemo, useState, useTransition } from 'react';
 
-import { Badge, Button, Card, EmptyState, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  ColorPicker,
+  EmptyState,
+  Field,
+  Input,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { createEpic } from '@/app/actions/agile.actions';
 import type { AgileEpicDoc } from '@/lib/rust-client/agile-epics';
 import type { AgileStoryDoc } from '@/lib/rust-client/agile-stories';
@@ -79,7 +91,7 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
         toast({
           title: 'Could not create epic',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -93,65 +105,59 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[20rem_minmax(0,1fr)]">
-      <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-sm font-semibold text-[var(--st-text)]">New epic</h2>
+      <Card className="flex flex-col gap-3">
+        <CardHeader>
+          <CardTitle>New epic</CardTitle>
+        </CardHeader>
         <form className="flex flex-col gap-3" onSubmit={handleCreate}>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="epic-name">Name</Label>
+          <Field label="Name" required>
             <Input
-              id="epic-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="epic-desc">Description</Label>
+          </Field>
+          <Field label="Description">
             <Textarea
-              id="epic-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="epic-color">Color</Label>
-            <Input
-              id="epic-color"
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="h-9 w-16 p-1"
-            />
-          </div>
+          </Field>
+          <Field label="Color">
+            <ColorPicker value={color} onChange={setColor} />
+          </Field>
           <div className="grid grid-cols-2 gap-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="epic-start">Start</Label>
+            <Field label="Start">
               <Input
-                id="epic-start"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
               />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="epic-end">End</Label>
+            </Field>
+            <Field label="End">
               <Input
-                id="epic-end"
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
               />
-            </div>
+            </Field>
           </div>
-          <Button type="submit" disabled={isPending || !name.trim()}>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isPending}
+            disabled={!name.trim()}
+          >
             Create epic
           </Button>
         </form>
       </Card>
 
-      <Card className="flex flex-col gap-3 p-4">
-        <h2 className="text-sm font-semibold text-[var(--st-text)]">Roadmap</h2>
+      <Card className="flex flex-col gap-3">
+        <CardHeader>
+          <CardTitle>Roadmap</CardTitle>
+        </CardHeader>
         {epics.length === 0 ? (
           <EmptyState
             title="No epics yet"
@@ -172,15 +178,15 @@ export function EpicsBoard({ projectId, initialEpics, stories }: Props) {
                 <li key={epic._id} className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <span
-                      aria-hidden
+                      aria-hidden="true"
                       className="inline-block h-2.5 w-2.5 rounded-full"
                       style={{ backgroundColor: epic.color ?? '#94a3b8' }}
                     />
                     <span className="text-sm font-medium text-[var(--st-text)]">
                       {epic.name}
                     </span>
-                    <Badge variant="ghost">{count} stories</Badge>
-                    <Badge variant="ghost">{epic.status}</Badge>
+                    <Badge tone="neutral">{count} stories</Badge>
+                    <Badge tone="neutral">{epic.status}</Badge>
                   </div>
                   <div className="relative h-3 w-full rounded-full bg-[var(--st-border)]">
                     <div

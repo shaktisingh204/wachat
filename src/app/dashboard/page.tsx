@@ -18,6 +18,7 @@ import {
   PageTitle,
   PageDescription,
   PageActions,
+  Progress,
   type BadgeTone,
 } from "@/components/sabcrm/20ui";
 import {
@@ -41,7 +42,7 @@ import type { LucideIcon } from "lucide-react";
 import { HomeMotionShell } from "./_components/home-motion-shell";
 
 export const metadata = {
-  title: "Dashboard · SabNode",
+  title: "Dashboard - SabNode",
 };
 
 const QUICK_LAUNCH: Array<{
@@ -169,9 +170,12 @@ export default async function HomePage() {
               <Badge tone="neutral" kind="solid">
                 {stats.credits.toLocaleString()} credits
               </Badge>
-              <Link href="/dashboard/sabflow" className="u-btn u-btn--primary u-btn--sm">
+              <Link
+                href="/dashboard/sabflow"
+                className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] bg-[var(--st-accent)] px-3 py-1.5 text-[13px] font-semibold text-[var(--st-text-inverted)] transition-colors hover:bg-[var(--st-accent-hover)] active:scale-[0.98]"
+              >
                 <Zap size={13} aria-hidden="true" />
-                <span className="u-btn__label">Open SabFlow</span>
+                <span>Open SabFlow</span>
               </Link>
             </PageActions>
           </PageHeader>
@@ -196,22 +200,19 @@ export default async function HomePage() {
                 </div>
               </div>
               <div className="flex w-full items-center gap-3 md:w-72">
-                <div
-                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--st-bg-secondary)]"
-                  role="progressbar"
+                <Progress
+                  value={onboardingFill}
+                  tone="warning"
+                  size="sm"
                   aria-label="Onboarding progress"
-                  aria-valuenow={onboardingFill}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <div
-                    className="h-full rounded-full bg-[var(--st-warn)]"
-                    style={{ width: `${onboardingFill}%` }}
-                  />
-                </div>
+                  className="flex-1"
+                />
                 <span className="font-mono text-[11px] text-[var(--st-warn)]">{onboardingFill}%</span>
-                <Link href="/dashboard/onboarding" className="u-btn u-btn--outline u-btn--sm">
-                  <span className="u-btn__label">Continue</span>
+                <Link
+                  href="/dashboard/onboarding"
+                  className="inline-flex items-center rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-1.5 text-[13px] font-semibold text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)] active:scale-[0.98]"
+                >
+                  <span>Continue</span>
                 </Link>
               </div>
             </div>
@@ -304,8 +305,11 @@ export default async function HomePage() {
                     title="No broadcasts yet"
                     description="Create your first campaign to reach your audience."
                     action={
-                      <Link href="/dashboard/sabcampaigns" className="u-btn u-btn--primary u-btn--sm">
-                        <span className="u-btn__label">Create broadcast</span>
+                      <Link
+                        href="/dashboard/sabcampaigns"
+                        className="inline-flex items-center rounded-[var(--st-radius)] bg-[var(--st-accent)] px-3 py-1.5 text-[13px] font-semibold text-[var(--st-text-inverted)] transition-colors hover:bg-[var(--st-accent-hover)] active:scale-[0.98]"
+                      >
+                        <span>Create broadcast</span>
                       </Link>
                     }
                   />
@@ -335,7 +339,7 @@ export default async function HomePage() {
                             <span>{new Date(b.createdAt).toLocaleDateString()}</span>
                             {b.projectName && (
                               <>
-                                <span aria-hidden="true">·</span>
+                                <span aria-hidden="true">,</span>
                                 <span className="truncate">{b.projectName}</span>
                               </>
                             )}

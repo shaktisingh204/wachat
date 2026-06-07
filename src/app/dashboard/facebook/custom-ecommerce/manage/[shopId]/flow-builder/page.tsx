@@ -1,15 +1,46 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, FileInput, Input, Label, RadioGroup, RadioGroupItem, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetTitle, Skeleton, Switch, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  Skeleton,
+  Switch,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import {
   useCallback,
   useEffect,
   useRef,
   useState,
   useTransition,
-  } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+} from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   AlertCircle,
   ArrowRightLeft,
@@ -37,7 +68,7 @@ import {
   View,
   ZoomIn,
   ZoomOut,
-  } from "lucide-react";
+} from "lucide-react";
 
 import { getEcommShopById } from "@/app/actions/custom-ecommerce.actions";
 import {
@@ -45,13 +76,13 @@ import {
   getEcommFlowById,
   getEcommFlows,
   saveEcommFlow,
-  } from "@/app/actions/custom-ecommerce-flow.actions";
+} from "@/app/actions/custom-ecommerce-flow.actions";
 import type {
   EcommFlow,
   EcommFlowEdge,
   EcommFlowNode,
   EcommShop,
-  } from "@/lib/definitions";
+} from "@/lib/definitions";
 import type { WithId } from "mongodb";
 import { cn } from "@/lib/utils";
 
@@ -59,14 +90,13 @@ import { cn } from "@/lib/utils";
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder
  *
  * Conversational flow-builder shell. Same canvas runtime, same handlers,
- * same data flow as the legacy page — only the visual chrome (header,
- * save bar, blocks/flows sidebar, properties panel, mobile sheets) was
- * rebuilt on top of zoru primitives.
+ * same data flow as before. The visual chrome (header, save bar, blocks
+ * and flows sidebar, properties panel, mobile sheets) is built entirely
+ * on the 20ui design system.
  *
- * TODO(meta-zoru phase 7): the canvas itself (node renderer, edge SVG,
- * pan/zoom math) is intentionally preserved as an opaque internal — the
- * interaction layer is too large to refactor as part of this phase. A
- * follow-up batch should also restyle the per-node card visuals.
+ * Note: the canvas itself (node renderer, edge SVG, pan/zoom math) is an
+ * opaque internal. Its positioning uses runtime-computed inline transforms,
+ * which is the one sanctioned use of inline style here.
  */
 
 import * as React from "react";
@@ -122,14 +152,12 @@ const blockTypes = [
   { type: "orderConfirmation", label: "Order confirmation", icon: PackageCheck },
 ] as const;
 
-// ──────────────────────────────────────────────────────────────────────
-// Node preview (used inside the canvas card body)
-// ──────────────────────────────────────────────────────────────────────
+// Node preview (used inside the canvas card body).
 function NodePreview({ node }: { node: EcommFlowNode }) {
   const renderTextWithVariables = (text?: string) => {
     if (!text)
       return (
-        <span className="italic text-[var(--st-text-tertiary)]">Enter message…</span>
+        <span className="italic text-[var(--st-text-tertiary)]">Enter message...</span>
       );
     const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
     return parts.map((part, i) =>
@@ -160,7 +188,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
         return (
           <div className="space-y-1">
             <div className="flex aspect-video w-full items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg)]/50">
-              <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" />
+              <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" aria-hidden="true" />
             </div>
             {node.data.caption ? (
               <p className="whitespace-pre-wrap text-xs">
@@ -219,9 +247,7 @@ function NodePreview({ node }: { node: EcommFlowNode }) {
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Node component (canvas-positioned card with handles)
-// ──────────────────────────────────────────────────────────────────────
+// Node component (canvas-positioned card with handles).
 function NodeComponent({
   node,
   onSelectNode,
@@ -282,7 +308,7 @@ function NodeComponent({
         )}
       >
         <CardHeader className="flex flex-row items-center gap-3 p-3">
-          <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" />
+          <BlockIcon className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
           <CardTitle className="text-sm">
             {node.data.label}
           </CardTitle>
@@ -371,9 +397,7 @@ function NodeComponent({
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Properties panel
-// ──────────────────────────────────────────────────────────────────────
+// Properties panel.
 function PropertiesPanel({
   selectedNode,
   updateNodeData,
@@ -406,7 +430,7 @@ function PropertiesPanel({
       toast({
         title: "Limit reached",
         description: "You can add a maximum of 13 quick replies.",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -465,7 +489,7 @@ function PropertiesPanel({
       toast({
         title: "Limit reached",
         description: "A carousel can have a maximum of 10 cards.",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -495,7 +519,7 @@ function PropertiesPanel({
             toast({
               title: "Limit reached",
               description: "A card can have a maximum of 3 buttons.",
-              variant: "destructive",
+              tone: "danger",
             });
             return el;
           }
@@ -563,22 +587,18 @@ function PropertiesPanel({
       case "start":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="triggerKeywords">
-                Trigger keywords
-              </Label>
+            <Field
+              label="Trigger keywords"
+              help="Comma-separated keywords to start this flow."
+            >
               <Input
-                id="triggerKeywords"
                 placeholder="e.g., help, menu"
                 value={selectedNode.data.triggerKeywords || ""}
                 onChange={(e) =>
                   handleDataChange("triggerKeywords", e.target.value)
                 }
               />
-              <p className="text-xs text-[var(--st-text-secondary)]">
-                Comma-separated keywords to start this flow.
-              </p>
-            </div>
+            </Field>
             <div className="flex items-center justify-between gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-4">
               <div>
                 <Label htmlFor="isWelcomeFlow">
@@ -602,7 +622,7 @@ function PropertiesPanel({
         return (
           <Textarea
             id="text-content"
-            placeholder="Enter your message here…"
+            placeholder="Enter your message here..."
             value={selectedNode.data.text || ""}
             onChange={(e) => handleDataChange("text", e.target.value)}
             className="h-32"
@@ -610,10 +630,10 @@ function PropertiesPanel({
         );
       case "orderConfirmation":
         return (
-          <div className="space-y-1.5">
-            <Label htmlFor="confirmation-text">
-              Confirmation message
-            </Label>
+          <Field
+            label="Confirmation message"
+            help="Use variables like {{order_id}} which you should get from a preceding API call block."
+          >
             <Textarea
               id="confirmation-text"
               placeholder="Thank you for your order, {{name}}!"
@@ -624,48 +644,40 @@ function PropertiesPanel({
               onChange={(e) => handleDataChange("text", e.target.value)}
               className="h-32"
             />
-            <p className="text-xs text-[var(--st-text-secondary)]">
-              Use variables like {"`{{order_id}}`"} which you should get from
-              a preceding API call block.
-            </p>
-          </div>
+          </Field>
         );
       case "image":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="image-url">Image URL</Label>
+            <Field label="Image">
               <SabFileUrlInput
-                id="image-url"
                 accept="image"
-                placeholder="https://example.com/image.png"
+                placeholder="Pick an image"
                 value={selectedNode.data.imageUrl || ""}
                 onChange={(v) => handleDataChange("imageUrl", v)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="image-caption">Caption (optional)</Label>
+            </Field>
+            <Field label="Caption (optional)">
               <Textarea
                 id="image-caption"
-                placeholder="A caption for your image…"
+                placeholder="A caption for your image..."
                 value={selectedNode.data.caption || ""}
                 onChange={(e) => handleDataChange("caption", e.target.value)}
               />
-            </div>
+            </Field>
           </div>
         );
       case "buttons":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="buttons-text">Message text</Label>
+            <Field label="Message text">
               <Textarea
                 id="buttons-text"
                 placeholder="Choose an option:"
                 value={selectedNode.data.text || ""}
                 onChange={(e) => handleDataChange("text", e.target.value)}
               />
-            </div>
+            </Field>
             <div className="space-y-2">
               <Label>Quick replies</Label>
               <div className="space-y-3">
@@ -683,15 +695,13 @@ function PropertiesPanel({
                         }
                         maxLength={20}
                       />
-                      <Button
-                        type="button"
+                      <IconButton
+                        label="Remove button"
+                        icon={Trash2}
                         variant="ghost"
-                        size="icon-sm"
+                        size="sm"
                         onClick={() => removeFlowButton(index)}
-                        aria-label="Remove button"
-                      >
-                        <Trash2 />
-                      </Button>
+                      />
                     </div>
                   ),
                 )}
@@ -701,10 +711,10 @@ function PropertiesPanel({
                 variant="outline"
                 size="sm"
                 block
+                iconLeft={Plus}
                 className="mt-2"
                 onClick={addFlowButton}
               >
-                <Plus />
                 Add quick reply
               </Button>
             </div>
@@ -713,40 +723,33 @@ function PropertiesPanel({
       case "input":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="input-text">Question to ask</Label>
+            <Field label="Question to ask">
               <Textarea
                 id="input-text"
                 placeholder="e.g., What is your name?"
                 value={selectedNode.data.text || ""}
                 onChange={(e) => handleDataChange("text", e.target.value)}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="input-variable">
-                Save answer to variable
-              </Label>
+            </Field>
+            <Field
+              label="Save answer to variable"
+              help="Use {{user_name}} in later steps."
+            >
               <Input
-                id="input-variable"
                 placeholder="e.g., user_name"
                 value={selectedNode.data.variableToSave || ""}
                 onChange={(e) =>
                   handleDataChange("variableToSave", e.target.value)
                 }
               />
-              <p className="text-xs text-[var(--st-text-secondary)]">
-                Use {"{{user_name}}"} in later steps.
-              </p>
-            </div>
+            </Field>
           </div>
         );
       case "delay":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="delay-seconds">Delay (seconds)</Label>
+            <Field label="Delay (seconds)">
               <Input
-                id="delay-seconds"
                 type="number"
                 min="1"
                 value={selectedNode.data.delaySeconds || 1}
@@ -757,7 +760,7 @@ function PropertiesPanel({
                   )
                 }
               />
-            </div>
+            </Field>
             <div className="flex items-center justify-between rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-3">
               <Label htmlFor="typing-indicator" className="font-normal">
                 Show typing indicator
@@ -782,7 +785,8 @@ function PropertiesPanel({
                 onValueChange={(val: string) =>
                   handleDataChange("conditionType", val)
                 }
-                className="flex gap-4 pt-1"
+                orientation="horizontal"
+                className="pt-1"
               >
                 <div className="flex items-center gap-2">
                   <RadioGroupItem value="variable" id="type-variable" />
@@ -814,30 +818,25 @@ function PropertiesPanel({
 
             {(selectedNode.data.conditionType === "variable" ||
               !selectedNode.data.conditionType) && (
-              <div className="space-y-1.5">
-                <Label htmlFor="condition-variable">
-                  Variable to check
-                </Label>
+              <Field label="Variable to check">
                 <Input
-                  id="condition-variable"
                   placeholder="e.g., {{user_name}}"
                   value={selectedNode.data.variable || ""}
                   onChange={(e) =>
                     handleDataChange("variable", e.target.value)
                   }
                 />
-              </div>
+              </Field>
             )}
 
-            <div className="space-y-1.5">
-              <Label htmlFor="condition-operator">Operator</Label>
+            <Field label="Operator">
               <Select
                 value={selectedNode.data.operator || "equals"}
                 onValueChange={(val: string) =>
                   handleDataChange("operator", val)
                 }
               >
-                <SelectTrigger id="condition-operator">
+                <SelectTrigger aria-label="Operator">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -854,54 +853,58 @@ function PropertiesPanel({
                   </SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="condition-value">
-                Value to compare against
-              </Label>
+            <Field label="Value to compare against">
               <Input
-                id="condition-value"
                 placeholder="e.g., confirmed"
                 value={selectedNode.data.value || ""}
                 onChange={(e) => handleDataChange("value", e.target.value)}
               />
-            </div>
+            </Field>
           </div>
         );
       case "api":
         return (
           <div className="space-y-4">
-            <Select
-              value={selectedNode.data.apiRequest?.method || "GET"}
-              onValueChange={(val: string) => handleApiChange("method", val)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="GET">GET</SelectItem>
-                <SelectItem value="POST">POST</SelectItem>
-                <SelectItem value="PUT">PUT</SelectItem>
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder="https://api.example.com"
-              value={selectedNode.data.apiRequest?.url || ""}
-              onChange={(e) => handleApiChange("url", e.target.value)}
-            />
-            <Textarea
-              placeholder='Headers (JSON)\n{ "Authorization": "Bearer …" }'
-              className="h-24 font-mono text-xs"
-              value={selectedNode.data.apiRequest?.headers || ""}
-              onChange={(e) => handleApiChange("headers", e.target.value)}
-            />
-            <Textarea
-              placeholder="Request body (JSON)"
-              className="h-32 font-mono text-xs"
-              value={selectedNode.data.apiRequest?.body || ""}
-              onChange={(e) => handleApiChange("body", e.target.value)}
-            />
+            <Field label="Method">
+              <Select
+                value={selectedNode.data.apiRequest?.method || "GET"}
+                onValueChange={(val: string) => handleApiChange("method", val)}
+              >
+                <SelectTrigger aria-label="HTTP method">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GET">GET</SelectItem>
+                  <SelectItem value="POST">POST</SelectItem>
+                  <SelectItem value="PUT">PUT</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Endpoint URL">
+              <Input
+                placeholder="https://api.example.com"
+                value={selectedNode.data.apiRequest?.url || ""}
+                onChange={(e) => handleApiChange("url", e.target.value)}
+              />
+            </Field>
+            <Field label="Headers (JSON)">
+              <Textarea
+                placeholder={'{ "Authorization": "Bearer ..." }'}
+                className="h-24 font-mono text-xs"
+                value={selectedNode.data.apiRequest?.headers || ""}
+                onChange={(e) => handleApiChange("headers", e.target.value)}
+              />
+            </Field>
+            <Field label="Request body (JSON)">
+              <Textarea
+                placeholder="Request body (JSON)"
+                className="h-32 font-mono text-xs"
+                value={selectedNode.data.apiRequest?.body || ""}
+                onChange={(e) => handleApiChange("body", e.target.value)}
+              />
+            </Field>
             <Separator />
             <Label>Save response to variables</Label>
             <div className="space-y-3">
@@ -914,16 +917,14 @@ function PropertiesPanel({
                     key={index}
                     className="relative space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                   >
-                    <Button
-                      type="button"
+                    <IconButton
+                      label="Remove mapping"
+                      icon={Trash2}
                       variant="ghost"
-                      size="icon-sm"
+                      size="sm"
                       className="absolute right-1 top-1"
                       onClick={() => removeMapping(index)}
-                      aria-label="Remove mapping"
-                    >
-                      <Trash2 />
-                    </Button>
+                    />
                     <Input
                       placeholder="Variable name (e.g. user_email)"
                       value={mapping.variable || ""}
@@ -947,9 +948,9 @@ function PropertiesPanel({
               variant="outline"
               size="sm"
               block
+              iconLeft={Plus}
               onClick={addMapping}
             >
-              <Plus />
               Add mapping
             </Button>
             <p className="text-xs text-[var(--st-text-secondary)]">
@@ -968,29 +969,23 @@ function PropertiesPanel({
                   key={el.id}
                   className="relative space-y-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3"
                 >
-                  <Button
-                    type="button"
+                  <IconButton
+                    label="Remove card"
+                    icon={Trash2}
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     className="absolute right-1 top-1"
                     onClick={() => removeElement(el.id)}
-                    aria-label="Remove card"
-                  >
-                    <Trash2 />
-                  </Button>
+                  />
                   <h4 className="text-sm tracking-tight text-[var(--st-text)]">
                     Card {elIndex + 1}
                   </h4>
-                  <FileInput
+                  <SabFileUrlInput
                     accept="image"
                     placeholder="Pick a card image"
                     pickerTitle="Pick card image"
-                    value={
-                      el.image_url
-                        ? { id: el.image_url, name: el.image_url, mimeType: "", size: 0, tag: "image", url: el.image_url, key: el.image_url, createdAt: "" }
-                        : null
-                    }
-                    onChange={(file) => handleElementChange(el.id, "image_url", file?.url ?? "")}
+                    value={el.image_url || ""}
+                    onChange={(v) => handleElementChange(el.id, "image_url", v)}
                   />
                   <Input
                     placeholder="Title (80 chars max)"
@@ -1015,18 +1010,16 @@ function PropertiesPanel({
                         key={btnIndex}
                         className="relative space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                       >
-                        <Button
-                          type="button"
+                        <IconButton
+                          label="Remove card button"
+                          icon={Trash2}
                           variant="ghost"
-                          size="icon-sm"
+                          size="sm"
                           className="absolute right-1 top-1"
                           onClick={() =>
                             removeElementButton(el.id, btnIndex)
                           }
-                          aria-label="Remove card button"
-                        >
-                          <Trash2 />
-                        </Button>
+                        />
                         <RadioGroup
                           value={btn.type}
                           onValueChange={(val: string) =>
@@ -1037,7 +1030,7 @@ function PropertiesPanel({
                               val,
                             )
                           }
-                          className="flex gap-4"
+                          orientation="horizontal"
                         >
                           <div className="flex items-center gap-2">
                             <RadioGroupItem
@@ -1094,13 +1087,7 @@ function PropertiesPanel({
                               required
                             />
                             <div className="grid grid-cols-2 gap-2 pt-2">
-                              <div className="space-y-1">
-                                <Label
-                                  htmlFor={`webview-height-${el.id}-${btnIndex}`}
-                                  className="text-xs"
-                                >
-                                  Webview height
-                                </Label>
+                              <Field label="Webview height">
                                 <Select
                                   value={btn.webview_height_ratio || "full"}
                                   onValueChange={(val: string) =>
@@ -1113,7 +1100,7 @@ function PropertiesPanel({
                                   }
                                 >
                                   <SelectTrigger
-                                    id={`webview-height-${el.id}-${btnIndex}`}
+                                    aria-label="Webview height"
                                     className="h-8"
                                   >
                                     <SelectValue />
@@ -1130,7 +1117,7 @@ function PropertiesPanel({
                                     </SelectItem>
                                   </SelectContent>
                                 </Select>
-                              </div>
+                              </Field>
                               <div className="space-y-1 pt-1">
                                 <Label
                                   htmlFor={`messenger-ext-${el.id}-${btnIndex}`}
@@ -1176,17 +1163,19 @@ function PropertiesPanel({
                           type="button"
                           variant="outline"
                           size="sm"
+                          iconLeft={Plus}
                           onClick={() => addElementButton(el.id, "web_url")}
                         >
-                          + URL button
+                          URL button
                         </Button>
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
+                          iconLeft={Plus}
                           onClick={() => addElementButton(el.id, "postback")}
                         >
-                          + Postback button
+                          Postback button
                         </Button>
                       </div>
                     ) : null}
@@ -1198,9 +1187,9 @@ function PropertiesPanel({
               type="button"
               variant="outline"
               block
+              iconLeft={Plus}
               onClick={addElement}
             >
-              <Plus />
               Add card
             </Button>
           </div>
@@ -1209,33 +1198,27 @@ function PropertiesPanel({
       case "addToCart":
         return (
           <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="productId">Product ID / SKU</Label>
+            <Field label="Product ID / SKU">
               <Input
-                id="productId"
                 value={selectedNode.data.productId || ""}
                 onChange={(e) =>
                   handleDataChange("productId", e.target.value)
                 }
                 placeholder="e.g., TSHIRT-001 or {{selected_sku}}"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="productName">Product name</Label>
+            </Field>
+            <Field label="Product name">
               <Input
-                id="productName"
                 value={selectedNode.data.productName || ""}
                 onChange={(e) =>
                   handleDataChange("productName", e.target.value)
                 }
                 placeholder="e.g., Cool T-Shirt or {{product_name}}"
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="quantity">Quantity</Label>
+              <Field label="Quantity">
                 <Input
-                  id="quantity"
                   type="number"
                   value={selectedNode.data.quantity || 1}
                   onChange={(e) =>
@@ -1246,11 +1229,9 @@ function PropertiesPanel({
                   }
                   placeholder="1"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="price">Price</Label>
+              </Field>
+              <Field label="Price">
                 <Input
-                  id="price"
                   type="number"
                   value={selectedNode.data.price || ""}
                   onChange={(e) =>
@@ -1261,7 +1242,7 @@ function PropertiesPanel({
                   }
                   placeholder="e.g., 25.00 or {{product_price}}"
                 />
-              </div>
+              </Field>
             </div>
           </div>
         );
@@ -1284,14 +1265,12 @@ function PropertiesPanel({
       </CardHeader>
       <ScrollArea className="flex-1">
         <CardBody className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="node-label">Block label</Label>
+          <Field label="Block label">
             <Input
-              id="node-label"
               value={selectedNode.data.label || ""}
               onChange={(e) => handleDataChange("label", e.target.value)}
             />
-          </div>
+          </Field>
           <Separator />
           {renderProperties()}
         </CardBody>
@@ -1299,11 +1278,11 @@ function PropertiesPanel({
       {selectedNode.type !== "start" ? (
         <CardFooter className="border-t border-[var(--st-border)] pt-4">
           <Button
-            variant="destructive"
+            variant="danger"
             block
+            iconLeft={Trash2}
             onClick={() => deleteNode(selectedNode.id)}
           >
-            <Trash2 />
             Delete block
           </Button>
         </CardFooter>
@@ -1312,9 +1291,7 @@ function PropertiesPanel({
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Flows + Blocks panel
-// ──────────────────────────────────────────────────────────────────────
+// Flows and blocks panel.
 function FlowsAndBlocksPanel({
   isLoading,
   flows,
@@ -1337,14 +1314,13 @@ function FlowsAndBlocksPanel({
       <Card>
         <CardHeader className="flex-row items-center justify-between p-3">
           <CardTitle className="text-base">Flows</CardTitle>
-          <Button
+          <IconButton
+            label="New flow"
+            icon={Plus}
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             onClick={handleCreateNewFlow}
-            aria-label="New flow"
-          >
-            <Plus />
-          </Button>
+          />
         </CardHeader>
         <CardBody className="p-2 pt-0">
           <ScrollArea className="h-40">
@@ -1362,21 +1338,20 @@ function FlowsAndBlocksPanel({
                     <Button
                       variant={isActive ? "secondary" : "ghost"}
                       block
+                      iconLeft={FileIcon}
                       className="justify-start font-normal"
                       onClick={() => handleSelectFlow(flow._id.toString())}
                     >
-                      <FileIcon />
                       {flow.name}
                     </Button>
-                    <Button
+                    <IconButton
+                      label="Delete flow"
+                      icon={Trash2}
                       variant="ghost"
-                      size="icon-sm"
+                      size="sm"
                       className="opacity-0 group-hover:opacity-100"
                       onClick={() => handleDeleteFlow(flow._id.toString())}
-                      aria-label="Delete flow"
-                    >
-                      <Trash2 />
-                    </Button>
+                    />
                   </div>
                 );
               })
@@ -1395,10 +1370,10 @@ function FlowsAndBlocksPanel({
                 key={type}
                 variant="outline"
                 block
+                iconLeft={Icon}
                 className="mb-2 justify-start"
                 onClick={() => addNode(type as NodeType)}
               >
-                <Icon />
                 {label}
               </Button>
             ))}
@@ -1409,9 +1384,7 @@ function FlowsAndBlocksPanel({
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────
-// Canvas geometry helpers (preserved from legacy)
-// ──────────────────────────────────────────────────────────────────────
+// Canvas geometry helpers (preserved).
 const NODE_WIDTH = 256;
 
 const getEdgePath = (
@@ -1453,11 +1426,10 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
   return null;
 };
 
-// ──────────────────────────────────────────────────────────────────────
-// Top-level page
-// ──────────────────────────────────────────────────────────────────────
+// Top-level page.
 export default function EcommFlowBuilderPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
   const [flows, setFlows] = useState<WithId<EcommFlow>[]>([]);
@@ -1624,12 +1596,13 @@ export default function EcommFlowBuilderPage() {
         toast({
           title: "Could not save flow",
           description: result.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
         toast({
           title: "Flow saved",
           description: result.message,
+          tone: "success",
         });
         if (result.flowId) {
           await handleSelectFlow(result.flowId);
@@ -1646,10 +1619,10 @@ export default function EcommFlowBuilderPage() {
       toast({
         title: "Could not delete",
         description: result.error,
-        variant: "destructive",
+        tone: "danger",
       });
     } else {
-      toast({ title: "Flow deleted", description: result.message });
+      toast({ title: "Flow deleted", description: result.message, tone: "success" });
       fetchFlows(shop.projectId.toString());
       if (currentFlow?._id.toString() === flowId) {
         handleCreateNewFlow();
@@ -1657,7 +1630,7 @@ export default function EcommFlowBuilderPage() {
     }
   };
 
-  // Canvas event handlers (preserved verbatim)
+  // Canvas event handlers (preserved verbatim).
   const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1820,7 +1793,11 @@ export default function EcommFlowBuilderPage() {
       viewportRef.current
         ?.requestFullscreen()
         ?.catch((err: Error) => {
-          alert(`Error attempting full-screen: ${err.message}`);
+          toast({
+            title: "Could not enter full screen",
+            description: err.message,
+            tone: "danger",
+          });
         });
     } else {
       document.exitFullscreen?.();
@@ -1841,8 +1818,7 @@ export default function EcommFlowBuilderPage() {
 
   if (!shopId || !shop) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
+      <Alert tone="danger" icon={AlertCircle}>
         <AlertTitle>No shop found</AlertTitle>
         <AlertDescription>
           Please select a valid shop to use the chat-bot builder.
@@ -1853,15 +1829,16 @@ export default function EcommFlowBuilderPage() {
 
   return (
     <div className="flex h-full w-full flex-col gap-4">
-      {/* ── Save bar / chrome ── */}
+      {/* Save bar / chrome */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-[var(--st-text-secondary)]" />
+          <Bot className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
           <Input
             id="flow-name-input"
             key={currentFlow?._id.toString() || "new-flow"}
+            aria-label="Flow name"
             defaultValue={currentFlow?.name || "New flow"}
-            className="h-auto border-0 p-0 text-2xl tracking-tight shadow-none focus-visible:ring-0"
+            className="h-auto border-0 bg-transparent p-0 text-2xl tracking-tight shadow-none focus-visible:ring-0"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           />
@@ -1870,37 +1847,44 @@ export default function EcommFlowBuilderPage() {
           <div className="flex items-center gap-2 md:hidden">
             <Button
               variant="outline"
+              iconLeft={PanelLeft}
               onClick={() => setIsBlocksSheetOpen(true)}
             >
-              <PanelLeft />
               Flows &amp; blocks
             </Button>
             {selectedNode ? (
               <Button
                 variant="outline"
+                iconLeft={Settings2}
                 onClick={() => setIsPropsSheetOpen(true)}
               >
-                <Settings2 />
                 Properties
               </Button>
             ) : null}
           </div>
-          <Button variant="outline" asChild>
-            <Link
-              href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder/docs`}
-            >
-              <BookOpen />
-              <span className="hidden sm:inline">View docs</span>
-            </Link>
+          <Button
+            variant="outline"
+            iconLeft={BookOpen}
+            onClick={() =>
+              router.push(
+                `/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder/docs`,
+              )
+            }
+          >
+            <span className="hidden sm:inline">View docs</span>
           </Button>
-          <Button onClick={handleSaveFlow} disabled={isSaving}>
-            {isSaving ? <LoaderCircle className="animate-spin" /> : <Save />}
+          <Button
+            iconLeft={isSaving ? undefined : Save}
+            onClick={handleSaveFlow}
+            disabled={isSaving}
+          >
+            {isSaving ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : null}
             <span className="hidden sm:inline">Save flow</span>
           </Button>
         </div>
       </div>
 
-      {/* ── Workspace grid ── */}
+      {/* Workspace grid */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-12">
         <div className="hidden flex-col gap-4 md:col-span-3 md:flex lg:col-span-2">
           <FlowsAndBlocksPanel
@@ -1969,7 +1953,7 @@ export default function EcommFlowBuilderPage() {
             >
               {isLoading && !currentFlow ? (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+                  <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" aria-hidden="true" />
                 </div>
               ) : (
                 <>
@@ -1984,12 +1968,8 @@ export default function EcommFlowBuilderPage() {
                     />
                   ))}
                   <svg
-                    className="pointer-events-none absolute left-0 top-0"
-                    style={{
-                      width: "5000px",
-                      height: "5000px",
-                      transformOrigin: "top left",
-                    }}
+                    className="pointer-events-none absolute left-0 top-0 h-[5000px] w-[5000px] origin-top-left"
+                    aria-hidden="true"
                   >
                     {edges.map((edge) => {
                       const sourceNode = nodes.find(
@@ -2033,38 +2013,30 @@ export default function EcommFlowBuilderPage() {
               )}
             </div>
             <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-              <Button
+              <IconButton
+                label="Zoom out"
+                icon={ZoomOut}
                 variant="outline"
-                size="icon"
                 onClick={() => handleZoomControls("out")}
-                aria-label="Zoom out"
-              >
-                <ZoomOut />
-              </Button>
-              <Button
+              />
+              <IconButton
+                label="Zoom in"
+                icon={ZoomIn}
                 variant="outline"
-                size="icon"
                 onClick={() => handleZoomControls("in")}
-                aria-label="Zoom in"
-              >
-                <ZoomIn />
-              </Button>
-              <Button
+              />
+              <IconButton
+                label="Reset zoom"
+                icon={Frame}
                 variant="outline"
-                size="icon"
                 onClick={() => handleZoomControls("reset")}
-                aria-label="Reset zoom"
-              >
-                <Frame />
-              </Button>
-              <Button
+              />
+              <IconButton
+                label="Toggle full screen"
+                icon={isFullScreen ? Minimize : Maximize}
                 variant="outline"
-                size="icon"
                 onClick={handleToggleFullScreen}
-                aria-label="Toggle full screen"
-              >
-                {isFullScreen ? <Minimize /> : <Maximize />}
-              </Button>
+              />
             </div>
           </Card>
         </div>

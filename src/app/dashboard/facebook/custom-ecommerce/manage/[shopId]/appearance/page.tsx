@@ -11,6 +11,10 @@ import {
   AlertDialogTitle,
   Button,
   Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   ColorPicker,
   Dialog,
   DialogContent,
@@ -18,6 +22,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Field,
   Input,
   PageActions,
@@ -30,22 +35,16 @@ import {
   Skeleton,
   useToast,
 } from "@/components/sabcrm/20ui";
-import {
-  useEffect,
-  useState,
-  useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft,
-  Brush,
-  LoaderCircle,
-  Save } from "lucide-react";
+import { ArrowLeft, Brush, LoaderCircle, Save, Store } from "lucide-react";
 
 import {
   applyEcommShopTheme,
   getEcommShopById,
   saveEcommShopTheme,
-  } from "@/app/actions/custom-ecommerce.actions";
+} from "@/app/actions/custom-ecommerce.actions";
 import type { EcommShop } from "@/lib/definitions";
 import type { WithId } from "mongodb";
 
@@ -130,12 +129,13 @@ export default function ShopAppearancePage() {
         toast({
           title: "Theme saved",
           description: `"${themeName}" is now stored on this shop.`,
+          tone: "success",
         });
       } else {
         toast({
           title: "Could not save theme",
           description: result.error,
-          variant: "destructive",
+          tone: "danger",
         });
       }
       setSaveOpen(false);
@@ -150,12 +150,13 @@ export default function ShopAppearancePage() {
         toast({
           title: "Could not publish",
           description: result.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
         toast({
           title: "Theme published",
           description: result.message,
+          tone: "success",
         });
       }
       setPublishOpen(false);
@@ -176,16 +177,18 @@ export default function ShopAppearancePage() {
 
   if (!shop) {
     return (
-      <div className="space-y-4">
-        <p className="text-[var(--st-text-secondary)]">
-          This shop could not be loaded.
-        </p>
-        <Link href="/dashboard/facebook/custom-ecommerce">
-          <Button variant="outline" iconLeft={ArrowLeft}>
-            Back to all shops
-          </Button>
-        </Link>
-      </div>
+      <EmptyState
+        icon={Store}
+        title="This shop could not be loaded"
+        description="The shop may have been removed or you no longer have access to it."
+        action={
+          <Link href="/dashboard/facebook/custom-ecommerce">
+            <Button variant="outline" iconLeft={ArrowLeft}>
+              Back to all shops
+            </Button>
+          </Link>
+        }
+      />
     );
   }
 
@@ -212,107 +215,108 @@ export default function ShopAppearancePage() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
         <Card padding="lg">
-          <h3 className="text-[15px] tracking-tight text-[var(--st-text)]">
-            Palette presets
-          </h3>
-          <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
-            Neutral only. Choose how dark the primary surface should be.
-          </p>
-          <RadioGroup
-            className="mt-4 grid grid-cols-2 gap-2"
-            aria-label="Palette preset"
-            value={presetId}
-            onValueChange={handlePickPreset}
-          >
-            {PRESET_PALETTES.map((p) => (
-              <Radio
-                key={p.id}
-                value={p.id}
-                label={
-                  <span className="flex items-center gap-2">
-                    <span
-                      className="h-5 w-5 rounded-full border border-[var(--st-border)]"
-                      style={{ backgroundColor: p.primary }}
-                      aria-hidden="true"
-                    />
-                    {p.label}
-                  </span>
-                }
-              />
-            ))}
-          </RadioGroup>
+          <CardHeader>
+            <CardTitle>Palette presets</CardTitle>
+            <CardDescription>
+              Neutral only. Choose how dark the primary surface should be.
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <RadioGroup
+              className="grid grid-cols-2 gap-2"
+              aria-label="Palette preset"
+              value={presetId}
+              onValueChange={handlePickPreset}
+            >
+              {PRESET_PALETTES.map((p) => (
+                <Radio
+                  key={p.id}
+                  value={p.id}
+                  label={
+                    <span className="flex items-center gap-2">
+                      <span
+                        className="h-5 w-5 rounded-full border border-[var(--st-border)]"
+                        style={{ backgroundColor: p.primary }}
+                        aria-hidden="true"
+                      />
+                      {p.label}
+                    </span>
+                  }
+                />
+              ))}
+            </RadioGroup>
 
-          <div className="mt-6">
-            <Field label="Primary color" help="Used for primary buttons, links, and selection states inside the live storefront.">
-              <ColorPicker
-                value={primary}
-                onChange={(c) => {
-                  setPrimary(c);
-                  setPresetId("custom");
-                }}
-                swatches={NEUTRAL_PRESETS}
-              />
-            </Field>
-          </div>
+            <div className="mt-6">
+              <Field label="Primary color" help="Used for primary buttons, links, and selection states inside the live storefront.">
+                <ColorPicker
+                  value={primary}
+                  onChange={(c) => {
+                    setPrimary(c);
+                    setPresetId("custom");
+                  }}
+                  swatches={NEUTRAL_PRESETS}
+                />
+              </Field>
+            </div>
 
-          <div className="mt-4">
-            <Field label="Theme name">
-              <Input
-                value={themeName}
-                onChange={(e) => setThemeName(e.target.value)}
-                placeholder="e.g. Default"
-              />
-            </Field>
-          </div>
+            <div className="mt-4">
+              <Field label="Theme name">
+                <Input
+                  value={themeName}
+                  onChange={(e) => setThemeName(e.target.value)}
+                  placeholder="e.g. Default"
+                />
+              </Field>
+            </div>
+          </CardBody>
         </Card>
 
         <Card padding="lg">
-          <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
-            <Brush className="h-3.5 w-3.5" aria-hidden="true" />
-            Live preview
-          </div>
-          <h3 className="mt-2 text-[18px] tracking-tight text-[var(--st-text)]">
-            Storefront preview
-          </h3>
-          <div className="mt-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
-            <div className="flex items-center justify-between">
-              <span className="text-[14px] tracking-tight">
-                {shop.name}
-              </span>
-              <Button
-                variant="primary"
-                size="sm"
-                className="rounded-full text-white"
-                style={{ backgroundColor: primary, borderColor: primary }}
-                tabIndex={-1}
-                aria-hidden="true"
-              >
-                Shop now
-              </Button>
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
+          <CardHeader>
+            <span className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
+              <Brush className="h-3.5 w-3.5" aria-hidden="true" />
+              Live preview
+            </span>
+            <CardTitle>Storefront preview</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
+              <div className="flex items-center justify-between">
+                <span className="text-[14px] tracking-tight">
+                  {shop.name}
+                </span>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="rounded-full text-white"
+                  style={{ backgroundColor: primary, borderColor: primary }}
+                  tabIndex={-1}
+                  aria-hidden="true"
                 >
-                  <div className="aspect-square w-full rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]" />
-                  <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
-                    Sample product {i}
-                  </p>
-                  <p
-                    className="mt-1 text-[11px]"
-                    style={{ color: primary }}
+                  Shop now
+                </Button>
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
                   >
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: shop.currency || "USD",
-                    }).format(24)}
-                  </p>
-                </div>
-              ))}
+                    <div className="aspect-square w-full rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]" />
+                    <p className="mt-2 truncate text-[12px] text-[var(--st-text)]">
+                      Sample product {i}
+                    </p>
+                    <p className="mt-1 text-[11px]" style={{ color: primary }}>
+                      {new Intl.NumberFormat("en-US", {
+                        style: "currency",
+                        currency: shop.currency || "USD",
+                      }).format(24)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          </CardBody>
         </Card>
       </div>
 

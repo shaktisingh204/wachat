@@ -192,7 +192,7 @@ export function HeatmapsClient({
                 </CardHeader>
                 <CardBody>
                     <div
-                        className="relative mx-auto aspect-[4/3] overflow-hidden rounded-[var(--st-radius)] border border-[color:var(--st-border)] bg-[color:var(--st-bg-secondary)]"
+                        className="relative mx-auto aspect-[4/3] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
                         style={{ width }}
                     >
                         {/* Stub screenshot. TODO: real screenshot service. */}
@@ -204,7 +204,7 @@ export function HeatmapsClient({
                                 className="absolute inset-0 h-full w-full object-cover opacity-70"
                             />
                         ) : (
-                            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs text-[color:var(--st-text-secondary)]">
+                            <div className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs text-[var(--st-text-secondary)]">
                                 No screenshot yet. Overlay shows click density on a blank canvas.
                             </div>
                         )}
@@ -235,7 +235,7 @@ export function HeatmapsClient({
                         </svg>
 
                         {totalClicks === 0 ? (
-                            <div className="absolute inset-0 flex items-center justify-center bg-[color:var(--st-bg)]/60">
+                            <div className="absolute inset-0 flex items-center justify-center bg-[var(--st-bg)]/60">
                                 <EmptyState
                                     size="sm"
                                     icon={MousePointerClick}

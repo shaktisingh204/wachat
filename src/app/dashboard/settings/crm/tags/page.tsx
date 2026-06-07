@@ -396,7 +396,6 @@ function TagRow({
             icon={Trash2}
             size="sm"
             variant="danger"
-            loading={busy}
             disabled={busy}
             onClick={() => onDelete(tag)}
           />

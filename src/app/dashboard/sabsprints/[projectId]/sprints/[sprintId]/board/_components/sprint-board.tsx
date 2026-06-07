@@ -7,7 +7,14 @@
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Dot,
+  type BadgeTone,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   completeSprint,
   startSprint,
@@ -19,11 +26,11 @@ import type {
   AgileStoryStatus,
 } from '@/lib/rust-client/agile-stories';
 
-const COLUMNS: Array<{ key: AgileStoryStatus; label: string; tint: string }> = [
-  { key: 'todo', label: 'To Do', tint: '#94a3b8' },
-  { key: 'in_progress', label: 'In Progress', tint: '#2563eb' },
-  { key: 'review', label: 'Review', tint: '#d97706' },
-  { key: 'done', label: 'Done', tint: '#16a34a' },
+const COLUMNS: Array<{ key: AgileStoryStatus; label: string; tone: BadgeTone }> = [
+  { key: 'todo', label: 'To Do', tone: 'neutral' },
+  { key: 'in_progress', label: 'In Progress', tone: 'info' },
+  { key: 'review', label: 'Review', tone: 'warning' },
+  { key: 'done', label: 'Done', tone: 'success' },
 ];
 
 interface Props {
@@ -75,7 +82,7 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
         toast({
           title: 'Could not start sprint',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     });
@@ -83,9 +90,7 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
 
   function handleComplete() {
     const planned = sumPoints(stories);
-    const completed = sumPoints(
-      stories.filter((s) => s.status === 'done'),
-    );
+    const completed = sumPoints(stories.filter((s) => s.status === 'done'));
     startTransition(async () => {
       const res = await completeSprint(sprint._id, projectId, {
         sprintName: sprint.name,
@@ -96,13 +101,14 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
         toast({
           title: 'Could not complete sprint',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
       toast({
         title: 'Sprint completed',
         description: `${completed}/${planned} pts logged to velocity.`,
+        tone: 'success',
       });
     });
   }
@@ -111,24 +117,32 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
     <div className="flex flex-col gap-4">
       <Card className="flex items-center justify-between gap-3 p-4">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">{sprint.name}</h2>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">
+            {sprint.name}
+          </h2>
           {sprint.goal ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">{sprint.goal}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">
+              {sprint.goal}
+            </p>
           ) : null}
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="ghost">{sprint.status}</Badge>
+          <Badge tone="neutral">{sprint.status}</Badge>
           <Link
             href={`/dashboard/sabsprints/${projectId}/sprints/${sprint._id}/burndown`}
           >
             <Button variant="outline">Burndown</Button>
           </Link>
           {sprint.status === 'planned' ? (
-            <Button onClick={handleStart} disabled={isPending}>
+            <Button variant="primary" onClick={handleStart} disabled={isPending}>
               Start sprint
             </Button>
           ) : sprint.status === 'active' ? (
-            <Button onClick={handleComplete} disabled={isPending}>
+            <Button
+              variant="primary"
+              onClick={handleComplete}
+              disabled={isPending}
+            >
               Complete sprint
             </Button>
           ) : null}
@@ -147,17 +161,13 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
             >
               <header className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span
-                    aria-hidden
-                    className="inline-block h-2 w-2 rounded-full"
-                    style={{ backgroundColor: col.tint }}
-                  />
+                  <Dot tone={col.tone} aria-hidden="true" />
                   <h3 className="text-sm font-semibold text-[var(--st-text)]">
                     {col.label}
                   </h3>
                 </div>
                 <span className="text-xs text-[var(--st-text-tertiary)]">
-                  {items.length} &middot; {sumPoints(items)} pts
+                  {items.length} items, {sumPoints(items)} pts
                 </span>
               </header>
               <ul className="flex flex-col gap-2">
@@ -169,9 +179,11 @@ export function SprintBoard({ projectId, sprint, initialStories }: Props) {
                     onDragEnd={() => setDraggingId(null)}
                     className="cursor-grab rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2"
                   >
-                    <p className="text-sm text-[var(--st-text)] line-clamp-2">{s.title}</p>
+                    <p className="line-clamp-2 text-sm text-[var(--st-text)]">
+                      {s.title}
+                    </p>
                     <div className="mt-1 flex items-center justify-between text-xs">
-                      <Badge variant="ghost">{s.priority}</Badge>
+                      <Badge tone="neutral">{s.priority}</Badge>
                       <span className="text-[var(--st-text-tertiary)]">
                         {s.points ?? 0} pts
                       </span>

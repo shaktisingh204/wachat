@@ -1,17 +1,36 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle, Input, Checkbox } from '@/components/sabcrm/20ui';
-import { useToast } from '@/components/sabcrm/20ui';
-import { useState, useMemo, useEffect } from 'react';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageActions,
+  Field,
+  Input,
+  Checkbox,
+  EmptyState,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';
 import { InstagramIcon } from '@/components/zoruui-domain/custom-sidebar-components';
-import { ArrowRight, Wrench, Download, Search, Settings } from 'lucide-react';
+import { ArrowRight, Wrench, Download, Search } from 'lucide-react';
 import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useRef } from 'react';
 
 type ProjectWithIg = WithId<Project> & { instagramProfile?: any };
 
@@ -60,27 +79,25 @@ function exportToPDF(data: ProjectWithIg[]) {
   doc.save('instagram_connections.pdf');
 }
 
-
-
 export default function ConnectionsClient({ initialProjects }: { initialProjects: ProjectWithIg[] }) {
   const [projects, setProjects] = useState<ProjectWithIg[]>(initialProjects);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const router = useRouter();
-  const { toast: zoruToast } = useToast();
-  
+  const { toast } = useToast();
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   // Mock WebSocket for real-time updates
   useEffect(() => {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://echo.websocket.events';
     const ws = new WebSocket(wsUrl);
-    
+
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'UPDATE_CONNECTION') {
-          setProjects((prev) => 
+          setProjects((prev) =>
             prev.map((p) => (p._id.toString() === data.projectId ? { ...p, instagramProfile: { ...p.instagramProfile, ...data.payload } } : p))
           );
         }
@@ -131,14 +148,14 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
 
   const handleBulkDisconnect = () => {
     if (selectedIds.size === 0) return;
-    
+
     // Optimistic UI Update
-    const newProjects = projects.filter(p => !selectedIds.has(p._id.toString()));
+    const newProjects = projects.filter((p) => !selectedIds.has(p._id.toString()));
     setProjects(newProjects);
     setSelectedIds(new Set());
-    
-    zoruToast({
-      title: 'Accounts Disconnected',
+
+    toast.success({
+      title: 'Accounts disconnected',
       description: 'Successfully removed selected connections.',
     });
   };
@@ -146,58 +163,54 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
   return (
     <div className="flex flex-col gap-8 h-[calc(100vh-100px)] overflow-hidden">
       <PageHeader>
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <PageHeading>
-            <PageTitle>
-              <span className="inline-flex items-center gap-3">
-                <InstagramIcon className="h-7 w-7" />
-                Instagram Connections
-              </span>
-            </PageTitle>
-            <PageDescription>
-              Select an Instagram Business Account to manage or disconnect.
-            </PageDescription>
-          </PageHeading>
+        <PageHeading>
+          <PageTitle>
+            <span className="inline-flex items-center gap-3">
+              <InstagramIcon className="h-7 w-7" aria-hidden="true" />
+              Instagram Connections
+            </span>
+          </PageTitle>
+          <PageDescription>
+            Select an Instagram Business Account to manage or disconnect.
+          </PageDescription>
+        </PageHeading>
 
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => exportToCSV(filteredProjects)} title="Export to CSV">
-              <Download className="mr-2 h-4 w-4" /> CSV
-            </Button>
-            <Button variant="outline" onClick={() => exportToPDF(filteredProjects)} title="Export to PDF">
-              <Download className="mr-2 h-4 w-4" /> PDF
-            </Button>
-          </div>
-        </div>
+        <PageActions>
+          <Button variant="outline" iconLeft={Download} onClick={() => exportToCSV(filteredProjects)}>
+            CSV
+          </Button>
+          <Button variant="outline" iconLeft={Download} onClick={() => exportToPDF(filteredProjects)}>
+            PDF
+          </Button>
+        </PageActions>
       </PageHeader>
 
       {projects.length > 0 ? (
         <>
-          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-[var(--st-bg-secondary)] p-4 rounded-lg border shadow-sm shrink-0">
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-[var(--st-text-secondary)]" />
-              <Input
-                placeholder="Search accounts..."
-                className="pl-9 w-full"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-sm shrink-0">
+            <div className="w-full md:w-96">
+              <Field label="Search accounts">
+                <Input
+                  iconLeft={Search}
+                  placeholder="Search accounts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Field>
             </div>
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-3 w-full md:w-auto">
                 <span className="text-sm text-[var(--st-text-secondary)] whitespace-nowrap">
                   {selectedIds.size} selected
                 </span>
-                <Button variant="destructive" onClick={handleBulkDisconnect}>
+                <Button variant="danger" onClick={handleBulkDisconnect}>
                   Disconnect Selected
                 </Button>
               </div>
             )}
           </div>
 
-          <div 
-            ref={parentRef}
-            className="flex-1 overflow-auto pr-4"
-          >
+          <div ref={parentRef} className="flex-1 overflow-auto pr-4">
             <div
               className="relative w-full"
               style={{
@@ -221,14 +234,18 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                       {rowItems.map((p) => {
                         const { instagramProfile } = p;
                         const isSelected = selectedIds.has(p._id.toString());
-                        
+
                         return (
-                          <Card key={p._id.toString()} className={`flex flex-col p-0 transition-shadow ${isSelected ? 'ring-2 ring-primary' : ''}`}>
-                            <CardHeader className="flex-row items-center gap-4 pb-2">
+                          <Card
+                            key={p._id.toString()}
+                            padding="none"
+                            className={`flex flex-col transition-shadow ${isSelected ? 'ring-2 ring-[var(--st-accent)]' : ''}`}
+                          >
+                            <CardHeader className="flex flex-row items-center gap-4 pb-2">
                               <div className="flex items-center gap-4 flex-1">
-                                <Checkbox 
+                                <Checkbox
                                   checked={isSelected}
-                                  onCheckedChange={() => toggleSelect(p._id.toString())}
+                                  onChange={() => toggleSelect(p._id.toString())}
                                   aria-label="Select account"
                                 />
                                 <Avatar className="h-12 w-12">
@@ -237,7 +254,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                                     alt={instagramProfile?.username}
                                   />
                                   <AvatarFallback>
-                                    <InstagramIcon className="h-6 w-6" />
+                                    <InstagramIcon className="h-6 w-6" aria-hidden="true" />
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="overflow-hidden">
@@ -247,7 +264,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                               </div>
                             </CardHeader>
                             <CardBody className="flex-grow pt-2">
-                              <div className="grid grid-cols-2 gap-4 bg-[var(--st-bg-muted)]/30 p-3 rounded-md">
+                              <div className="grid grid-cols-2 gap-4 bg-[var(--st-bg-muted)] p-3 rounded-[var(--st-radius)]">
                                 <div>
                                   <p className="text-xs text-[var(--st-text-secondary)] mb-1">Followers</p>
                                   <p className="font-semibold text-sm">
@@ -263,8 +280,8 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
                               </div>
                             </CardBody>
                             <CardFooter>
-                              <Button onClick={() => handleSelectProject(p)} block className="w-full">
-                                Manage Account <ArrowRight className="ml-2 h-4 w-4" />
+                              <Button block iconRight={ArrowRight} onClick={() => handleSelectProject(p)}>
+                                Manage Account
                               </Button>
                             </CardFooter>
                           </Card>
@@ -276,30 +293,28 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
               })}
             </div>
           </div>
-          
+
           {filteredProjects.length === 0 && (
-             <div className="text-center py-12 text-[var(--st-text-secondary)]">
-               No accounts match your search.
-             </div>
+            <EmptyState
+              icon={Search}
+              title="No accounts match your search"
+              description="Try a different name or clear the search to see every connected account."
+            />
           )}
         </>
       ) : (
-        <Card className="text-center py-12 p-6">
-          <CardBody className="space-y-4">
-            <p className="text-lg text-[var(--st-text)]">No Instagram Accounts Found</p>
-            <p className="text-[var(--st-text-secondary)] max-w-md mx-auto">
-              We couldn&apos;t find any Instagram Business Accounts linked to your connected
-              Facebook Pages. Please ensure they are properly connected in your Meta Business
-              Suite.
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/dashboard/instagram/setup">
-                <Wrench className="mr-2 h-4 w-4" />
+        <EmptyState
+          icon={InstagramIcon as any}
+          title="No Instagram Accounts Found"
+          description="We couldn't find any Instagram Business Accounts linked to your connected Facebook Pages. Please ensure they are properly connected in your Meta Business Suite."
+          action={
+            <Link href="/dashboard/instagram/setup">
+              <Button variant="outline" iconLeft={Wrench}>
                 Go to Setup
-              </Link>
-            </Button>
-          </CardBody>
-        </Card>
+              </Button>
+            </Link>
+          }
+        />
       )}
     </div>
   );

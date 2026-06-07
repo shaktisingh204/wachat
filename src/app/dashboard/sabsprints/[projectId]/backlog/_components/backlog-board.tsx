@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Backlog board — prioritised, drag-reorderable list grouped by epic.
+ * Backlog board - prioritised, drag-reorderable list grouped by epic.
  *
  * Drag uses native HTML5 DnD (no extra dep). We commit reorder via a single
  * `reorderStories` action: each item gets a new linear `rank` derived from
@@ -10,7 +10,19 @@
  */
 import { useMemo, useState, useTransition } from 'react';
 
-import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, EmptyState } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  EmptyState,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   createStory,
   reorderStories,
@@ -24,12 +36,9 @@ import type {
   AgileStoryPriority,
 } from '@/lib/rust-client/agile-stories';
 
-const PRIORITY_VARIANTS: Record<
-  AgileStoryPriority,
-  'ghost' | 'success' | 'warning' | 'danger'
-> = {
-  low: 'ghost',
-  medium: 'success',
+const PRIORITY_TONES: Record<AgileStoryPriority, BadgeTone> = {
+  low: 'neutral',
+  medium: 'info',
   high: 'warning',
   urgent: 'danger',
 };
@@ -146,7 +155,8 @@ export function BacklogBoard({
           <Input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="New story title…"
+            placeholder="New story title"
+            aria-label="New story title"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -154,7 +164,11 @@ export function BacklogBoard({
               }
             }}
           />
-          <Button onClick={handleCreate} disabled={isPending || !newTitle.trim()}>
+          <Button
+            variant="primary"
+            onClick={handleCreate}
+            disabled={isPending || !newTitle.trim()}
+          >
             Add story
           </Button>
         </div>
@@ -170,11 +184,18 @@ export function BacklogBoard({
           {grouped.map((row) => (
             <section key={row.epicId ?? 'none'} className="flex flex-col gap-2">
               <header className="flex items-center gap-2">
-                <span
-                  aria-hidden
-                  className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: row.color ?? 'var(--st-border-strong)' }}
-                />
+                {row.color ? (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: row.color }}
+                  />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-border-strong)]"
+                  />
+                )}
                 <h2 className="text-sm font-semibold text-[var(--st-text)]">
                   {row.epicName}
                 </h2>
@@ -200,7 +221,7 @@ export function BacklogBoard({
                       className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 hover:border-[var(--st-border-strong)] cursor-grab"
                     >
                       <span
-                        aria-hidden
+                        aria-hidden="true"
                         className="text-xs text-[var(--st-text-tertiary)] font-mono w-6"
                       >
                         #{overallIdx + 1}
@@ -208,13 +229,14 @@ export function BacklogBoard({
                       <span className="flex-1 truncate text-sm text-[var(--st-text)]">
                         {s.title}
                       </span>
-                      <Badge variant={PRIORITY_VARIANTS[s.priority] ?? 'ghost'}>
+                      <Badge tone={PRIORITY_TONES[s.priority] ?? 'neutral'}>
                         {s.priority}
                       </Badge>
                       <Input
                         type="number"
                         min={0}
                         step={1}
+                        inputSize="sm"
                         className="w-16 text-right"
                         defaultValue={s.points ?? ''}
                         onBlur={(e) => {
@@ -228,12 +250,19 @@ export function BacklogBoard({
                       <Select
                         onValueChange={(value) => handleMoveToSprint(s._id, value)}
                       >
-                        <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Move to sprint…" />
+                        <SelectTrigger
+                          className="w-40"
+                          aria-label={`Move ${s.title} to sprint`}
+                        >
+                          <SelectValue placeholder="Move to sprint" />
                         </SelectTrigger>
                         <SelectContent>
                           {sprints
-                            .filter((sp) => sp.status !== 'completed' && sp.status !== 'cancelled')
+                            .filter(
+                              (sp) =>
+                                sp.status !== 'completed' &&
+                                sp.status !== 'cancelled',
+                            )
                             .map((sp) => (
                               <SelectItem key={sp._id} value={sp._id}>
                                 {sp.name}

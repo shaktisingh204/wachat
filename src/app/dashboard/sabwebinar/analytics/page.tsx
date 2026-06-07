@@ -204,7 +204,7 @@ export default function AnalyticsPage() {
             <CardTitle>Top webinars</CardTitle>
             <CardDescription>Your highest-performing sessions in the selected range.</CardDescription>
           </CardHeader>
-          <CardBody style={{ paddingTop: 0 }}>
+          <CardBody className="!pt-0">
             {TOP_WEBINARS.length === 0 ? (
               <EmptyState
                 icon={PresentationIcon}

@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useCallback, useMemo } from 'react';
-import { Calendar, dateFnsLocalizer, Event } from 'react-big-calendar';
+import { useCallback, useMemo } from 'react';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import withDragAndDrop, { withDragAndDropProps } from 'react-big-calendar/lib/addons/dragAndDrop';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
+import { CalendarClock } from 'lucide-react';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 
 import { FacebookPost } from '@/lib/definitions';
 import { handleReschedulePost } from '@/app/actions/facebook.actions';
-import { useToast } from '@/components/sabcrm/20ui';
+import { EmptyState, useToast } from '@/components/sabcrm/20ui';
 
 const locales = {
   'en-US': enUS,
@@ -50,7 +51,7 @@ export function ScheduledCalendar({ posts, projectId, onActionComplete }: Schedu
   }, [posts]);
 
   const onEventDrop: withDragAndDropProps['onEventDrop'] = useCallback(
-    async ({ event, start, end }) => {
+    async ({ event, start }) => {
       const postId = (event as any).id;
       const newScheduledTime = Math.floor(new Date(start as Date).getTime() / 1000);
 
@@ -60,25 +61,38 @@ export function ScheduledCalendar({ posts, projectId, onActionComplete }: Schedu
           toast({
             title: 'Post rescheduled',
             description: 'The post has been successfully rescheduled.',
+            tone: 'success',
           });
           onActionComplete();
         } else {
           toast({
             title: 'Error',
             description: res.error || 'Failed to reschedule post.',
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       } catch (err: any) {
         toast({
           title: 'Error',
           description: err.message || 'An error occurred.',
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     },
     [projectId, onActionComplete, toast]
   );
+
+  if (events.length === 0) {
+    return (
+      <div className="w-full bg-[var(--st-bg)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] p-10">
+        <EmptyState
+          icon={CalendarClock}
+          title="No scheduled posts"
+          description="Posts you schedule will appear here. Drag a post to a new slot to reschedule it."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[600px] w-full bg-[var(--st-bg)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] overflow-hidden p-4">
@@ -88,7 +102,7 @@ export function ScheduledCalendar({ posts, projectId, onActionComplete }: Schedu
         onEventDrop={onEventDrop}
         resizable={false}
         defaultView="month"
-        style={{ height: '100%' }}
+        className="h-full"
       />
     </div>
   );

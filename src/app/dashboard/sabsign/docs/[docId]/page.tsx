@@ -239,7 +239,7 @@ export default function SabwriterDocEditorPage() {
     return (
       <div className="flex items-center gap-2 p-6 text-sm text-[var(--st-text-secondary)]">
         <Spinner size="sm" label="Loading document" />
-        <span>Loading document…</span>
+        <span>Loading document...</span>
       </div>
     );
   }
@@ -311,7 +311,7 @@ export default function SabwriterDocEditorPage() {
             loading={saving}
             disabled={!dirty || saving}
           >
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="primary" size="sm" iconLeft={Send} onClick={handleSendForSignature}>
             Send for signature
@@ -334,7 +334,7 @@ export default function SabwriterDocEditorPage() {
               setDirty(true);
             }}
             className="min-h-[60vh] font-sans text-base leading-relaxed"
-            placeholder="Start writing…"
+            placeholder="Start writing..."
             aria-label="Document body"
           />
         </div>
@@ -401,7 +401,7 @@ export default function SabwriterDocEditorPage() {
                 <Textarea
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Leave a comment…"
+                  placeholder="Leave a comment..."
                   rows={2}
                 />
               </Field>

@@ -697,7 +697,11 @@ function CanvasInner({
                     return (
                         <div
                             key={el._id}
-                            className="absolute"
+                            className={`absolute ${
+                                sel
+                                    ? 'outline outline-2 outline-[var(--st-accent)]'
+                                    : ''
+                            }`}
                             style={{
                                 left: `${xPct}%`,
                                 top: `${yPct}%`,
@@ -706,7 +710,6 @@ function CanvasInner({
                                 transform: el.rotation
                                     ? `rotate(${el.rotation}deg)`
                                     : undefined,
-                                outline: sel ? '2px solid var(--st-accent)' : undefined,
                             }}
                             onMouseDown={(e) => {
                                 e.stopPropagation();

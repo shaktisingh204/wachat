@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { Card } from '@/components/sabcrm/20ui';
+import { Users } from 'lucide-react';
+import {
+  Badge,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  EmptyState,
+  Progress,
+} from '@/components/sabcrm/20ui';
 
 export function ResourceUtilizationOverlay({ rows }: { rows: any[] }) {
   // Aggregate tasks by owner to show utilization
@@ -10,34 +19,49 @@ export function ResourceUtilizationOverlay({ rows }: { rows: any[] }) {
     acc[r.ownerName] = (acc[r.ownerName] || 0) + (r.tasksCount || 0);
     return acc;
   }, {} as Record<string, number>);
-  
-  const entries = Object.entries(byOwner).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  const entries = Object.entries(byOwner)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  const peak = entries[0]?.[1] || 1;
 
   return (
-    <Card className="p-6 relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
-        <div className="w-32 h-32 bg-[var(--st-text)] rounded-full blur-3xl"></div>
-      </div>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[16px] font-semibold text-[var(--st-text)]">Resource Utilization</h2>
-        <span className="text-[12px] text-[var(--st-text-secondary)]">Top assigned</span>
-      </div>
-      <div className="space-y-3 relative z-10">
-        {entries.map(([owner, count]) => (
-          <div key={owner} className="flex flex-col gap-1">
-            <div className="flex justify-between text-[12px]">
-              <span>{owner}</span>
-              <span className="font-medium">{count} tasks</span>
-            </div>
-            <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-1.5">
-              <div
-                className="bg-[var(--st-text)] h-1.5 rounded-full"
-                style={{ width: `${Math.min(100, (count / (entries[0]?.[1] || 1)) * 100)}%` }}
-              ></div>
-            </div>
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle>Resource Utilization</CardTitle>
+        <Badge tone="neutral" kind="soft">
+          Top assigned
+        </Badge>
+      </CardHeader>
+      <CardBody>
+        {entries.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title="No assigned work yet"
+            description="Assign tasks to owners to see how the team's workload is distributed."
+            size="sm"
+          />
+        ) : (
+          <div className="space-y-3">
+            {entries.map(([owner, count]) => (
+              <div key={owner} className="flex flex-col gap-1.5">
+                <div className="flex justify-between text-[12px]">
+                  <span className="text-[var(--st-text)]">{owner}</span>
+                  <span className="font-medium text-[var(--st-text-secondary)]">
+                    {count} tasks
+                  </span>
+                </div>
+                <Progress
+                  value={Math.min(100, (count / peak) * 100)}
+                  size="sm"
+                  aria-label={`${owner}: ${count} tasks`}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </CardBody>
     </Card>
   );
 }
