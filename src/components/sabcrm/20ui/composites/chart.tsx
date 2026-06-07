@@ -6,12 +6,12 @@ import * as Recharts from "recharts";
 import { cn } from "./lib/cn";
 
 /**
- * Neutral palette used by ZoruChart. Pure greyscale only — for visual
+ * Neutral palette used by SabChart. Pure greyscale only — for visual
  * separation between series, use stroke pattern or shape variation
  * rather than hue. Charts in zoru are deliberately quiet; reach for
  * a dedicated viz component if you need rainbow categorical colours.
  */
-export const ZORU_CHART_PALETTE = [
+export const SAB_CHART_PALETTE = [
   "hsl(var(--st-text))",
   "hsl(var(--st-text-secondary))",
   "hsl(var(--st-text-tertiary))",
@@ -19,21 +19,21 @@ export const ZORU_CHART_PALETTE = [
   "hsl(var(--st-border))",
 ] as const;
 
-export interface ZoruChartContainerProps
+export interface SabChartContainerProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /** Height in px or any CSS length. Defaults to 280. */
   height?: number | string;
   config?: unknown;
 }
 
-export function ZoruChartContainer({
+export function SabChartContainer({
   className,
   config: _config,
   height = 280,
   children,
   style,
   ...props
-}: ZoruChartContainerProps) {
+}: SabChartContainerProps) {
   return (
     <div
       className={cn("w-full", className)}
@@ -47,7 +47,7 @@ export function ZoruChartContainer({
   );
 }
 
-export interface ZoruChartTooltipProps {
+export interface SabChartTooltipProps {
   active?: boolean;
   payload?: Array<{
     name?: string;
@@ -59,12 +59,12 @@ export interface ZoruChartTooltipProps {
   className?: string;
 }
 
-export function ZoruChartTooltip({
+export function SabChartTooltip({
   active,
   payload,
   label,
   className,
-}: ZoruChartTooltipProps) {
+}: SabChartTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div
@@ -99,8 +99,8 @@ export function ZoruChartTooltip({
 }
 
 /**
- * ZoruChart re-exports the Recharts primitives directly so users get
+ * SabChart re-exports the Recharts primitives directly so users get
  * the full API. The container + tooltip + palette above are the only
  * pieces this wrapper opinionates.
  */
-export const ZoruChart = Recharts;
+export const SabChart = Recharts;

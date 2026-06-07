@@ -7,9 +7,9 @@ import { X } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export const ZoruToastProvider = ToastPrimitive.Provider;
+export const SabToastProvider = ToastPrimitive.Provider;
 
-export const ZoruToastViewport = React.forwardRef<
+export const SabToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
@@ -22,7 +22,7 @@ export const ZoruToastViewport = React.forwardRef<
     {...props}
   />
 ));
-ZoruToastViewport.displayName = "ZoruToastViewport";
+SabToastViewport.displayName = "SabToastViewport";
 
 const toastVariants = cva(
   [
@@ -52,13 +52,13 @@ const toastVariants = cva(
   },
 );
 
-export interface ZoruToastProps
+export interface SabToastProps
   extends React.ComponentPropsWithoutRef<typeof ToastPrimitive.Root>,
     VariantProps<typeof toastVariants> {}
 
-export const ZoruToast = React.forwardRef<
+export const SabToast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Root>,
-  ZoruToastProps
+  SabToastProps
 >(({ className, variant, ...props }, ref) => (
   <ToastPrimitive.Root
     ref={ref}
@@ -66,9 +66,9 @@ export const ZoruToast = React.forwardRef<
     {...props}
   />
 ));
-ZoruToast.displayName = "ZoruToast";
+SabToast.displayName = "SabToast";
 
-export const ZoruToastAction = React.forwardRef<
+export const SabToastAction = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Action>
 >(({ className, ...props }, ref) => (
@@ -81,9 +81,9 @@ export const ZoruToastAction = React.forwardRef<
     {...props}
   />
 ));
-ZoruToastAction.displayName = "ZoruToastAction";
+SabToastAction.displayName = "SabToastAction";
 
-export const ZoruToastClose = React.forwardRef<
+export const SabToastClose = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Close>
 >(({ className, ...props }, ref) => (
@@ -100,9 +100,9 @@ export const ZoruToastClose = React.forwardRef<
     <X className="h-3.5 w-3.5" />
   </ToastPrimitive.Close>
 ));
-ZoruToastClose.displayName = "ZoruToastClose";
+SabToastClose.displayName = "SabToastClose";
 
-export const ZoruToastTitle = React.forwardRef<
+export const SabToastTitle = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Title>
 >(({ className, ...props }, ref) => (
@@ -113,9 +113,9 @@ export const ZoruToastTitle = React.forwardRef<
     {...props}
   />
 ));
-ZoruToastTitle.displayName = "ZoruToastTitle";
+SabToastTitle.displayName = "SabToastTitle";
 
-export const ZoruToastDescription = React.forwardRef<
+export const SabToastDescription = React.forwardRef<
   React.ElementRef<typeof ToastPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitive.Description>
 >(({ className, ...props }, ref) => (
@@ -125,6 +125,6 @@ export const ZoruToastDescription = React.forwardRef<
     {...props}
   />
 ));
-ZoruToastDescription.displayName = "ZoruToastDescription";
+SabToastDescription.displayName = "SabToastDescription";
 
-export type ZoruToastActionElement = React.ReactElement<typeof ZoruToastAction>;
+export type SabToastActionElement = React.ReactElement<typeof SabToastAction>;

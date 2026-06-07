@@ -19,17 +19,17 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { cn } from "./lib/cn";
 import { Button } from "./button";
 
-export interface ZoruFullscreenCalendarEvent {
+export interface SabFullscreenCalendarEvent {
   id: string;
   date: Date;
   title: React.ReactNode;
   meta?: React.ReactNode;
 }
 
-export interface ZoruFullscreenCalendarProps {
+export interface SabFullscreenCalendarProps {
   /** Initial month rendered. Defaults to the current month. */
   defaultMonth?: Date;
-  events?: ZoruFullscreenCalendarEvent[];
+  events?: SabFullscreenCalendarEvent[];
   onSelectDate?: (date: Date) => void;
   onCreateEvent?: (date: Date) => void;
   className?: string;
@@ -39,13 +39,13 @@ export interface ZoruFullscreenCalendarProps {
  * Month-grid calendar that fills its parent container. Each cell shows
  * up to 3 events; click a cell to call `onSelectDate`.
  */
-export function ZoruFullscreenCalendar({
+export function SabFullscreenCalendar({
   defaultMonth = new Date(),
   events = [],
   onSelectDate,
   onCreateEvent,
   className,
-}: ZoruFullscreenCalendarProps) {
+}: SabFullscreenCalendarProps) {
   const [month, setMonth] = React.useState(defaultMonth);
 
   const days = React.useMemo(() => {
@@ -61,7 +61,7 @@ export function ZoruFullscreenCalendar({
   }, [month]);
 
   const eventsByDay = React.useMemo(() => {
-    const map = new Map<string, ZoruFullscreenCalendarEvent[]>();
+    const map = new Map<string, SabFullscreenCalendarEvent[]>();
     for (const e of events) {
       const key = format(e.date, "yyyy-MM-dd");
       const arr = map.get(key) ?? [];

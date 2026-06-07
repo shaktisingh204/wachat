@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { cn } from "../lib/cn";
 
-export interface ZoruHeaderProps extends React.HTMLAttributes<HTMLElement> {
+export interface SabHeaderProps extends React.HTMLAttributes<HTMLElement> {
   /** Left slot — typically breadcrumb / page title. */
   leading?: React.ReactNode;
   /** Center slot — typically a global search input. */
@@ -19,14 +19,14 @@ export interface ZoruHeaderProps extends React.HTMLAttributes<HTMLElement> {
  * Top header bar — neutral, 56px tall, with three composable slots.
  * Generic; pass slots from your layout instead of baking in nav state.
  */
-export function ZoruHeader({
+export function SabHeader({
   leading,
   center,
   trailing,
   sticky = true,
   className,
   ...props
-}: ZoruHeaderProps) {
+}: SabHeaderProps) {
   return (
     <header
       className={cn(

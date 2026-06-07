@@ -5,21 +5,21 @@ import * as React from "react";
 import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  SabDialogContent,
+  SabDialogDescription,
+  SabDialogFooter,
+  SabDialogHeader,
+  SabDialogTitle,
 } from "@/components/sabcrm/20ui/composites/dialog";
 import {
-  ZoruFileUploadCard,
-  type ZoruFileUploadItem,
+  SabFileUploadCard,
+  type SabFileUploadItem,
 } from "../file-upload-card";
 
-export interface ZoruFileUploadDialogProps {
+export interface SabFileUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  items?: ZoruFileUploadItem[];
+  items?: SabFileUploadItem[];
   onFilesSelected: (files: File[]) => void;
   onRemove?: (id: string) => void;
   accept?: string;
@@ -30,7 +30,7 @@ export interface ZoruFileUploadDialogProps {
   onDone?: () => void;
 }
 
-export function ZoruFileUploadDialog({
+export function SabFileUploadDialog({
   open,
   onOpenChange,
   items,
@@ -41,17 +41,17 @@ export function ZoruFileUploadDialog({
   maxSize,
   hint,
   onDone,
-}: ZoruFileUploadDialogProps) {
+}: SabFileUploadDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>Upload files</ZoruDialogTitle>
-          <ZoruDialogDescription>
+      <SabDialogContent className="max-w-xl">
+        <SabDialogHeader>
+          <SabDialogTitle>Upload files</SabDialogTitle>
+          <SabDialogDescription>
             Drag-and-drop or browse to add files to this folder.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-        <ZoruFileUploadCard
+          </SabDialogDescription>
+        </SabDialogHeader>
+        <SabFileUploadCard
           accept={accept}
           multiple={multiple}
           maxSize={maxSize}
@@ -60,7 +60,7 @@ export function ZoruFileUploadDialog({
           onFilesSelected={onFilesSelected}
           onRemove={onRemove}
         />
-        <ZoruDialogFooter>
+        <SabDialogFooter>
           <Button
             onClick={() => {
               onDone?.();
@@ -69,8 +69,8 @@ export function ZoruFileUploadDialog({
           >
             Done
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </SabDialogFooter>
+      </SabDialogContent>
     </Dialog>
   );
 }

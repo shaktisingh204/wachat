@@ -1,38 +1,38 @@
 /**
  * Files module — composed file browser surface plus its 5 dialogs.
- * Use `ZoruFilesPage` for the all-in-one experience, or assemble from
+ * Use `SabFilesPage` for the all-in-one experience, or assemble from
  * the individual pieces (toolbar / grid / list / dialogs) for custom
  * layouts.
  */
 export {
-  ZoruFilesPage,
-  type ZoruFilesPageProps,
+  SabFilesPage,
+  type SabFilesPageProps,
 } from "./files-page";
 export {
-  ZoruFileToolbar,
-  type ZoruFileToolbarProps,
+  SabFileToolbar,
+  type SabFileToolbarProps,
 } from "./file-toolbar";
-export { ZoruFileGrid, type ZoruFileGridProps } from "./file-grid";
-export { ZoruFileList, type ZoruFileListProps } from "./file-list";
+export { SabFileGrid, type SabFileGridProps } from "./file-grid";
+export { SabFileList, type SabFileListProps } from "./file-list";
 export {
-  ZoruFilePreviewDialog,
-  type ZoruFilePreviewDialogProps,
+  SabFilePreviewDialog,
+  type SabFilePreviewDialogProps,
 } from "./file-preview-dialog";
 export {
-  ZoruFileRenameDialog,
-  type ZoruFileRenameDialogProps,
+  SabFileRenameDialog,
+  type SabFileRenameDialogProps,
 } from "./file-rename-dialog";
 export {
-  ZoruFileDeleteDialog,
-  type ZoruFileDeleteDialogProps,
+  SabFileDeleteDialog,
+  type SabFileDeleteDialogProps,
 } from "./file-delete-dialog";
 export {
-  ZoruFileShareDialog,
-  type ZoruFileShareDialogProps,
-  type ZoruFileShareAccess,
+  SabFileShareDialog,
+  type SabFileShareDialogProps,
+  type SabFileShareAccess,
 } from "./file-share-dialog";
 export {
-  ZoruFileUploadDialog,
-  type ZoruFileUploadDialogProps,
+  SabFileUploadDialog,
+  type SabFileUploadDialogProps,
 } from "./file-upload-dialog";
-export type { ZoruFileEntity, ZoruFileView } from "./types";
+export type { SabFileEntity, SabFileView } from "./types";

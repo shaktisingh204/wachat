@@ -7,16 +7,16 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 import { cn } from "./lib/cn";
 
 export const DropdownMenu = DropdownMenuPrimitive.Root;
-export const ZoruDropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
-export const ZoruDropdownMenuGroup = DropdownMenuPrimitive.Group;
-export const ZoruDropdownMenuPortal = DropdownMenuPrimitive.Portal;
-export const ZoruDropdownMenuSub = DropdownMenuPrimitive.Sub;
-export const ZoruDropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
+export const SabDropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
+export const SabDropdownMenuGroup = DropdownMenuPrimitive.Group;
+export const SabDropdownMenuPortal = DropdownMenuPrimitive.Portal;
+export const SabDropdownMenuSub = DropdownMenuPrimitive.Sub;
+export const SabDropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 const itemBase =
   "relative flex cursor-default select-none items-center gap-2 rounded-[var(--st-radius-sm)] px-2.5 py-2 text-sm outline-none text-[var(--st-text)] transition-colors focus:bg-[var(--st-bg-muted)] data-[highlighted]:bg-[var(--st-bg-muted)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
 
-export const ZoruDropdownMenuSubTrigger = React.forwardRef<
+export const SabDropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubTrigger> & {
     inset?: boolean;
@@ -31,9 +31,9 @@ export const ZoruDropdownMenuSubTrigger = React.forwardRef<
     <ChevronRight className="ml-auto h-4 w-4 text-[var(--st-text-secondary)]" />
   </DropdownMenuPrimitive.SubTrigger>
 ));
-ZoruDropdownMenuSubTrigger.displayName = "ZoruDropdownMenuSubTrigger";
+SabDropdownMenuSubTrigger.displayName = "SabDropdownMenuSubTrigger";
 
-export const ZoruDropdownMenuSubContent = React.forwardRef<
+export const SabDropdownMenuSubContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubContent>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
@@ -49,13 +49,13 @@ export const ZoruDropdownMenuSubContent = React.forwardRef<
     {...props}
   />
 ));
-ZoruDropdownMenuSubContent.displayName = "ZoruDropdownMenuSubContent";
+SabDropdownMenuSubContent.displayName = "SabDropdownMenuSubContent";
 
-export const ZoruDropdownMenuContent = React.forwardRef<
+export const SabDropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
 >(({ className, sideOffset = 6, ...props }, ref) => (
-  <ZoruDropdownMenuPortal>
+  <SabDropdownMenuPortal>
     <DropdownMenuPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
@@ -70,11 +70,11 @@ export const ZoruDropdownMenuContent = React.forwardRef<
       )}
       {...props}
     />
-  </ZoruDropdownMenuPortal>
+  </SabDropdownMenuPortal>
 ));
-ZoruDropdownMenuContent.displayName = "ZoruDropdownMenuContent";
+SabDropdownMenuContent.displayName = "SabDropdownMenuContent";
 
-export const ZoruDropdownMenuItem = React.forwardRef<
+export const SabDropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> & {
     inset?: boolean;
@@ -92,9 +92,9 @@ export const ZoruDropdownMenuItem = React.forwardRef<
     {...props}
   />
 ));
-ZoruDropdownMenuItem.displayName = "ZoruDropdownMenuItem";
+SabDropdownMenuItem.displayName = "SabDropdownMenuItem";
 
-export const ZoruDropdownMenuCheckboxItem = React.forwardRef<
+export const SabDropdownMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>
 >(({ className, children, checked, ...props }, ref) => (
@@ -112,9 +112,9 @@ export const ZoruDropdownMenuCheckboxItem = React.forwardRef<
     {children}
   </DropdownMenuPrimitive.CheckboxItem>
 ));
-ZoruDropdownMenuCheckboxItem.displayName = "ZoruDropdownMenuCheckboxItem";
+SabDropdownMenuCheckboxItem.displayName = "SabDropdownMenuCheckboxItem";
 
-export const ZoruDropdownMenuRadioItem = React.forwardRef<
+export const SabDropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.RadioItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.RadioItem>
 >(({ className, children, ...props }, ref) => (
@@ -131,9 +131,9 @@ export const ZoruDropdownMenuRadioItem = React.forwardRef<
     {children}
   </DropdownMenuPrimitive.RadioItem>
 ));
-ZoruDropdownMenuRadioItem.displayName = "ZoruDropdownMenuRadioItem";
+SabDropdownMenuRadioItem.displayName = "SabDropdownMenuRadioItem";
 
-export const ZoruDropdownMenuLabel = React.forwardRef<
+export const SabDropdownMenuLabel = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Label> & {
     inset?: boolean;
@@ -149,9 +149,9 @@ export const ZoruDropdownMenuLabel = React.forwardRef<
     {...props}
   />
 ));
-ZoruDropdownMenuLabel.displayName = "ZoruDropdownMenuLabel";
+SabDropdownMenuLabel.displayName = "SabDropdownMenuLabel";
 
-export const ZoruDropdownMenuSeparator = React.forwardRef<
+export const SabDropdownMenuSeparator = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
@@ -161,9 +161,9 @@ export const ZoruDropdownMenuSeparator = React.forwardRef<
     {...props}
   />
 ));
-ZoruDropdownMenuSeparator.displayName = "ZoruDropdownMenuSeparator";
+SabDropdownMenuSeparator.displayName = "SabDropdownMenuSeparator";
 
-export function ZoruDropdownMenuShortcut({
+export function SabDropdownMenuShortcut({
   className,
   ...props
 }: React.HTMLAttributes<HTMLSpanElement>) {
@@ -179,18 +179,18 @@ export function ZoruDropdownMenuShortcut({
 }
 
 // Backward compatibility transitional aliases
-export const DropdownMenuTrigger = ZoruDropdownMenuTrigger;
-export const DropdownMenuGroup = ZoruDropdownMenuGroup;
-export const DropdownMenuPortal = ZoruDropdownMenuPortal;
-export const DropdownMenuSub = ZoruDropdownMenuSub;
-export const DropdownMenuRadioGroup = ZoruDropdownMenuRadioGroup;
-export const DropdownMenuSubTrigger = ZoruDropdownMenuSubTrigger;
-export const DropdownMenuSubContent = ZoruDropdownMenuSubContent;
-export const DropdownMenuContent = ZoruDropdownMenuContent;
-export const DropdownMenuItem = ZoruDropdownMenuItem;
-export const DropdownMenuCheckboxItem = ZoruDropdownMenuCheckboxItem;
-export const DropdownMenuRadioItem = ZoruDropdownMenuRadioItem;
-export const DropdownMenuLabel = ZoruDropdownMenuLabel;
-export const DropdownMenuSeparator = ZoruDropdownMenuSeparator;
-export const DropdownMenuShortcut = ZoruDropdownMenuShortcut;
+export const DropdownMenuTrigger = SabDropdownMenuTrigger;
+export const DropdownMenuGroup = SabDropdownMenuGroup;
+export const DropdownMenuPortal = SabDropdownMenuPortal;
+export const DropdownMenuSub = SabDropdownMenuSub;
+export const DropdownMenuRadioGroup = SabDropdownMenuRadioGroup;
+export const DropdownMenuSubTrigger = SabDropdownMenuSubTrigger;
+export const DropdownMenuSubContent = SabDropdownMenuSubContent;
+export const DropdownMenuContent = SabDropdownMenuContent;
+export const DropdownMenuItem = SabDropdownMenuItem;
+export const DropdownMenuCheckboxItem = SabDropdownMenuCheckboxItem;
+export const DropdownMenuRadioItem = SabDropdownMenuRadioItem;
+export const DropdownMenuLabel = SabDropdownMenuLabel;
+export const DropdownMenuSeparator = SabDropdownMenuSeparator;
+export const DropdownMenuShortcut = SabDropdownMenuShortcut;
 

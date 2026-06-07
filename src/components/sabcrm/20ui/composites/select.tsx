@@ -7,10 +7,10 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "./lib/cn";
 
 export const Select = SelectPrimitive.Root;
-export const ZoruSelectGroup = SelectPrimitive.Group;
-export const ZoruSelectValue = SelectPrimitive.Value;
+export const SabSelectGroup = SelectPrimitive.Group;
+export const SabSelectValue = SelectPrimitive.Value;
 
-export const ZoruSelectTrigger = React.forwardRef<
+export const SabSelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
@@ -33,9 +33,9 @@ export const ZoruSelectTrigger = React.forwardRef<
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
-ZoruSelectTrigger.displayName = "ZoruSelectTrigger";
+SabSelectTrigger.displayName = "SabSelectTrigger";
 
-const ZoruSelectScrollUp = React.forwardRef<
+const SabSelectScrollUp = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
 >(({ className, ...props }, ref) => (
@@ -47,9 +47,9 @@ const ZoruSelectScrollUp = React.forwardRef<
     <ChevronUp className="h-4 w-4" data-stop />
   </SelectPrimitive.ScrollUpButton>
 ));
-ZoruSelectScrollUp.displayName = "ZoruSelectScrollUpButton";
+SabSelectScrollUp.displayName = "SabSelectScrollUpButton";
 
-const ZoruSelectScrollDown = React.forwardRef<
+const SabSelectScrollDown = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
 >(({ className, ...props }, ref) => (
@@ -61,9 +61,9 @@ const ZoruSelectScrollDown = React.forwardRef<
     <ChevronDown className="h-4 w-4" data-stop />
   </SelectPrimitive.ScrollDownButton>
 ));
-ZoruSelectScrollDown.displayName = "ZoruSelectScrollDownButton";
+SabSelectScrollDown.displayName = "SabSelectScrollDownButton";
 
-export const ZoruSelectContent = React.forwardRef<
+export const SabSelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
@@ -83,7 +83,7 @@ export const ZoruSelectContent = React.forwardRef<
       )}
       {...props}
     >
-      <ZoruSelectScrollUp />
+      <SabSelectScrollUp />
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
@@ -93,13 +93,13 @@ export const ZoruSelectContent = React.forwardRef<
       >
         {children}
       </SelectPrimitive.Viewport>
-      <ZoruSelectScrollDown />
+      <SabSelectScrollDown />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
-ZoruSelectContent.displayName = "ZoruSelectContent";
+SabSelectContent.displayName = "SabSelectContent";
 
-export const ZoruSelectLabel = React.forwardRef<
+export const SabSelectLabel = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
 >(({ className, ...props }, ref) => (
@@ -109,9 +109,9 @@ export const ZoruSelectLabel = React.forwardRef<
     {...props}
   />
 ));
-ZoruSelectLabel.displayName = "ZoruSelectLabel";
+SabSelectLabel.displayName = "SabSelectLabel";
 
-export const ZoruSelectItem = React.forwardRef<
+export const SabSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
@@ -134,9 +134,9 @@ export const ZoruSelectItem = React.forwardRef<
     </span>
   </SelectPrimitive.Item>
 ));
-ZoruSelectItem.displayName = "ZoruSelectItem";
+SabSelectItem.displayName = "SabSelectItem";
 
-export const ZoruSelectSeparator = React.forwardRef<
+export const SabSelectSeparator = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
 >(({ className, ...props }, ref) => (
@@ -146,14 +146,14 @@ export const ZoruSelectSeparator = React.forwardRef<
     {...props}
   />
 ));
-ZoruSelectSeparator.displayName = "ZoruSelectSeparator";
+SabSelectSeparator.displayName = "SabSelectSeparator";
 
 // Backward compatibility transitional aliases
-export const SelectGroup = ZoruSelectGroup;
-export const SelectValue = ZoruSelectValue;
-export const SelectTrigger = ZoruSelectTrigger;
-export const SelectContent = ZoruSelectContent;
-export const SelectLabel = ZoruSelectLabel;
-export const SelectItem = ZoruSelectItem;
-export const SelectSeparator = ZoruSelectSeparator;
+export const SelectGroup = SabSelectGroup;
+export const SelectValue = SabSelectValue;
+export const SelectTrigger = SabSelectTrigger;
+export const SelectContent = SabSelectContent;
+export const SelectLabel = SabSelectLabel;
+export const SelectItem = SabSelectItem;
+export const SelectSeparator = SabSelectSeparator;
 

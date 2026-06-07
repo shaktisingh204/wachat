@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruEmptyStateProps
+export interface SabEmptyStateProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   icon?: React.ReactNode;
   title: React.ReactNode;
@@ -20,7 +20,7 @@ export function EmptyState({
   compact,
   className,
   ...props
-}: ZoruEmptyStateProps) {
+}: SabEmptyStateProps) {
   return (
     <div
       className={cn(

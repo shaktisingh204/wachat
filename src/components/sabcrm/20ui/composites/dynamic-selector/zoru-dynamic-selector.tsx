@@ -6,7 +6,7 @@ import { Check, ChevronDown, Loader2, Plus, Search } from "lucide-react";
 import { cn } from "../lib/cn";
 import { Button } from "../button";
 import { Input } from "../input";
-import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "../popover";
+import { Popover, SabPopoverContent, SabPopoverTrigger } from "../popover";
 
 export interface DynamicSelectorOption {
   id: string;
@@ -15,7 +15,7 @@ export interface DynamicSelectorOption {
   badge?: React.ReactNode;
 }
 
-export interface ZoruDynamicSelectorProps {
+export interface SabDynamicSelectorProps {
   /** Loader for existing options. Called with the current search query. */
   fetchOptions: (search: string) => Promise<DynamicSelectorOption[]>;
   /** Currently selected option id (controlled). */
@@ -43,7 +43,7 @@ export interface ZoruDynamicSelectorProps {
   selectedLabel?: string | null;
 }
 
-export function ZoruDynamicSelector({
+export function SabDynamicSelector({
   fetchOptions,
   value,
   onChange,
@@ -55,7 +55,7 @@ export function ZoruDynamicSelector({
   disabled,
   block = true,
   selectedLabel,
-}: ZoruDynamicSelectorProps) {
+}: SabDynamicSelectorProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [options, setOptions] = React.useState<DynamicSelectorOption[]>([]);
@@ -122,7 +122,7 @@ export function ZoruDynamicSelector({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <SabPopoverTrigger asChild>
         <button
           type="button"
           disabled={disabled}
@@ -138,8 +138,8 @@ export function ZoruDynamicSelector({
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         </button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+      </SabPopoverTrigger>
+      <SabPopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <div className="border-b border-[var(--st-border)] p-2">
           <Input
             autoFocus
@@ -223,7 +223,7 @@ export function ZoruDynamicSelector({
             {error}
           </p>
         )}
-      </ZoruPopoverContent>
+      </SabPopoverContent>
     </Popover>
   );
 }

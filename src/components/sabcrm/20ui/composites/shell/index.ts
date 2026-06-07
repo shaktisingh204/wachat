@@ -1,24 +1,24 @@
 /**
- * ZoruUI shell — composable chrome for the dashboard / admin / public
- * surfaces. Mount via `ZoruShell` and pass rail / sidebar / header /
+ * SabUI shell — composable chrome for the dashboard / admin / public
+ * surfaces. Mount via `SabShell` and pass rail / sidebar / header /
  * dock slots. Step 8 wires the admin instance, step 9 wires the
  * dashboard instance.
  */
-export { ZoruShell, type ZoruShellProps } from "./zoru-shell";
+export { SabShell, type SabShellProps } from "./zoru-shell";
 export {
-  ZoruAppRail,
-  type ZoruAppRailItem,
-  type ZoruAppRailProps,
+  SabAppRail,
+  type SabAppRailItem,
+  type SabAppRailProps,
 } from "./zoru-app-rail";
 export {
-  ZoruAppSidebar,
-  type ZoruAppSidebarProps,
-  type ZoruSidebarGroup,
-  type ZoruSidebarLeaf,
+  SabAppSidebar,
+  type SabAppSidebarProps,
+  type SabSidebarGroup,
+  type SabSidebarLeaf,
 } from "./zoru-app-sidebar";
-export { ZoruHeader, type ZoruHeaderProps } from "./zoru-header";
-export { ZoruDock, ZoruDockIcon, type ZoruDockAccent } from "./zoru-dock";
+export { SabHeader, type SabHeaderProps } from "./zoru-header";
+export { SabDock, SabDockIcon, type SabDockAccent } from "./zoru-dock";
 export {
-  ZoruHomeShell,
-  type ZoruHomeShellProps,
+  SabHomeShell,
+  type SabHomeShellProps,
 } from "./zoru-home-shell";

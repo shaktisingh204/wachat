@@ -5,36 +5,36 @@ import { Download, FolderOpen, Pencil, Share2, Star, StarOff, Trash2 } from "luc
 
 import {
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  SabDropdownMenuContent,
+  SabDropdownMenuItem,
+  SabDropdownMenuSeparator,
+  SabDropdownMenuTrigger,
 } from "@/components/sabcrm/20ui/composites/dropdown-menu";
 
-import { ZoruFileDeleteDialog } from "./file-delete-dialog";
-import { ZoruFileGrid } from "./file-grid";
-import { ZoruFileList } from "./file-list";
-import { ZoruFilePreviewDialog } from "./file-preview-dialog";
-import { ZoruFileRenameDialog } from "./file-rename-dialog";
-import { ZoruFileShareDialog } from "./file-share-dialog";
-import { ZoruFileToolbar } from "./file-toolbar";
-import { ZoruFileUploadDialog } from "./file-upload-dialog";
+import { SabFileDeleteDialog } from "./file-delete-dialog";
+import { SabFileGrid } from "./file-grid";
+import { SabFileList } from "./file-list";
+import { SabFilePreviewDialog } from "./file-preview-dialog";
+import { SabFileRenameDialog } from "./file-rename-dialog";
+import { SabFileShareDialog } from "./file-share-dialog";
+import { SabFileToolbar } from "./file-toolbar";
+import { SabFileUploadDialog } from "./file-upload-dialog";
 
-import type { ZoruFileEntity, ZoruFileView } from "./types";
+import type { SabFileEntity, SabFileView } from "./types";
 
-export interface ZoruFilesPageProps {
-  files: ZoruFileEntity[];
-  defaultView?: ZoruFileView;
-  shareUrlFor?: (file: ZoruFileEntity) => string | undefined;
+export interface SabFilesPageProps {
+  files: SabFileEntity[];
+  defaultView?: SabFileView;
+  shareUrlFor?: (file: SabFileEntity) => string | undefined;
   onUpload?: (files: File[]) => void;
-  onRename?: (file: ZoruFileEntity, newName: string) => void;
-  onDelete?: (files: ZoruFileEntity[]) => void;
-  onDownload?: (file: ZoruFileEntity) => void;
-  onShareInvite?: (file: ZoruFileEntity, email: string, access: "viewer" | "editor") => void;
+  onRename?: (file: SabFileEntity, newName: string) => void;
+  onDelete?: (files: SabFileEntity[]) => void;
+  onDownload?: (file: SabFileEntity) => void;
+  onShareInvite?: (file: SabFileEntity, email: string, access: "viewer" | "editor") => void;
   onCopyShareLink?: (url: string) => void;
   onNewFolder?: () => void;
-  onStar?: (file: ZoruFileEntity, star: boolean) => void;
-  onNavigateFolder?: (file: ZoruFileEntity) => void;
+  onStar?: (file: SabFileEntity, star: boolean) => void;
+  onNavigateFolder?: (file: SabFileEntity) => void;
   /** Empty-state node for when there are no files. */
   empty?: React.ReactNode;
   className?: string;
@@ -45,7 +45,7 @@ export interface ZoruFilesPageProps {
  * rename, delete, share, upload). Drop into any page that needs a
  * file browser; pass handlers to wire it to your storage layer.
  */
-export function ZoruFilesPage({
+export function SabFilesPage({
   files,
   defaultView = "grid",
   shareUrlFor,
@@ -60,17 +60,17 @@ export function ZoruFilesPage({
   onNavigateFolder,
   empty,
   className,
-}: ZoruFilesPageProps) {
-  const [view, setView] = React.useState<ZoruFileView>(defaultView);
+}: SabFilesPageProps) {
+  const [view, setView] = React.useState<SabFileView>(defaultView);
   const [query, setQuery] = React.useState("");
 
-  const [previewFile, setPreviewFile] = React.useState<ZoruFileEntity | null>(null);
-  const [renameFile, setRenameFile] = React.useState<ZoruFileEntity | null>(null);
-  const [shareFile, setShareFile] = React.useState<ZoruFileEntity | null>(null);
-  const [deleteFiles, setDeleteFiles] = React.useState<ZoruFileEntity[] | null>(null);
+  const [previewFile, setPreviewFile] = React.useState<SabFileEntity | null>(null);
+  const [renameFile, setRenameFile] = React.useState<SabFileEntity | null>(null);
+  const [shareFile, setShareFile] = React.useState<SabFileEntity | null>(null);
+  const [deleteFiles, setDeleteFiles] = React.useState<SabFileEntity[] | null>(null);
   const [uploadOpen, setUploadOpen] = React.useState(false);
 
-  const [actionTarget, setActionTarget] = React.useState<ZoruFileEntity | null>(null);
+  const [actionTarget, setActionTarget] = React.useState<SabFileEntity | null>(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const filtered = React.useMemo(() => {
@@ -82,7 +82,7 @@ export function ZoruFilesPage({
   return (
     <div className={className}>
       <div className="flex flex-col gap-4">
-        <ZoruFileToolbar
+        <SabFileToolbar
           query={query}
           onQueryChange={setQuery}
           view={view}
@@ -92,7 +92,7 @@ export function ZoruFilesPage({
         />
 
         {view === "grid" ? (
-          <ZoruFileGrid
+          <SabFileGrid
             files={filtered}
             onOpen={(file) => {
               if (file.isFolder && onNavigateFolder) {
@@ -108,7 +108,7 @@ export function ZoruFilesPage({
             empty={empty}
           />
         ) : (
-          <ZoruFileList
+          <SabFileList
             files={filtered}
             onOpen={(file) => {
               if (file.isFolder && onNavigateFolder) {
@@ -135,29 +135,29 @@ export function ZoruFilesPage({
           if (!open) setActionTarget(null);
         }}
       >
-        <ZoruDropdownMenuTrigger asChild>
+        <SabDropdownMenuTrigger asChild>
           <span aria-hidden className="sr-only" />
-        </ZoruDropdownMenuTrigger>
-        <ZoruDropdownMenuContent align="end" className="w-44">
+        </SabDropdownMenuTrigger>
+        <SabDropdownMenuContent align="end" className="w-44">
           {actionTarget?.isFolder && onNavigateFolder && (
-            <ZoruDropdownMenuItem
+            <SabDropdownMenuItem
               onSelect={() => {
                 if (actionTarget) onNavigateFolder(actionTarget);
               }}
             >
               <FolderOpen /> Open
-            </ZoruDropdownMenuItem>
+            </SabDropdownMenuItem>
           )}
-          <ZoruDropdownMenuItem
+          <SabDropdownMenuItem
             onSelect={() => {
               if (actionTarget) setRenameFile(actionTarget);
             }}
             disabled={!onRename}
           >
             <Pencil /> Rename
-          </ZoruDropdownMenuItem>
+          </SabDropdownMenuItem>
           {onStar && (
-            <ZoruDropdownMenuItem
+            <SabDropdownMenuItem
               onSelect={() => {
                 if (actionTarget) onStar(actionTarget, !actionTarget.starred);
               }}
@@ -171,26 +171,26 @@ export function ZoruFilesPage({
                   <Star /> Star
                 </>
               )}
-            </ZoruDropdownMenuItem>
+            </SabDropdownMenuItem>
           )}
-          <ZoruDropdownMenuItem
+          <SabDropdownMenuItem
             onSelect={() => {
               if (actionTarget) setShareFile(actionTarget);
             }}
           >
             <Share2 /> Share
-          </ZoruDropdownMenuItem>
+          </SabDropdownMenuItem>
           {onDownload && (
-            <ZoruDropdownMenuItem
+            <SabDropdownMenuItem
               onSelect={() => {
                 if (actionTarget) onDownload(actionTarget);
               }}
             >
               <Download /> Download
-            </ZoruDropdownMenuItem>
+            </SabDropdownMenuItem>
           )}
-          <ZoruDropdownMenuSeparator />
-          <ZoruDropdownMenuItem
+          <SabDropdownMenuSeparator />
+          <SabDropdownMenuItem
             destructive
             disabled={!onDelete}
             onSelect={() => {
@@ -198,22 +198,22 @@ export function ZoruFilesPage({
             }}
           >
             <Trash2 /> Delete
-          </ZoruDropdownMenuItem>
-        </ZoruDropdownMenuContent>
+          </SabDropdownMenuItem>
+        </SabDropdownMenuContent>
       </DropdownMenu>
 
-      <ZoruFilePreviewDialog
+      <SabFilePreviewDialog
         file={previewFile}
         onOpenChange={(open) => !open && setPreviewFile(null)}
       />
 
-      <ZoruFileRenameDialog
+      <SabFileRenameDialog
         file={renameFile}
         onOpenChange={(open) => !open && setRenameFile(null)}
         onRename={(file, name) => onRename?.(file, name)}
       />
 
-      <ZoruFileShareDialog
+      <SabFileShareDialog
         file={shareFile}
         shareUrl={shareFile && shareUrlFor ? shareUrlFor(shareFile) : undefined}
         onOpenChange={(open) => !open && setShareFile(null)}
@@ -221,13 +221,13 @@ export function ZoruFilesPage({
         onCopyLink={onCopyShareLink}
       />
 
-      <ZoruFileDeleteDialog
+      <SabFileDeleteDialog
         files={deleteFiles}
         onOpenChange={(open) => !open && setDeleteFiles(null)}
         onConfirm={(arr) => onDelete?.(arr)}
       />
 
-      <ZoruFileUploadDialog
+      <SabFileUploadDialog
         open={uploadOpen}
         onOpenChange={setUploadOpen}
         onFilesSelected={(arr) => onUpload?.(arr)}

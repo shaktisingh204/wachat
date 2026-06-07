@@ -8,7 +8,7 @@ import { cn } from "./lib/cn";
 
 export const Accordion = AccordionPrimitive.Root;
 
-export const ZoruAccordionItem = React.forwardRef<
+export const SabAccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
@@ -18,9 +18,9 @@ export const ZoruAccordionItem = React.forwardRef<
     {...props}
   />
 ));
-ZoruAccordionItem.displayName = "ZoruAccordionItem";
+SabAccordionItem.displayName = "SabAccordionItem";
 
-export const ZoruAccordionTrigger = React.forwardRef<
+export const SabAccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
@@ -41,9 +41,9 @@ export const ZoruAccordionTrigger = React.forwardRef<
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
-ZoruAccordionTrigger.displayName = "ZoruAccordionTrigger";
+SabAccordionTrigger.displayName = "SabAccordionTrigger";
 
-export const ZoruAccordionContent = React.forwardRef<
+export const SabAccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
@@ -55,16 +55,16 @@ export const ZoruAccordionContent = React.forwardRef<
     <div className={cn("pb-4 pt-0 leading-relaxed", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
-ZoruAccordionContent.displayName = "ZoruAccordionContent";
+SabAccordionContent.displayName = "SabAccordionContent";
 
 /**
- * ZoruAccordion03 — boxed variant. Each item is its own card with a
+ * SabAccordion03 — boxed variant. Each item is its own card with a
  * plus/minus toggle and rounded edges. Use for FAQ sections where
  * separation between items is more important than density.
  */
-export const ZoruAccordion03 = AccordionPrimitive.Root;
+export const SabAccordion03 = AccordionPrimitive.Root;
 
-export const ZoruAccordion03Item = React.forwardRef<
+export const SabAccordion03Item = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
@@ -77,9 +77,9 @@ export const ZoruAccordion03Item = React.forwardRef<
     {...props}
   />
 ));
-ZoruAccordion03Item.displayName = "ZoruAccordion03Item";
+SabAccordion03Item.displayName = "SabAccordion03Item";
 
-export const ZoruAccordion03Trigger = React.forwardRef<
+export const SabAccordion03Trigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
@@ -100,9 +100,9 @@ export const ZoruAccordion03Trigger = React.forwardRef<
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
-ZoruAccordion03Trigger.displayName = "ZoruAccordion03Trigger";
+SabAccordion03Trigger.displayName = "SabAccordion03Trigger";
 
-export const ZoruAccordion03Content = React.forwardRef<
+export const SabAccordion03Content = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>
 >(({ className, children, ...props }, ref) => (
@@ -114,4 +114,4 @@ export const ZoruAccordion03Content = React.forwardRef<
     <div className={cn("pb-5 pt-0 leading-relaxed", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
-ZoruAccordion03Content.displayName = "ZoruAccordion03Content";
+SabAccordion03Content.displayName = "SabAccordion03Content";

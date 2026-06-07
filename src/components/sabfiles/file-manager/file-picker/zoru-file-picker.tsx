@@ -7,11 +7,11 @@ import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
 import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  SabDialogContent,
+  SabDialogDescription,
+  SabDialogFooter,
+  SabDialogHeader,
+  SabDialogTitle,
 } from "@/components/sabcrm/20ui/composites/dialog";
 import { Input } from "@/components/sabcrm/20ui/composites/input";
 import {
@@ -21,8 +21,8 @@ import {
   type LibraryFileTag,
 } from "@/app/actions/files.actions";
 
-export interface ZoruFilePickerProps {
-  /** Controlled open state. Pair with <ZoruFilePicker.Trigger> for uncontrolled. */
+export interface SabFilePickerProps {
+  /** Controlled open state. Pair with <SabFilePicker.Trigger> for uncontrolled. */
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Callback when a file is picked (either selected from library or freshly uploaded). */
@@ -41,14 +41,14 @@ const TAGS: { id: LibraryFileTag | "all"; label: string }[] = [
   { id: "document", label: "Documents" },
 ];
 
-export function ZoruFilePicker({
+export function SabFilePicker({
   open,
   onOpenChange,
   onPick,
   accept = "all",
   title = "Pick a file",
   description = "Choose from your library or upload a new file.",
-}: ZoruFilePickerProps) {
+}: SabFilePickerProps) {
   const [tab, setTab] = React.useState<"library" | "upload">("library");
   const [tag, setTag] = React.useState<LibraryFileTag | "all">(accept);
   const [search, setSearch] = React.useState("");
@@ -96,11 +96,11 @@ export function ZoruFilePicker({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-3xl">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>{title}</ZoruDialogTitle>
-          <ZoruDialogDescription>{description}</ZoruDialogDescription>
-        </ZoruDialogHeader>
+      <SabDialogContent className="max-w-3xl">
+        <SabDialogHeader>
+          <SabDialogTitle>{title}</SabDialogTitle>
+          <SabDialogDescription>{description}</SabDialogDescription>
+        </SabDialogHeader>
 
         <div className="flex gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-surface)] p-1">
           {(["library", "upload"] as const).map((id) => (
@@ -208,12 +208,12 @@ export function ZoruFilePicker({
           </div>
         )}
 
-        <ZoruDialogFooter>
+        <SabDialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-        </ZoruDialogFooter>
-      </ZoruDialogContent>
+        </SabDialogFooter>
+      </SabDialogContent>
     </Dialog>
   );
 }
@@ -293,14 +293,14 @@ function UploadDropzone({
 }
 
 /* ────────────────────────────────────────────────────────────────────
- * <ZoruFileInput> — drop-in replacement for the old "paste a URL"
+ * <SabFileInput> — drop-in replacement for the old "paste a URL"
  * input. Renders a button-styled control showing the picked file name
  * (or a placeholder), opens the picker on click, and exposes the
  * picked URL/id via the controlled `value` / `onChange` API so it can
  * stand in wherever a string URL was being collected.
  * ────────────────────────────────────────────────────────────────── */
 
-export interface ZoruFileInputProps {
+export interface SabFileInputProps {
   /** Currently picked file (preferred — gives a nicer label). */
   value?: LibraryFile | null;
   /** Called with the picked file, or null when cleared. */
@@ -314,7 +314,7 @@ export interface ZoruFileInputProps {
   pickerTitle?: React.ReactNode;
 }
 
-export function ZoruFileInput({
+export function SabFileInput({
   value,
   onChange,
   placeholder = "Pick a file",
@@ -322,7 +322,7 @@ export function ZoruFileInput({
   className,
   disabled,
   pickerTitle,
-}: ZoruFileInputProps) {
+}: SabFileInputProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -371,7 +371,7 @@ export function ZoruFileInput({
           </span>
         )}
       </button>
-      <ZoruFilePicker
+      <SabFilePicker
         open={open}
         onOpenChange={setOpen}
         accept={accept}

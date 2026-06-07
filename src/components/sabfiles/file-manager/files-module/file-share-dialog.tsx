@@ -6,43 +6,43 @@ import { Copy, Link as LinkIcon, Mail } from "lucide-react";
 import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  SabDialogContent,
+  SabDialogDescription,
+  SabDialogFooter,
+  SabDialogHeader,
+  SabDialogTitle,
 } from "@/components/sabcrm/20ui/composites/dialog";
 import { Input } from "@/components/sabcrm/20ui/composites/input";
 import { Label } from "@/components/sabcrm/20ui/composites/label";
 import {
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  SabSelectContent,
+  SabSelectItem,
+  SabSelectTrigger,
+  SabSelectValue,
 } from "@/components/sabcrm/20ui/composites/select";
 
-import type { ZoruFileEntity } from "./types";
+import type { SabFileEntity } from "./types";
 
-export type ZoruFileShareAccess = "viewer" | "editor";
+export type SabFileShareAccess = "viewer" | "editor";
 
-export interface ZoruFileShareDialogProps {
-  file: ZoruFileEntity | null;
+export interface SabFileShareDialogProps {
+  file: SabFileEntity | null;
   shareUrl?: string;
   onOpenChange: (open: boolean) => void;
-  onInvite?: (file: ZoruFileEntity, email: string, access: ZoruFileShareAccess) => void;
+  onInvite?: (file: SabFileEntity, email: string, access: SabFileShareAccess) => void;
   onCopyLink?: (url: string) => void;
 }
 
-export function ZoruFileShareDialog({
+export function SabFileShareDialog({
   file,
   shareUrl,
   onOpenChange,
   onInvite,
   onCopyLink,
-}: ZoruFileShareDialogProps) {
+}: SabFileShareDialogProps) {
   const [email, setEmail] = React.useState("");
-  const [access, setAccess] = React.useState<ZoruFileShareAccess>("viewer");
+  const [access, setAccess] = React.useState<SabFileShareAccess>("viewer");
 
   React.useEffect(() => {
     setEmail("");
@@ -51,15 +51,15 @@ export function ZoruFileShareDialog({
 
   return (
     <Dialog open={!!file} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-md">
+      <SabDialogContent className="max-w-md">
         {file && (
           <>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>Share &quot;{file.name}&quot;</ZoruDialogTitle>
-              <ZoruDialogDescription>
+            <SabDialogHeader>
+              <SabDialogTitle>Share &quot;{file.name}&quot;</SabDialogTitle>
+              <SabDialogDescription>
                 Invite teammates by email or copy a shareable link.
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
+              </SabDialogDescription>
+            </SabDialogHeader>
 
             <div className="space-y-3">
               <div className="flex flex-col gap-1.5">
@@ -74,14 +74,14 @@ export function ZoruFileShareDialog({
                     leadingSlot={<Mail />}
                     className="flex-1"
                   />
-                  <Select value={access} onValueChange={(v) => setAccess(v as ZoruFileShareAccess)}>
-                    <ZoruSelectTrigger className="w-32">
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="viewer">Viewer</ZoruSelectItem>
-                      <ZoruSelectItem value="editor">Editor</ZoruSelectItem>
-                    </ZoruSelectContent>
+                  <Select value={access} onValueChange={(v) => setAccess(v as SabFileShareAccess)}>
+                    <SabSelectTrigger className="w-32">
+                      <SabSelectValue />
+                    </SabSelectTrigger>
+                    <SabSelectContent>
+                      <SabSelectItem value="viewer">Viewer</SabSelectItem>
+                      <SabSelectItem value="editor">Editor</SabSelectItem>
+                    </SabSelectContent>
                   </Select>
                   <Button
                     onClick={() => {
@@ -116,14 +116,14 @@ export function ZoruFileShareDialog({
               )}
             </div>
 
-            <ZoruDialogFooter>
+            <SabDialogFooter>
               <Button variant="ghost" onClick={() => onOpenChange(false)}>
                 Done
               </Button>
-            </ZoruDialogFooter>
+            </SabDialogFooter>
           </>
         )}
-      </ZoruDialogContent>
+      </SabDialogContent>
     </Dialog>
   );
 }

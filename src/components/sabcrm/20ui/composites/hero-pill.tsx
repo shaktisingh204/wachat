@@ -2,20 +2,20 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruHeroPillProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SabHeroPillProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
   text: React.ReactNode;
   /** Animate slide-up on mount. Defaults to true. */
   animate?: boolean;
 }
 
-export function ZoruHeroPill({
+export function SabHeroPill({
   icon,
   text,
   className,
   animate = true,
   ...props
-}: ZoruHeroPillProps) {
+}: SabHeroPillProps) {
   return (
     <div
       className={cn("mb-4 inline-block", animate && "animate-slide-up", className)}
@@ -33,7 +33,7 @@ export function ZoruHeroPill({
   );
 }
 
-export function ZoruStarIcon(props: React.SVGProps<SVGSVGElement>) {
+export function SabStarIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

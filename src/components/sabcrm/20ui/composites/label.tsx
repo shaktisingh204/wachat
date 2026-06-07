@@ -5,14 +5,14 @@ import * as LabelPrimitive from "@radix-ui/react-label";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruLabelProps
+export interface SabLabelProps
   extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {
   required?: boolean;
 }
 
 export const Label = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  ZoruLabelProps
+  SabLabelProps
 >(({ className, required, children, ...props }, ref) => (
   <LabelPrimitive.Root
     ref={ref}

@@ -2,9 +2,9 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruKbdProps extends React.HTMLAttributes<HTMLElement> {}
+export interface SabKbdProps extends React.HTMLAttributes<HTMLElement> {}
 
-export function ZoruKbd({ className, ...props }: ZoruKbdProps) {
+export function SabKbd({ className, ...props }: SabKbdProps) {
   return (
     <kbd
       className={cn(

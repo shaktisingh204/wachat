@@ -7,7 +7,7 @@ import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
 import { Button } from "@/components/sabcrm/20ui/composites/button";
 import { Progress } from "@/components/sabcrm/20ui/composites/progress";
 
-export interface ZoruFileUploadItem {
+export interface SabFileUploadItem {
   id: string;
   file: File;
   /** 0..100 progress. `null` for "unknown / indeterminate". */
@@ -16,7 +16,7 @@ export interface ZoruFileUploadItem {
   errorMessage?: string;
 }
 
-export interface ZoruFileUploadCardProps {
+export interface SabFileUploadCardProps {
   /** Allowed mime types or extensions, comma-separated. */
   accept?: string;
   multiple?: boolean;
@@ -27,14 +27,14 @@ export interface ZoruFileUploadCardProps {
   /** Triggered when files are added (drop or input). */
   onFilesSelected?: (files: File[]) => void;
   /** Items currently in the upload list. */
-  items?: ZoruFileUploadItem[];
+  items?: SabFileUploadItem[];
   /** Triggered when the user removes an item. */
   onRemove?: (id: string) => void;
   className?: string;
   disabled?: boolean;
 }
 
-export function ZoruFileUploadCard({
+export function SabFileUploadCard({
   accept,
   multiple = true,
   maxSize,
@@ -44,7 +44,7 @@ export function ZoruFileUploadCard({
   onRemove,
   className,
   disabled,
-}: ZoruFileUploadCardProps) {
+}: SabFileUploadCardProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = React.useState(false);
 

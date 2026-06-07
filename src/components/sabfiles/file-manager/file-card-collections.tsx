@@ -6,7 +6,7 @@ import { File, FileText, FileImage, FileVideo, FileAudio, FileArchive, MoreHoriz
 import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
 import { Button } from "@/components/sabcrm/20ui/composites/button";
 
-export interface ZoruFileCardItem {
+export interface SabFileCardItem {
   id: string;
   name: string;
   /** Optional thumbnail URL — rendered for images. */
@@ -18,24 +18,24 @@ export interface ZoruFileCardItem {
   meta?: React.ReactNode;
 }
 
-export interface ZoruFileCardCollectionsProps {
-  items: ZoruFileCardItem[];
+export interface SabFileCardCollectionsProps {
+  items: SabFileCardItem[];
   view?: "grid" | "list";
-  onItemClick?: (item: ZoruFileCardItem) => void;
-  onItemAction?: (item: ZoruFileCardItem) => void;
+  onItemClick?: (item: SabFileCardItem) => void;
+  onItemAction?: (item: SabFileCardItem) => void;
   className?: string;
   /** Empty-state node. */
   empty?: React.ReactNode;
 }
 
-export function ZoruFileCardCollections({
+export function SabFileCardCollections({
   items,
   view = "grid",
   onItemClick,
   onItemAction,
   className,
   empty,
-}: ZoruFileCardCollectionsProps) {
+}: SabFileCardCollectionsProps) {
   if (items.length === 0) {
     return (
       <div

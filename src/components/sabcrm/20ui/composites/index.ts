@@ -1,5 +1,5 @@
 /**
- * ZoruUI — public barrel.
+ * SabUI — public barrel.
  *
  * Step 1 (foundation): provider, cn, dock re-export.
  * Step 2 (atoms): button, input, textarea, label, checkbox, radio,
@@ -10,38 +10,38 @@
  */
 
 // Foundation
-export { ZoruProvider } from "./lib/zoru-provider";
-export type { ZoruProviderProps } from "./lib/zoru-provider";
+export { SabProvider } from "./lib/zoru-provider";
+export type { SabProviderProps } from "./lib/zoru-provider";
 export { cn } from "./lib/cn";
-export { ZoruDock, ZoruDockIcon, type ZoruDockAccent } from "./dock";
+export { SabDock, SabDockIcon, type SabDockAccent } from "./dock";
 
 // Atoms — form & text primitives
-export { Button, zoruButtonVariants, type ZoruButtonProps } from "./button";
-export { Input, type ZoruInputProps } from "./input";
+export { Button, sabButtonVariants, type SabButtonProps } from "./button";
+export { Input, type SabInputProps } from "./input";
 
-export { Label, type ZoruLabelProps } from "./label";
+export { Label, type SabLabelProps } from "./label";
 
-export { Switch, ZoruBouncyToggle, type ZoruBouncyToggleProps } from "./switch";
+export { Switch, SabBouncyToggle, type SabBouncyToggleProps } from "./switch";
 export {
   TagPicker,
-  ZoruTagPicker,
-  type ZoruTagPickerProps,
-  type ZoruTagPickerTag,
+  SabTagPicker,
+  type SabTagPickerProps,
+  type SabTagPickerTag,
 } from "./tag-picker";
 // Tabs + Slider — Re-export from the legacy `@/components/ui` Radix wrappers
-// while the ZoruUI-native primitives are still in design. Mid-migration
-// callers (sabchat/*, etc.) import {Tabs, ZoruTabsList, ZoruTabsTrigger,
-// ZoruTabsContent, Slider} from "@/components/sabcrm/20ui/composites" — wire those names
+// while the SabUI-native primitives are still in design. Mid-migration
+// callers (sabchat/*, etc.) import {Tabs, SabTabsList, SabTabsTrigger,
+// SabTabsContent, Slider} from "@/components/sabcrm/20ui/composites" — wire those names
 // here so nothing has to change at the call site.
 export {
   Tabs,
-  TabsList as ZoruTabsList,
-  TabsTrigger as ZoruTabsTrigger,
-  TabsContent as ZoruTabsContent,
+  TabsList as SabTabsList,
+  TabsTrigger as SabTabsTrigger,
+  TabsContent as SabTabsContent,
 } from "@/components/ui/tabs";
 export { Slider } from "@/components/ui/slider";
 // Form / Chart / Sidebar — re-exports from legacy `@/components/ui` while
-// the ZoruUI-native primitives are still in design. Consumers should
+// the SabUI-native primitives are still in design. Consumers should
 // import from `@/components/zoruui` so the migration path stays one-way.
 export {
   useFormField,
@@ -92,60 +92,60 @@ export {
 } from "@/components/ui/tabs";
 export {
   Select,
-  ZoruSelectGroup,
-  ZoruSelectValue,
-  ZoruSelectTrigger,
-  ZoruSelectContent,
-  ZoruSelectLabel,
-  ZoruSelectItem,
-  ZoruSelectSeparator,
+  SabSelectGroup,
+  SabSelectValue,
+  SabSelectTrigger,
+  SabSelectContent,
+  SabSelectLabel,
+  SabSelectItem,
+  SabSelectSeparator,
 } from "./select";
 
-export { Avatar, ZoruAvatarImage, ZoruAvatarFallback, AvatarImage, AvatarFallback } from "./avatar";
-export { Badge, zoruBadgeVariants, type ZoruBadgeProps } from "./badge";
-export { ZoruKbd, type ZoruKbdProps } from "./kbd";
-export { Progress, type ZoruProgressProps } from "./progress";
+export { Avatar, SabAvatarImage, SabAvatarFallback, AvatarImage, AvatarFallback } from "./avatar";
+export { Badge, sabBadgeVariants, type SabBadgeProps } from "./badge";
+export { SabKbd, type SabKbdProps } from "./kbd";
+export { Progress, type SabProgressProps } from "./progress";
 export {
   Tooltip,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
+  SabTooltipProvider,
+  SabTooltipTrigger,
+  SabTooltipContent,
 } from "./tooltip";
 
 // Overlays, feedback & menus
 export {
   Dialog,
-  ZoruDialogTrigger,
-  ZoruDialogClose,
-  ZoruDialogPortal,
-  ZoruDialogOverlay,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogFooter,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  type ZoruDialogContentProps,
+  SabDialogTrigger,
+  SabDialogClose,
+  SabDialogPortal,
+  SabDialogOverlay,
+  SabDialogContent,
+  SabDialogHeader,
+  SabDialogFooter,
+  SabDialogTitle,
+  SabDialogDescription,
+  type SabDialogContentProps,
 } from "./dialog";
 export {
-  ZoruAlertDialog,
-  ZoruAlertDialogTrigger,
-  ZoruAlertDialogPortal,
-  ZoruAlertDialogOverlay,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
+  SabAlertDialog,
+  SabAlertDialogTrigger,
+  SabAlertDialogPortal,
+  SabAlertDialogOverlay,
+  SabAlertDialogContent,
+  SabAlertDialogHeader,
+  SabAlertDialogFooter,
+  SabAlertDialogTitle,
+  SabAlertDialogDescription,
+  SabAlertDialogAction,
+  SabAlertDialogCancel,
 } from "./alert-dialog";
 
 export {
   Popover,
-  ZoruPopoverTrigger,
-  ZoruPopoverAnchor,
-  ZoruPopoverPortal,
-  ZoruPopoverContent,
+  SabPopoverTrigger,
+  SabPopoverAnchor,
+  SabPopoverPortal,
+  SabPopoverContent,
   PopoverTrigger,
   PopoverAnchor,
   PopoverPortal,
@@ -153,163 +153,163 @@ export {
 } from "./popover";
 export {
   DropdownMenu,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuGroup,
-  ZoruDropdownMenuPortal,
-  ZoruDropdownMenuSub,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuCheckboxItem,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuShortcut,
-  ZoruDropdownMenuSubTrigger,
-  ZoruDropdownMenuSubContent,
+  SabDropdownMenuTrigger,
+  SabDropdownMenuGroup,
+  SabDropdownMenuPortal,
+  SabDropdownMenuSub,
+  SabDropdownMenuRadioGroup,
+  SabDropdownMenuContent,
+  SabDropdownMenuItem,
+  SabDropdownMenuCheckboxItem,
+  SabDropdownMenuRadioItem,
+  SabDropdownMenuLabel,
+  SabDropdownMenuSeparator,
+  SabDropdownMenuShortcut,
+  SabDropdownMenuSubTrigger,
+  SabDropdownMenuSubContent,
 } from "./dropdown-menu";
 
 export {
-  ZoruToast,
-  ZoruToastProvider,
-  ZoruToastViewport,
-  ZoruToastTitle,
-  ZoruToastDescription,
-  ZoruToastAction,
-  ZoruToastClose,
-  type ZoruToastProps,
-  type ZoruToastActionElement,
+  SabToast,
+  SabToastProvider,
+  SabToastViewport,
+  SabToastTitle,
+  SabToastDescription,
+  SabToastAction,
+  SabToastClose,
+  type SabToastProps,
+  type SabToastActionElement,
 } from "./toast";
 export {
-  zoruToast,
-  useZoruToast,
-  type ZoruToastInput,
+  sabToast,
+  useSabToast,
+  type SabToastInput,
 } from "./use-zoru-toast";
 
 export {
-  ZoruHeroPill,
-  ZoruStarIcon,
-  type ZoruHeroPillProps,
+  SabHeroPill,
+  SabStarIcon,
+  type SabHeroPillProps,
 } from "./hero-pill";
 
 // Layout & navigation
 
-// Note: tab UI (`ZoruTabs` and friends) is intentionally NOT exported.
+// Note: tab UI (`SabTabs` and friends) is intentionally NOT exported.
 // Per the no-tab-ui directive, has no tab primitive — use
 // segmented buttons, numbered steppers, or distinct routes instead.
 export {
   Accordion,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruAccordionContent,
-  ZoruAccordion03,
-  ZoruAccordion03Item,
-  ZoruAccordion03Trigger,
-  ZoruAccordion03Content,
+  SabAccordionItem,
+  SabAccordionTrigger,
+  SabAccordionContent,
+  SabAccordion03,
+  SabAccordion03Item,
+  SabAccordion03Trigger,
+  SabAccordion03Content,
 } from "./accordion";
 export {
-  ZoruCollapsible,
-  ZoruCollapsibleTrigger,
-  ZoruCollapsibleContent,
+  SabCollapsible,
+  SabCollapsibleTrigger,
+  SabCollapsibleContent,
 } from "./collapsible";
-export { ScrollArea, ZoruScrollBar } from "./scroll-area";
+export { ScrollArea, SabScrollBar } from "./scroll-area";
 
-export { EmptyState, type ZoruEmptyStateProps } from "./empty-state";
+export { EmptyState, type SabEmptyStateProps } from "./empty-state";
 
 export {
-  ZoruLimelightNav,
-  type ZoruLimelightItem,
-  type ZoruLimelightNavProps,
+  SabLimelightNav,
+  type SabLimelightItem,
+  type SabLimelightNavProps,
 } from "./limelight-nav";
 
 // Shell — composable dashboard chrome (no multi-tab strip)
 export {
-  ZoruShell,
-  ZoruAppRail,
-  ZoruAppSidebar,
-  ZoruHeader,
-  ZoruHomeShell,
-  type ZoruShellProps,
-  type ZoruAppRailItem,
-  type ZoruAppRailProps,
-  type ZoruAppSidebarProps,
-  type ZoruSidebarGroup,
-  type ZoruSidebarLeaf,
-  type ZoruHeaderProps,
-  type ZoruHomeShellProps,
+  SabShell,
+  SabAppRail,
+  SabAppSidebar,
+  SabHeader,
+  SabHomeShell,
+  type SabShellProps,
+  type SabAppRailItem,
+  type SabAppRailProps,
+  type SabAppSidebarProps,
+  type SabSidebarGroup,
+  type SabSidebarLeaf,
+  type SabHeaderProps,
+  type SabHomeShellProps,
 } from "./shell";
 
 // Data display & inputs
 
 export {
-  ZoruFullscreenCalendar,
-  type ZoruFullscreenCalendarEvent,
-  type ZoruFullscreenCalendarProps,
+  SabFullscreenCalendar,
+  type SabFullscreenCalendarEvent,
+  type SabFullscreenCalendarProps,
 } from "./fullscreen-calendar";
 
 export {
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZORU_CHART_PALETTE,
-  type ZoruChartContainerProps,
-  type ZoruChartTooltipProps,
+  SabChart,
+  SabChartContainer,
+  SabChartTooltip,
+  SAB_CHART_PALETTE,
+  type SabChartContainerProps,
+  type SabChartTooltipProps,
 } from "./chart";
 
 export {
-  ZoruStatisticsCard1,
-  type ZoruStatisticsCard1Props,
-  type ZoruStatisticsCard1Item,
+  SabStatisticsCard1,
+  type SabStatisticsCard1Props,
+  type SabStatisticsCard1Item,
 } from "./statistics-card-1";
 
 // Marketing & landing primitives
 
 export {
-  ZoruActionSearchBar,
-  type ZoruActionSearchAction,
-  type ZoruActionSearchBarProps,
+  SabActionSearchBar,
+  type SabActionSearchAction,
+  type SabActionSearchBarProps,
 } from "./action-search-bar";
 
 export {
-  ZoruUserDropdown,
-  type ZoruUserDropdownProps,
-  type ZoruUserDropdownItem,
+  SabUserDropdown,
+  type SabUserDropdownProps,
+  type SabUserDropdownItem,
 } from "./user-dropdown";
 export {
-  ZoruNotificationPopover,
-  type ZoruNotificationPopoverProps,
+  SabNotificationPopover,
+  type SabNotificationPopoverProps,
 } from "./notification-popover";
 export {
-  ZoruDynamicSelector,
-  type ZoruDynamicSelectorProps,
+  SabDynamicSelector,
+  type SabDynamicSelectorProps,
   type DynamicSelectorOption,
 } from "./dynamic-selector";
 
 // ── Transitional aliases ──────────────────────────────────────────────────
-// Base component names are mid-migration from `Zoru`-prefixed to bare
-// (`ZoruButton` → `Button`, …). These aliases keep not-yet-migrated call
+// Base component names are mid-migration from `Sab`-prefixed to bare
+// (`SabButton` → `Button`, …). These aliases keep not-yet-migrated call
 // sites compiling during the rename. Remove this block once every consumer
 // has been moved to the bare names.
-export { Button as ZoruButton } from "./button";
-export { Input as ZoruInput } from "./input";
+export { Button as SabButton } from "./button";
+export { Input as SabInput } from "./input";
 
-export { Label as ZoruLabel } from "./label";
+export { Label as SabLabel } from "./label";
 
-export { Switch as ZoruSwitch } from "./switch";
-export { Select as ZoruSelect } from "./select";
+export { Switch as SabSwitch } from "./switch";
+export { Select as SabSelect } from "./select";
 
-export { Avatar as ZoruAvatar } from "./avatar";
-export { Badge as ZoruBadge } from "./badge";
-export { Progress as ZoruProgress } from "./progress";
-export { Tooltip as ZoruTooltip } from "./tooltip";
-export { Dialog as ZoruDialog } from "./dialog";
+export { Avatar as SabAvatar } from "./avatar";
+export { Badge as SabBadge } from "./badge";
+export { Progress as SabProgress } from "./progress";
+export { Tooltip as SabTooltip } from "./tooltip";
+export { Dialog as SabDialog } from "./dialog";
 
-export { Popover as ZoruPopover } from "./popover";
-export { DropdownMenu as ZoruDropdownMenu } from "./dropdown-menu";
+export { Popover as SabPopover } from "./popover";
+export { DropdownMenu as SabDropdownMenu } from "./dropdown-menu";
 
-export { Accordion as ZoruAccordion } from "./accordion";
-export { ScrollArea as ZoruScrollArea } from "./scroll-area";
-export { EmptyState as ZoruEmptyState } from "./empty-state";
+export { Accordion as SabAccordion } from "./accordion";
+export { ScrollArea as SabScrollArea } from "./scroll-area";
+export { EmptyState as SabEmptyState } from "./empty-state";
 
 // Transitional bare-name subcomponent aliases
 export {
@@ -352,8 +352,8 @@ export {
 } from "./select";
 
 export {
-  ZoruAccordionItem as AccordionItem,
-  ZoruAccordionTrigger as AccordionTrigger,
-  ZoruAccordionContent as AccordionContent,
+  SabAccordionItem as AccordionItem,
+  SabAccordionTrigger as AccordionTrigger,
+  SabAccordionContent as AccordionContent,
 } from "./accordion";
 

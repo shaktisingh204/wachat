@@ -4,39 +4,39 @@ import * as React from "react";
 
 import {
   Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  SabDialogContent,
+  SabDialogDescription,
+  SabDialogHeader,
+  SabDialogTitle,
 } from "@/components/sabcrm/20ui/composites/dialog";
 
 import { getSharePreviewKind } from "@/lib/sabfiles/share-ui";
-import type { ZoruFileEntity } from "./types";
+import type { SabFileEntity } from "./types";
 
 function officePreviewUrl(url: string): string {
   return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(url)}`;
 }
 
-export interface ZoruFilePreviewDialogProps {
-  file: ZoruFileEntity | null;
+export interface SabFilePreviewDialogProps {
+  file: SabFileEntity | null;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ZoruFilePreviewDialog({
+export function SabFilePreviewDialog({
   file,
   onOpenChange,
-}: ZoruFilePreviewDialogProps) {
+}: SabFilePreviewDialogProps) {
   const previewKind = getSharePreviewKind(file?.mime);
   const previewUrl = file ? file.url ?? file.thumbnailUrl ?? `/api/sabfiles/preview/${file.id}` : undefined;
 
   return (
     <Dialog open={!!file} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-3xl">
+      <SabDialogContent className="max-w-3xl">
         {file && (
           <>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>{file.name}</ZoruDialogTitle>
-              <ZoruDialogDescription>
+            <SabDialogHeader>
+              <SabDialogTitle>{file.name}</SabDialogTitle>
+              <SabDialogDescription>
                 {[
                   file.mime,
                   file.size !== undefined && formatBytes(file.size),
@@ -44,8 +44,8 @@ export function ZoruFilePreviewDialog({
                 ]
                   .filter(Boolean)
                   .join(" · ")}
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
+              </SabDialogDescription>
+            </SabDialogHeader>
             <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-surface)]">
               {previewKind === "image" && previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -85,7 +85,7 @@ export function ZoruFilePreviewDialog({
             </div>
           </>
         )}
-      </ZoruDialogContent>
+      </SabDialogContent>
     </Dialog>
   );
 }

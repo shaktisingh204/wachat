@@ -1,4 +1,4 @@
-export interface ZoruFileEntity {
+export interface SabFileEntity {
   id: string;
   name: string;
   /** Mime type or extension. */
@@ -14,4 +14,4 @@ export interface ZoruFileEntity {
   shareToken?: string;
 }
 
-export type ZoruFileView = "grid" | "list";
+export type SabFileView = "grid" | "list";

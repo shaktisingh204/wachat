@@ -5,14 +5,14 @@ import Link from "next/link";
 
 import { cn } from "../lib/cn";
 import {
-  ZoruCollapsible,
-  ZoruCollapsibleContent,
-  ZoruCollapsibleTrigger,
+  SabCollapsible,
+  SabCollapsibleContent,
+  SabCollapsibleTrigger,
 } from "../collapsible";
 import { Input } from "../input";
 import { ChevronDown, Search, X } from "lucide-react";
 
-export interface ZoruSidebarLeaf {
+export interface SabSidebarLeaf {
   id: string;
   label: string;
   href?: string;
@@ -20,7 +20,7 @@ export interface ZoruSidebarLeaf {
   icon?: React.ReactNode;
   badge?: React.ReactNode;
   onClick?: () => void;
-  children?: ZoruSidebarLeaf[];
+  children?: SabSidebarLeaf[];
   defaultOpen?: boolean;
   /**
    * Restrict the entry to the tenant owner / admin role (Worksuite parity).
@@ -29,20 +29,20 @@ export interface ZoruSidebarLeaf {
   adminOnly?: boolean;
 }
 
-export interface ZoruSidebarGroup {
+export interface SabSidebarGroup {
   id: string;
   label?: string;
   defaultOpen?: boolean;
-  items: ZoruSidebarLeaf[];
+  items: SabSidebarLeaf[];
 }
 
-export interface ZoruAppSidebarProps {
+export interface SabAppSidebarProps {
   /** Section heading rendered at the top — usually the current module name. */
   heading?: React.ReactNode;
   /** Optional caption rendered under the heading. */
   caption?: React.ReactNode;
   /** Sidebar nav groups. Each group has an optional collapsible label. */
-  groups: ZoruSidebarGroup[];
+  groups: SabSidebarGroup[];
   /** Optional footer slot. */
   footer?: React.ReactNode;
   className?: string;
@@ -58,14 +58,14 @@ export interface ZoruAppSidebarProps {
  * project routes in here.
  */
 interface SuggestionHit {
-  item: ZoruSidebarLeaf;
+  item: SabSidebarLeaf;
   /** Group label + parent labels, e.g. ["HR · People", "Directory"]. */
   trail: string[];
   /** Index of the match in the lowercased label (-1 if only trail matched). */
   matchIndex: number;
 }
 
-export function ZoruAppSidebar({
+export function SabAppSidebar({
   heading,
   caption,
   groups,
@@ -73,7 +73,7 @@ export function ZoruAppSidebar({
   className,
   hideSearch,
   searchPlaceholder,
-}: ZoruAppSidebarProps) {
+}: SabAppSidebarProps) {
   const [query, setQuery] = React.useState("");
   const [focused, setFocused] = React.useState(false);
   const [activeIdx, setActiveIdx] = React.useState(0);
@@ -317,11 +317,11 @@ function highlight(label: string, query: string) {
  * — they're the things a user can actually pick from a suggestion list.
  */
 function collectSuggestions(
-  groups: ZoruSidebarGroup[],
+  groups: SabSidebarGroup[],
   query: string,
 ): SuggestionHit[] {
   const hits: SuggestionHit[] = [];
-  const visit = (item: ZoruSidebarLeaf, trail: string[]) => {
+  const visit = (item: SabSidebarLeaf, trail: string[]) => {
     const lower = item.label.toLowerCase();
     const matchIndex = lower.indexOf(query);
     const navigable = !!(item.href || item.onClick);
@@ -345,7 +345,7 @@ function collectSuggestions(
   return hits.slice(0, 25);
 }
 
-function SidebarGroup({ group }: { group: ZoruSidebarGroup }) {
+function SidebarGroup({ group }: { group: SabSidebarGroup }) {
   if (!group.label) {
     return (
       <div className="mb-2 flex flex-col gap-0.5">
@@ -357,8 +357,8 @@ function SidebarGroup({ group }: { group: ZoruSidebarGroup }) {
   }
 
   return (
-    <ZoruCollapsible defaultOpen={group.defaultOpen ?? true} className="mb-1">
-      <ZoruCollapsibleTrigger asChild>
+    <SabCollapsible defaultOpen={group.defaultOpen ?? true} className="mb-1">
+      <SabCollapsibleTrigger asChild>
         <button
           type="button"
           className="flex w-full items-center justify-between gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)] hover:text-[var(--st-text-secondary)] [&[data-state=open]>svg]:rotate-180 focus-visible:outline-none"
@@ -366,15 +366,15 @@ function SidebarGroup({ group }: { group: ZoruSidebarGroup }) {
           <span>{group.label}</span>
           <ChevronDown className="h-3 w-3 transition-transform duration-200" />
         </button>
-      </ZoruCollapsibleTrigger>
-      <ZoruCollapsibleContent>
+      </SabCollapsibleTrigger>
+      <SabCollapsibleContent>
         <div className="mt-0.5 flex flex-col gap-0.5">
           {group.items.map((item) => (
             <SidebarLeaf key={item.id} item={item} />
           ))}
         </div>
-      </ZoruCollapsibleContent>
-    </ZoruCollapsible>
+      </SabCollapsibleContent>
+    </SabCollapsible>
   );
 }
 
@@ -382,7 +382,7 @@ function SidebarLeaf({
   item,
   depth = 0,
 }: {
-  item: ZoruSidebarLeaf;
+  item: SabSidebarLeaf;
   depth?: number;
 }) {
   const hasChildren = !!(item.children && item.children.length > 0);
@@ -413,22 +413,22 @@ function SidebarLeaf({
   if (hasChildren) {
     const childActive = item.children!.some((c) => c.active);
     return (
-      <ZoruCollapsible
+      <SabCollapsible
         defaultOpen={item.defaultOpen ?? item.active ?? childActive}
       >
-        <ZoruCollapsibleTrigger asChild>
+        <SabCollapsibleTrigger asChild>
           <button type="button" className={cn(className, "group w-full")}>
             {inner}
           </button>
-        </ZoruCollapsibleTrigger>
-        <ZoruCollapsibleContent>
+        </SabCollapsibleTrigger>
+        <SabCollapsibleContent>
           <div className="mt-0.5 flex flex-col gap-0.5">
             {item.children!.map((child) => (
               <SidebarLeaf key={child.id} item={child} depth={depth + 1} />
             ))}
           </div>
-        </ZoruCollapsibleContent>
-      </ZoruCollapsible>
+        </SabCollapsibleContent>
+      </SabCollapsible>
     );
   }
 

@@ -3,21 +3,21 @@ import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruStatisticsCard1Item {
+export interface SabStatisticsCard1Item {
   label: React.ReactNode;
   value: React.ReactNode;
   delta?: number;
   meta?: React.ReactNode;
 }
 
-export interface ZoruStatisticsCard1Props
+export interface SabStatisticsCard1Props
   extends React.HTMLAttributes<HTMLDivElement> {
   /** Top-line headline metric. */
   headline: React.ReactNode;
   /** Headline number. */
   value: React.ReactNode;
   /** Sub-stats laid out horizontally beneath the headline. */
-  items?: ZoruStatisticsCard1Item[];
+  items?: SabStatisticsCard1Item[];
   footer?: React.ReactNode;
   icon?: React.ReactNode;
 }
@@ -27,7 +27,7 @@ export interface ZoruStatisticsCard1Props
  * stats. For dashboards where one metric anchors the view and a few
  * supporting numbers add context.
  */
-export function ZoruStatisticsCard1({
+export function SabStatisticsCard1({
   headline,
   value,
   items = [],
@@ -35,7 +35,7 @@ export function ZoruStatisticsCard1({
   icon,
   className,
   ...props
-}: ZoruStatisticsCard1Props) {
+}: SabStatisticsCard1Props) {
   return (
     <div
       className={cn(

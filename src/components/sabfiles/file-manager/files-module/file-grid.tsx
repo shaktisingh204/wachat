@@ -2,27 +2,27 @@
 
 import * as React from "react";
 
-import { ZoruFileCardCollections } from "../file-card-collections";
+import { SabFileCardCollections } from "../file-card-collections";
 
-import type { ZoruFileEntity } from "./types";
+import type { SabFileEntity } from "./types";
 
-export interface ZoruFileGridProps {
-  files: ZoruFileEntity[];
-  onOpen?: (file: ZoruFileEntity) => void;
-  onAction?: (file: ZoruFileEntity) => void;
+export interface SabFileGridProps {
+  files: SabFileEntity[];
+  onOpen?: (file: SabFileEntity) => void;
+  onAction?: (file: SabFileEntity) => void;
   empty?: React.ReactNode;
   className?: string;
 }
 
-export function ZoruFileGrid({
+export function SabFileGrid({
   files,
   onOpen,
   onAction,
   empty,
   className,
-}: ZoruFileGridProps) {
+}: SabFileGridProps) {
   return (
-    <ZoruFileCardCollections
+    <SabFileCardCollections
       view="grid"
       items={files}
       onItemClick={onOpen}

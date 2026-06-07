@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruInputProps
+export interface SabInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "prefix"> {
   invalid?: boolean;
   /** Slot rendered inside the input frame on the leading edge. */
@@ -13,7 +13,7 @@ export interface ZoruInputProps
   trailingSlot?: React.ReactNode;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, ZoruInputProps>(
+export const Input = React.forwardRef<HTMLInputElement, SabInputProps>(
   (
     { className, type = "text", invalid, leadingSlot, trailingSlot, ...props },
     ref,

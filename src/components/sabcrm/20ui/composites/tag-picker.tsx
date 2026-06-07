@@ -15,23 +15,23 @@ import {
 import { cn } from "./lib/cn";
 import { Button } from "./button";
 import { Input } from "./input";
-import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
+import { Popover, SabPopoverContent, SabPopoverTrigger } from "./popover";
 import {
     DropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
+    SabDropdownMenuContent,
+    SabDropdownMenuItem,
+    SabDropdownMenuTrigger,
 } from "./dropdown-menu";
 
-export interface ZoruTagPickerTag {
+export interface SabTagPickerTag {
     _id: string;
     name: string;
     color: string;
 }
 
-export interface ZoruTagPickerProps {
+export interface SabTagPickerProps {
     /** All tags in scope (typically the current user's tag library). */
-    tags: ZoruTagPickerTag[];
+    tags: SabTagPickerTag[];
     /** Currently selected tag IDs. */
     selectedTagIds: string[];
     /** Fired when the user toggles selection. */
@@ -41,13 +41,13 @@ export interface ZoruTagPickerProps {
      * tag) so the picker can refresh + auto-select. Reject / throw to keep
      * the inline form open with the user's draft.
      */
-    onCreate?: (input: { name: string; color: string }) => Promise<ZoruTagPickerTag[]>;
+    onCreate?: (input: { name: string; color: string }) => Promise<SabTagPickerTag[]>;
     /** Persist a rename / recolor. Same return contract as `onCreate`. */
-    onUpdate?: (id: string, patch: { name?: string; color?: string }) => Promise<ZoruTagPickerTag[]>;
+    onUpdate?: (id: string, patch: { name?: string; color?: string }) => Promise<SabTagPickerTag[]>;
     /** Delete a tag. Same return contract as `onCreate`. */
-    onDelete?: (id: string) => Promise<ZoruTagPickerTag[]>;
+    onDelete?: (id: string) => Promise<SabTagPickerTag[]>;
     /** Push refreshed tags up to the parent after every successful mutation. */
-    onTagsChange?: (next: ZoruTagPickerTag[]) => void;
+    onTagsChange?: (next: SabTagPickerTag[]) => void;
     placeholder?: string;
     className?: string;
     /** Render error toasts / inline messages — keeps the primitive UI-agnostic. */
@@ -64,7 +64,7 @@ const DEFAULT_COLOR = "#6366F1";
  * `onCreate` / `onUpdate` / `onDelete`. Pair with `tag-picker.tsx` in
  * `@/components/zoruui-domain` for user-tag persistence.
  */
-export function ZoruTagPicker({
+export function SabTagPicker({
     tags,
     selectedTagIds,
     onSelectionChange,
@@ -76,7 +76,7 @@ export function ZoruTagPicker({
     placeholder = "Select tags…",
     className,
     readOnly,
-}: ZoruTagPickerProps) {
+}: SabTagPickerProps) {
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState("");
     const [createOpen, setCreateOpen] = React.useState(false);
@@ -102,7 +102,7 @@ export function ZoruTagPicker({
 
     const reportError = (msg: string) => {
         if (onError) onError(msg);
-        else console.error("[ZoruTagPicker]", msg);
+        else console.error("[SabTagPicker]", msg);
     };
 
     const handleCreate = () => {
@@ -126,7 +126,7 @@ export function ZoruTagPicker({
         });
     };
 
-    const beginEdit = (tag: ZoruTagPickerTag) => {
+    const beginEdit = (tag: SabTagPickerTag) => {
         setEditId(tag._id);
         setEditName(tag.name);
         setEditColor(tag.color);
@@ -147,7 +147,7 @@ export function ZoruTagPicker({
         });
     };
 
-    const handleDelete = (tag: ZoruTagPickerTag) => {
+    const handleDelete = (tag: SabTagPickerTag) => {
         if (!onDelete) return;
         if (!confirm(`Delete tag "${tag.name}"? Items using it will lose this tag.`)) return;
         startTransition(async () => {
@@ -166,14 +166,14 @@ export function ZoruTagPicker({
 
     const selectedLabels = selectedTagIds
         .map((id) => tags.find((t) => t._id === id))
-        .filter((t): t is ZoruTagPickerTag => !!t);
+        .filter((t): t is SabTagPickerTag => !!t);
 
     const showCreate = !readOnly && !!onCreate;
     const showRowActions = !readOnly && (!!onUpdate || !!onDelete);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <SabPopoverTrigger asChild>
                 <button
                     type="button"
                     className={cn(
@@ -203,8 +203,8 @@ export function ZoruTagPicker({
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                 </button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent
+            </SabPopoverTrigger>
+            <SabPopoverContent
                 className="w-[--radix-popover-trigger-width] min-w-[260px] p-0"
                 align="start"
             >
@@ -290,7 +290,7 @@ export function ZoruTagPicker({
                                 </button>
                                 {showRowActions && (
                                     <DropdownMenu>
-                                        <ZoruDropdownMenuTrigger asChild>
+                                        <SabDropdownMenuTrigger asChild>
                                             <button
                                                 type="button"
                                                 aria-label={`Actions for ${tag.name}`}
@@ -299,10 +299,10 @@ export function ZoruTagPicker({
                                             >
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </button>
-                                        </ZoruDropdownMenuTrigger>
-                                        <ZoruDropdownMenuContent align="end" className="w-40">
+                                        </SabDropdownMenuTrigger>
+                                        <SabDropdownMenuContent align="end" className="w-40">
                                             {onUpdate && (
-                                                <ZoruDropdownMenuItem
+                                                <SabDropdownMenuItem
                                                     onSelect={(e) => {
                                                         e.preventDefault();
                                                         beginEdit(tag);
@@ -310,10 +310,10 @@ export function ZoruTagPicker({
                                                 >
                                                     <Pencil className="h-3.5 w-3.5" />
                                                     <span>Edit</span>
-                                                </ZoruDropdownMenuItem>
+                                                </SabDropdownMenuItem>
                                             )}
                                             {onDelete && (
-                                                <ZoruDropdownMenuItem
+                                                <SabDropdownMenuItem
                                                     destructive
                                                     onSelect={(e) => {
                                                         e.preventDefault();
@@ -322,9 +322,9 @@ export function ZoruTagPicker({
                                                 >
                                                     <Trash2 className="h-3.5 w-3.5" />
                                                     <span>Delete</span>
-                                                </ZoruDropdownMenuItem>
+                                                </SabDropdownMenuItem>
                                             )}
-                                        </ZoruDropdownMenuContent>
+                                        </SabDropdownMenuContent>
                                     </DropdownMenu>
                                 )}
                             </div>
@@ -400,9 +400,9 @@ export function ZoruTagPicker({
                         )}
                     </div>
                 )}
-            </ZoruPopoverContent>
+            </SabPopoverContent>
         </Popover>
     );
 }
 
-export const TagPicker = ZoruTagPicker;
+export const TagPicker = SabTagPicker;

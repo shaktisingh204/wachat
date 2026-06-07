@@ -4,15 +4,15 @@ import * as React from "react";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruLimelightItem {
+export interface SabLimelightItem {
   id: string | number;
   icon: React.ReactNode;
   label?: string;
   onClick?: () => void;
 }
 
-export interface ZoruLimelightNavProps {
-  items: ZoruLimelightItem[];
+export interface SabLimelightNavProps {
+  items: SabLimelightItem[];
   defaultActiveIndex?: number;
   activeIndex?: number;
   onChange?: (index: number) => void;
@@ -25,7 +25,7 @@ export interface ZoruLimelightNavProps {
  * Adaptive-width icon nav with an animated underline that slides to
  * the active item. Pure neutral palette — black underline, zinc icons.
  */
-export function ZoruLimelightNav({
+export function SabLimelightNav({
   items,
   defaultActiveIndex = 0,
   activeIndex: controlled,
@@ -33,7 +33,7 @@ export function ZoruLimelightNav({
   className,
   itemClassName,
   highlightClassName,
-}: ZoruLimelightNavProps) {
+}: SabLimelightNavProps) {
   const [internal, setInternal] = React.useState(defaultActiveIndex);
   const active = controlled ?? internal;
   const containerRef = React.useRef<HTMLDivElement>(null);

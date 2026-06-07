@@ -5,10 +5,10 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 
 import { cn } from "./lib/cn";
 
-export const ZoruCollapsible = CollapsiblePrimitive.Root;
-export const ZoruCollapsibleTrigger = CollapsiblePrimitive.Trigger;
+export const SabCollapsible = CollapsiblePrimitive.Root;
+export const SabCollapsibleTrigger = CollapsiblePrimitive.Trigger;
 
-export const ZoruCollapsibleContent = React.forwardRef<
+export const SabCollapsibleContent = React.forwardRef<
   React.ElementRef<typeof CollapsiblePrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content>
 >(({ className, ...props }, ref) => (
@@ -22,4 +22,4 @@ export const ZoruCollapsibleContent = React.forwardRef<
     {...props}
   />
 ));
-ZoruCollapsibleContent.displayName = "ZoruCollapsibleContent";
+SabCollapsibleContent.displayName = "SabCollapsibleContent";

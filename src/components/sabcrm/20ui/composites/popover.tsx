@@ -6,15 +6,15 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn } from "./lib/cn";
 
 export const Popover = PopoverPrimitive.Root;
-export const ZoruPopoverTrigger = PopoverPrimitive.Trigger;
-export const ZoruPopoverAnchor = PopoverPrimitive.Anchor;
-export const ZoruPopoverPortal = PopoverPrimitive.Portal;
+export const SabPopoverTrigger = PopoverPrimitive.Trigger;
+export const SabPopoverAnchor = PopoverPrimitive.Anchor;
+export const SabPopoverPortal = PopoverPrimitive.Portal;
 
-export const ZoruPopoverContent = React.forwardRef<
+export const SabPopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 6, ...props }, ref) => (
-  <ZoruPopoverPortal>
+  <SabPopoverPortal>
     <PopoverPrimitive.Content
       ref={ref}
       align={align}
@@ -31,13 +31,13 @@ export const ZoruPopoverContent = React.forwardRef<
       )}
       {...props}
     />
-  </ZoruPopoverPortal>
+  </SabPopoverPortal>
 ));
-ZoruPopoverContent.displayName = "ZoruPopoverContent";
+SabPopoverContent.displayName = "SabPopoverContent";
 
 export {
-  ZoruPopoverTrigger as PopoverTrigger,
-  ZoruPopoverAnchor as PopoverAnchor,
-  ZoruPopoverPortal as PopoverPortal,
-  ZoruPopoverContent as PopoverContent,
+  SabPopoverTrigger as PopoverTrigger,
+  SabPopoverAnchor as PopoverAnchor,
+  SabPopoverPortal as PopoverPortal,
+  SabPopoverContent as PopoverContent,
 };

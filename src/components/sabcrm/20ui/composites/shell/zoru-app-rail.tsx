@@ -6,12 +6,12 @@ import Link from "next/link";
 import { cn } from "../lib/cn";
 import {
   Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
+  SabTooltipContent,
+  SabTooltipProvider,
+  SabTooltipTrigger,
 } from "../tooltip";
 
-export interface ZoruAppRailItem {
+export interface SabAppRailItem {
   id: string;
   label: string;
   icon: React.ReactNode;
@@ -21,13 +21,13 @@ export interface ZoruAppRailItem {
   badge?: React.ReactNode;
 }
 
-export interface ZoruAppRailProps {
+export interface SabAppRailProps {
   /** Brand mark rendered at the top. */
   brand?: React.ReactNode;
   /** Primary navigation items. */
-  items: ZoruAppRailItem[];
+  items: SabAppRailItem[];
   /** Secondary items pinned to the bottom (e.g. settings, profile). */
-  footer?: ZoruAppRailItem[];
+  footer?: SabAppRailItem[];
   className?: string;
 }
 
@@ -36,14 +36,14 @@ export interface ZoruAppRailProps {
  * Generic — pass your own items; do not bake project-specific routes
  * into this component.
  */
-export function ZoruAppRail({
+export function SabAppRail({
   brand,
   items,
   footer,
   className,
-}: ZoruAppRailProps) {
+}: SabAppRailProps) {
   return (
-    <ZoruTooltipProvider delayDuration={150}>
+    <SabTooltipProvider delayDuration={150}>
       <aside
         className={cn(
           "flex h-full w-14 shrink-0 flex-col items-center gap-2 border-r border-[var(--st-border)] bg-[var(--st-bg)] py-3",
@@ -68,11 +68,11 @@ export function ZoruAppRail({
           </nav>
         )}
       </aside>
-    </ZoruTooltipProvider>
+    </SabTooltipProvider>
   );
 }
 
-function RailButton({ item }: { item: ZoruAppRailItem }) {
+function RailButton({ item }: { item: SabAppRailItem }) {
   const inner = (
     <span
       className={cn(
@@ -96,7 +96,7 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
 
   return (
     <Tooltip>
-      <ZoruTooltipTrigger asChild>
+      <SabTooltipTrigger asChild>
         {item.href ? (
           <Link
             href={item.href}
@@ -116,8 +116,8 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
             {inner}
           </button>
         )}
-      </ZoruTooltipTrigger>
-      <ZoruTooltipContent side="right">{item.label}</ZoruTooltipContent>
+      </SabTooltipTrigger>
+      <SabTooltipContent side="right">{item.label}</SabTooltipContent>
     </Tooltip>
   );
 }

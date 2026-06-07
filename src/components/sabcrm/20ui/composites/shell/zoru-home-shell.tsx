@@ -17,28 +17,28 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "../lib/cn";
 // The app rail + header are now the 20ui primitives (dark-mode capable),
 // scoped to their own `.ui20 light|dark` root and kept in lock-step with the
-// app theme via useHtmlDark(). The grouped module sidebar stays ZoruUI.
+// app theme via useHtmlDark(). The grouped module sidebar stays SabUI.
 import { AppRail, AppHeader, type AppRailItem } from "@/components/sabcrm/20ui";
 import { useHtmlDark, AppThemeToggle } from "./app-theme";
 import {
-  ZoruAppSidebar,
-  type ZoruSidebarGroup,
-  type ZoruSidebarLeaf,
+  SabAppSidebar,
+  type SabSidebarGroup,
+  type SabSidebarLeaf,
 } from "./zoru-app-sidebar";
-import { ZORU_APPS } from "./zoru-apps";
+import { SAB_APPS } from "./zoru-apps";
 import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { useProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
 import { Button } from "../button";
-import { ZoruNotificationPopover } from "../notification-popover";
-import { ZoruUserDropdown } from "../user-dropdown";
+import { SabNotificationPopover } from "../notification-popover";
+import { SabUserDropdown } from "../user-dropdown";
 import {
   CommandPaletteProvider,
   useCommandPalette,
 } from "@/components/crm/command-palette";
 import { UniversalSearch } from "@/components/crm/universal-search";
 
-export interface ZoruHomeShellProps {
+export interface SabHomeShellProps {
   user?: {
     name?: string | null;
     email?: string | null;
@@ -67,7 +67,7 @@ export interface ZoruHomeShellProps {
    * groups (e.g. wachatMenuItems organized into Inbox / Broadcasts /
    * Settings) to make the sidebar reflect the current section.
    */
-  sidebarGroups?: ZoruSidebarGroup[];
+  sidebarGroups?: SabSidebarGroup[];
   children: React.ReactNode;
 }
 
@@ -97,7 +97,7 @@ function isFullBleedRoute(pathname: string | null): boolean {
 
 /**
  * "Sidebar-less" routes keep the padded, scrolling <main> (unlike
- * full-bleed) but drop the secondary <ZoruAppSidebar> column.
+ * full-bleed) but drop the secondary <SabAppSidebar> column.
  *
  * Settings is the canonical case: `/dashboard/settings/*` is SabNode's
  * single settings surface, and the hub page itself IS the navigation —
@@ -114,22 +114,22 @@ function isSidebarlessRoute(pathname: string | null): boolean {
 }
 
 /**
- * ZoruHomeShell — app rail + sidebar + header + main. Every app
+ * SabHomeShell — app rail + sidebar + header + main. Every app
  * lives in the leftmost vertical rail (was previously the bottom
  * dock). The URL-synced multi-tab strip is intentionally absent
  * (hard constraint from the project plan).
  */
-export function ZoruHomeShell({
+export function SabHomeShell({
   user,
   plan,
   sidebarHeading,
   sidebarCaption,
   sidebarGroups: sidebarGroupsProp,
   children,
-}: ZoruHomeShellProps) {
+}: SabHomeShellProps) {
   return (
     <CommandPaletteProvider>
-      <ZoruHomeShellContent
+      <SabHomeShellContent
         user={user}
         plan={plan}
         sidebarHeading={sidebarHeading}
@@ -137,19 +137,19 @@ export function ZoruHomeShell({
         sidebarGroups={sidebarGroupsProp}
       >
         {children}
-      </ZoruHomeShellContent>
+      </SabHomeShellContent>
     </CommandPaletteProvider>
   );
 }
 
-function ZoruHomeShellContent({
+function SabHomeShellContent({
   user,
   plan,
   sidebarHeading,
   sidebarCaption,
   sidebarGroups: sidebarGroupsProp,
   children,
-}: ZoruHomeShellProps) {
+}: SabHomeShellProps) {
   const pathname = usePathname();
   // CommandPaletteProvider is still mounted; the universal search header
   // owns the ⌘K binding now, but the palette can be opened via other UI.
@@ -162,7 +162,7 @@ function ZoruHomeShellContent({
   // app that lived in the dock is now an icon in the vertical rail.
   const railItems: AppRailItem[] = React.useMemo(
     () =>
-      ZORU_APPS.map((app) => ({
+      SAB_APPS.map((app) => ({
         id: app.id,
         label: app.name,
         href: app.href,
@@ -173,7 +173,7 @@ function ZoruHomeShellContent({
   );
 
   // The 20ui rail + header follow the app's light/dark setting (the class on
-  // <html>), so they flip in lock-step with the ZoruUI chrome around them.
+  // <html>), so they flip in lock-step with the SabUI chrome around them.
   const appDark = useHtmlDark();
 
   // Auto-select per-app sidebar groups from the central registry based on
@@ -194,14 +194,14 @@ function ZoruHomeShellContent({
     Boolean(effectivePermissions?.isOwner) ||
     isElevatedRole(effectivePermissions?.role);
 
-  const autoGroupsRaw: ZoruSidebarGroup[] = React.useMemo(
+  const autoGroupsRaw: SabSidebarGroup[] = React.useMemo(
     () => (activeAppConfig ? activeAppConfig.build(pathname ?? "") : []),
     [activeAppConfig, pathname],
   );
 
-  const autoGroups: ZoruSidebarGroup[] = React.useMemo(() => {
+  const autoGroups: SabSidebarGroup[] = React.useMemo(() => {
     if (isAdmin) return autoGroupsRaw;
-    const stripAdmin = (items: ZoruSidebarLeaf[]): ZoruSidebarLeaf[] =>
+    const stripAdmin = (items: SabSidebarLeaf[]): SabSidebarLeaf[] =>
       items
         .filter((it) => !it.adminOnly)
         .map((it) =>
@@ -214,7 +214,7 @@ function ZoruHomeShellContent({
       .filter((g) => g.items.length > 0);
   }, [autoGroupsRaw, isAdmin]);
 
-  const defaultSidebarGroups: ZoruSidebarGroup[] =
+  const defaultSidebarGroups: SabSidebarGroup[] =
     autoGroups.length > 0
       ? autoGroups
       : [
@@ -240,7 +240,7 @@ function ZoruHomeShellContent({
 
   // The dock already lists every app — show only the active app's
   // grouped menu in the sidebar (or the override passed by the layout).
-  const sidebarGroups: ZoruSidebarGroup[] = sidebarGroupsProp ?? defaultSidebarGroups;
+  const sidebarGroups: SabSidebarGroup[] = sidebarGroupsProp ?? defaultSidebarGroups;
 
   // Auto-resolve the heading + caption from the active app config when
   // the caller hasn't explicitly overridden them.
@@ -275,7 +275,7 @@ function ZoruHomeShellContent({
         <AppRail items={railItems} label="SabNode apps" />
       </div>
       {!fullBleed && !sidebarless && (
-        <ZoruAppSidebar
+        <SabAppSidebar
           heading={resolvedHeading}
           caption={resolvedCaption}
           groups={sidebarGroups}
@@ -285,8 +285,8 @@ function ZoruHomeShellContent({
 
       <div className="relative flex min-w-0 flex-1 flex-col">
         {/* Header — 20ui AppHeader, theme-synced. The brand + search +
-            notifications + user menu keep their ZoruUI widgets (they re-theme
-            via the ZoruUI dark tokens), with a quick light/dark toggle added. */}
+            notifications + user menu keep their SabUI widgets (they re-theme
+            via the SabUI dark tokens), with a quick light/dark toggle added. */}
         <div className={`ui20 ${appDark ? "dark" : "light"}`}>
           <AppHeader
             sticky={false}
@@ -308,8 +308,8 @@ function ZoruHomeShellContent({
             trailing={
               <>
                 <AppThemeToggle />
-                <ZoruNotificationPopover />
-                <ZoruUserDropdown
+                <SabNotificationPopover />
+                <SabUserDropdown
                   name={user?.name ?? "Account"}
                   email={user?.email ?? undefined}
                   avatarUrl={user?.avatar ?? undefined}

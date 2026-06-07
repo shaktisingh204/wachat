@@ -3,13 +3,13 @@ import * as React from "react";
 import { cn } from "./cn";
 
 /**
- * ZoruProvider — scopes the zoru palette to its subtree.
+ * SabProvider — scopes the zoru palette to its subtree.
  *
- * Wrap any layout/page in <ZoruProvider> to switch that subtree to the
+ * Wrap any layout/page in <SabProvider> to switch that subtree to the
  * pure black-and-white zoru tokens. Works on Server Components — no
  * client runtime required at the scope boundary itself.
  */
-export interface ZoruProviderProps {
+export interface SabProviderProps {
   children: React.ReactNode;
   /** Optional extra classes applied to the scope root. */
   className?: string;
@@ -17,11 +17,11 @@ export interface ZoruProviderProps {
   as?: "div" | "main" | "section" | "article";
 }
 
-export function ZoruProvider({
+export function SabProvider({
   children,
   className,
   as: Tag = "div",
-}: ZoruProviderProps) {
+}: SabProviderProps) {
   return (
     <Tag className={cn("min-h-full antialiased", className)}>
       {children}

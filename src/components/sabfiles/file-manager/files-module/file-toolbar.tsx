@@ -16,18 +16,18 @@ import { Button } from "@/components/sabcrm/20ui/composites/button";
 import { Input } from "@/components/sabcrm/20ui/composites/input";
 import {
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
+  SabDropdownMenuContent,
+  SabDropdownMenuItem,
+  SabDropdownMenuTrigger,
 } from "@/components/sabcrm/20ui/composites/dropdown-menu";
 
-import type { ZoruFileView } from "./types";
+import type { SabFileView } from "./types";
 
-export interface ZoruFileToolbarProps {
+export interface SabFileToolbarProps {
   query: string;
   onQueryChange: (value: string) => void;
-  view: ZoruFileView;
-  onViewChange: (view: ZoruFileView) => void;
+  view: SabFileView;
+  onViewChange: (view: SabFileView) => void;
   onUpload?: () => void;
   onNewFolder?: () => void;
   /** Selected file count (drives bulk actions slot). */
@@ -37,7 +37,7 @@ export interface ZoruFileToolbarProps {
   className?: string;
 }
 
-export function ZoruFileToolbar({
+export function SabFileToolbar({
   query,
   onQueryChange,
   view,
@@ -48,7 +48,7 @@ export function ZoruFileToolbar({
   onClearSelection,
   onDeleteSelection,
   className,
-}: ZoruFileToolbarProps) {
+}: SabFileToolbarProps) {
   return (
     <div
       className={cn(
@@ -69,16 +69,16 @@ export function ZoruFileToolbar({
           <span className="font-medium">{selectionCount} selected</span>
           {onDeleteSelection && (
             <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
+              <SabDropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
                   Bulk action
                 </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent>
-                <ZoruDropdownMenuItem destructive onClick={onDeleteSelection}>
+              </SabDropdownMenuTrigger>
+              <SabDropdownMenuContent>
+                <SabDropdownMenuItem destructive onClick={onDeleteSelection}>
                   <Trash2 /> Delete selected
-                </ZoruDropdownMenuItem>
-              </ZoruDropdownMenuContent>
+                </SabDropdownMenuItem>
+              </SabDropdownMenuContent>
             </DropdownMenu>
           )}
           {onClearSelection && (

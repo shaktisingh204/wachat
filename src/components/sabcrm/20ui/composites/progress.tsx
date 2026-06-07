@@ -5,14 +5,14 @@ import * as ProgressPrimitive from "@radix-ui/react-progress";
 
 import { cn } from "./lib/cn";
 
-export interface ZoruProgressProps
+export interface SabProgressProps
   extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   indicatorClassName?: string;
 }
 
 export const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
-  ZoruProgressProps
+  SabProgressProps
 >(({ className, value, indicatorClassName, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}

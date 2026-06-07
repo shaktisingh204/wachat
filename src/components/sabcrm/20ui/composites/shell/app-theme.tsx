@@ -5,7 +5,7 @@
  *
  * The setting is stored as a class on the document root (`<html class="dark">`
  * / `"light"`), which drives BOTH design systems at once:
- *   - ZoruUI flips its `--zoru-*` tokens under `html.dark .zoruui` (zoruui.css).
+ *   - SabUI flips its `--zoru-*` tokens under `html.dark .zoruui` (zoruui.css).
  *   - 20ui chrome (the app rail + header) reads the resolved value via
  *     `useHtmlDark()` and renders inside a `.ui20 light|dark` scope.
  *
@@ -93,7 +93,7 @@ export interface AppThemeToggleProps {
 /**
  * An icon button that flips light ⇄ dark from anywhere in the shell. Shows a
  * sun while dark (click → light) and a moon while light (click → dark). Built
- * on the ZoruUI ghost icon button so it shares the exact size (36px), ink, and
+ * on the SabUI ghost icon button so it shares the exact size (36px), ink, and
  * hover surface of its header neighbours (the notification bell + avatar) — no
  * cross-design-system seam in the trailing cluster. The choice persists via
  * {@link applyTheme}; `useHtmlDark()` subscribers re-render instantly because

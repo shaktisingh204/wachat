@@ -33,11 +33,11 @@ export const Switch = React.forwardRef<
 Switch.displayName = "Switch";
 
 /**
- * ZoruBouncyToggle — taller, bouncier variant inspired by the
+ * SabBouncyToggle — taller, bouncier variant inspired by the
  * "bouncy-toggle" entry in componts.txt, restated in pure neutrals.
  * Use for marketing-page yes/no toggles where extra physicality helps.
  */
-export interface ZoruBouncyToggleProps {
+export interface SabBouncyToggleProps {
   defaultChecked?: boolean;
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -46,14 +46,14 @@ export interface ZoruBouncyToggleProps {
   disabled?: boolean;
 }
 
-export function ZoruBouncyToggle({
+export function SabBouncyToggle({
   defaultChecked = false,
   checked: checkedProp,
   onCheckedChange,
   label,
   className,
   disabled,
-}: ZoruBouncyToggleProps) {
+}: SabBouncyToggleProps) {
   const [internal, setInternal] = React.useState(defaultChecked);
   const isControlled = checkedProp !== undefined;
   const isChecked = isControlled ? !!checkedProp : internal;

@@ -20,7 +20,7 @@ export const Avatar = React.forwardRef<
 ));
 Avatar.displayName = "Avatar";
 
-export const ZoruAvatarImage = React.forwardRef<
+export const SabAvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
 >(({ className, ...props }, ref) => (
@@ -30,9 +30,9 @@ export const ZoruAvatarImage = React.forwardRef<
     {...props}
   />
 ));
-ZoruAvatarImage.displayName = "ZoruAvatarImage";
+SabAvatarImage.displayName = "SabAvatarImage";
 
-export const ZoruAvatarFallback = React.forwardRef<
+export const SabAvatarFallback = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Fallback>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Fallback>
 >(({ className, ...props }, ref) => (
@@ -45,9 +45,9 @@ export const ZoruAvatarFallback = React.forwardRef<
     {...props}
   />
 ));
-ZoruAvatarFallback.displayName = "ZoruAvatarFallback";
+SabAvatarFallback.displayName = "SabAvatarFallback";
 
 export {
-  ZoruAvatarImage as AvatarImage,
-  ZoruAvatarFallback as AvatarFallback,
+  SabAvatarImage as AvatarImage,
+  SabAvatarFallback as AvatarFallback,
 };

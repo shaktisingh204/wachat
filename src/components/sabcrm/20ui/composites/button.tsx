@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "./lib/cn";
 
-export const zoruButtonVariants = cva(
+export const sabButtonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
     "rounded-[var(--st-radius)] border border-transparent",
@@ -54,21 +54,21 @@ export const zoruButtonVariants = cva(
   },
 );
 
-export interface ZoruButtonProps
+export interface SabButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof zoruButtonVariants> {
+    VariantProps<typeof sabButtonVariants> {
   asChild?: boolean;
   leading?: React.ReactNode;
   trailing?: React.ReactNode;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
+export const Button = React.forwardRef<HTMLButtonElement, SabButtonProps>(
   ({ className, variant, size, block, asChild, leading, trailing, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
         ref={ref}
-        className={cn(zoruButtonVariants({ variant, size, block }), className)}
+        className={cn(sabButtonVariants({ variant, size, block }), className)}
         {...props}
       >
         {asChild ? children : (

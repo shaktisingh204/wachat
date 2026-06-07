@@ -3,7 +3,7 @@
 /**
  * Per-app sidebar registry.
  *
- * Maps pathname prefixes to grouped sidebar menu configs. ZoruHomeShell
+ * Maps pathname prefixes to grouped sidebar menu configs. SabHomeShell
  * consults this when no explicit `sidebarGroups` prop is passed — so as
  * the user navigates between apps, the sidebar swaps to the menu set for
  * the currently active app.
@@ -144,13 +144,13 @@ import {
   Zap,
 } from "lucide-react";
 
-import type { ZoruSidebarGroup } from "./zoru-app-sidebar";
+import type { SabSidebarGroup } from "./zoru-app-sidebar";
 
-export interface ZoruAppSidebarConfig {
+export interface SabAppSidebarConfig {
   prefix: string;
   heading: string;
   caption?: string;
-  build: (pathname: string) => ZoruSidebarGroup[];
+  build: (pathname: string) => SabSidebarGroup[];
 }
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -180,7 +180,7 @@ function leaf(
  * the catch-all `/dashboard`.
  * ────────────────────────────────────────────────────────────────── */
 
-export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
+export const SAB_APP_SIDEBARS: SabAppSidebarConfig[] = [
   /* ─────────────────────────────  WaChat  ─────────────────────────── */
   {
     prefix: "/wachat",
@@ -1749,7 +1749,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
 /** Returns the first sidebar config whose prefix matches the pathname. */
 export function findAppSidebarConfig(
   pathname: string | null | undefined,
-): ZoruAppSidebarConfig | undefined {
+): SabAppSidebarConfig | undefined {
   if (!pathname) return undefined;
-  return ZORU_APP_SIDEBARS.find((cfg) => pathname.startsWith(cfg.prefix));
+  return SAB_APP_SIDEBARS.find((cfg) => pathname.startsWith(cfg.prefix));
 }

@@ -4,13 +4,13 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "./lib/cn";
-import { zoruButtonVariants } from "./button";
+import { sabButtonVariants } from "./button";
 
-export const ZoruAlertDialog = AlertDialogPrimitive.Root;
-export const ZoruAlertDialogTrigger = AlertDialogPrimitive.Trigger;
-export const ZoruAlertDialogPortal = AlertDialogPrimitive.Portal;
+export const SabAlertDialog = AlertDialogPrimitive.Root;
+export const SabAlertDialogTrigger = AlertDialogPrimitive.Trigger;
+export const SabAlertDialogPortal = AlertDialogPrimitive.Portal;
 
-export const ZoruAlertDialogOverlay = React.forwardRef<
+export const SabAlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
@@ -25,14 +25,14 @@ export const ZoruAlertDialogOverlay = React.forwardRef<
     {...props}
   />
 ));
-ZoruAlertDialogOverlay.displayName = "ZoruAlertDialogOverlay";
+SabAlertDialogOverlay.displayName = "SabAlertDialogOverlay";
 
-export const ZoruAlertDialogContent = React.forwardRef<
+export const SabAlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <ZoruAlertDialogPortal>
-    <ZoruAlertDialogOverlay />
+  <SabAlertDialogPortal>
+    <SabAlertDialogOverlay />
     <AlertDialogPrimitive.Content
       ref={ref}
       className={cn(
@@ -45,18 +45,18 @@ export const ZoruAlertDialogContent = React.forwardRef<
       )}
       {...props}
     />
-  </ZoruAlertDialogPortal>
+  </SabAlertDialogPortal>
 ));
-ZoruAlertDialogContent.displayName = "ZoruAlertDialogContent";
+SabAlertDialogContent.displayName = "SabAlertDialogContent";
 
-export function ZoruAlertDialogHeader({
+export function SabAlertDialogHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("flex flex-col space-y-2 text-left", className)} {...props} />;
 }
 
-export function ZoruAlertDialogFooter({
+export function SabAlertDialogFooter({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -71,7 +71,7 @@ export function ZoruAlertDialogFooter({
   );
 }
 
-export const ZoruAlertDialogTitle = React.forwardRef<
+export const SabAlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
@@ -81,9 +81,9 @@ export const ZoruAlertDialogTitle = React.forwardRef<
     {...props}
   />
 ));
-ZoruAlertDialogTitle.displayName = "ZoruAlertDialogTitle";
+SabAlertDialogTitle.displayName = "SabAlertDialogTitle";
 
-export const ZoruAlertDialogDescription = React.forwardRef<
+export const SabAlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
@@ -93,9 +93,9 @@ export const ZoruAlertDialogDescription = React.forwardRef<
     {...props}
   />
 ));
-ZoruAlertDialogDescription.displayName = "ZoruAlertDialogDescription";
+SabAlertDialogDescription.displayName = "SabAlertDialogDescription";
 
-export const ZoruAlertDialogAction = React.forwardRef<
+export const SabAlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> & {
     destructive?: boolean;
@@ -104,22 +104,22 @@ export const ZoruAlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      zoruButtonVariants({ variant: destructive ? "destructive" : "default" }),
+      sabButtonVariants({ variant: destructive ? "destructive" : "default" }),
       className,
     )}
     {...props}
   />
 ));
-ZoruAlertDialogAction.displayName = "ZoruAlertDialogAction";
+SabAlertDialogAction.displayName = "SabAlertDialogAction";
 
-export const ZoruAlertDialogCancel = React.forwardRef<
+export const SabAlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
     ref={ref}
-    className={cn(zoruButtonVariants({ variant: "outline" }), "mt-0", className)}
+    className={cn(sabButtonVariants({ variant: "outline" }), "mt-0", className)}
     {...props}
   />
 ));
-ZoruAlertDialogCancel.displayName = "ZoruAlertDialogCancel";
+SabAlertDialogCancel.displayName = "SabAlertDialogCancel";

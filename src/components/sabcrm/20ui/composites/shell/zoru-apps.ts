@@ -51,24 +51,24 @@ import {
   WaChatIcon,
 } from "./zoru-app-icons";
 
-export type ZoruAppMigrationStatus = "done" | "partial" | "pending";
+export type SabAppMigrationStatus = "done" | "partial" | "pending";
 
-export interface ZoruAppDescriptor {
+export interface SabAppDescriptor {
   id: string;
   name: string;
   href: string;
   Icon: ComponentType<SVGProps<SVGSVGElement>>;
-  migration: ZoruAppMigrationStatus;
+  migration: SabAppMigrationStatus;
   isActive: (pathname: string | null) => boolean;
 }
 
 /**
  * Single source of truth for every dashboard app surfaced in the
  * dock and the "Migrated apps" sidebar group. Flip the `migration`
- * field as a module finishes its ZoruUI port — the sidebar listing
+ * field as a module finishes its SabUI port — the sidebar listing
  * derives from this directly.
  */
-export const ZORU_APPS: ZoruAppDescriptor[] = [
+export const SAB_APPS: SabAppDescriptor[] = [
   {
     id: "home",
     name: "Home",
@@ -82,7 +82,7 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     name: "WaChat",
     href: "/wachat",
     Icon: WaChatIcon,
-    migration: "done", // 95/95 pages on ZoruUI
+    migration: "done", // 95/95 pages on SabUI
     isActive: (p) => p === "/wachat" || !!p?.startsWith("/wachat/"),
   },
   {
@@ -497,6 +497,6 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
   },
 ];
 
-export const ZORU_MIGRATED_APPS = ZORU_APPS.filter(
+export const SAB_MIGRATED_APPS = SAB_APPS.filter(
   (app) => app.migration === "done",
 );

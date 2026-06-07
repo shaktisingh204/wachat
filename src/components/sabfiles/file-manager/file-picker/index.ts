@@ -1,6 +1,6 @@
 export {
-  ZoruFilePicker,
-  ZoruFileInput,
-  type ZoruFilePickerProps,
-  type ZoruFileInputProps,
+  SabFilePicker,
+  SabFileInput,
+  type SabFilePickerProps,
+  type SabFileInputProps,
 } from "./zoru-file-picker";

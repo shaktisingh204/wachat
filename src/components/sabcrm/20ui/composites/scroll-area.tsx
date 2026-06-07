@@ -23,13 +23,13 @@ export const ScrollArea = React.forwardRef<
     >
       {children}
     </ScrollAreaPrimitive.Viewport>
-    <ZoruScrollBar />
+    <SabScrollBar />
     <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 ));
 ScrollArea.displayName = "ScrollArea";
 
-export const ZoruScrollBar = React.forwardRef<
+export const SabScrollBar = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
 >(({ className, orientation = "vertical", ...props }, ref) => (
@@ -49,4 +49,4 @@ export const ZoruScrollBar = React.forwardRef<
     <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-[var(--st-border-strong)]" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));
-ZoruScrollBar.displayName = "ZoruScrollBar";
+SabScrollBar.displayName = "SabScrollBar";

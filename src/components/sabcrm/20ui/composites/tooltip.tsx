@@ -5,11 +5,11 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
 import { cn } from "./lib/cn";
 
-export const ZoruTooltipProvider = TooltipPrimitive.Provider;
+export const SabTooltipProvider = TooltipPrimitive.Provider;
 export const Tooltip = TooltipPrimitive.Root;
-export const ZoruTooltipTrigger = TooltipPrimitive.Trigger;
+export const SabTooltipTrigger = TooltipPrimitive.Trigger;
 
-export const ZoruTooltipContent = React.forwardRef<
+export const SabTooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 6, ...props }, ref) => (
@@ -29,4 +29,4 @@ export const ZoruTooltipContent = React.forwardRef<
     />
   </TooltipPrimitive.Portal>
 ));
-ZoruTooltipContent.displayName = "ZoruTooltipContent";
+SabTooltipContent.displayName = "SabTooltipContent";

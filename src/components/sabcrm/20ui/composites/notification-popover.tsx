@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ZoruNotificationPopover — global header bell.
+ * SabNotificationPopover — global header bell.
  *
  * Renders an icon button with an unread count badge. Clicking opens a
  * popover with the recent items, a "Mark all read" action, a category
@@ -10,7 +10,7 @@
  *
  * Polls `getAllNotifications` every 60s and refreshes when the popover
  * opens. Designed to mount once at the app shell level so every page
- * inside `ZoruHomeShell` (or `WachatShell`) gets the same surface.
+ * inside `SabHomeShell` (or `WachatShell`) gets the same surface.
  */
 
 import * as React from "react";
@@ -39,9 +39,9 @@ import type { WithId } from "mongodb";
 
 import { Button } from "./button";
 import { EmptyState } from "./empty-state";
-import { Popover, ZoruPopoverContent, ZoruPopoverTrigger } from "./popover";
+import { Popover, SabPopoverContent, SabPopoverTrigger } from "./popover";
 import { ScrollArea } from "./scroll-area";
-import { useZoruToast } from "./use-zoru-toast";
+import { useSabToast } from "./use-zoru-toast";
 import { cn } from "./lib/cn";
 
 type CategoryId =
@@ -67,7 +67,7 @@ const CATEGORIES: Array<{
   { id: "system", label: "System", icon: <Info /> },
 ];
 
-export interface ZoruNotificationPopoverProps {
+export interface SabNotificationPopoverProps {
   /** Pixel offset between trigger and popover. Defaults to 8. */
   sideOffset?: number;
   /** Where the popover anchors. Defaults to "end". */
@@ -76,11 +76,11 @@ export interface ZoruNotificationPopoverProps {
   triggerClassName?: string;
 }
 
-export function ZoruNotificationPopover({
+export function SabNotificationPopover({
   sideOffset = 8,
   align = "end",
   triggerClassName,
-}: ZoruNotificationPopoverProps) {
+}: SabNotificationPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const [activeCategory, setActiveCategory] = React.useState<CategoryId>("all");
   const [notifications, setNotifications] = React.useState<
@@ -89,7 +89,7 @@ export function ZoruNotificationPopover({
   const [loading, setLoading] = React.useState(false);
   const [markingAll, setMarkingAll] = React.useState(false);
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useSabToast();
 
   const fetchNotifications = React.useCallback(async () => {
     setLoading(true);
@@ -177,7 +177,7 @@ export function ZoruNotificationPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <SabPopoverTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -198,8 +198,8 @@ export function ZoruNotificationPopover({
             </span>
           )}
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent
+      </SabPopoverTrigger>
+      <SabPopoverContent
         align={align}
         sideOffset={sideOffset}
         className="w-[380px] p-0"
@@ -353,7 +353,7 @@ export function ZoruNotificationPopover({
             View all notifications →
           </button>
         </div>
-      </ZoruPopoverContent>
+      </SabPopoverContent>
     </Popover>
   );
 }

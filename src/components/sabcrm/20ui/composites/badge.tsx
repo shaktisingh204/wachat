@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "./lib/cn";
 
-export const zoruBadgeVariants = cva(
+export const sabBadgeVariants = cva(
   "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium shadow-[var(--st-shadow-sm)] transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
@@ -23,14 +23,14 @@ export const zoruBadgeVariants = cva(
   },
 );
 
-export interface ZoruBadgeProps
+export interface SabBadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof zoruBadgeVariants> {
+    VariantProps<typeof sabBadgeVariants> {
   asChild?: boolean;
   tone?: "neutral" | "rose" | "rose-soft" | "obsidian" | "green" | "amber" | "red" | "blue";
 }
 
-const toneToVariant: Record<NonNullable<ZoruBadgeProps["tone"]>, NonNullable<ZoruBadgeProps["variant"]>> = {
+const toneToVariant: Record<NonNullable<SabBadgeProps["tone"]>, NonNullable<SabBadgeProps["variant"]>> = {
   neutral: "secondary",
   rose: "default",
   "rose-soft": "secondary",
@@ -41,10 +41,10 @@ const toneToVariant: Record<NonNullable<ZoruBadgeProps["tone"]>, NonNullable<Zor
   blue: "info",
 };
 
-export function Badge({ className, variant, tone, ...props }: ZoruBadgeProps) {
+export function Badge({ className, variant, tone, ...props }: SabBadgeProps) {
   return (
     <span
-      className={cn(zoruBadgeVariants({ variant: variant ?? (tone ? toneToVariant[tone] : undefined) }), className)}
+      className={cn(sabBadgeVariants({ variant: variant ?? (tone ? toneToVariant[tone] : undefined) }), className)}
       {...props}
     />
   );

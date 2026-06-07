@@ -3,18 +3,18 @@
 import * as React from "react";
 
 import type {
-  ZoruToastActionElement,
-  ZoruToastProps,
+  SabToastActionElement,
+  SabToastProps,
 } from "./toast";
 
 const TOAST_LIMIT = 3;
 const TOAST_REMOVE_DELAY = 5000;
 
-type ToasterToast = ZoruToastProps & {
+type ToasterToast = SabToastProps & {
   id: string;
   title?: React.ReactNode;
   description?: React.ReactNode;
-  action?: ZoruToastActionElement;
+  action?: SabToastActionElement;
 };
 
 const actionTypes = {
@@ -89,9 +89,9 @@ function dispatch(action: Action) {
   listeners.forEach((listener) => listener(memoryState));
 }
 
-export type ZoruToastInput = Omit<ToasterToast, "id">;
+export type SabToastInput = Omit<ToasterToast, "id">;
 
-export function zoruToast(props: ZoruToastInput) {
+export function sabToast(props: SabToastInput) {
   const id = genId();
   const update = (next: Partial<ToasterToast>) =>
     dispatch({ type: actionTypes.UPDATE_TOAST, toast: { ...next, id } });
@@ -112,7 +112,7 @@ export function zoruToast(props: ZoruToastInput) {
   return { id, dismiss, update };
 }
 
-export function useZoruToast() {
+export function useSabToast() {
   const [state, setState] = React.useState<State>(memoryState);
 
   React.useEffect(() => {
@@ -124,10 +124,10 @@ export function useZoruToast() {
 
   return {
     ...state,
-    toast: zoruToast,
+    toast: sabToast,
     dismiss: (toastId?: string) =>
       dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
   };
 }
 
-export { useZoruToast as useToast };
+export { useSabToast as useToast };

@@ -7,11 +7,11 @@ import { X } from "lucide-react";
 import { cn } from "./lib/cn";
 
 export const Dialog = DialogPrimitive.Root;
-export const ZoruDialogTrigger = DialogPrimitive.Trigger;
-export const ZoruDialogClose = DialogPrimitive.Close;
-export const ZoruDialogPortal = DialogPrimitive.Portal;
+export const SabDialogTrigger = DialogPrimitive.Trigger;
+export const SabDialogClose = DialogPrimitive.Close;
+export const SabDialogPortal = DialogPrimitive.Portal;
 
-export const ZoruDialogOverlay = React.forwardRef<
+export const SabDialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
@@ -26,9 +26,9 @@ export const ZoruDialogOverlay = React.forwardRef<
     {...props}
   />
 ));
-ZoruDialogOverlay.displayName = "ZoruDialogOverlay";
+SabDialogOverlay.displayName = "SabDialogOverlay";
 
-export interface ZoruDialogContentProps
+export interface SabDialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   hideClose?: boolean;
   /**
@@ -38,12 +38,12 @@ export interface ZoruDialogContentProps
   overlayClassName?: string;
 }
 
-export const ZoruDialogContent = React.forwardRef<
+export const SabDialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  ZoruDialogContentProps
+  SabDialogContentProps
 >(({ className, overlayClassName, children, hideClose, ...props }, ref) => (
-  <ZoruDialogPortal>
-    <ZoruDialogOverlay className={overlayClassName} />
+  <SabDialogPortal>
+    <SabDialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
@@ -67,11 +67,11 @@ export const ZoruDialogContent = React.forwardRef<
         </DialogPrimitive.Close>
       )}
     </DialogPrimitive.Content>
-  </ZoruDialogPortal>
+  </SabDialogPortal>
 ));
-ZoruDialogContent.displayName = "ZoruDialogContent";
+SabDialogContent.displayName = "SabDialogContent";
 
-export function ZoruDialogHeader({
+export function SabDialogHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -83,7 +83,7 @@ export function ZoruDialogHeader({
   );
 }
 
-export function ZoruDialogFooter({
+export function SabDialogFooter({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
@@ -98,7 +98,7 @@ export function ZoruDialogFooter({
   );
 }
 
-export const ZoruDialogTitle = React.forwardRef<
+export const SabDialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
@@ -111,9 +111,9 @@ export const ZoruDialogTitle = React.forwardRef<
     {...props}
   />
 ));
-ZoruDialogTitle.displayName = "ZoruDialogTitle";
+SabDialogTitle.displayName = "SabDialogTitle";
 
-export const ZoruDialogDescription = React.forwardRef<
+export const SabDialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
@@ -123,16 +123,16 @@ export const ZoruDialogDescription = React.forwardRef<
     {...props}
   />
 ));
-ZoruDialogDescription.displayName = "ZoruDialogDescription";
+SabDialogDescription.displayName = "SabDialogDescription";
 
 // Backward compatibility transitional aliases
-export const DialogTrigger = ZoruDialogTrigger;
-export const DialogClose = ZoruDialogClose;
-export const DialogPortal = ZoruDialogPortal;
-export const DialogOverlay = ZoruDialogOverlay;
-export const DialogContent = ZoruDialogContent;
-export const DialogHeader = ZoruDialogHeader;
-export const DialogFooter = ZoruDialogFooter;
-export const DialogTitle = ZoruDialogTitle;
-export const DialogDescription = ZoruDialogDescription;
+export const DialogTrigger = SabDialogTrigger;
+export const DialogClose = SabDialogClose;
+export const DialogPortal = SabDialogPortal;
+export const DialogOverlay = SabDialogOverlay;
+export const DialogContent = SabDialogContent;
+export const DialogHeader = SabDialogHeader;
+export const DialogFooter = SabDialogFooter;
+export const DialogTitle = SabDialogTitle;
+export const DialogDescription = SabDialogDescription;
 

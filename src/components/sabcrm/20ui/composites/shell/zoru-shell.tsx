@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { cn } from "../lib/cn";
 
-export interface ZoruShellProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SabShellProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Vertical app rail (left-most). Optional. */
   rail?: React.ReactNode;
   /** Module sidebar (between rail and main). Optional. */
@@ -18,7 +18,7 @@ export interface ZoruShellProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ZoruShell — the new dashboard chrome.
+ * SabShell — the new dashboard chrome.
  *
  * Composition: [rail] · [sidebar] · ( header / main / dock ).
  *
@@ -28,7 +28,7 @@ export interface ZoruShellProps extends React.HTMLAttributes<HTMLDivElement> {
  * binary toggles, use a segmented button group. For module sub-pages,
  * use distinct routes.
  */
-export function ZoruShell({
+export function SabShell({
   rail,
   sidebar,
   header,
@@ -37,7 +37,7 @@ export function ZoruShell({
   contained,
   className,
   ...props
-}: ZoruShellProps) {
+}: SabShellProps) {
   return (
     <div
       className={cn(

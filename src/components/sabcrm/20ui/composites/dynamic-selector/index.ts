@@ -1,5 +1,5 @@
 export {
-  ZoruDynamicSelector,
+  SabDynamicSelector,
   type DynamicSelectorOption,
-  type ZoruDynamicSelectorProps,
+  type SabDynamicSelectorProps,
 } from "./zoru-dynamic-selector";

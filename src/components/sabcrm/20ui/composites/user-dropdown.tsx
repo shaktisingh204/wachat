@@ -11,17 +11,17 @@ import {
 } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { Avatar, ZoruAvatarFallback, ZoruAvatarImage } from "./avatar";
+import { Avatar, SabAvatarFallback, SabAvatarImage } from "./avatar";
 import {
   DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  SabDropdownMenuContent,
+  SabDropdownMenuItem,
+  SabDropdownMenuLabel,
+  SabDropdownMenuSeparator,
+  SabDropdownMenuTrigger,
 } from "./dropdown-menu";
 
-export interface ZoruUserDropdownItem {
+export interface SabUserDropdownItem {
   id: string;
   label: React.ReactNode;
   icon?: React.ReactNode;
@@ -30,7 +30,7 @@ export interface ZoruUserDropdownItem {
   destructive?: boolean;
 }
 
-export interface ZoruUserDropdownProps {
+export interface SabUserDropdownProps {
   name: React.ReactNode;
   email?: React.ReactNode;
   /** Avatar image URL. */
@@ -38,16 +38,16 @@ export interface ZoruUserDropdownProps {
   /** Avatar fallback (initials). Auto-derived from `name` if a string. */
   initials?: string;
   /** Items rendered above the divider. Defaults to Profile / Settings / Billing. */
-  items?: ZoruUserDropdownItem[];
+  items?: SabUserDropdownItem[];
   /** Items rendered below the divider — typically a sign-out. */
-  footerItems?: ZoruUserDropdownItem[];
+  footerItems?: SabUserDropdownItem[];
   /** Compact mode hides the name beside the avatar. */
   compact?: boolean;
   align?: "start" | "center" | "end";
   className?: string;
 }
 
-const DEFAULT_ITEMS: ZoruUserDropdownItem[] = [
+const DEFAULT_ITEMS: SabUserDropdownItem[] = [
   {
     id: "profile",
     label: "Profile",
@@ -68,7 +68,7 @@ const DEFAULT_ITEMS: ZoruUserDropdownItem[] = [
   },
 ];
 
-const DEFAULT_FOOTER: ZoruUserDropdownItem[] = [
+const DEFAULT_FOOTER: SabUserDropdownItem[] = [
   {
     id: "sign-out",
     label: "Sign out",
@@ -90,7 +90,7 @@ function isExternalHref(href: string): boolean {
   );
 }
 
-function DropdownItem({ item }: { item: ZoruUserDropdownItem }) {
+function DropdownItem({ item }: { item: SabUserDropdownItem }) {
   const handleSelect = (e: Event) => {
     item.onSelect?.();
     if (item.href && isExternalHref(item.href)) {
@@ -103,27 +103,27 @@ function DropdownItem({ item }: { item: ZoruUserDropdownItem }) {
 
   if (item.href && !isExternalHref(item.href)) {
     return (
-      <ZoruDropdownMenuItem asChild destructive={item.destructive}>
+      <SabDropdownMenuItem asChild destructive={item.destructive}>
         <Link href={item.href} onSelect={handleSelect as never}>
           {item.icon}
           <span>{item.label}</span>
         </Link>
-      </ZoruDropdownMenuItem>
+      </SabDropdownMenuItem>
     );
   }
 
   return (
-    <ZoruDropdownMenuItem
+    <SabDropdownMenuItem
       destructive={item.destructive}
       onSelect={handleSelect}
     >
       {item.icon}
       <span>{item.label}</span>
-    </ZoruDropdownMenuItem>
+    </SabDropdownMenuItem>
   );
 }
 
-export function ZoruUserDropdown({
+export function SabUserDropdown({
   name,
   email,
   avatarUrl,
@@ -133,12 +133,12 @@ export function ZoruUserDropdown({
   compact,
   align = "end",
   className,
-}: ZoruUserDropdownProps) {
+}: SabUserDropdownProps) {
   const fallback = initials ?? deriveInitials(name);
 
   return (
     <DropdownMenu>
-      <ZoruDropdownMenuTrigger asChild>
+      <SabDropdownMenuTrigger asChild>
         <button
           type="button"
           className={cn(
@@ -148,8 +148,8 @@ export function ZoruUserDropdown({
           )}
         >
           <Avatar>
-            {avatarUrl && <ZoruAvatarImage src={avatarUrl} alt="" />}
-            <ZoruAvatarFallback>{fallback}</ZoruAvatarFallback>
+            {avatarUrl && <SabAvatarImage src={avatarUrl} alt="" />}
+            <SabAvatarFallback>{fallback}</SabAvatarFallback>
           </Avatar>
           {!compact && (
             <>
@@ -163,9 +163,9 @@ export function ZoruUserDropdown({
             </>
           )}
         </button>
-      </ZoruDropdownMenuTrigger>
-      <ZoruDropdownMenuContent align={align} className="w-56">
-        <ZoruDropdownMenuLabel>
+      </SabDropdownMenuTrigger>
+      <SabDropdownMenuContent align={align} className="w-56">
+        <SabDropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-medium normal-case tracking-normal text-[var(--st-text)]">
               {name}
@@ -176,20 +176,20 @@ export function ZoruUserDropdown({
               </span>
             )}
           </div>
-        </ZoruDropdownMenuLabel>
-        <ZoruDropdownMenuSeparator />
+        </SabDropdownMenuLabel>
+        <SabDropdownMenuSeparator />
         {items.map((item) => (
           <DropdownItem key={item.id} item={item} />
         ))}
         {footerItems.length > 0 && (
           <>
-            <ZoruDropdownMenuSeparator />
+            <SabDropdownMenuSeparator />
             {footerItems.map((item) => (
               <DropdownItem key={item.id} item={item} />
             ))}
           </>
         )}
-      </ZoruDropdownMenuContent>
+      </SabDropdownMenuContent>
     </DropdownMenu>
   );
 }

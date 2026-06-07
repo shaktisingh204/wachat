@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from "motion/react";
 import { Search, X } from "lucide-react";
 
 import { cn } from "./lib/cn";
-import { ZoruKbd } from "./kbd";
+import { SabKbd } from "./kbd";
 
-export interface ZoruActionSearchAction {
+export interface SabActionSearchAction {
   id: string;
   label: React.ReactNode;
   icon?: React.ReactNode;
@@ -17,30 +17,30 @@ export interface ZoruActionSearchAction {
   href?: string;
 }
 
-export interface ZoruActionSearchBarProps {
-  actions: ZoruActionSearchAction[];
+export interface SabActionSearchBarProps {
+  actions: SabActionSearchAction[];
   placeholder?: string;
   /** Filter callback. Defaults to a case-insensitive substring match on `label`. */
-  filter?: (action: ZoruActionSearchAction, query: string) => boolean;
+  filter?: (action: SabActionSearchAction, query: string) => boolean;
   className?: string;
   /** Hint shown when the input is empty. */
   emptyHint?: React.ReactNode;
-  onSelect?: (action: ZoruActionSearchAction) => void;
+  onSelect?: (action: SabActionSearchAction) => void;
 }
 
 /**
- * ZoruActionSearchBar — single-line search input that reveals a
+ * SabActionSearchBar — single-line search input that reveals a
  * results panel as the user types. Lighter than the full command
  * palette — drop into headers / hero sections.
  */
-export function ZoruActionSearchBar({
+export function SabActionSearchBar({
   actions,
   placeholder = "Search actions…",
   filter,
   className,
   emptyHint,
   onSelect,
-}: ZoruActionSearchBarProps) {
+}: SabActionSearchBarProps) {
   const [query, setQuery] = React.useState("");
   const [focused, setFocused] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -58,7 +58,7 @@ export function ZoruActionSearchBar({
     if (!q) return actions;
     const fn =
       filter ??
-      ((a: ZoruActionSearchAction) =>
+      ((a: SabActionSearchAction) =>
         String(a.label).toLowerCase().includes(q));
     return actions.filter((a) => fn(a, q));
   }, [actions, query, filter]);
@@ -92,7 +92,7 @@ export function ZoruActionSearchBar({
             <X className="h-3.5 w-3.5" />
           </button>
         )}
-        {!query && <ZoruKbd>⌘K</ZoruKbd>}
+        {!query && <SabKbd>⌘K</SabKbd>}
       </div>
 
       <AnimatePresence>

@@ -3,30 +3,30 @@
 import * as React from "react";
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  SabAlertDialog,
+  SabAlertDialogAction,
+  SabAlertDialogCancel,
+  SabAlertDialogContent,
+  SabAlertDialogDescription,
+  SabAlertDialogFooter,
+  SabAlertDialogHeader,
+  SabAlertDialogTitle,
 } from "@/components/sabcrm/20ui/composites/alert-dialog";
 
-import type { ZoruFileEntity } from "./types";
+import type { SabFileEntity } from "./types";
 
-export interface ZoruFileDeleteDialogProps {
+export interface SabFileDeleteDialogProps {
   /** Either a single file or a list (for bulk delete). `null` closes the dialog. */
-  files: ZoruFileEntity[] | null;
+  files: SabFileEntity[] | null;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (files: ZoruFileEntity[]) => void | Promise<void>;
+  onConfirm: (files: SabFileEntity[]) => void | Promise<void>;
 }
 
-export function ZoruFileDeleteDialog({
+export function SabFileDeleteDialog({
   files,
   onOpenChange,
   onConfirm,
-}: ZoruFileDeleteDialogProps) {
+}: SabFileDeleteDialogProps) {
   const [submitting, setSubmitting] = React.useState(false);
   const open = !!files && files.length > 0;
   const count = files?.length ?? 0;
@@ -43,21 +43,21 @@ export function ZoruFileDeleteDialog({
   };
 
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>
+    <SabAlertDialog open={open} onOpenChange={onOpenChange}>
+      <SabAlertDialogContent>
+        <SabAlertDialogHeader>
+          <SabAlertDialogTitle>
             Delete {count === 1 ? "this file" : `${count} files`}?
-          </ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+          </SabAlertDialogTitle>
+          <SabAlertDialogDescription>
             {count === 1 && files?.[0]
               ? `"${files[0].name}" will be removed permanently.`
               : "These files will be removed permanently. This action cannot be undone."}
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel disabled={submitting}>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
+          </SabAlertDialogDescription>
+        </SabAlertDialogHeader>
+        <SabAlertDialogFooter>
+          <SabAlertDialogCancel disabled={submitting}>Cancel</SabAlertDialogCancel>
+          <SabAlertDialogAction
             destructive
             onClick={(e) => {
               e.preventDefault();
@@ -66,9 +66,9 @@ export function ZoruFileDeleteDialog({
             disabled={submitting}
           >
             {submitting ? "Deleting…" : "Yes, delete"}
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </SabAlertDialogAction>
+        </SabAlertDialogFooter>
+      </SabAlertDialogContent>
+    </SabAlertDialog>
   );
 }

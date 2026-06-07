@@ -3,7 +3,7 @@ import type { SVGProps } from "react";
 type IconProps = SVGProps<SVGSVGElement>;
 
 /**
- * Zoru dock-rail icon set.
+ * Sab dock-rail icon set.
  *
  * Design system:
  *  - 24×24 viewBox, rendered at 18px in the rail.
