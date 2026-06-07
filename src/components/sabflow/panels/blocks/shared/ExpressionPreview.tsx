@@ -1,26 +1,27 @@
 'use client';
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/*
    ExpressionPreview
-   ────────────────────────────────────────────────────────────────────────────
+
    Debounced live preview of a resolved expression, displayed underneath an
-   editor as faint gray text.  Shows `= resolvedValue` on success, or a red
-   error row with a LuCircleAlert icon on failure.  Long results are truncated
-   to a single line with an inline "show full" link that reveals the complete
-   value as a scrollable block.
-   ──────────────────────────────────────────────────────────────────────────── */
+   editor as faint secondary text. Shows `= resolvedValue` on success, or a
+   error row with a CircleAlert icon on failure. Long results are truncated to a
+   single line with an inline "show full" toggle that reveals the complete value
+   as a scrollable block.
+*/
 
 import { memo, useEffect, useMemo, useState } from 'react';
-import { LuCircleAlert } from 'react-icons/lu';
+import { CircleAlert } from 'lucide-react';
 import type { Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   resolveExpression,
   type ExpressionContext,
   type ResolveResult,
 } from './expressionResolver';
 
-/* ── Props ────────────────────────────────────────────────────────────────── */
+/* Props */
 
 export interface ExpressionPreviewProps {
   /** Raw value written by the user (with or without `=` prefix). */
@@ -29,14 +30,14 @@ export interface ExpressionPreviewProps {
   variables: Variable[];
   /** Upstream nodes + their sample output schemas. */
   nodes?: ExpressionContext['nodes'];
-  /** Debounce delay in milliseconds — defaults to 200 ms. */
+  /** Debounce delay in milliseconds, defaults to 200 ms. */
   debounceMs?: number;
   /** Max characters shown inline before offering "show full". */
   truncateAt?: number;
   className?: string;
 }
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+/* Helpers */
 
 function stripEquals(value: string): string {
   return value.startsWith('=') ? value.slice(1) : value;
@@ -54,7 +55,7 @@ function formatPreview(value: unknown): string {
   }
 }
 
-/* ── Component ────────────────────────────────────────────────────────────── */
+/* Component */
 
 function ExpressionPreviewInner({
   value,
@@ -91,11 +92,11 @@ function ExpressionPreviewInner({
       <div
         role="alert"
         className={cn(
-          'flex items-start gap-1.5 text-[11px] text-[var(--st-text-secondary)] leading-snug',
+          'flex items-start gap-1.5 text-[11px] text-[var(--st-danger)] leading-snug',
           className,
         )}
       >
-        <LuCircleAlert
+        <CircleAlert
           className="h-3.5 w-3.5 shrink-0 mt-[1px]"
           strokeWidth={1.8}
           aria-hidden="true"
@@ -107,32 +108,33 @@ function ExpressionPreviewInner({
 
   const formatted = formatPreview(result.value);
   const isLong = formatted.length > truncateAt;
-  const display = !expanded && isLong ? `${formatted.slice(0, truncateAt)}…` : formatted;
+  const display = !expanded && isLong ? `${formatted.slice(0, truncateAt)}...` : formatted;
 
   return (
     <div
       className={cn(
-        'text-[11px] text-[var(--gray-8)] leading-snug flex flex-wrap items-baseline gap-1',
+        'text-[11px] text-[var(--st-text-tertiary)] leading-snug flex flex-wrap items-baseline gap-1',
         className,
       )}
     >
-      <span className="text-[var(--gray-7)] select-none">=</span>
+      <span className="text-[var(--st-text-tertiary)] select-none">=</span>
       <span
         className={cn(
-          'font-mono text-[var(--gray-9)] break-words',
+          'font-mono text-[var(--st-text-secondary)] break-words',
           !expanded && 'truncate max-w-full',
         )}
       >
         {display}
       </span>
       {isLong && (
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setExpanded((prev) => !prev)}
-          className="text-[10.5px] text-[var(--st-text)] hover:underline"
+          className="text-[10.5px] text-[var(--st-accent)] hover:underline"
         >
           {expanded ? 'collapse' : 'show full'}
-        </button>
+        </Button>
       )}
     </div>
   );

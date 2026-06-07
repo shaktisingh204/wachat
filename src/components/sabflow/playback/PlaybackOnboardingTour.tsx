@@ -2,23 +2,22 @@
 
 /**
  * PlaybackOnboardingTour
- * ────────────────────────────────────────────────────────────────────────────
+ * ............................................................................
  * A 5-step product tour that orients first-time visitors of the SabFlow
  * execution replay view. Steps cover:
  *
- *   1. Open execution      — the page header / status pill
- *   2. See timeline        — the left timeline rail
- *   3. Step frame-by-frame — the bottom scrub bar / transport controls
- *   4. Inspect node config — the right node-detail pane
- *   5. Pin / export        — the header overflow ("…") menu
+ *   1. Open execution      . the page header / status pill
+ *   2. See timeline        . the left timeline rail
+ *   3. Step frame-by-frame . the bottom scrub bar / transport controls
+ *   4. Inspect node config . the right node-detail pane
+ *   5. Pin / export        . the header overflow ("...") menu
  *
  * Implementation notes
- * ────────────────────────────────────────────────────────────────────────────
- * SabNode does **not** depend on a third-party onboarding/tour library
- * (no joyride, driver.js, intro.js, shepherd, reactour, etc.). The project
- * does ship Radix UI primitives (`@radix-ui/react-popover`), which already
- * power dozens of in-app popovers — we reuse that primitive here so the tour
- * matches the rest of the design system and ships zero new dependencies.
+ * ............................................................................
+ * SabNode does NOT depend on a third-party onboarding/tour library
+ * (no joyride, driver.js, intro.js, shepherd, reactour, etc.). The tour is
+ * built on the 20ui Popover (a token-skinned wrapper around Radix Popover),
+ * so it matches the rest of the design system and ships zero new dependencies.
  *
  * Each step targets a DOM element by `data-tour` attribute. The host page
  * (the replay view) places these attributes on the relevant regions; if a
@@ -29,30 +28,35 @@
  *   `sabflow:playback-tour:completed` = `'1' | undefined`
  * so the tour only auto-launches on a user's first visit. Calling
  * <PlaybackOnboardingTour autoStart={false} forceOpen={someBoolean} /> from
- * a "Help → Replay tour" menu lets the user replay it on demand without
+ * a "Help, Replay tour" menu lets the user replay it on demand without
  * touching localStorage.
  */
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Popover, PopoverContent, PopoverAnchor } from '@/components/sabcrm/20ui';
+import {
+  Popover,
+  PopoverContent,
+  PopoverAnchor,
+  Button,
+} from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
-/* ─── Public API ─────────────────────────────────────────────────────── */
+/* ... Public API ......................................................... */
 
 const STORAGE_KEY = 'sabflow:playback-tour:completed';
 
 export interface PlaybackOnboardingTourProps {
   /**
    * If true, the tour auto-launches once per browser (gated on
-   * `localStorage[STORAGE_KEY]`). Defaults to `true` — the replay page
+   * `localStorage[STORAGE_KEY]`). Defaults to `true`, the replay page
    * should set this to true on its first render.
    */
   autoStart?: boolean;
   /**
    * Force the tour open regardless of localStorage. Used by the
-   * "Help → Replay tour" menu so a user can replay the tour any time.
-   * Toggle from `false → true` to start; the component will toggle it
+   * "Help, Replay tour" menu so a user can replay the tour any time.
+   * Toggle from `false` to `true` to start; the component will toggle it
    * back internally via `onClose`.
    */
   forceOpen?: boolean;
@@ -60,14 +64,14 @@ export interface PlaybackOnboardingTourProps {
   onClose?: (completed: boolean) => void;
 }
 
-/* ─── Step content ───────────────────────────────────────────────────── */
+/* ... Step content ....................................................... */
 
 interface TourStep {
   /** `data-tour="<id>"` on the target DOM node. */
   targetId: string;
   /** Short heading shown at the top of the popover. */
   title: string;
-  /** Body copy — short, conversational, action-focused. */
+  /** Body copy, short, conversational, action-focused. */
   body: string;
   /** Side of the target the popover should appear on. */
   side?: 'top' | 'right' | 'bottom' | 'left';
@@ -80,7 +84,7 @@ const STEPS: readonly TourStep[] = [
     targetId: 'replay-header',
     title: '1. You opened an execution',
     body:
-      'This is a recording of one flow run. The pill on the left shows whether it succeeded, errored, or is still in progress. Everything you do here is read-only — no external APIs are called.',
+      'This is a recording of one flow run. The pill on the left shows whether it succeeded, errored, or is still in progress. Everything you do here is read-only, no external APIs are called.',
     side: 'bottom',
     align: 'start',
   },
@@ -88,7 +92,7 @@ const STEPS: readonly TourStep[] = [
     targetId: 'replay-timeline',
     title: '2. The timeline shows every node',
     body:
-      'Each row is one block that ran, in execution order. Green = success, red = error, amber = waiting. Click any row — or press ↑ / ↓ — to jump to that node.',
+      'Each row is one block that ran, in execution order. Green = success, red = error, amber = waiting. Click any row, or press the up / down arrows, to jump to that node.',
     side: 'right',
     align: 'start',
   },
@@ -96,7 +100,7 @@ const STEPS: readonly TourStep[] = [
     targetId: 'replay-scrubber',
     title: '3. Step through frame-by-frame',
     body:
-      'Use the scrub bar to jump anywhere in the run. Press Space to play, or pick a speed (up to 8×). Each bar\'s width matches that node\'s duration — slow steps stand out.',
+      'Use the scrub bar to jump anywhere in the run. Press Space to play, or pick a speed (up to 8x). Each bar\'s width matches that node\'s duration, so slow steps stand out.',
     side: 'top',
     align: 'center',
   },
@@ -104,7 +108,7 @@ const STEPS: readonly TourStep[] = [
     targetId: 'replay-detail',
     title: '4. Inspect node config and data',
     body:
-      'The right pane shows the exact input and output JSON for the selected node, plus its duration and any error. Use "Re-run from here" to retry the flow from this block — upstream outputs stay pinned, so it\'s free.',
+      'The right pane shows the exact input and output JSON for the selected node, plus its duration and any error. Use "Re-run from here" to retry the flow from this block. Upstream outputs stay pinned, so it\'s free.',
     side: 'left',
     align: 'start',
   },
@@ -112,20 +116,20 @@ const STEPS: readonly TourStep[] = [
     targetId: 'replay-actions',
     title: '5. Pin and export',
     body:
-      'The overflow menu lets you pin a node\'s output into the flow editor, or export the whole run as JSON / CSV / HAR for a support ticket or audit trail. That\'s it — happy debugging!',
+      'The overflow menu lets you pin a node\'s output into the flow editor, or export the whole run as JSON / CSV / HAR for a support ticket or audit trail. That\'s it, happy debugging!',
     side: 'bottom',
     align: 'end',
   },
 ] as const;
 
-/* ─── Helpers ────────────────────────────────────────────────────────── */
+/* ... Helpers ............................................................ */
 
 function isCompleted(): boolean {
   if (typeof window === 'undefined') return true;
   try {
     return window.localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
-    // Private mode / disabled storage — treat as completed so we never
+    // Private mode / disabled storage, treat as completed so we never
     // pop the tour repeatedly.
     return true;
   }
@@ -141,7 +145,7 @@ function markCompleted(): void {
 }
 
 /**
- * Resolve a `data-tour` target. Returns `null` if not found — the caller
+ * Resolve a `data-tour` target. Returns `null` if not found, the caller
  * skips that step so the tour gracefully degrades on responsive layouts
  * that hide certain regions.
  */
@@ -150,7 +154,7 @@ function findTarget(id: string): HTMLElement | null {
   return document.querySelector<HTMLElement>(`[data-tour="${id}"]`);
 }
 
-/* ─── Component ──────────────────────────────────────────────────────── */
+/* ... Component .......................................................... */
 
 export function PlaybackOnboardingTour({
   autoStart = true,
@@ -173,7 +177,7 @@ export function PlaybackOnboardingTour({
     setMounted(true);
     if (forceOpen || (autoStart && !isCompleted())) {
       // Defer one frame so the host page has a chance to render its
-      // `data-tour="…"` targets before we measure them.
+      // `data-tour="..."` targets before we measure them.
       const id = window.requestAnimationFrame(() => {
         setStepIdx(0);
         setOpen(true);
@@ -205,7 +209,7 @@ export function PlaybackOnboardingTour({
         return;
       }
     }
-    // Nothing left to show — close.
+    // Nothing left to show, close.
     setOpen(false);
     markCompleted();
     onClose?.(true);
@@ -223,7 +227,7 @@ export function PlaybackOnboardingTour({
     advanceFrom(0);
   }, [open, advanceFrom]);
 
-  // Highlight overlay — semi-transparent ring around the current target.
+  // Highlight overlay, semi-transparent ring around the current target.
   const target = open ? findTarget(STEPS[stepIdx]?.targetId ?? '') : null;
   const rect = target?.getBoundingClientRect();
 
@@ -239,9 +243,10 @@ export function PlaybackOnboardingTour({
   const step = STEPS[stepIdx];
   const isLast = stepIdx >= STEPS.length - 1;
 
-  // The virtual anchor — an invisible div positioned over the target —
+  // The virtual anchor, an invisible div positioned over the target,
   // gives Radix something to attach the popover to without us having to
   // wrap the target itself (the target lives in a different component tree).
+  // Position is runtime-computed from the target's bounding rect.
   const anchorStyle: React.CSSProperties = {
     position: 'fixed',
     top: rect.top,
@@ -252,8 +257,9 @@ export function PlaybackOnboardingTour({
     zIndex: 9998,
   };
 
-  // Spotlight ring — drawn around the target so the user's eye is drawn
-  // to it. Uses a large box-shadow to dim the rest of the screen.
+  // Spotlight ring, drawn around the target so the user's eye is drawn
+  // to it. The large box-shadow dims the rest of the screen. Position and
+  // size are runtime-computed from the target's bounding rect.
   const spotlightStyle: React.CSSProperties = {
     position: 'fixed',
     top: rect.top - 6,
@@ -262,7 +268,7 @@ export function PlaybackOnboardingTour({
     height: rect.height + 12,
     borderRadius: 12,
     boxShadow: '0 0 0 9999px rgba(15, 23, 42, 0.55)',
-    border: '2px solid #f76808',
+    border: '2px solid var(--st-accent)',
     pointerEvents: 'none',
     transition: 'all 240ms cubic-bezier(0.4, 0, 0.2, 1)',
     zIndex: 9997,
@@ -272,33 +278,28 @@ export function PlaybackOnboardingTour({
   if (!portalTarget) return null;
 
   return createPortal(
-    <div data-sabflow-playback-tour="" aria-live="polite">
-      {/* Click-trap to dismiss the tour with the keyboard or by clicking
-          the dim layer outside the highlighted region. */}
-      <button
-        type="button"
+    <div
+      className="ui20"
+      data-sabflow-playback-tour=""
+      aria-live="polite"
+    >
+      {/* Click-trap to dismiss the tour by clicking the dim layer outside
+          the highlighted region. */}
+      <Button
+        variant="ghost"
         aria-label="Skip playback tour"
         onClick={() => close(false)}
         onKeyDown={(e) => {
           if (e.key === 'Escape') close(false);
         }}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'transparent',
-          border: 'none',
-          padding: 0,
-          margin: 0,
-          cursor: 'default',
-          zIndex: 9996,
-        }}
+        className="fixed inset-0 h-auto w-auto cursor-default rounded-none border-none bg-transparent p-0"
       />
 
-      <div style={spotlightStyle} aria-hidden />
+      <div className="fixed" style={spotlightStyle} aria-hidden />
 
       <Popover open modal={false}>
         <PopoverAnchor asChild>
-          <div style={anchorStyle} aria-hidden />
+          <div className="fixed" style={anchorStyle} aria-hidden />
         </PopoverAnchor>
         <PopoverContent
           side={step.side ?? 'bottom'}
@@ -311,13 +312,12 @@ export function PlaybackOnboardingTour({
           }}
           onPointerDownOutside={(e) => {
             // Don't auto-dismiss when the click lands on our own
-            // backdrop button — the button handler will close us.
+            // backdrop button, the button handler will close us.
             e.preventDefault();
           }}
           className={cn(
-            'w-[340px] max-w-[calc(100vw-32px)] border-[var(--gray-5)]',
-            'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-xl',
-            'p-0 overflow-hidden',
+            'w-[340px] max-w-[calc(100vw-32px)] overflow-hidden p-0',
+            'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]',
           )}
         >
           <TourStepCard
@@ -351,7 +351,7 @@ export function PlaybackOnboardingTour({
   );
 }
 
-/* ─── Step card ──────────────────────────────────────────────────────── */
+/* ... Step card .......................................................... */
 
 function TourStepCard({
   step,
@@ -373,75 +373,62 @@ function TourStepCard({
   return (
     <div className="flex flex-col">
       {/* Progress dots */}
-      <div className="flex items-center gap-1.5 border-b border-[var(--gray-4)] px-4 py-2.5">
+      <div className="flex items-center gap-1.5 border-b border-[var(--st-border)] px-4 py-2.5">
         {Array.from({ length: totalSteps }).map((_, i) => (
           <span
             key={i}
             className={cn(
               'h-1.5 rounded-full transition-all',
               i === stepIdx
-                ? 'w-5 bg-[var(--st-text)]'
+                ? 'w-5 bg-[var(--st-accent)]'
                 : i < stepIdx
-                ? 'w-1.5 bg-[var(--st-text)]/60'
-                : 'w-1.5 bg-[var(--gray-5)]',
+                ? 'w-1.5 bg-[var(--st-accent)]/60'
+                : 'w-1.5 bg-[var(--st-border-strong)]',
             )}
             aria-hidden
           />
         ))}
-        <span className="ml-auto text-[10.5px] tabular-nums text-[var(--gray-9)]">
+        <span className="ml-auto text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
           {stepIdx + 1} / {totalSteps}
         </span>
       </div>
 
       {/* Body */}
       <div className="px-4 py-3">
-        <h3 className="text-[13px] font-semibold text-[var(--gray-12)]">
+        <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
           {step.title}
         </h3>
-        <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--gray-11)]">
+        <p className="mt-1.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
           {step.body}
         </p>
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between gap-2 border-t border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2">
-        <button
-          type="button"
-          onClick={onSkip}
-          className="rounded-md px-2 py-1 text-[11.5px] font-medium text-[var(--gray-9)] hover:text-[var(--gray-12)]"
-        >
+      <div className="flex items-center justify-between gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
+        <Button variant="ghost" size="sm" onClick={onSkip}>
           Skip tour
-        </button>
+        </Button>
         <div className="flex items-center gap-1.5">
           {stepIdx > 0 && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)]"
-            >
+            <Button variant="outline" size="sm" onClick={onBack}>
               Back
-            </button>
+            </Button>
           )}
-          <button
-            type="button"
-            onClick={onNext}
-            className="rounded-md bg-[var(--st-text)] px-3 py-1 text-[11.5px] font-semibold text-white hover:bg-[var(--st-text)]"
-            autoFocus
-          >
+          <Button variant="primary" size="sm" onClick={onNext} autoFocus>
             {isLast ? 'Finish' : 'Next'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── Test helpers ───────────────────────────────────────────────────── */
+/* ... Test helpers ....................................................... */
 
 /**
- * Resets the "tour completed" flag — useful from a dev menu so the team
+ * Resets the "tour completed" flag, useful from a dev menu so the team
  * can re-trigger the auto-launch path without clearing the rest of
- * localStorage. Exported for use in `Help → Reset onboarding`.
+ * localStorage. Exported for use in `Help, Reset onboarding`.
  */
 export function resetPlaybackTour(): void {
   if (typeof window === 'undefined') return;
@@ -452,7 +439,7 @@ export function resetPlaybackTour(): void {
   }
 }
 
-/** Tour step ids — exported so the host page can keep the `data-tour`
+/** Tour step ids, exported so the host page can keep the `data-tour`
  *  attributes in sync at compile time. */
 export const PLAYBACK_TOUR_TARGETS = {
   HEADER: 'replay-header',

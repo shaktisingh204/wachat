@@ -1,17 +1,22 @@
 'use client';
 
-import { useState, useRef, useCallback, useId } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { createId } from '@paralleldrive/cuid2';
 import type { Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import { Plus, Trash2, Pencil, Variable as VariableIcon } from 'lucide-react';
 import {
-  LuPlus,
-  LuTrash2,
-  LuPencil,
-  LuCheck,
-  LuX,
-  LuVariable,
-} from 'react-icons/lu';
+  Button,
+  IconButton,
+  Input,
+  Badge,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ──────────────────────────────────────────────── */
 
@@ -26,13 +31,13 @@ interface Props {
   onUpdate: (variables: Variable[]) => void;
 }
 
-/* ── Type badge colours ─────────────────────────────────── */
+/* ── Type labels ────────────────────────────────────────── */
 
-const TYPE_STYLES: Record<VariableType, { bg: string; text: string; label: string }> = {
-  text:    { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',    text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',   label: 'Text' },
-  number:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40', text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]', label: 'Num' },
-  boolean: { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',  text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',  label: 'Bool' },
-  object:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',  text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',  label: 'Obj' },
+const TYPE_LABELS: Record<VariableType, string> = {
+  text: 'Text',
+  number: 'Num',
+  boolean: 'Bool',
+  object: 'Obj',
 };
 
 /* ── Inline editable row ────────────────────────────────── */
@@ -47,7 +52,6 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<RichVariable>({ ...variable });
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const labelId = useId();
 
   const startEdit = () => {
     setDraft({ ...variable });
@@ -69,15 +73,14 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
   };
 
   const type: VariableType = (variable as RichVariable).varType ?? 'text';
-  const style = TYPE_STYLES[type];
 
   return (
     <div
       className={cn(
-        'group flex flex-col gap-1.5 rounded-xl border px-3 py-2.5 transition-shadow',
+        'group flex flex-col gap-1.5 rounded-[var(--st-radius)] border px-3 py-2.5 transition-shadow',
         editing
-          ? 'border-[var(--st-border)] shadow-[0_0_0_2px_rgba(247,104,8,0.15)] bg-[var(--gray-1)]'
-          : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
+          ? 'border-[var(--st-accent)] bg-[var(--st-bg)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg)]',
       )}
     >
       {editing ? (
@@ -85,10 +88,9 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
         <div className="flex flex-col gap-2">
           {/* Name + type row */}
           <div className="flex items-center gap-2">
-            <input
+            <Input
               ref={nameInputRef}
-              id={labelId}
-              type="text"
+              inputSize="sm"
               value={draft.name}
               onChange={(e) => setDraft((v) => ({ ...v, name: e.target.value }))}
               onKeyDown={(e) => {
@@ -96,30 +98,29 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
                 if (e.key === 'Escape') discard();
               }}
               placeholder="Variable name"
-              className={cn(
-                'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-                'px-2.5 py-1.5 text-[12.5px] font-mono text-[var(--gray-12)]',
-                'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-              )}
+              aria-label="Variable name"
+              className="flex-1 min-w-0 font-mono"
             />
-            <select
+            <Select
               value={draft.varType ?? 'text'}
-              onChange={(e) => setDraft((v) => ({ ...v, varType: e.target.value as VariableType }))}
-              className={cn(
-                'rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-                'px-2 py-1.5 text-[11.5px] text-[var(--gray-11)]',
-                'outline-none focus:border-[var(--st-border)] transition-colors cursor-pointer',
-              )}
+              onValueChange={(val) => setDraft((v) => ({ ...v, varType: val as VariableType }))}
             >
-              {(Object.keys(TYPE_STYLES) as VariableType[]).map((t) => (
-                <option key={t} value={t}>{TYPE_STYLES[t].label}</option>
-              ))}
-            </select>
+              <SelectTrigger aria-label="Variable type" className="w-[88px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(TYPE_LABELS) as VariableType[]).map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {TYPE_LABELS[t]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Default value */}
-          <input
-            type="text"
+          <Input
+            inputSize="sm"
             value={draft.value ?? ''}
             onChange={(e) => setDraft((v) => ({ ...v, value: e.target.value }))}
             onKeyDown={(e) => {
@@ -127,77 +128,49 @@ function VariableRow({ variable, onSave, onDelete }: RowProps) {
               if (e.key === 'Escape') discard();
             }}
             placeholder="Default value (optional)"
-            className={cn(
-              'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-              'px-2.5 py-1.5 text-[12px] text-[var(--gray-11)]',
-              'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-            )}
+            aria-label="Default value"
           />
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={discard}
-              className="flex items-center gap-1 rounded-lg border border-[var(--gray-5)] px-2.5 py-1 text-[11.5px] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuX className="h-3 w-3" strokeWidth={2.5} /> Cancel
-            </button>
-            <button
-              onClick={commit}
-              disabled={!draft.name.trim()}
-              className={cn(
-                'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition-colors',
-                draft.name.trim()
-                  ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-                  : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
-              )}
-            >
-              <LuCheck className="h-3 w-3" strokeWidth={2.5} /> Save
-            </button>
+            <Button variant="ghost" size="sm" onClick={discard}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" onClick={commit} disabled={!draft.name.trim()}>
+              Save
+            </Button>
           </div>
         </div>
       ) : (
         /* ── View mode ─────────────────────────────────── */
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Type badge */}
-          <span
-            className={cn(
-              'shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
-              style.bg,
-              style.text,
-            )}
-          >
-            {style.label}
-          </span>
+          <Badge tone="neutral" kind="soft" className="shrink-0 uppercase">
+            {TYPE_LABELS[type]}
+          </Badge>
 
           {/* Name + default value */}
           <div className="flex-1 min-w-0">
-            <p className="truncate text-[12.5px] font-mono font-medium text-[var(--gray-12)]">
+            <p className="truncate text-[12.5px] font-mono font-medium text-[var(--st-text)]">
               {variable.name}
             </p>
             {variable.value && (
-              <p className="truncate text-[11px] text-[var(--gray-9)] mt-0.5">
+              <p className="truncate text-[11px] text-[var(--st-text-secondary)] mt-0.5">
                 = {variable.value}
               </p>
             )}
           </div>
 
-          {/* Actions — revealed on hover */}
+          {/* Actions - revealed on hover */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-            <button
-              onClick={startEdit}
-              title="Edit variable"
-              className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuPencil className="h-3 w-3" strokeWidth={2} />
-            </button>
-            <button
+            <IconButton label="Edit variable" icon={Pencil} size="sm" variant="ghost" onClick={startEdit} />
+            <IconButton
+              label="Delete variable"
+              icon={Trash2}
+              size="sm"
+              variant="ghost"
               onClick={() => onDelete(variable.id)}
-              title="Delete variable"
-              className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] transition-colors"
-            >
-              <LuTrash2 className="h-3 w-3" strokeWidth={2} />
-            </button>
+            />
           </div>
         </div>
       )}
@@ -241,64 +214,45 @@ export function VariablesPanel({ variables, onUpdate }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* ── Header ──────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] shrink-0">
-          <LuVariable className="h-3.5 w-3.5" strokeWidth={2} />
-        </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Variables</span>
-        <span className="text-[11px] tabular-nums text-[var(--gray-9)] font-medium">
-          {variables.length}
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] shrink-0">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] shrink-0">
+          <VariableIcon className="h-3.5 w-3.5" aria-hidden="true" />
         </span>
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">Variables</span>
+        <Badge tone="neutral" kind="soft" className="tabular-nums">
+          {variables.length}
+        </Badge>
       </div>
 
       {/* ── Search + Add ────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--gray-4)] shrink-0">
-        <input
-          type="text"
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--st-border)] shrink-0">
+        <Input
+          inputSize="sm"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter variables…"
-          className={cn(
-            'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
-            'px-2.5 py-1.5 text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-            'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-          )}
+          placeholder="Filter variables..."
+          aria-label="Filter variables"
+          className="flex-1 min-w-0"
         />
-        <button
-          onClick={handleAdd}
-          title="Add variable"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] transition-colors"
-        >
-          <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-        </button>
+        <IconButton label="Add variable" icon={Plus} size="sm" variant="primary" onClick={handleAdd} />
       </div>
 
       {/* ── Variable list ───────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-1.5">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-3 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-              <LuVariable className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-[12.5px] font-medium text-[var(--gray-11)]">
-                {search ? 'No variables match' : 'No variables yet'}
-              </p>
-              {!search && (
-                <p className="text-[11.5px] text-[var(--gray-9)] mt-0.5">
-                  Add variables to store user responses
-                </p>
-              )}
-            </div>
-            {!search && (
-              <button
-                onClick={handleAdd}
-                className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)] transition-colors"
-              >
-                <LuPlus className="h-3 w-3" strokeWidth={2.5} /> Add variable
-              </button>
-            )}
-          </div>
+          <EmptyState
+            icon={VariableIcon}
+            title={search ? 'No variables match' : 'No variables yet'}
+            description={search ? undefined : 'Add variables to store user responses'}
+            size="sm"
+            action={
+              !search ? (
+                <Button variant="primary" size="sm" iconLeft={Plus} onClick={handleAdd}>
+                  Add variable
+                </Button>
+              ) : undefined
+            }
+          />
         ) : (
           filtered.map((v) => (
             <VariableRow
@@ -313,10 +267,10 @@ export function VariablesPanel({ variables, onUpdate }: Props) {
 
       {/* ── Footer hint ─────────────────────────────────── */}
       {variables.length > 0 && (
-        <div className="px-4 py-2.5 border-t border-[var(--gray-4)] shrink-0">
-          <p className="text-[11px] text-[var(--gray-9)]">
+        <div className="px-4 py-2.5 border-t border-[var(--st-border)] shrink-0">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Reference with{' '}
-            <code className="rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10px] text-[var(--gray-11)]">
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text)]">
               {'{{variableName}}'}
             </code>{' '}
             in block settings.

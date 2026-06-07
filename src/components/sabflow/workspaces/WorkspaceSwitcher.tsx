@@ -7,8 +7,8 @@
  *   - create a new workspace
  *
  * The active workspace id is stored in:
- *   localStorage → "sabflow.currentWorkspaceId"
- *   cookie       → "sabflow_workspace_id" (SameSite=Lax, 1-year max-age)
+ *   localStorage -> "sabflow.currentWorkspaceId"
+ *   cookie       -> "sabflow_workspace_id" (SameSite=Lax, 1-year max-age)
  */
 
 import {
@@ -22,12 +22,25 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  LuBuilding,
-  LuCheck,
-  LuChevronDown,
-  LuPlus,
-  LuSettings,
-} from 'react-icons/lu';
+  Building2,
+  Check,
+  ChevronDown,
+  Plus,
+  Settings,
+} from 'lucide-react';
+import {
+  Avatar,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  Input,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import type { Workspace } from '@/lib/sabflow/workspaces/types';
 
@@ -69,6 +82,7 @@ export function WorkspaceSwitcher({
   className,
 }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [workspaces, setWorkspaces] = useState<Workspace[]>(
     initialWorkspaces ?? [],
   );
@@ -80,9 +94,9 @@ export function WorkspaceSwitcher({
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
 
-  /* ── Load workspaces on mount when not pre-hydrated ─────── */
+  /* Load workspaces on mount when not pre-hydrated */
   useEffect(() => {
     if (initialWorkspaces && initialWorkspaces.length > 0) return;
     let cancelled = false;
@@ -96,7 +110,7 @@ export function WorkspaceSwitcher({
           setWorkspaces(data.workspaces);
         }
       } catch {
-        // non-fatal — switcher stays empty
+        // non-fatal, switcher stays empty
       }
     })();
     return () => {
@@ -104,7 +118,7 @@ export function WorkspaceSwitcher({
     };
   }, [initialWorkspaces]);
 
-  /* ── Pick an initial current workspace ──────────────────── */
+  /* Pick an initial current workspace */
   useEffect(() => {
     if (currentId) return;
     if (workspaces.length === 0) return;
@@ -119,17 +133,14 @@ export function WorkspaceSwitcher({
     }
   }, [currentId, initialWorkspaceId, workspaces]);
 
-  /* ── Click-away to close ────────────────────────────────── */
+  /* Focus the create input when the inline form opens */
   useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onDown);
-    return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
+    if (showCreate) {
+      // Defer so Radix has settled focus inside the open menu first.
+      const t = window.setTimeout(() => nameInputRef.current?.focus(), 0);
+      return () => window.clearTimeout(t);
+    }
+  }, [showCreate]);
 
   const current = useMemo(
     () => workspaces.find((w) => w.id === currentId) ?? null,
@@ -175,13 +186,17 @@ export function WorkspaceSwitcher({
         handleSwitch(data.workspace);
         setShowCreate(false);
         setNewName('');
+        toast.success(`Workspace "${data.workspace.name}" created`);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create workspace');
+        const message =
+          err instanceof Error ? err.message : 'Failed to create workspace';
+        setError(message);
+        toast.error(message);
       } finally {
         setCreating(false);
       }
     },
-    [handleSwitch, newName],
+    [handleSwitch, newName, toast],
   );
 
   const goToSettings = useCallback(() => {
@@ -190,165 +205,159 @@ export function WorkspaceSwitcher({
     router.push(`/dashboard/sabflow/workspaces/${current.id}/settings`);
   }, [current, router]);
 
-  /* ── Render ─────────────────────────────────────────────── */
+  /* Render */
 
   return (
-    <div ref={rootRef} className={cn('relative', className)}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-white px-2.5 py-1.5 text-[13px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white dark:hover:bg-[var(--st-text)]"
+    <div className={cn('relative', className)}>
+      <DropdownMenu
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (!next) {
+            setShowCreate(false);
+            setNewName('');
+            setError(null);
+          }
+        }}
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-          {current?.iconUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={current.iconUrl}
-              alt=""
-              className="h-6 w-6 rounded-md object-cover"
-            />
-          ) : (
-            <LuBuilding className="h-3.5 w-3.5" aria-hidden="true" />
-          )}
-        </span>
-        <span className="max-w-[160px] truncate">
-          {current?.name ?? 'Select workspace'}
-        </span>
-        <LuChevronDown className="h-3.5 w-3.5 opacity-60" aria-hidden="true" />
-      </button>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            iconRight={ChevronDown}
+            aria-label="Switch workspace"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Avatar
+                name={current?.name ?? 'Workspace'}
+                src={current?.iconUrl}
+                size="xs"
+                shape="square"
+              />
+              <span className="max-w-[160px] truncate">
+                {current?.name ?? 'Select workspace'}
+              </span>
+            </span>
+          </Button>
+        </DropdownMenuTrigger>
 
-      {open && (
-        <div
-          role="menu"
-          className="absolute left-0 z-50 mt-2 w-72 overflow-hidden rounded-lg border border-[var(--st-border)] bg-white shadow-lg dark:border-[var(--st-border)] dark:bg-[var(--st-text)]"
-        >
+        <DropdownMenuContent align="start" className="w-72">
           <div className="max-h-72 overflow-y-auto py-1">
             {workspaces.length === 0 ? (
-              <div className="px-3 py-3 text-[13px] text-[var(--st-text)]">
-                No workspaces yet.
-              </div>
+              <EmptyState
+                icon={Building2}
+                size="sm"
+                title="No workspaces yet"
+                description="Create your first workspace to get started."
+              />
             ) : (
               workspaces.map((ws) => {
                 const active = ws.id === currentId;
                 return (
-                  <button
+                  <DropdownMenuItem
                     key={ws.id}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={active}
-                    onClick={() => handleSwitch(ws)}
-                    className={cn(
-                      'flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]',
-                      active && 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]',
-                    )}
+                    onSelect={() => handleSwitch(ws)}
+                    aria-current={active ? 'true' : undefined}
+                    className="flex items-center justify-between gap-2"
                   >
-                    <div className="flex min-w-0 items-center gap-2">
-                      <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                        {ws.iconUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={ws.iconUrl}
-                            alt=""
-                            className="h-7 w-7 rounded-md object-cover"
-                          />
-                        ) : (
-                          <LuBuilding
-                            className="h-3.5 w-3.5"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </span>
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-[var(--st-text)] dark:text-white">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <Avatar
+                        name={ws.name}
+                        src={ws.iconUrl}
+                        size="sm"
+                        shape="square"
+                      />
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium text-[var(--st-text)]">
                           {ws.name}
-                        </div>
-                        <div className="truncate text-[11px] text-[var(--st-text)]">
+                        </span>
+                        <span className="block truncate text-[11px] text-[var(--st-text-secondary)]">
                           {ws.memberCount != null
                             ? `${ws.memberCount} member${ws.memberCount === 1 ? '' : 's'}`
                             : ws.slug}
-                        </div>
-                      </div>
-                    </div>
-                    {active && (
-                      <LuCheck
-                        className="h-4 w-4 text-[var(--color-primary,#f76808)]"
+                        </span>
+                      </span>
+                    </span>
+                    {active ? (
+                      <Check
+                        size={16}
+                        className="text-[var(--st-accent)]"
                         aria-hidden="true"
                       />
-                    )}
-                  </button>
+                    ) : null}
+                  </DropdownMenuItem>
                 );
               })
             )}
           </div>
 
-          <div className="border-t border-[var(--st-border)] py-1 dark:border-[var(--st-border)]">
-            {current && (
-              <button
-                type="button"
-                role="menuitem"
-                onClick={goToSettings}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:text-white dark:hover:bg-[var(--st-text)]"
-              >
-                <LuSettings className="h-4 w-4" aria-hidden="true" />
-                Workspace settings
-              </button>
-            )}
-            {!showCreate ? (
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => setShowCreate(true)}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:text-white dark:hover:bg-[var(--st-text)]"
-              >
-                <LuPlus className="h-4 w-4" aria-hidden="true" />
-                Create new workspace
-              </button>
-            ) : (
-              <form
-                onSubmit={handleCreate}
-                className="flex flex-col gap-2 px-3 py-2"
-              >
-                <input
-                  type="text"
-                  autoFocus
+          <DropdownMenuSeparator />
+
+          {current ? (
+            <DropdownMenuItem iconLeft={Settings} onSelect={goToSettings}>
+              Workspace settings
+            </DropdownMenuItem>
+          ) : null}
+
+          {!showCreate ? (
+            <DropdownMenuItem
+              iconLeft={Plus}
+              onSelect={(e) => {
+                // Keep the menu open so the inline create form can render.
+                e.preventDefault();
+                setShowCreate(true);
+              }}
+            >
+              Create new workspace
+            </DropdownMenuItem>
+          ) : (
+            <form
+              onSubmit={handleCreate}
+              className="flex flex-col gap-2 px-2 py-2"
+              // Stop key + pointer events from reaching Radix's menu typeahead
+              // so typing in the input does not jump focus between items.
+              onKeyDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+            >
+              <Field error={error ?? undefined}>
+                <Input
+                  ref={nameInputRef}
+                  inputSize="sm"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Workspace name"
-                  className="rounded-md border border-[var(--st-border)] bg-white px-2 py-1.5 text-[13px] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
+                  aria-label="New workspace name"
                 />
-                {error && (
-                  <div className="text-[11px] text-[var(--st-text)]">{error}</div>
-                )}
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowCreate(false);
-                      setNewName('');
-                      setError(null);
-                    }}
-                    className="rounded-md px-2 py-1 text-[12px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:text-[var(--st-text-secondary)] dark:hover:bg-[var(--st-text)]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={creating || !newName.trim()}
-                    className="rounded-md bg-[var(--color-primary,#f76808)] px-3 py-1 text-[12px] font-medium text-white hover:opacity-90 disabled:opacity-50"
-                  >
-                    {creating ? 'Creating…' : 'Create'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+              </Field>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowCreate(false);
+                    setNewName('');
+                    setError(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  loading={creating}
+                  disabled={!newName.trim()}
+                >
+                  Create
+                </Button>
+              </div>
+            </form>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Keep a Link in the DOM so Next.js route-prefetches the settings page. */}
-      {current && (
+      {current ? (
         <Link
           href={`/dashboard/sabflow/workspaces/${current.id}/settings`}
           prefetch
@@ -358,7 +367,7 @@ export function WorkspaceSwitcher({
         >
           Prefetch workspace settings
         </Link>
-      )}
+      ) : null}
     </div>
   );
 }

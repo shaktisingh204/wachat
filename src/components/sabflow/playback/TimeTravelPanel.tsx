@@ -1,18 +1,18 @@
 'use client';
 
 /**
- * TimeTravelPanel — C.9.7
+ * TimeTravelPanel - C.9.7
  *
  * Bottom-of-screen debug panel for scrubbing through a SabFlow execution
  * playback. Shows a range scrubber, event density heatmap, transport stats,
  * and keyboard shortcuts (Space / Left / Right / Home / End).
  *
  * Props
- * ─────
- *   executionId  — used externally to key which execution is being replayed
- *   events       — ordered list of TraceEvent (step kind) for this execution
- *   currentTs    — optional wall-clock ms to highlight in the heatmap
- *   onSeek       — called with the 0-based item index when the scrubber moves
+ * .....
+ *   executionId  - used externally to key which execution is being replayed
+ *   events       - ordered list of TraceEvent (step kind) for this execution
+ *   currentTs    - optional wall-clock ms to highlight in the heatmap
+ *   onSeek       - called with the 0-based item index when the scrubber moves
  *
  * The component calls `onSeek(itemIndex)` whenever the user drags the
  * scrubber, presses Left/Right, or jumps to the start/end. The parent is
@@ -21,11 +21,11 @@
  *
  * Keyboard shortcuts (captured when the panel has focus or the body is
  * focused and a modal isn't open):
- *   Space        — toggle play / pause
- *   ArrowLeft    — step backward one event
- *   ArrowRight   — step forward one event
- *   Home         — jump to first event
- *   End          — jump to last event
+ *   Space        - toggle play / pause
+ *   ArrowLeft    - step backward one event
+ *   ArrowRight   - step forward one event
+ *   Home         - jump to first event
+ *   End          - jump to last event
  */
 
 import {
@@ -36,20 +36,20 @@ import {
   useState,
 } from 'react';
 import {
-  LuPlay,
-  LuPause,
-  LuSkipBack,
-  LuSkipForward,
-  LuClock,
-  LuActivity,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Clock,
+  Activity,
+} from 'lucide-react';
+import { Button, cn, IconButton, Slider } from '@/components/sabcrm/20ui';
 import type { TraceEvent as EngineTraceEvent } from '@/lib/sabflow/engine/traceEmitter';
 
-/* ── Types ────────────────────────────────────────────────────────────────── */
+/* -- Types ------------------------------------------------------------------ */
 
 export interface TimeTravelPanelProps {
-  /** Opaque execution id — for external keying / aria labels only. */
+  /** Opaque execution id - for external keying / aria labels only. */
   executionId: string;
   /**
    * Ordered list of trace events for the execution. The component derives
@@ -69,11 +69,11 @@ export interface TimeTravelPanelProps {
   onSeek: (itemIndex: number) => void;
 }
 
-/* ── Constants ────────────────────────────────────────────────────────────── */
+/* -- Constants -------------------------------------------------------------- */
 
 const HEATMAP_BINS = 20;
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+/* -- Helpers ---------------------------------------------------------------- */
 
 function formatMs(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
@@ -92,18 +92,18 @@ function formatTs(ts: number): string {
   });
 }
 
-/* ── Heatmap bin type ─────────────────────────────────────────────────────── */
+/* -- Heatmap bin type ------------------------------------------------------- */
 
 interface HeatmapBin {
   /** Total events in this time bin. */
   total: number;
   /** Error events in this time bin. */
   errors: number;
-  /** Error rate 0–1. */
+  /** Error rate 0-1. */
   errorRate: number;
 }
 
-/* ── Component ────────────────────────────────────────────────────────────── */
+/* -- Component -------------------------------------------------------------- */
 
 export function TimeTravelPanel({
   executionId,
@@ -117,7 +117,7 @@ export function TimeTravelPanel({
 
   const count = events.length;
 
-  /* ── Derived timing values ────────────────────────────────────────────── */
+  /* -- Derived timing values ---------------------------------------------- */
 
   const { minTs, maxTs, totalDurationMs } = useMemo(() => {
     if (count === 0) return { minTs: 0, maxTs: 0, totalDurationMs: 0 };
@@ -130,7 +130,7 @@ export function TimeTravelPanel({
     return { minTs: min, maxTs: max, totalDurationMs: max - min };
   }, [events, count]);
 
-  /* ── Current timestamp ────────────────────────────────────────────────── */
+  /* -- Current timestamp -------------------------------------------------- */
 
   const activeTs = useMemo(() => {
     if (currentTs !== undefined) return currentTs;
@@ -139,7 +139,7 @@ export function TimeTravelPanel({
     return events[idx].ts;
   }, [currentTs, events, currentIndex, count]);
 
-  /* ── Heatmap bins ─────────────────────────────────────────────────────── */
+  /* -- Heatmap bins ------------------------------------------------------- */
 
   const heatmapBins = useMemo<HeatmapBin[]>(() => {
     if (count === 0 || totalDurationMs === 0) {
@@ -166,7 +166,7 @@ export function TimeTravelPanel({
     return bins;
   }, [events, count, minTs, totalDurationMs]);
 
-  /* ── Heatmap active bin ───────────────────────────────────────────────── */
+  /* -- Heatmap active bin ------------------------------------------------- */
 
   const activeBinIdx = useMemo(() => {
     if (totalDurationMs === 0) return -1;
@@ -174,7 +174,7 @@ export function TimeTravelPanel({
     return Math.min(HEATMAP_BINS - 1, Math.floor(ratio * HEATMAP_BINS));
   }, [activeTs, minTs, totalDurationMs]);
 
-  /* ── Seek helper ──────────────────────────────────────────────────────── */
+  /* -- Seek helper -------------------------------------------------------- */
 
   const seekTo = useCallback(
     (idx: number) => {
@@ -185,7 +185,7 @@ export function TimeTravelPanel({
     [count, onSeek],
   );
 
-  /* ── Play / pause ─────────────────────────────────────────────────────── */
+  /* -- Play / pause ------------------------------------------------------- */
 
   const stopPlayback = useCallback(() => {
     if (playIntervalRef.current !== null) {
@@ -231,7 +231,7 @@ export function TimeTravelPanel({
     };
   }, []);
 
-  /* ── Keyboard shortcuts ───────────────────────────────────────────────── */
+  /* -- Keyboard shortcuts ------------------------------------------------- */
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -271,87 +271,87 @@ export function TimeTravelPanel({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [togglePlay, stopPlayback, seekTo, currentIndex, count]);
 
-  /* ── Heatmap bin colour ───────────────────────────────────────────────── */
+  /* -- Heatmap bin colour ------------------------------------------------- */
 
   function binColour(bin: HeatmapBin, isActive: boolean): string {
     if (bin.total === 0) {
       return isActive
-        ? 'bg-[var(--gray-6)]'
-        : 'bg-[var(--gray-4)]';
+        ? 'bg-[var(--st-border-strong)]'
+        : 'bg-[var(--st-bg-muted)]';
     }
     if (bin.errorRate >= 0.1) {
       return isActive
-        ? 'bg-[var(--st-text)]'
-        : 'bg-[var(--st-bg-muted)]/70 dark:bg-[var(--st-text)]/60';
+        ? 'bg-[var(--st-danger)]'
+        : 'bg-[var(--st-danger)]/70';
     }
     if (bin.errorRate > 0) {
       return isActive
-        ? 'bg-[var(--st-bg-muted)]'
-        : 'bg-[var(--st-bg-muted)]/70 dark:bg-[var(--st-text)]/60';
+        ? 'bg-[var(--st-warn)]'
+        : 'bg-[var(--st-warn)]/70';
     }
     return isActive
-      ? 'bg-[var(--st-text)]'
-      : 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/50';
+      ? 'bg-[var(--st-accent)]'
+      : 'bg-[var(--st-accent)]/55';
   }
 
-  /* ── Elapsed for current position ────────────────────────────────────── */
+  /* -- Elapsed for current position -------------------------------------- */
 
   const elapsedMs = count > 0 ? activeTs - minTs : 0;
 
-  /* ── Render ───────────────────────────────────────────────────────────── */
+  /* -- Render ------------------------------------------------------------- */
 
   return (
     <div
       data-tour="replay-scrubber"
       aria-label={`Execution playback controls for ${executionId}`}
       className={cn(
-        'flex flex-col gap-2 border-t border-[var(--gray-5)]',
-        'bg-[var(--gray-1)] px-4 py-3',
+        'ui20 flex flex-col gap-2 border-t border-[var(--st-border)]',
+        'bg-[var(--st-bg)] px-4 py-3',
       )}
     >
-      {/* ── Top row: stats ────────────────────────────────────────────── */}
+      {/* -- Top row: stats ---------------------------------------------- */}
       <div className="flex items-center gap-4 shrink-0">
         {/* Transport buttons */}
         <div className="flex items-center gap-1 shrink-0">
-          <TransportButton
-            aria-label="Jump to start (Home)"
+          <IconButton
+            label="Jump to start (Home)"
+            icon={SkipBack}
+            variant="ghost"
+            size="sm"
             disabled={count === 0 || currentIndex === 0}
             onClick={() => { stopPlayback(); seekTo(0); }}
-          >
-            <LuSkipBack className="h-3.5 w-3.5" strokeWidth={2} />
-          </TransportButton>
+          />
 
-          <TransportButton
-            aria-label={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+          <IconButton
+            label={isPlaying ? 'Pause (Space)' : 'Play (Space)'}
+            icon={isPlaying ? Pause : Play}
+            variant="primary"
+            size="sm"
             disabled={count === 0}
             onClick={togglePlay}
-            prominent
-          >
-            {isPlaying
-              ? <LuPause className="h-3.5 w-3.5" strokeWidth={2} />
-              : <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
-            }
-          </TransportButton>
+          />
 
-          <TransportButton
-            aria-label="Jump to end (End)"
+          <IconButton
+            label="Jump to end (End)"
+            icon={SkipForward}
+            variant="ghost"
+            size="sm"
             disabled={count === 0 || currentIndex >= count - 1}
             onClick={() => { stopPlayback(); seekTo(count - 1); }}
-          >
-            <LuSkipForward className="h-3.5 w-3.5" strokeWidth={2} />
-          </TransportButton>
+          />
         </div>
 
         {/* Timestamp */}
         <div className="flex items-center gap-1.5 min-w-0">
-          <LuClock
-            className="h-3 w-3 text-[var(--gray-8)] shrink-0"
+          <Clock
+            className="h-3 w-3 text-[var(--st-text-tertiary)] shrink-0"
             strokeWidth={2}
+            aria-hidden="true"
           />
-          <span className="text-[11.5px] tabular-nums text-[var(--gray-10)] font-mono">
-            {count > 0 ? formatTs(activeTs) : '—'}
+          <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)] font-mono">
+            {count > 0 ? formatTs(activeTs) : '.'}
           </span>
-          <span className="text-[10.5px] text-[var(--gray-7)]">
+          <span className="text-[10.5px] text-[var(--st-text-tertiary)]">
             {count > 0 ? `+${formatMs(elapsedMs)}` : ''}
           </span>
         </div>
@@ -360,148 +360,90 @@ export function TimeTravelPanel({
 
         {/* Item / total counter */}
         <div className="flex items-center gap-1.5 shrink-0">
-          <LuActivity
-            className="h-3 w-3 text-[var(--gray-8)] shrink-0"
+          <Activity
+            className="h-3 w-3 text-[var(--st-text-tertiary)] shrink-0"
             strokeWidth={2}
+            aria-hidden="true"
           />
-          <span className="text-[11.5px] tabular-nums text-[var(--gray-10)]">
+          <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
             {count === 0
               ? 'No events'
               : `${currentIndex + 1} / ${count}`}
           </span>
           {totalDurationMs > 0 && (
-            <span className="text-[10.5px] text-[var(--gray-7)]">
+            <span className="text-[10.5px] text-[var(--st-text-tertiary)]">
               {formatMs(totalDurationMs)} total
             </span>
           )}
         </div>
       </div>
 
-      {/* ── Heatmap + scrubber ────────────────────────────────────────── */}
+      {/* -- Heatmap + scrubber ------------------------------------------ */}
       <div className="flex flex-col gap-1 shrink-0">
         {/* Mini heatmap */}
         <div
-          aria-hidden
-          className="flex h-4 w-full gap-px rounded overflow-hidden"
-          title="Event density heatmap — green=0% error, yellow<10%, red≥10%"
+          className="flex h-4 w-full gap-px rounded-[var(--st-radius-sm)] overflow-hidden"
+          title="Event density heatmap. blue=0% error, amber<10%, red>=10%"
         >
-          {heatmapBins.map((bin, i) => (
-            <button
-              key={i}
-              type="button"
-              title={
-                bin.total === 0
-                  ? 'No events'
-                  : `${bin.total} event${bin.total === 1 ? '' : 's'}${bin.errors > 0 ? `, ${bin.errors} error${bin.errors === 1 ? '' : 's'}` : ''}`
-              }
-              onClick={() => {
-                if (count === 0) return;
-                // Jump to first event in this bin
-                const ratio = i / HEATMAP_BINS;
-                const targetTs = minTs + ratio * totalDurationMs;
-                // Find the closest event by ts
-                let closest = 0;
-                let closestDiff = Infinity;
-                for (let j = 0; j < events.length; j++) {
-                  const diff = Math.abs(events[j].ts - targetTs);
-                  if (diff < closestDiff) {
-                    closestDiff = diff;
-                    closest = j;
+          {heatmapBins.map((bin, i) => {
+            const binLabel =
+              bin.total === 0
+                ? 'No events'
+                : `${bin.total} event${bin.total === 1 ? '' : 's'}${bin.errors > 0 ? `, ${bin.errors} error${bin.errors === 1 ? '' : 's'}` : ''}`;
+            return (
+              <Button
+                key={i}
+                variant="ghost"
+                aria-label={binLabel}
+                title={binLabel}
+                onClick={() => {
+                  if (count === 0) return;
+                  // Jump to first event in this bin
+                  const ratio = i / HEATMAP_BINS;
+                  const targetTs = minTs + ratio * totalDurationMs;
+                  // Find the closest event by ts
+                  let closest = 0;
+                  let closestDiff = Infinity;
+                  for (let j = 0; j < events.length; j++) {
+                    const diff = Math.abs(events[j].ts - targetTs);
+                    if (diff < closestDiff) {
+                      closestDiff = diff;
+                      closest = j;
+                    }
                   }
-                }
-                stopPlayback();
-                seekTo(closest);
-              }}
-              className={cn(
-                'flex-1 min-w-0 transition-opacity hover:opacity-80 cursor-pointer',
-                binColour(bin, i === activeBinIdx),
-                count === 0 && 'cursor-default pointer-events-none',
-              )}
-            />
-          ))}
+                  stopPlayback();
+                  seekTo(closest);
+                }}
+                className={cn(
+                  'flex-1 min-w-0 !h-4 !min-h-0 !rounded-none !p-0 transition-opacity hover:opacity-80 cursor-pointer',
+                  binColour(bin, i === activeBinIdx),
+                  count === 0 && 'cursor-default pointer-events-none',
+                )}
+              />
+            );
+          })}
         </div>
 
         {/* Range scrubber */}
-        <input
-          type="range"
+        <Slider
           min={0}
           max={Math.max(0, count - 1)}
+          step={1}
           value={currentIndex}
           disabled={count === 0}
-          aria-label="Execution playback position"
-          aria-valuemin={0}
-          aria-valuemax={Math.max(0, count - 1)}
-          aria-valuenow={currentIndex}
-          aria-valuetext={
-            count === 0
-              ? 'No events'
-              : `Event ${currentIndex + 1} of ${count} at ${formatTs(activeTs)}`
-          }
-          onChange={(e) => {
+          ariaLabel="Execution playback position"
+          onValueChange={(v) => {
             stopPlayback();
-            seekTo(Number(e.target.value));
+            seekTo(typeof v === 'number' ? v : v[0]);
           }}
-          className={cn(
-            'w-full h-1.5 appearance-none rounded-full cursor-pointer',
-            'bg-[var(--gray-4)]',
-            '[&::-webkit-slider-thumb]:appearance-none',
-            '[&::-webkit-slider-thumb]:w-3.5',
-            '[&::-webkit-slider-thumb]:h-3.5',
-            '[&::-webkit-slider-thumb]:rounded-full',
-            '[&::-webkit-slider-thumb]:bg-[var(--st-text)]',
-            '[&::-webkit-slider-thumb]:cursor-pointer',
-            '[&::-webkit-slider-thumb]:shadow-sm',
-            '[&::-moz-range-thumb]:w-3.5',
-            '[&::-moz-range-thumb]:h-3.5',
-            '[&::-moz-range-thumb]:rounded-full',
-            '[&::-moz-range-thumb]:bg-[var(--st-text)]',
-            '[&::-moz-range-thumb]:border-0',
-            '[&::-moz-range-thumb]:cursor-pointer',
-            count === 0 && 'opacity-40 cursor-not-allowed',
-          )}
+          className="w-full"
         />
       </div>
 
-      {/* ── Keyboard hint ─────────────────────────────────────────────── */}
-      <p className="shrink-0 text-[10.5px] text-[var(--gray-7)] select-none">
-        Space = play/pause · ← / → = step · Home / End = jump
+      {/* -- Keyboard hint ----------------------------------------------- */}
+      <p className="shrink-0 text-[10.5px] text-[var(--st-text-tertiary)] select-none">
+        Space = play/pause, left / right = step, Home / End = jump
       </p>
     </div>
-  );
-}
-
-/* ── TransportButton ──────────────────────────────────────────────────────── */
-
-interface TransportButtonProps {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-  prominent?: boolean;
-  'aria-label'?: string;
-}
-
-function TransportButton({
-  children,
-  onClick,
-  disabled,
-  prominent,
-  'aria-label': ariaLabel,
-}: TransportButtonProps) {
-  return (
-    <button
-      type="button"
-      aria-label={ariaLabel}
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        'flex h-7 w-7 items-center justify-center rounded-lg transition-colors',
-        prominent
-          ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]'
-          : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-        disabled && 'opacity-40 cursor-not-allowed pointer-events-none',
-      )}
-    >
-      {children}
-    </button>
   );
 }

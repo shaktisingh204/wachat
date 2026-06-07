@@ -1,31 +1,31 @@
 'use client';
 
 /**
- * PlaybackDiff — C.9.8
+ * PlaybackDiff - C.9.8
  *
  * Two-column side-by-side diff of `inputSample` / `outputSample` JSON between
  * two TraceEvents.
  *
  * Implements a simple line-by-line LCS diff with no external diff library:
- *   - Lines present only in A  → red   (removed)
- *   - Lines present only in B  → green (added)
- *   - Lines in both            → unchanged
- *   - Lines that changed value → amber (modified, rendered as remove + add)
+ *   - Lines present only in A -> removed
+ *   - Lines present only in B -> added
+ *   - Lines in both           -> unchanged
  *
  * Props
- * ─────
- *   eventA   — the "before" trace event
- *   eventB   — the "after"  trace event
- *   field    — which sample to diff: 'input' | 'output' (default 'output')
- *   maxLines — cap on rendered diff lines (default 200) — stops runaway renders
+ *   eventA   - the "before" trace event
+ *   eventB   - the "after"  trace event
+ *   field    - which sample to diff: 'input' | 'output' (default 'output')
+ *   maxLines - cap on rendered diff lines (default 200), stops runaway renders
  *              on very large payloads
  */
 
 import { useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { Card, Badge, Table, TBody, Tr, Td, EmptyState } from '@/components/sabcrm/20ui';
+import { FileX } from 'lucide-react';
 import type { TraceEvent } from '@/lib/sabflow/engine/traceEmitter';
 
-/* ── Props ────────────────────────────────────────────────────────────────── */
+/* -- Props ------------------------------------------------------------------ */
 
 export interface PlaybackDiffProps {
   eventA: TraceEvent;
@@ -33,13 +33,13 @@ export interface PlaybackDiffProps {
   /** Which sample field to diff. Defaults to `'output'`. */
   field?: 'input' | 'output';
   /**
-   * Max diff lines to render (each "changed" line counts as 2 — remove + add).
+   * Max diff lines to render (each "changed" line counts as 2, remove + add).
    * Defaults to 200.
    */
   maxLines?: number;
 }
 
-/* ── Diff types ───────────────────────────────────────────────────────────── */
+/* -- Diff types ------------------------------------------------------------- */
 
 type DiffLineKind = 'unchanged' | 'removed' | 'added';
 
@@ -53,7 +53,7 @@ interface DiffLine {
   lineB: number | null;
 }
 
-/* ── Helpers ──────────────────────────────────────────────────────────────── */
+/* -- Helpers ---------------------------------------------------------------- */
 
 function prettyJson(value: unknown): string {
   if (value === undefined || value === null) return '';
@@ -74,12 +74,12 @@ function prettyJson(value: unknown): string {
 
 /**
  * Compute the longest-common-subsequence length table for two string arrays.
- * Classic O(n*m) DP — acceptable for diff purposes where n/m ≤ a few hundred.
+ * Classic O(n*m) DP, acceptable for diff purposes where n/m stay in the hundreds.
  */
 function lcsTable(a: string[], b: string[]): number[][] {
   const n = a.length;
   const m = b.length;
-  // Allocate a (n+1) × (m+1) table initialised to 0
+  // Allocate a (n+1) x (m+1) table initialised to 0
   const dp: number[][] = Array.from({ length: n + 1 }, () =>
     new Array<number>(m + 1).fill(0),
   );
@@ -97,7 +97,7 @@ function lcsTable(a: string[], b: string[]): number[][] {
 
 /**
  * Backtrack through the LCS table to produce an ordered list of DiffLine
- * objects representing the diff of arrays `a` → `b`.
+ * objects representing the diff of arrays `a` to `b`.
  */
 function diffLines(a: string[], b: string[]): DiffLine[] {
   const dp = lcsTable(a, b);
@@ -129,27 +129,23 @@ function diffLines(a: string[], b: string[]): DiffLine[] {
   return result;
 }
 
-/* ── Sub-components ───────────────────────────────────────────────────────── */
+/* -- Sub-components --------------------------------------------------------- */
 
 const LINE_PALETTE: Record<DiffLineKind, string> = {
-  unchanged: 'bg-transparent text-[var(--gray-11)]',
-  removed:
-    'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
-  added:
-    'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
+  unchanged: 'bg-transparent text-[var(--st-text-secondary)]',
+  removed: 'bg-[var(--st-danger-soft)] text-[var(--st-text)]',
+  added: 'bg-[var(--st-accent-soft)] text-[var(--st-text)]',
 };
 
 const LINE_GUTTER: Record<DiffLineKind, string> = {
-  unchanged: 'text-[var(--gray-7)]',
-  removed:
-    'text-[var(--st-text-secondary)] dark:text-[var(--st-text)]',
-  added:
-    'text-[var(--st-text)] dark:text-[var(--st-text)]',
+  unchanged: 'text-[var(--st-text-tertiary)]',
+  removed: 'text-[var(--st-danger)]',
+  added: 'text-[var(--st-accent)]',
 };
 
 const LINE_SIGIL: Record<DiffLineKind, string> = {
   unchanged: ' ',
-  removed: '−',
+  removed: '-',
   added: '+',
 };
 
@@ -161,8 +157,8 @@ interface DiffTableProps {
 function DiffTable({ lines, side }: DiffTableProps) {
   return (
     <div className="flex-1 min-w-0 overflow-auto font-mono text-[11.5px] leading-relaxed">
-      <table className="w-full border-collapse">
-        <tbody>
+      <Table hover={false} className="w-full border-collapse">
+        <TBody>
           {lines.map((line, idx) => {
             // On the left side we only show unchanged + removed lines.
             // On the right side we only show unchanged + added lines.
@@ -172,23 +168,23 @@ function DiffTable({ lines, side }: DiffTableProps) {
             if (!show) {
               // Render an invisible placeholder to keep row heights in sync
               return (
-                <tr key={idx} aria-hidden className="h-[1.5rem]">
-                  <td className="w-8 select-none" />
-                  <td />
-                </tr>
+                <Tr key={idx} aria-hidden className="h-[1.5rem]">
+                  <Td className="w-8 select-none" />
+                  <Td />
+                </Tr>
               );
             }
             const lineNum = side === 'left' ? line.lineA : line.lineB;
             return (
-              <tr
+              <Tr
                 key={idx}
                 className={cn('h-[1.5rem]', LINE_PALETTE[line.kind])}
               >
                 {/* Gutter: line number + sigil */}
-                <td
+                <Td
                   className={cn(
                     'w-10 select-none pr-2 text-right align-top',
-                    'border-r border-[var(--gray-4)]',
+                    'border-r border-[var(--st-border)]',
                     LINE_GUTTER[line.kind],
                   )}
                 >
@@ -196,21 +192,21 @@ function DiffTable({ lines, side }: DiffTableProps) {
                   <span className="tabular-nums text-[10.5px]">
                     {lineNum ?? ''}
                   </span>
-                </td>
+                </Td>
                 {/* Content */}
-                <td className="pl-2 pr-2 align-top whitespace-pre-wrap break-all">
+                <Td className="pl-2 pr-2 align-top whitespace-pre-wrap break-all">
                   {line.text}
-                </td>
-              </tr>
+                </Td>
+              </Tr>
             );
           })}
-        </tbody>
-      </table>
+        </TBody>
+      </Table>
     </div>
   );
 }
 
-/* ── PlaybackDiff ─────────────────────────────────────────────────────────── */
+/* -- PlaybackDiff ----------------------------------------------------------- */
 
 export function PlaybackDiff({
   eventA,
@@ -241,87 +237,88 @@ export function PlaybackDiff({
   const hasChanges = stats.added > 0 || stats.removed > 0;
 
   return (
-    <div className="flex flex-col gap-2 text-[var(--gray-12)]">
-      {/* ── Header ──────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] px-3.5 py-2.5">
+    <div className="flex flex-col gap-2 text-[var(--st-text)]">
+      {/* -- Header --------------------------------------------------------- */}
+      <Card variant="outlined" padding="none" className="flex flex-wrap items-center gap-2 px-3.5 py-2.5">
         <div className="flex-1 min-w-0">
           <p className="text-[12.5px] font-semibold">
             {fieldLabel} diff
           </p>
-          <p className="mt-0.5 text-[11px] text-[var(--gray-9)] font-mono truncate">
-            <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">A:</span>{' '}
+          <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)] font-mono truncate">
+            <span className="text-[var(--st-text-secondary)]">A:</span>{' '}
             {nodeA}
-            <span className="mx-1.5 text-[var(--gray-6)]">→</span>
-            <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">B:</span>{' '}
+            <span className="mx-1.5 text-[var(--st-text-tertiary)]">{'->'}</span>
+            <span className="text-[var(--st-text-secondary)]">B:</span>{' '}
             {nodeB}
           </p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {stats.removed > 0 && (
-            <span className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
-              −{stats.removed}
-            </span>
+            <Badge tone="danger" className="tabular-nums">
+              -{stats.removed}
+            </Badge>
           )}
           {stats.added > 0 && (
-            <span className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] font-medium tabular-nums text-[var(--st-text)] dark:border-[var(--st-border)]/60 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
+            <Badge tone="success" className="tabular-nums">
               +{stats.added}
-            </span>
+            </Badge>
           )}
           {!hasChanges && (
-            <span className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-3)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--gray-10)]">
-              identical
-            </span>
+            <Badge tone="neutral">identical</Badge>
           )}
         </div>
-      </div>
+      </Card>
 
-      {/* ── Column headers ──────────────────────────────────────────── */}
+      {/* -- Column headers ------------------------------------------------- */}
       <div className="grid grid-cols-2 gap-px">
-        <div className="flex items-center gap-2 rounded-tl-lg rounded-tr-none border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5">
-          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-bg-muted)] text-[9px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+        <div className="flex items-center gap-2 rounded-tl-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5">
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-danger-soft)] text-[9px] font-bold text-[var(--st-danger)]">
             A
           </span>
-          <span className="text-[11.5px] font-medium text-[var(--gray-11)] truncate">
-            {fieldLabel} · event A
+          <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)] truncate">
+            {fieldLabel} , event A
           </span>
-          <span className="ml-auto text-[10.5px] tabular-nums text-[var(--gray-8)]">
+          <span className="ml-auto text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
             ts {eventA.ts}
           </span>
         </div>
-        <div className="flex items-center gap-2 rounded-tl-none rounded-tr-lg border border-l-0 border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5">
-          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-bg-muted)] text-[9px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+        <div className="flex items-center gap-2 rounded-tr-[var(--st-radius)] border border-l-0 border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5">
+          <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--st-accent-soft)] text-[9px] font-bold text-[var(--st-accent)]">
             B
           </span>
-          <span className="text-[11.5px] font-medium text-[var(--gray-11)] truncate">
-            {fieldLabel} · event B
+          <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)] truncate">
+            {fieldLabel} , event B
           </span>
-          <span className="ml-auto text-[10.5px] tabular-nums text-[var(--gray-8)]">
+          <span className="ml-auto text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
             ts {eventB.ts}
           </span>
         </div>
       </div>
 
-      {/* ── Diff body ───────────────────────────────────────────────── */}
+      {/* -- Diff body ------------------------------------------------------ */}
       {lines.length === 0 ? (
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-[var(--gray-5)] bg-[var(--gray-1)] py-8">
-          <p className="text-[12px] text-[var(--gray-9)]">
-            No {fieldLabel.toLowerCase()} data on either event.
-          </p>
-        </div>
+        <Card variant="outlined" padding="none" className="border-dashed py-8">
+          <EmptyState
+            size="sm"
+            icon={FileX}
+            title={`No ${fieldLabel.toLowerCase()} data`}
+            description="Neither event recorded a sample for this field."
+          />
+        </Card>
       ) : (
-        <div className="grid grid-cols-2 gap-px rounded-b-xl overflow-hidden border border-t-0 border-[var(--gray-5)] bg-[var(--gray-5)]">
-          <div className="overflow-hidden bg-[var(--gray-1)]">
+        <div className="grid grid-cols-2 gap-px rounded-b-[var(--st-radius)] overflow-hidden border border-t-0 border-[var(--st-border)] bg-[var(--st-border)]">
+          <div className="overflow-hidden bg-[var(--st-bg)]">
             <DiffTable lines={lines} side="left" />
           </div>
-          <div className="overflow-hidden bg-[var(--gray-1)]">
+          <div className="overflow-hidden bg-[var(--st-bg)]">
             <DiffTable lines={lines} side="right" />
           </div>
         </div>
       )}
 
-      {/* ── Truncation notice ───────────────────────────────────────── */}
+      {/* -- Truncation notice --------------------------------------------- */}
       {stats.total > maxLines && (
-        <p className="text-[11px] text-[var(--gray-8)] text-center">
+        <p className="text-[11px] text-[var(--st-text-tertiary)] text-center">
           Showing first {maxLines} of {stats.total} diff lines.
         </p>
       )}

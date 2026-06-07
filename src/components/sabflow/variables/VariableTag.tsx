@@ -1,21 +1,21 @@
 'use client';
 
 import type { Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
+import { Button, cn } from '@/components/sabcrm/20ui';
 
-/* ── VariableTag ────────────────────────────────────────── */
+/* VariableTag */
 /**
  * A small inline pill that displays `{{variableName}}`.
  *
  * Usage:
  *   - In block settings to show which variable is referenced.
- *   - In a variable picker list; pass `onClick` to insert `{{name}}` into a field.
+ *   - In a variable picker list. Pass `onClick` to insert `{{name}}` into a field.
  *
  * Props:
- *   variable   — The Variable object to display.
- *   onClick    — Called with the `{{name}}` token string when the tag is clicked.
- *   active     — Highlights the tag (e.g. currently selected).
- *   className  — Extra tailwind classes.
+ *   variable   - The Variable object to display.
+ *   onClick    - Called with the `{{name}}` token string when the tag is clicked.
+ *   active     - Highlights the tag (e.g. currently selected).
+ *   className  - Extra tailwind classes.
  */
 
 interface Props {
@@ -25,49 +25,66 @@ interface Props {
   className?: string;
 }
 
+const pillBody = (name: string) => (
+  <>
+    {/* Double-brace decoration */}
+    <span className="opacity-50" aria-hidden="true">{'{'}</span>
+    <span className="opacity-50" aria-hidden="true">{'{'}</span>
+    <span className="mx-0.5">{name}</span>
+    <span className="opacity-50" aria-hidden="true">{'}'}</span>
+    <span className="opacity-50" aria-hidden="true">{'}'}</span>
+  </>
+);
+
+const PILL_BASE = cn(
+  'inline-flex items-center gap-1 rounded-[var(--st-radius)] px-1.5 py-0.5',
+  'font-mono text-[11px] font-medium leading-none',
+  'border select-none',
+);
+
 export function VariableTag({ variable, onClick, active, className }: Props) {
   const token = `{{${variable.name}}}`;
 
-  const inner = (
-    <span
+  if (!onClick) {
+    return (
+      <span
+        className={cn(
+          PILL_BASE,
+          active
+            ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)] text-[var(--st-text)]'
+            : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
+          className,
+        )}
+      >
+        {pillBody(variable.name)}
+      </span>
+    );
+  }
+
+  return (
+    <Button
+      variant="ghost"
+      onClick={() => onClick(token)}
+      aria-label={`Insert ${token}`}
+      title={`Insert ${token}`}
       className={cn(
-        'inline-flex items-center gap-1 rounded-md px-1.5 py-0.5',
-        'font-mono text-[11px] font-medium leading-none',
-        'border select-none',
+        PILL_BASE,
+        'h-auto min-h-0 cursor-pointer transition-colors',
         active
-          ? 'border-[var(--st-border)]/60 bg-[var(--st-text)]/10 text-[var(--st-text)]'
-          : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/50 dark:text-[var(--st-text-secondary)]',
-        onClick && 'cursor-pointer transition-colors hover:border-[var(--st-border)]/60 hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]',
+          ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)] text-[var(--st-text)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:border-[var(--st-accent)] hover:bg-[var(--st-accent-soft)] hover:text-[var(--st-text)]',
         className,
       )}
     >
-      {/* Double-brace decoration */}
-      <span className="opacity-50">{'{'}</span>
-      <span className="opacity-50">{'{'}</span>
-      <span className="mx-0.5">{variable.name}</span>
-      <span className="opacity-50">{'}'}</span>
-      <span className="opacity-50">{'}'}</span>
-    </span>
-  );
-
-  if (!onClick) return inner;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onClick(token)}
-      title={`Insert ${token}`}
-      className="inline-flex appearance-none bg-transparent border-none p-0 m-0"
-    >
-      {inner}
-    </button>
+      {pillBody(variable.name)}
+    </Button>
   );
 }
 
-/* ── VariableTagList ────────────────────────────────────── */
+/* VariableTagList */
 /**
  * Renders a compact row of VariableTags for all variables in the flow.
- * Clicking a tag fires `onInsert(token)` — the consumer inserts it into
+ * Clicking a tag fires `onInsert(token)`. The consumer inserts it into
  * whatever textarea / input is currently focused.
  */
 

@@ -1,38 +1,27 @@
 'use client';
 
 /**
- * PlaybackInspector — C.9.6
- * ────────────────────────────────────────────────────────────────────────────
+ * PlaybackInspector. C.9.6
+ * ............................................................................
  * Execution-replay viewer for SabFlow.
  *
  * Connects to `GET /api/sabflow/executions/[executionId]/replay` via
- * Server-Sent Events.  The endpoint streams `TraceEvent` objects one at a
+ * Server-Sent Events. The endpoint streams `TraceEvent` objects one at a
  * time; this component buffers them and renders a scrubable timeline where
  * each block is a row and each event is a clickable dot on a horizontal
- * time axis.  Selecting a dot shows the event's `inputSample` /
+ * time axis. Selecting a dot shows the event's `inputSample` /
  * `outputSample` in a collapsible side panel.
  *
  * Playback controls
- * ─────────────────
- *   • Play / Pause  — advances the "current position" pointer by one event
+ * .................
+ *   - Play / Pause: advances the "current position" pointer by one event
  *     per tick at the selected speed.
- *   • Speed         — 0.5 × / 1 × / 2 × / 5 ×  (base tick = 600 ms).
- *   • Scrub         — click any dot on the timeline to jump directly.
- *   • Step arrows   — ← / → buttons for frame-by-frame navigation.
+ *   - Speed: 0.5x / 1x / 2x / 5x (base tick = 600 ms).
+ *   - Scrub: click any dot on the timeline to jump directly.
+ *   - Step arrows: prev / next buttons for frame-by-frame navigation.
  *
- * Layout (dark, matching SabFlow editor)
- * ──────────────────────────────────────
- *   ┌─ header ──────────────────────────────────────────────────────────────┐
- *   │  status pill · speed buttons · play/pause · ← step → · close         │
- *   ├─ body ─────────────────────────────────────────────────────────────────┤
- *   │  timeline (left, data-tour="replay-timeline")                          │
- *   │    each block row → horizontal bar of dots                             │
- *   ├─ scrub bar (data-tour="replay-scrubber") ───────────────────────────── │
- *   │  side panel (right, data-tour="replay-detail") — input/output JSON     │
- *   └───────────────────────────────────────────────────────────────────────┘
- *
- * Styling: plain Tailwind + CSS custom properties inherited from the global
- * dark theme (--gray-*, #f76808 accent). No new library dependencies.
+ * Styling: pure 20ui design system, scoped under `.ui20`. Components from
+ * `@/components/sabcrm/20ui`; tokens are the `--st-*` family.
  */
 
 import {
@@ -42,20 +31,36 @@ import {
   useState,
 } from 'react';
 import {
-  LuX,
-  LuPlay,
-  LuPause,
-  LuChevronLeft,
-  LuChevronRight,
-  LuCircleAlert,
-  LuLoader,
-  LuCheck,
-  LuClock,
-  LuBraces,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  X,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  Loader2,
+  Check,
+  Clock,
+  Braces,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import {
+  cn,
+  Badge,
+  type BadgeTone,
+  Button,
+  IconButton,
+  SegmentedControl,
+  Slider,
+  Spinner,
+  EmptyState,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+} from '@/components/sabcrm/20ui';
 
-/* ─── Types ──────────────────────────────────────────────────────────── */
+/* --- Types ------------------------------------------------------------- */
 
 /**
  * Shape of a trace event as broadcast by the replay SSE endpoint.
@@ -64,7 +69,7 @@ import { cn } from '@/lib/utils';
 export interface TraceEvent {
   executionId: string;
   nodeId: string;
-  /** Node display label — may be injected by the server. */
+  /** Node display label. May be injected by the server. */
   nodeLabel?: string;
   itemIndex: number;
   phase: 'pre' | 'post' | 'error';
@@ -97,24 +102,51 @@ type PlaybackSpeed = 0.5 | 1 | 2 | 5;
 const BASE_TICK_MS = 600;
 const SPEED_OPTIONS: PlaybackSpeed[] = [0.5, 1, 2, 5];
 
-/* ─── Props ──────────────────────────────────────────────────────────── */
+/* --- Props ------------------------------------------------------------- */
 
 export interface PlaybackInspectorProps {
   executionId: string;
   onClose: () => void;
 }
 
-/* ─── Helpers ────────────────────────────────────────────────────────── */
+/* --- Helpers ----------------------------------------------------------- */
 
-function phaseColor(phase: TraceEvent['phase']): string {
+/** Phase to a status tone (carries meaning, never decoration). */
+function phaseTone(phase: TraceEvent['phase']): BadgeTone {
   switch (phase) {
     case 'post':
-      return '#22c55e'; // green-500
+      return 'success';
     case 'error':
-      return '#ef4444'; // red-500
+      return 'danger';
     case 'pre':
     default:
-      return '#f59e0b'; // amber-500
+      return 'warning';
+  }
+}
+
+/** Phase to a 20ui status-color token for the runtime-positioned timeline dots. */
+function phaseColorVar(phase: TraceEvent['phase']): string {
+  switch (phase) {
+    case 'post':
+      return 'var(--st-status-ok)';
+    case 'error':
+      return 'var(--st-danger)';
+    case 'pre':
+    default:
+      return 'var(--st-warn)';
+  }
+}
+
+/** Phase to a small glyph for the clickable dot. */
+function phaseIcon(phase: TraceEvent['phase']): LucideIcon {
+  switch (phase) {
+    case 'post':
+      return Check;
+    case 'error':
+      return AlertCircle;
+    case 'pre':
+    default:
+      return Clock;
   }
 }
 
@@ -127,7 +159,7 @@ function formatTs(ts: number, minTs: number): string {
 }
 
 function safeStringify(value: unknown): string {
-  if (value === undefined || value === null) return '—';
+  if (value === undefined || value === null) return '.';
   if (typeof value === 'string') return value;
   try {
     return JSON.stringify(value, null, 2);
@@ -136,79 +168,76 @@ function safeStringify(value: unknown): string {
   }
 }
 
-/* ─── Status pill ────────────────────────────────────────────────────── */
+/* --- Status badge ------------------------------------------------------ */
 
-function StatusPill({ status }: { status: PlaybackStatus }) {
-  const map: Record<PlaybackStatus, { label: string; className: string; icon: React.ReactNode }> =
-    {
-      loading: {
-        label: 'Loading',
-        className: 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-        icon: <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />,
-      },
-      buffering: {
-        label: 'Buffering',
-        className: 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-        icon: <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />,
-      },
-      playing: {
-        label: 'Playing',
-        className: 'bg-[var(--st-text)]/60 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
-        icon: <LuPlay className="h-3 w-3" strokeWidth={2} />,
-      },
-      paused: {
-        label: 'Paused',
-        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
-        icon: <LuPause className="h-3 w-3" strokeWidth={2} />,
-      },
-      done: {
-        label: 'Done',
-        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
-        icon: <LuCheck className="h-3 w-3" strokeWidth={2} />,
-      },
-      error: {
-        label: 'Error',
-        className: 'bg-[var(--st-text)]/50 text-[var(--st-text-secondary)] border border-[var(--st-border)]/40',
-        icon: <LuCircleAlert className="h-3 w-3" strokeWidth={2} />,
-      },
-    };
-  const { label, className, icon } = map[status];
+function StatusBadge({ status }: { status: PlaybackStatus }) {
+  const map: Record<
+    PlaybackStatus,
+    { label: string; tone: BadgeTone; icon: React.ReactNode }
+  > = {
+    loading: {
+      label: 'Loading',
+      tone: 'neutral',
+      icon: <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />,
+    },
+    buffering: {
+      label: 'Buffering',
+      tone: 'neutral',
+      icon: <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />,
+    },
+    playing: {
+      label: 'Playing',
+      tone: 'accent',
+      icon: <Play className="h-3 w-3" aria-hidden="true" />,
+    },
+    paused: {
+      label: 'Paused',
+      tone: 'neutral',
+      icon: <Pause className="h-3 w-3" aria-hidden="true" />,
+    },
+    done: {
+      label: 'Done',
+      tone: 'success',
+      icon: <Check className="h-3 w-3" aria-hidden="true" />,
+    },
+    error: {
+      label: 'Error',
+      tone: 'danger',
+      icon: <AlertCircle className="h-3 w-3" aria-hidden="true" />,
+    },
+  };
+  const { label, tone, icon } = map[status];
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold',
-        className,
-      )}
-    >
+    <Badge tone={tone} kind="soft" className="gap-1">
       {icon}
       {label}
-    </span>
+    </Badge>
   );
 }
 
-/* ─── JSON viewer (lightweight) ──────────────────────────────────────── */
+/* --- JSON viewer (lightweight) ----------------------------------------- */
 
 function JsonPane({ label, value }: { label: string; value: unknown }) {
   const text = safeStringify(value);
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+      <span className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         {label}
       </span>
-      <pre className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 text-[11px] leading-relaxed text-[var(--gray-11)] overflow-x-auto whitespace-pre-wrap break-words max-h-52 overflow-y-auto">
+      <pre className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5 text-[11px] leading-relaxed text-[var(--st-text)] overflow-x-auto whitespace-pre-wrap break-words max-h-52 overflow-y-auto">
         {text}
       </pre>
     </div>
   );
 }
 
-/* ─── Timeline row ────────────────────────────────────────────────────── */
+/* --- Timeline row ------------------------------------------------------- */
 
 interface TimelineRowProps {
   nodeId: string;
   nodeLabel: string;
   events: TraceEvent[];
-  /** 0-based index of the current playback position (or -1 if not on this node). */
+  /** 0-based index of the current playback position (or null if not on this node). */
   activeEventIndex: number | null;
   minTs: number;
   maxTs: number;
@@ -232,15 +261,15 @@ function TimelineRow({
   return (
     <div
       className={cn(
-        'group flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors',
+        'group flex items-center gap-3 px-3 py-1.5 rounded-[var(--st-radius)] transition-colors',
         isSelected
-          ? 'bg-[var(--st-text)]/10 border border-[var(--st-border)]/30'
-          : 'hover:bg-[var(--gray-2)]',
+          ? 'bg-[var(--st-accent-soft)] border border-[var(--st-accent)]/30'
+          : 'hover:bg-[var(--st-bg-secondary)]',
       )}
     >
       {/* Node label */}
       <span
-        className="shrink-0 w-36 truncate text-[11.5px] text-[var(--gray-11)]"
+        className="shrink-0 w-36 truncate text-[11.5px] text-[var(--st-text)]"
         title={nodeLabel}
       >
         {nodeLabel}
@@ -248,31 +277,33 @@ function TimelineRow({
 
       {/* Time axis */}
       <div className="relative flex-1 h-5 flex items-center">
-        <div className="absolute inset-x-0 h-px bg-[var(--gray-5)]" />
+        <div className="absolute inset-x-0 h-px bg-[var(--st-border)]" />
         {events.map((ev, i) => {
           const pct = ((ev.ts - minTs) / span) * 100;
           const isActive = activeEventIndex === i;
+          const DotIcon = phaseIcon(ev.phase);
           return (
-            <button
+            <IconButton
               key={`${ev.nodeId}-${ev.phase}-${i}`}
-              type="button"
+              icon={DotIcon}
+              size="sm"
+              label={`${ev.phase} event at ${formatTs(ev.ts, minTs)}`}
+              title={`${ev.phase} . ${ev.ts}ms${ev.durationMs !== undefined ? ` . ${ev.durationMs}ms` : ''}`}
               onClick={() => onDotClick(ev)}
-              title={`${ev.phase} · ${ev.ts}ms${ev.durationMs !== undefined ? ` · ${ev.durationMs}ms` : ''}`}
-              style={{ left: `${pct}%`, backgroundColor: phaseColor(ev.phase) }}
+              style={{ left: `${pct}%`, color: phaseColorVar(ev.phase) }}
               className={cn(
-                'absolute -translate-x-1/2 rounded-full transition-all focus:outline-none',
+                'absolute -translate-x-1/2 rounded-full',
                 isActive
-                  ? 'w-4 h-4 border-2 border-white shadow-[0_0_0_2px_#f76808] z-10'
-                  : 'w-2.5 h-2.5 hover:w-3.5 hover:h-3.5 hover:z-10',
+                  ? 'ring-2 ring-[var(--st-accent)] z-10'
+                  : 'hover:z-10',
               )}
-              aria-label={`${ev.phase} event at ${formatTs(ev.ts, minTs)}`}
             />
           );
         })}
       </div>
 
       {/* Duration badge */}
-      <span className="shrink-0 w-16 text-right text-[10.5px] tabular-nums text-[var(--gray-8)]">
+      <span className="shrink-0 w-16 text-right text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
         {events.find((e) => e.durationMs !== undefined)?.durationMs !== undefined
           ? `${events.find((e) => e.durationMs !== undefined)!.durationMs} ms`
           : ''}
@@ -281,26 +312,26 @@ function TimelineRow({
   );
 }
 
-/* ─── Main component ─────────────────────────────────────────────────── */
+/* --- Main component ---------------------------------------------------- */
 
 export function PlaybackInspector({
   executionId,
   onClose,
 }: PlaybackInspectorProps) {
-  /* ── SSE / event buffer ─────────────────────────────────────────── */
+  /* -- SSE / event buffer ----------------------------------------------- */
   const [events, setEvents] = useState<TraceEvent[]>([]);
   const [sseStatus, setSseStatus] = useState<'connecting' | 'open' | 'closed'>('connecting');
   const [sseError, setSseError] = useState<string | null>(null);
 
-  /* ── Playback state ─────────────────────────────────────────────── */
+  /* -- Playback state --------------------------------------------------- */
   const [cursor, setCursor] = useState<number>(-1); // index into `events`
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState<PlaybackSpeed>(1);
 
-  /* ── Selection (side panel) ─────────────────────────────────────── */
+  /* -- Selection (side panel) ------------------------------------------- */
   const [selected, setSelected] = useState<TraceEvent | null>(null);
 
-  /* ── Derived playback status ────────────────────────────────────── */
+  /* -- Derived playback status ------------------------------------------ */
   const status: PlaybackStatus = (() => {
     if (sseStatus === 'connecting') return 'loading';
     if (sseError) return 'error';
@@ -310,7 +341,7 @@ export function PlaybackInspector({
     return 'paused';
   })();
 
-  /* ── Connect SSE ────────────────────────────────────────────────── */
+  /* -- Connect SSE ------------------------------------------------------ */
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
@@ -367,7 +398,7 @@ export function PlaybackInspector({
     };
   }, [executionId]);
 
-  /* ── Playback tick ──────────────────────────────────────────────── */
+  /* -- Playback tick ---------------------------------------------------- */
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -382,7 +413,7 @@ export function PlaybackInspector({
       setCursor((prev) => {
         const next = prev + 1;
         if (next >= events.length - 1) {
-          // Reached last known event — pause if SSE is closed (run done),
+          // Reached last known event. Pause if SSE is closed (run done),
           // otherwise keep going in case new events arrive.
           if (sseStatus === 'closed') {
             setIsPlaying(false);
@@ -401,14 +432,14 @@ export function PlaybackInspector({
     };
   }, [isPlaying, speed, events.length, sseStatus]);
 
-  /* ── Sync selection to cursor ───────────────────────────────────── */
+  /* -- Sync selection to cursor ----------------------------------------- */
   useEffect(() => {
     if (cursor >= 0 && cursor < events.length) {
       setSelected(events[cursor]);
     }
   }, [cursor, events]);
 
-  /* ── Handlers ───────────────────────────────────────────────────── */
+  /* -- Handlers --------------------------------------------------------- */
   const handlePlayPause = useCallback(() => {
     setIsPlaying((prev) => {
       if (!prev && cursor >= events.length - 1 && sseStatus === 'closed') {
@@ -437,7 +468,17 @@ export function PlaybackInspector({
     setSelected(ev);
   }, [events, cursor]);
 
-  /* ── Timeline grouping ──────────────────────────────────────────── */
+  const handleSpeedChange = useCallback((next: string) => {
+    setSpeed(Number(next) as PlaybackSpeed);
+  }, []);
+
+  const handleScrub = useCallback((value: number | number[]) => {
+    const v = Array.isArray(value) ? value[0] : value;
+    setIsPlaying(false);
+    setCursor(v);
+  }, []);
+
+  /* -- Timeline grouping ------------------------------------------------ */
   const nodeOrder: string[] = [];
   const nodeMap = new Map<string, { label: string; events: TraceEvent[] }>();
   for (const ev of events) {
@@ -456,99 +497,73 @@ export function PlaybackInspector({
 
   const currentEvent = cursor >= 0 && cursor < events.length ? events[cursor] : null;
 
-  /* ── Render ─────────────────────────────────────────────────────── */
+  /* -- Render ----------------------------------------------------------- */
   return (
     <div
-      className="flex flex-col w-full h-full bg-[var(--gray-1)] text-[var(--gray-12)] overflow-hidden"
+      className="ui20 flex flex-col w-full h-full bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden"
       aria-label="Playback Inspector"
       data-tour="replay-header"
     >
-      {/* ── Header ─────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 shrink-0 border-b border-[var(--gray-5)] px-3 py-2">
-        <LuBraces className="h-4 w-4 text-[var(--st-text)] shrink-0" strokeWidth={2} />
-        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
+      {/* -- Header --------------------------------------------------------- */}
+      <div className="flex items-center gap-2 shrink-0 border-b border-[var(--st-border)] px-3 py-2">
+        <Braces className="h-4 w-4 text-[var(--st-accent)] shrink-0" aria-hidden="true" />
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">
           Replay
         </span>
-        <span className="text-[11px] text-[var(--gray-8)] font-mono truncate max-w-[120px]">
+        <span className="text-[11px] text-[var(--st-text-tertiary)] font-mono truncate max-w-[120px]">
           {executionId}
         </span>
 
-        <StatusPill status={status} />
+        <StatusBadge status={status} />
 
         {/* spacer */}
         <div className="flex-1" />
 
         {/* Speed selector */}
-        <div className="flex items-center gap-0.5" aria-label="Playback speed">
-          {SPEED_OPTIONS.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setSpeed(s)}
-              aria-pressed={speed === s}
-              className={cn(
-                'rounded px-2 py-0.5 text-[11px] font-semibold transition-colors',
-                speed === s
-                  ? 'bg-[var(--st-text)] text-white'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
-              )}
-            >
-              {s}×
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label="Playback speed"
+          size="sm"
+          value={String(speed)}
+          onChange={handleSpeedChange}
+          items={SPEED_OPTIONS.map((s) => ({ value: String(s), label: `${s}x` }))}
+        />
 
         {/* Step backward */}
-        <button
-          type="button"
+        <IconButton
+          icon={ChevronLeft}
+          label="Step backward"
           onClick={handleStepBack}
           disabled={cursor <= 0}
-          aria-label="Step backward"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <LuChevronLeft className="h-4 w-4" strokeWidth={2} />
-        </button>
+        />
 
         {/* Play / Pause */}
-        <button
-          type="button"
+        <IconButton
+          icon={isPlaying ? Pause : Play}
+          variant="primary"
+          label={isPlaying ? 'Pause' : 'Play'}
           onClick={handlePlayPause}
           disabled={events.length === 0}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-          className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          {isPlaying ? (
-            <LuPause className="h-3.5 w-3.5" strokeWidth={2.5} />
-          ) : (
-            <LuPlay className="h-3.5 w-3.5" strokeWidth={2.5} />
-          )}
-        </button>
+        />
 
         {/* Step forward */}
-        <button
-          type="button"
+        <IconButton
+          icon={ChevronRight}
+          label="Step forward"
           onClick={handleStepForward}
           disabled={cursor >= events.length - 1}
-          aria-label="Step forward"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <LuChevronRight className="h-4 w-4" strokeWidth={2} />
-        </button>
+        />
 
         {/* Close */}
-        <button
-          type="button"
+        <IconButton
+          icon={X}
+          label="Close playback inspector"
           onClick={onClose}
-          aria-label="Close playback inspector"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-        >
-          <LuX className="h-4 w-4" strokeWidth={2} />
-        </button>
+        />
       </div>
 
-      {/* ── Body ───────────────────────────────────────────────────── */}
+      {/* -- Body ----------------------------------------------------------- */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* ── Timeline + scrubber ────────────────────────────────── */}
+        {/* -- Timeline + scrubber ------------------------------------------ */}
         <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
           {/* Timeline */}
           <div
@@ -558,23 +573,26 @@ export function PlaybackInspector({
           >
             {status === 'loading' || status === 'buffering' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuLoader className="h-5 w-5 text-[var(--st-text)] animate-spin" strokeWidth={1.75} />
-                <p className="text-[12px] text-[var(--gray-9)]">
-                  {status === 'loading' ? 'Connecting to replay stream…' : 'Waiting for events…'}
+                <Spinner size="lg" label="Loading replay" />
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
+                  {status === 'loading' ? 'Connecting to replay stream.' : 'Waiting for events.'}
                 </p>
               </div>
             ) : status === 'error' ? (
-              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuCircleAlert className="h-5 w-5 text-[var(--st-text-secondary)]" strokeWidth={1.75} />
-                <p className="text-[12px] text-[var(--st-text-secondary)]">
-                  {sseError ?? 'Replay stream error'}
-                </p>
-              </div>
+              <EmptyState
+                icon={AlertCircle}
+                tone="danger"
+                size="sm"
+                title="Replay stream error"
+                description={sseError ?? 'The replay stream could not be read.'}
+              />
             ) : nodeOrder.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuClock className="h-5 w-5 text-[var(--gray-8)]" strokeWidth={1.75} />
-                <p className="text-[12px] text-[var(--gray-9)]">No events received yet.</p>
-              </div>
+              <EmptyState
+                icon={Clock}
+                size="sm"
+                title="No events yet"
+                description="No events received yet."
+              />
             ) : (
               <div className="space-y-0.5">
                 {nodeOrder.map((nodeId) => {
@@ -604,71 +622,67 @@ export function PlaybackInspector({
 
           {/* Scrub bar */}
           <div
-            className="shrink-0 border-t border-[var(--gray-5)] px-4 py-2 flex items-center gap-3"
+            className="shrink-0 border-t border-[var(--st-border)] px-4 py-2 flex items-center gap-3"
             data-tour="replay-scrubber"
             aria-label="Scrub bar"
           >
-            <span className="text-[10.5px] tabular-nums text-[var(--gray-8)] w-14 text-right">
+            <span className="text-[10.5px] tabular-nums text-[var(--st-text-tertiary)] w-14 text-right">
               {cursor >= 0 && events.length > 0 ? formatTs(events[cursor]?.ts ?? minTs, minTs) : '0.00 s'}
             </span>
-            <input
-              type="range"
+            <Slider
+              className="flex-1"
+              ariaLabel="Playback position"
               min={0}
               max={Math.max(events.length - 1, 0)}
+              step={1}
               value={cursor < 0 ? 0 : cursor}
-              onChange={(e) => {
-                setIsPlaying(false);
-                setCursor(Number(e.target.value));
-              }}
+              onValueChange={handleScrub}
               disabled={events.length === 0}
-              aria-label="Playback position"
-              className="flex-1 h-1 accent-[var(--st-text)] cursor-pointer disabled:opacity-40"
             />
-            <span className="text-[10.5px] tabular-nums text-[var(--gray-8)] w-14">
-              {events.length > 0 ? formatTs(maxTs, minTs) : '—'}
+            <span className="text-[10.5px] tabular-nums text-[var(--st-text-tertiary)] w-14">
+              {events.length > 0 ? formatTs(maxTs, minTs) : '.'}
             </span>
-            <span className="text-[10.5px] tabular-nums text-[var(--gray-8)]">
+            <span className="text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
               {cursor >= 0 ? cursor + 1 : 0} / {events.length}
             </span>
           </div>
         </div>
 
-        {/* ── Side panel ─────────────────────────────────────────── */}
+        {/* -- Side panel --------------------------------------------------- */}
         <div
-          className="shrink-0 w-[340px] flex flex-col border-l border-[var(--gray-5)] overflow-hidden"
+          className="shrink-0 w-[340px] flex flex-col border-l border-[var(--st-border)] overflow-hidden"
           data-tour="replay-detail"
           aria-label="Node detail panel"
         >
           {selected ? (
-            <>
+            <Card className="flex flex-col h-full rounded-none border-0">
               {/* Panel header */}
-              <div className="shrink-0 flex items-center gap-2 border-b border-[var(--gray-5)] px-3 py-2.5">
-                <span
-                  className="inline-block h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: phaseColor(selected.phase) }}
-                  aria-hidden
-                />
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className="text-[12px] font-semibold text-[var(--gray-12)] truncate">
-                    {selected.nodeLabel ?? selected.nodeId}
-                  </span>
-                  <span className="text-[10.5px] text-[var(--gray-9)]">
+              <CardHeader className="shrink-0 border-b border-[var(--st-border)]">
+                <div className="flex items-center gap-2">
+                  <Badge tone={phaseTone(selected.phase)} kind="soft" dot>
                     {selected.phase}
-                    {selected.durationMs !== undefined && ` · ${selected.durationMs} ms`}
-                    {' · '}{formatTs(selected.ts, minTs)}
-                  </span>
+                  </Badge>
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <CardTitle className="text-[12px] truncate">
+                      {selected.nodeLabel ?? selected.nodeId}
+                    </CardTitle>
+                    <CardDescription className="text-[10.5px]">
+                      {selected.durationMs !== undefined && `${selected.durationMs} ms . `}
+                      {formatTs(selected.ts, minTs)}
+                    </CardDescription>
+                  </div>
                 </div>
-              </div>
+              </CardHeader>
 
               {/* Panel body */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-4">
+              <CardBody className="flex-1 min-h-0 overflow-y-auto space-y-4">
                 {selected.error ? (
-                  <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/30 p-3">
-                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[var(--st-text-secondary)] mb-2">
-                      <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
+                  <div className="rounded-[var(--st-radius)] border border-[var(--st-danger)]/30 bg-[var(--st-danger-soft)] p-3">
+                    <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[var(--st-danger)] mb-2">
+                      <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
                       Error
                     </div>
-                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-[var(--st-text-secondary)]">
+                    <pre className="text-[11px] font-mono leading-relaxed whitespace-pre-wrap break-words text-[var(--st-danger)]">
                       {selected.error}
                     </pre>
                   </div>
@@ -678,35 +692,35 @@ export function PlaybackInspector({
                 <JsonPane label="Output" value={selected.outputSample} />
 
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+                  <span className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                     Meta
                   </span>
                   <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[11px]">
-                    <dt className="text-[var(--gray-9)]">Node ID</dt>
-                    <dd className="font-mono text-[var(--gray-11)] truncate">{selected.nodeId}</dd>
-                    <dt className="text-[var(--gray-9)]">Phase</dt>
-                    <dd className="text-[var(--gray-11)]">{selected.phase}</dd>
-                    <dt className="text-[var(--gray-9)]">Item index</dt>
-                    <dd className="text-[var(--gray-11)]">{selected.itemIndex}</dd>
-                    <dt className="text-[var(--gray-9)]">Timestamp</dt>
-                    <dd className="font-mono text-[var(--gray-11)]">{new Date(selected.ts).toISOString()}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">Node ID</dt>
+                    <dd className="font-mono text-[var(--st-text)] truncate">{selected.nodeId}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">Phase</dt>
+                    <dd className="text-[var(--st-text)]">{selected.phase}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">Item index</dt>
+                    <dd className="text-[var(--st-text)]">{selected.itemIndex}</dd>
+                    <dt className="text-[var(--st-text-secondary)]">Timestamp</dt>
+                    <dd className="font-mono text-[var(--st-text)]">{new Date(selected.ts).toISOString()}</dd>
                     {selected.durationMs !== undefined && (
                       <>
-                        <dt className="text-[var(--gray-9)]">Duration</dt>
-                        <dd className="text-[var(--gray-11)]">{selected.durationMs} ms</dd>
+                        <dt className="text-[var(--st-text-secondary)]">Duration</dt>
+                        <dd className="text-[var(--st-text)]">{selected.durationMs} ms</dd>
                       </>
                     )}
                   </dl>
                 </div>
-              </div>
-            </>
+              </CardBody>
+            </Card>
           ) : (
-            <div className="flex flex-col items-center justify-center gap-2 h-full text-center px-4">
-              <LuBraces className="h-5 w-5 text-[var(--gray-7)]" strokeWidth={1.75} />
-              <p className="text-[12px] text-[var(--gray-9)]">
-                Click a dot on the timeline to inspect its input and output.
-              </p>
-            </div>
+            <EmptyState
+              className="h-full"
+              icon={Braces}
+              title="Nothing selected"
+              description="Click a dot on the timeline to inspect its input and output."
+            />
           )}
         </div>
       </div>

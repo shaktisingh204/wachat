@@ -1,31 +1,30 @@
 'use client';
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    VariableAutocompleteInput
 
-   An <input> / <textarea> that opens a floating variable picker when the user
-   types the trigger sequence `{{`.  Behaves like a Notion / Typebot mention
-   menu.
+   An Input / Textarea (20ui) that opens a floating variable picker when the user
+   types the trigger sequence `{{`. Behaves like a Notion / Typebot mention menu.
 
    Behaviour summary
-   ─────────────────
+   -----------------
    - Trigger opens when the characters immediately preceding the caret contain
-     an un-closed `{{` token (e.g. `Hi {{na`).  The menu closes as soon as the
+     an un-closed `{{` token (e.g. `Hi {{na`). The menu closes as soon as the
      token becomes closed (`{{name}}`) or the user types whitespace outside a
      word (`{{ `).
    - Filter text is everything after the `{{` up to the caret.
    - Keyboard:
-       ArrowDown / ArrowUp  — move activeIndex
-       Enter / Tab          — insert active variable → `{{name}}`
-       Escape               — close without inserting
+       ArrowDown / ArrowUp  : move activeIndex
+       Enter / Tab          : insert active variable -> `{{name}}`
+       Escape               : close without inserting
    - Mouse:
-       Click row            — insert that variable
-       Click outside        — close
-   - Menu position is derived from the *actual* caret pixel position using a
+       Click row            : insert that variable
+       Click outside        : close
+   - Menu position is derived from the actual caret pixel position using a
      hidden mirror div (see helpers/caretPosition.ts) and translated into
      viewport-fixed coordinates so it works inside transformed / scrolled
      parents.
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------------------------------------------------------------------------- */
 
 import {
   useCallback,
@@ -37,14 +36,13 @@ import {
 } from 'react';
 import { createId } from '@paralleldrive/cuid2';
 import type { Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { inputClass } from './primitives';
+import { Input, Textarea } from '@/components/sabcrm/20ui';
 import { VariableMentionMenu } from './VariableMentionMenu';
 import { getCaretCoordinates } from './helpers/caretPosition';
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Props
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------------------------------------------------------------------------- */
 
 export type VariableAutocompleteInputProps = {
   value: string;
@@ -61,21 +59,21 @@ export type VariableAutocompleteInputProps = {
   'aria-label'?: string;
   /**
    * Invoked when the user creates a new variable via the "+ Create variable"
-   * affordance in the dropdown.  Must return the created Variable so the
+   * affordance in the dropdown. Must return the created Variable so the
    * component can insert it immediately.
    */
   onCreateVariable?: (name: string) => Variable;
   /**
-   * Receives the underlying <input> / <textarea> DOM node so callers can
+   * Receives the underlying input / textarea DOM node so callers can
    * perform direct selection manipulation (toolbar actions, focus, etc.).
    * Called with `null` on unmount.
    */
   inputRef?: (node: HTMLInputElement | HTMLTextAreaElement | null) => void;
 };
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Trigger parsing
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------------------------------------------------------------------------- */
 
 interface TriggerMatch {
   /** Absolute index of the opening `{{` in the value string. */
@@ -93,17 +91,17 @@ function findActiveTrigger(textBeforeCaret: string): TriggerMatch | null {
   const afterOpen = textBeforeCaret.slice(openIndex + 2);
 
   // Close the trigger once we encounter a closing `}}` or any character that
-  // can't be part of a variable name.  Allow letters, digits, underscore,
-  // dot, and dash — matches common Typebot variable naming.
+  // can't be part of a variable name. Allow letters, digits, underscore,
+  // dot, and dash to match common Typebot variable naming.
   if (afterOpen.includes('}}')) return null;
   if (!/^[\w.\-]*$/.test(afterOpen)) return null;
 
   return { startIndex: openIndex, query: afterOpen };
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Component
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------------------------------------------------------------------------- */
 
 export function VariableAutocompleteInput({
   value,
@@ -129,7 +127,7 @@ export function VariableAutocompleteInput({
   );
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  /* ── Trigger state ────────────────────────────────────────────────────── */
+  /* -- Trigger state ----------------------------------------------------- */
 
   const [trigger, setTrigger] = useState<TriggerMatch | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -139,7 +137,7 @@ export function VariableAutocompleteInput({
 
   const isOpen = trigger !== null;
 
-  /* ── Filtered variable list ───────────────────────────────────────────── */
+  /* -- Filtered variable list -------------------------------------------- */
 
   const filteredVariables = useMemo(() => {
     if (!trigger) return [];
@@ -153,7 +151,7 @@ export function VariableAutocompleteInput({
     setActiveIndex(0);
   }, [trigger?.query, variables.length]);
 
-  /* ── Core trigger detection on every change ───────────────────────────── */
+  /* -- Core trigger detection on every change ---------------------------- */
 
   const recomputeTrigger = useCallback(() => {
     const el = inputRef.current;
@@ -192,14 +190,14 @@ export function VariableAutocompleteInput({
     recomputeTrigger();
   }, [recomputeTrigger]);
 
-  /* ── Close helpers ───────────────────────────────────────────────────── */
+  /* -- Close helpers ----------------------------------------------------- */
 
   const closeMenu = useCallback(() => {
     setTrigger(null);
     setMenuPos(null);
   }, []);
 
-  /* ── Click-outside handler ───────────────────────────────────────────── */
+  /* -- Click-outside handler --------------------------------------------- */
 
   useEffect(() => {
     if (!isOpen) return;
@@ -217,7 +215,7 @@ export function VariableAutocompleteInput({
     };
   }, [isOpen, closeMenu]);
 
-  /* ── Reposition on scroll / resize while open ────────────────────────── */
+  /* -- Reposition on scroll / resize while open -------------------------- */
 
   useLayoutEffect(() => {
     if (!isOpen) return;
@@ -231,7 +229,7 @@ export function VariableAutocompleteInput({
     };
   }, [isOpen, recomputeTrigger]);
 
-  /* ── Insertion helpers ───────────────────────────────────────────────── */
+  /* -- Insertion helpers ------------------------------------------------- */
 
   const insertVariable = useCallback(
     (variable: Variable) => {
@@ -268,7 +266,7 @@ export function VariableAutocompleteInput({
     [onCreateVariable, insertVariable],
   );
 
-  /* ── Keyboard navigation ─────────────────────────────────────────────── */
+  /* -- Keyboard navigation ----------------------------------------------- */
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -299,7 +297,7 @@ export function VariableAutocompleteInput({
             if (picked) insertVariable(picked);
             return;
           }
-          // No matches → allow "Create" shortcut on Enter if trigger has text.
+          // No matches, allow "Create" shortcut on Enter if trigger has text.
           if (
             e.key === 'Enter' &&
             onCreateVariable &&
@@ -329,7 +327,7 @@ export function VariableAutocompleteInput({
     ],
   );
 
-  /* ── Render ──────────────────────────────────────────────────────────── */
+  /* -- Render ------------------------------------------------------------ */
 
   const sharedProps = {
     value,
@@ -348,17 +346,17 @@ export function VariableAutocompleteInput({
   return (
     <>
       {type === 'textarea' ? (
-        <textarea
-          ref={assignRef}
+        <Textarea
+          ref={assignRef as React.Ref<HTMLTextAreaElement>}
           rows={rows}
-          className={cn(inputClass, 'resize-y', className)}
+          className={className}
           {...sharedProps}
         />
       ) : (
-        <input
-          ref={assignRef}
+        <Input
+          ref={assignRef as React.Ref<HTMLInputElement>}
           type="text"
-          className={cn(inputClass, className)}
+          className={className}
           {...sharedProps}
         />
       )}
@@ -379,9 +377,9 @@ export function VariableAutocompleteInput({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Helper exported for callers that don't want to manage createId themselves
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------------------------------------------------------------------------- */
 
 /**
  * Convenience factory that creates a new {@link Variable} with a fresh id.

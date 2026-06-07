@@ -3,35 +3,71 @@
 /**
  * Full SabFlow workspace settings page.
  *
- * Tabs: General / Members / Invites / Billing
+ * Tabs: General / Members / Invites / Audit Log / Billing
  *
  * The component is self-contained: it does its own fetching to all the
  * `/api/sabflow/workspaces/*` endpoints. The parent just needs to pass
  * the workspaceId and the initial workspace (from the server page).
  */
 
-import { Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  THead,
+  Th,
+  Tr,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-  type ChangeEvent,
   type FormEvent,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuBuilding,
-  LuCreditCard,
-  LuCrown,
-  LuMail,
-  LuShieldCheck,
-  LuTrash2,
-  LuUserPlus,
-  LuUsers,
-  LuHistory,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Building,
+  CreditCard,
+  Crown,
+  Mail,
+  ShieldCheck,
+  Trash2,
+  UserPlus,
+  Users,
+  History,
+} from 'lucide-react';
 import type {
   Workspace,
   WorkspaceInvite,
@@ -43,7 +79,7 @@ import {
   canManageWorkspace,
 } from '@/lib/sabflow/workspaces/permissions';
 
-/* ── Types ────────────────────────────────────────────────── */
+/* -- Types -------------------------------------------------- */
 
 type Tab = 'general' | 'members' | 'invites' | 'billing' | 'audit';
 
@@ -52,7 +88,7 @@ interface Props {
   initialWorkspace: Workspace;
   /** Role of the currently-logged-in viewer, for permission-aware UI. */
   currentUserRole: WorkspaceRole;
-  /** Currently logged-in user id — used to prevent self-role-demotion. */
+  /** Currently logged-in user id - used to prevent self-role-demotion. */
   currentUserId: string;
 }
 
@@ -65,7 +101,7 @@ const ROLE_OPTIONS: { value: WorkspaceRole; label: string }[] = [
 
 const INVITE_ROLE_OPTIONS = ROLE_OPTIONS.filter((o) => o.value !== 'owner');
 
-/* ── Root component ───────────────────────────────────────── */
+/* -- Root component ---------------------------------------- */
 
 export function WorkspaceSettingsPage({
   workspaceId,
@@ -76,114 +112,89 @@ export function WorkspaceSettingsPage({
   const [tab, setTab] = useState<Tab>('general');
   const [workspace, setWorkspace] = useState<Workspace>(initialWorkspace);
 
-  const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: string }> }[] =
+  const tabs: { id: Tab; label: string; icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean }> }[] =
     useMemo(
       () => [
-        { id: 'general', label: 'General', icon: LuBuilding },
-        { id: 'members', label: 'Members', icon: LuUsers },
-        { id: 'invites', label: 'Invites', icon: LuMail },
-        { id: 'audit', label: 'Audit Log', icon: LuHistory },
-        { id: 'billing', label: 'Billing', icon: LuCreditCard },
+        { id: 'general', label: 'General', icon: Building },
+        { id: 'members', label: 'Members', icon: Users },
+        { id: 'invites', label: 'Invites', icon: Mail },
+        { id: 'audit', label: 'Audit Log', icon: History },
+        { id: 'billing', label: 'Billing', icon: CreditCard },
       ],
       [],
     );
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
-      <header className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white">
-          {workspace.iconUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={workspace.iconUrl}
-              alt=""
-              className="h-10 w-10 rounded-lg object-cover"
-            />
-          ) : (
-            <LuBuilding className="h-5 w-5" aria-hidden="true" />
-          )}
+    <div className="ui20 mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+      <PageHeader>
+        <div className="flex items-center gap-3">
+          <Avatar data-shape="square">
+            {workspace.iconUrl ? (
+              <AvatarImage src={workspace.iconUrl} alt="" />
+            ) : null}
+            <AvatarFallback>
+              <Building size={20} aria-hidden="true" />
+            </AvatarFallback>
+          </Avatar>
+          <PageHeaderHeading>
+            <PageTitle>{workspace.name}</PageTitle>
+            <PageDescription>Workspace settings</PageDescription>
+          </PageHeaderHeading>
         </div>
-        <div>
-          <h1 className="text-xl font-semibold text-[var(--st-text)] dark:text-white">
-            {workspace.name}
-          </h1>
-          <p className="text-[13px] text-[var(--st-text)]">Workspace settings</p>
-        </div>
-      </header>
+      </PageHeader>
 
-      <nav
-        role="tablist"
-        aria-label="Workspace settings"
-        className="flex gap-1 border-b border-[var(--st-border)] dark:border-[var(--st-border)]"
-      >
-        {tabs.map(({ id, label, icon: Icon }) => {
-          const active = tab === id;
-          return (
-            <button
-              key={id}
-              role="tab"
-              aria-selected={active}
-              aria-controls={`tab-panel-${id}`}
-              id={`tab-${id}`}
-              type="button"
-              onClick={() => setTab(id)}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-t-md px-4 py-2.5 text-[13px] font-medium transition-colors',
-                active
-                  ? 'border-b-2 border-[var(--color-primary,#f76808)] text-[var(--st-text)] dark:text-white'
-                  : 'text-[var(--st-text)] hover:text-[var(--st-text)] dark:hover:text-white',
-              )}
-            >
-              <Icon className="h-4 w-4" aria-hidden="true" />
-              {label}
-            </button>
-          );
-        })}
-      </nav>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
+        <TabsList aria-label="Workspace settings">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <TabsTrigger key={id} value={id}>
+              <span className="inline-flex items-center gap-2">
+                <Icon size={14} aria-hidden="true" />
+                {label}
+              </span>
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      <div
-        role="tabpanel"
-        id={`tab-panel-${tab}`}
-        aria-labelledby={`tab-${tab}`}
-      >
-        {tab === 'general' && (
+        <TabsContent value="general">
           <GeneralTab
             workspace={workspace}
             canEdit={canManageWorkspace(currentUserRole)}
             onUpdated={setWorkspace}
           />
-        )}
-        {tab === 'members' && (
+        </TabsContent>
+        <TabsContent value="members">
           <MembersTab
             workspaceId={workspaceId}
             canManage={canManageMembers(currentUserRole)}
             isOwner={currentUserRole === 'owner'}
             currentUserId={currentUserId}
           />
-        )}
-        { tab === 'invites' && (
+        </TabsContent>
+        <TabsContent value="invites">
           <InvitesTab
             workspaceId={workspaceId}
             canManage={canManageMembers(currentUserRole)}
           />
-        )}
-        {tab === 'audit' && (
+        </TabsContent>
+        <TabsContent value="audit">
           <AuditTab
             workspaceId={workspaceId}
             canManage={canManageWorkspace(currentUserRole)}
           />
-        )}
-        {tab === 'billing' && <BillingTab workspace={workspace} />}
-      </div>
+        </TabsContent>
+        <TabsContent value="billing">
+          <BillingTab workspace={workspace} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
 export default WorkspaceSettingsPage;
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    General tab
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 function GeneralTab({
   workspace,
@@ -195,13 +206,13 @@ function GeneralTab({
   onUpdated: (ws: Workspace) => void;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [name, setName] = useState(workspace.name);
   const [slug, setSlug] = useState(workspace.slug);
   const [iconUrl, setIconUrl] = useState(workspace.iconUrl ?? '');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
 
   const dirty =
     name !== workspace.name ||
@@ -213,7 +224,6 @@ function GeneralTab({
       e.preventDefault();
       setSaving(true);
       setError(null);
-      setOk(null);
       try {
         const res = await fetch(`/api/sabflow/workspaces/${workspace.id}`, {
           method: 'PATCH',
@@ -225,14 +235,16 @@ function GeneralTab({
           throw new Error(data.error ?? 'Failed to save');
         }
         if (data.workspace) onUpdated(data.workspace);
-        setOk('Saved');
+        toast.success('Workspace saved');
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to save');
+        const message = err instanceof Error ? err.message : 'Failed to save';
+        setError(message);
+        toast.error(message);
       } finally {
         setSaving(false);
       }
     },
-    [iconUrl, name, onUpdated, slug, workspace.id],
+    [iconUrl, name, onUpdated, slug, toast, workspace.id],
   );
 
   const handleDelete = useCallback(async () => {
@@ -250,85 +262,89 @@ function GeneralTab({
       }
       router.push('/dashboard/sabflow');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete');
+      const message = err instanceof Error ? err.message : 'Failed to delete';
+      setError(message);
+      toast.error(message);
       setDeleting(false);
     }
-  }, [router, workspace.id, workspace.name]);
+  }, [router, toast, workspace.id, workspace.name]);
 
   return (
     <form className="flex flex-col gap-6 py-2" onSubmit={handleSave}>
-      <Panel title="Workspace details">
-        <Field label="Name" htmlFor="ws-name">
-          <input
-            id="ws-name"
-            type="text"
-            value={name}
-            disabled={!canEdit}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
-          />
-        </Field>
-        <Field
-          label="Slug"
-          hint="Lowercase letters, numbers and dashes."
-          htmlFor="ws-slug"
-        >
-          <input
-            id="ws-slug"
-            type="text"
-            value={slug}
-            disabled={!canEdit}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setSlug(e.target.value)}
-            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 font-mono text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
-          />
-        </Field>
-        <Field label="Icon URL" htmlFor="ws-icon">
-          <input
-            id="ws-icon"
-            type="url"
-            value={iconUrl}
-            disabled={!canEdit}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setIconUrl(e.target.value)}
-            placeholder="https://…"
-            className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm text-[var(--st-text)] focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
-          />
-        </Field>
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Workspace details</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          <Field label="Name">
+            <Input
+              value={name}
+              disabled={!canEdit}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Field>
+          <Field label="Slug" help="Lowercase letters, numbers and dashes.">
+            <Input
+              value={slug}
+              disabled={!canEdit}
+              onChange={(e) => setSlug(e.target.value)}
+              className="font-mono"
+            />
+          </Field>
+          <Field label="Icon">
+            <SabFileUrlInput
+              value={iconUrl}
+              onChange={(v) => setIconUrl(v)}
+              accept="image"
+              disabled={!canEdit}
+              placeholder="No icon chosen"
+              pickerTitle="Choose a workspace icon"
+            />
+          </Field>
 
-        <div className="flex items-center justify-end gap-3">
-          {ok && <span className="text-[13px] text-[var(--st-text)]">{ok}</span>}
-          {error && <span className="text-[13px] text-[var(--st-text)]">{error}</span>}
-          <button
-            type="submit"
-            disabled={!canEdit || !dirty || saving}
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary,#f76808)] px-4 py-2 text-[13px] font-medium text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          <div className="flex items-center justify-end gap-3">
+            {error ? (
+              <span className="text-[13px] text-[var(--st-danger)]">{error}</span>
+            ) : null}
+            <Button
+              type="submit"
+              variant="primary"
+              loading={saving}
+              disabled={!canEdit || !dirty || saving}
+            >
+              {saving ? 'Saving' : 'Save changes'}
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Danger zone</CardTitle>
+          <CardDescription>
+            Deleting a workspace also removes all its members and invites.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <Button
+            type="button"
+            variant="danger"
+            iconLeft={Trash2}
+            loading={deleting}
+            disabled={!canEdit || deleting}
+            onClick={handleDelete}
           >
-            {saving ? 'Saving…' : 'Save changes'}
-          </button>
-        </div>
-      </Panel>
-
-      <Panel
-        tone="danger"
-        title="Danger zone"
-        description="Deleting a workspace also removes all its members and invites."
-      >
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={!canEdit || deleting}
-          className="inline-flex items-center gap-2 rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/10 px-4 py-2 text-[13px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)]/20 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <LuTrash2 className="h-4 w-4" aria-hidden="true" />
-          {deleting ? 'Deleting…' : 'Delete workspace'}
-        </button>
-      </Panel>
+            {deleting ? 'Deleting' : 'Delete workspace'}
+          </Button>
+        </CardBody>
+      </Card>
     </form>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    Members tab
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 function MembersTab({
   workspaceId,
@@ -342,6 +358,7 @@ function MembersTab({
   currentUserId: string;
 }) {
   const router = useRouter();
+  const { toast } = useToast();
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -376,7 +393,7 @@ function MembersTab({
       // Optimistic update
       const previousMembers = [...members];
       setMembers((prev) =>
-        prev.map((m) => (m.id === memberId ? { ...m, role } : m))
+        prev.map((m) => (m.id === memberId ? { ...m, role } : m)),
       );
       setError(null);
 
@@ -392,13 +409,15 @@ function MembersTab({
         // Revert on error
         setMembers(previousMembers);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? 'Failed to update role');
+        const message = data.error ?? 'Failed to update role';
+        setError(message);
+        toast.error(message);
         return;
       }
       await reload();
       router.refresh();
     },
-    [reload, workspaceId, router, members],
+    [reload, workspaceId, router, members, toast],
   );
 
   const handleRemove = useCallback(
@@ -418,137 +437,145 @@ function MembersTab({
         // Revert on error
         setMembers(previousMembers);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? 'Failed to remove member');
+        const message = data.error ?? 'Failed to remove member';
+        setError(message);
+        toast.error(message);
         return;
       }
       await reload();
       router.refresh();
     },
-    [reload, workspaceId, router, members],
+    [reload, workspaceId, router, members, toast],
   );
 
   return (
     <div className="flex flex-col gap-4 py-2">
-      <Panel title="Members" description={`${members.length} total`}>
-        {error && (
-          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
-            {error}
-          </div>
-        )}
-        {loading ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-center gap-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-4 w-1/3" />
-                  <Skeleton className="h-3 w-1/4" />
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Members</CardTitle>
+          <CardDescription>{`${members.length} total`}</CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          {error ? (
+            <Alert tone="danger">{error}</Alert>
+          ) : null}
+          {loading ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 border-b border-[var(--st-border)] pb-3"
+                >
+                  <Skeleton circle width={32} />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton height={16} width="33%" />
+                    <Skeleton height={12} width="25%" />
+                  </div>
+                  <Skeleton height={32} width={96} radius={8} />
                 </div>
-                <Skeleton className="h-8 w-24 rounded-md" />
-              </div>
-            ))}
-          </div>
-        ) : members.length === 0 ? (
-          <div className="text-[13px] text-[var(--st-text)]">No members yet.</div>
-        ) : (
-          <div className="overflow-hidden rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)]">
-            <table className="w-full table-fixed text-left text-[13px]">
-              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Member</th>
-                  <th className="w-40 px-3 py-2 font-medium">Role</th>
-                  <th className="w-32 px-3 py-2 font-medium">Joined</th>
-                  <th className="w-20 px-3 py-2 text-right font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.map((m) => {
-                  const isSelf = m.userId === currentUserId;
-                  const canChangeRole =
-                    canManage &&
-                    (m.role !== 'owner' || isOwner) &&
-                    !isSelf; // don't let a user demote themselves in the list
-                  const canRemove =
-                    m.role !== 'owner' && (canManage || isSelf);
-                  const display = m.name || m.email || m.userId;
-                  return (
-                    <tr
-                      key={m.id}
-                      className="border-t border-[var(--st-border)] dark:border-[var(--st-border)]"
-                    >
-                      <td className="px-3 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[12px] font-semibold uppercase text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                            {display.slice(0, 2)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="truncate font-medium text-[var(--st-text)] dark:text-white">
-                              {m.name || m.email || 'Unknown'}
-                            </div>
-                            {m.email && (
-                              <div className="truncate text-[12px] text-[var(--st-text)]">
-                                {m.email}
+              ))}
+            </div>
+          ) : members.length === 0 ? (
+            <EmptyState icon={Users} title="No members yet" />
+          ) : (
+            <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Member</Th>
+                    <Th width={160}>Role</Th>
+                    <Th width={128}>Joined</Th>
+                    <Th width={80} align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {members.map((m) => {
+                    const isSelf = m.userId === currentUserId;
+                    const canChangeRole =
+                      canManage &&
+                      (m.role !== 'owner' || isOwner) &&
+                      !isSelf; // don't let a user demote themselves in the list
+                    const canRemove =
+                      m.role !== 'owner' && (canManage || isSelf);
+                    const display = m.name || m.email || m.userId;
+                    return (
+                      <Tr key={m.id}>
+                        <Td>
+                          <div className="flex items-center gap-2">
+                            <Avatar name={m.name || m.email || 'Unknown'} size="sm" />
+                            <div className="min-w-0">
+                              <div className="truncate font-medium text-[var(--st-text)]">
+                                {m.name || m.email || 'Unknown'}
                               </div>
-                            )}
+                              {m.email ? (
+                                <div className="truncate text-[12px] text-[var(--st-text-secondary)]">
+                                  {m.email}
+                                </div>
+                              ) : null}
+                            </div>
+                            {m.role === 'owner' ? (
+                              <Badge tone="accent" className="ml-1">
+                                <span className="inline-flex items-center gap-1">
+                                  <Crown size={12} aria-hidden="true" />
+                                  Owner
+                                </span>
+                              </Badge>
+                            ) : null}
                           </div>
-                          {m.role === 'owner' && (
-                            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
-                              <LuCrown className="h-3 w-3" aria-hidden="true" />
-                              Owner
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">
-                        <select
-                          value={m.role}
-                          disabled={!canChangeRole}
-                          onChange={(e) =>
-                            handleRoleChange(m.id, e.target.value as WorkspaceRole)
-                          }
-                          className="w-full rounded-md border border-[var(--st-border)] bg-white px-2 py-1.5 text-[13px] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]"
-                        >
-                          {ROLE_OPTIONS.filter(
-                            (o) => o.value !== 'owner' || isOwner,
-                          ).map((o) => (
-                            <option key={o.value} value={o.value}>
-                              {o.label}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="px-3 py-3 text-[var(--st-text)]">
-                        {new Date(m.joinedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-3 py-3 text-right">
-                        {canRemove ? (
-                          <button
-                            type="button"
-                            onClick={() => handleRemove(m.id, display)}
-                            aria-label={`Remove ${display}`}
-                            className="inline-flex items-center rounded-md p-1.5 text-[var(--st-text)] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
+                        </Td>
+                        <Td>
+                          <Select
+                            value={m.role}
+                            disabled={!canChangeRole}
+                            onValueChange={(v) =>
+                              handleRoleChange(m.id, v as WorkspaceRole)
+                            }
                           >
-                            <LuTrash2 className="h-4 w-4" aria-hidden="true" />
-                          </button>
-                        ) : (
-                          <span className="text-[var(--st-text-secondary)]">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Panel>
+                            <SelectTrigger aria-label={`Role for ${display}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {ROLE_OPTIONS.filter(
+                                (o) => o.value !== 'owner' || isOwner,
+                              ).map((o) => (
+                                <SelectItem key={o.value} value={o.value}>
+                                  {o.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">
+                          {new Date(m.joinedAt).toLocaleDateString()}
+                        </Td>
+                        <Td align="right">
+                          {canRemove ? (
+                            <IconButton
+                              label={`Remove ${display}`}
+                              icon={Trash2}
+                              size="sm"
+                              onClick={() => handleRemove(m.id, display)}
+                            />
+                          ) : (
+                            <span className="text-[var(--st-text-tertiary)]">-</span>
+                          )}
+                        </Td>
+                      </Tr>
+                    );
+                  })}
+                </TBody>
+              </Table>
+            </div>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    Invites tab
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 function InvitesTab({
   workspaceId,
@@ -557,6 +584,7 @@ function InvitesTab({
   workspaceId: string;
   canManage: boolean;
 }) {
+  const { toast } = useToast();
   const [invites, setInvites] = useState<WorkspaceInvite[]>([]);
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<WorkspaceRole>('editor');
@@ -614,14 +642,17 @@ function InvitesTab({
         setEmail('');
         setRole('editor');
         setLastInviteUrl(data.inviteUrl ?? null);
+        toast.success('Invite sent');
         await reload();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to send invite');
+        const message = err instanceof Error ? err.message : 'Failed to send invite';
+        setError(message);
+        toast.error(message);
       } finally {
         setSending(false);
       }
     },
-    [email, reload, role, workspaceId],
+    [email, reload, role, workspaceId, toast],
   );
 
   const handleRevoke = useCallback(
@@ -641,171 +672,188 @@ function InvitesTab({
         // Revert on error
         setInvites(previousInvites);
         const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error ?? 'Failed to revoke invite');
+        const message = data.error ?? 'Failed to revoke invite';
+        setError(message);
+        toast.error(message);
         return;
       }
       await reload();
     },
-    [reload, workspaceId, invites],
+    [reload, workspaceId, invites, toast],
   );
 
   return (
     <div className="flex flex-col gap-4 py-2">
-      {canManage && (
-        <Panel title="Invite a member">
-          <form className="flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={handleSend}>
-            <Field label="Email" htmlFor="invite-email" className="flex-1">
-              <input
-                id="invite-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="teammate@example.com"
-                className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm focus:border-[var(--color-primary,#f76808)] focus:outline-none dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
-              />
-            </Field>
-            <Field label="Role" htmlFor="invite-role" className="w-40">
-              <select
-                id="invite-role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as WorkspaceRole)}
-                className="w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm dark:border-[var(--st-border)] dark:bg-[var(--st-text)] dark:text-white"
-              >
-                {INVITE_ROLE_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            <button
-              type="submit"
-              disabled={sending}
-              className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary,#f76808)] px-4 py-2 text-[13px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+      {canManage ? (
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle>Invite a member</CardTitle>
+          </CardHeader>
+          <CardBody className="flex flex-col gap-3">
+            <form
+              className="flex flex-col gap-3 sm:flex-row sm:items-end"
+              onSubmit={handleSend}
             >
-              <LuUserPlus className="h-4 w-4" aria-hidden="true" />
-              {sending ? 'Sending…' : 'Send invite'}
-            </button>
-          </form>
-
-          {lastInviteUrl && (
-            <div className="mt-3 rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[12px]">
-              <div className="font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                Invite created. Share this link:
-              </div>
-              <code className="mt-1 block break-all text-[var(--st-text)] dark:text-white">
-                {lastInviteUrl}
-              </code>
-            </div>
-          )}
-        </Panel>
-      )}
-
-      <Panel title="Pending invites">
-        {error && (
-          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
-            {error}
-          </div>
-        )}
-        {loading ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2].map((i) => (
-              <div key={i} className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="h-4 w-4" />
-                  <Skeleton className="h-4 w-32" />
-                  <Skeleton className="h-4 w-16 rounded-full" />
-                </div>
-                <Skeleton className="h-8 w-8 rounded-md" />
-              </div>
-            ))}
-          </div>
-        ) : invites.length === 0 ? (
-          <div className="text-[13px] text-[var(--st-text)]">No pending invites.</div>
-        ) : (
-          <ul className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
-            {invites.map((inv) => (
-              <li
-                key={inv.id}
-                className="flex items-center justify-between gap-3 py-2.5"
+              <Field label="Email" className="flex-1">
+                <Input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="teammate@example.com"
+                />
+              </Field>
+              <Field label="Role" className="w-40">
+                <Select
+                  value={role}
+                  onValueChange={(v) => setRole(v as WorkspaceRole)}
+                >
+                  <SelectTrigger aria-label="Invite role">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INVITE_ROLE_OPTIONS.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Button
+                type="submit"
+                variant="primary"
+                iconLeft={UserPlus}
+                loading={sending}
+                disabled={sending}
               >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <LuMail
-                      className="h-4 w-4 text-[var(--st-text-secondary)]"
-                      aria-hidden="true"
-                    />
-                    <span className="truncate font-medium text-[var(--st-text)] dark:text-white">
-                      {inv.email}
-                    </span>
-                    <span className="rounded-full bg-[var(--st-bg-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                      {inv.role}
-                    </span>
+                {sending ? 'Sending' : 'Send invite'}
+              </Button>
+            </form>
+
+            {lastInviteUrl ? (
+              <Alert tone="success" title="Invite created. Share this link:">
+                <code className="mt-1 block break-all text-[12px] text-[var(--st-text)]">
+                  {lastInviteUrl}
+                </code>
+              </Alert>
+            ) : null}
+          </CardBody>
+        </Card>
+      ) : null}
+
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Pending invites</CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          {error ? (
+            <Alert tone="danger">{error}</Alert>
+          ) : null}
+          {loading ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] pb-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <Skeleton height={16} width={16} />
+                    <Skeleton height={16} width={128} />
+                    <Skeleton height={16} width={64} radius={9999} />
                   </div>
-                  <div className="text-[12px] text-[var(--st-text)]">
-                    Expires {new Date(inv.expiresAt).toLocaleDateString()}
-                  </div>
+                  <Skeleton height={32} width={32} radius={8} />
                 </div>
-                {canManage && (
-                  <button
-                    type="button"
-                    onClick={() => handleRevoke(inv.id)}
-                    aria-label={`Revoke invite for ${inv.email}`}
-                    className="inline-flex items-center rounded-md p-1.5 text-[var(--st-text)] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
-                  >
-                    <LuTrash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+              ))}
+            </div>
+          ) : invites.length === 0 ? (
+            <EmptyState icon={Mail} title="No pending invites" />
+          ) : (
+            <ul className="divide-y divide-[var(--st-border)]">
+              {invites.map((inv) => (
+                <li
+                  key={inv.id}
+                  className="flex items-center justify-between gap-3 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Mail
+                        size={16}
+                        className="text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
+                      <span className="truncate font-medium text-[var(--st-text)]">
+                        {inv.email}
+                      </span>
+                      <Badge tone="neutral">{inv.role}</Badge>
+                    </div>
+                    <div className="text-[12px] text-[var(--st-text-secondary)]">
+                      Expires {new Date(inv.expiresAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  {canManage ? (
+                    <IconButton
+                      label={`Revoke invite for ${inv.email}`}
+                      icon={Trash2}
+                      size="sm"
+                      onClick={() => handleRevoke(inv.id)}
+                    />
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    Billing tab
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 function BillingTab({ workspace }: { workspace: Workspace }) {
   const plan = workspace.plan ?? 'free';
   return (
     <div className="flex flex-col gap-4 py-2">
-      <Panel title="Current plan">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/20 dark:text-[var(--st-text-secondary)]">
-              <LuShieldCheck className="h-5 w-5" aria-hidden="true" />
-            </div>
-            <div>
-              <div className="font-semibold capitalize text-[var(--st-text)] dark:text-white">
-                {plan} plan
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Current plan</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <span
+                className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                aria-hidden="true"
+              >
+                <ShieldCheck size={20} />
+              </span>
+              <div>
+                <div className="font-semibold capitalize text-[var(--st-text)]">
+                  {plan} plan
+                </div>
+                <div className="text-[13px] text-[var(--st-text-secondary)]">
+                  {plan === 'free'
+                    ? 'Basic features with usage limits.'
+                    : 'Thanks for supporting SabFlow.'}
+                </div>
               </div>
-              <div className="text-[13px] text-[var(--st-text)]">
-                {plan === 'free'
-                  ? 'Basic features with usage limits.'
-                  : 'Thanks for supporting SabFlow!'}
-              </div>
             </div>
+            <Button variant="primary" onClick={() => { window.location.href = '/dashboard/billing'; }}>
+              {plan === 'free' ? 'Upgrade' : 'Manage plan'}
+            </Button>
           </div>
-          <a
-            href="/dashboard/billing"
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary,#f76808)] px-4 py-2 text-[13px] font-medium text-white hover:opacity-90"
-          >
-            {plan === 'free' ? 'Upgrade' : 'Manage plan'}
-          </a>
-        </div>
-      </Panel>
+        </CardBody>
+      </Card>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════
+/* ==========================================================
    Audit tab
-   ══════════════════════════════════════════════════════════ */
+   ========================================================== */
 
 interface AuditEntry {
   id: string;
@@ -853,137 +901,81 @@ function AuditTab({
   if (!canManage) {
     return (
       <div className="flex flex-col gap-4 py-2">
-        <Panel title="Audit Log">
-          <div className="text-[13px] text-[var(--st-text)]">
-            You do not have permission to view audit logs for this workspace.
-          </div>
-        </Panel>
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle>Audit Log</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="text-[13px] text-[var(--st-text-secondary)]">
+              You do not have permission to view audit logs for this workspace.
+            </div>
+          </CardBody>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4 py-2">
-      <Panel title="Audit Log" description="Recent workspace activity.">
-        {error && (
-          <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 p-3 text-[13px] text-[var(--st-text)]">
-            {error}
-          </div>
-        )}
-        {loading ? (
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="flex items-center gap-4 border-b border-[var(--st-border)] dark:border-[var(--st-border)] pb-3">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-48" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-            ))}
-          </div>
-        ) : entries.length === 0 ? (
-          <div className="text-[13px] text-[var(--st-text)]">No activity found.</div>
-        ) : (
-          <div className="overflow-x-auto rounded-md border border-[var(--st-border)] dark:border-[var(--st-border)]">
-            <table className="w-full text-left text-[13px]">
-              <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-                <tr>
-                  <th className="px-3 py-2 font-medium">Action</th>
-                  <th className="px-3 py-2 font-medium">User</th>
-                  <th className="px-3 py-2 font-medium">Target</th>
-                  <th className="px-3 py-2 font-medium">Time</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--st-border)] dark:divide-[var(--st-border)]">
-                {entries.map((entry) => (
-                  <tr key={entry.id}>
-                    <td className="px-3 py-2.5 font-medium text-[var(--st-text)] dark:text-white">
-                      {entry.action}
-                    </td>
-                    <td className="px-3 py-2.5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)] font-mono text-[12px]">
-                      {entry.userId}
-                    </td>
-                    <td className="px-3 py-2.5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                      {entry.target || '—'}
-                    </td>
-                    <td className="px-3 py-2.5 text-[var(--st-text)] whitespace-nowrap">
-                      {new Date(entry.createdAt).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Panel>
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════
-   Small local primitives
-   ══════════════════════════════════════════════════════════ */
-
-function Panel({
-  title,
-  description,
-  tone,
-  children,
-}: {
-  title?: string;
-  description?: string;
-  tone?: 'danger';
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      className={cn(
-        'flex flex-col gap-4 rounded-lg border p-5',
-        tone === 'danger'
-          ? 'border-[var(--st-border)]/30 bg-[var(--st-text)]/5'
-          : 'border-[var(--st-border)] bg-white dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40',
-      )}
-    >
-      {(title || description) && (
-        <header className="flex flex-col gap-0.5">
-          {title && (
-            <h2 className="text-[15px] font-semibold text-[var(--st-text)] dark:text-white">
-              {title}
-            </h2>
+      <Card padding="lg">
+        <CardHeader>
+          <CardTitle>Audit Log</CardTitle>
+          <CardDescription>Recent workspace activity.</CardDescription>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-4">
+          {error ? (
+            <Alert tone="danger">{error}</Alert>
+          ) : null}
+          {loading ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 border-b border-[var(--st-border)] pb-3"
+                >
+                  <Skeleton height={16} width={96} />
+                  <Skeleton height={16} width={128} />
+                  <Skeleton height={16} width={192} />
+                  <Skeleton height={16} width={80} />
+                </div>
+              ))}
+            </div>
+          ) : entries.length === 0 ? (
+            <EmptyState icon={History} title="No activity found" />
+          ) : (
+            <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Action</Th>
+                    <Th>User</Th>
+                    <Th>Target</Th>
+                    <Th>Time</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {entries.map((entry) => (
+                    <Tr key={entry.id}>
+                      <Td className="font-medium text-[var(--st-text)]">
+                        {entry.action}
+                      </Td>
+                      <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                        {entry.userId}
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">
+                        {entry.target || '-'}
+                      </Td>
+                      <Td className="whitespace-nowrap text-[var(--st-text-secondary)]">
+                        {new Date(entry.createdAt).toLocaleString()}
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </div>
           )}
-          {description && (
-            <p className="text-[13px] text-[var(--st-text)]">{description}</p>
-          )}
-        </header>
-      )}
-      {children}
-    </section>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  hint,
-  className,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  hint?: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={cn('flex flex-col gap-1.5', className)}>
-      <label
-        htmlFor={htmlFor}
-        className="text-[12px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
-      >
-        {label}
-      </label>
-      {children}
-      {hint && <span className="text-[11px] text-[var(--st-text)]">{hint}</span>}
+        </CardBody>
+      </Card>
     </div>
   );
 }

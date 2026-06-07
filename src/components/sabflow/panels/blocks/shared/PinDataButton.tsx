@@ -1,22 +1,22 @@
 'use client';
 
 /**
- * PinDataButton — inline "Pin this output" toggle.
+ * PinDataButton - inline "Pin this output" toggle.
  *
  * When clicked with a value, the current node's output is pinned in the
  * nodeData store so that downstream test executions read the pinned value
- * instead of re-running the upstream node.  Clicking again unpins it.
+ * instead of re-running the upstream node. Clicking again unpins it.
  */
 
 import { useCallback, useMemo } from 'react';
-import { LuPin, LuPinOff } from 'react-icons/lu';
+import { Pin, PinOff } from 'lucide-react';
+import { Button } from '@/components/sabcrm/20ui';
 import { useNodeDataStore } from '@/lib/sabflow/execution/nodeData';
-import { cn } from '@/lib/utils';
 
 type Props = {
   /** The block id whose output is being pinned. */
   blockId: string;
-  /** The value to pin — usually the last successful test output. */
+  /** The value to pin - usually the last successful test output. */
   value?: unknown;
   /** Optional extra className for layout tweaks. */
   className?: string;
@@ -60,32 +60,25 @@ export function PinDataButton({
   const { label, Icon } = useMemo(
     () =>
       isPinned
-        ? { label: 'Unpin output', Icon: LuPinOff }
-        : { label: 'Pin this output', Icon: LuPin },
+        ? { label: 'Unpin output', Icon: PinOff }
+        : { label: 'Pin this output', Icon: Pin },
     [isPinned],
   );
 
+  const disabled = !isPinned && !canPin;
+
   return (
-    <button
-      type="button"
+    <Button
+      variant={isPinned ? 'primary' : 'secondary'}
+      size="sm"
+      iconLeft={Icon}
       onClick={handleClick}
-      disabled={!isPinned && !canPin}
-      title={
-        !isPinned && !canPin
-          ? 'Run the node at least once to pin its output'
-          : label
-      }
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium transition-colors',
-        isPinned
-          ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)] hover:bg-[var(--st-text)]/15'
-          : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)]',
-        'disabled:cursor-not-allowed disabled:opacity-50',
-        className,
-      )}
+      disabled={disabled}
+      aria-label={label}
+      title={disabled ? 'Run the node at least once to pin its output' : label}
+      className={className}
     >
-      <Icon className="h-3 w-3" strokeWidth={2} />
       {label}
-    </button>
+    </Button>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   VariableMentionMenu — the floating dropdown rendered when a user types "{{"
+/* -----------------------------------------------------------------------------
+   VariableMentionMenu - the floating dropdown rendered when a user types "{{"
    inside a text input.
 
    Responsibilities:
@@ -11,14 +11,14 @@
 
    Keyboard events are owned by the parent so they can be handled on the *input*
    element itself (otherwise the dropdown would need to steal focus, which
-   breaks the typing flow).  This menu only surfaces its internal state via
+   breaks the typing flow). This menu only surfaces its internal state via
    props/callbacks.
-   ──────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 import { forwardRef, useEffect, useRef } from 'react';
-import { LuPlus, LuBraces } from 'react-icons/lu';
+import { Plus, Braces } from 'lucide-react';
 import type { Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
+import { Badge, Button, EmptyState, cn } from '@/components/sabcrm/20ui';
 
 /* Single-character glyph hint for each variable type, mirroring VariableSelect. */
 const TYPE_GLYPHS: Record<string, string> = {
@@ -33,9 +33,9 @@ function typeGlyph(v: Variable): string | null {
   return vt ? (TYPE_GLYPHS[vt] ?? null) : null;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Props
-   ──────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 export interface VariableMentionMenuProps {
   /** Pre-filtered list of variables that match the user's query. */
@@ -49,17 +49,17 @@ export interface VariableMentionMenuProps {
   /** The raw filter text (after `{{`), used for the "Create variable" label. */
   query: string;
   /**
-   * Viewport position (px) for the menu top-left.  `undefined` keeps the menu
+   * Viewport position (px) for the menu top-left. `undefined` keeps the menu
    * unpositioned (useful for Storybook / tests).
    */
   position?: { top: number; left: number } | undefined;
-  /** Called whenever the user hovers a row — lets parent sync activeIndex. */
+  /** Called whenever the user hovers a row - lets parent sync activeIndex. */
   onHoverIndex?: (index: number) => void;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    Component
-   ──────────────────────────────────────────────────────────────────────────── */
+   -------------------------------------------------------------------------- */
 
 export const VariableMentionMenu = forwardRef<
   HTMLDivElement,
@@ -90,16 +90,17 @@ export const VariableMentionMenu = forwardRef<
       role="listbox"
       aria-label="Variables"
       // Fixed positioning so the menu floats above transforms / scroll
-      // containers that might otherwise clip it.
+      // containers that might otherwise clip it. Coordinates are computed at
+      // runtime from the caret position, so this stays an inline style.
       style={
         position
           ? { position: 'fixed', top: position.top, left: position.left }
           : undefined
       }
       className={cn(
-        'z-[100] min-w-[200px] max-w-[280px]',
-        'rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)]',
-        'shadow-lg overflow-hidden',
+        'z-[100] min-w-[200px] max-w-[280px] overflow-hidden',
+        'rounded-[var(--st-radius)] border border-[var(--st-border)]',
+        'bg-[var(--st-bg)] shadow-lg',
       )}
     >
       {hasMatches ? (
@@ -119,75 +120,75 @@ export const VariableMentionMenu = forwardRef<
                 }}
                 onMouseEnter={() => onHoverIndex?.(i)}
                 className={cn(
-                  'flex items-center gap-2 px-2.5 py-1.5 text-[12px] cursor-pointer select-none',
+                  'flex cursor-pointer select-none items-center gap-2 px-2.5 py-1.5 text-[12px]',
                   'transition-colors',
                   isActive
-                    ? 'bg-[var(--st-text)] text-white'
-                    : 'text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
+                    ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
+                    : 'text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
                 )}
               >
                 {glyph ? (
                   <span
                     className={cn(
-                      'flex h-4 w-4 shrink-0 items-center justify-center rounded text-[9.5px] font-semibold font-mono',
+                      'flex h-4 w-4 shrink-0 items-center justify-center rounded font-mono text-[9.5px] font-semibold',
                       isActive
-                        ? 'bg-white/20 text-white'
-                        : 'bg-[var(--gray-3)] text-[var(--gray-9)]',
+                        ? 'bg-[var(--st-bg)] text-[var(--st-accent)]'
+                        : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]',
                     )}
                   >
                     {glyph}
                   </span>
                 ) : (
-                  <LuBraces
+                  <Braces
                     className={cn(
                       'h-3.5 w-3.5 shrink-0',
-                      isActive ? 'text-white/80' : 'text-[var(--gray-8)]',
+                      isActive ? 'text-[var(--st-accent)]' : 'text-[var(--st-text-tertiary)]',
                     )}
                     strokeWidth={1.8}
+                    aria-hidden="true"
                   />
                 )}
-                <span className="font-mono truncate">{v.name}</span>
+                <span className="truncate font-mono">{v.name}</span>
                 {v.isSessionVariable && (
-                  <span
-                    className={cn(
-                      'ml-auto text-[9.5px] uppercase tracking-wide shrink-0',
-                      isActive ? 'text-white/70' : 'text-[var(--gray-8)]',
-                    )}
-                  >
+                  <Badge tone={isActive ? 'accent' : 'neutral'} kind="soft" className="ml-auto shrink-0">
                     session
-                  </span>
+                  </Badge>
                 )}
               </li>
             );
           })}
         </ul>
       ) : (
-        <div className="px-2.5 py-2 text-[11.5px] text-[var(--gray-9)]">
-          No variables
-        </div>
+        <EmptyState
+          size="sm"
+          icon={Braces}
+          title="No variables"
+          className="px-3 py-3"
+        />
       )}
 
       {canCreate && (
-        <button
-          type="button"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            onCreate?.(trimmedQuery);
-          }}
-          className={cn(
-            'flex w-full items-center gap-1.5 border-t border-[var(--gray-4)]',
-            'px-2.5 py-1.5 text-[11.5px] text-[var(--gray-10)]',
-            'hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)] transition-colors',
-          )}
-        >
-          <LuPlus className="h-3 w-3 shrink-0" strokeWidth={2.5} />
-          <span className="truncate">
-            Create variable&nbsp;
-            <span className="font-mono text-[var(--st-text)]">
-              {`{{${trimmedQuery}}}`}
+        <div className="border-t border-[var(--st-border)] p-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            block
+            iconLeft={Plus}
+            onMouseDown={(e) => {
+              // Keep input focus so the caret stays put while we create.
+              e.preventDefault();
+              onCreate?.(trimmedQuery);
+            }}
+            className="justify-start"
+          >
+            <span className="truncate">
+              Create variable{' '}
+              <span className="font-mono text-[var(--st-accent)]">
+                {`{{${trimmedQuery}}}`}
+              </span>
             </span>
-          </span>
-        </button>
+          </Button>
+        </div>
       )}
     </div>
   );

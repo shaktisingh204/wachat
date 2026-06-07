@@ -5,7 +5,7 @@
  *
  * Generic settings panel rendered from a `NodeDescriptor` served by the Rust
  * `sabflow-nodes` crate at `/api/sabflow/nodes/[type]`. This component is
- * intentionally minimal — it provides a property-driven renderer so that any
+ * intentionally minimal. It provides a property-driven renderer so that any
  * Rust-side node can ship metadata and immediately have a working UI.
  *
  * Specialised hand-written panels (e.g. GoogleSheetsSettings) should be
@@ -14,9 +14,23 @@
  */
 
 import { useEffect, useState } from 'react';
-import { LuLoader, LuTriangleAlert, LuArrowRight, LuSparkles } from 'react-icons/lu';
+import { AlertTriangle, ArrowRight, Sparkles } from 'lucide-react';
+import {
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  Button,
+  Alert,
+  Spinner,
+  ColorPicker,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { CredentialSelect } from './CredentialSelect';
-import { selectClass } from './primitives';
 import type { CredentialType } from '@/lib/sabflow/credentials/types';
 import { getStubFallback } from '@/lib/sabflow/forge/stubFallbacks';
 
@@ -82,16 +96,16 @@ export interface NodeDescriptor {
 /* ── Props ────────────────────────────────────────────────────────────────── */
 
 interface Props {
-  /** Rust node identifier — e.g. "slack" — used to fetch the descriptor. */
+  /** Rust node identifier, e.g. "slack", used to fetch the descriptor. */
   nodeType: string;
   /** Current block.options snapshot. */
   values: Record<string, unknown>;
   /** Called with the next merged options object whenever a field changes. */
   onChange: (next: Record<string, unknown>) => void;
   /**
-   * Optional swap-the-block callback.  When supplied, the stub banner offers
+   * Optional swap-the-block callback. When supplied, the stub banner offers
    * a one-click migration to a curated forge equivalent (see
-   * `@/lib/sabflow/forge/stubFallbacks`).  When omitted, the stub banner
+   * `@/lib/sabflow/forge/stubFallbacks`). When omitted, the stub banner
    * stays advisory-only.
    */
   onChangeBlockType?: (nextType: string) => void;
@@ -112,12 +126,9 @@ function uniq<T>(arr: T[]): T[] {
   return Array.from(new Set(arr.filter((x) => x !== '' && x != null)));
 }
 
-/* ── Shared styles ────────────────────────────────────────────────────────── */
-
-const labelClass = 'block text-[11.5px] text-[var(--gray-11)] mb-1';
-const inputBase =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-const textareaClass = `${inputBase} font-mono text-[12px] leading-snug resize-y`;
+// Sentinel value for the "no selection" row of an optional Select. Radix
+// Select forbids an empty-string item value, so map it to/from '' at the edge.
+const NONE_VALUE = '__none__';
 
 /* ── Component ────────────────────────────────────────────────────────────── */
 
@@ -181,19 +192,18 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-[11.5px] text-[var(--gray-8)] px-1 py-2">
-        <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />
-        Loading node…
+      <div className="flex items-center gap-2 px-1 py-2 text-[11.5px] text-[var(--st-text-tertiary)]">
+        <Spinner size="sm" label="Loading node" />
+        Loading node...
       </div>
     );
   }
 
   if (error || !descriptor) {
     return (
-      <div className="flex items-start gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)]">
-        <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
-        <span>{error ?? 'Failed to load node descriptor.'}</span>
-      </div>
+      <Alert tone="danger" icon={AlertTriangle}>
+        {error ?? 'Failed to load node descriptor.'}
+      </Alert>
     );
   }
 
@@ -217,125 +227,117 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
     if (!isVisible(prop)) return null;
 
     const current = values[prop.name] ?? prop.default;
-    const id = `node-prop-${prop.name}`;
 
     switch (prop.type) {
       case 'boolean':
         return (
-          <div key={prop.name} className="flex items-center gap-2">
-            <input
-              id={id}
-              type="checkbox"
-              checked={Boolean(current)}
-              onChange={(e) => setField(prop.name, e.target.checked)}
-              className="h-3.5 w-3.5 rounded border-[var(--gray-5)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
-            />
-            <label htmlFor={id} className="text-[11.5px] text-[var(--gray-11)] cursor-pointer">
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-          </div>
+          <Checkbox
+            key={prop.name}
+            size="sm"
+            checked={Boolean(current)}
+            required={prop.required}
+            onChange={(e) => setField(prop.name, e.target.checked)}
+            label={prop.displayName}
+          />
         );
 
       case 'string':
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <input
-              id={id}
-              type="text"
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <Input
+              inputSize="sm"
               value={typeof current === 'string' ? current : current == null ? '' : String(current)}
               placeholder={prop.placeholder}
               onChange={(e) => setField(prop.name, e.target.value)}
-              className={inputBase}
             />
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+          </Field>
         );
 
       case 'number':
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <input
-              id={id}
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <Input
               type="number"
+              inputSize="sm"
               value={typeof current === 'number' ? current : current == null ? '' : Number(current)}
               placeholder={prop.placeholder}
               onChange={(e) => {
                 const v = e.target.value;
                 setField(prop.name, v === '' ? undefined : Number(v));
               }}
-              className={inputBase}
             />
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+          </Field>
         );
 
-      case 'options':
+      case 'options': {
+        const selectValue = current == null || current === '' ? NONE_VALUE : String(current);
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <select
-              id={id}
-              value={current == null ? '' : String(current)}
-              onChange={(e) => setField(prop.name, e.target.value)}
-              className={selectClass}
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <Select
+              value={selectValue}
+              onValueChange={(v) => setField(prop.name, v === NONE_VALUE ? '' : v)}
             >
-              {!prop.required && <option value="">— select —</option>}
-              {prop.options.map((o) => (
-                <option key={String(o.value)} value={String(o.value)}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+              <SelectTrigger aria-label={prop.displayName}>
+                <SelectValue placeholder="Select an option" />
+              </SelectTrigger>
+              <SelectContent>
+                {!prop.required && <SelectItem value={NONE_VALUE}>None</SelectItem>}
+                {prop.options.map((o) => (
+                  <SelectItem key={String(o.value)} value={String(o.value)}>
+                    {o.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
         );
+      }
 
       case 'multiOptions': {
         const selected = Array.isArray(current) ? current.map((v) => String(v)) : [];
+        const toggle = (val: string, checked: boolean) => {
+          const next = checked
+            ? uniq([...selected, val])
+            : selected.filter((v) => v !== val);
+          setField(prop.name, next);
+        };
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <select
-              id={id}
-              multiple
-              value={selected}
-              onChange={(e) => {
-                const next = Array.from(e.target.selectedOptions).map((o) => o.value);
-                setField(prop.name, next);
-              }}
-              className={`${selectClass} min-h-[88px]`}
-            >
-              {prop.options.map((o) => (
-                <option key={String(o.value)} value={String(o.value)}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <div className="flex flex-col gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5">
+              {prop.options.map((o) => {
+                const val = String(o.value);
+                return (
+                  <Checkbox
+                    key={val}
+                    size="sm"
+                    checked={selected.includes(val)}
+                    onChange={(e) => toggle(val, e.target.checked)}
+                    label={o.name}
+                  />
+                );
+              })}
+            </div>
+          </Field>
         );
       }
 
@@ -343,85 +345,74 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
       case 'code':
       case 'expression':
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <textarea
-              id={id}
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <Textarea
               rows={6}
-              value={typeof current === 'string' ? current : current == null ? '' : JSON.stringify(current, null, 2)}
+              value={
+                typeof current === 'string'
+                  ? current
+                  : current == null
+                    ? ''
+                    : JSON.stringify(current, null, 2)
+              }
               placeholder={prop.placeholder}
               onChange={(e) => setField(prop.name, e.target.value)}
-              className={textareaClass}
               spellCheck={false}
+              className="font-mono text-[12px] leading-snug resize-y"
             />
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+          </Field>
         );
 
       case 'credential': {
         const credentialType = descriptor.credentials[0]?.name as CredentialType | undefined;
         if (!credentialType) {
           return (
-            <div key={prop.name} className="text-[11px] text-[var(--gray-8)]">
+            <div key={prop.name} className="text-[11px] text-[var(--st-text-tertiary)]">
               Credential property declared but no credential type provided on descriptor.
             </div>
           );
         }
         return (
-          <div key={prop.name}>
-            <label className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
+          <Field key={prop.name} label={prop.displayName} required={prop.required}>
             <CredentialSelect
               credentialType={credentialType}
               value={typeof current === 'string' ? current : undefined}
               onChange={(credId) => setField(prop.name, credId)}
             />
-          </div>
+          </Field>
         );
       }
 
       case 'dateTime':
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <input
-              id={id}
+          <Field
+            key={prop.name}
+            label={prop.displayName}
+            required={prop.required}
+            help={prop.description}
+          >
+            <Input
               type="datetime-local"
+              inputSize="sm"
               value={typeof current === 'string' ? current : ''}
               onChange={(e) => setField(prop.name, e.target.value)}
-              className={inputBase}
             />
-            {prop.description && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">{prop.description}</p>
-            )}
-          </div>
+          </Field>
         );
 
       case 'color':
         return (
-          <div key={prop.name}>
-            <label htmlFor={id} className={labelClass}>
-              {prop.displayName}
-              {prop.required && <span className="text-[var(--st-text)] ml-0.5">*</span>}
-            </label>
-            <input
-              id={id}
-              type="color"
+          <Field key={prop.name} label={prop.displayName} required={prop.required}>
+            <ColorPicker
               value={typeof current === 'string' && current ? current : '#000000'}
-              onChange={(e) => setField(prop.name, e.target.value)}
-              className="h-9 w-16 cursor-pointer rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-1"
+              onChange={(color) => setField(prop.name, color)}
             />
-          </div>
+          </Field>
         );
 
       case 'collection':
@@ -430,9 +421,9 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
         return (
           <div
             key={prop.name}
-            className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)]/40 p-3 space-y-3"
+            className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
           >
-            <div className="text-[11px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
+            <div className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               {prop.displayName}
             </div>
             {prop.children.map((child) => renderProperty(child))}
@@ -449,65 +440,54 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
   return (
     <div className="space-y-3">
       <div>
-        <div className="text-[13px] font-semibold text-[var(--gray-12)]">{descriptor.displayName}</div>
+        <div className="text-[13px] font-semibold text-[var(--st-text)]">{descriptor.displayName}</div>
         {descriptor.description && (
-          <p className="text-[11px] text-[var(--gray-8)] mt-0.5">{descriptor.description}</p>
+          <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">{descriptor.description}</p>
         )}
       </div>
 
       {descriptor.stub && (() => {
         // Two presentations:
-        //  • With fallback: this is a legacy descriptor whose modern
+        //  - With fallback: this is a legacy descriptor whose modern
         //    SabFlow equivalent is ready. Show a friendly "Upgrade
-        //    available" card with one-click swap as the primary action.
+        //    available" Alert with one-click swap as the primary action.
         //    Avoids the alarming "broken" language for the common case.
-        //  • No fallback: rare. Surface the original warning so the user
+        //  - No fallback: rare. Surface the original warning so the user
         //    knows the descriptor is configurable but not executable.
         const fallback = getStubFallback(descriptor.name);
         if (fallback && onChangeBlockType) {
           return (
-            <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[11.5px] dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30">
-              <div className="flex items-start gap-2">
-                <LuSparkles
-                  className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
-                  strokeWidth={2}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-semibold text-[var(--st-text)] dark:text-white">
-                    Upgrade available — use{' '}
-                    <span className="underline decoration-dotted underline-offset-2">
-                      {fallback.label}
-                    </span>
-                  </p>
-                  <p className="mt-0.5 text-[10.5px] leading-snug text-[var(--st-text)]/85 dark:text-white/80">
-                    {fallback.rationale}
-                  </p>
-                </div>
-              </div>
+            <Alert
+              tone="info"
+              icon={Sparkles}
+              title={
+                <>
+                  Upgrade available, use{' '}
+                  <span className="underline decoration-dotted underline-offset-2">
+                    {fallback.label}
+                  </span>
+                </>
+              }
+            >
+              <p className="text-[10.5px] leading-snug">{fallback.rationale}</p>
               <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
+                <Button
+                  variant="primary"
+                  size="sm"
+                  iconRight={ArrowRight}
                   onClick={() => onChangeBlockType(fallback.forgeType)}
-                  className="inline-flex items-center gap-1 rounded-md bg-[var(--st-text)] text-white px-2.5 py-1 text-[11px] font-semibold hover:bg-[var(--st-text)] transition-colors"
                 >
                   Switch to {fallback.label}
-                  <LuArrowRight className="h-3 w-3" strokeWidth={2.5} />
-                </button>
+                </Button>
               </div>
-            </div>
+            </Alert>
           );
         }
         return (
-          <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-[11.5px] text-[var(--st-text)] dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
-            <div className="flex items-start gap-2">
-              <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
-              <span>
-                This descriptor is configurable but its executor is not yet
-                shipped. The fields below test the schema only — the block
-                will not run.
-              </span>
-            </div>
-          </div>
+          <Alert tone="warning" icon={AlertTriangle}>
+            This descriptor is configurable but its executor is not yet shipped. The fields below
+            test the schema only, the block will not run.
+          </Alert>
         );
       })()}
 

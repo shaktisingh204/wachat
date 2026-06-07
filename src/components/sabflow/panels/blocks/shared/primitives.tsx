@@ -1,43 +1,48 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
-import { LuChevronDown } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import type { ReactNode } from 'react';
 
-/** Labelled field wrapper */
+import {
+  cn,
+  Field as Field20,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/sabcrm/20ui';
+
+/**
+ * Labelled field wrapper.
+ *
+ * Forwards to the 20ui `Field`, which puts the label above the control and wires
+ * `htmlFor` / `aria-describedby` / `aria-invalid` to whatever control is dropped
+ * inside it, so blocks get correct labelling for free.
+ */
 export function Field({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
+  return <Field20 label={label}>{children}</Field20>;
 }
 
-/** Shared input class */
+/** Shared input class (applied to 20ui-styled controls in block editors). */
 export const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
+  'w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[13px] text-[var(--st-text)] placeholder:text-[var(--st-text-tertiary)] outline-none focus:border-[var(--st-accent)] transition-colors';
 
-/** Shared select class */
+/** Shared select class (applied to 20ui-styled controls in block editors). */
 export const selectClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors appearance-none cursor-pointer';
+  'w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[13px] text-[var(--st-text)] outline-none focus:border-[var(--st-accent)] transition-colors appearance-none cursor-pointer';
 
-/** Toggle button class based on checked state */
+/** Toggle track class based on checked state. */
 export function toggleClass(checked: boolean): string {
   return cn(
     'relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors',
-    checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
+    checked ? 'bg-[var(--st-text)]' : 'bg-[var(--st-border-strong)]',
   );
 }
 
-/** Section divider */
+/** Section divider. */
 export function Divider() {
-  return <div className="h-px bg-[var(--gray-4)]" />;
+  return <div className="h-px bg-[var(--st-border)]" />;
 }
 
-/** Panel header with icon, color, and title */
+/** Panel header with icon and title. */
 export function PanelHeader({
   icon: Icon,
   title,
@@ -46,11 +51,11 @@ export function PanelHeader({
   title: string;
 }) {
   return (
-    <div className="flex items-center gap-2 pb-1 border-b border-[var(--gray-4)]">
-      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--st-text)] text-[var(--st-text)]">
-        <Icon className="h-4 w-4" strokeWidth={1.8} />
+    <div className="flex items-center gap-2 pb-1 border-b border-[var(--st-border)]">
+      <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+        <Icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
       </div>
-      <span className="text-[12px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">
+      <span className="text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wide">
         {title}
       </span>
     </div>
@@ -58,8 +63,11 @@ export function PanelHeader({
 }
 
 /**
- * Collapsible settings section — used to group advanced options
- * (e.g. "Validation") so the default panel stays uncluttered.
+ * Collapsible settings section, used to group advanced options (e.g.
+ * "Validation") so the default panel stays uncluttered. Built on the 20ui
+ * `Collapsible`, so the chevron rotation, height animation, reduced-motion
+ * handling, and `aria-expanded` / `aria-controls` wiring all come from the
+ * design system rather than being hand-rolled here.
  */
 export function CollapsibleSection({
   title,
@@ -70,26 +78,17 @@ export function CollapsibleSection({
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)]/40">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between px-3 py-2 text-[11.5px] font-semibold text-[var(--gray-11)] uppercase tracking-wide hover:text-[var(--gray-12)]"
-      >
-        <span>{title}</span>
-        <LuChevronDown
-          className={cn(
-            'h-3.5 w-3.5 shrink-0 transition-transform',
-            open ? 'rotate-180' : 'rotate-0',
-          )}
-          strokeWidth={2}
-          aria-hidden="true"
-        />
-      </button>
-      {open && <div className="space-y-3 border-t border-[var(--gray-4)] px-3 py-3">{children}</div>}
-    </div>
+    <Collapsible
+      defaultOpen={defaultOpen}
+      className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+    >
+      <CollapsibleTrigger className="px-3 py-2 text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wide">
+        {title}
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-3 border-t border-[var(--st-border)] px-3 py-3">{children}</div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
