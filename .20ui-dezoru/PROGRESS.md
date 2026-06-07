@@ -28,7 +28,19 @@ WEEKLY-LIMIT LESSON (2026-06-07): a 180-file shard hit the Anthropic WEEKLY usag
   (resets Jun 8 10:30 IST). User upgraded plan + re-logged in. MITIGATION: commit after every shard;
   ALWAYS regenerate shards from LIVE dirty state (node plan-shards.js --write) before relaunch so completed
   files are not reprocessed. check-imports stayed 0 through the partial -> partials are always safe to commit.
-STATUS (STOPPED ON USER REQUEST 2026-06-07):
+STATUS (STOPPED ON USER REQUEST 2026-06-07, second stop):
+  - NOW ON `main` (merged + pushed to origin b48ca4dcf earlier; backup branch dezoru-20ui-migration @ 5aa8137bc).
+  - HARD files: 464 -> 139 remaining this session. Committed (all HARD==0, gate check-imports==0):
+    d58dc69a1 shard A (148: facebook/seo/sabdesk/sabsms/portal),
+    f9b7e74f6 shard B (155: n8n/sabwa/zoruui-domain/sabsms/email),
+    0d889eb34 sabflow partial (15, stopped).
+  - LIVE HARD remaining: 139 files / 1 module = components/sabflow (node editor: panels/graph/blocks/
+    canvas/editor/chat). RESUME: node plan-shards.js --write ; Workflow(shard_00.js) ; validate ; commit.
+  - Scanner now treats native file inputs (type=file/hidden + react-dropzone getInputProps) and
+    string-literal sample HTML as legit (general rules + .20ui-dezoru/exceptions.json).
+  - NOT yet pushed since the resume (local commits ahead of origin/main). After sabflow done:
+    INCLUDE_SOFT inline-style sweep, then FINALE, then push.
+(prev) STATUS (first stop):
   - COMMITTED so far: PILOT 60 (723cc923c), shard-1 partial 43 (be2a38d58), shard-A 144 (902f7665a),
     shard partial-stop 77 (d9cb2abde). check-imports == 0 at every commit.
   - LIVE HARD-only remaining: 464 files / 64 modules (re-measured at stop).
