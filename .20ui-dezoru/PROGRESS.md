@@ -19,16 +19,25 @@ VERIFIED at every step: esbuild syntax scan 0 errors/16458 files; check-imports 
 zoru-legacy tokens/classes; zoruui-domain imports intact (173).
 ZORU DS IS GONE: no legacy/ folder, no legacy-public.ts, no zoru-legacy.css, no tailwind zoru group,
 no .zoruui scope, all 67 tokens -> --st (global :root). composites/ = relocated+cleansed ex-legacy DS.
-DEFERRED (documented, NOT done - risky/low-value, offered to user):
-  1. composites/ dead-file prune (~49 unused files): needs slimming the 603-line composites/index.ts
-     barrel (real breakage risk); files are harmless cleansed/tree-shaken code. legacy/ deliverable
-     already met (folder gone). Several "dead" files kept alive by Legacy* type re-exports (1 consumer each).
-  2. file-manager -> @/components/sabfiles: sabfiles exports ONLY pickers, NO FilesPage/FileUploadCard/
-     FileCardCollections equivalents -> would be a per-consumer rebuild of 15 mostly-out-of-scope
-     (crm/facebook/wachat/admin) WORKING consumers. Components are already cleansed 20ui in composites/.
-  3. Foreign zoru token family (--zoru-spacing-*/background-transparent-*/font-*/border-color-strong):
-     2 files in components/sabcrm only, NOT defined by zoru-legacy.css (Twenty/sabcrm subsystem) -> untouched.
-  4. Internal Zoru* symbol names inside composites/ (consumer-invisible; cosmetic).
+REMAINING ITEMS — NOW ALL COMPLETE (2026-06-07, pushed b27a26def):
+  A. composites/ dead-file prune DONE (b4859feb4): name-aware closure from composites-public through the
+     explicit index map -> deleted 34 unused files + their 50 re-export lines. Proven safe (0 non-index
+     alive->dead imports; post 0 unresolved, check-imports 0).
+  B. file-manager -> @/components/sabfiles DONE (690e1043c): relocated file-upload-card/file-card-collections/
+     file-picker/files-module (16 files) into src/components/sabfiles/file-manager/ with a barrel; primitive
+     deps stay in composites (absolute paths), intra-set relative. Main barrel still exposes clean names via
+     composites-public re-pointed to sabfiles. Consumers unchanged. 0 unresolved, check-imports 0.
+  C. Foreign zoru token family DONE (f71935cd7): _ported_raw RoundedLink/CodeEditorHeader var(--zoru-X,fb)->fb;
+     sabcrm field-renderer/twenty-field/schema option colors -> --st/hex. Repo-wide 0 var(--zoru-).
+  D. de-Zoru composites internals DONE: D1 symbols Zoru*->Sab* (cb40701cd, 62 files), D2 zoru-* filenames
+     dropped (3ae489a07, 13 files), D3 dead zoruui-surface-sheen class + functional data-zoru-toast-title/
+     zoru-sidebar ids + comment prose (b27a26def, 8 files). composites/ + sabfiles/file-manager/ are 100%
+     zoru-free. Only @/components/zoruui-domain (a separate KEEP folder, not the zoru DS) retains the name.
+NEW TOOLING this run (.20ui-dezoru/): syntax-scan.js (esbuild parse), dup-imports.js / dup-and-missing.js
+  (duplicate-binding + missing-barrel-export — classes check-imports misses), purge-zoru-tokens.js,
+  drop-zoruui-class.js, prune-composites.js, relocate-filemanager.js, rename-zoru-symbols.js, final-zoru-cleanup.js.
+MIGRATION COMPLETE: zoru design system fully removed (folder, css, tokens, .zoruui, tailwind group, symbols,
+  filenames). Build classes verified green (esbuild 0/16425, check-imports 0, dup-imports 0 real).
 ## =========================================================================
 
 ## ============ ACTIVE RUN (2026-06-07, manifest-based, RESUMABLE) ============
