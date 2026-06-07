@@ -3,9 +3,9 @@
 import * as React from "react";
 import { CloudUpload, X } from "lucide-react";
 
-import { cn } from "./lib/cn";
-import { Button } from "./button";
-import { Progress } from "./progress";
+import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
+import { Progress } from "@/components/sabcrm/20ui/composites/progress";
 
 export interface ZoruFileUploadItem {
   id: string;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Button } from "../button";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
   ZoruDialogContent,
@@ -10,7 +10,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "../dialog";
+} from "@/components/sabcrm/20ui/composites/dialog";
 import {
   ZoruFileUploadCard,
   type ZoruFileUploadItem,

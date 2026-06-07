@@ -3,8 +3,8 @@
 import * as React from "react";
 import { File, FileText, FileImage, FileVideo, FileAudio, FileArchive, MoreHorizontal } from "lucide-react";
 
-import { cn } from "./lib/cn";
-import { Button } from "./button";
+import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
 
 export interface ZoruFileCardItem {
   id: string;

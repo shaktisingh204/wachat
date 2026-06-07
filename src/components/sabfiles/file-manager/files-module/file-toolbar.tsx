@@ -11,15 +11,15 @@ import {
   FolderPlus,
 } from "lucide-react";
 
-import { cn } from "../lib/cn";
-import { Button } from "../button";
-import { Input } from "../input";
+import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
+import { Input } from "@/components/sabcrm/20ui/composites/input";
 import {
   DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from "../dropdown-menu";
+} from "@/components/sabcrm/20ui/composites/dropdown-menu";
 
 import type { ZoruFileView } from "./types";
 

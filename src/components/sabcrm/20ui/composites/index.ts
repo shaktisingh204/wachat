@@ -248,39 +248,6 @@ export {
 } from "./fullscreen-calendar";
 
 export {
-  ZoruFileUploadCard,
-  type ZoruFileUploadCardProps,
-  type ZoruFileUploadItem,
-} from "./file-upload-card";
-export {
-  ZoruFileCardCollections,
-  type ZoruFileCardCollectionsProps,
-  type ZoruFileCardItem,
-} from "./file-card-collections";
-export {
-  ZoruFilesPage,
-  ZoruFileToolbar,
-  ZoruFileGrid,
-  ZoruFileList,
-  ZoruFilePreviewDialog,
-  ZoruFileRenameDialog,
-  ZoruFileDeleteDialog,
-  ZoruFileShareDialog,
-  ZoruFileUploadDialog,
-  type ZoruFilesPageProps,
-  type ZoruFileToolbarProps,
-  type ZoruFileGridProps,
-  type ZoruFileListProps,
-  type ZoruFilePreviewDialogProps,
-  type ZoruFileRenameDialogProps,
-  type ZoruFileDeleteDialogProps,
-  type ZoruFileShareDialogProps,
-  type ZoruFileShareAccess,
-  type ZoruFileUploadDialogProps,
-  type ZoruFileEntity,
-  type ZoruFileView,
-} from "./files-module";
-export {
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
@@ -312,12 +279,6 @@ export {
   ZoruNotificationPopover,
   type ZoruNotificationPopoverProps,
 } from "./notification-popover";
-export {
-  ZoruFilePicker,
-  ZoruFileInput,
-  type ZoruFilePickerProps,
-  type ZoruFileInputProps,
-} from "./file-picker";
 export {
   ZoruDynamicSelector,
   type ZoruDynamicSelectorProps,

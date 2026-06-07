@@ -18,3 +18,12 @@ export {
     type SabFileToFileButtonProps,
     type SabFileUrlInputProps,
 } from './sab-file-picker';
+
+/**
+ * File-manager surfaces (browser page, upload card, picker/input, card
+ * collections), relocated here from the 20ui composites so SabFiles owns all
+ * file UX. Most app code imports the clean-named surface from
+ * `@/components/sabcrm/20ui` (FileUploadCard / FilesPage / FileInput /
+ * FileCardCollections); new file UX can import directly from here.
+ */
+export * from './file-manager';

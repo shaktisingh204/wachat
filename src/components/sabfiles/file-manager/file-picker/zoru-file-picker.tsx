@@ -3,8 +3,8 @@
 import * as React from "react";
 import { File as FileIcon, Image as ImageIcon, Loader2, Search, Upload, X } from "lucide-react";
 
-import { cn } from "../lib/cn";
-import { Button } from "../button";
+import { cn } from "@/components/sabcrm/20ui/composites/lib/cn";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
   ZoruDialogContent,
@@ -12,8 +12,8 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "../dialog";
-import { Input } from "../input";
+} from "@/components/sabcrm/20ui/composites/dialog";
+import { Input } from "@/components/sabcrm/20ui/composites/input";
 import {
   listLibraryFiles,
   uploadLibraryFile,

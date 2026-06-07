@@ -9,7 +9,7 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
-} from "../dropdown-menu";
+} from "@/components/sabcrm/20ui/composites/dropdown-menu";
 
 import { ZoruFileDeleteDialog } from "./file-delete-dialog";
 import { ZoruFileGrid } from "./file-grid";

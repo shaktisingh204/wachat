@@ -11,7 +11,7 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-} from "../alert-dialog";
+} from "@/components/sabcrm/20ui/composites/alert-dialog";
 
 import type { ZoruFileEntity } from "./types";
 

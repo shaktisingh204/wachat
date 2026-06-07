@@ -1,14 +1,10 @@
 /**
- * 20ui — public, clean-named surface for the relocated legacy components.
+ * 20ui — public, clean-named surface for the relocated composites.
  *
- * These components (app shell, file-manager, a few bespoke widgets) have no
- * drop-in 20ui equivalent yet, so their implementations live in `./legacy`
- * (formerly the `zoru/` folder). They are re-exported here under clean 20ui
- * names so the rest of the app never sees a `Zoru*` name or the `compat` bridge.
- *
- * Behavior is identical to the originals — only the names changed. A follow-up
- * can rebuild them to the 20ui visual language; until then they keep their
- * existing styling (see `legacy.css`).
+ * The app shell + bespoke widgets live in `./composites` (pure-20ui, no zoru
+ * tokens). The file-manager has moved to `@/components/sabfiles` (SabFiles owns
+ * all file UX). Everything is re-exported here under clean 20ui names so the
+ * rest of the app never sees a `Zoru*` name.
  */
 
 export {
@@ -17,11 +13,6 @@ export {
   ZoruAppSidebar as SabAppSidebar,
   ZoruHeader as SabTopHeader,
   ZoruShell as SabShellRoot,
-  // File-manager (no 20ui equivalent; SabFiles owns file UX, this is the manager surface).
-  ZoruFileUploadCard as FileUploadCard,
-  ZoruFilesPage as FilesPage,
-  ZoruFileInput as FileInput,
-  ZoruFileCardCollections as FileCardCollections,
   // Bespoke widgets.
   ZoruAccordion03 as Accordion03,
   ZoruAccordion03Item as Accordion03Item,
@@ -42,10 +33,20 @@ export {
 export { ZORU_APPS as SAB_APPS } from './composites/shell/zoru-apps';
 export { applyTheme, useHtmlDark, AppThemeToggle } from './composites/shell/app-theme';
 
+// File-manager — relocated to SabFiles, which owns all file UX.
+export {
+  ZoruFileUploadCard as FileUploadCard,
+  ZoruFilesPage as FilesPage,
+  ZoruFileInput as FileInput,
+  ZoruFileCardCollections as FileCardCollections,
+} from '@/components/sabfiles/file-manager';
 export type {
   ZoruFileEntity as FileEntity,
   ZoruFileUploadItem as FileUploadItem,
   ZoruFileCardItem as FileCardItem,
+} from '@/components/sabfiles/file-manager';
+
+export type {
   ZoruStatisticsCard1Item as StatisticsCard1Item,
   ZoruActionSearchAction as LegacyActionSearchAction,
   ZoruFullscreenCalendarEvent as LegacyFullscreenCalendarEvent,

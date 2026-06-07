@@ -8,7 +8,7 @@ import {
   ZoruDialogDescription,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "../dialog";
+} from "@/components/sabcrm/20ui/composites/dialog";
 
 import { getSharePreviewKind } from "@/lib/sabfiles/share-ui";
 import type { ZoruFileEntity } from "./types";

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { Button } from "../button";
+import { Button } from "@/components/sabcrm/20ui/composites/button";
 import {
   Dialog,
   ZoruDialogContent,
@@ -10,9 +10,9 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "../dialog";
-import { Input } from "../input";
-import { Label } from "../label";
+} from "@/components/sabcrm/20ui/composites/dialog";
+import { Input } from "@/components/sabcrm/20ui/composites/input";
+import { Label } from "@/components/sabcrm/20ui/composites/label";
 
 import type { ZoruFileEntity } from "./types";
 
