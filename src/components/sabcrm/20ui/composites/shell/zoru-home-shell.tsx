@@ -269,7 +269,7 @@ function ZoruHomeShellContent({
   ) : null;
 
   return (
-    <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* App rail — 20ui, in its own theme-synced design-system root. */}
       <div className={`ui20 ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
         <AppRail items={railItems} label="SabNode apps" />

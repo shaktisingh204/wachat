@@ -7,7 +7,7 @@
  * A flex header with an optional eyebrow (small uppercase kicker), a single h1
  * heading, a description, and a right-aligned actions slot. Composable and
  * token-styled. Mirrors ZoruUI's page-header API but reimplemented in 20ui
- * style (u- classes, --st-/--u- tokens, no zoruui import).
+ * style (u- classes, --st-/--u- tokens, no import).
  *
  * Taste: one heading level (h1 — never skip levels), one accent, one radius.
  * Emil: the bottom hairline + spacing are static; nothing here animates on

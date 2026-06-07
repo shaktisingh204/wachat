@@ -22,7 +22,7 @@ export interface ZoruShellProps extends React.HTMLAttributes<HTMLDivElement> {
  *
  * Composition: [rail] · [sidebar] · ( header / main / dock ).
  *
- * INTENTIONAL: zoruui has no tab UI at all — neither the URL-synced
+ * INTENTIONAL: has no tab UI at all — neither the URL-synced
  * `TabsProvider`/`TabsBar` from `src/components/tabs/`, nor an in-page
  * tab primitive. For step-wise flows, use a numbered stepper. For
  * binary toggles, use a segmented button group. For module sub-pages,

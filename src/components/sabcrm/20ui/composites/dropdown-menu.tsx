@@ -40,7 +40,7 @@ export const ZoruDropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
+      "zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -60,7 +60,7 @@ export const ZoruDropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
+        "zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",

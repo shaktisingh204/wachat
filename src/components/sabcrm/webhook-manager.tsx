@@ -429,7 +429,7 @@ function WebhookFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg zoruui">
+      <DialogContent className="max-w-lg ">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit webhook' : 'Add webhook'}</DialogTitle>
           <DialogDescription>
@@ -692,7 +692,7 @@ function SubscriptionRow({
                   Rotate secret
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="zoruui">
+              <AlertDialogContent className="">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Rotate signing secret?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -722,7 +722,7 @@ function SubscriptionRow({
                   Delete
                 </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent className="zoruui">
+              <AlertDialogContent className="">
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete webhook?</AlertDialogTitle>
                   <AlertDialogDescription>
@@ -871,7 +871,7 @@ export function WebhookManager({ projectId, className }: WebhookManagerProps): R
    * ─────────────────────────────────────────────────────────────────────── */
 
   return (
-    <div className={cn('zoruui space-y-4', className)}>
+    <div className={cn('space-y-4', className)}>
       {/* ── Card header ── */}
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">

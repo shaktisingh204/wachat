@@ -38,7 +38,7 @@ import {
 /**
  * Telegram Payments dashboard — multi-tenant, project-scoped.
  *
- * Surface (segmented views, per zoruui no-tab-UI directive):
+ * Surface (segmented views, per no-tab-UI directive):
  *   - Payments   list + analytics chart + filters + CSV export + refund
  *   - Invoices   sent invoices & invoice links from this project
  *   - Templates  reusable invoice payloads (CRUD via drawer)

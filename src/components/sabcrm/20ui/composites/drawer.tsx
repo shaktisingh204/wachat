@@ -38,7 +38,7 @@ export const ZoruDrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "zoruui fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[var(--st-radius-lg)] border-t border-[var(--st-border)] bg-[var(--st-bg)]",
+        "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[var(--st-radius-lg)] border-t border-[var(--st-border)] bg-[var(--st-bg)]",
         className,
       )}
       {...props}

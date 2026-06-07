@@ -4,7 +4,7 @@
  * <PettyCashEditForm> — deepened edit form per CRM_PAGE_REDESIGN_PLAN
  * §3.3.2.
  *
- * Sectioned cards (no tabs — zoruui has no tab primitive):
+ * Sectioned cards (no tabs — has no tab primitive):
  *   1. Identification — float name, branch picker, currency
  *   2. Custody & approvals — custodian (employee), approver (user),
  *      approval workflow status

@@ -62,7 +62,7 @@ export function QuickCapture({ notebookId, sectionId }: QuickCaptureProps) {
   }, [body, title, kind, notebookId, sectionId, router]);
 
   return (
-    <div className="zoruui mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 md:p-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 md:p-6">
       <header className="flex items-center justify-between">
         <Button variant="ghost" size="sm" onClick={() => router.push(BASE)}>
           <ArrowLeft className="h-4 w-4" /> Back

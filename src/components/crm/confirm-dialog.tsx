@@ -15,7 +15,7 @@ import {
  * can safely run async work (server-action calls, route refreshes, etc.)
  * without juggling their own loading state.
  *
- * Built on the zoruui primitives (`ZoruDialog*`, `ZoruButton`, `ZoruInput`)
+ * Built on the primitives (`ZoruDialog*`, `ZoruButton`, `ZoruInput`)
  * — never wire a bare `<dialog>` or shadcn primitive directly when you can
  * use this wrapper.
  *

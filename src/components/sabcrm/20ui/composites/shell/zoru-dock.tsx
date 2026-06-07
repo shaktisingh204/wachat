@@ -1,7 +1,7 @@
 /**
  * ZoruDock (shell scope) — re-export of the existing application dock.
  *
- * Per the zoruui plan, the dock is reused as-is (not rewritten).
+ * Per the plan, the dock is reused as-is (not rewritten).
  * Always import dock pieces from `@/components/sabcrm/20ui/composites/shell/zoru-dock`
  * or the top-level `@/components/zoruui` barrel inside the zoru shell.
  */

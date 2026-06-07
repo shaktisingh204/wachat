@@ -63,7 +63,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
 
   return (
     <CommandPaletteProvider>
-      <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
+      <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
         {/* 20ui AppRail, scoped to its own design-system root + synced to the
             app theme so dark/light always matches the surrounding chrome. */}
         <div className={`ui20 ${appDark ? 'dark' : 'light'}`} style={{ display: 'flex' }}>

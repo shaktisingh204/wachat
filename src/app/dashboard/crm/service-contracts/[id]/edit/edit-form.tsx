@@ -4,7 +4,7 @@
  * <ServiceContractEditForm> — deepened edit form per
  * CRM_PAGE_REDESIGN_PLAN §3.3.2.
  *
- * Sectioned cards (no tabs — zoruui has no tab primitive):
+ * Sectioned cards (no tabs — has no tab primitive):
  *   1. Identification — contract no., title, coverage, frequency,
  *      status
  *   2. Parties — customer (account), counterparty contact, assigned
@@ -14,7 +14,7 @@
  *   4. Renewal — auto-renew flag, renewal notice days, next renewal
  *      date
  *   5. Terms & conditions — textarea (rich text not available in
- *      zoruui)
+ *      )
  *   6. Document attachments — up to 8 SabFiles picks (signed PDF,
  *      annexures, etc.)
  *   7. Notes

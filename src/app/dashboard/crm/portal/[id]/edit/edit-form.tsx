@@ -4,7 +4,7 @@
  * <PortalEditForm> — deepened edit form per CRM_PAGE_REDESIGN_PLAN
  * §3.3.2.
  *
- * Sectioned cards (no tabs — zoruui has no tab primitive):
+ * Sectioned cards (no tabs — has no tab primitive):
  *   1. Identification — name, email, phone, portal type, status
  *   2. Linked entity — customer / vendor / employee picker (type-aware)
  *   3. Role & access — role picker (admin / editor / viewer) plus a

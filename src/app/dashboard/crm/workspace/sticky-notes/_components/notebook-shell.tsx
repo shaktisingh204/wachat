@@ -155,7 +155,7 @@ export function NotebookShell({
   }, [notes]);
 
   return (
-    <div className="zoruui flex h-[calc(100vh-4rem)] flex-col">
+    <div className="flex h-[calc(100vh-4rem)] flex-col">
       <header className="flex items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 text-sm">
         <Link href={BASE}>
           <Button variant="ghost" size="sm">

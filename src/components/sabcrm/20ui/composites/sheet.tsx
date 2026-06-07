@@ -31,7 +31,7 @@ ZoruSheetOverlay.displayName = "ZoruSheetOverlay";
 
 const sheetVariants = cva(
   [
-    "zoruui zoruui-surface-sheen fixed z-50 gap-4 bg-[var(--st-bg)] p-6 shadow-[var(--st-shadow-lg)]",
+    "zoruui-surface-sheen fixed z-50 gap-4 bg-[var(--st-bg)] p-6 shadow-[var(--st-shadow-lg)]",
     "transition ease-in-out",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:duration-200 data-[state=open]:duration-300",

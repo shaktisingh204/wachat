@@ -72,7 +72,7 @@ export const ZoruSelectContent = React.forwardRef<
       ref={ref}
       position={position}
       className={cn(
-        "zoruui relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-hidden",
+        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-hidden",
         "zoruui-surface-sheen rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",

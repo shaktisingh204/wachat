@@ -3,7 +3,7 @@
 /**
  * <EditBudgetForm> — deepened edit form per CRM_PAGE_REDESIGN_PLAN §3.3.2.
  *
- * Sectioned card layout (no tabs — zoruui has no tab primitive):
+ * Sectioned card layout (no tabs — has no tab primitive):
  *   1. Identification — head type / head / period / scenario
  *   2. Plan & alerts — plan amount, alert at %, status, locked
  *   3. Allocation breakdown — optional line-item editor (department/

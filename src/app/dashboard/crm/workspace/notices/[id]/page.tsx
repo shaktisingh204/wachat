@@ -6,7 +6,7 @@
  *   - Header: eyebrow · title · status · action menu.
  *   - Main column: Overview (body) · Comments · Attachments · Related
  *     sections rendered as anchor-linked cards (no Tabs per the
- *     no-tab-ui directive in zoruui).
+ *     no-tab-ui directive in ).
  *   - Right rail: key facts · counts · quick actions.
  *   - Footer: <EntityAuditTimeline /> via shell `audit` slot.
  */

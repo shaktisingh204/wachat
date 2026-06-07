@@ -70,7 +70,7 @@ export const ZoruMenubarSubContent = React.forwardRef<
   <MenubarPrimitive.SubContent
     ref={ref}
     className={cn(
-      "zoruui z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
+      "z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
       className,
     )}
     {...props}
@@ -89,7 +89,7 @@ export const ZoruMenubarContent = React.forwardRef<
       alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui z-50 min-w-[12rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
+        "z-50 min-w-[12rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",

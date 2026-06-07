@@ -23,7 +23,7 @@ export function ZoruProvider({
   as: Tag = "div",
 }: ZoruProviderProps) {
   return (
-    <Tag className={cn("zoruui min-h-full antialiased", className)}>
+    <Tag className={cn("min-h-full antialiased", className)}>
       {children}
     </Tag>
   );

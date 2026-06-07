@@ -15,7 +15,7 @@ export function ZoruSonner({
 }: ToasterProps) {
   return (
     <SonnerToaster
-      className={cn("zoruui", className)}
+      className={cn("", className)}
       theme="light"
       toastOptions={{
         ...toastOptions,

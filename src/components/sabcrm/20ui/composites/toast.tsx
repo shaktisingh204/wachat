@@ -16,7 +16,7 @@ export const ZoruToastViewport = React.forwardRef<
   <ToastPrimitive.Viewport
     ref={ref}
     className={cn(
-      "zoruui fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-24 sm:right-0 sm:top-auto sm:flex-col sm:max-w-[380px]",
+      "fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:bottom-24 sm:right-0 sm:top-auto sm:flex-col sm:max-w-[380px]",
       className,
     )}
     {...props}

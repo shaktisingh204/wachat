@@ -59,7 +59,7 @@ export function CrmFormDrawer({
         {/* Drawer Body - Split into navigation sidebar & content */}
         <div className="flex-1 flex overflow-hidden">
           
-          {/* Segmented stepper sidebar (Standard zoruui layout - no tabs) */}
+          {/* Segmented stepper sidebar (Standard layout - no tabs) */}
           <aside className="w-[180px] shrink-0 border-r border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-3 flex flex-col gap-1 overflow-y-auto">
             <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)] mb-2 px-2">
               Form Sections

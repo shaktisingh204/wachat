@@ -527,7 +527,7 @@ export function ApiKeyManager({
   // Render
   // ------------------------------------------------------------------
   return (
-    <div className="zoruui space-y-6">
+    <div className="space-y-6">
       {/* Header row */}
       <div className="flex items-center justify-between gap-4">
         <div className="space-y-0.5">

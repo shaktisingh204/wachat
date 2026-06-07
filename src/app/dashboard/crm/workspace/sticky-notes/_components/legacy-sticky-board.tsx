@@ -302,7 +302,7 @@ export function LegacyStickyBoard(): React.JSX.Element {
     filters.owner !== 'all';
 
   return (
-    <div className="zoruui flex w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <EntityListShell
         title="Quick Notes"
         subtitle="Personal, colourful reminders. Click a card to edit in place."

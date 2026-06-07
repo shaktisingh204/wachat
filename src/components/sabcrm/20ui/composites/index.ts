@@ -295,7 +295,7 @@ export {
   ZoruBreadcrumbEllipsis,
 } from "./breadcrumb";
 // Note: tab UI (`ZoruTabs` and friends) is intentionally NOT exported.
-// Per the no-tab-ui directive, zoruui has no tab primitive — use
+// Per the no-tab-ui directive, has no tab primitive — use
 // segmented buttons, numbered steppers, or distinct routes instead.
 export {
   Accordion,
