@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateRoadmap } from '@/app/actions/hrm-roadmaps.actions';
-import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast, ToastAction } from '@/components/sabcrm/20ui';
+import { Button, Input, Label, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, useToast } from '@/components/sabcrm/20ui';
 import { Users } from 'lucide-react';
 import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';
@@ -112,15 +112,10 @@ export default function EditRoadmapForm({ initialRoadmap, id }: EditRoadmapFormP
       if (!result.success) {
         const errMsg = result.error ?? 'Failed to update roadmap.';
         setError(errMsg);
-        toast({ 
-          title: 'Update Failed', 
-          description: errMsg, 
+        toast({
+          title: 'Update Failed',
+          description: errMsg,
           variant: 'destructive',
-          action: (
-            <ToastAction altText="Retry" onClick={(e: any) => handleSubmit(e)}>
-              Retry
-            </ToastAction>
-          )
         });
         return;
       }

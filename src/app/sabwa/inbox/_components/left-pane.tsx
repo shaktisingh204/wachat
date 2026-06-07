@@ -1,6 +1,6 @@
 'use client';
 
-import { EmptyState, Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Input, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import { Inbox, MessageSquare, Search } from 'lucide-react';
 
 /**

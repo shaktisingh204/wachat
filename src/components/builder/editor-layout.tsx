@@ -255,5 +255,3 @@ export const EditorLayout = () => {
         </EditorProvider>
     );
 };
-</content>
-</invoke>

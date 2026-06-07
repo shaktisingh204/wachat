@@ -630,5 +630,3 @@ export function OverviewAccountsClient() {
 }
 
 export default OverviewAccountsClient;
-</content>
-</invoke>

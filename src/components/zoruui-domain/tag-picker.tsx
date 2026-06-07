@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { TagPicker, useToast, type TagPickerProps, type LegacyTagPickerTag } from '@/components/sabcrm/20ui';
+import { TagPicker as BaseTagPicker, useToast, type TagPickerProps, type LegacyTagPickerTag } from '@/components/sabcrm/20ui';
 import {
     createUserTag,
     deleteUserTag,
@@ -34,7 +34,7 @@ export function TagPicker(props: UserTagPickerProps) {
     };
 
     return (
-        <TagPicker
+        <BaseTagPicker
             {...props}
             onCreate={(input) => unwrap(() => createUserTag(input))}
             onUpdate={(id, patch) => unwrap(() => updateUserTag(id, patch))}

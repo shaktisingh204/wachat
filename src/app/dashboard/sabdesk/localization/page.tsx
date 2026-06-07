@@ -822,7 +822,7 @@ const BusinessHoursTab = () => {
               >
                 <span className="font-medium text-sm text-[var(--st-text)]">{r.name}</span>
                 <span className="text-xs text-[var(--st-text-tertiary)] flex items-center gap-1"><MapPin size={12} aria-hidden="true" /> {r.timezone}</span>
-              </button>
+              </Button>
             );
           })}
         </Card>

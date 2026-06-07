@@ -106,5 +106,3 @@ export default async function SabshowIndexPage() {
         </div>
     );
 }
-</content>
-</invoke>
