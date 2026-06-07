@@ -35,7 +35,7 @@ import type {
   User,
   Plan,
 } from '@/lib/definitions';
-import { CrmProductCard } from '@/components/zoruui-domain/crm-product-card';
+import { CrmProductCard } from '@/components/20ui-domain/crm-product-card';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

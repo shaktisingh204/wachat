@@ -38,10 +38,10 @@ import { useToast } from '@/hooks/use-toast';
 import React, { useState, useTransition } from 'react';
 
 import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
-import { TemplateMessageContent } from '@/components/zoruui-domain/messages/template-message-content';
-import { ProductMessageContent } from '@/components/zoruui-domain/messages/product-message-content';
-import { OrderMessageContent } from '@/components/zoruui-domain/messages/order-message-content';
-import { ContactMessageContent } from '@/components/zoruui-domain/messages/contact-message-content';
+import { TemplateMessageContent } from '@/components/20ui-domain/messages/template-message-content';
+import { ProductMessageContent } from '@/components/20ui-domain/messages/product-message-content';
+import { OrderMessageContent } from '@/components/20ui-domain/messages/order-message-content';
+import { ContactMessageContent } from '@/components/20ui-domain/messages/contact-message-content';
 
 function cx(...a: Array<string | false | null | undefined>) {
     return a.filter(Boolean).join(' ');

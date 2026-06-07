@@ -5,7 +5,7 @@ import { CircleAlert } from 'lucide-react';
 
 import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
-import { ProjectSettingsForm } from '@/components/zoruui-domain/project-settings-form';
+import { ProjectSettingsForm } from '@/components/20ui-domain/project-settings-form';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 import * as React from 'react';

@@ -9,7 +9,7 @@ import {
 } from "@/components/sabcrm/20ui"
 import { Plus, Image as ImageIcon, FileText, ClipboardList, ShoppingBag, IndianRupee } from "lucide-react"
 import type { Project } from "@/lib/definitions"
-import { WaPayIcon } from "@/components/zoruui-domain/custom-sidebar-components"
+import { WaPayIcon } from "@/components/20ui-domain/custom-sidebar-components"
 
 interface ChatAttachmentMenuProps {
     disabled?: boolean;

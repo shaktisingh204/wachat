@@ -38,8 +38,8 @@ import type { WithId } from 'mongodb';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
-import { MetaFlowBuilderLayout } from '@/components/zoruui-domain/meta-flow-editor/layout/meta-flow-layout';
-import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
+import { MetaFlowBuilderLayout } from '@/components/20ui-domain/meta-flow-editor/layout/meta-flow-layout';
+import { flowCategories } from '@/components/20ui-domain/meta-flow-templates';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 import { cleanMetaFlowData } from '@/lib/meta-flow-utils';
 import { getProjectById } from '@/app/actions/project.actions';

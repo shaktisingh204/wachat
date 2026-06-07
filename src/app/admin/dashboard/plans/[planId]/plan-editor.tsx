@@ -48,8 +48,8 @@ import {
     Crown,
     History,
 } from 'lucide-react';
-import { PlanPermissionSelector } from '@/components/zoruui-domain/plan-permission-selector';
-import { PlanFeaturesSelector } from '@/components/zoruui-domain/plan-features-selector';
+import { PlanPermissionSelector } from '@/components/20ui-domain/plan-permission-selector';
+import { PlanFeaturesSelector } from '@/components/20ui-domain/plan-features-selector';
 
 const initialState = { message: null, error: null };
 

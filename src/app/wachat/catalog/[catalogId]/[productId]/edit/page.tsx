@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
 import WachatPage from '@/app/wachat/_components/wachat-page';
-import { ProductForm } from '@/components/zoruui-domain/product-form';
+import { ProductForm } from '@/components/20ui-domain/product-form';
 import { useProject } from '@/context/project-context';
 import { getProductsForCatalog } from '@/app/actions/catalog.actions';
 import type { Product } from '@/lib/definitions';

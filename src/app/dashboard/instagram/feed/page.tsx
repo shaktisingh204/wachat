@@ -11,7 +11,7 @@ import { AlertCircle, ThumbsUp, MessageSquare, Eye, Newspaper } from 'lucide-rea
 import Link from 'next/link';
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
-import { InstagramViewCommentsDialog } from '@/components/zoruui-domain/instagram-view-comments-dialog';
+import { InstagramViewCommentsDialog } from '@/components/20ui-domain/instagram-view-comments-dialog';
 
 function FeedPageSkeleton() {
   return (

@@ -1,6 +1,6 @@
 import React from "react";
 import { notFound } from 'next/navigation';
-import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
+import { Canvas } from '@/components/20ui-domain/website-builder/canvas';
 import { connectToDatabase } from '@/lib/mongodb';
 import { WebsitePage } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';

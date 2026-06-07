@@ -27,8 +27,8 @@ import {
   type BadgeTone,
 } from '@/components/sabcrm/20ui';
 import { getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
-import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
-import { AdminUserFilter } from '@/components/zoruui-domain/admin-user-filter';
+import { AdminUserSearch } from '@/components/20ui-domain/admin-user-search';
+import { AdminUserFilter } from '@/components/20ui-domain/admin-user-filter';
 import {
   useEffect,
   useState,
@@ -42,7 +42,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 import { MessageSquare, Archive } from 'lucide-react';
-import { AdminArchiveProjectButton } from '@/components/zoruui-domain/admin-archive-project-button';
+import { AdminArchiveProjectButton } from '@/components/20ui-domain/admin-archive-project-button';
 
 const PROJECTS_PER_PAGE = 20;
 

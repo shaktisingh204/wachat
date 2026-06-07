@@ -40,7 +40,7 @@ import { ArrowRight,
 import { getSites, updateSiteDomain } from '@/app/actions/portfolio.actions';
 import type { WithId,
   Website } from '@/lib/definitions';
-import { CreatePortfolioDialog } from '@/components/zoruui-domain/create-portfolio-dialog';
+import { CreatePortfolioDialog } from '@/components/20ui-domain/create-portfolio-dialog';
 
 function PageSkeleton() {
   return (

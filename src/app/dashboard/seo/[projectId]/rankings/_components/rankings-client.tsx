@@ -21,8 +21,8 @@ import {
 
 import { TrendingUp, RefreshCw } from 'lucide-react';
 import { getKeywords } from '@/app/actions/seo-rank.actions';
-import { RankingsTable } from '@/components/zoruui-domain/seo/rankings-table';
-import { AddKeywordDialog } from '@/components/zoruui-domain/seo/add-keyword-dialog';
+import { RankingsTable } from '@/components/20ui-domain/seo/rankings-table';
+import { AddKeywordDialog } from '@/components/20ui-domain/seo/add-keyword-dialog';
 import { useToast } from '@/components/sabcrm/20ui';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';

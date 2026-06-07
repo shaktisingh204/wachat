@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useProject } from '@/context/project-context';
-import { FeatureLock, FeatureLockOverlay } from '@/components/zoruui-domain/feature-lock';
+import { FeatureLock, FeatureLockOverlay } from '@/components/20ui-domain/feature-lock';
 
 // This secondary layout is no longer needed as navigation is handled by the main CRM layout.
 export default function SalesLayout({ children }: { children: React.ReactNode }) {

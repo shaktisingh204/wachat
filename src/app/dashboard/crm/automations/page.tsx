@@ -31,7 +31,7 @@ import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/
 import type { WithId } from 'mongodb';
 import { cn } from '@/lib/utils';
 
-import { CrmAutomationBlockEditor } from '@/components/zoruui-domain/crm-automation-block-editor';
+import { CrmAutomationBlockEditor } from '@/components/20ui-domain/crm-automation-block-editor';
 
 import Link from 'next/link';
 

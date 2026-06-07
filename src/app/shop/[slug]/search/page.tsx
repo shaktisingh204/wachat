@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
+import { Canvas } from '@/components/20ui-domain/website-builder/canvas';
 
 async function SearchResults({ slug, query }: { slug: string, query: string }) {
     const shop = await getEcommShopBySlug(slug);

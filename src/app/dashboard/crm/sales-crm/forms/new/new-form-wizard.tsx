@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Input, Label, Card, CardHeader, CardTitle, CardBody as CardContent } from '@/components/sabcrm/20ui';
-import { CrmFormBuilder } from '@/components/zoruui-domain/crm-form-builder';
+import { CrmFormBuilder } from '@/components/20ui-domain/crm-form-builder';
 import { FileText, UserPlus, FileSignature, ArrowRight } from 'lucide-react';
 
 const TEMPLATES = [

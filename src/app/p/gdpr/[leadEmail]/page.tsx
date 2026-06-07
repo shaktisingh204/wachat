@@ -1,5 +1,5 @@
 import { loadPublicConsentContext } from '@/app/actions/worksuite/public.actions';
-import { ClayCard } from '@/components/zoruui-domain';
+import { ClayCard } from '@/components/20ui-domain';
 import { InvalidLinkCard } from '../../_components/invalid-link';
 import { ConsentForm } from './_form';
 

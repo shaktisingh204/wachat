@@ -19,7 +19,7 @@ import type { WithId,
   Contact } from '@/lib/definitions';
 
 import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
-import { WaPayIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+import { WaPayIcon } from '@/components/20ui-domain/custom-sidebar-components';
 
 function cx(...a: Array<string | false | null | undefined>) {
   return a.filter(Boolean).join(' ');

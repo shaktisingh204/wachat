@@ -51,13 +51,13 @@ import {
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
-import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
+import { flowCategories } from '@/components/20ui-domain/meta-flow-templates';
 
 import { deleteMetaFlow,
   getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { MetaFlow } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { SyncMetaFlowsButton } from '@/components/zoruui-domain/sync-meta-flows-button';
+import { SyncMetaFlowsButton } from '@/components/20ui-domain/sync-meta-flows-button';
 
 /**
  * Wachat Meta Flows — flow list, search & status.

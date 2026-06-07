@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useProject } from '@/context/project-context';
-import { FeatureLock, FeatureLockOverlay } from '@/components/zoruui-domain/feature-lock';
+import { FeatureLock, FeatureLockOverlay } from '@/components/20ui-domain/feature-lock';
 
 export default function HrmLayout({ children }: { children: React.ReactNode }) {
     const { sessionUser } = useProject();

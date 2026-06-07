@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { WebsiteBuilder } from '@/components/zoruui-domain/website-builder/website-builder';
+import { WebsiteBuilder } from '@/components/20ui-domain/website-builder/website-builder';
 import { getSiteById, getWebsitePages } from '@/app/actions/portfolio.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';

@@ -9,8 +9,8 @@ import {
 } from '@/components/sabcrm/20ui';
 import type { ReactNode } from 'react';
 import { Settings, Route } from 'lucide-react';
-import { EditLinkDrawer } from '@/components/zoruui-domain/edit-link-drawer';
-import { LinkHistoryDrawer } from '@/components/zoruui-domain/link-history-drawer';
+import { EditLinkDrawer } from '@/components/20ui-domain/edit-link-drawer';
+import { LinkHistoryDrawer } from '@/components/20ui-domain/link-history-drawer';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 

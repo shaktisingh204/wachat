@@ -45,7 +45,7 @@ import {
 
 import * as React from 'react';
 
-import { DATE_PRESETS } from '@/components/zoruui-domain/ad-manager/constants';
+import { DATE_PRESETS } from '@/components/20ui-domain/ad-manager/constants';
 
 /* Feature lock overlay */
 

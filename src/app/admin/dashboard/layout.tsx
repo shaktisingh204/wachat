@@ -2,8 +2,8 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { getAdminSession } from '@/lib/admin-session';
 import { Skeleton } from '@/components/sabcrm/20ui';
-import { AdminSidebarNav } from '@/components/zoruui-domain/admin-sidebar-nav';
-import { AdminTopBar } from '@/components/zoruui-domain/admin-top-bar';
+import { AdminSidebarNav } from '@/components/20ui-domain/admin-sidebar-nav';
+import { AdminTopBar } from '@/components/20ui-domain/admin-top-bar';
 
 export const dynamic = 'force-dynamic';
 

@@ -2,7 +2,7 @@ import { Button } from '@/components/sabcrm/20ui';
 import {
   ArrowLeft } from 'lucide-react';
 
-import { EmployeeForm } from '@/components/zoruui-domain/crm-employee-form';
+import { EmployeeForm } from '@/components/20ui-domain/crm-employee-form';
 
 import Link from 'next/link';
 

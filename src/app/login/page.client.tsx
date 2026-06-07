@@ -14,8 +14,8 @@ import {
     ArrowUpZA
 } from 'lucide-react';
 
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
-import { LoginForm } from '@/components/zoruui-domain/login-form';
+import { SabNodeLogo } from '@/components/20ui-domain/logo';
+import { LoginForm } from '@/components/20ui-domain/login-form';
 import Link from 'next/link';
 
 const HIGHLIGHTS = [

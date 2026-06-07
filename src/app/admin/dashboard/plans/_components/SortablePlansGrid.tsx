@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Button } from '@/components/sabcrm/20ui';
 import { useToast } from '@/components/sabcrm/20ui';
 import { Edit, CreditCard, PlusCircle, GripHorizontal } from 'lucide-react';
-import { AdminDeletePlanButton } from '@/components/zoruui-domain/admin-delete-plan-button';
-import { AdminPlanPermissionsDialog } from '@/components/zoruui-domain/admin-plan-permissions-dialog';
-import { AdminDuplicatePlanButton } from '@/components/zoruui-domain/admin-duplicate-plan-button';
+import { AdminDeletePlanButton } from '@/components/20ui-domain/admin-delete-plan-button';
+import { AdminPlanPermissionsDialog } from '@/components/20ui-domain/admin-plan-permissions-dialog';
+import { AdminDuplicatePlanButton } from '@/components/20ui-domain/admin-duplicate-plan-button';
 import { updatePlanOrder } from '@/app/actions/plan.actions';
 
 import {

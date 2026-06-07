@@ -54,7 +54,7 @@ import {
   updateCampaign,
   getInsights,
 } from '@/app/actions/ad-manager.actions';
-import { formatMoney } from '@/components/zoruui-domain/ad-manager/constants';
+import { formatMoney } from '@/components/20ui-domain/ad-manager/constants';
 import {
   QueryClient,
   QueryClientProvider,

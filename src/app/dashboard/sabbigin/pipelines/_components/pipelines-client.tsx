@@ -31,7 +31,7 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 import {
   bulkDeleteCrmPipelines,
 } from '@/app/actions/crm-pipelines.actions';
-import { EditPipelinesDialog } from '@/components/zoruui-domain/edit-pipelines-dialog';
+import { EditPipelinesDialog } from '@/components/20ui-domain/edit-pipelines-dialog';
 import type { CrmPipeline } from '@/lib/definitions';
 import type { CrmPipelineKpis } from '@/app/actions/crm-pipelines.actions.types';
 

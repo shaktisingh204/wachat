@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Mail, Plus, CheckCircle2 } from 'lucide-react';
 import { Badge, Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, EmptyState, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 import type { WithId, EmailSettings } from '@/lib/definitions';
-import { GoogleIcon, OutlookIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+import { GoogleIcon, OutlookIcon } from '@/components/20ui-domain/custom-sidebar-components';
 
 interface EmailAccountListProps {
   accounts: WithId<EmailSettings>[];

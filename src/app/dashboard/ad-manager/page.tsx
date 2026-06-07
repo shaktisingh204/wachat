@@ -35,7 +35,7 @@ import {
   formatMoney,
   formatNumber,
   formatPercent,
-} from '@/components/zoruui-domain/ad-manager/constants';
+} from '@/components/20ui-domain/ad-manager/constants';
 
 /**
  * /dashboard/ad-manager - Meta Suite overview built on the 20ui design system.

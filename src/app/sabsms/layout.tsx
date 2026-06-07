@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
-import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
+import { RBACGuard } from "@/components/20ui-domain/rbac-guard";
 import { ProjectProvider } from "@/context/project-context";
 
 import { SabsmsShell } from "./_components/sabsms-shell";

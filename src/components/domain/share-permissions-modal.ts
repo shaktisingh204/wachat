@@ -6,4 +6,4 @@
  * free of the legacy `zoruui-` folder prefix so consumers can import the modal
  * without pulling from a `zoru`-named location.
  */
-export { SharePermissionsModal } from '@/components/zoruui-domain/share-permissions-modal';
+export { SharePermissionsModal } from '@/components/20ui-domain/share-permissions-modal';

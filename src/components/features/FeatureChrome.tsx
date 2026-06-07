@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/sabcrm/20ui';
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
+import { SabNodeLogo } from '@/components/20ui-domain/logo';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
 import { LandingHeader } from '@/components/landing/landing-header';
 

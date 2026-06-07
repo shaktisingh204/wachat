@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { UserAttributesSettingsTab } from '@/components/zoruui-domain/user-attributes-settings-tab';
+import { UserAttributesSettingsTab } from '@/components/20ui-domain/user-attributes-settings-tab';
 
 import * as React from 'react';
 

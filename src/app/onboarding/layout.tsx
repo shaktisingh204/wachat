@@ -1,6 +1,6 @@
 import '@/components/sabcrm/20ui/tokens.css';
 import Link from 'next/link';
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
+import { SabNodeLogo } from '@/components/20ui-domain/logo';
 
 export default function OnboardingLayout({
     children,

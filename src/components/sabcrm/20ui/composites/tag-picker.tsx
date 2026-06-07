@@ -62,7 +62,7 @@ const DEFAULT_COLOR = "#6366F1";
  * Multi-select tag dropdown with inline create + per-row three-dot menu
  * (rename inline, delete). UI-only — the consumer wires persistence via
  * `onCreate` / `onUpdate` / `onDelete`. Pair with `tag-picker.tsx` in
- * `@/components/zoruui-domain` for user-tag persistence.
+ * `@/components/20ui-domain` for user-tag persistence.
  */
 export function SabTagPicker({
     tags,

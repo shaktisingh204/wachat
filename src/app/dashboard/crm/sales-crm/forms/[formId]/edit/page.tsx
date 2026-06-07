@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/sabcrm/20ui';
 import { Suspense, useEffect, useState } from 'react';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { useParams } from 'next/navigation';
-import { CrmFormBuilder } from '@/components/zoruui-domain/website-builder/crm-form-builder';
+import { CrmFormBuilder } from '@/components/20ui-domain/website-builder/crm-form-builder';
 import type { WithId, CrmForm } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';

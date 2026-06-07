@@ -62,7 +62,7 @@ import { getFlowById,
   saveFlow } from '@/app/actions/flow.actions';
 import { Sidebar } from '@/components/flow-builder/Sidebar';
 import CustomNode from '@/components/flow-builder/CustomNode';
-import { PropertiesPanel } from '@/components/zoruui-domain/properties-panel';
+import { PropertiesPanel } from '@/components/20ui-domain/properties-panel';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 

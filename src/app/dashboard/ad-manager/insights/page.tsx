@@ -40,7 +40,7 @@ import { cn } from '@/lib/utils';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useAdManagerShell } from '@/context/ad-manager-shell-context';
 import { getInsights } from '@/app/actions/ad-manager.actions';
-import { formatMoney, formatNumber, formatPercent } from '@/components/zoruui-domain/ad-manager/constants';
+import { formatMoney, formatNumber, formatPercent } from '@/components/20ui-domain/ad-manager/constants';
 import {
     AmBreadcrumb,
     AmHeader,

@@ -75,7 +75,7 @@ import {
   Reply,
   Activity,
 } from 'lucide-react';
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
+import { SabNodeLogo } from '@/components/20ui-domain/logo';
 import { getSession } from '@/app/actions';
 import { LandingHeader } from '@/components/landing/landing-header';
 

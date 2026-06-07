@@ -9,7 +9,7 @@ import { getSession } from '@/app/actions/index.ts';
 import type { User } from '@/lib/definitions';
 import { AlertCircle,
   ChevronLeft } from 'lucide-react';
-import { TagsSettingsTab } from '@/components/zoruui-domain/tags-settings-tab';
+import { TagsSettingsTab } from '@/components/20ui-domain/tags-settings-tab';
 import Link from 'next/link';
 
 function SettingsPageSkeleton() {

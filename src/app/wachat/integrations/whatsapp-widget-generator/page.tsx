@@ -22,7 +22,7 @@ import { getProjectById } from '@/app/actions/project.actions';
 import { getWidgetStats } from '@/app/actions/wachat-widget-tracking.actions';
 import type { WidgetStats } from '@/lib/rust-client/wachat-widget-tracking';
 import { useProject } from '@/context/project-context';
-import { WhatsAppWidgetGenerator } from '@/components/zoruui-domain/whatsapp-widget-generator';
+import { WhatsAppWidgetGenerator } from '@/components/20ui-domain/whatsapp-widget-generator';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import React from 'react';
 

@@ -96,12 +96,12 @@ import {
     OBJECTIVES, BID_STRATEGIES, COUNTRIES, CALL_TO_ACTIONS,
     SPECIAL_AD_CATEGORIES, FACEBOOK_POSITIONS, INSTAGRAM_POSITIONS,
     formatNumber,
-} from '@/components/zoruui-domain/ad-manager/constants';
+} from '@/components/20ui-domain/ad-manager/constants';
 import {
     initialFormState, validateStep1, validateStep2, validateStep3,
     type CreateFormState, type ValidationIssue,
-} from '@/components/zoruui-domain/ad-manager/create-wizard/form-state';
-import { AdPreviewSwitcher } from '@/components/zoruui-domain/ad-manager/create-wizard/ad-previews';
+} from '@/components/20ui-domain/ad-manager/create-wizard/form-state';
+import { AdPreviewSwitcher } from '@/components/20ui-domain/ad-manager/create-wizard/ad-previews';
 
 type Step = 1 | 2 | 3;
 

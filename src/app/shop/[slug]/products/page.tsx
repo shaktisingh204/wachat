@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
+import { Canvas } from '@/components/20ui-domain/website-builder/canvas';
 import { LayoutGrid } from 'lucide-react';
 
 export default async function AllProductsPage(props: { params: Promise<{ slug: string }> }) {

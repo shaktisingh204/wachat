@@ -1,5 +1,5 @@
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
-import { Canvas } from '@/components/zoruui-domain/website-builder/canvas';
+import { Canvas } from '@/components/20ui-domain/website-builder/canvas';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';

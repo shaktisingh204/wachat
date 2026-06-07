@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
+import { CampaignsHub } from '@/components/20ui-domain/ad-manager/campaigns-hub';
 import { Alert, AlertTitle, AlertDescription, Button, Spinner } from '@/components/sabcrm/20ui';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 

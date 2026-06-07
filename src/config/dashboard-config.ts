@@ -11,7 +11,7 @@ import {
     Smartphone, LayoutGrid, LayoutPanelTop, Zap, PieChart, Eye, CheckSquare, Check,
     Network, Store, Heart, Star, Gift, Truck, Receipt,
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/20ui-domain/custom-sidebar-components';
 import React from 'react';
 
 export interface MenuItem {

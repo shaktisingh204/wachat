@@ -1,5 +1,5 @@
 import React from "react";
-import { ClayCard } from '@/components/zoruui-domain';
+import { ClayCard } from '@/components/20ui-domain';
 import { CheckCircle2 } from 'lucide-react';
 import { CountdownRedirect } from './countdown-redirect';
 

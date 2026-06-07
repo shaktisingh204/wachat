@@ -56,7 +56,7 @@ import {
   createLookalikeAudience,
   deleteCustomAudience,
 } from '@/app/actions/ad-manager.actions';
-import { COUNTRIES, formatNumber } from '@/components/zoruui-domain/ad-manager/constants';
+import { COUNTRIES, formatNumber } from '@/components/20ui-domain/ad-manager/constants';
 import { AmBreadcrumb } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import type { CustomAudience } from '@/lib/definitions';
 

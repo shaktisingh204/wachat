@@ -8,7 +8,7 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 const WebsiteBuilder = nextDynamic(
-    () => import('@/components/zoruui-domain/website-builder/website-builder').then((mod) => mod.WebsiteBuilder),
+    () => import('@/components/20ui-domain/website-builder/website-builder').then((mod) => mod.WebsiteBuilder),
     {
         
         loading: () => (

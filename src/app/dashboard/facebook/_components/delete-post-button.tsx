@@ -8,7 +8,7 @@ import {
 import { handleDeletePost } from "@/app/actions/facebook.actions";
 
 /**
- * Local zoru replacement for `@/components/zoruui-domain/delete-post-button`.
+ * Local zoru replacement for `@/components/20ui-domain/delete-post-button`.
  *
  * Same server action (`handleDeletePost`), confirmation via `AlertDialog`.
  */

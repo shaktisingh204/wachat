@@ -36,7 +36,7 @@ import {
   cn,
 } from '@/components/sabcrm/20ui';
 import NextLink from 'next/link';
-import { BulkImportDialog } from '@/components/zoruui-domain/bulk-url-import-dialog';
+import { BulkImportDialog } from '@/components/20ui-domain/bulk-url-import-dialog';
 import { Link as LinkIcon, X, Plus, Check, ChevronsUpDown, Settings } from 'lucide-react';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import type { Tag } from '@/lib/definitions';

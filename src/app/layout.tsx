@@ -12,7 +12,7 @@ import './globals.css';
 // app-wide (enables the central-token migration outside the CRM/HRM surfaces).
 import '@/components/sabcrm/20ui/tokens-global.css';
 
-import SessionProvider from '@/components/zoruui-domain/session-provider';
+import SessionProvider from '@/components/20ui-domain/session-provider';
 import { MotionProvider } from '@/components/motion';
 // 20ui toast system, mounted app-wide so migrated files' useToast() has a
 // provider (coexists with the ZoruUI Toaster during the migration).

@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
-import { ProductForm } from '@/components/zoruui-domain/product-form';
+import { ProductForm } from '@/components/20ui-domain/product-form';
 
 export default function NewProductPage() {
   const searchParams = useSearchParams();

@@ -12,7 +12,7 @@ import {
     Bug, Calculator, FlaskConical, Eye, Wand2, Cloud, Wrench, Activity,
     Camera, MapPin, ShoppingCart, Headphones, Sparkles, Award, Building2
 } from 'lucide-react';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, InstagramIcon, SabChatIcon } from '@/components/20ui-domain/custom-sidebar-components';
 
 export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, icon: React.ElementType }[] = [
     // Wachat

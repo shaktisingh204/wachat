@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { Spinner } from '@/components/sabcrm/20ui';
-import { CampaignsHub } from '@/components/zoruui-domain/ad-manager/campaigns-hub';
+import { CampaignsHub } from '@/components/20ui-domain/ad-manager/campaigns-hub';
 
 export default function AdSetsListPage() {
   return (

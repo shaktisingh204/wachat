@@ -9,15 +9,15 @@ import Link from 'next/link';
 
 import type { Metadata } from 'next';
 
-import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
-import { ApproveUserButton } from '@/components/zoruui-domain/approve-user-button';
-import { AdminAssignUserPlanDialog } from '@/components/zoruui-domain/admin-assign-user-plan-dialog';
-import { ImpersonateUserButton } from '@/components/zoruui-domain/impersonate-user-button';
-import { AdminUserPermissionsDialog } from '@/components/zoruui-domain/admin-user-permissions-dialog';
-import { AdminUserActionsMenu } from '@/components/zoruui-domain/admin-user-actions-menu';
+import { AdminUserSearch } from '@/components/20ui-domain/admin-user-search';
+import { ApproveUserButton } from '@/components/20ui-domain/approve-user-button';
+import { AdminAssignUserPlanDialog } from '@/components/20ui-domain/admin-assign-user-plan-dialog';
+import { ImpersonateUserButton } from '@/components/20ui-domain/impersonate-user-button';
+import { AdminUserPermissionsDialog } from '@/components/20ui-domain/admin-user-permissions-dialog';
+import { AdminUserActionsMenu } from '@/components/20ui-domain/admin-user-actions-menu';
 import { Users, CheckCircle, Clock, Ban } from 'lucide-react';
 
-import { AdminUsersTableView } from '@/components/zoruui-domain/admin-users-table-view';
+import { AdminUsersTableView } from '@/components/20ui-domain/admin-users-table-view';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'User Management | SabNode Admin' };

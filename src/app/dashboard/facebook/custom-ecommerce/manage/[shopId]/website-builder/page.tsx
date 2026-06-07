@@ -6,7 +6,7 @@ import {
   getEcommShopById,
 } from "@/app/actions/custom-ecommerce.actions";
 import { CartProvider } from "@/context/cart-context";
-import { WebsiteBuilder } from "@/components/zoruui-domain/website-builder/website-builder";
+import { WebsiteBuilder } from "@/components/20ui-domain/website-builder/website-builder";
 
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder
@@ -16,7 +16,7 @@ import { WebsiteBuilder } from "@/components/zoruui-domain/website-builder/websi
  * the data fetch + the WebsiteBuilder under a 20ui token scope.
  *
  * TODO(20ui phase): the existing `WebsiteBuilder` canvas at
- * `@/components/zoruui-domain/website-builder` is treated as an opaque
+ * `@/components/20ui-domain/website-builder` is treated as an opaque
  * internal. The canvas + block library + render runtime are too large
  * to migrate as part of this phase. A follow-up batch should rebuild
  * the surrounding chrome (toolbar, save bar, sidebar) on top of 20ui

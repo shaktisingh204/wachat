@@ -44,7 +44,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { Plan, WithId } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { WalletCard } from '@/components/zoruui-domain/wallet-card';
+import { WalletCard } from '@/components/20ui-domain/wallet-card';
 
 import { PlanCategorySection } from './components/plan-category-section';
 import { BillingSkeleton } from './components/billing-skeleton';

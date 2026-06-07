@@ -25,7 +25,7 @@ import {
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';
-import { InstagramIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+import { InstagramIcon } from '@/components/20ui-domain/custom-sidebar-components';
 import { ArrowRight, Wrench, Download, Search } from 'lucide-react';
 import Link from 'next/link';
 import { jsPDF } from 'jspdf';

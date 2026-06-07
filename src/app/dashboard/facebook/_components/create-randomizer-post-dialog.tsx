@@ -16,7 +16,7 @@ import type { Project,
 
 /**
  * Local zoru replacement for
- * `@/components/zoruui-domain/create-randomizer-post-dialog`.
+ * `@/components/20ui-domain/create-randomizer-post-dialog`.
  *
  * Same server action (`addRandomizerPost`); zoru atoms only.
  */

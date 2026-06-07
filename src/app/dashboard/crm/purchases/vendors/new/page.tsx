@@ -11,7 +11,7 @@ import { SabFilePickerButton } from '@/components/sabfiles';
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CrmAddBankAccountDialog } from '@/components/zoruui-domain/crm-add-bank-account-dialog';
+import { CrmAddBankAccountDialog } from '@/components/20ui-domain/crm-add-bank-account-dialog';
 import type { BankAccountDetails, CrmVendor, WithId } from '@/lib/definitions';
 
 import { EntityPicker } from '@/components/crm/entity-picker';

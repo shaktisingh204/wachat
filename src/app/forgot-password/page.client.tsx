@@ -8,7 +8,7 @@ import {
 } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
+import { SabNodeLogo } from '@/components/20ui-domain/logo';
 
 import { AlertCircle, CheckCircle, LoaderCircle } from 'lucide-react';
 import { handleForgotPassword } from '@/app/actions/user.actions';

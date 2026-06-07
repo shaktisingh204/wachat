@@ -22,7 +22,7 @@ import { TwentyAppFrame } from '@/components/sabcrm/twenty';
 import { SabcrmOuterShell } from '@/components/sabcrm/twenty/sabcrm-outer-shell';
 import { SabcrmActorNameProvider } from '@/components/sabcrm/twenty/sabcrm-actors-context';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
-import { RBACGuard } from '@/components/zoruui-domain/rbac-guard';
+import { RBACGuard } from '@/components/20ui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';
 import { LocaleProvider } from '@/lib/i18n/client';
 import { getCurrentLocale } from '@/lib/i18n/server';

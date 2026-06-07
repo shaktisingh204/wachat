@@ -11,7 +11,7 @@ import {
 } from '@/components/sabcrm/20ui';
 import { Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { PlanPurchaseButton } from '@/components/zoruui-domain/plan-purchase-button';
+import { PlanPurchaseButton } from '@/components/20ui-domain/plan-purchase-button';
 import type { Plan, WithId } from '@/lib/definitions';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode; included: boolean }) => (

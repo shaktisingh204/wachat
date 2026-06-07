@@ -28,7 +28,7 @@ import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 /**
  * Zoru-only replacement for
- * `@/components/zoruui-domain/ecomm-custom-domain-form`. Same server actions,
+ * `@/components/20ui-domain/ecomm-custom-domain-form`. Same server actions,
  * same data flow — only the visual layer changes.
  */
 

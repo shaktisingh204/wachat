@@ -52,8 +52,8 @@ import {
   } from '@/app/actions/catalog.actions';
 import type { ProductSet } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { CreateCollectionDialog } from '@/components/zoruui-domain/create-collection-dialog';
-import { DeleteCollectionButton } from '@/components/zoruui-domain/delete-collection-button';
+import { CreateCollectionDialog } from '@/components/20ui-domain/create-collection-dialog';
+import { DeleteCollectionButton } from '@/components/20ui-domain/delete-collection-button';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 

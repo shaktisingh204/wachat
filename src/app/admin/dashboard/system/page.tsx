@@ -1,14 +1,14 @@
 import { Card, Separator } from '@/components/sabcrm/20ui';
 import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
 
-import { SubscribeAllButton } from '@/components/zoruui-domain/subscribe-all-button';
-import { RunCronJobsButton } from '@/components/zoruui-domain/run-cron-jobs-button';
-import { SyncLocalTemplatesButton } from '@/components/zoruui-domain/sync-local-templates-button';
-import { WebhookProcessingToggle } from '@/components/zoruui-domain/webhook-processing-toggle';
-import { DiwaliThemeToggle } from '@/components/zoruui-domain/diwali-theme-toggle';
-import { AppLogoForm } from '@/components/zoruui-domain/admin-logo-form';
-import { SystemBackupButton } from '@/components/zoruui-domain/system-backup-button';
-import { MaintenanceModeToggle } from '@/components/zoruui-domain/maintenance-mode-toggle';
+import { SubscribeAllButton } from '@/components/20ui-domain/subscribe-all-button';
+import { RunCronJobsButton } from '@/components/20ui-domain/run-cron-jobs-button';
+import { SyncLocalTemplatesButton } from '@/components/20ui-domain/sync-local-templates-button';
+import { WebhookProcessingToggle } from '@/components/20ui-domain/webhook-processing-toggle';
+import { DiwaliThemeToggle } from '@/components/20ui-domain/diwali-theme-toggle';
+import { AppLogoForm } from '@/components/20ui-domain/admin-logo-form';
+import { SystemBackupButton } from '@/components/20ui-domain/system-backup-button';
+import { MaintenanceModeToggle } from '@/components/20ui-domain/maintenance-mode-toggle';
 
 export const dynamic = 'force-dynamic';
 
