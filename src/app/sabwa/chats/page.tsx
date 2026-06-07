@@ -15,6 +15,10 @@ import {
   EmptyState,
   IconButton,
   Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -278,27 +282,27 @@ export default function SabWaChatsPage() {
       </div>
 
       {/* Header */}
-      <header className="flex items-start gap-3 border-b border-[var(--st-border)] px-4 py-4 md:px-6">
-        <span
-          aria-hidden="true"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-        >
-          <MessageSquare className="h-5 w-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] font-semibold leading-[1.2] tracking-[-0.015em] text-[var(--st-text)] md:text-2xl">
-              Chats
-            </h1>
-            <Badge tone="neutral">
-              {filtered.length} of {chats?.length ?? 0}
-            </Badge>
+      <PageHeader className="px-4 md:px-6">
+        <PageHeaderHeading className="flex flex-row items-start gap-3">
+          <span
+            aria-hidden="true"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <PageTitle>Chats</PageTitle>
+              <Badge tone="neutral">
+                {filtered.length} of {chats?.length ?? 0}
+              </Badge>
+            </div>
+            <PageDescription>
+              One-on-one conversations. Toggle bulk-select for sweeping actions.
+            </PageDescription>
           </div>
-          <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
-            One-on-one conversations. Toggle bulk-select for sweeping actions.
-          </p>
-        </div>
-      </header>
+        </PageHeaderHeading>
+      </PageHeader>
 
       {/* Desktop toolbar */}
       <div className="hidden items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 md:flex md:px-6">

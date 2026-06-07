@@ -1,14 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Card, CardHeader, CardTitle, Input } from '@/components/sabcrm/20ui';
+import { Search, ClipboardList } from 'lucide-react';
+import {
+  Badge,
+  Card,
+  CardHeader,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { PublicTaskboardView } from '@/app/actions/public-taskboard.actions';
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return 'No date';
   const d = new Date(iso);
   return Number.isNaN(d.getTime())
-    ? '—'
+    ? 'No date'
     : d.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -16,26 +29,20 @@ function formatDate(iso: string | null): string {
       });
 }
 
-const PRIORITY_VARIANT: Record<
-  string,
-  'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-  urgent: 'destructive',
-  high: 'secondary',
-  medium: 'default',
-  low: 'outline',
+const PRIORITY_TONE: Record<string, BadgeTone> = {
+  urgent: 'danger',
+  high: 'warning',
+  medium: 'accent',
+  low: 'neutral',
 };
 
-const STATUS_VARIANT: Record<
-  string,
-  'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-  done: 'default',
-  completed: 'default',
-  'in-progress': 'secondary',
-  review: 'secondary',
-  todo: 'outline',
-  incomplete: 'outline',
+const STATUS_TONE: Record<string, BadgeTone> = {
+  done: 'success',
+  completed: 'success',
+  'in-progress': 'info',
+  review: 'info',
+  todo: 'neutral',
+  incomplete: 'neutral',
 };
 
 export default function TaskboardClient({
@@ -66,30 +73,37 @@ export default function TaskboardClient({
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
-              Project taskboard
-            </p>
-            <CardTitle className="mt-1">{project.name}</CardTitle>
-            <p className="mt-1 text-sm text-[var(--st-text)]">
-              {formatDate(project.startDate)} &middot;{' '}
-              {formatDate(project.deadline)}
-            </p>
-          </div>
+          <PageHeader bordered={false} compact className="flex-1">
+            <PageHeaderHeading>
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+                Project taskboard
+              </p>
+              <PageTitle>{project.name}</PageTitle>
+              <PageDescription>
+                {formatDate(project.startDate)} to {formatDate(project.deadline)}
+              </PageDescription>
+            </PageHeaderHeading>
+          </PageHeader>
           <div className="flex flex-col items-end gap-2">
             <div className="flex items-center gap-2">
-              <Badge variant="outline">{project.status}</Badge>
-              <Badge variant="secondary">
-                {totalCards} tasks &middot; {columns.length} columns
+              <Badge tone="neutral" kind="outline">
+                {project.status}
+              </Badge>
+              <Badge tone="neutral">
+                {totalCards} tasks, {columns.length} columns
               </Badge>
             </div>
-            <div className="w-full sm:w-64 mt-2">
-              <Input
-                placeholder="Filter by assignee, tag, or title..."
-                value={filterText}
-                onChange={(e) => setFilterText(e.target.value)}
-                className="w-full"
-              />
+            <div className="mt-2 w-full sm:w-64">
+              <Field label="Filter tasks">
+                <Input
+                  iconLeft={Search}
+                  placeholder="Filter by assignee, tag, or title"
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  aria-label="Filter tasks by assignee, tag, or title"
+                  className="w-full"
+                />
+              </Field>
             </div>
           </div>
         </CardHeader>
@@ -98,14 +112,18 @@ export default function TaskboardClient({
       <div className="overflow-x-auto">
         <div className="flex min-w-full gap-4 pb-2">
           {filteredColumns.length === 0 ? (
-            <div className="w-full rounded-md border border-dashed border-[var(--st-border)] p-8 text-center text-sm text-[var(--st-text)]">
-              No taskboard columns configured for this project.
+            <div className="w-full">
+              <EmptyState
+                icon={ClipboardList}
+                title="No taskboard columns"
+                description="No taskboard columns are configured for this project."
+              />
             </div>
           ) : (
             filteredColumns.map((col) => (
               <div
                 key={col._id}
-                className="flex w-72 shrink-0 flex-col rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+                className="flex w-72 shrink-0 flex-col rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
               >
                 <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-2">
                   <div className="flex items-center gap-2">
@@ -118,7 +136,9 @@ export default function TaskboardClient({
                       {col.name}
                     </span>
                   </div>
-                  <Badge variant="outline">{col.cards.length}</Badge>
+                  <Badge tone="neutral" kind="outline">
+                    {col.cards.length}
+                  </Badge>
                 </div>
                 <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto p-2">
                   {col.cards.length === 0 ? (
@@ -129,44 +149,47 @@ export default function TaskboardClient({
                     col.cards.map((card) => (
                       <article
                         key={card._id}
-                        className="rounded-md border border-[var(--st-border)] bg-white p-3 shadow-sm"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-sm"
                       >
                         <h3 className="text-sm font-medium text-[var(--st-text)]">
                           {card.heading || 'Untitled task'}
                         </h3>
                         {card.description ? (
-                          <p className="mt-1 line-clamp-2 text-xs text-[var(--st-text)]">
+                          <p className="mt-1 line-clamp-2 text-xs text-[var(--st-text-secondary)]">
                             {card.description}
                           </p>
                         ) : null}
                         <div className="mt-2 flex flex-wrap items-center gap-1.5">
                           {card.priority ? (
                             <Badge
-                              variant={
-                                PRIORITY_VARIANT[card.priority.toLowerCase()] ||
-                                'outline'
+                              tone={
+                                PRIORITY_TONE[card.priority.toLowerCase()] ||
+                                'neutral'
                               }
                             >
                               {card.priority}
                             </Badge>
                           ) : null}
                           <Badge
-                            variant={
-                              STATUS_VARIANT[card.status.toLowerCase()] ||
-                              'outline'
+                            tone={
+                              STATUS_TONE[card.status.toLowerCase()] || 'neutral'
                             }
                           >
                             {card.status}
                           </Badge>
                           {card.tags && card.tags.length > 0
                             ? card.tags.map((tag) => (
-                                <Badge key={tag} variant="secondary" className="text-[10px]">
+                                <Badge
+                                  key={tag}
+                                  tone="neutral"
+                                  className="text-[10px]"
+                                >
                                   {tag}
                                 </Badge>
                               ))
                             : null}
                         </div>
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--st-text)]">
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--st-text-secondary)]">
                           <span>{formatDate(card.dueDate)}</span>
                           {card.assigneeName ? (
                             <span className="inline-flex items-center gap-1">

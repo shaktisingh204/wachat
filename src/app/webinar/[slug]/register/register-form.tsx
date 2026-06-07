@@ -64,7 +64,7 @@ export function RegisterForm({ slug, title, theme }: Props) {
   };
 
   return (
-    <main className="ui20" style={{ background: bg, color: fg, minHeight: '100vh' }}>
+    <main className="ui20 min-h-screen" style={{ background: bg, color: fg }}>
       <div className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
         <PageHeader bordered={false}>
           <PageHeaderHeading>
@@ -108,9 +108,10 @@ export function RegisterForm({ slug, title, theme }: Props) {
             variant="primary"
             block
             loading={pending}
-            style={{ background: accent, color: '#ffffff', borderColor: accent }}
+            className="text-white"
+            style={{ background: accent, borderColor: accent }}
           >
-            {pending ? 'Registering...' : (theme?.ctaLabel ?? 'Register')}
+            {pending ? 'Registering' : (theme?.ctaLabel ?? 'Register')}
           </Button>
         </form>
       </div>

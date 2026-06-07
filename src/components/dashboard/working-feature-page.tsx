@@ -1,6 +1,36 @@
 'use client';
 
-import { Badge, Button, Card, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Switch,
+  Table,
+  TBody,
+  Td,
+  Textarea,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Activity,
   CheckCircle2,
@@ -13,7 +43,7 @@ import {
   Settings,
   Trash2,
   type LucideIcon,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -72,10 +102,10 @@ const DEFAULT_RECORDS: FeatureRecord[] = [
   },
 ];
 
-const STATUS_VARIANT: Record<string, 'default' | 'success' | 'warning' | 'secondary'> = {
+const STATUS_TONE: Record<string, 'success' | 'warning' | 'neutral'> = {
   Active: 'success',
   Draft: 'warning',
-  Paused: 'secondary',
+  Paused: 'neutral',
 };
 
 function readRecords(key: string, fallback: FeatureRecord[]) {
@@ -148,13 +178,13 @@ export function WorkingFeaturePage({
     { label: 'Total', value: rows.length.toString() },
     { label: 'Active', value: rows.filter((row) => row.status === 'Active').length.toString() },
     { label: 'Drafts', value: rows.filter((row) => row.status === 'Draft').length.toString() },
-    { label: 'Updated', value: rows.filter((row) => row.updatedAt === 'Today').length.toString() },
+    { label: 'Updated today', value: rows.filter((row) => row.updatedAt === 'Today').length.toString() },
   ];
 
   const addRecord = () => {
     const name = newName.trim();
     if (!name) {
-      toast({ title: 'Name required', description: 'Enter a name before adding a record.' });
+      toast({ title: 'Name required', description: 'Enter a name before adding a record.', tone: 'warning' });
       return;
     }
     const next = [
@@ -171,14 +201,15 @@ export function WorkingFeaturePage({
     setRows(next);
     saveRecords(storageKey, next);
     setNewName('');
-    toast({ title: 'Added', description: `${name} was added to ${title}.` });
+    setNotes('');
+    toast({ title: 'Added', description: `${name} was added to ${title}.`, tone: 'success' });
   };
 
   const removeRecord = (id: string) => {
     const next = rows.filter((row) => row.id !== id);
     setRows(next);
     saveRecords(storageKey, next);
-    toast({ title: 'Removed', description: 'The record was removed.' });
+    toast({ title: 'Removed', description: 'The record was removed.', tone: 'neutral' });
   };
 
   const exportCsv = () => {
@@ -200,195 +231,214 @@ export function WorkingFeaturePage({
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex items-start gap-4">
-          <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{ background: accent }}
-          >
-            <Icon className="h-6 w-6" strokeWidth={1.75} />
+      <PageHeader>
+        <PageHeaderHeading>
+          <div className="flex items-start gap-4">
+            <span
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] text-white"
+              style={{ background: accent }}
+              aria-hidden="true"
+            >
+              <Icon className="h-6 w-6" strokeWidth={1.75} />
+            </span>
+            <div>
+              <PageEyebrow>{eyebrow}</PageEyebrow>
+              <PageTitle>{title}</PageTitle>
+              <PageDescription>{description}</PageDescription>
+            </div>
           </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
-              {eyebrow}
-            </p>
-            <h1 className="mt-1 text-[24px] font-semibold leading-tight text-[var(--st-text)]">
-              {title}
-            </h1>
-            <p className="mt-1 max-w-3xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-              {description}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportCsv}>
-            <Download className="h-4 w-4" /> Export
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={exportCsv}>
+            Export
           </Button>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={RefreshCw}
             onClick={() => {
               setRows(records);
               saveRecords(storageKey, records);
-              toast({ title: 'Refreshed', description: 'Sample workspace data restored.' });
+              toast({ title: 'Refreshed', description: 'Sample workspace data restored.', tone: 'neutral' });
             }}
           >
-            <RefreshCw className="h-4 w-4" /> Refresh
+            Refresh
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
-          <Card key={item.label} className="p-4">
-            <p className="text-[12px] text-[var(--st-text-secondary)]">{item.label}</p>
-            <p className="mt-2 text-[26px] font-semibold text-[var(--st-text)]">{item.value}</p>
-          </Card>
+          <StatCard key={item.label} label={item.label} value={item.value} />
         ))}
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <Card className="p-5">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-1 flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-                <Input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search records"
-                  className="pl-9"
-                />
+        <Card>
+          <CardBody>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-1 flex-col gap-2 sm:flex-row">
+                <div className="relative flex-1">
+                  <Input
+                    iconLeft={Search}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search records"
+                    aria-label="Search records"
+                  />
+                </div>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="w-full sm:w-44" aria-label="Filter by status">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Draft">Draft</SelectItem>
+                    <SelectItem value="Paused">Paused</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger className="w-full sm:w-44">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Draft">Draft</SelectItem>
-                  <SelectItem value="Paused">Paused</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
-          </div>
 
-          <div className="mt-5 overflow-x-auto rounded-lg border border-[var(--st-border)]">
-            <Table>
-              <THead>
-                <Tr>
-                  <Th>Name</Th>
-                  <Th>Owner</Th>
-                  <Th>Status</Th>
-                  <Th>Channel</Th>
-                  <Th>Updated</Th>
-                  <Th className="text-right">Actions</Th>
-                </Tr>
-              </THead>
-              <TBody>
-                {filtered.map((row) => (
-                  <Tr key={row.id}>
-                    <Td className="font-medium">{row.name}</Td>
-                    <Td>{row.owner}</Td>
-                    <Td>
-                      <Badge variant={STATUS_VARIANT[row.status] ?? 'default'}>
-                        {row.status}
-                      </Badge>
-                    </Td>
-                    <Td>{row.channel}</Td>
-                    <Td>{row.updatedAt}</Td>
-                    <Td className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => removeRecord(row.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </Td>
-                  </Tr>
-                ))}
-                {filtered.length === 0 ? (
+            <div className="mt-5 overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Table>
+                <THead>
                   <Tr>
-                    <Td colSpan={6} className="h-24 text-center text-[var(--st-text-secondary)]">
-                      No records match the current filters.
-                    </Td>
+                    <Th>Name</Th>
+                    <Th>Owner</Th>
+                    <Th>Status</Th>
+                    <Th>Channel</Th>
+                    <Th>Updated</Th>
+                    <Th align="right">Actions</Th>
                   </Tr>
-                ) : null}
-              </TBody>
-            </Table>
-          </div>
+                </THead>
+                <TBody>
+                  {filtered.map((row) => (
+                    <Tr key={row.id}>
+                      <Td className="font-medium">{row.name}</Td>
+                      <Td>{row.owner}</Td>
+                      <Td>
+                        <Badge tone={STATUS_TONE[row.status] ?? 'neutral'} dot>
+                          {row.status}
+                        </Badge>
+                      </Td>
+                      <Td>{row.channel}</Td>
+                      <Td>{row.updatedAt}</Td>
+                      <Td align="right">
+                        <IconButton
+                          label={`Remove ${row.name}`}
+                          icon={Trash2}
+                          variant="ghost"
+                          onClick={() => removeRecord(row.id)}
+                        />
+                      </Td>
+                    </Tr>
+                  ))}
+                  {filtered.length === 0 ? (
+                    <Tr>
+                      <Td colSpan={6}>
+                        <EmptyState
+                          icon={Search}
+                          title="No records match"
+                          description="No records match the current filters. Adjust the search or status filter to see more."
+                          size="sm"
+                        />
+                      </Td>
+                    </Tr>
+                  ) : null}
+                </TBody>
+              </Table>
+            </div>
+          </CardBody>
         </Card>
 
         <div className="flex flex-col gap-4">
-          <Card className="p-5">
-            <div className="flex items-center gap-2">
-              <Plus className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">{primaryActionLabel}</h2>
-            </div>
-            <div className="mt-4 flex flex-col gap-3">
-              <div>
-                <Label>Name</Label>
-                <Input value={newName} onChange={(event) => setNewName(event.target.value)} />
+          <Card>
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <Plus className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">{primaryActionLabel}</h2>
               </div>
-              <div>
-                <Label>Notes</Label>
-                <Textarea
-                  value={notes}
-                  onChange={(event) => setNotes(event.target.value)}
-                  placeholder="Internal note, audience rule, setup detail..."
-                  rows={4}
-                />
+              <div className="mt-4 flex flex-col gap-3">
+                <Field label="Name">
+                  <Input value={newName} onChange={(event) => setNewName(event.target.value)} />
+                </Field>
+                <Field label="Notes" help="Internal note, audience rule, or setup detail.">
+                  <Textarea
+                    value={notes}
+                    onChange={(event) => setNotes(event.target.value)}
+                    placeholder="Internal note, audience rule, setup detail"
+                    rows={4}
+                  />
+                </Field>
+                <Button variant="primary" iconLeft={CheckCircle2} onClick={addRecord}>
+                  Save record
+                </Button>
               </div>
-              <Button onClick={addRecord}>
-                <CheckCircle2 className="h-4 w-4" /> Save record
-              </Button>
-            </div>
+            </CardBody>
           </Card>
 
-          <Card className="p-5">
-            <div className="flex items-center gap-2">
-              <Settings className="h-4 w-4 text-[var(--st-text-secondary)]" />
-              <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Settings</h2>
-            </div>
-            <div className="mt-4 flex flex-col gap-4">
-              {settings.map((item) => (
-                <div key={item.label} className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="text-[13px] font-medium text-[var(--st-text)]">{item.label}</p>
-                    <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
-                      {item.description}
-                    </p>
+          <Card>
+            <CardBody>
+              <div className="flex items-center gap-2">
+                <Settings className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Settings</h2>
+              </div>
+              <div className="mt-4 flex flex-col gap-4">
+                {settings.map((item) => (
+                  <div key={item.label} className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[13px] font-medium text-[var(--st-text)]">{item.label}</p>
+                      <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
+                        {item.description}
+                      </p>
+                    </div>
+                    <Switch
+                      aria-label={item.label}
+                      checked={enabled[item.label] ?? false}
+                      onCheckedChange={(checked) =>
+                        setEnabled((prev) => ({ ...prev, [item.label]: checked }))
+                      }
+                    />
                   </div>
-                  <Switch
-                    checked={enabled[item.label] ?? false}
-                    onCheckedChange={(checked) =>
-                      setEnabled((prev) => ({ ...prev, [item.label]: checked }))
-                    }
-                  />
-                </div>
-              ))}
-              <Button
-                variant="outline"
-                onClick={() => toast({ title: 'Settings saved', description: `${title} preferences updated.` })}
-              >
-                <Save className="h-4 w-4" /> Save settings
-              </Button>
-            </div>
+                ))}
+                <Button
+                  variant="outline"
+                  iconLeft={Save}
+                  onClick={() =>
+                    toast({ title: 'Settings saved', description: `${title} preferences updated.`, tone: 'success' })
+                  }
+                >
+                  Save settings
+                </Button>
+              </div>
+            </CardBody>
           </Card>
 
           {quickLinks.length ? (
-            <Card className="p-5">
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Shortcuts</h2>
-              </div>
-              <div className="mt-3 flex flex-col gap-2">
-                {quickLinks.map((link) => (
-                  <Button key={link.href} variant="ghost" asChild className="justify-start">
-                    <a href={link.href}>
-                      <ExternalLink className="h-4 w-4" /> {link.label}
-                    </a>
-                  </Button>
-                ))}
-              </div>
+            <Card>
+              <CardBody>
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                  <h2 className="text-[15px] font-semibold text-[var(--st-text)]">Shortcuts</h2>
+                </div>
+                <div className="mt-3 flex flex-col gap-2">
+                  {quickLinks.map((link) => (
+                    <Button
+                      key={link.href}
+                      variant="ghost"
+                      iconLeft={ExternalLink}
+                      className="justify-start"
+                      onClick={() => {
+                        window.location.href = link.href;
+                      }}
+                    >
+                      {link.label}
+                    </Button>
+                  ))}
+                </div>
+              </CardBody>
             </Card>
           ) : null}
         </div>

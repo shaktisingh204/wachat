@@ -53,7 +53,6 @@ import {
   Heart,
   Home,
   Megaphone,
-  Pencil,
   Plus,
   Smile,
   Star,
@@ -490,21 +489,22 @@ function BulkAssignDialog({
                   </p>
                 ) : (
                   uncategorised.map((g) => (
-                    <label
+                    <Checkbox
                       key={g.jid}
-                      className="flex cursor-pointer items-center gap-3 p-2.5 hover:bg-[var(--st-bg-secondary)]"
-                    >
-                      <Checkbox
-                        checked={selected.has(g.jid)}
-                        onChange={() => toggle(g.jid)}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-[var(--st-text)]">{g.subject}</div>
-                        <div className="text-xs text-[var(--st-text-secondary)]">
-                          {g.participantCount} members
-                        </div>
-                      </div>
-                    </label>
+                      checked={selected.has(g.jid)}
+                      onChange={() => toggle(g.jid)}
+                      className="flex w-full items-center gap-3 p-2.5 hover:bg-[var(--st-bg-secondary)]"
+                      label={
+                        <span className="block min-w-0 flex-1">
+                          <span className="block truncate text-sm font-medium text-[var(--st-text)]">
+                            {g.subject}
+                          </span>
+                          <span className="block text-xs text-[var(--st-text-secondary)]">
+                            {g.participantCount} members
+                          </span>
+                        </span>
+                      }
+                    />
                   ))
                 )}
               </div>
@@ -763,6 +763,3 @@ export function CategoriesPageClient() {
     </div>
   );
 }
-
-// Lint silencers for icons referenced only via the curated map.
-void Pencil;

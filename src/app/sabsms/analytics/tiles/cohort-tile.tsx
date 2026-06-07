@@ -1,6 +1,14 @@
 import Link from "next/link";
+import { Grid3x3 } from "lucide-react";
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+} from "@/components/sabcrm/20ui";
 
 import { TileActions } from "./tile-actions";
 import type { SabsmsCohortCell } from "../aggregations";
@@ -12,8 +20,8 @@ export interface CohortTileProps {
 }
 
 /**
- * Cohort retention heatmap — a simple hand-rolled grid of color-graded
- * divs. Saturation tracks `retained` relative to the cohort's peak.
+ * Cohort retention heatmap. A grid of color-graded cells whose saturation
+ * tracks `retained` relative to the cohort's peak.
  */
 export function CohortTile({
   cells,
@@ -39,7 +47,7 @@ export function CohortTile({
         <div>
           <CardTitle>Cohort retention</CardTitle>
           <CardDescription>
-            Weekly cohorts × weeks-since-first-send. Darker = more retained.
+            Weekly cohorts by weeks-since-first-send. Darker means more retained.
           </CardDescription>
         </div>
         <div className="flex items-center gap-2 text-xs">
@@ -58,9 +66,11 @@ export function CohortTile({
       </CardHeader>
       <CardBody>
         {rows.size === 0 ? (
-          <p className="py-12 text-center text-sm text-[var(--st-text-secondary)]">
-            Not enough data to compute cohorts.
-          </p>
+          <EmptyState
+            icon={Grid3x3}
+            title="Not enough data to compute cohorts"
+            description="Send a few more campaigns and retention cohorts will appear here."
+          />
         ) : (
           <div className="space-y-1">
             {Array.from(rows.entries()).map(([cohort, list]) => (
@@ -75,7 +85,7 @@ export function CohortTile({
                     return (
                       <div
                         key={`${cohort}-${c.weekOffset}`}
-                        title={`${cohort} · w+${c.weekOffset}: ${c.retained}`}
+                        title={`${cohort}, w+${c.weekOffset}: ${c.retained}`}
                         className="h-6 flex-1 rounded-sm border border-[var(--st-border)]"
                         style={{
                           backgroundColor: `color-mix(in srgb, var(--st-text) calc(${

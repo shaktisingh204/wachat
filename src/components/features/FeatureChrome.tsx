@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/sabcrm/20ui';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
 import { LandingHeader } from '@/components/landing/landing-header';
@@ -16,7 +17,7 @@ export function FeatureHeader() {
 }
 
 /**
- * Per-category hero background pattern — gives each feature page a distinct
+ * Per-category hero background pattern. Gives each feature page a distinct
  * visual texture while keeping the theme cohesive (same color tokens, same
  * blur/halo system). The pattern overlays the existing radial gradient on
  * the /features/[slug] hero.
@@ -59,12 +60,12 @@ export function FeatureHeroPattern({
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 -z-0 opacity-70"
+      className="pointer-events-none absolute inset-0 -z-0 opacity-70 [mask-image:radial-gradient(ellipse_70%_60%_at_80%_20%,black_30%,transparent_80%)] [-webkit-mask-image:radial-gradient(ellipse_70%_60%_at_80%_20%,black_30%,transparent_80%)]"
       style={{
+        // Runtime-computed: pattern + size are derived from the `category`
+        // and `color` props, so they cannot be static Tailwind classes.
         backgroundImage: pattern,
         backgroundSize: size[category],
-        maskImage: 'radial-gradient(ellipse 70% 60% at 80% 20%, black 30%, transparent 80%)',
-        WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 80% 20%, black 30%, transparent 80%)',
       }}
     />
   );
@@ -72,7 +73,7 @@ export function FeatureHeroPattern({
 
 /**
  * Sub-nav strip under the header listing feature categories.
- * Keeps every feature category one click away — important for SEO interlinking.
+ * Keeps every feature category one click away, important for SEO interlinking.
  */
 export function FeatureCategoryStrip({ active }: { active?: string }) {
   return (
@@ -81,8 +82,10 @@ export function FeatureCategoryStrip({ active }: { active?: string }) {
         <div className="flex items-center gap-1 h-11 min-w-max">
           <Link
             href="/features"
-            className={`h-8 inline-flex items-center px-3 rounded-full text-[12.5px] font-semibold transition-colors ${
-              !active ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)] hover:text-[var(--st-text)]'
+            className={`h-8 inline-flex items-center px-3 rounded-[var(--st-radius)] text-[12.5px] font-semibold transition-colors ${
+              !active
+                ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                : 'text-[var(--st-text)] hover:text-[var(--st-accent)]'
             }`}
           >
             All
@@ -93,23 +96,22 @@ export function FeatureCategoryStrip({ active }: { active?: string }) {
               <Link
                 key={c.id}
                 href={`/features#${c.id}`}
-                className={`h-8 inline-flex items-center px-3 rounded-full text-[12.5px] font-semibold transition-colors ${
+                className={`h-8 inline-flex items-center px-3 rounded-[var(--st-radius)] text-[12.5px] font-semibold transition-colors ${
                   isActive
-                    ? 'bg-[var(--st-text)] text-white'
-                    : 'text-[var(--st-text)] hover:text-[var(--st-text)]'
+                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                    : 'text-[var(--st-text)] hover:text-[var(--st-accent)]'
                 }`}
-                style={isActive ? undefined : undefined}
               >
                 {c.label}
               </Link>
             );
           })}
-          <span className="mx-2 h-4 w-px bg-black/10" />
+          <span className="mx-2 h-4 w-px bg-[var(--st-border)]" aria-hidden />
           <Link
             href="/products"
-            className="h-8 inline-flex items-center gap-1 px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--st-text)] hover:text-[var(--st-text)]"
+            className="h-8 inline-flex items-center gap-1 px-3 text-[12px] font-bold uppercase tracking-[0.12em] text-[var(--st-text)] hover:text-[var(--st-accent)]"
           >
-            Explore products <ChevronRight className="h-3 w-3" />
+            Explore products <ChevronRight className="h-3 w-3" aria-hidden />
           </Link>
         </div>
       </div>
@@ -124,39 +126,47 @@ export function FeatureFooter() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-4">
             <SabNodeLogo className="h-7 w-auto" />
-            <p className="mt-4 text-[13px] text-[var(--st-text)] leading-relaxed max-w-xs">
-              SabNode is the operating layer for customer conversations — chat,
+            <p className="mt-4 text-[13px] text-[var(--st-text-secondary)] leading-relaxed max-w-xs">
+              SabNode is the operating layer for customer conversations. Chat,
               automation, CRM, broadcasts, commerce and AI in one workspace.
             </p>
             <div className="mt-6 flex items-center gap-2">
-              <Link href="/signup" className="sn-btn-primary inline-flex h-10 items-center gap-1.5 rounded-full px-5 text-[13px] font-semibold">
-                Start free
+              <Link href="/signup" className="inline-flex">
+                <Button variant="primary" size="md">
+                  Start free
+                </Button>
               </Link>
-              <Link href="/contact" className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)]">
-                Talk to sales <ArrowRight className="h-3.5 w-3.5" />
+              <Link
+                href="/contact"
+                className="inline-flex h-10 items-center gap-1.5 px-3 text-[13px] font-medium text-[var(--st-text)] hover:text-[var(--st-accent)]"
+              >
+                Talk to sales <ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
           </div>
 
           {FEATURE_CATEGORIES.slice(0, 4).map(c => (
             <div key={c.id} className="md:col-span-2">
-              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--st-text)]">
+              <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--st-text-secondary)]">
                 {c.label}
               </div>
-              <Link href={`/features#${c.id}`} className="mt-3 block text-[13px] text-[var(--st-text)] hover:text-[var(--st-text)]">
-                Browse →
+              <Link
+                href={`/features#${c.id}`}
+                className="mt-3 inline-flex items-center gap-1 text-[13px] text-[var(--st-text)] hover:text-[var(--st-accent)]"
+              >
+                Browse <ArrowRight className="h-3 w-3" aria-hidden />
               </Link>
             </div>
           ))}
         </div>
 
-        <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[12px] text-[var(--st-text)]">
+        <div className="mt-10 pt-6 border-t sn-hair flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-[12px] text-[var(--st-text-secondary)]">
           <div>© {new Date().getFullYear()} SabNode. All rights reserved.</div>
           <div className="flex items-center gap-4">
-            <Link href="/privacy-policy" className="hover:text-[var(--st-text)]">Privacy</Link>
-            <Link href="/terms-and-conditions" className="hover:text-[var(--st-text)]">Terms</Link>
-            <Link href="/status" className="hover:text-[var(--st-text)]">Status</Link>
-            <Link href="/contact" className="hover:text-[var(--st-text)]">Contact</Link>
+            <Link href="/privacy-policy" className="hover:text-[var(--st-accent)]">Privacy</Link>
+            <Link href="/terms-and-conditions" className="hover:text-[var(--st-accent)]">Terms</Link>
+            <Link href="/status" className="hover:text-[var(--st-accent)]">Status</Link>
+            <Link href="/contact" className="hover:text-[var(--st-accent)]">Contact</Link>
           </div>
         </div>
       </div>

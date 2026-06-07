@@ -128,10 +128,10 @@ export default async function FeatureDetailPage({
         </ol>
       </nav>
 
-      {/* ───────────── Hero ───────────── */}
+      {/* ----- Hero ----- */}
       <HeroSection feature={feature} categoryMeta={categoryMeta} />
 
-      {/* ───────────── Problem ───────────── */}
+      {/* ----- Problem ----- */}
       <section className="border-t sn-hair">
         <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
           <div className="grid grid-cols-12 gap-6 md:gap-10">
@@ -154,7 +154,7 @@ export default async function FeatureDetailPage({
         </div>
       </section>
 
-      {/* ───────────── Overview (editorial) ───────────── */}
+      {/* ----- Overview (editorial) ----- */}
       <section className="border-t sn-hair bg-[#FAF9F4]">
         <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
           <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7878A1]">
@@ -166,7 +166,7 @@ export default async function FeatureDetailPage({
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5 text-[16px] leading-[1.75] text-[#3a3a55]">
             {feature.overview.map((p, i) => (
-              <p key={i} className={i === 0 ? 'first-letter:font-display first-letter:text-[44px] first-letter:font-bold first-letter:leading-[0.9] first-letter:float-left first-letter:mr-2 first-letter:mt-1' : ''} style={i === 0 ? { color: '#121126' } : undefined}>
+              <p key={i} className={i === 0 ? 'text-[#121126] first-letter:font-display first-letter:text-[44px] first-letter:font-bold first-letter:leading-[0.9] first-letter:float-left first-letter:mr-2 first-letter:mt-1' : ''}>
                 {p}
               </p>
             ))}
@@ -180,19 +180,19 @@ export default async function FeatureDetailPage({
         capabilities={feature.capabilities} 
       />
 
-      {/* ───────────── Use cases ───────────── */}
+      {/* ----- Use cases ----- */}
       <UseCasesSection color={feature.color} useCases={feature.useCases} />
 
-      {/* ───────────── How it works ───────────── */}
+      {/* ----- How it works ----- */}
       <HowItWorksSection featureName={feature.name} color={feature.color} howItWorks={feature.howItWorks} />
 
-      {/* ───────────── Integrations ───────────── */}
+      {/* ----- Integrations ----- */}
       <PlatformIntegrations color={feature.color} integrations={feature.integrations} />
 
-      {/* ───────────── FAQ ───────────── */}
+      {/* ----- FAQ ----- */}
       <FaqSection featureName={feature.name} faqs={feature.faqs} />
 
-      {/* ───────────── Related features ───────────── */}
+      {/* ----- Related features ----- */}
       {related.length > 0 && (
         <section className="border-t sn-hair bg-[#FAF9F4]">
           <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
@@ -248,7 +248,7 @@ export default async function FeatureDetailPage({
         </section>
       )}
 
-      {/* ───────────── Final CTA band ───────────── */}
+      {/* ----- Final CTA band ----- */}
       <section className="relative overflow-hidden bg-[#0b0a1f] text-white">
         <div
           aria-hidden

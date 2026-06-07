@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { WifiOff } from 'lucide-react';
+import { Alert } from '@/components/sabcrm/20ui';
 import { SabFlowChat } from '@/components/sabflow/chat/SabFlowChat';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatGreeting } from './components/ChatGreeting';
@@ -14,7 +16,7 @@ interface Props {
 }
 
 /**
- * Client island for the embed chat shell — renders the chat surface and
+ * Client island for the embed chat shell. Renders the chat surface and
  * wires postMessage signalling to the parent (host page) window.
  */
 export default function EmbedClient({
@@ -63,29 +65,25 @@ export default function EmbedClient({
   }
 
   return (
-    <>
+    <div className="ui20 flex h-full flex-col">
       <ChatHeader
         widgetName={widgetName}
         primaryColor={primaryColor}
         onClose={handleClose}
         isOnline={isOnline}
       />
-      
+
       {!isOnline && (
-        <div style={{ padding: '8px 16px', background: '#fee2e2', color: '#991b1b', fontSize: 12, textAlign: 'center' }}>
+        <Alert tone="danger" icon={WifiOff} className="text-center">
           You are currently offline. Reconnecting...
-        </div>
+        </Alert>
       )}
 
       <ChatGreeting greeting={greeting} />
 
-      <section style={{ flex: 1, overflow: 'hidden' }}>
-        {flowId ? (
-          <SabFlowChat flowId={flowId} />
-        ) : (
-          <EmptyFlowFallback />
-        )}
+      <section className="flex-1 overflow-hidden">
+        {flowId ? <SabFlowChat flowId={flowId} /> : <EmptyFlowFallback />}
       </section>
-    </>
+    </div>
   );
 }

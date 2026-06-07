@@ -1,5 +1,14 @@
 import { notFound } from 'next/navigation';
+import { VideoOff } from 'lucide-react';
 import { getSabwebinarBySlug } from '@/app/actions/sabwebinar.actions';
+import {
+  Card,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,31 +34,39 @@ export default async function WebinarReplayPage({ params }: RouteArgs) {
   const fg = theme.textColor ?? '#ffffff';
 
   return (
-    <main style={{ background: bg, color: fg, minHeight: '100vh' }}>
+    <main className="ui20 min-h-screen" style={{ background: bg, color: fg }}>
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-12">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">{webinar.title}</h1>
-          <p className="opacity-70">Replay · webinar ended.</p>
-        </header>
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageTitle>{webinar.title}</PageTitle>
+            <PageDescription>Replay, webinar ended.</PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
 
-        <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
-          {webinar.recordingFileId ? (
-            // TODO(integrator): swap to a SabFiles-resolved playback URL.
-            <video
-              controls
-              playsInline
-              className="h-full w-full"
-              src={`/api/sabfiles/${webinar.recordingFileId}/stream`}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-sm opacity-60">
-              Recording not available yet.
-            </div>
-          )}
-        </div>
+        <Card padding="none" className="overflow-hidden">
+          <div className="aspect-video w-full bg-black">
+            {webinar.recordingFileId ? (
+              // TODO(integrator): swap to a SabFiles-resolved playback URL.
+              <video
+                controls
+                playsInline
+                className="h-full w-full"
+                src={`/api/sabfiles/${webinar.recordingFileId}/stream`}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                <EmptyState
+                  icon={VideoOff}
+                  title="Recording not available yet"
+                  description="The replay will appear here once the recording has finished processing."
+                />
+              </div>
+            )}
+          </div>
+        </Card>
 
         {webinar.description ? (
-          <p className="opacity-80">{webinar.description}</p>
+          <p className="text-[var(--st-text-secondary)]">{webinar.description}</p>
         ) : null}
       </div>
     </main>

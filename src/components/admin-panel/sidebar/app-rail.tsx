@@ -36,12 +36,11 @@ import { NotificationPopover } from '@/components/notifications/notification-pop
 import { useProject } from '@/context/project-context';
 import { can } from '@/lib/rbac';
 
-/* ─── App definitions ──────────────────────────────────────────────────────── */
+/* App definitions */
 
 /**
  * Each app has a primary permissionKey used to decide whether the icon is
- * shown in the rail. null → always shown (core surfaces every user gets).
- */
+ * shown in the rail. null -> always shown (core surfaces every user gets). */
 const ALL_APPS: { id: string; label: string; icon: any; href: string; permissionKey: string | null }[] = [
     { id: 'sabflow',        label: 'SabFlow',        icon: Workflow,         href: '/dashboard/sabflow',                permissionKey: null },
     { id: 'whatsapp',       label: 'WaChat',         icon: WhatsAppIcon,     href: '/wachat',                           permissionKey: 'wachat_overview' },
@@ -61,13 +60,13 @@ const ALL_APPS: { id: string; label: string; icon: any; href: string; permission
     { id: 'qr-code-maker',  label: 'QR Code',        icon: QrCode,           href: '/dashboard/qr-code-maker',          permissionKey: 'qr_code_maker' },
 ];
 
-/* ─── Types ──────────────────────────────────────────────────────────────────── */
+/* Types */
 
 interface AppRailProps {
     activeApp: string;
 }
 
-/* ─── Main Component ─────────────────────────────────────────────────────────── */
+/* Main Component */
 
 export function AppRail({ activeApp }: AppRailProps) {
     const pathname = usePathname();
@@ -84,7 +83,7 @@ export function AppRail({ activeApp }: AppRailProps) {
     // (rbac.ts returns true when no explicit deny exists). Entries without
     // a permissionKey are always shown.
     const visibleApps = React.useMemo(() => {
-        // Before permissions have loaded, show everything — avoids a flash
+        // Before permissions have loaded, show everything, avoiding a flash
         // of an empty rail on first paint.
         if (!effectivePermissions) return ALL_APPS;
         return ALL_APPS.filter((app) => {
@@ -95,12 +94,9 @@ export function AppRail({ activeApp }: AppRailProps) {
 
     return (
         <nav
-            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
-            style={{
-                boxShadow: '0 1px 3px hsl(240 6% 10% / 0.04)',
-            }}
+            className="hidden md:flex flex-col h-[calc(100vh-1rem)] w-[64px] shrink-0 m-2 mr-0 rounded-2xl z-20 overflow-hidden bg-[var(--st-bg-secondary)] border border-[var(--st-border)] shadow-sm"
         >
-            {/* ── Logo — black wordmark on white ── */}
+            {/* Logo: black wordmark on white */}
             <div className="flex items-center justify-center pt-4 pb-3 shrink-0">
                 <Link
                     href="/dashboard"
@@ -110,10 +106,10 @@ export function AppRail({ activeApp }: AppRailProps) {
                 </Link>
             </div>
 
-            {/* ── Divider ── */}
+            {/* Divider */}
             <Divider />
 
-            {/* ── Scrollable nav ── */}
+            {/* Scrollable nav */}
             <div className="flex-1 flex flex-col items-center gap-0.5 overflow-y-auto overflow-x-hidden py-2 scroll-container">
 
                 {/* Home */}
@@ -141,10 +137,10 @@ export function AppRail({ activeApp }: AppRailProps) {
                 ))}
             </div>
 
-            {/* ── Divider ── */}
+            {/* Divider */}
             <Divider />
 
-            {/* ── Footer ── */}
+            {/* Footer */}
             <div className="flex flex-col items-center gap-0.5 py-2 shrink-0">
                 {/* Notifications */}
                 <div className="flex justify-center w-full">
@@ -161,14 +157,14 @@ export function AppRail({ activeApp }: AppRailProps) {
 
                 <Divider />
 
-                {/* User avatar → user settings */}
+                {/* User avatar -> user settings */}
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Link
                             href="/dashboard/user/profile"
                             className="flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-105 mt-0.5"
                         >
-                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-border transition-all duration-200">
+                            <Avatar className="h-8 w-8 ring-2 ring-transparent hover:ring-[var(--st-border)] transition-all duration-200">
                                 <AvatarImage src={avatarSrc} />
                                 <AvatarFallback className="text-[11px] font-bold bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                                     {initials}
@@ -196,7 +192,7 @@ export function AppRail({ activeApp }: AppRailProps) {
     );
 }
 
-/* ─── Rail Item ──────────────────────────────────────────────────────────────── */
+/* Rail Item */
 
 function RailItem({
     icon: Icon,
@@ -243,10 +239,10 @@ function RailItem({
     );
 }
 
-/* ─── Divider ────────────────────────────────────────────────────────────────── */
+/* Divider */
 
 function Divider() {
     return (
-        <div className="w-8 h-px my-1.5 shrink-0 rounded-full bg-border" />
+        <div className="w-8 h-px my-1.5 shrink-0 rounded-full bg-[var(--st-border)]" />
     );
 }

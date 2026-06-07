@@ -18,7 +18,7 @@ async function Inner() {
 
 export default function HrmProductPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen" style={{ background: '#021019' }} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#021019]" />}>
             <Inner />
         </Suspense>
     );

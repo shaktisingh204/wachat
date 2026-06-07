@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
     title: 'SEO · Growth surface | SabNode',
-    description: 'Landing pages, sitemap, schema, link tracking, A/B tests — your acquisition rails.',
+    description: 'Landing pages, sitemap, schema, link tracking, A/B tests. Your acquisition rails.',
 };
 
 async function Inner() {
@@ -18,7 +18,7 @@ async function Inner() {
 
 export default function SeoProductPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen" style={{ background: '#170611' }} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#170611]" />}>
             <Inner />
         </Suspense>
     );

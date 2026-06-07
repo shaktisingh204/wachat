@@ -2,7 +2,7 @@
  * Iframe-friendly chat shell loaded by `/public/embed/widget.js`.
  *
  * Reuses the existing SabFlow chat component so we don't fork the chat UI.
- * Renders with no app chrome — no header, no nav, no global layout — and
+ * Renders with no app chrome (no header, no nav, no global layout) and
  * lets a small client island handle postMessage signalling to the host.
  */
 
@@ -66,7 +66,7 @@ export default async function EmbedChatPage(props: {
 }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  // Mark dynamic — origin is checked in the API; the page itself is per-widget.
+  // Mark dynamic: origin is checked in the API; the page itself is per-widget.
   await headers();
 
   const widget = await loadWidget(params.id);
@@ -86,15 +86,11 @@ export default async function EmbedChatPage(props: {
 
   return (
     <main
+      className="ui20 m-0 flex h-screen flex-col p-0"
       style={{
-        margin: 0,
-        padding: 0,
-        height: '100vh',
         background: widget.theme?.background ?? '#ffffff',
         color: widget.theme?.foreground ?? '#0f172a',
         fontFamily,
-        display: 'flex',
-        flexDirection: 'column',
       }}
       data-sabnode-widget={widget.id}
       data-sabnode-locale={localeParam ?? widget.locale ?? 'en'}

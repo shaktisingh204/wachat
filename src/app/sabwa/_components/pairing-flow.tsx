@@ -4,20 +4,20 @@ import { Button, Badge, cn } from '@/components/sabcrm/20ui';
 import { Loader2, RefreshCw, Smartphone } from 'lucide-react';
 
 /**
- * PairingFlow — visualises a SabWa session moving through
- * Waiting → Pairing → Syncing → Ready by subscribing to
+ * PairingFlow - visualises a SabWa session moving through
+ * Waiting, Pairing, Syncing, Ready by subscribing to
  * `useSabwaStream(sessionId)`.
  *
  * Two modes:
- *   - `mode='qr'`   — renders a 264×264 QR code refreshing every 30s.
- *   - `mode='code'` — renders an 8-character pair code in monospace.
+ *   - `mode='qr'`   renders a 264x264 QR code refreshing every 30s.
+ *   - `mode='code'` renders an 8-character pair code in monospace.
  *
  * The parent owns the session lifecycle (calls `pairSession` to create
  * it, then renders this component). On the first transition to
  * 'connected' we fire `onPaired` exactly once so the page can navigate
  * away (typically to /sabwa/inbox).
  *
- * Rebuilt on ZoruUI primitives — neutral palette, no clay-* utilities.
+ * Built on 20ui primitives. Neutral palette, no clay-* utilities.
  */
 
 import * as React from 'react';
@@ -107,7 +107,7 @@ export function PairingFlow({
       <div className="flex items-center gap-2">
         <StatusBadge status={badgeStatus} />
         {stream.error ? (
-          <Badge variant="danger" className="text-[10.5px]">
+          <Badge tone="danger" className="text-[10.5px]">
             {stream.error}
           </Badge>
         ) : null}
@@ -117,19 +117,13 @@ export function PairingFlow({
         <div className="flex flex-col items-center gap-3">
           <div
             aria-label="WhatsApp pairing QR code"
-            className="relative max-w-full rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-white p-4 shadow-[var(--st-shadow-sm)]"
-            style={{ width: 296, height: 296, maxWidth: '100%' }}
+            className="relative h-[296px] w-[296px] max-w-full rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-white p-4 shadow-[var(--st-shadow-sm)]"
           >
             {qr ? (
-              <QRCode
-                value={qr}
-                size={264}
-                level="M"
-                style={{ height: 264, width: 264 }}
-              />
+              <QRCode value={qr} size={264} level="M" />
             ) : (
               <div className="flex h-[264px] w-[264px] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
+                <Loader2 className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" aria-hidden />
               </div>
             )}
             <div
@@ -148,11 +142,11 @@ export function PairingFlow({
                 type="button"
                 variant="ghost"
                 size="sm"
+                iconLeft={RefreshCw}
                 onClick={onRefresh}
                 className="h-7 gap-1.5 px-2"
               >
-                <RefreshCw />
-                <span>Refresh now</span>
+                Refresh now
               </Button>
             )}
           </div>
@@ -165,17 +159,17 @@ export function PairingFlow({
             </p>
             <p className="mt-2 font-mono text-[28px] font-bold tracking-[0.3em] text-[var(--st-text)]">
               {pairCode ? (
-                // Engine already formats as XXXX-XXXX; normalise here so
+                // Engine already formats as XXXX-XXXX. Normalise here so
                 // both the initial value from pairSession and live SSE
                 // events (which may arrive as raw 8 chars) render uniformly.
                 pairCode.replace(/-/g, '').replace(/^(.{4})(.{4})$/, '$1-$2') || pairCode
               ) : (
-                <Loader2 className="inline h-7 w-7 animate-spin text-[var(--st-text-secondary)]" />
+                <Loader2 className="inline h-7 w-7 animate-spin text-[var(--st-text-secondary)]" aria-hidden />
               )}
             </p>
             <p className="mt-3 max-w-xs text-[12px] text-[var(--st-text-secondary)]">
               Enter this 8-character code on your phone under{' '}
-              <strong>Linked devices → Link with phone number</strong>.
+              <strong>Linked devices, Link with phone number</strong>.
             </p>
           </div>
         </div>

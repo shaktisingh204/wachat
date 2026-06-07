@@ -164,7 +164,8 @@ export function PublicCheckoutForm({
         variant="primary"
         block
         loading={busy}
-        style={{ backgroundColor: accent, color: 'var(--st-text-inverted)' }}
+        className="text-[var(--st-text-inverted)]"
+        style={{ backgroundColor: accent }}
       >
         {busy ? 'Processing...' : 'Pay and reserve tickets'}
       </Button>

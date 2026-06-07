@@ -24,7 +24,7 @@ export function FunnelTile({
         <div>
           <CardTitle>Funnel</CardTitle>
           <CardDescription>
-            Sent → Delivered → Clicked → Replied, with drop-off between
+            Sent to Delivered to Clicked to Replied, with drop-off between
             each step.
           </CardDescription>
         </div>
@@ -51,9 +51,10 @@ export function FunnelTile({
                 <span className="w-24 text-sm text-[var(--st-text-secondary)]">
                   {s.step}
                 </span>
-                <div className="relative h-7 flex-1 overflow-hidden rounded bg-[var(--st-bg-muted)]">
+                <div className="relative h-7 flex-1 overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                   <div
-                    className="h-full bg-[var(--st-text)]/70"
+                    aria-hidden="true"
+                    className="h-full bg-[var(--st-accent)]"
                     style={{ width: `${widthPct}%` }}
                   />
                   <span className="absolute inset-0 flex items-center px-2 text-xs font-medium text-[var(--st-text)]">
@@ -61,7 +62,7 @@ export function FunnelTile({
                   </span>
                 </div>
                 <span className="w-16 text-right text-xs text-[var(--st-text-secondary)]">
-                  {s.drop > 0 ? `−${s.drop}%` : "—"}
+                  {s.drop > 0 ? `-${s.drop}%` : "-"}
                 </span>
               </li>
             );

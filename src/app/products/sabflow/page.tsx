@@ -20,7 +20,7 @@ async function Inner() {
 
 export default function SabflowProductPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen" style={{ background: '#0c0617' }} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#0c0617]" />}>
             <Inner />
         </Suspense>
     );

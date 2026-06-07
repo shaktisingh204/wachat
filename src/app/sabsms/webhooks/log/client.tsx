@@ -2,9 +2,28 @@
 
 import * as React from "react";
 import { formatUTC } from "@/lib/utils";
-import { Copy, FileJson, Play, RefreshCw, ServerCrash, Clock, AlertTriangle, Code2, TerminalSquare, Activity, ShieldCheck } from "lucide-react";
+import { Copy, FileJson, RefreshCw, ServerCrash, Clock, AlertTriangle, Code2, TerminalSquare, Activity, ShieldCheck } from "lucide-react";
 
-import { Alert, AlertTitle, AlertDescription, Badge, Button, ScrollArea, Card, CardHeader, CardTitle, CardBody, useToast, Kbd, ResizablePanelGroup, ResizablePanel, ResizableHandle, Input } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Badge,
+  type BadgeTone,
+  Button,
+  ScrollArea,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  useToast,
+  Kbd,
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+  Field,
+  Input,
+} from "@/components/sabcrm/20ui";
 
 import {
   useSabsmsUrlState,
@@ -12,7 +31,6 @@ import {
   SabsmsFilterBar,
   SabsmsDataTable,
   type SabsmsColumn,
-  type SabsmsFacet,
   type SabsmsRowAction,
 } from "@/components/sabsms/page-toolkit";
 import { SabsmsBulkAction } from "@/components/sabsms/page-toolkit/sabsms-bulk-actions";
@@ -119,8 +137,8 @@ const MOCK_DATA: WebhookLogEntry[] = [
 ];
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-const ACTIVE_MOCK_DATA = MOCK_DATA.filter(row => {
-  return (Date.now() - new Date(row.createdAt).getTime()) < SEVEN_DAYS_MS;
+const ACTIVE_MOCK_DATA = MOCK_DATA.filter((row) => {
+  return Date.now() - new Date(row.createdAt).getTime() < SEVEN_DAYS_MS;
 });
 
 const FACETS: any[] = [
@@ -156,27 +174,35 @@ const FACETS: any[] = [
   },
 ];
 
+/** Map a delivery status to a meaningful 20ui Badge tone (colour carries meaning). */
+function statusTone(status: WebhookLogEntry["status"]): BadgeTone {
+  if (status === "delivered") return "success";
+  if (status === "failed") return "danger";
+  return "warning";
+}
+
 const syntaxHighlight = (jsonStr: string) => {
   try {
-    const obj = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+    const obj = typeof jsonStr === "string" ? JSON.parse(jsonStr) : jsonStr;
     const formatted = JSON.stringify(obj, null, 2);
-    return formatted.replace(/("(\\\\u[a-zA-Z0-9]{4}|\\\\[^u]|[^\\\\"])*"(\\s*:)?|\\b(true|false|null)\\b|-?\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d+)?)/g, function (match) {
-      let cls = 'text-[var(--st-text-secondary)]';
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) {
-          cls = 'text-[var(--st-text-secondary)]'; // Key
+    return formatted.replace(
+      /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+      function (match) {
+        let cls = "text-[var(--st-text-secondary)]";
+        if (/^"/.test(match)) {
+          cls = /:$/.test(match)
+            ? "text-[var(--st-text)]" // key
+            : "text-[var(--st-status-ok)]"; // string
+        } else if (/true|false/.test(match)) {
+          cls = "text-[var(--st-accent)]"; // boolean
+        } else if (/null/.test(match)) {
+          cls = "text-[var(--st-text-tertiary)]"; // null
         } else {
-          cls = 'text-[var(--st-text-secondary)]'; // String
+          cls = "text-[var(--st-warn)]"; // number
         }
-      } else if (/true|false/.test(match)) {
-        cls = 'text-[var(--st-text-secondary)]'; // Boolean
-      } else if (/null/.test(match)) {
-        cls = 'text-[var(--st-text-secondary)]'; // Null
-      } else {
-        cls = 'text-[var(--st-text-secondary)]'; // Number
-      }
-      return '<span class="' + cls + '">' + match + '</span>';
-    });
+        return '<span class="' + cls + '">' + match + "</span>";
+      },
+    );
   } catch (e) {
     return jsonStr;
   }
@@ -204,21 +230,21 @@ export default function WebhookLogClient() {
   const statuses = urlState.getAll("status");
   const events = urlState.getAll("event");
   const endpoints = urlState.getAll("endpoint");
-  
+
   const msgIdQuery = urlState.get("msgId") || "";
-  
+
   const filteredData = React.useMemo(() => {
     return ACTIVE_MOCK_DATA.filter((row) => {
       if (statuses.length > 0 && !statuses.includes(row.status)) return false;
       if (events.length > 0 && !events.includes(row.event)) return false;
       if (endpoints.length > 0 && !endpoints.includes(row.endpoint)) return false;
-      
+
       if (msgIdQuery) {
         if (!row.sourceMessageId || !row.sourceMessageId.toLowerCase().includes(msgIdQuery.toLowerCase())) {
           return false;
         }
       }
-      
+
       if (query) {
         const q = query.toLowerCase();
         return (
@@ -238,15 +264,7 @@ export default function WebhookLogClient() {
     {
       id: "status",
       header: "Status",
-      render: (r) => (
-        <Badge
-          variant={
-            r.status === "delivered" ? "default" : r.status === "failed" ? "destructive" : "secondary"
-          }
-        >
-          {r.status}
-        </Badge>
-      ),
+      render: (r) => <Badge tone={statusTone(r.status)}>{r.status}</Badge>,
     },
     {
       id: "event",
@@ -266,7 +284,11 @@ export default function WebhookLogClient() {
       id: "httpStatus",
       header: "HTTP",
       render: (r) => (
-        <span className={`font-mono text-xs ${r.httpStatus >= 400 ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}>
+        <span
+          className={`font-mono text-xs ${
+            r.httpStatus >= 400 ? "text-[var(--st-danger)]" : "text-[var(--st-status-ok)]"
+          }`}
+        >
           {r.httpStatus}
         </span>
       ),
@@ -275,16 +297,14 @@ export default function WebhookLogClient() {
     {
       id: "latency",
       header: "Latency",
-      render: (r) => <span className="text-xs text-[var(--st-text)]">{r.latencyMs} ms</span>,
+      render: (r) => <span className="text-xs text-[var(--st-text-secondary)]">{r.latencyMs} ms</span>,
       align: "right",
     },
     {
       id: "createdAt",
       header: "Timestamp",
       render: (r) => (
-        <span className="text-xs text-[var(--st-text)]">
-          {formatUTC(r.createdAt, true)}
-        </span>
+        <span className="text-xs text-[var(--st-text-secondary)]">{formatUTC(r.createdAt, true)}</span>
       ),
     },
   ];
@@ -293,18 +313,19 @@ export default function WebhookLogClient() {
     toast({
       title: "Delivery replayed",
       description: `Replay queued for ${row.id}. Audit log updated.`,
+      tone: "success",
     });
   };
 
   const rowActions: SabsmsRowAction<WebhookLogEntry>[] = [
     {
       label: "View details",
-      icon: <FileJson className="h-4 w-4" />,
+      icon: <FileJson className="h-4 w-4" aria-hidden="true" />,
       onSelect: (r) => setSelectedRow(r),
     },
     {
       label: "Replay delivery",
-      icon: <RefreshCw className="h-4 w-4" />,
+      icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
       onSelect: handleReplay,
     },
   ];
@@ -312,9 +333,9 @@ export default function WebhookLogClient() {
   const bulkActions: SabsmsBulkAction<WebhookLogEntry>[] = [
     {
       label: "Replay failed",
-      icon: <RefreshCw className="h-4 w-4" />,
+      icon: <RefreshCw className="h-4 w-4" aria-hidden="true" />,
       onSelect: (rows) => {
-        const failedCount = rows.filter(r => r.status !== "delivered").length;
+        const failedCount = rows.filter((r) => r.status !== "delivered").length;
         toast({
           title: "Bulk replay initiated",
           description: `Queued ${failedCount} failed webhooks for replay.`,
@@ -325,16 +346,8 @@ export default function WebhookLogClient() {
   ];
 
   const handleExport = () => {
-    toast({ title: "Export started", description: "Batch JSONL export is downloading..." });
+    toast({ title: "Export started", description: "Batch JSONL export is downloading." });
   };
-
-  const activeFacets = React.useMemo(() => {
-    const acc: Record<string, string[]> = {};
-    if (statuses.length) acc.status = statuses;
-    if (events.length) acc.event = events;
-    if (endpoints.length) acc.endpoint = endpoints;
-    return acc;
-  }, [statuses, events, endpoints]);
 
   return (
     <SabsmsPageShell
@@ -344,11 +357,15 @@ export default function WebhookLogClient() {
       helpTitle="Delivery Logs"
       helpBody="Every webhook attempt is logged here. Failed deliveries are automatically retried via exponential backoff before landing in the DLQ."
       secondaryActions={[
-        { label: "Export JSONL", icon: <FileJson className="h-4 w-4" />, onSelectAction: handleExport },
-        { label: "Share View URL", icon: <Copy className="h-4 w-4" />, onSelectAction: () => {
-          navigator.clipboard.writeText(window.location.href);
-          toast({ title: "URL copied", description: "Filters saved to clipboard." });
-        }},
+        { label: "Export JSONL", icon: <FileJson className="h-4 w-4" aria-hidden="true" />, onSelectAction: handleExport },
+        {
+          label: "Share View URL",
+          icon: <Copy className="h-4 w-4" aria-hidden="true" />,
+          onSelectAction: () => {
+            navigator.clipboard.writeText(window.location.href);
+            toast({ title: "URL copied", description: "Filters saved to clipboard." });
+          },
+        },
       ]}
       toolbar={
         <div className="flex gap-2">
@@ -366,62 +383,59 @@ export default function WebhookLogClient() {
       }
     >
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-         <Card className="border-[var(--st-border)]/60 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[var(--st-text)]"/> HTTP Status Codes
-              </CardTitle>
-            </CardHeader>
-            <CardBody className="flex items-end gap-2 h-20">
-               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "80%" }} title="2xx: 80%" />
-               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "10%" }} title="4xx: 10%" />
-               <div className="bg-[var(--st-text)] w-1/3 rounded-t-sm transition-all hover:opacity-80" style={{ height: "30%" }} title="5xx: 30%" />
-            </CardBody>
-         </Card>
-         <Card className="border-[var(--st-border)]/60 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
-                <Activity className="w-4 h-4 text-[var(--st-text)]"/> Latency Overview (ms)
-              </CardTitle>
-            </CardHeader>
-            <CardBody className="flex items-center gap-6 h-20">
-               <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">145</span>
-                 <span className="text-xs text-[var(--st-text)] font-medium">P50</span>
-               </div>
-               <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">420</span>
-                 <span className="text-xs text-[var(--st-text)] font-medium">P95</span>
-               </div>
-               <div className="flex flex-col">
-                 <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">3k</span>
-                 <span className="text-xs text-[var(--st-text)] font-medium">Max</span>
-               </div>
-            </CardBody>
-         </Card>
-         <Card className="bg-[var(--st-text)] text-white border-[var(--st-border)] shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)] flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[var(--st-text-secondary)]"/> Webhook Health
-              </CardTitle>
-            </CardHeader>
-            <CardBody className="flex flex-col justify-center h-20">
-               <div className="flex items-baseline gap-2">
-                 <span className="text-4xl font-bold text-[var(--st-text-secondary)] tracking-tighter">98.4%</span>
-                 <span className="text-sm text-[var(--st-text-secondary)] font-medium">Success Rate</span>
-               </div>
-               <div className="text-xs text-[var(--st-text)] mt-1">Last 24 hours • 1.2M deliveries</div>
-            </CardBody>
-         </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> HTTP Status Codes
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="flex items-end gap-2 h-20">
+            <div className="bg-[var(--st-status-ok)] w-1/3 rounded-t-sm transition-all hover:opacity-80 h-[80%]" title="2xx: 80%" />
+            <div className="bg-[var(--st-warn)] w-1/3 rounded-t-sm transition-all hover:opacity-80 h-[10%]" title="4xx: 10%" />
+            <div className="bg-[var(--st-danger)] w-1/3 rounded-t-sm transition-all hover:opacity-80 h-[30%]" title="5xx: 30%" />
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+              <Activity className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Latency Overview (ms)
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="flex items-center gap-6 h-20">
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">145</span>
+              <span className="text-xs text-[var(--st-text-secondary)] font-medium">P50</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">420</span>
+              <span className="text-xs text-[var(--st-text-secondary)] font-medium">P95</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold font-mono tracking-tight text-[var(--st-text)]">3k</span>
+              <span className="text-xs text-[var(--st-text-secondary)] font-medium">Max</span>
+            </div>
+          </CardBody>
+        </Card>
+        <Card variant="elevated">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Webhook Health
+            </CardTitle>
+          </CardHeader>
+          <CardBody className="flex flex-col justify-center h-20">
+            <div className="flex items-baseline gap-2">
+              <span className="text-4xl font-bold text-[var(--st-status-ok)] tracking-tighter">98.4%</span>
+              <span className="text-sm text-[var(--st-text-secondary)] font-medium">Success Rate</span>
+            </div>
+            <div className="text-xs text-[var(--st-text-tertiary)] mt-1">Last 24 hours, 1.2M deliveries</div>
+          </CardBody>
+        </Card>
       </div>
 
       <div className="space-y-4">
-        <Alert className="bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]">
-          <AlertTriangle className="h-4 w-4 !text-[var(--st-text)]" />
-          <AlertTitle className="text-[var(--st-text)]">Aggressive Retention Policy Active</AlertTitle>
-          <AlertDescription className="text-[var(--st-text)]">
-            Due to high volume, webhook logs are automatically purged after 7 days. Older logs are permanently deleted and cannot be recovered or replayed.
-          </AlertDescription>
+        <Alert tone="warning" title="Aggressive Retention Policy Active">
+          Due to high volume, webhook logs are automatically purged after 7 days. Older logs are
+          permanently deleted and cannot be recovered or replayed.
         </Alert>
 
         <SabsmsFilterBar
@@ -430,79 +444,109 @@ export default function WebhookLogClient() {
           facets={FACETS}
           trailing={
             <div className="flex items-center gap-2 mr-4 border-r pr-4 border-[var(--st-border)]">
-               <span className="text-sm font-medium text-[var(--st-text)]">Msg ID:</span>
-               <Input 
-                 value={msgIdInput} 
-                 onChange={(e) => setMsgIdInput(e.target.value)} 
-                 placeholder="msg_..." 
-                 className="h-8 w-[150px]" 
-               />
+              <Field label="Msg ID" className="!gap-0 flex-row items-center gap-2">
+                <Input
+                  value={msgIdInput}
+                  onChange={(e) => setMsgIdInput(e.target.value)}
+                  placeholder="msg_..."
+                  inputSize="sm"
+                  className="w-[150px]"
+                />
+              </Field>
             </div>
           }
         />
-        
-        <Card className="border shadow-sm overflow-hidden flex flex-col h-[600px] xl:h-[800px]">
-          <ResizablePanelGroup direction="horizontal" className="flex-1 w-full h-full">
-            <ResizablePanel defaultSize={55} minSize={30} className="h-full flex flex-col bg-white">
-               <div className="flex-1 overflow-hidden p-2">
-                   <SabsmsDataTable
-                     columns={columns}
-                     rows={pagedData}
-                     rowKey={(r) => r.id}
-                     total={filteredData.length}
-                     page={page}
-                     pageSize={pageSize}
-                     onPageChange={setPage}
-                     onPageSizeChange={setPageSize}
-                     selectable
-                     selectedIds={selectedIds}
-                     onSelectionChange={setSelectedIds}
-                     bulkActions={bulkActions}
-                     rowActions={rowActions}
-                     onRowClick={setSelectedRow}
-                   />
-               </div>
+
+        <Card padding="none" className="overflow-hidden flex flex-col h-[600px] xl:h-[800px]">
+          <ResizablePanelGroup orientation="horizontal" className="flex-1 w-full h-full">
+            <ResizablePanel defaultSize={55} minSize={30} className="h-full flex flex-col bg-[var(--st-bg)]">
+              <div className="flex-1 overflow-hidden p-2">
+                <SabsmsDataTable
+                  columns={columns}
+                  rows={pagedData}
+                  rowKey={(r) => r.id}
+                  total={filteredData.length}
+                  page={page}
+                  pageSize={pageSize}
+                  onPageChange={setPage}
+                  onPageSizeChange={setPageSize}
+                  selectable
+                  selectedIds={selectedIds}
+                  onSelectionChange={setSelectedIds}
+                  bulkActions={bulkActions}
+                  rowActions={rowActions}
+                  onRowClick={setSelectedRow}
+                />
+              </div>
             </ResizablePanel>
 
             <ResizableHandle withHandle />
 
-            <ResizablePanel defaultSize={45} minSize={25} className="h-full bg-[var(--st-bg-muted)] flex flex-col border-l">
+            <ResizablePanel
+              defaultSize={45}
+              minSize={25}
+              className="h-full bg-[var(--st-bg-secondary)] flex flex-col border-l border-[var(--st-border)]"
+            >
               {selectedRow ? (
                 <ScrollArea className="flex-1">
                   <div className="p-6 space-y-8">
                     {/* Header */}
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <Badge variant={selectedRow.status === "delivered" ? "default" : selectedRow.status === "failed" ? "destructive" : "secondary"} className="text-sm px-3 py-1 font-medium shadow-sm">
+                        <Badge tone={statusTone(selectedRow.status)} className="text-sm px-3 py-1 font-medium">
                           {selectedRow.status.toUpperCase()}
                         </Badge>
-                        <span className="text-sm font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)]/50 px-2 py-1 rounded-md">{formatUTC(selectedRow.createdAt, true)}</span>
+                        <span className="text-sm font-mono text-[var(--st-text-secondary)] bg-[var(--st-bg)] px-2 py-1 rounded-[var(--st-radius)]">
+                          {formatUTC(selectedRow.createdAt, true)}
+                        </span>
                       </div>
-                      <h2 className="text-2xl font-bold font-mono tracking-tight mb-2 text-[var(--st-text)]">{selectedRow.event}</h2>
-                      <p className="text-sm text-[var(--st-text)] font-mono break-all flex items-center gap-2">
-                         <TerminalSquare className="w-4 h-4" /> {selectedRow.id}
+                      <h2 className="text-2xl font-bold font-mono tracking-tight mb-2 text-[var(--st-text)]">
+                        {selectedRow.event}
+                      </h2>
+                      <p className="text-sm text-[var(--st-text-secondary)] font-mono break-all flex items-center gap-2">
+                        <TerminalSquare className="w-4 h-4" aria-hidden="true" /> {selectedRow.id}
                       </p>
                     </div>
 
                     {/* Grid Stats */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white p-4 rounded-xl border shadow-sm">
-                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">HTTP Status</p>
+                      <div className="bg-[var(--st-bg)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <p className="text-xs text-[var(--st-text-secondary)] font-bold mb-1 uppercase tracking-wider">
+                          HTTP Status
+                        </p>
                         <div className="flex items-baseline gap-2">
-                          <span className={`text-3xl font-bold font-mono ${selectedRow.httpStatus >= 400 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>{selectedRow.httpStatus}</span>
-                          <span className="text-sm text-[var(--st-text)] font-medium">{selectedRow.httpStatus >= 400 ? 'Error' : 'OK'}</span>
+                          <span
+                            className={`text-3xl font-bold font-mono ${
+                              selectedRow.httpStatus >= 400
+                                ? "text-[var(--st-danger)]"
+                                : "text-[var(--st-status-ok)]"
+                            }`}
+                          >
+                            {selectedRow.httpStatus}
+                          </span>
+                          <span className="text-sm text-[var(--st-text-secondary)] font-medium">
+                            {selectedRow.httpStatus >= 400 ? "Error" : "OK"}
+                          </span>
                         </div>
                       </div>
-                      <div className="bg-white p-4 rounded-xl border shadow-sm">
-                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">Latency</p>
+                      <div className="bg-[var(--st-bg)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        <p className="text-xs text-[var(--st-text-secondary)] font-bold mb-1 uppercase tracking-wider">
+                          Latency
+                        </p>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-3xl font-bold font-mono text-[var(--st-text)]">{selectedRow.latencyMs}</span>
-                          <span className="text-sm text-[var(--st-text)] font-medium">ms</span>
+                          <span className="text-3xl font-bold font-mono text-[var(--st-text)]">
+                            {selectedRow.latencyMs}
+                          </span>
+                          <span className="text-sm text-[var(--st-text-secondary)] font-medium">ms</span>
                         </div>
                       </div>
-                      <div className="bg-white p-4 rounded-xl border shadow-sm col-span-2">
-                        <p className="text-xs text-[var(--st-text)] font-bold mb-1 uppercase tracking-wider">Endpoint</p>
-                        <span className="text-sm font-mono break-all text-[var(--st-text)]">{selectedRow.endpoint}</span>
+                      <div className="bg-[var(--st-bg)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] col-span-2">
+                        <p className="text-xs text-[var(--st-text-secondary)] font-bold mb-1 uppercase tracking-wider">
+                          Endpoint
+                        </p>
+                        <span className="text-sm font-mono break-all text-[var(--st-text)]">
+                          {selectedRow.endpoint}
+                        </span>
                       </div>
                     </div>
 
@@ -510,23 +554,28 @@ export default function WebhookLogClient() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
-                          <Code2 className="w-4 h-4 text-[var(--st-text)]" /> Request Payload
+                          <Code2 className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Request Payload
                         </h3>
-                        <Button variant="outline" size="sm" onClick={() => {
-                          navigator.clipboard.writeText(selectedRow.payload);
-                          toast({ title: "Copied payload", description: "JSON copied to clipboard." });
-                        }} className="h-8 shadow-sm">
-                          <Copy className="h-3 w-3 mr-2" /> Copy JSON
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          iconLeft={Copy}
+                          onClick={() => {
+                            navigator.clipboard.writeText(selectedRow.payload);
+                            toast({ title: "Copied payload", description: "JSON copied to clipboard." });
+                          }}
+                        >
+                          Copy JSON
                         </Button>
                       </div>
-                      <div className="bg-[var(--st-text)] rounded-xl border border-[var(--st-border)] overflow-hidden shadow-xl">
-                        <div className="flex items-center px-4 py-2.5 bg-[var(--st-text)] border-b border-[var(--st-border)]">
-                           <div className="flex gap-1.5">
-                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
-                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
-                             <div className="w-3 h-3 rounded-full bg-[var(--st-text)]/80"></div>
-                           </div>
-                           <span className="ml-4 text-xs font-mono text-[var(--st-text-secondary)]">payload.json</span>
+                      <div className="bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden">
+                        <div className="flex items-center px-4 py-2.5 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
+                          <div className="flex gap-1.5">
+                            <div className="w-3 h-3 rounded-full bg-[var(--st-danger)] opacity-80" />
+                            <div className="w-3 h-3 rounded-full bg-[var(--st-warn)] opacity-80" />
+                            <div className="w-3 h-3 rounded-full bg-[var(--st-status-ok)] opacity-80" />
+                          </div>
+                          <span className="ml-4 text-xs font-mono text-[var(--st-text-tertiary)]">payload.json</span>
                         </div>
                         <div className="p-4 overflow-x-auto">
                           <pre className="text-[13px] font-mono leading-relaxed">
@@ -539,53 +588,69 @@ export default function WebhookLogClient() {
                     {/* Signature */}
                     <div className="space-y-3">
                       <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
-                        <ShieldCheck className="w-4 h-4 text-[var(--st-text)]" /> Signature
+                        <ShieldCheck className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Signature
                       </h3>
-                      <div className="bg-white rounded-xl border shadow-sm overflow-hidden p-4 flex items-center justify-between">
-                         <Kbd className="text-xs bg-[var(--st-bg-muted)]">{selectedRow.signature}</Kbd>
-                         <Button variant="ghost" size="sm" className="text-[var(--st-text)]" onClick={() => toast({ title: "Signature verified", description: "Matches workspace secret."})}>Verify</Button>
+                      <div className="bg-[var(--st-bg)] rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden p-4 flex items-center justify-between">
+                        <Kbd className="text-xs">{selectedRow.signature}</Kbd>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toast({ title: "Signature verified", description: "Matches workspace secret." })}
+                        >
+                          Verify
+                        </Button>
                       </div>
                     </div>
 
                     {/* Response Details */}
                     <div className="space-y-3">
                       <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--st-text)] flex items-center gap-2">
-                        <ServerCrash className="w-4 h-4 text-[var(--st-text)]" /> Response Data
+                        <ServerCrash className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Response Data
                       </h3>
-                      <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
-                        <div className="p-4 border-b bg-[var(--st-bg-muted)]/50">
-                          <p className="text-xs font-bold text-[var(--st-text)] mb-2 uppercase tracking-wider">Headers</p>
-                          <pre className="text-xs font-mono text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">{selectedRow.headers}</pre>
+                      <div className="bg-[var(--st-bg)] rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden">
+                        <div className="p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+                          <p className="text-xs font-bold text-[var(--st-text-secondary)] mb-2 uppercase tracking-wider">
+                            Headers
+                          </p>
+                          <pre className="text-xs font-mono text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">
+                            {selectedRow.headers}
+                          </pre>
                         </div>
                         <div className="p-4">
-                          <p className="text-xs font-bold text-[var(--st-text)] mb-2 uppercase tracking-wider">Body</p>
-                          <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)]/50 p-3 rounded-md border whitespace-pre-wrap break-all leading-relaxed">{selectedRow.responseBody}</pre>
+                          <p className="text-xs font-bold text-[var(--st-text-secondary)] mb-2 uppercase tracking-wider">
+                            Body
+                          </p>
+                          <pre className="text-xs font-mono text-[var(--st-text)] bg-[var(--st-bg-muted)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] whitespace-pre-wrap break-all leading-relaxed">
+                            {selectedRow.responseBody}
+                          </pre>
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end pt-6 border-t mt-8">
-                       <Button 
-                         size="lg" 
-                         onClick={() => handleReplay(selectedRow)} 
-                         disabled={selectedRow.status === "delivered"}
-                         className="bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white font-medium shadow-md shadow-[var(--st-border)] disabled:opacity-50 disabled:cursor-not-allowed"
-                       >
-                         <RefreshCw className="w-4 h-4 mr-2" />
-                         Replay Delivery Attempt
-                       </Button>
+                    <div className="flex justify-end pt-6 border-t border-[var(--st-border)] mt-8">
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        iconLeft={RefreshCw}
+                        onClick={() => handleReplay(selectedRow)}
+                        disabled={selectedRow.status === "delivered"}
+                      >
+                        Replay Delivery Attempt
+                      </Button>
                     </div>
-
                   </div>
                 </ScrollArea>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-[var(--st-text-secondary)] p-6 text-center">
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border mb-4 flex items-center justify-center">
-                    <ServerCrash className="w-12 h-12 text-[var(--st-text-secondary)]" />
+                  <div className="bg-[var(--st-bg)] p-6 rounded-[var(--st-radius)] border border-[var(--st-border)] mb-4 flex items-center justify-center">
+                    <ServerCrash className="w-12 h-12 text-[var(--st-text-tertiary)]" aria-hidden="true" />
                   </div>
                   <h3 className="text-lg font-medium text-[var(--st-text)]">No Webhook Selected</h3>
-                  <p className="text-sm mt-2 max-w-[250px] leading-relaxed">Select a delivery attempt from the table to view its raw request payload, headers, and response data.</p>
+                  <p className="text-sm mt-2 max-w-[250px] leading-relaxed">
+                    Select a delivery attempt from the table to view its raw request payload, headers, and
+                    response data.
+                  </p>
                 </div>
               )}
             </ResizablePanel>

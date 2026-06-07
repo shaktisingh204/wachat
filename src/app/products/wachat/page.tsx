@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
     title: 'Wachat · WhatsApp Business at scale | SabNode',
     description:
-        'Templates, broadcasts, chatbot, catalog, payments — your WhatsApp number on autopilot.',
+        'Templates, broadcasts, chatbot, catalog, payments, your WhatsApp number on autopilot.',
 };
 
 async function Inner() {

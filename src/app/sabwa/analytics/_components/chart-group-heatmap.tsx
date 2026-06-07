@@ -1,32 +1,26 @@
 'use client';
 
-import { cn } from '@/components/sabcrm/20ui';
-import {
-  Activity } from 'lucide-react';
-
-import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions.types';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-
 /**
- * ChartGroupHeatmap — custom 24 × 7 grid (hour × day) coloured by activity
- * intensity. Pure CSS — no Recharts. Uses the neutral zoru-ink scale for
- * intensity (greyscale only, per ZoruUI chart policy).
+ * ChartGroupHeatmap. A custom 24 x 7 grid (hour x day) coloured by activity
+ * intensity. Pure CSS, no chart library. Uses the neutral 20ui text token for
+ * intensity (greyscale only) so colour never carries standalone meaning.
  */
 
 import * as React from 'react';
+import { Activity } from 'lucide-react';
+
+import { EmptyState } from '@/components/sabcrm/20ui';
+
+import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions.types';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function intensityStyle(
-  value: number,
-  max: number,
-): React.CSSProperties {
+function intensityStyle(value: number, max: number): React.CSSProperties {
   if (max <= 0 || value <= 0) {
     return { backgroundColor: 'var(--st-bg-secondary)' };
   }
   const ratio = value / max;
-  // Map intensity to alpha against the ink token.
+  // Map intensity to alpha against the text token.
   const alpha = 0.1 + ratio * 0.8;
   return { backgroundColor: `hsla(var(--st-text) / ${alpha})` };
 }
@@ -46,7 +40,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
     );
   }
 
-  // Build a 7 × 24 lookup with zero defaults.
+  // Build a 7 x 24 lookup with zero defaults.
   const lookup: number[][] = Array.from({ length: 7 }, () =>
     Array.from({ length: 24 }, () => 0),
   );
@@ -78,10 +72,8 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
               return (
                 <div
                   key={hour}
-                  title={`${day} ${hour}:00 — ${value} msgs`}
-                  className={cn(
-                    'h-5 rounded-[var(--st-radius-sm)] transition-colors',
-                  )}
+                  title={`${day} ${hour}:00, ${value} msgs`}
+                  className="h-5 rounded-[var(--st-radius-sm)] transition-colors"
                   style={intensityStyle(value, max)}
                 />
               );
@@ -94,6 +86,7 @@ export function ChartGroupHeatmap({ data }: ChartGroupHeatmapProps) {
         {legendStops.map((stop) => (
           <span
             key={stop}
+            aria-hidden
             className="h-3 w-3 rounded-[var(--st-radius-sm)]"
             style={{ backgroundColor: `hsla(var(--st-text) / ${stop})` }}
           />

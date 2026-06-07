@@ -7,15 +7,7 @@ interface ChatGreetingProps {
 export function ChatGreeting({ greeting }: ChatGreetingProps) {
   if (!greeting) return null;
   return (
-    <p
-      style={{
-        padding: '12px 16px',
-        margin: 0,
-        fontSize: 13,
-        color: 'var(--st-text-secondary)',
-        borderBottom: '1px solid var(--st-border)',
-      }}
-    >
+    <p className="m-0 border-b border-[var(--st-border)] px-4 py-3 text-[13px] text-[var(--st-text-secondary)]">
       {greeting}
     </p>
   );

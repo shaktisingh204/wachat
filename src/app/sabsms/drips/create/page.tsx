@@ -147,15 +147,10 @@ export default function DripsBuilderShell() {
 
         {/* Center Canvas */}
         <main className="relative flex-1 overflow-hidden bg-[var(--st-bg-secondary)]">
-          {/* Grid Background (decorative, runtime-computed dot pattern) */}
+          {/* Grid Background (decorative dot pattern) */}
           <div
-            className="pointer-events-none absolute inset-0 z-0 opacity-20"
+            className="pointer-events-none absolute inset-0 z-0 opacity-20 bg-[radial-gradient(circle_at_1px_1px,var(--st-border-strong)_1px,transparent_0)] bg-[length:24px_24px]"
             aria-hidden="true"
-            style={{
-              backgroundImage:
-                'radial-gradient(circle at 1px 1px, var(--st-border-strong) 1px, transparent 0)',
-              backgroundSize: '24px 24px',
-            }}
           />
 
           {/* Floating Controls */}

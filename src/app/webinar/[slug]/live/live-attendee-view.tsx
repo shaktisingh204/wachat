@@ -133,7 +133,7 @@ export function LiveAttendeeView({
   };
 
   return (
-    <main className="ui20" style={{ background: bg, color: fg, minHeight: '100vh' }}>
+    <main className="ui20 min-h-screen" style={{ background: bg, color: fg }}>
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[1fr_360px]">
         <section className="flex flex-col gap-3">
           <PageHeader bordered={false} compact>

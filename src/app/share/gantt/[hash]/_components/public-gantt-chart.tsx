@@ -1,21 +1,25 @@
 /**
- * Public Gantt chart — pure HTML + CSS (no library).
+ * Public Gantt chart - pure HTML + CSS (no library).
  *
  * Layout:
- *   • Header row: week tick marks between project.start_date and
+ *   - Header row: week tick marks between project.start_date and
  *     project.deadline + 2 weeks of buffer.
- *   • Body: one row per task. Task bar is a coloured absolute-positioned
+ *   - Body: one row per task. Task bar is a coloured absolute-positioned
  *     div whose `left` + `width` are computed as percentages of the
  *     total timeline span.
- *   • Today line: vertical red line at the current date (if it falls
+ *   - Today line: vertical red line at the current date (if it falls
  *     inside the timeline).
- *   • Milestones: small diamonds plotted on a separate strip above the
+ *   - Milestones: small diamonds plotted on a separate strip above the
  *     task rows so they don't collide with bars.
  *
  * Bars are coloured by priority. The completion % comes from the task
- * status (Done → 100, In progress → 50, etc — see `statusToPercent` in
+ * status (Done -> 100, In progress -> 50, etc - see `statusToPercent` in
  * the action).
  */
+
+import { CalendarClock } from 'lucide-react';
+
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 import type {
   PublicGanttMilestone,
@@ -49,6 +53,10 @@ const PRIORITY_COLOR: Record<string, string> = {
   medium: '#3b82f6',
   low: '#10b981',
 };
+
+const MILESTONE_DONE_COLOR = '#10b981';
+const MILESTONE_OPEN_COLOR = '#f59e0b';
+const TODAY_COLOR = '#ef4444';
 
 function asDate(value: string | null): Date | null {
   if (!value) return null;
@@ -122,9 +130,11 @@ export function PublicGanttChart({
 }: Props): React.ReactElement {
   if (tasks.length === 0 && milestones.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-[var(--st-border)] p-8 text-center text-sm text-[var(--st-text)]">
-        No tasks or milestones to chart.
-      </div>
+      <EmptyState
+        icon={CalendarClock}
+        title="Nothing to chart yet"
+        description="This project has no tasks or milestones to plot on the timeline."
+      />
     );
   }
 
@@ -154,7 +164,7 @@ export function PublicGanttChart({
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[720px]">
-        {/* Header — week ticks */}
+        {/* Header - week ticks */}
         <div
           className="relative border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]"
           style={{ height: HEADER_HEIGHT }}
@@ -162,12 +172,8 @@ export function PublicGanttChart({
           {ticks.map((t, i) => (
             <div
               key={i}
-              className="absolute top-0 flex h-full items-center pl-1 text-[11px] text-[var(--st-text)]"
-              style={{
-                left: `${t.leftPct}%`,
-                borderLeft: '1px solid rgb(228 228 231)',
-                minWidth: 1,
-              }}
+              className="absolute top-0 flex h-full min-w-px items-center border-l border-[var(--st-border)] pl-1 text-[11px] text-[var(--st-text-secondary)]"
+              style={{ left: `${t.leftPct}%` }}
             >
               {t.label}
             </div>
@@ -177,7 +183,7 @@ export function PublicGanttChart({
         {/* Milestones strip */}
         {milestones.length > 0 ? (
           <div
-            className="relative border-b border-[var(--st-border)] bg-white"
+            className="relative border-b border-[var(--st-border)] bg-[var(--st-bg)]"
             style={{ height: MILESTONE_STRIP_HEIGHT }}
           >
             {milestones.map((m) => {
@@ -191,14 +197,16 @@ export function PublicGanttChart({
                   key={m._id}
                   className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
                   style={{ left: `${leftPct}%` }}
-                  title={`${m.title} · ${fmtShort(d)}`}
+                  title={`${m.title} - ${fmtShort(d)}`}
                 >
                   <div
                     aria-label={m.title}
                     className="h-3 w-3 rotate-45 border-2"
                     style={{
-                      borderColor: filled ? '#10b981' : '#f59e0b',
-                      background: filled ? '#10b981' : 'white',
+                      borderColor: filled
+                        ? MILESTONE_DONE_COLOR
+                        : MILESTONE_OPEN_COLOR,
+                      background: filled ? MILESTONE_DONE_COLOR : 'transparent',
                     }}
                   />
                 </div>
@@ -207,32 +215,27 @@ export function PublicGanttChart({
           </div>
         ) : null}
 
-        {/* Body — task rows */}
+        {/* Body - task rows */}
         <div
-          className="relative border-b border-[var(--st-border)] bg-white"
+          className="relative border-b border-[var(--st-border)] bg-[var(--st-bg)]"
           style={{ height: bodyHeight }}
         >
           {/* Vertical week guides */}
           {ticks.map((t, i) => (
             <div
               key={i}
-              className="absolute top-0 h-full"
-              style={{
-                left: `${t.leftPct}%`,
-                borderLeft: '1px dashed rgb(244 244 245)',
-                width: 0,
-              }}
+              className="absolute top-0 h-full w-0 border-l border-dashed border-[var(--st-border-light)]"
+              style={{ left: `${t.leftPct}%` }}
             />
           ))}
 
           {/* Today line */}
           {todayLeftPct != null ? (
             <div
-              className="absolute top-0 h-full"
+              className="absolute top-0 h-full w-0 border-l-2"
               style={{
                 left: `${todayLeftPct}%`,
-                borderLeft: '2px solid #ef4444',
-                width: 0,
+                borderColor: TODAY_COLOR,
               }}
               aria-label="Today"
             />
@@ -270,13 +273,13 @@ export function PublicGanttChart({
                 style={{ top: idx * ROW_HEIGHT, height: ROW_HEIGHT }}
               >
                 <div
-                  className="absolute flex h-7 items-center overflow-hidden rounded-md shadow-sm"
+                  className="absolute flex h-7 items-center overflow-hidden rounded-[var(--st-radius)] shadow-sm"
                   style={{
                     left: `${leftPct}%`,
                     width: `${widthPct}%`,
                     background: color,
                   }}
-                  title={`${task.heading} · ${fmtShort(taskStart)} → ${fmtShort(taskEnd)}`}
+                  title={`${task.heading} - ${fmtShort(taskStart)} to ${fmtShort(taskEnd)}`}
                 >
                   {/* Completion fill */}
                   <div
@@ -299,21 +302,36 @@ export function PublicGanttChart({
         </div>
 
         {/* Legend */}
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-[var(--st-text)]">
+        <div className="mt-3 flex flex-wrap items-center gap-4 text-[11px] text-[var(--st-text-secondary)]">
           <LegendSwatch color={PRIORITY_COLOR.urgent} label="Urgent" />
           <LegendSwatch color={PRIORITY_COLOR.high} label="High" />
           <LegendSwatch color={PRIORITY_COLOR.medium} label="Medium" />
           <LegendSwatch color={PRIORITY_COLOR.low} label="Low" />
           <span className="ml-2 inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rotate-45 border-2 border-[var(--st-border)] bg-[var(--st-text)]" />
+            <span
+              className="inline-block h-3 w-3 rotate-45 border-2"
+              style={{
+                borderColor: MILESTONE_DONE_COLOR,
+                background: MILESTONE_DONE_COLOR,
+              }}
+              aria-hidden
+            />
             Milestone (done)
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rotate-45 border-2 border-[var(--st-border)] bg-white" />
+            <span
+              className="inline-block h-3 w-3 rotate-45 border-2 bg-[var(--st-bg)]"
+              style={{ borderColor: MILESTONE_OPEN_COLOR }}
+              aria-hidden
+            />
             Milestone
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-[2px] bg-[var(--st-text)]" />
+            <span
+              className="inline-block h-3 w-[2px]"
+              style={{ background: TODAY_COLOR }}
+              aria-hidden
+            />
             Today
           </span>
         </div>
@@ -332,8 +350,9 @@ function LegendSwatch({
   return (
     <span className="inline-flex items-center gap-1.5">
       <span
-        className="inline-block h-3 w-3 rounded-sm"
+        className="inline-block h-3 w-3 rounded-[var(--st-radius-sm)]"
         style={{ background: color }}
+        aria-hidden
       />
       {label}
     </span>

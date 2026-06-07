@@ -35,8 +35,6 @@ import {
 import type { MiniAppRow, SessionRow, AnalyticsResp } from '@/lib/rust-client/telegram-mini-apps';
 import { ClientDate } from './client-date';
 
-const ACCENT = '#229ED9';
-
 function directLink(botUsername: string | undefined, slug: string): string {
   if (!botUsername || !slug) return '';
   return `https://t.me/${botUsername}/${slug}`;
@@ -90,18 +88,16 @@ export function DetailDrawer({
             { limit: 100 },
           );
           if (res.error) {
-            toast({
+            toast.error({
               title: 'Sessions failed',
               description: res.error,
-              variant: 'destructive',
             });
           }
           setSessions(res.sessions ?? []);
         } catch (e) {
-          toast({
+          toast.error({
             title: 'Sessions failed',
             description: String(e),
-            variant: 'destructive',
           });
         }
       });
@@ -117,18 +113,16 @@ export function DetailDrawer({
             to,
           });
           if (res.error) {
-            toast({
+            toast.error({
               title: 'Analytics failed',
               description: res.error,
-              variant: 'destructive',
             });
           }
           setAnalytics(res);
         } catch (e) {
-          toast({
+          toast.error({
             title: 'Analytics failed',
             description: String(e),
-            variant: 'destructive',
           });
         }
       });
@@ -249,10 +243,10 @@ export function DetailDrawer({
               </div>
               <Card>
                 <CardBody className="flex flex-col gap-2">
-                  <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-                    Test init-data
-                  </div>
-                  <Field>
+                  <Field
+                    label="Test init-data"
+                    help="Paste a Telegram WebApp initData string to verify its signature."
+                  >
                     <Textarea
                       value={initData}
                       onChange={(e) => setInitData(e.target.value)}
@@ -408,12 +402,8 @@ function AnalyticsView({
                   title={`${d.date}: ${d.opens}`}
                 >
                   <div
-                    className="w-full rounded-t"
-                    style={{
-                      backgroundColor: ACCENT,
-                      height: `${(d.opens / max) * 100}%`,
-                      minHeight: 2,
-                    }}
+                    className="w-full min-h-[2px] rounded-t bg-[var(--st-accent)]"
+                    style={{ height: `${(d.opens / max) * 100}%` }}
                   />
                   <span className="text-[9px] text-[var(--st-text-secondary)]">
                     {d.date.slice(5)}

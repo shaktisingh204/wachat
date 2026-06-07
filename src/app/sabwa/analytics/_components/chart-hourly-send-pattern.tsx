@@ -1,29 +1,32 @@
 'use client';
 
-import { CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import * as React from 'react';
+import { Clock } from 'lucide-react';
+
 import {
-  Clock } from 'lucide-react';
+  CHART_PALETTE,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import type { SabwaAnalyticsHourBar } from '@/app/actions/sabwa.actions.types';
 
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-
 /**
- * ChartHourlySendPattern — bar chart of outbound message count per hour,
+ * ChartHourlySendPattern - bar chart of outbound message count per hour,
  * with annotation bands for "safe" (under 60/h), "elevated" (60-100/h),
- * and "risky" (100+/h) — anti-ban tuning aid.
+ * and "risky" (100+/h), an anti-ban tuning aid.
  *
  * Bars use the neutral Recharts palette; risk tier is communicated by
  * fill density (not hue), to stay within the greyscale chart policy.
  */
 
-import * as React from 'react';
-
 const SAFE_LIMIT = 60;
 const ELEVATED_LIMIT = 100;
 
 function barColor(count: number): string {
-  // Neutral tiers — darker = riskier — within CHART_PALETTE.
+  // Neutral tiers, darker = riskier, within CHART_PALETTE.
   if (count <= SAFE_LIMIT) return CHART_PALETTE[3];
   if (count <= ELEVATED_LIMIT) return CHART_PALETTE[2];
   return CHART_PALETTE[0];
@@ -107,6 +110,7 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
       <div className="flex flex-wrap items-center gap-3 px-2 text-[11px] text-[var(--st-text-secondary)]">
         <span className="inline-flex items-center gap-1.5">
           <span
+            aria-hidden
             className="h-2 w-2 rounded-sm"
             style={{ backgroundColor: CHART_PALETTE[3] }}
           />
@@ -114,13 +118,15 @@ export function ChartHourlySendPattern({ data }: ChartHourlySendPatternProps) {
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
+            aria-hidden
             className="h-2 w-2 rounded-sm"
             style={{ backgroundColor: CHART_PALETTE[2] }}
           />
-          Elevated ({SAFE_LIMIT + 1}–{ELEVATED_LIMIT}/h)
+          Elevated ({SAFE_LIMIT + 1}-{ELEVATED_LIMIT}/h)
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span
+            aria-hidden
             className="h-2 w-2 rounded-sm"
             style={{ backgroundColor: CHART_PALETTE[0] }}
           />

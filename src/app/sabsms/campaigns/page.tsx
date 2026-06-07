@@ -32,19 +32,45 @@ import {
   ChevronsRight,
   Download,
   Plus,
-  RefreshCw
+  RefreshCw,
 } from "lucide-react";
 
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Card, CardBody } from '@/components/sabcrm/20ui';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
-import { Checkbox } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from '@/components/sabcrm/20ui';
-import { Avatar, AvatarFallback } from '@/components/sabcrm/20ui';
+import {
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Button,
+  IconButton,
+  Input,
+  Field,
+  Badge,
+  type BadgeTone,
+  Card,
+  CardBody,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  Avatar,
+  AvatarFallback,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from "@/components/sabcrm/20ui";
 
 type Campaign = {
   id: string;
@@ -64,7 +90,7 @@ const tagsPool = ["Promo", "Alert", "Newsletter", "Winback", "Seasonal", "VIP"];
 const mockData: Campaign[] = Array.from({ length: 85 }, (_, i) => {
   const status = statuses[Math.floor(Math.random() * statuses.length)];
   const sent = status === "Draft" || status === "Scheduled" ? 0 : Math.floor(Math.random() * 50000) + 1000;
-  const delivered = Math.floor(sent * (0.8 + Math.random() * 0.18)); 
+  const delivered = Math.floor(sent * (0.8 + Math.random() * 0.18));
   const clickRate = status === "Draft" || status === "Scheduled" ? 0 : Math.random() * 15;
 
   const date = new Date();
@@ -86,27 +112,27 @@ const mockData: Campaign[] = Array.from({ length: 85 }, (_, i) => {
   };
 });
 
-// Helper for status colors
-const getStatusTone = (status: Campaign["status"]) => {
+// Helper for status colors (mapped to 20ui Badge tones).
+const getStatusTone = (status: Campaign["status"]): BadgeTone => {
   switch (status) {
-    case "Completed": return "green";
-    case "Running": return "blue";
-    case "Paused": return "amber";
-    case "Failed": return "red";
+    case "Completed": return "success";
+    case "Running": return "info";
+    case "Paused": return "warning";
+    case "Failed": return "danger";
     case "Scheduled": return "neutral";
-    case "Draft": return "obsidian";
+    case "Draft": return "neutral";
     default: return "neutral";
   }
 };
 
 const getStatusIcon = (status: Campaign["status"]) => {
   switch (status) {
-    case "Completed": return <CheckCircle2 className="mr-1 h-3 w-3" />;
-    case "Running": return <Play className="mr-1 h-3 w-3" />;
-    case "Paused": return <Pause className="mr-1 h-3 w-3" />;
-    case "Failed": return <AlertCircle className="mr-1 h-3 w-3" />;
-    case "Scheduled": return <Calendar className="mr-1 h-3 w-3" />;
-    case "Draft": return <Clock className="mr-1 h-3 w-3" />;
+    case "Completed": return <CheckCircle2 className="mr-1 h-3 w-3" aria-hidden="true" />;
+    case "Running": return <Play className="mr-1 h-3 w-3" aria-hidden="true" />;
+    case "Paused": return <Pause className="mr-1 h-3 w-3" aria-hidden="true" />;
+    case "Failed": return <AlertCircle className="mr-1 h-3 w-3" aria-hidden="true" />;
+    case "Scheduled": return <Calendar className="mr-1 h-3 w-3" aria-hidden="true" />;
+    case "Draft": return <Clock className="mr-1 h-3 w-3" aria-hidden="true" />;
     default: return null;
   }
 };
@@ -123,8 +149,9 @@ export default function CampaignsPage() {
         id: "select",
         header: ({ table }) => (
           <Checkbox
-            checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() ? "indeterminate" : false)}
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            checked={table.getIsAllPageRowsSelected()}
+            indeterminate={table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()}
+            onChange={(event) => table.toggleAllPageRowsSelected(event.target.checked)}
             aria-label="Select all"
             className="translate-y-[2px]"
           />
@@ -132,7 +159,7 @@ export default function CampaignsPage() {
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onChange={(event) => row.toggleSelected(event.target.checked)}
             aria-label="Select row"
             className="translate-y-[2px]"
           />
@@ -150,7 +177,7 @@ export default function CampaignsPage() {
             <div className="flex flex-col gap-1">
               <span className="font-semibold text-[var(--st-text)]">{name}</span>
               <div className="flex gap-1">
-                {tags.map(tag => (
+                {tags.map((tag) => (
                   <Badge key={tag} tone="neutral" className="text-[10px] px-1.5 py-0 leading-none h-4">
                     {tag}
                   </Badge>
@@ -198,8 +225,8 @@ export default function CampaignsPage() {
                 <span className="text-[var(--st-text-secondary)]">{percent}%</span>
               </div>
               <div className="h-1.5 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden border border-[var(--st-border)]">
-                <div 
-                  className="h-full bg-[var(--st-text)] transition-all" 
+                <div
+                  className="h-full bg-[var(--st-text)] transition-all"
                   style={{ width: `${percent}%` }}
                 />
               </div>
@@ -214,7 +241,7 @@ export default function CampaignsPage() {
           const val = row.getValue("clickRate") as number;
           return (
             <div className="flex items-center gap-2 text-[var(--st-text)]">
-              <BarChart2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
+              <BarChart2 className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
               <span className="font-medium">{val}%</span>
             </div>
           );
@@ -255,10 +282,7 @@ export default function CampaignsPage() {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0 border-none shadow-none text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
+                <IconButton label="Open menu" icon={MoreHorizontal} variant="ghost" size="sm" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -273,7 +297,7 @@ export default function CampaignsPage() {
                     Pause campaign
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="text-[var(--st-danger)]">
+                <DropdownMenuItem variant="danger">
                   Delete campaign
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -308,81 +332,76 @@ export default function CampaignsPage() {
   });
 
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--st-bg-secondary)]/30">
+    <div className="ui20 flex flex-col min-h-screen bg-[var(--st-bg-secondary)]">
       {/* Header Area */}
-      <div className="relative border-b border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-        {/* Subtle background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--st-text)]/5 to-transparent pointer-events-none" />
-        
-        <div className="relative mx-auto w-full max-w-[1600px] px-6 py-8 md:py-12">
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-            <div>
+      <div className="border-b border-[var(--st-border)] bg-[var(--st-bg)]">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-8 md:py-12">
+          <PageHeader bordered={false} className="pb-0">
+            <PageHeaderHeading>
               <div className="flex items-center gap-3 mb-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-text)]/10 text-[var(--st-text)] ring-1 ring-[var(--st-text)]/20">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <h1 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">Campaigns</h1>
+                <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-accent-soft)] text-[var(--st-accent)] ring-1 ring-[var(--st-accent-ring)]">
+                  <Mail className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <PageTitle>Campaigns</PageTitle>
               </div>
-              <p className="max-w-2xl text-[var(--st-text-secondary)] text-lg mt-3">
+              <PageDescription>
                 Schedule, throttle, and observe outbound SMS campaigns. Pause, duplicate, or convert any campaign into a drip or reusable template.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="outline" className="h-10 bg-[var(--st-bg)]">
-                <Download className="mr-2 h-4 w-4" />
+              </PageDescription>
+            </PageHeaderHeading>
+            <PageActions>
+              <Button variant="outline" iconLeft={Download}>
                 Export
               </Button>
-              <Button variant="primary" className="h-10">
-                <Plus className="mr-2 h-4 w-4" />
+              <Button variant="primary" iconLeft={Plus}>
                 New Campaign
               </Button>
-            </div>
-          </div>
+            </PageActions>
+          </PageHeader>
 
           {/* Quick Stats Banner */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <CardBody className="p-4 flex items-center justify-between">
+            <Card>
+              <CardBody className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Campaigns</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">85</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
-                  <Mail className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                </div>
+                <span className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <Mail className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                </span>
               </CardBody>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <CardBody className="p-4 flex items-center justify-between">
+            <Card>
+              <CardBody className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Active Sending</p>
-                  <p className="text-2xl font-bold mt-1 text-[var(--st-text-secondary)]">12</p>
+                  <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">12</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-[var(--st-text-secondary)]/10 flex items-center justify-center border border-[var(--st-text-secondary)]/20">
-                  <Play className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                </div>
+                <span className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <Play className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                </span>
               </CardBody>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <CardBody className="p-4 flex items-center justify-between">
+            <Card>
+              <CardBody className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Sent (30d)</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-text)]">1.2M</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
-                  <ArrowRight className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                </div>
+                <span className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <ArrowRight className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                </span>
               </CardBody>
             </Card>
-            <Card className="bg-[var(--st-bg)]/50 backdrop-blur-sm border-[var(--st-border)] shadow-[var(--st-shadow-sm)]">
-              <CardBody className="p-4 flex items-center justify-between">
+            <Card>
+              <CardBody className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Delivery</p>
                   <p className="text-2xl font-bold mt-1 text-[var(--st-status-ok)]">94.2%</p>
                 </div>
-                <div className="h-10 w-10 rounded-full bg-[var(--st-status-ok)]/10 flex items-center justify-center border border-[var(--st-status-ok)]/20">
-                  <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" />
-                </div>
+                <span className="h-10 w-10 rounded-full bg-[var(--st-bg-secondary)] flex items-center justify-center border border-[var(--st-border)]">
+                  <CheckCircle2 className="h-5 w-5 text-[var(--st-status-ok)]" aria-hidden="true" />
+                </span>
               </CardBody>
             </Card>
           </div>
@@ -390,21 +409,22 @@ export default function CampaignsPage() {
       </div>
 
       {/* Main Table Area */}
-      <div className="flex-1 p-6 mx-auto w-full max-w-[1600px] mb-20 -mt-6 z-10 relative">
+      <div className="flex-1 p-6 mx-auto w-full max-w-[1600px] mb-20">
         <div className="flex flex-col space-y-4">
-          
+
           {/* Advanced Filters Toolbar */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 bg-[var(--st-bg)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] shadow-[var(--st-shadow-md)]">
             <div className="flex flex-1 items-center gap-3 w-full">
-              <div className="relative max-w-sm w-full">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+              <Field className="max-w-sm w-full">
                 <Input
+                  iconLeft={Search}
                   placeholder="Filter campaigns..."
+                  aria-label="Filter campaigns by name"
                   value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                   onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}
-                  className="pl-9 bg-[var(--st-bg-secondary)]/50 border-[var(--st-border-strong)] h-10 w-full"
+                  className="w-full"
                 />
-              </div>
+              </Field>
 
               <Select
                 value={(table.getColumn("status")?.getFilterValue() as string[])?.[0] ?? ""}
@@ -413,25 +433,23 @@ export default function CampaignsPage() {
                   else table.getColumn("status")?.setFilterValue([val]);
                 }}
               >
-                <SelectTrigger className="w-[160px] h-10 border-[var(--st-border-strong)] bg-[var(--st-bg-secondary)]/50">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    <span><SelectValue placeholder="Status" /></span>
-                  </div>
+                <SelectTrigger className="w-[160px]" aria-label="Filter by status">
+                  <span className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" aria-hidden="true" />
+                    <SelectValue placeholder="Status" />
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
-                  {statuses.map(s => (
+                  {statuses.map((s) => (
                     <SelectItem key={s} value={s}>{s}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <Button variant="ghost" className="h-10 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]">
-                <RefreshCw className="h-4 w-4 mr-2" />
+              <Button variant="ghost" iconLeft={RefreshCw}>
                 Refresh
               </Button>
             </div>
@@ -439,13 +457,13 @@ export default function CampaignsPage() {
 
           {/* Table Container */}
           <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)] overflow-hidden">
-            <Table className="border-0 shadow-none">
-              <THead className="bg-[var(--st-bg-secondary)]/60 border-b border-[var(--st-border)]">
+            <Table hover>
+              <THead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <Tr key={headerGroup.id} className="hover:bg-transparent border-0">
+                  <Tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => {
                       return (
-                        <Th key={header.id} className="h-12 px-4 whitespace-nowrap text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider bg-transparent">
+                        <Th key={header.id} className="whitespace-nowrap uppercase tracking-wider">
                           {header.isPlaceholder
                             ? null
                             : flexRender(
@@ -463,11 +481,10 @@ export default function CampaignsPage() {
                   table.getRowModel().rows.map((row) => (
                     <Tr
                       key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                      className="group hover:bg-[var(--st-bg-secondary)]/50 transition-colors duration-150"
+                      selected={row.getIsSelected()}
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <Td key={cell.id} className="py-3 px-4">
+                        <Td key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </Td>
                       ))}
@@ -476,10 +493,11 @@ export default function CampaignsPage() {
                 ) : (
                   <Tr>
                     <Td colSpan={columns.length} className="h-32 text-center">
-                      <div className="flex flex-col items-center justify-center text-[var(--st-text-secondary)]">
-                        <Search className="h-8 w-8 mb-2 opacity-20" />
-                        <p>No results.</p>
-                      </div>
+                      <EmptyState
+                        icon={Search}
+                        title="No results"
+                        description="No campaigns match your current filters. Try clearing the search or status filter."
+                      />
                     </Td>
                   </Tr>
                 )}
@@ -502,7 +520,7 @@ export default function CampaignsPage() {
                     table.setPageSize(Number(value));
                   }}
                 >
-                  <SelectTrigger className="h-8 w-[70px]">
+                  <SelectTrigger className="w-[70px]" aria-label="Rows per page">
                     <SelectValue placeholder={table.getState().pagination.pageSize} />
                   </SelectTrigger>
                   <SelectContent side="top">
@@ -519,46 +537,44 @@ export default function CampaignsPage() {
                 {table.getPageCount()}
               </div>
               <div className="flex items-center gap-1">
-                <Button
+                <IconButton
+                  label="Go to first page"
+                  icon={ChevronsLeft}
                   variant="outline"
-                  className="hidden h-8 w-8 p-0 lg:flex"
+                  size="sm"
+                  className="hidden lg:flex"
                   onClick={() => table.setPageIndex(0)}
                   disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Go to first page</span>
-                  <ChevronsLeft className="h-4 w-4" />
-                </Button>
-                <Button
+                />
+                <IconButton
+                  label="Go to previous page"
+                  icon={ChevronLeft}
                   variant="outline"
-                  className="h-8 w-8 p-0"
+                  size="sm"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                >
-                  <span className="sr-only">Go to previous page</span>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
+                />
+                <IconButton
+                  label="Go to next page"
+                  icon={ChevronRight}
                   variant="outline"
-                  className="h-8 w-8 p-0"
+                  size="sm"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Go to next page</span>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                <Button
+                />
+                <IconButton
+                  label="Go to last page"
+                  icon={ChevronsRight}
                   variant="outline"
-                  className="hidden h-8 w-8 p-0 lg:flex"
+                  size="sm"
+                  className="hidden lg:flex"
                   onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                   disabled={!table.getCanNextPage()}
-                >
-                  <span className="sr-only">Go to last page</span>
-                  <ChevronsRight className="h-4 w-4" />
-                </Button>
+                />
               </div>
             </div>
           </div>
-          
+
         </div>
       </div>
     </div>

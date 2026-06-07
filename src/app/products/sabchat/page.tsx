@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
     title: 'SabChat · Omnichannel inbox | SabNode',
     description:
-        'Live chat, email, WhatsApp, Instagram, Telegram, SMS — every message in one window.',
+        'Live chat, email, WhatsApp, Instagram, Telegram, and SMS - every message in one window.',
 };
 
 async function Inner() {
@@ -21,7 +21,7 @@ async function Inner() {
 
 export default function SabchatProductPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen" style={{ background: '#150a02' }} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#150a02]" />}>
             <Inner />
         </Suspense>
     );

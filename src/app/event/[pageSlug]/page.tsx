@@ -1,5 +1,5 @@
 /**
- * Public event landing page — `/event/[pageSlug]`.
+ * Public event landing page - `/event/[pageSlug]`.
  *
  * Server-renders the page chrome (hero, headline, description) using
  * `loadPublicEventPage(slug)`, which hits the unauthenticated Rust
@@ -8,10 +8,22 @@
  * Ticket selection + checkout is delegated to a client island
  * `<PublicTicketBookingForm>` so the user can adjust quantities and
  * submit to the order-creation server action.
+ *
+ * Built on the 20ui design system. The page is scoped `ui20 dark` so 20ui
+ * primitives render light-on-dark to suit the typical dark event theme; the
+ * user-picked `background` + `accent` colours stay as runtime inline values.
  */
 import { notFound } from 'next/navigation';
+import { Ticket } from 'lucide-react';
 
 import { loadPublicEventPage } from '@/app/actions/sabbackstage-public.actions';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { PublicTicketBookingForm } from './_components/public-ticket-booking-form';
 import { PublicSponsorStrip } from './_components/public-sponsor-strip';
 
@@ -35,13 +47,13 @@ export default async function PublicEventPage({ params }: PageProps) {
 
   return (
     <main
-      style={{ backgroundColor: bg, color: '#fff', minHeight: '100vh' }}
-      className="px-4 py-10 md:px-12"
+      className="ui20 dark min-h-screen px-4 py-10 md:px-12"
+      style={{ backgroundColor: bg }}
     >
       <section className="mx-auto max-w-5xl">
         {page.page.heroImageFileId ? (
           <div
-            className="mb-6 h-64 w-full rounded-xl bg-cover bg-center"
+            className="mb-6 h-64 w-full rounded-[var(--st-radius)] bg-cover bg-center"
             style={{
               backgroundImage: `url(/api/sabfiles/${page.page.heroImageFileId})`,
             }}
@@ -49,14 +61,19 @@ export default async function PublicEventPage({ params }: PageProps) {
             aria-label="Event hero image"
           />
         ) : null}
-        <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-          {page.page.headline}
-        </h1>
-        {page.page.description ? (
-          <p className="mt-4 max-w-2xl whitespace-pre-wrap text-base opacity-80">
-            {page.page.description}
-          </p>
-        ) : null}
+
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageTitle className="text-4xl md:text-5xl">
+              {page.page.headline}
+            </PageTitle>
+            {page.page.description ? (
+              <PageDescription className="max-w-2xl whitespace-pre-wrap text-base">
+                {page.page.description}
+              </PageDescription>
+            ) : null}
+          </PageHeaderHeading>
+        </PageHeader>
 
         <div className="mt-10">
           <h2
@@ -66,9 +83,13 @@ export default async function PublicEventPage({ params }: PageProps) {
             Book tickets
           </h2>
           {ticketTypes.length === 0 ? (
-            <p className="mt-3 text-sm opacity-70">
-              No tickets on sale yet. Please check back soon.
-            </p>
+            <div className="mt-3">
+              <EmptyState
+                icon={Ticket}
+                title="No tickets on sale yet"
+                description="Tickets for this event have not been published. Please check back soon."
+              />
+            </div>
           ) : (
             <PublicTicketBookingForm
               pageSlug={pageSlug}
@@ -81,9 +102,7 @@ export default async function PublicEventPage({ params }: PageProps) {
 
         {sponsors.length > 0 ? (
           <div className="mt-12">
-            <h2
-              className="text-base font-semibold uppercase tracking-wider opacity-70"
-            >
+            <h2 className="text-base font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
               Our sponsors
             </h2>
             <PublicSponsorStrip sponsors={sponsors} />

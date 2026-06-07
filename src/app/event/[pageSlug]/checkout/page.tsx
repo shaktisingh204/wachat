@@ -14,6 +14,13 @@
 import { notFound } from 'next/navigation';
 
 import { loadPublicEventPage } from '@/app/actions/sabbackstage-public.actions';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
+
 import { PublicCheckoutForm } from './_public-checkout-form';
 
 export const dynamic = 'force-dynamic';
@@ -46,16 +53,18 @@ export default async function PublicCheckoutPage({
 
   return (
     <main
-      style={{
-        backgroundColor: theme.background ?? '#0b0b10',
-        color: '#fff',
-        minHeight: '100vh',
-      }}
-      className="px-4 py-10 md:px-12"
+      // backgroundColor is the buyer-facing event theme color picked per page,
+      // so it is genuinely runtime-computed and stays inline.
+      style={{ backgroundColor: theme.background ?? '#0b0b10' }}
+      className="ui20 min-h-screen px-4 py-10 text-white md:px-12"
     >
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-bold">Checkout</h1>
-        <p className="mt-1 text-sm opacity-70">{page.page.headline}</p>
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageTitle>Checkout</PageTitle>
+            <PageDescription>{page.page.headline}</PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
         <PublicCheckoutForm
           pageSlug={pageSlug}
           eventId={page.eventId}

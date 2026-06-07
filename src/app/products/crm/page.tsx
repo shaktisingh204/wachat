@@ -18,7 +18,7 @@ async function Inner() {
 
 export default function CrmProductPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen" style={{ background: '#020817' }} />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#020817]" />}>
             <Inner />
         </Suspense>
     );
