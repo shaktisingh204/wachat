@@ -1,8 +1,20 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+} from '@/components/sabcrm/20ui';
 import { useState } from 'react';
-import { AlertTriangle, ChevronRight, Hash } from 'lucide-react';
+import { AlertTriangle, Hash } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml, type ParsedHtml } from '@/lib/seo-tools/api-client';
 
@@ -76,86 +88,73 @@ export default function PageStructurePage() {
   };
 
   return (
-    <ToolShell title="Page Structure Analyzer" description="Analyze the H1–H6 heading hierarchy of a page.">
-      <div className="flex gap-2">
-        <Input
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://example.com"
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-        />
-        <Button onClick={run} disabled={loading || !url}>
-          {loading ? 'Analyzing…' : 'Analyze'}
+    <ToolShell title="Page Structure Analyzer" description="Analyze the H1 to H6 heading hierarchy of a page.">
+      <div className="flex items-end gap-2">
+        <Field label="Page URL" className="flex-1">
+          <Input
+            type="url"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+          />
+        </Field>
+        <Button variant="primary" onClick={run} disabled={!url} loading={loading}>
+          {loading ? 'Analyzing' : 'Analyze'}
         </Button>
       </div>
 
       {error && (
-        <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-          <CardBody className="p-4 text-[var(--st-text)] text-sm flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4" />
-            {error}
-          </CardBody>
-        </Card>
+        <Alert tone="danger" title="Could not analyze page">
+          {error}
+        </Alert>
       )}
 
       {p && orderedHeadings && (
         <div className="space-y-6">
           {warnings.length > 0 && (
-            <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/30">
-              <CardBody className="p-4">
-                <h3 className="text-sm font-bold text-[var(--st-text)] flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  Structure Warnings ({warnings.length})
-                </h3>
-                <ul className="list-disc pl-5 space-y-1">
-                  {warnings.map((w, i) => (
-                    <li key={i} className="text-xs text-[var(--st-text)]">{w}</li>
-                  ))}
-                </ul>
-              </CardBody>
-            </Card>
+            <Alert tone="warning" icon={AlertTriangle} title={`Structure warnings (${warnings.length})`}>
+              <ul className="list-disc pl-5 space-y-1">
+                {warnings.map((w, i) => (
+                  <li key={i} className="text-xs">{w}</li>
+                ))}
+              </ul>
+            </Alert>
           )}
 
-          <Card>
-            <CardBody className="p-0">
-              <div className="p-4 border-b bg-[var(--st-bg-muted)]/20">
-                <h3 className="text-sm font-semibold">Heading Tree</h3>
-                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
-                  Total headings: {orderedHeadings.length}
-                </p>
-              </div>
-              <div className="p-4 overflow-x-auto">
-                {orderedHeadings.length === 0 ? (
-                  <p className="text-sm text-[var(--st-text-secondary)] italic">No headings found on this page.</p>
-                ) : (
-                  <div className="space-y-1 min-w-[300px]">
-                    {orderedHeadings.map((h, i) => {
-                      const ml = (h.level - 1) * 1.5; // margin-left multiplier
-                      return (
-                        <div
-                          key={i}
-                          className="flex items-start gap-2 text-sm group py-0.5"
-                          style={{ marginLeft: `${ml}rem` }}
-                        >
-                          <span
-                            className={cn(
-                              "font-mono text-[10px] px-1.5 py-0.5 rounded shrink-0 mt-0.5",
-                              h.level === 1 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
-                              h.level === 2 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
-                              h.level === 3 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
-                              h.level === 4 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]",
-                              h.level >= 5 && "bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
-                            )}
-                          >
-                            H{h.level}
-                          </span>
-                          <span className="text-[var(--st-text)] leading-tight py-0.5 whitespace-pre-wrap break-words">{h.text}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+          <Card padding="none">
+            <CardHeader>
+              <CardTitle>Heading Tree</CardTitle>
+              <CardDescription>Total headings: {orderedHeadings.length}</CardDescription>
+            </CardHeader>
+            <CardBody className="overflow-x-auto">
+              {orderedHeadings.length === 0 ? (
+                <EmptyState
+                  icon={Hash}
+                  title="No headings found"
+                  description="This page does not contain any H1 to H6 heading tags."
+                />
+              ) : (
+                <div className="space-y-1 min-w-[300px]">
+                  {orderedHeadings.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-2 text-sm py-0.5"
+                      style={{ marginLeft: `${(h.level - 1) * 1.5}rem` }}
+                    >
+                      <Badge
+                        tone={h.level === 1 ? 'accent' : 'neutral'}
+                        className="font-mono shrink-0 mt-0.5"
+                      >
+                        H{h.level}
+                      </Badge>
+                      <span className="text-[var(--st-text)] leading-tight py-0.5 whitespace-pre-wrap break-words">
+                        {h.text}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>

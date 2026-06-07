@@ -1,20 +1,60 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, EmptyState, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  Hash,
-  Loader2,
-  Plus,
-  RefreshCw,
-  Search,
-  Trash2,
-  ExternalLink,
-  Crown,
-  AlertCircle,
-  Calendar,
-  Users,
-  MoreHorizontal,
-  } from 'lucide-react';
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    Badge,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    StatCard,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    Hash,
+    Loader2,
+    Plus,
+    RefreshCw,
+    Search,
+    Trash2,
+    ExternalLink,
+    Crown,
+    AlertCircle,
+    Calendar,
+    Users,
+    MoreHorizontal,
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -31,8 +71,6 @@ import {
     type ChannelRow,
 } from '@/app/actions/telegram-channels.actions';
 
-const ACCENT = '#229ED9';
-
 type Filters = {
     search: string;
     type: 'all' | 'channel' | 'supergroup';
@@ -45,40 +83,6 @@ type DiscoverState = {
     input: string;
     busy: boolean;
 };
-
-function KpiCard({
-    label,
-    value,
-    hint,
-    icon,
-}: {
-    label: string;
-    value: React.ReactNode;
-    hint?: string;
-    icon: React.ReactElement;
-}) {
-    return (
-        <Card className="p-4">
-            <div className="flex items-start justify-between">
-                <div className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-                    {label}
-                </div>
-                <div
-                    className="flex h-7 w-7 items-center justify-center rounded-md"
-                    style={{ background: `${ACCENT}1A`, color: ACCENT }}
-                >
-                    {React.cloneElement(icon, {
-                        className: 'h-3.5 w-3.5',
-                    } as React.HTMLAttributes<SVGElement>)}
-                </div>
-            </div>
-            <div className="mt-1.5 text-[22px] leading-tight text-[var(--st-text)]">{value}</div>
-            {hint ? (
-                <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">{hint}</div>
-            ) : null}
-        </Card>
-    );
-}
 
 function ChannelCard({
     channel,
@@ -117,7 +121,7 @@ function ChannelCard({
                             className="mt-0.5 inline-flex items-center gap-1 truncate text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                         >
                             @{channel.username}
-                            <ExternalLink className="h-3 w-3" />
+                            <ExternalLink className="h-3 w-3" aria-hidden="true" />
                         </a>
                     ) : (
                         <div className="mt-0.5 truncate text-xs text-[var(--st-text-secondary)]">
@@ -127,13 +131,12 @@ function ChannelCard({
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button
+                        <IconButton
+                            label="Channel actions"
+                            icon={MoreHorizontal}
                             variant="ghost"
-                            size="icon-sm"
-                            aria-label="Channel actions"
-                        >
-                            <MoreHorizontal />
-                        </Button>
+                            size="sm"
+                        />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem onSelect={() => onOpen(channel._id)}>
@@ -142,7 +145,10 @@ function ChannelCard({
                         <DropdownMenuItem onSelect={() => onRefresh(channel._id)}>
                             Refresh from Telegram
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => onRemove(channel._id)}>
+                        <DropdownMenuItem
+                            variant="danger"
+                            onSelect={() => onRemove(channel._id)}
+                        >
                             Remove channel
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -153,19 +159,20 @@ function ChannelCard({
                 <Badge variant="outline">{channel.type}</Badge>
                 {channel.isAdmin ? (
                     <Badge variant="secondary">
-                        <Crown className="mr-1 h-3 w-3" /> Admin
+                        <Crown className="mr-1 h-3 w-3" aria-hidden="true" /> Admin
                     </Badge>
                 ) : (
-                    <Badge variant="danger">
-                        <AlertCircle className="mr-1 h-3 w-3" /> Not admin
+                    <Badge variant="destructive">
+                        <AlertCircle className="mr-1 h-3 w-3" aria-hidden="true" /> Not
+                        admin
                     </Badge>
                 )}
                 <span className="inline-flex items-center gap-1">
-                    <Users className="h-3 w-3" />
-                    {channel.memberCount ?? '—'} members
+                    <Users className="h-3 w-3" aria-hidden="true" />
+                    {channel.memberCount ?? 'n/a'} members
                 </span>
                 <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
+                    <Calendar className="h-3 w-3" aria-hidden="true" />
                     Synced{' '}
                     {new Date(channel.lastSyncedAt).toLocaleString(undefined, {
                         dateStyle: 'medium',
@@ -179,18 +186,16 @@ function ChannelCard({
                     href={`/dashboard/telegram/channels/${channel._id}`}
                     className="flex-1"
                 >
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" block>
                         Open
                     </Button>
                 </Link>
-                <Button
+                <IconButton
+                    label="Refresh channel"
+                    icon={RefreshCw}
                     variant="ghost"
-                    size="icon"
                     onClick={() => onRefresh(channel._id)}
-                    aria-label="Refresh"
-                >
-                    <RefreshCw />
-                </Button>
+                />
             </div>
         </Card>
     );
@@ -215,19 +220,18 @@ function DiscoverDialog({
                 <DialogHeader>
                     <DialogTitle>Discover channel</DialogTitle>
                     <DialogDescription>
-                        Add the bot as an admin of the channel first, then point us at the
-                        channel by its public @username or numeric chat id.
+                        Add the bot as an admin of the channel first, then point us at
+                        the channel by its public @username or numeric chat id.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-3">
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Bot</Label>
+                    <Field label="Bot">
                         <Select
                             value={state.botId}
                             onValueChange={(v) => onChange({ ...state, botId: v })}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Bot">
                                 <SelectValue placeholder="Pick a bot" />
                             </SelectTrigger>
                             <SelectContent>
@@ -238,22 +242,25 @@ function DiscoverDialog({
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                        <Label>Channel</Label>
+                    </Field>
+                    <Field
+                        label="Channel"
+                        help={
+                            <>
+                                We will call <code>getChat</code> and verify the bot is an
+                                administrator before saving.
+                            </>
+                        }
+                    >
                         <Input
                             value={state.input}
                             onChange={(e) =>
                                 onChange({ ...state, input: e.target.value })
                             }
                             placeholder="@channel_username or -1001234567890"
-                            leadingSlot={<Hash />}
+                            iconLeft={Hash}
                         />
-                        <p className="text-[11px] text-[var(--st-text-secondary)]">
-                            We will call <code>getChat</code> and verify the bot is an
-                            administrator before saving.
-                        </p>
-                    </div>
+                    </Field>
                 </div>
 
                 <DialogFooter>
@@ -261,18 +268,13 @@ function DiscoverDialog({
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         onClick={onSubmit}
+                        loading={state.busy}
                         disabled={state.busy || !state.botId || !state.input.trim()}
+                        iconLeft={state.busy ? undefined : Plus}
                     >
-                        {state.busy ? (
-                            <>
-                                <Loader2 className="animate-spin" /> Adding…
-                            </>
-                        ) : (
-                            <>
-                                <Plus /> Add
-                            </>
-                        )}
+                        {state.busy ? 'Adding' : 'Add'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -329,10 +331,9 @@ export default function TelegramChannelsPage() {
                 limit: 200,
             });
             if (res.error) {
-                toast({
+                toast.error({
                     title: 'Failed to load channels',
                     description: res.error,
-                    variant: 'destructive',
                 });
             }
             setChannels(res.channels);
@@ -353,7 +354,7 @@ export default function TelegramChannelsPage() {
     const kpis = React.useMemo(() => {
         // posts-this-week and per-channel scheduled counts live on the
         // detail mirror; the list endpoint doesn't include them, so we
-        // surface "—" here and let the user drill into a channel for
+        // surface "n/a" here and let the user drill into a channel for
         // live numbers.
         const top = channels
             .filter((c) => typeof c.memberCount === 'number')
@@ -362,7 +363,7 @@ export default function TelegramChannelsPage() {
             total: channels.length,
             postsThisWeek: null as number | null,
             scheduled: null as number | null,
-            topName: top?.title ?? '—',
+            topName: top?.title ?? 'n/a',
             topMembers: top?.memberCount ?? null,
         };
     }, [channels]);
@@ -376,10 +377,9 @@ export default function TelegramChannelsPage() {
                 // Telegram and re-saves the mirror.
                 const res = await getChannel(channelId, projectId);
                 if (res.error) {
-                    toast({
+                    toast.error({
                         title: 'Refresh failed',
                         description: res.error,
-                        variant: 'destructive',
                     });
                 } else if (res.channel) {
                     setChannels((curr) =>
@@ -387,7 +387,7 @@ export default function TelegramChannelsPage() {
                             c._id === channelId ? (res.channel as ChannelRow) : c,
                         ),
                     );
-                    toast({ title: 'Channel refreshed' });
+                    toast.success('Channel refreshed');
                 }
             } finally {
                 setRefreshing(null);
@@ -403,12 +403,11 @@ export default function TelegramChannelsPage() {
         const res = await removeChannel(id, projectId);
         if (res.success) {
             setChannels((curr) => curr.filter((c) => c._id !== id));
-            toast({ title: 'Channel removed' });
+            toast.success('Channel removed');
         } else {
-            toast({
+            toast.error({
                 title: 'Remove failed',
                 description: res.error,
-                variant: 'destructive',
             });
         }
     }, [pendingRemove, projectId, toast]);
@@ -417,10 +416,9 @@ export default function TelegramChannelsPage() {
         if (!projectId) return;
         const target = buildDiscoverBody(discover.input);
         if (!target.chatId && !target.username) {
-            toast({
+            toast.error({
                 title: 'Channel required',
                 description: 'Paste a @username or numeric channel id.',
-                variant: 'destructive',
             });
             return;
         }
@@ -431,15 +429,14 @@ export default function TelegramChannelsPage() {
             ...target,
         });
         if (res.success) {
-            toast({ title: 'Channel added', description: res.message });
+            toast.success({ title: 'Channel added', description: res.message });
             setDiscover({ open: false, botId: '', input: '', busy: false });
             await load();
         } else {
             setDiscover((s) => ({ ...s, busy: false }));
-            toast({
+            toast.error({
                 title: 'Discover failed',
                 description: res.error,
-                variant: 'destructive',
             });
         }
     }, [projectId, discover, toast, load]);
@@ -462,6 +459,7 @@ export default function TelegramChannelsPage() {
         return (
             <div className="p-6">
                 <EmptyState
+                    icon={Hash}
                     title="Pick a project"
                     description="Telegram channels are scoped to a project. Select one from the header switcher to continue."
                 />
@@ -477,22 +475,21 @@ export default function TelegramChannelsPage() {
                     <PageHeading>
                         <PageEyebrow>Telegram</PageEyebrow>
                         <PageTitle>
-                            <div className="inline-flex items-center gap-2">
-                                <span
-                                    className="flex h-8 w-8 items-center justify-center rounded-md"
-                                    style={{ background: `${ACCENT}1A`, color: ACCENT }}
-                                >
-                                    <Hash className="h-4 w-4" />
+                            <span className="inline-flex items-center gap-2">
+                                <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+                                    <Hash className="h-4 w-4" aria-hidden="true" />
                                 </span>
                                 Telegram Channels
-                            </div>
+                            </span>
                         </PageTitle>
                         <PageDescription>
-                            Discover channels your bots are admins of, post messages, schedule
-                            broadcasts, and manage administrators.
+                            Discover channels your bots are admins of, post messages,
+                            schedule broadcasts, and manage administrators.
                         </PageDescription>
                     </PageHeading>
                     <Button
+                        variant="primary"
+                        iconLeft={Plus}
                         onClick={() =>
                             setDiscover({
                                 open: true,
@@ -502,16 +499,15 @@ export default function TelegramChannelsPage() {
                             })
                         }
                         disabled={bots.length === 0}
-                        style={{ background: ACCENT }}
                     >
-                        <Plus /> Discover channel
+                        Discover channel
                     </Button>
                 </div>
             </PageHeader>
 
             {bots.length === 0 ? (
                 <Card className="p-4 text-sm text-[var(--st-text-secondary)]">
-                    Connect a Telegram bot first — channels are managed through your bot.{' '}
+                    Connect a Telegram bot first. Channels are managed through your bot.{' '}
                     <Link
                         href="/dashboard/telegram/bots"
                         className="text-[var(--st-text)] underline"
@@ -524,28 +520,34 @@ export default function TelegramChannelsPage() {
 
             {/* KPI */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <KpiCard
+                <StatCard
                     label="Total channels"
                     value={kpis.total}
-                    icon={<Hash />}
+                    icon={Hash}
+                    accent="var(--st-accent)"
                 />
-                <KpiCard
+                <StatCard
                     label="Posts this week"
-                    value={kpis.postsThisWeek ?? '—'}
-                    hint="Open a channel for live counts"
-                    icon={<Calendar />}
+                    value={kpis.postsThisWeek ?? 'n/a'}
+                    icon={Calendar}
+                    accent="var(--st-accent)"
                 />
-                <KpiCard
+                <StatCard
                     label="Scheduled"
-                    value={kpis.scheduled ?? '—'}
-                    hint="Per-channel"
-                    icon={<Calendar />}
+                    value={kpis.scheduled ?? 'n/a'}
+                    icon={Calendar}
+                    accent="var(--st-accent)"
                 />
-                <KpiCard
+                <StatCard
                     label="Top by members"
                     value={kpis.topName}
-                    hint={kpis.topMembers ? `${kpis.topMembers} members` : undefined}
-                    icon={<Users />}
+                    icon={Users}
+                    accent="var(--st-accent)"
+                    delta={
+                        kpis.topMembers
+                            ? { value: `${kpis.topMembers} members`, tone: 'neutral' }
+                            : undefined
+                    }
                 />
             </div>
 
@@ -556,8 +558,9 @@ export default function TelegramChannelsPage() {
                     onChange={(e) =>
                         setFilters((f) => ({ ...f, search: e.target.value }))
                     }
-                    placeholder="Search title or @username…"
-                    leadingSlot={<Search />}
+                    placeholder="Search title or @username"
+                    iconLeft={Search}
+                    aria-label="Search channels"
                     className="min-w-[240px] flex-1"
                 />
                 <Select
@@ -566,7 +569,7 @@ export default function TelegramChannelsPage() {
                         setFilters((f) => ({ ...f, type: v }))
                     }
                 >
-                    <SelectTrigger className="w-[160px]">
+                    <SelectTrigger className="w-[160px]" aria-label="Filter by type">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -579,7 +582,7 @@ export default function TelegramChannelsPage() {
                     value={filters.botId}
                     onValueChange={(v) => setFilters((f) => ({ ...f, botId: v }))}
                 >
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className="w-[200px]" aria-label="Filter by bot">
                         <SelectValue placeholder="All bots" />
                     </SelectTrigger>
                     <SelectContent>
@@ -591,12 +594,12 @@ export default function TelegramChannelsPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                <Button variant="outline" onClick={load} disabled={loading}>
-                    {loading ? (
-                        <Loader2 className="animate-spin" />
-                    ) : (
-                        <RefreshCw />
-                    )}{' '}
+                <Button
+                    variant="outline"
+                    onClick={load}
+                    loading={loading}
+                    iconLeft={loading ? undefined : RefreshCw}
+                >
                     Refresh
                 </Button>
             </div>
@@ -610,6 +613,7 @@ export default function TelegramChannelsPage() {
                 </div>
             ) : channels.length === 0 ? (
                 <EmptyState
+                    icon={Hash}
                     title="No channels yet"
                     description={
                         bots.length === 0
@@ -619,6 +623,8 @@ export default function TelegramChannelsPage() {
                     action={
                         bots.length > 0 ? (
                             <Button
+                                variant="primary"
+                                iconLeft={Plus}
                                 onClick={() =>
                                     setDiscover({
                                         open: true,
@@ -627,9 +633,8 @@ export default function TelegramChannelsPage() {
                                         busy: false,
                                     })
                                 }
-                                style={{ background: ACCENT }}
                             >
-                                <Plus /> Discover channel
+                                Discover channel
                             </Button>
                         ) : null
                     }
@@ -676,15 +681,16 @@ export default function TelegramChannelsPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Remove channel?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This unlinks <strong>{pendingRemove?.title}</strong> from SabNode.
-                            The bot keeps its administrator role on Telegram — remove the bot
-                            from the channel manually if you also want to revoke its access.
+                            This unlinks <strong>{pendingRemove?.title}</strong> from
+                            SabNode. The bot keeps its administrator role on Telegram, so
+                            remove the bot from the channel manually if you also want to
+                            revoke its access.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleRemove}>
-                            <Trash2 /> Remove
+                            <Trash2 className="h-4 w-4" aria-hidden="true" /> Remove
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

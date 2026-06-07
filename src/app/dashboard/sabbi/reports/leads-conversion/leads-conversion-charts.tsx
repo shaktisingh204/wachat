@@ -1,64 +1,53 @@
 'use client';
 
 import * as React from 'react';
+import { BarChart3 } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-  LabelList,
-} from 'recharts';
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  EmptyState,
+  Recharts,
+  type ChartConfig,
+} from '@/components/sabcrm/20ui';
+
+const { Bar, BarChart, CartesianGrid, LabelList, XAxis, YAxis } = Recharts;
+
+const chartConfig: ChartConfig = {
+  count: {
+    label: 'Leads',
+    color: 'var(--st-accent)',
+  },
+};
 
 export function LeadsBarChart({ chartData }: { chartData: any[] }) {
   if (chartData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-        No leads in this range.
-      </div>
+      <EmptyState
+        icon={BarChart3}
+        title="No leads in this range"
+        description="Adjust the date range or filters to see conversion stages here."
+        size="sm"
+      />
     );
   }
+
   return (
-    <div style={{ width: '100%', height: 320 }}>
-      <ResponsiveContainer>
-        <BarChart
-          data={chartData}
-          margin={{ left: 8, right: 16, top: 16, bottom: 8 }}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(var(--border))"
-          />
-          <XAxis
-            dataKey="stage"
-            stroke="hsl(var(--muted-foreground))"
+    <ChartContainer config={chartConfig} className="h-80 w-full">
+      <BarChart data={chartData} margin={{ left: 8, right: 16, top: 16, bottom: 8 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+        <XAxis dataKey="stage" stroke="var(--st-text-secondary)" fontSize={11} />
+        <YAxis stroke="var(--st-text-secondary)" fontSize={11} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Bar dataKey="count" fill="var(--color-count)" radius={[4, 4, 0, 0]}>
+          <LabelList
+            dataKey="label"
+            position="top"
+            fill="var(--st-text-secondary)"
             fontSize={11}
           />
-          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-          <Tooltip
-            contentStyle={{
-              background: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-          />
-          <Bar
-            dataKey="count"
-            fill="hsl(var(--primary))"
-            radius={[4, 4, 0, 0]}
-          >
-            <LabelList
-              dataKey="label"
-              position="top"
-              fill="hsl(var(--muted-foreground))"
-              fontSize={11}
-            />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+        </Bar>
+      </BarChart>
+    </ChartContainer>
   );
 }

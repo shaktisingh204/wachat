@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react';
 import {
   ResponsiveContainer,
   LineChart,
@@ -15,63 +16,64 @@ import {
   Pie,
   Cell,
 } from 'recharts';
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 const PIE_COLORS = [
-  'hsl(var(--primary))',
-  '#10b981',
-  '#f59e0b',
-  '#ef4444',
+  'var(--st-accent)',
+  'var(--st-status-ok)',
+  'var(--st-warn)',
+  'var(--st-danger)',
   '#0ea5e9',
   '#8b5cf6',
   '#ec4899',
   '#14b8a6',
 ];
 
+const TOOLTIP_STYLE = {
+  background: 'var(--st-bg)',
+  border: '1px solid var(--st-border)',
+  borderRadius: 'var(--st-radius)',
+  fontSize: 12,
+} as const;
+
 export function SalesLineChart({ lineData }: { lineData: any[] }) {
   if (lineData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-        No closed deals in this range.
-      </div>
+      <EmptyState
+        icon={LineChartIcon}
+        title="No closed deals in this range"
+        description="Adjust the date filter to see won and lost deals over time."
+        size="sm"
+      />
     );
   }
   return (
-    <div style={{ width: '100%', height: 280 }}>
+    <div className="h-[280px] w-full">
       <ResponsiveContainer>
         <LineChart
           data={lineData}
           margin={{ left: 8, right: 16, top: 8, bottom: 8 }}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="hsl(var(--border))"
-          />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
           <XAxis
             dataKey="period"
-            stroke="hsl(var(--muted-foreground))"
+            stroke="var(--st-text-secondary)"
             fontSize={11}
           />
-          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-          <Tooltip
-            contentStyle={{
-              background: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-          />
+          <YAxis stroke="var(--st-text-secondary)" fontSize={11} />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <Line
             type="monotone"
             dataKey="Won"
-            stroke="#10b981"
+            stroke="var(--st-status-ok)"
             strokeWidth={2}
             dot={{ r: 3 }}
           />
           <Line
             type="monotone"
             dataKey="Lost"
-            stroke="hsl(var(--destructive))"
+            stroke="var(--st-danger)"
             strokeWidth={2}
             dot={{ r: 3 }}
           />
@@ -100,13 +102,16 @@ export function SalesPieChart({ pieData }: { pieData: any[] }) {
 
   if (pieData.length === 0) {
     return (
-      <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-        No deals.
-      </div>
+      <EmptyState
+        icon={PieChartIcon}
+        title="No deals yet"
+        description="Deals will appear here grouped by stage once you start adding them."
+        size="sm"
+      />
     );
   }
   return (
-    <div style={{ width: '100%', height: 280 }}>
+    <div className="h-[280px] w-full">
       <ResponsiveContainer>
         <PieChart>
           <Pie
@@ -116,7 +121,7 @@ export function SalesPieChart({ pieData }: { pieData: any[] }) {
             outerRadius={80}
             label={(d: { name?: string }) => d.name ?? ''}
             onClick={handleClick}
-            style={{ cursor: 'pointer' }}
+            className="cursor-pointer"
           >
             {pieData.map((_, i) => (
               <Cell
@@ -125,14 +130,7 @@ export function SalesPieChart({ pieData }: { pieData: any[] }) {
               />
             ))}
           </Pie>
-          <Tooltip
-            contentStyle={{
-              background: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 8,
-              fontSize: 12,
-            }}
-          />
+          <Tooltip contentStyle={TOOLTIP_STYLE} />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -1,21 +1,38 @@
 'use client';
 
-import { Badge, Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Badge,
+    Button,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/sabcrm/20ui';
 import { useRouter } from 'next/navigation';
 import {
-  Send,
-  Bot,
-  MessageCircle,
-  Users,
-  Radio,
-  Package,
-  CreditCard,
-  Webhook,
-  Loader2,
-  Plug,
-  RefreshCw,
-  Search,
-  AlertCircle
+    Send,
+    Bot,
+    MessageCircle,
+    Users,
+    Radio,
+    Package,
+    CreditCard,
+    Webhook,
+    Loader2,
+    Plug,
+    RefreshCw,
+    Search,
 } from 'lucide-react';
 
 import * as React from 'react';
@@ -101,7 +118,7 @@ export default function TelegramOverviewPage() {
     const router = useRouter();
     const projectId = activeProject?._id?.toString() ?? '';
 
-    // Telegram's true landing page is /dashboard/telegram/projects — every
+    // Telegram's true landing page is /dashboard/telegram/projects - every
     // visit here without an active project bounces there to pick or create
     // one. Wait for `isLoadingProject` so we don't bounce while the
     // localStorage-backed activeProjectId is still being hydrated.
@@ -117,7 +134,7 @@ export default function TelegramOverviewPage() {
     const [error, setError] = React.useState<string | null>(null);
     const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null);
     const [isMounted, setIsMounted] = React.useState(false);
-    
+
     // Filtering and sorting state for actions
     const [searchQuery, setSearchQuery] = React.useState('');
     const [sortBy, setSortBy] = React.useState<'default' | 'alphabetical'>('default');
@@ -132,15 +149,15 @@ export default function TelegramOverviewPage() {
             if (!isRefresh) setLoading(false);
             return;
         }
-        
+
         if (isRefresh) {
             setRefreshing(true);
         } else {
             setLoading(true);
         }
-        
+
         setError(null);
-        
+
         try {
             const [overview, bots] = await Promise.all([
                 getTelegramOverview(projectId).catch((err) => {
@@ -152,7 +169,7 @@ export default function TelegramOverviewPage() {
                     throw new Error('Failed to load bot data.');
                 }),
             ]);
-            
+
             const rows = bots.bots ?? [];
             setStats({
                 bots: overview.bots ?? rows.length,
@@ -172,11 +189,11 @@ export default function TelegramOverviewPage() {
 
     React.useEffect(() => {
         let cancelled = false;
-        
+
         const fetch = async () => {
             await loadData();
         };
-        
+
         void fetch();
 
         // Real-time updates simulation: poll every 30 seconds
@@ -193,8 +210,8 @@ export default function TelegramOverviewPage() {
     if (!activeProject) {
         return (
             <div className="flex h-[60vh] flex-col items-center justify-center gap-3 text-[var(--st-text-secondary)]">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <p className="text-[12.5px]">Loading your Telegram workspaces…</p>
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                <p className="text-[12.5px]">Loading your Telegram workspaces...</p>
             </div>
         );
     }
@@ -202,8 +219,8 @@ export default function TelegramOverviewPage() {
     const fmt = (n: number) => n.toLocaleString();
 
     const filteredAndSortedActions = React.useMemo(() => {
-        let result = QUICK_ACTIONS.filter(action => 
-            action.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        let result = QUICK_ACTIONS.filter(action =>
+            action.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
             action.description.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
@@ -217,49 +234,42 @@ export default function TelegramOverviewPage() {
     return (
         <div className="flex flex-col gap-8">
             <TelegramProjectGate />
+
             {/* Header */}
-            <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                    <div
-                        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
-                        style={{
-                            background: 'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
-                            boxShadow: '0 12px 32px rgba(0, 125, 187, 0.28)',
-                        }}
-                    >
-                        <Send className="h-7 w-7 text-white" strokeWidth={1.75} />
+            <PageHeader bordered={false}>
+                <PageHeaderHeading className="flex-row items-start gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[var(--st-accent)] text-white shadow-[0_12px_32px_rgba(0,0,0,0.18)]">
+                        <Send className="h-7 w-7" strokeWidth={1.75} aria-hidden="true" />
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[26px] leading-tight text-[var(--st-text)]">
-                                Telegram
-                            </h1>
-                            <Badge variant="ghost">
+                            <PageTitle>Telegram</PageTitle>
+                            <Badge tone="neutral" kind="outline">
                                 Beta
                             </Badge>
                         </div>
-                        <p className="mt-1.5 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
+                        <PageDescription>
                             Connect Telegram bots and Business accounts to SabNode. Run
                             campaigns, automate replies, handle payments in Stars, and manage
-                            channels — all from one place.
-                        </p>
+                            channels, all from one place.
+                        </PageDescription>
                     </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-2 flex-wrap justify-end">
+                </PageHeaderHeading>
+                <PageActions className="items-center">
                     {isMounted && lastUpdated && (
-                        <span className="text-[11px] text-[var(--st-text-secondary)] mr-2">
+                        <span className="mr-2 text-[11px] text-[var(--st-text-secondary)]">
                             Last updated: {lastUpdated.toLocaleTimeString()}
                         </span>
                     )}
-                    <Button
+                    <IconButton
+                        label="Refresh stats"
+                        icon={RefreshCw}
                         variant="ghost"
                         size="sm"
                         onClick={() => loadData(true)}
                         disabled={loading || refreshing}
-                        className="w-9 px-0"
-                    >
-                        <RefreshCw className={`h-4 w-4 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
-                    </Button>
+                        className={(loading || refreshing) ? '[&_svg]:animate-spin' : undefined}
+                    />
                     <Button
                         variant="outline"
                         size="sm"
@@ -270,28 +280,25 @@ export default function TelegramOverviewPage() {
                         Bot API docs
                     </Button>
                     <Link href="/dashboard/telegram/connections">
-                        <Button size="md">
-                            <Plug className="h-3.5 w-3.5" />
+                        <Button size="md" variant="primary" iconLeft={Plug}>
                             Connect a bot
                         </Button>
                     </Link>
-                </div>
-            </div>
+                </PageActions>
+            </PageHeader>
 
             {/* Error Display */}
             {error && (
-                <div className="bg-[var(--st-bg-muted)] text-[var(--st-text)] p-4 rounded-xl flex items-center gap-3 border border-[var(--st-border)]">
-                    <AlertCircle className="h-5 w-5 shrink-0" />
-                    <p className="text-sm font-medium">{error}</p>
-                    <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => loadData(true)} 
-                        className="ml-auto text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                <Alert tone="danger" title={error}>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => loadData(true)}
+                        className="mt-2"
                     >
                         Try Again
                     </Button>
-                </div>
+                </Alert>
             )}
 
             {/* Stats */}
@@ -325,7 +332,7 @@ export default function TelegramOverviewPage() {
                     label="Webhook health"
                     value={
                         stats.bots === 0
-                            ? '—'
+                            ? '-'
                             : stats.botsError === 0
                             ? 'Healthy'
                             : `${stats.botsError} failing`
@@ -340,32 +347,34 @@ export default function TelegramOverviewPage() {
 
             {/* Quick actions */}
             <div>
-                <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-[15px] text-[var(--st-text)] shrink-0">
+                <div className="mb-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <h2 className="shrink-0 text-[15px] text-[var(--st-text)]">
                         Quick actions
                     </h2>
-                    <div className="flex items-center gap-2 max-w-full sm:max-w-md w-full">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-                            <Input 
-                                placeholder="Search actions..." 
+                    <div className="flex w-full max-w-full items-end gap-2 sm:max-w-md">
+                        <Field label="Search actions" className="flex-1">
+                            <Input
+                                placeholder="Search actions"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 h-9 text-[13px]"
+                                iconLeft={Search}
+                                inputSize="sm"
                             />
-                        </div>
-                        <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
-                            <SelectTrigger className="w-[140px] h-9 text-[13px]">
-                                <SelectValue placeholder="Sort by" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="default">Default</SelectItem>
-                                <SelectItem value="alphabetical">A-Z</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        </Field>
+                        <Field label="Sort by" className="w-[140px]">
+                            <Select value={sortBy} onValueChange={(val: any) => setSortBy(val)}>
+                                <SelectTrigger aria-label="Sort actions">
+                                    <SelectValue placeholder="Sort by" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="default">Default</SelectItem>
+                                    <SelectItem value="alphabetical">A-Z</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
                     </div>
                 </div>
-                
+
                 {filteredAndSortedActions.length > 0 ? (
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredAndSortedActions.map((action, idx) => (
@@ -379,12 +388,15 @@ export default function TelegramOverviewPage() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-10 bg-[var(--st-bg-muted)]/50 rounded-xl border border-[var(--st-border)]">
-                        <p className="text-[var(--st-text-secondary)] text-[13px]">No actions match your search.</p>
-                        <Button variant="ghost" size="sm" className="mt-2" onClick={() => setSearchQuery('')}>
-                            Clear search
-                        </Button>
-                    </div>
+                    <EmptyState
+                        icon={Search}
+                        title="No actions match your search."
+                        action={
+                            <Button variant="ghost" size="sm" onClick={() => setSearchQuery('')}>
+                                Clear search
+                            </Button>
+                        }
+                    />
                 )}
             </div>
 

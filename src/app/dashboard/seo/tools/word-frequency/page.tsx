@@ -1,9 +1,9 @@
 'use client';
 
-import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-void _zoruCn;
+import { Card, CardBody, EmptyState, Field, Textarea } from '@/components/sabcrm/20ui';
+import { ListOrdered } from 'lucide-react';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { wordFrequency } from '@/lib/seo-tools/text-utils';
@@ -15,7 +15,14 @@ export default function WordFrequencyPage() {
 
   return (
     <ToolShell title="Word Frequency Counter" description="Rank the most used words in your content.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
+      <Field label="Content" help="Paste an article or page copy to see which words appear most often.">
+        <Textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Paste your content here."
+          className="min-h-[220px]"
+        />
+      </Field>
       <Card>
         <CardBody className="p-4 space-y-2">
           {freq.map((row) => (
@@ -24,12 +31,21 @@ export default function WordFrequencyPage() {
                 <span className="font-mono">{row.word}</span>
                 <span className="text-[var(--st-text-secondary)]">{row.count}</span>
               </div>
-              <div className="h-1.5 bg-[var(--st-bg-muted)] rounded">
-                <div className="h-full rounded bg-[var(--st-text)]" style={{ width: `${(row.count / max) * 100}%` }} />
+              <div className="h-1.5 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)]">
+                <div
+                  className="h-full rounded-[var(--st-radius)] bg-[var(--st-text)]"
+                  style={{ width: `${(row.count / max) * 100}%` }}
+                />
               </div>
             </div>
           ))}
-          {freq.length === 0 && <div className="text-center text-[var(--st-text-secondary)] py-6">Start typing to see word frequency.</div>}
+          {freq.length === 0 && (
+            <EmptyState
+              icon={ListOrdered}
+              title="No words yet"
+              description="Start typing to see word frequency."
+            />
+          )}
         </CardBody>
       </Card>
     </ToolShell>

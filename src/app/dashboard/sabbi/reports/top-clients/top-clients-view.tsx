@@ -10,7 +10,20 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { Card, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import { Users } from 'lucide-react';
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ReportHeader } from '../_components/report-header';
@@ -34,7 +47,7 @@ export function TopClientsView({ rows, page, limit }: Props) {
 
   const chartData = rows.slice(0, 10).map((r) => ({
     name:
-      r.clientName.length > 20 ? `${r.clientName.slice(0, 18)}…` : r.clientName,
+      r.clientName.length > 20 ? `${r.clientName.slice(0, 18)}...` : r.clientName,
     revenue: Math.round(r.revenue),
   }));
 
@@ -72,7 +85,7 @@ export function TopClientsView({ rows, page, limit }: Props) {
         <StatCard label="Total revenue" value={fmtMoney(totalRevenue)} tone="green" />
         <StatCard
           label="Top client"
-          value={top ? top.clientName : '—'}
+          value={top ? top.clientName : '-'}
           hint={top ? fmtMoney(top.revenue) : undefined}
           tone="blue"
         />
@@ -80,35 +93,42 @@ export function TopClientsView({ rows, page, limit }: Props) {
       </div>
 
       <Card>
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-[var(--st-text)]">
-            Top 10 clients by revenue
-          </h2>
-        </div>
-        {chartData.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-            No revenue in this range.
-          </div>
-        ) : (
-          <div style={{ width: '100%', height: 320 }}>
-            <ResponsiveContainer>
-              <BarChart data={chartData} layout="vertical" margin={{ left: 24, right: 16, top: 8, bottom: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" tickFormatter={(v) => fmtNumber(v)} stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <YAxis type="category" dataKey="name" width={140} stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <Tooltip
-                  formatter={(v: number) => fmtMoney(v)}
-                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
-                />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        )}
+        <CardHeader>
+          <CardTitle>Top 10 clients by revenue</CardTitle>
+        </CardHeader>
+        <CardBody>
+          {chartData.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No revenue in this range"
+              description="Adjust the date range to see your top clients by revenue."
+            />
+          ) : (
+            <div className="h-80 w-full">
+              <ResponsiveContainer>
+                <BarChart data={chartData} layout="vertical" margin={{ left: 24, right: 16, top: 8, bottom: 8 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                  <XAxis type="number" tickFormatter={(v) => fmtNumber(v)} stroke="var(--st-text-secondary)" fontSize={11} />
+                  <YAxis type="category" dataKey="name" width={140} stroke="var(--st-text-secondary)" fontSize={11} />
+                  <Tooltip
+                    formatter={(v: number) => fmtMoney(v)}
+                    contentStyle={{
+                      background: 'var(--st-bg-secondary)',
+                      border: '1px solid var(--st-border)',
+                      borderRadius: 'var(--st-radius)',
+                      fontSize: 12,
+                    }}
+                  />
+                  <Bar dataKey="revenue" fill="var(--st-accent)" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardBody>
       </Card>
 
-      <Card>
-        <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+      <Card padding="none">
+        <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           <Table>
             <THead>
               <Tr className="border-[var(--st-border)] hover:bg-transparent">

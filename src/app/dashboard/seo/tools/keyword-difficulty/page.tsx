@@ -1,9 +1,32 @@
 'use client';
 
-import { Button, Input, Card, CardBody, Alert, AlertTitle, AlertDescription, Skeleton, Table, THead, TBody, Tr, Th, Td, Badge } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Input,
+  Field,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Skeleton,
+  Progress,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  type BadgeTone,
+  type ProgressTone,
+} from '@/components/sabcrm/20ui';
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { InfoIcon, Search, ExternalLink, Activity } from 'lucide-react';
+import { Search, ExternalLink } from 'lucide-react';
 
 import { analyzeKeywordDifficultyAction } from './actions';
 
@@ -18,19 +41,23 @@ interface KDResult {
   results: SearchResult[];
 }
 
-type Tone = "green" | "amber" | "red" | "obsidian";
-
-function label(score: number): { text: string; color: string; tone: Tone } {
-  if (score < 30) return { text: 'Easy', color: 'text-[var(--st-text)]', tone: 'green' };
-  if (score < 55) return { text: 'Moderate', color: 'text-[var(--st-text)]', tone: 'amber' };
-  if (score < 80) return { text: 'Hard', color: 'text-[var(--st-text)]', tone: 'red' };
-  return { text: 'Very Hard', color: 'text-[var(--st-text)]', tone: 'red' };
+function label(score: number): { text: string; tone: BadgeTone } {
+  if (score < 30) return { text: 'Easy', tone: 'success' };
+  if (score < 55) return { text: 'Moderate', tone: 'warning' };
+  if (score < 80) return { text: 'Hard', tone: 'danger' };
+  return { text: 'Very Hard', tone: 'danger' };
 }
 
-function getBarColor(score: number): string {
-  if (score < 30) return 'bg-[var(--st-status-ok)]';
-  if (score < 55) return 'bg-[var(--st-warn)]';
-  return 'bg-[var(--st-danger)]';
+function barTone(score: number): ProgressTone {
+  if (score < 30) return 'success';
+  if (score < 55) return 'warning';
+  return 'danger';
+}
+
+function daTone(da: number): BadgeTone {
+  if (da > 70) return 'danger';
+  if (da > 40) return 'warning';
+  return 'success';
 }
 
 export default function KeywordDifficultyPage() {
@@ -42,7 +69,7 @@ export default function KeywordDifficultyPage() {
   const run = async () => {
     const s = kw.trim();
     if (!s || loading) return;
-    
+
     setLoading(true);
     setResult(null);
     setError(null);
@@ -59,29 +86,36 @@ export default function KeywordDifficultyPage() {
   const l = result !== null ? label(result.score) : null;
 
   return (
-    <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword based on top 10 search results.">
+    <ToolShell
+      title="Keyword Difficulty"
+      description="Estimate how hard it will be to rank for a keyword based on top 10 search results."
+    >
       <Alert variant="info" className="mb-6">
-        <InfoIcon className="h-4 w-4" />
         <AlertTitle>Heuristic DA Estimation</AlertTitle>
         <AlertDescription>
-          This tool fetches real Search Engine Results Page (SERP) competitors via DuckDuckGo. However, the Domain Authority (DA) values are estimated using a heuristic algorithm since live indexing APIs are not integrated in this demo environment.
+          This tool fetches real Search Engine Results Page (SERP) competitors via DuckDuckGo. However, the Domain
+          Authority (DA) values are estimated using a heuristic algorithm since live indexing APIs are not integrated in
+          this demo environment.
         </AlertDescription>
       </Alert>
 
-      <div className="flex gap-2">
-        <Input
-          value={kw}
-          onChange={(e) => setKw(e.target.value)}
-          placeholder="Enter a keyword (e.g., 'React hooks')"
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-          className="max-w-md"
-        />
-        <Button onClick={run} disabled={loading || !kw.trim()}>
-          {loading ? (
-            <Activity className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Search className="h-4 w-4 mr-2" />
-          )}
+      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+        <Field label="Keyword" className="w-full max-w-md">
+          <Input
+            value={kw}
+            onChange={(e) => setKw(e.target.value)}
+            placeholder="Enter a keyword (e.g., 'React hooks')"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+            iconLeft={Search}
+          />
+        </Field>
+        <Button
+          variant="primary"
+          onClick={run}
+          disabled={!kw.trim()}
+          loading={loading}
+          iconLeft={Search}
+        >
           Analyze SERP
         </Button>
       </div>
@@ -94,97 +128,87 @@ export default function KeywordDifficultyPage() {
       )}
 
       {loading && (
-        <Card className="mt-6">
-          <CardBody className="p-6 space-y-6">
+        <Card className="mt-6" padding="lg">
+          <div className="space-y-6">
             <div className="space-y-4">
-              <Skeleton className="h-12 w-48" />
-              <Skeleton className="h-4 w-full" />
+              <Skeleton height={48} width={192} />
+              <Skeleton height={16} width="100%" />
             </div>
             <div className="space-y-2 mt-8">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
+              <Skeleton height={40} width="100%" />
+              <Skeleton height={40} width="100%" />
+              <Skeleton height={40} width="100%" />
+              <Skeleton height={40} width="100%" />
+              <Skeleton height={40} width="100%" />
             </div>
-          </CardBody>
+          </div>
         </Card>
       )}
 
       {result !== null && l && (
         <div className="mt-6 space-y-6">
-          <Card>
-            <CardBody className="p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-[var(--st-text)]">Keyword Difficulty</h3>
-                  <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-                    Based on the average Domain Authority of the top 10 ranking pages.
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-end">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold">{result.score}</span>
-                      <span className="text-sm text-[var(--st-text-secondary)]">/ 100</span>
-                    </div>
-                  </div>
-                  <Badge tone={l.tone} className="text-sm px-3 py-1">
-                    {l.text}
-                  </Badge>
-                </div>
-              </div>
-              
-              <div className="w-full h-3 bg-[var(--st-bg-muted)] rounded-full overflow-hidden mt-6 relative">
-                <div 
-                  className={`h-full transition-all duration-1000 ease-out absolute top-0 left-0 ${getBarColor(result.score)}`}
-                  style={{ width: `${result.score}%` }} 
-                />
-              </div>
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardBody className="p-0">
-              <div className="p-6 pb-2">
-                <h3 className="text-lg font-semibold text-[var(--st-text)]">Top 10 Search Results</h3>
+          <Card padding="lg">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-[var(--st-text)]">Keyword Difficulty</h3>
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-                  Simulated SERP analysis for "{kw.trim()}"
+                  Based on the average Domain Authority of the top 10 ranking pages.
                 </p>
               </div>
-              
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-[var(--st-text)]">{result.score}</span>
+                  <span className="text-sm text-[var(--st-text-secondary)]">/ 100</span>
+                </div>
+                <Badge tone={l.tone} className="text-sm px-3 py-1">
+                  {l.text}
+                </Badge>
+              </div>
+            </div>
+
+            <Progress
+              value={result.score}
+              tone={barTone(result.score)}
+              label={`Keyword difficulty: ${result.score} out of 100`}
+              className="mt-6"
+            />
+          </Card>
+
+          <Card padding="none">
+            <CardHeader>
+              <CardTitle>Top 10 Search Results</CardTitle>
+              <CardDescription>Simulated SERP analysis for &quot;{kw.trim()}&quot;</CardDescription>
+            </CardHeader>
+
+            <CardBody className="p-0">
               <Table>
                 <THead>
                   <Tr>
-                    <Th className="w-12 text-center">Rank</Th>
-                    <Th>Page Title & URL</Th>
-                    <Th className="text-right">Domain Authority</Th>
+                    <Th align="center" width={48}>
+                      Rank
+                    </Th>
+                    <Th>Page Title &amp; URL</Th>
+                    <Th align="right">Domain Authority</Th>
                   </Tr>
                 </THead>
                 <TBody>
                   {result.results.map((item, index) => (
                     <Tr key={index}>
-                      <Td className="text-center font-medium text-[var(--st-text-secondary)]">
+                      <Td align="center" className="font-medium text-[var(--st-text-secondary)]">
                         {index + 1}
                       </Td>
                       <Td>
                         <div className="flex flex-col gap-1">
                           <span className="font-medium text-[var(--st-text)] line-clamp-1">{item.title}</span>
-                          <a 
-                            href="#" 
-                            onClick={(e) => e.preventDefault()}
-                            className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline flex items-center gap-1 line-clamp-1"
-                          >
+                          <span className="text-xs text-[var(--st-text-secondary)] flex items-center gap-1 line-clamp-1">
                             {item.url}
-                            <ExternalLink className="h-3 w-3 inline-block opacity-50" />
-                          </a>
+                            <ExternalLink className="h-3 w-3 inline-block opacity-50" aria-hidden="true" />
+                          </span>
                         </div>
                       </Td>
-                      <Td className="text-right">
-                        <Badge tone={item.domainAuthority > 70 ? "red" : item.domainAuthority > 40 ? "amber" : "green"}>
-                          {item.domainAuthority} DA
-                        </Badge>
+                      <Td align="right">
+                        <Badge tone={daTone(item.domainAuthority)}>{item.domainAuthority} DA</Badge>
                       </Td>
                     </Tr>
                   ))}

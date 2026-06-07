@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * TelegramProjectGate — shared "no project selected" banner.
+ * TelegramProjectGate - shared "no project selected" banner.
  *
  * Drop this at the top of any Telegram dashboard page that hits the
  * Rust BFF with a projectId. When `activeProject` is non-null it
- * renders nothing; otherwise it explains *why* the page is empty and
+ * renders nothing; otherwise it explains why the page is empty and
  * sends the user to the Telegram project picker, preserving the
  * `?next=` return path so they land back here after picking.
  */
@@ -13,8 +13,9 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowRight, Info } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
+import { Alert } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 
 export interface TelegramProjectGateProps {
@@ -37,24 +38,20 @@ export function TelegramProjectGate({
     const href = `/dashboard/telegram/projects?next=${encodeURIComponent(target)}`;
 
     return (
-        <div
-            className="flex items-start gap-3 rounded-2xl border p-4"
-            style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
-        >
-            <Info className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
-            <div className="flex-1 text-[12.5px] leading-relaxed text-[var(--st-text)]">
+        <div className="ui20">
+            <Alert tone="info">
                 {explainer ??
                     'Pick a Telegram project to see data here. Bots, chats, broadcasts, and rules are all scoped to a project.'}
                 <div className="mt-2">
                     <Link
                         href={href}
-                        className="inline-flex items-center gap-1 text-[var(--st-text)] underline underline-offset-2"
+                        className="inline-flex items-center gap-1"
                     >
                         Choose a Telegram project{' '}
-                        <ArrowRight className="h-3 w-3" />
+                        <ArrowRight className="h-3 w-3" aria-hidden="true" />
                     </Link>
                 </div>
-            </div>
+            </Alert>
         </div>
     );
 }

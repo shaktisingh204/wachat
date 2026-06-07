@@ -1,13 +1,15 @@
 import React from "react";
 /**
- * Portal login page — public. Renders a minimal HTML shell (no CRM
+ * Portal login page - public. Renders a minimal 20ui shell (no CRM
  * app-shell, no auth) plus the `<PortalLoginForm>` interactive island.
  *
- * Phase 6.6 shell: deliberately bare-bones styling. A future polish pass
- * can swap the inline styles for the tenant's brand palette.
+ * Pure 20ui: the page is scoped with the `ui20` class so design-system
+ * tokens resolve outside the CRM shell, and chrome is built from Card +
+ * Alert primitives. No raw control/primitive elements.
  */
 
 import type { Metadata } from 'next';
+import { Alert, Card, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
 import { PortalLoginForm } from './login-form';
 
 export const dynamic = 'force-dynamic';
@@ -36,59 +38,27 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
     const errorMessage = error ? ERROR_COPY[error] ?? null : null;
 
     return (
-        <main
-            style={{
-                minHeight: '100vh',
-                background: 'var(--st-bg-secondary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 24,
-                fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
-            }}
-        >
-            <section
-                style={{
-                    width: '100%',
-                    maxWidth: 420,
-                    background: 'var(--st-bg)',
-                    borderRadius: 16,
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04)',
-                    padding: 32,
-                }}
-            >
-                <header style={{ marginBottom: 24 }}>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--st-text)', margin: 0 }}>
-                        Sign in to your portal
-                    </h1>
-                    <p style={{ fontSize: 14, color: '#475569', marginTop: 8, marginBottom: 0 }}>
+        <main className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+            <Card variant="elevated" padding="lg" className="w-full max-w-[420px]">
+                <CardHeader>
+                    <CardTitle>Sign in to your portal</CardTitle>
+                    <CardDescription>
                         Enter your email and we&apos;ll send you a one-time sign-in link.
-                    </p>
-                </header>
+                    </CardDescription>
+                </CardHeader>
 
                 {errorMessage ? (
-                    <div
-                        role="alert"
-                        style={{
-                            background: '#fef2f2',
-                            color: '#991b1b',
-                            border: '1px solid #fecaca',
-                            borderRadius: 10,
-                            padding: '10px 12px',
-                            fontSize: 13,
-                            marginBottom: 16,
-                        }}
-                    >
+                    <Alert tone="danger" className="mb-4">
                         {errorMessage}
-                    </div>
+                    </Alert>
                 ) : null}
 
                 <PortalLoginForm tenantSlug={tenantSlug} />
 
-                <p style={{ fontSize: 12, color: 'var(--st-text-tertiary)', marginTop: 24, marginBottom: 0 }}>
+                <p className="mt-6 mb-0 text-xs text-[var(--st-text-tertiary)]">
                     Links expire in 15 minutes and can only be used once.
                 </p>
-            </section>
+            </Card>
         </main>
     );
 }
@@ -96,7 +66,7 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
 
 export default function PortalLoginPage({ params, searchParams }: PageProps) {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={<div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] text-sm text-[var(--st-text-secondary)]">Loading...</div>}>
       <PortalLoginPageContent params={params} searchParams={searchParams} />
     </React.Suspense>
   );

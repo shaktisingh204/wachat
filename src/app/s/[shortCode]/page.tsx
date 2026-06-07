@@ -6,7 +6,7 @@ import { unstable_cache } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { ShortUrl } from '@/lib/definitions';
 import Script from 'next/script';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from '@/components/sabcrm/20ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,12 +37,12 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
     if (!shortCode) {
         notFound();
     }
-    
+
     const headersList = await headers();
-    
+
     // Pass `null` for the hostname to signify a default domain lookup
     const { originalUrl, error, passwordHash, utmParams, isExpired } = await trackClickAndGetUrl(shortCode, null);
-    
+
     if (isExpired) {
         redirect(`/expired?code=${shortCode}`);
     }
@@ -53,7 +53,7 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
         }
         notFound();
     }
-    
+
     if (passwordHash) {
         redirect(`/verify/${shortCode}`);
     }
@@ -80,8 +80,8 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
             else if (/android/i.test(ua)) deviceType = 'android';
             else if (/ipad|tablet/i.test(ua)) deviceType = 'tablet';
             else if (/mobi|touch/i.test(ua)) deviceType = 'mobile';
-            
-            const target = data.deviceTargets.find(t => t.device === deviceType) || 
+
+            const target = data.deviceTargets.find(t => t.device === deviceType) ||
                            data.deviceTargets.find(t => t.device === 'mobile' && (deviceType === 'ios' || deviceType === 'android'));
             if (target) routedUrl = target.url;
         }
@@ -99,9 +99,9 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
                 random -= target.weight;
             }
         }
-        
+
         if (routedUrl) finalUrl = routedUrl;
-        
+
         pixelIds = data.pixelIds;
     }
 
@@ -128,16 +128,16 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
     // Handle tracking pixels securely and respectfully of privacy laws
     const dnt = headersList.get('dnt') === '1';
     const secGpc = headersList.get('sec-gpc') === '1';
-    
+
     const hasPixels = pixelIds && (pixelIds.facebook || pixelIds.google || pixelIds.tiktok);
     const trackingAllowed = !dnt && !secGpc;
 
     if (hasPixels && trackingAllowed) {
         return (
-            <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
+            <main className="ui20 flex min-h-screen flex-col items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
                 {/* Meta redirect as fallback */}
                 <meta httpEquiv="refresh" content={`2;url=${finalUrl}`} />
-                
+
                 {pixelIds?.facebook && (
                     <Script
                         id="fb-pixel"
@@ -196,8 +196,8 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
                         }}
                     />
                 )}
-                
-                <div id="redirect-data" data-url={finalUrl} style={{ display: 'none' }}></div>
+
+                <div id="redirect-data" data-url={finalUrl} className="hidden"></div>
                 <Script id="redirect-script" strategy="afterInteractive" dangerouslySetInnerHTML={{
                     __html: `
                         setTimeout(function() {
@@ -206,12 +206,12 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
                         }, 1000);
                     `
                 }} />
-                
+
                 <div className="text-center space-y-4">
-                    <Loader2 className="w-10 h-10 animate-spin mx-auto text-[var(--st-text)]" />
+                    <Spinner size="lg" label="Redirecting" className="mx-auto" />
                     <p className="text-lg font-medium text-[var(--st-text)]">Taking you to your destination...</p>
                     <p className="text-sm text-[var(--st-text-secondary)]">
-                        If you are not redirected automatically, <a href={finalUrl} className="text-[var(--st-text)] hover:underline">click here</a>.
+                        If you are not redirected automatically, <a href={finalUrl} className="font-medium text-[var(--st-accent)] hover:underline">click here</a>.
                     </p>
                 </div>
             </main>
@@ -225,7 +225,7 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
 
 export default function ShortUrlRedirectPage({ params }: { params: Promise<{ shortCode: string }> }) {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={<div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)]"><Spinner size="lg" label="Loading" /></div>}>
       <ShortUrlRedirectPageContent params={params} />
     </React.Suspense>
   );

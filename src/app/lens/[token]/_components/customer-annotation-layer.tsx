@@ -110,7 +110,7 @@ export function CustomerAnnotationLayer({
               y={p[1]}
               fill={a.color}
               fontSize={size}
-              style={{ fontFamily: 'system-ui, sans-serif' }}
+              fontFamily="system-ui, sans-serif"
             >
               {a.geometry.text ?? ''}
             </text>

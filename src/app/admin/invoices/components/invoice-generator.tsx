@@ -352,12 +352,7 @@ export function InvoiceGenerator() {
               not the app theme tokens, to stay legible on white in any mode. */}
           <div
             ref={previewRef}
-            className="bg-white mx-auto p-10 min-w-[700px] shadow-sm text-neutral-900"
-            style={{
-              width: "210mm",
-              minHeight: "297mm",
-              fontFamily: "'Inter', sans-serif",
-            }}
+            className="bg-white mx-auto p-10 min-w-[700px] w-[210mm] min-h-[297mm] shadow-sm text-neutral-900 font-[Inter,sans-serif]"
           >
             {/* Header */}
             <div className="flex justify-between items-start border-b border-neutral-200 pb-8 mb-8">

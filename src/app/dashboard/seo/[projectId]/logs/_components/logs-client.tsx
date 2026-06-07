@@ -1,6 +1,19 @@
 'use client';
 
-import { Button, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Spinner,
+    Badge,
+    Tag,
+} from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 
 import { FileText, Activity } from 'lucide-react';
@@ -45,15 +58,15 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl text-[var(--st-text)] flex items-center gap-3">
-                        <FileText className="h-8 w-8 text-[var(--st-text)]" />
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle className="flex items-center gap-3">
+                        <FileText className="h-7 w-7 text-[var(--st-text)]" aria-hidden="true" />
                         Log Forensics
-                    </h1>
-                    <p className="text-[var(--st-text-secondary)] mt-1">Identify bot traffic and crawl budget waste.</p>
-                </div>
-            </div>
+                    </PageTitle>
+                    <PageDescription>Identify bot traffic and crawl budget waste.</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <div className="grid gap-6 md:grid-cols-2">
                 <Card>
@@ -71,7 +84,10 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                     </CardHeader>
                     <CardBody className="h-[300px]">
                         {loading ? (
-                            <div className="flex h-full items-center justify-center text-[var(--st-text-secondary)]">Loading...</div>
+                            <div className="flex h-full items-center justify-center gap-2 text-[var(--st-text-secondary)]">
+                                <Spinner label="Loading bot traffic" />
+                                <span>Loading.</span>
+                            </div>
                         ) : (
                             <>
                                 <ResponsiveContainer width="100%" height="100%">
@@ -92,12 +108,11 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                                         <Tooltip />
                                     </PieChart>
                                 </ResponsiveContainer>
-                                <div className="mt-4 flex justify-center gap-4 text-xs">
+                                <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs">
                                     {chartData.map((d: any) => (
-                                        <div key={d.name} className="flex items-center gap-1 text-[var(--st-text)]">
-                                            <div className="h-3 w-3 rounded-full" style={{ background: d.color }}></div>
+                                        <Tag key={d.name} color={d.color}>
                                             {d.name}
-                                        </div>
+                                        </Tag>
                                     ))}
                                 </div>
                             </>
@@ -109,19 +124,22 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Activity className="h-5 w-5 text-[var(--st-danger)]" />
+                        <Activity className="h-5 w-5 text-[var(--st-danger)]" aria-hidden="true" />
                         Identify Crawl Waste
                     </CardTitle>
                 </CardHeader>
                 <CardBody>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
-                            <div>
-                                <h4 className="text-[var(--st-danger)]">404 Errors (Googlebot)</h4>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <Badge tone="danger">Errors</Badge>
+                                    <span className="text-[var(--st-text)]">404 Errors (Googlebot)</span>
+                                </div>
                                 <p className="text-sm text-[var(--st-text-secondary)]">
-                                    {bot404s > 0 
-                                        ? `Bots encountered ${bot404s} dead links.` 
-                                        : 'No dead links hit by bots!'}
+                                    {bot404s > 0
+                                        ? `Bots encountered ${bot404s} dead links.`
+                                        : 'No dead links hit by bots.'}
                                 </p>
                             </div>
                             <Button variant="outline" size="sm">
@@ -129,12 +147,15 @@ export function LogsClient({ projectId, initialData }: { projectId: string, init
                             </Button>
                         </div>
                         <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
-                            <div>
-                                <h4 className="text-[var(--st-warn)]">Slow Responses (&gt;2s)</h4>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2">
+                                    <Badge tone="warning">Slow</Badge>
+                                    <span className="text-[var(--st-text)]">Slow Responses (&gt;2s)</span>
+                                </div>
                                 <p className="text-sm text-[var(--st-text-secondary)]">
-                                    {slowResponses > 0 
-                                        ? `${slowResponses} URLs took >2s to respond to crawlers.` 
-                                        : 'All responses to crawlers were fast!'}
+                                    {slowResponses > 0
+                                        ? `${slowResponses} URLs took over 2s to respond to crawlers.`
+                                        : 'All responses to crawlers were fast.'}
                                 </p>
                             </div>
                             <Button variant="outline" size="sm">

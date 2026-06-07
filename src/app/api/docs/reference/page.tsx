@@ -10,7 +10,7 @@
  * `/dashboard/api/docs`. The curated quick-start curl recipes live at
  * the parent `/api/docs` page.
  *
- * This page returns a full HTML document — Scalar wants control of the
+ * This page returns a full HTML document. Scalar wants control of the
  * <body> so it can mount its own root. Returning a complete document
  * from a Server Component sidesteps the App Router's default layout
  * wrapping.
@@ -30,7 +30,7 @@ export default function ApiReferencePage(): JSX.Element {
           content="Interactive reference for the SabNode public API. 500+ endpoints across messaging, CRM, HRM, sales, accounting, and more."
         />
       </head>
-      <body style={{ margin: 0 }} suppressHydrationWarning>
+      <body className="m-0" suppressHydrationWarning>
         <script
           id="api-reference"
           data-url="/api/v1/openapi"

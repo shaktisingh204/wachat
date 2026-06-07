@@ -9,9 +9,9 @@
  *   - Submit "Pay" button. Calls `createSabcheckoutSession` then redirects to
  *     the gateway-provided URL.
  *
- * Built entirely on the 20ui design system. The only inline styles are the
- * page's runtime-computed accent color (user-picked theme), used to tint the
- * selected-item border and the checkbox accent.
+ * Built entirely on the 20ui design system. The only inline style is the page's
+ * runtime-computed accent color (user-picked theme), used to tint the
+ * selected-item border.
  */
 
 import * as React from 'react';
@@ -25,6 +25,8 @@ import {
   Input,
   Checkbox,
   Alert,
+  PageTitle,
+  PageDescription,
 } from '@/components/sabcrm/20ui';
 
 import { createSabcheckoutSession } from '@/app/actions/sabcheckout-public.actions';
@@ -165,27 +167,24 @@ export function PublicCheckoutForm({
   return (
     <main className="ui20 min-h-screen w-full bg-[var(--st-bg-secondary)] px-4 py-10">
       <div className="mx-auto max-w-xl space-y-6">
-        <header className="space-y-3 text-center">
+        <header className="flex flex-col items-center gap-3 text-center">
           {page.logoFileId ? (
             // Logo is referenced by SabFiles file id; resolved via the
-            // existing `/api/sabfiles/file/[fileId]` route on the live
-            // app (TODO: confirm route name on integration).
+            // existing `/api/sabfiles/file/[fileId]` route on the live app.
             <img
               src={`/api/sabfiles/file/${encodeURIComponent(page.logoFileId)}`}
               alt={`${page.displayName} logo`}
-              className="mx-auto h-12 w-auto"
+              className="h-12 w-auto"
             />
           ) : null}
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
-            {page.displayName}
-          </h1>
+          <PageTitle className="text-2xl">{page.displayName}</PageTitle>
           {page.headline ? (
             <p className="text-base text-[var(--st-text)]">{page.headline}</p>
           ) : null}
           {page.description ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">
+            <PageDescription className="text-center">
               {page.description}
-            </p>
+            </PageDescription>
           ) : null}
         </header>
 
@@ -211,7 +210,6 @@ export function PublicCheckoutForm({
                         onChange={(e) =>
                           setRow(i, { selected: e.target.checked })
                         }
-                        style={{ accentColor: accent }}
                       />
                       <div className="flex-1">
                         <div className="text-sm font-medium text-[var(--st-text)]">

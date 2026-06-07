@@ -1,31 +1,70 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, EmptyState, Input, PageHeader, PageTitle, PageDescription, PageEyebrow, PageActions, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Table, TBody, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
-  DndContext,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  } from '@dnd-kit/core';
+    Alert,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    Input,
+    PageActions,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    StatCard,
+    Table,
+    TBody,
+    Th,
+    THead,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    DndContext,
+    PointerSensor,
+    closestCenter,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
 import {
     SortableContext,
-  arrayMove,
-  verticalListSortingStrategy,
-  } from '@dnd-kit/sortable';
+    arrayMove,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import {
     AlertTriangle,
-  MessageSquareReply,
-  Plus,
-  RefreshCw,
-  Search,
-  } from 'lucide-react';
+    MessageSquareReply,
+    Plus,
+    RefreshCw,
+    Search,
+} from 'lucide-react';
 
 /**
  * Telegram Auto-Reply rule manager.
  *
- * Multi-tenant — every server-action call carries `activeProjectId`
+ * Multi-tenant. Every server-action call carries `activeProjectId`
  * from the project context so the Rust BFF's `require_project` guard
  * works. Media for `reply_media` actions sources from SabFiles via
  * the project-wide picker.
@@ -60,7 +99,6 @@ import {
 import { RuleDetailDrawer } from './_components/rule-detail-drawer';
 import { RuleTableRow } from './_components/rule-table-row';
 
-const ACCENT = '#229ED9';
 const PAGE_SIZE = 50;
 
 const STATUS_OPTIONS = [
@@ -229,6 +267,7 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: 'Saved',
                 description: res.message ?? 'Rule saved.',
+                tone: 'success',
             });
             setEditorOpen(false);
             void loadRules();
@@ -237,7 +276,7 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: 'Save failed',
                 description: res.error ?? 'Could not save the rule.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -257,7 +296,7 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: 'Update failed',
                 description: res.error ?? 'Could not toggle status.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             // Roll back.
             setRules((prev) =>
@@ -271,6 +310,7 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: enabled ? 'Rule enabled' : 'Rule disabled',
                 description: rule.name,
+                tone: 'success',
             });
         }
     }
@@ -279,7 +319,7 @@ export default function TelegramAutoReplyPage() {
         if (!deleteRow || !projectId) return;
         const res = await deleteAutoReplyRuleAction(deleteRow._id, projectId);
         if (res.success) {
-            toast({ title: 'Deleted', description: 'Rule removed.' });
+            toast({ title: 'Deleted', description: 'Rule removed.', tone: 'success' });
             setDeleteRow(null);
             void loadRules();
             void loadConflicts();
@@ -287,7 +327,7 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: 'Delete failed',
                 description: res.error ?? 'Could not delete.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }
@@ -319,11 +359,11 @@ export default function TelegramAutoReplyPage() {
             toast({
                 title: 'Reorder failed',
                 description: res.error ?? 'Could not save new order.',
-                variant: 'destructive',
+                tone: 'danger',
             });
             void loadRules();
         } else {
-            toast({ title: 'Order saved' });
+            toast({ title: 'Order saved', tone: 'success' });
         }
     }
 
@@ -355,30 +395,29 @@ export default function TelegramAutoReplyPage() {
                     <PageEyebrow>Telegram</PageEyebrow>
                     <PageTitle className="flex items-center gap-2">
                         <MessageSquareReply
-                            className="h-6 w-6"
-                            style={{ color: ACCENT }}
+                            className="h-6 w-6 text-[var(--st-accent)]"
+                            aria-hidden="true"
                         />
                         Telegram Auto-Reply
                     </PageTitle>
                     <PageDescription>
                         Rule-based auto responses for incoming Telegram messages.
-                        Rules are evaluated in priority order — lower numbers run first.
+                        Rules are evaluated in priority order, so lower numbers run first.
                     </PageDescription>
                 </div>
                 <PageActions>
                     <Button
                         variant="ghost"
+                        iconLeft={RefreshCw}
                         onClick={() => {
                             void loadRules();
                             void loadConflicts();
                         }}
                         disabled={loading}
                     >
-                        <RefreshCw className="mr-1.5 h-4 w-4" />
                         Refresh
                     </Button>
-                    <Button onClick={openCreate}>
-                        <Plus className="mr-1.5 h-4 w-4" />
+                    <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
                         New rule
                     </Button>
                 </PageActions>
@@ -386,16 +425,17 @@ export default function TelegramAutoReplyPage() {
 
             {/* Conflicts banner */}
             {conflicts.length > 0 && (
-                <Card className="border-[var(--st-border)]/40 bg-[var(--st-bg-muted)]/40 dark:bg-[var(--st-text)]/10">
-                    <CardBody className="flex items-center justify-between gap-3 p-4">
-                        <div className="flex items-center gap-2 text-sm">
-                            <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-                            <span>
-                                <strong>{conflicts.length}</strong> conflicting rule
-                                pair{conflicts.length === 1 ? '' : 's'} detected — two
-                                or more rules share the same trigger pattern.
-                            </span>
-                        </div>
+                <Alert
+                    tone="warning"
+                    icon={AlertTriangle}
+                    className="flex flex-wrap items-center justify-between gap-3"
+                >
+                    <div className="flex items-center gap-3">
+                        <span>
+                            <strong>{conflicts.length}</strong> conflicting rule
+                            pair{conflicts.length === 1 ? '' : 's'} detected. Two
+                            or more rules share the same trigger pattern.
+                        </span>
                         <Button
                             variant="outline"
                             size="sm"
@@ -403,35 +443,45 @@ export default function TelegramAutoReplyPage() {
                         >
                             Review conflicts
                         </Button>
-                    </CardBody>
-                </Card>
+                    </div>
+                </Alert>
             )}
 
             {/* KPIs */}
             <div className="grid gap-3 md:grid-cols-4">
-                <Kpi label="Total rules" value={kpi.total.toLocaleString()} />
-                <Kpi label="Enabled" value={kpi.enabled.toLocaleString()} />
-                <Kpi label="Fired (7d)" value={kpi.fired7d.toLocaleString()} />
-                <Kpi
+                <TelegramProjectGate />
+                <StatCard label="Total rules" value={kpi.total.toLocaleString()} />
+                <StatCard label="Enabled" value={kpi.enabled.toLocaleString()} />
+                <StatCard label="Fired (7d)" value={kpi.fired7d.toLocaleString()} />
+                <StatCard
                     label="Conflicts"
-                    value={kpi.conflicts.toLocaleString()}
-                    accent={kpi.conflicts > 0}
+                    value={
+                        <span
+                            className={
+                                kpi.conflicts > 0
+                                    ? 'text-[var(--st-warn)]'
+                                    : undefined
+                            }
+                        >
+                            {kpi.conflicts.toLocaleString()}
+                        </span>
+                    }
                 />
             </div>
 
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2">
-                <div className="relative max-w-xs flex-1">
-                    <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+                <div className="max-w-xs flex-1">
                     <Input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Search by name…"
-                        className="pl-8"
+                        placeholder="Search by name..."
+                        iconLeft={Search}
+                        aria-label="Search rules by name"
                     />
                 </div>
                 <Select value={botFilter} onValueChange={setBotFilter}>
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className="w-[200px]" aria-label="Filter by bot">
                         <SelectValue placeholder="Bot" />
                     </SelectTrigger>
                     <SelectContent>
@@ -447,7 +497,7 @@ export default function TelegramAutoReplyPage() {
                     value={statusFilter}
                     onValueChange={(v) => setStatusFilter(v as StatusFilter)}
                 >
-                    <SelectTrigger className="w-[160px]">
+                    <SelectTrigger className="w-[160px]" aria-label="Filter by status">
                         <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -461,7 +511,7 @@ export default function TelegramAutoReplyPage() {
             </div>
 
             {/* Table */}
-            <Card>
+            <Card padding="none">
                 <CardBody className="p-0">
                     {loading ? (
                         <div className="space-y-2 p-4">
@@ -470,15 +520,35 @@ export default function TelegramAutoReplyPage() {
                             <Skeleton className="h-8 w-full" />
                         </div>
                     ) : loadError ? (
-                        <div className="p-6 text-sm text-[var(--st-text)]">{loadError}</div>
+                        <div className="p-8">
+                            <EmptyState
+                                tone="danger"
+                                icon={AlertTriangle}
+                                title="Could not load rules"
+                                description={loadError}
+                                action={
+                                    <Button
+                                        variant="outline"
+                                        iconLeft={RefreshCw}
+                                        onClick={() => void loadRules()}
+                                    >
+                                        Try again
+                                    </Button>
+                                }
+                            />
+                        </div>
                     ) : rules.length === 0 ? (
                         <div className="p-8">
                             <EmptyState
+                                icon={MessageSquareReply}
                                 title="No auto-reply rules yet"
                                 description="Create your first rule to start responding to incoming Telegram messages automatically."
                                 action={
-                                    <Button onClick={openCreate}>
-                                        <Plus className="mr-1.5 h-4 w-4" />
+                                    <Button
+                                        variant="primary"
+                                        iconLeft={Plus}
+                                        onClick={openCreate}
+                                    >
                                         New rule
                                     </Button>
                                 }
@@ -498,14 +568,10 @@ export default function TelegramAutoReplyPage() {
                                         <Th>Trigger</Th>
                                         <Th>Actions</Th>
                                         <Th>Bot</Th>
-                                        <Th className="w-20">
-                                            Status
-                                        </Th>
+                                        <Th className="w-20">Status</Th>
                                         <Th>Fired (7d)</Th>
                                         <Th>Last fired</Th>
-                                        <Th className="text-right">
-                                            Actions
-                                        </Th>
+                                        <Th align="right">Actions</Th>
                                     </Tr>
                                 </THead>
                                 <TBody>
@@ -571,7 +637,7 @@ export default function TelegramAutoReplyPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Delete rule?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            “{deleteRow?.name}” will be removed. This cannot be undone.
+                            &ldquo;{deleteRow?.name}&rdquo; will be removed. This cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -587,11 +653,9 @@ export default function TelegramAutoReplyPage() {
             <Dialog open={conflictsOpen} onOpenChange={setConflictsOpen}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>
-                            Conflicts ({conflicts.length})
-                        </DialogTitle>
+                        <DialogTitle>Conflicts ({conflicts.length})</DialogTitle>
                         <DialogDescription>
-                            These rule pairs share overlapping triggers — only the
+                            These rule pairs share overlapping triggers. Only the
                             higher-priority rule will fire for the shared input.
                         </DialogDescription>
                     </DialogHeader>
@@ -599,17 +663,13 @@ export default function TelegramAutoReplyPage() {
                         {conflicts.map((c, i) => (
                             <div
                                 key={i}
-                                className="rounded-md border bg-[var(--st-bg-secondary)]/60 p-3 text-sm"
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm"
                             >
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <Badge variant="ghost">A</Badge>
-                                    <span className="font-medium">
-                                        {c.ruleAName}
-                                    </span>
-                                    <Badge variant="ghost">B</Badge>
-                                    <span className="font-medium">
-                                        {c.ruleBName}
-                                    </span>
+                                    <Badge variant="outline">A</Badge>
+                                    <span className="font-medium">{c.ruleAName}</span>
+                                    <Badge variant="outline">B</Badge>
+                                    <span className="font-medium">{c.ruleBName}</span>
                                 </div>
                                 <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
                                     {c.reason}
@@ -622,35 +682,3 @@ export default function TelegramAutoReplyPage() {
         </div>
     );
 }
-
-// ---------------------------------------------------------------------------
-//  KPI card
-// ---------------------------------------------------------------------------
-
-function Kpi({
-    label,
-    value,
-    accent,
-}: {
-    label: string;
-    value: string;
-    accent?: boolean;
-}) {
-    return (
-        <Card>
-            <TelegramProjectGate />
-            <CardBody className="p-4">
-                <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-                    {label}
-                </p>
-                <p
-                    className="mt-1 text-2xl font-semibold tabular-nums"
-                    style={accent ? { color: 'var(--st-warn)' } : undefined}
-                >
-                    {value}
-                </p>
-            </CardBody>
-        </Card>
-    );
-}
-

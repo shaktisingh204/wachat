@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import {
   Alert,
+  Badge,
   Button,
   Card,
   CardBody,
@@ -14,6 +15,7 @@ import {
 } from '@/components/sabcrm/20ui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { useToast } from '@/hooks/use-toast';
+import { Copy, Download } from 'lucide-react';
 
 function hexToRgb(hex: string) {
   let h = hex.replace('#', '');
@@ -199,17 +201,23 @@ function ColorPickerContent() {
             <div className="flex items-center gap-4">
               <ColorPicker value={hex} onChange={setHex} />
               <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-sm text-[var(--st-text)]">{hex}</span>
-                  <Button size="sm" variant="outline" onClick={() => copyText(hex, 'HEX value')}>Copy</Button>
+                  <Button size="sm" variant="outline" iconLeft={Copy} onClick={() => copyText(hex, 'HEX value')}>
+                    Copy
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-sm text-[var(--st-text)]">{rgbStr}</span>
-                  <Button size="sm" variant="outline" onClick={() => copyText(rgbStr, 'RGB value')}>Copy</Button>
+                  <Button size="sm" variant="outline" iconLeft={Copy} onClick={() => copyText(rgbStr, 'RGB value')}>
+                    Copy
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-3">
                   <span className="font-mono text-sm text-[var(--st-text)]">{hslStr}</span>
-                  <Button size="sm" variant="outline" onClick={() => copyText(hslStr, 'HSL value')}>Copy</Button>
+                  <Button size="sm" variant="outline" iconLeft={Copy} onClick={() => copyText(hslStr, 'HSL value')}>
+                    Copy
+                  </Button>
                 </div>
               </div>
             </div>
@@ -241,11 +249,17 @@ function ColorPickerContent() {
 
               {extractedColors.length > 0 && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--st-text)]">Found {extractedColors.length} colors</span>
-                    <div className="space-x-2">
-                      <Button size="sm" variant="outline" onClick={() => copyAll(extractedColors)}>Copy All</Button>
-                      <Button size="sm" variant="outline" onClick={() => exportCsv(extractedColors)}>Export CSV</Button>
+                  <div className="flex items-center justify-between gap-3">
+                    <Badge tone="accent" kind="soft">
+                      {extractedColors.length} colors found
+                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" iconLeft={Copy} onClick={() => copyAll(extractedColors)}>
+                        Copy All
+                      </Button>
+                      <Button size="sm" variant="outline" iconLeft={Download} onClick={() => exportCsv(extractedColors)}>
+                        Export CSV
+                      </Button>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1">

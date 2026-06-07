@@ -534,14 +534,7 @@ export default function VoiceCenterDashboard() {
               </div>
 
               {/* Grid Background */}
-              <div
-                className="absolute inset-0 z-0"
-                style={{
-                  backgroundImage: "radial-gradient(circle at 1px 1px, var(--st-border) 1px, transparent 0)",
-                  backgroundSize: "24px 24px",
-                  backgroundPosition: "center center",
-                }}
-              />
+              <div className="absolute inset-0 z-0 [background-image:radial-gradient(circle_at_1px_1px,var(--st-border)_1px,transparent_0)] [background-size:24px_24px] [background-position:center_center]" />
 
               {/* Nodes rendering (Mocked layout) */}
               <div className="absolute inset-0 mt-12 z-0 overflow-auto flex items-center justify-center p-20">

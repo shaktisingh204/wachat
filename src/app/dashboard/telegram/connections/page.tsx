@@ -1,22 +1,44 @@
 'use client';
 
-import { Badge, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Switch, useToast } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+    Alert,
+    Badge,
+    Button,
+    Card,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    Field,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Switch,
+    useToast,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import {
     AlertTriangle,
-  ArrowRight,
-  Check,
-  Copy,
-  ExternalLink,
-  Info,
-  KeyRound,
-  Loader2,
-  Plug,
-  Plus,
-  RefreshCw,
-  Unlink,
-  } from 'lucide-react';
+    ArrowRight,
+    Check,
+    Copy,
+    ExternalLink,
+    Info,
+    KeyRound,
+    Loader2,
+    Plug,
+    Plus,
+    Plug2,
+    RefreshCw,
+    Unlink,
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -34,21 +56,18 @@ import {
 import { useProject } from '@/context/project-context';
 import type { CredentialRow } from '@/lib/rust-client/telegram-api-credentials';
 
-// Local validation mirrors the Rust regexes — see
+// Local validation mirrors the Rust regexes. See
 // `rust/crates/telegram-api-credentials/src/handlers.rs`.
 const API_HASH_RE = /^[A-Fa-f0-9]{32}$/;
 const PHONE_RE = /^\+[1-9][0-9]{6,14}$/;
 
-const STATUS_VARIANT: Record<
-    string,
-    'success' | 'warning' | 'ghost' | 'info' | 'secondary' | 'danger'
-> = {
-    unverified: 'ghost',
+const STATUS_TONE: Record<string, BadgeTone> = {
+    unverified: 'neutral',
     verified: 'info',
     login_pending: 'warning',
     login_failed: 'danger',
     active: 'success',
-    revoked: 'secondary',
+    revoked: 'neutral',
 };
 const STATUS_LABEL: Record<string, string> = {
     unverified: 'Unverified',
@@ -107,7 +126,7 @@ export default function TelegramConnectionsPage() {
         setBotsError(null);
         const res = await listTelegramBotsAction({ projectId });
         setBots(res.bots ?? []);
-        // 404 here means the Rust BFF route isn't deployed yet — that
+        // 404 here means the Rust BFF route isn't deployed yet, which
         // shouldn't surface as a red error banner. Anything else (auth,
         // 500) is worth showing.
         if (res.error && !/404|not found/i.test(res.error)) {
@@ -145,7 +164,7 @@ export default function TelegramConnectionsPage() {
         const res = await listTelegramApiCredentialsAction(projectId);
         setCredentials(res.credentials ?? []);
         setCredsLoading(false);
-        // Same treatment as bots list — swallow 404s, surface real errors.
+        // Same treatment as bots list. Swallow 404s, surface real errors.
         if (res.error && !/404|not found/i.test(res.error)) {
             setCredsError(res.error);
         }
@@ -195,6 +214,7 @@ export default function TelegramConnectionsPage() {
                 title: 'Credentials saved',
                 description:
                     res.message ?? 'Stored. The MTProto login flow is in preview.',
+                tone: 'success',
             });
             setAddOpen(false);
             setAddLabel('');
@@ -212,26 +232,20 @@ export default function TelegramConnectionsPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            <div className="flex items-start justify-between gap-4">
+            <PageHeader>
                 <div className="flex items-start gap-4">
-                    <div
-                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
-                        style={{
-                            background:
-                                'linear-gradient(135deg, #37BBFE 0%, #007DBB 100%)',
-                            boxShadow: '0 10px 28px rgba(0, 125, 187, 0.25)',
-                        }}
+                    <span
+                        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#37BBFE_0%,#007DBB_100%)] shadow-[0_10px_28px_rgba(0,125,187,0.25)]"
+                        aria-hidden="true"
                     >
                         <Plug className="h-6 w-6 text-white" strokeWidth={1.75} />
-                    </div>
-                    <div>
-                        <h1 className="text-[22px] leading-tight text-[var(--st-text)]">
-                            Connections
-                        </h1>
-                        <p className="mt-1 max-w-2xl text-[13.5px] leading-relaxed text-[var(--st-text-secondary)]">
-                            Link a Telegram Bot (for standard messaging) or MTProto user
-                            credentials (for full client-level automation).
-                        </p>
+                    </span>
+                    <PageHeaderHeading>
+                        <PageTitle>Connections</PageTitle>
+                        <PageDescription>
+                            Link a Telegram Bot (for standard messaging) or MTProto
+                            user credentials (for full client-level automation).
+                        </PageDescription>
                         {activeProject ? (
                             <p className="mt-1 text-[12px] text-[var(--st-text-secondary)]">
                                 Working in{' '}
@@ -240,50 +254,44 @@ export default function TelegramConnectionsPage() {
                                 </span>
                             </p>
                         ) : null}
-                    </div>
+                    </PageHeaderHeading>
                 </div>
-                <Link
-                    href={`/dashboard/telegram/projects?next=${encodeURIComponent('/dashboard/telegram/connections')}`}
-                    className="shrink-0"
-                >
-                    <Button variant="outline" size="sm">
-                        {activeProject ? 'Switch project' : 'Pick a project'}
-                        <ArrowRight className="h-3 w-3" />
-                    </Button>
-                </Link>
-            </div>
+                <PageActions>
+                    <Link
+                        href={`/dashboard/telegram/projects?next=${encodeURIComponent('/dashboard/telegram/connections')}`}
+                        className="shrink-0"
+                    >
+                        <Button variant="outline" size="sm" iconRight={ArrowRight}>
+                            {activeProject ? 'Switch project' : 'Pick a project'}
+                        </Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
-            {/* No-project banner — replaces the silent disabled state. */}
+            {/* No-project banner replaces the silent disabled state. */}
             {!projectId ? (
-                <div
-                    className="flex items-start gap-3 rounded-2xl border p-4"
-                    style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
-                >
-                    <Info className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
-                    <div className="flex-1 text-[12.5px] leading-relaxed text-[var(--st-text)]">
-                        Select a project before connecting a bot. Connections are
-                        scoped per project — bots, webhooks, and chats belong to the
-                        active workspace.
-                        <div className="mt-2">
-                            <Link
-                                href="/dashboard/telegram/projects?next=/dashboard/telegram/connections"
-                                className="inline-flex items-center gap-1 text-[var(--st-text)] underline underline-offset-2"
-                            >
-                                Choose a Telegram project{' '}
-                                <ArrowRight className="h-3 w-3" />
-                            </Link>
-                        </div>
+                <Alert tone="info" icon={Info} title="Select a project first">
+                    Connections are scoped per project. Bots, webhooks, and chats
+                    belong to the active workspace.
+                    <div className="mt-2">
+                        <Link
+                            href="/dashboard/telegram/projects?next=/dashboard/telegram/connections"
+                            className="inline-flex items-center gap-1 text-[var(--st-accent)] underline underline-offset-2"
+                        >
+                            Choose a Telegram project{' '}
+                            <ArrowRight className="h-3 w-3" aria-hidden="true" />
+                        </Link>
                     </div>
-                </div>
+                </Alert>
             ) : null}
 
             {/* Bot connection */}
-            <Card className="p-6">
-                <div className="flex items-center justify-between">
+            <Card padding="lg">
+                <div className="flex items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-[var(--st-text)]">Bot API</h2>
-                            <Badge variant="ghost">Recommended</Badge>
+                            <Badge tone="neutral">Recommended</Badge>
                         </div>
                         <p className="mt-1 text-[12.5px] text-[var(--st-text-secondary)]">
                             Create a bot with @BotFather and paste the token below.
@@ -292,6 +300,7 @@ export default function TelegramConnectionsPage() {
                     <Button
                         variant="outline"
                         size="sm"
+                        iconRight={ExternalLink}
                         onClick={() =>
                             window.open(
                                 'https://t.me/BotFather',
@@ -301,14 +310,10 @@ export default function TelegramConnectionsPage() {
                         }
                     >
                         Open BotFather
-                        <ExternalLink className="h-3 w-3" />
                     </Button>
                 </div>
                 <div className="mt-5 flex flex-col gap-4">
-                    <label className="flex flex-col gap-1.5">
-                        <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                            Bot token
-                        </span>
+                    <Field label="Bot token">
                         <Input
                             placeholder="123456789:AA-Example-TokenFromBotFather"
                             value={token}
@@ -316,7 +321,7 @@ export default function TelegramConnectionsPage() {
                             type="password"
                             disabled={!projectId}
                         />
-                    </label>
+                    </Field>
                     <div>
                         <p className="mb-1.5 text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
                             Webhook URL preview
@@ -328,15 +333,11 @@ export default function TelegramConnectionsPage() {
                             <Button
                                 variant="outline"
                                 size="sm"
+                                iconLeft={copiedKey === 'placeholder' ? Check : Copy}
                                 onClick={() =>
                                     copy(placeholderWebhookUrl, 'placeholder')
                                 }
                             >
-                                {copiedKey === 'placeholder' ? (
-                                    <Check className="h-3 w-3" />
-                                ) : (
-                                    <Copy className="h-3 w-3" />
-                                )}
                                 {copiedKey === 'placeholder' ? 'Copied' : 'Copy'}
                             </Button>
                         </div>
@@ -361,7 +362,8 @@ export default function TelegramConnectionsPage() {
                 <div className="mt-5 flex justify-end gap-2">
                     <Button
                         size="sm"
-                        disabled={!token.trim() || submitting || !projectId}
+                        loading={submitting}
+                        disabled={!token.trim() || !projectId}
                         onClick={async () => {
                             if (!projectId) {
                                 setStatus({
@@ -386,6 +388,7 @@ export default function TelegramConnectionsPage() {
                                 toast({
                                     title: 'Bot connected',
                                     description: res.message ?? 'Webhook registered.',
+                                    tone: 'success',
                                 });
                                 void reloadBots();
                             } else {
@@ -396,21 +399,20 @@ export default function TelegramConnectionsPage() {
                             }
                         }}
                     >
-                        {submitting ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                         Connect bot
                     </Button>
                 </div>
             </Card>
 
-            {/* Connected bots — visible right where you connect them. */}
-            <Card className="p-6">
-                <div className="flex items-center justify-between">
+            {/* Connected bots, visible right where you connect them. */}
+            <Card padding="lg">
+                <div className="flex items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-[var(--st-text)]">
                                 Connected bots
                             </h2>
-                            <Badge variant="ghost">
+                            <Badge tone="neutral">
                                 {bots.length === 0
                                     ? 'None yet'
                                     : `${bots.length} active`}
@@ -425,44 +427,49 @@ export default function TelegramConnectionsPage() {
                         <Button
                             variant="outline"
                             size="sm"
+                            iconLeft={botsLoading ? Loader2 : RefreshCw}
                             onClick={() => void reloadBots()}
                             disabled={botsLoading || !projectId}
                         >
-                            {botsLoading ? (
-                                <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                                <RefreshCw className="h-3 w-3" />
-                            )}
                             Refresh
                         </Button>
                         <Link
                             href="/dashboard/telegram/bots"
-                            className="text-[12px] text-[var(--st-text)] hover:underline"
+                            className="inline-flex items-center gap-1 text-[12px] text-[var(--st-accent)] hover:underline"
                         >
-                            <span className="inline-flex items-center gap-1">
-                                Manage bots <ArrowRight className="h-3 w-3" />
-                            </span>
+                            Manage bots
+                            <ArrowRight className="h-3 w-3" aria-hidden="true" />
                         </Link>
                     </div>
                 </div>
 
                 <div className="mt-4">
                     {!projectId ? (
-                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
-                            Pick a project to see its connected bots.
-                        </div>
+                        <EmptyState
+                            icon={Plug2}
+                            size="sm"
+                            title="No project selected"
+                            description="Pick a project to see its connected bots."
+                        />
                     ) : botsLoading ? (
                         <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                            <Loader2 className="h-3 w-3 animate-spin" /> Loading bots…
+                            <Loader2
+                                className="h-3 w-3 animate-spin"
+                                aria-hidden="true"
+                            />{' '}
+                            Loading bots...
                         </div>
                     ) : botsError ? (
                         <p className="text-[12.5px] text-[var(--st-danger)]">
                             {botsError}
                         </p>
                     ) : bots.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
-                            No bots linked yet. Paste a token above to connect one.
-                        </div>
+                        <EmptyState
+                            icon={Plug2}
+                            size="sm"
+                            title="No bots linked yet"
+                            description="Paste a token above to connect one."
+                        />
                     ) : (
                         <ul className="flex flex-col gap-2">
                             {bots.map((b) => {
@@ -486,12 +493,12 @@ export default function TelegramConnectionsPage() {
                                                         @{b.username}
                                                     </span>
                                                     <Badge
-                                                        variant={
+                                                        tone={
                                                             b.status === 'active'
                                                                 ? 'success'
                                                                 : b.status === 'error'
                                                                 ? 'danger'
-                                                                : 'secondary'
+                                                                : 'neutral'
                                                         }
                                                     >
                                                         {b.status}
@@ -501,7 +508,8 @@ export default function TelegramConnectionsPage() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                disabled={isBusy}
+                                                loading={isBusy}
+                                                iconLeft={Unlink}
                                                 onClick={async () => {
                                                     if (
                                                         !window.confirm(
@@ -521,6 +529,7 @@ export default function TelegramConnectionsPage() {
                                                             description:
                                                                 res.message ??
                                                                 'Webhook removed.',
+                                                            tone: 'success',
                                                         });
                                                         void reloadBots();
                                                     } else {
@@ -529,16 +538,11 @@ export default function TelegramConnectionsPage() {
                                                             description:
                                                                 res.error ??
                                                                 'Unknown error.',
-                                                            variant: 'destructive',
+                                                            tone: 'danger',
                                                         });
                                                     }
                                                 }}
                                             >
-                                                {isBusy ? (
-                                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                                ) : (
-                                                    <Unlink className="h-3 w-3" />
-                                                )}
                                                 Disconnect
                                             </Button>
                                         </div>
@@ -549,13 +553,9 @@ export default function TelegramConnectionsPage() {
                                             <Button
                                                 variant="outline"
                                                 size="sm"
+                                                iconLeft={isCopied ? Check : Copy}
                                                 onClick={() => copy(url, b._id)}
                                             >
-                                                {isCopied ? (
-                                                    <Check className="h-3 w-3" />
-                                                ) : (
-                                                    <Copy className="h-3 w-3" />
-                                                )}
                                                 {isCopied ? 'Copied' : 'Copy'}
                                             </Button>
                                         </div>
@@ -567,16 +567,16 @@ export default function TelegramConnectionsPage() {
                 </div>
             </Card>
 
-            {/* MTProto / Client API — wired to telegram-api-credentials */}
-            <Card className="p-6">
-                <div className="flex items-center justify-between">
+            {/* MTProto / Client API, wired to telegram-api-credentials */}
+            <Card padding="lg">
+                <div className="flex items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2">
                             <h2 className="text-[15px] text-[var(--st-text)]">
                                 Client API (MTProto)
                             </h2>
-                            <Badge variant="ghost">Advanced</Badge>
-                            <Badge variant="warning">Preview</Badge>
+                            <Badge tone="neutral">Advanced</Badge>
+                            <Badge tone="warning">Preview</Badge>
                         </div>
                         <p className="mt-1 max-w-2xl text-[12.5px] text-[var(--st-text-secondary)]">
                             Needed for user-account automation: reading channel history,
@@ -589,6 +589,7 @@ export default function TelegramConnectionsPage() {
                         <Button
                             variant="outline"
                             size="sm"
+                            iconRight={ExternalLink}
                             onClick={() =>
                                 window.open(
                                     'https://my.telegram.org',
@@ -598,49 +599,49 @@ export default function TelegramConnectionsPage() {
                             }
                         >
                             my.telegram.org
-                            <ExternalLink className="h-3 w-3" />
                         </Button>
                         <Link
                             href="/dashboard/telegram/api-credentials"
-                            className="text-[12px] text-[var(--st-text)] hover:underline"
+                            className="inline-flex items-center gap-1 text-[12px] text-[var(--st-accent)] hover:underline"
                         >
-                            <span className="inline-flex items-center gap-1">
-                                Manage credentials <ArrowRight className="h-3 w-3" />
-                            </span>
+                            Manage credentials
+                            <ArrowRight className="h-3 w-3" aria-hidden="true" />
                         </Link>
                     </div>
                 </div>
 
                 {/* Preview note */}
-                <div
-                    className="mt-4 flex items-start gap-3 rounded-2xl border p-3"
-                    style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-muted)' }}
+                <Alert
+                    tone="warning"
+                    icon={AlertTriangle}
+                    className="mt-4"
                 >
-                    <AlertTriangle className="mt-0.5 h-4 w-4 text-[var(--st-text)]" />
-                    <p className="text-[12.5px] leading-relaxed text-[var(--st-text)]">
-                        The MTProto login flow is in preview. Credentials saved here are
-                        stored and audited; a future MTProto worker will perform the
-                        real Telegram handshake.
-                    </p>
-                </div>
+                    The MTProto login flow is in preview. Credentials saved here are
+                    stored and audited; a future MTProto worker will perform the real
+                    Telegram handshake.
+                </Alert>
 
                 {/* Existing credentials for the active project */}
                 <div className="mt-5">
                     {credsLoading ? (
                         <div className="flex items-center gap-2 text-[12.5px] text-[var(--st-text-secondary)]">
-                            <Loader2 className="h-3 w-3 animate-spin" /> Loading
-                            credentials…
+                            <Loader2
+                                className="h-3 w-3 animate-spin"
+                                aria-hidden="true"
+                            />{' '}
+                            Loading credentials...
                         </div>
                     ) : credsError ? (
                         <p className="text-[12.5px] text-[var(--st-danger)]">
                             {credsError}
                         </p>
                     ) : credentials.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-[var(--st-border)] p-4 text-[12.5px] text-[var(--st-text-secondary)]">
-                            No MTProto credentials yet. Click <strong>Add credentials</strong>{' '}
-                            to store an <code className="font-mono">api_id</code>/
-                            <code className="font-mono">api_hash</code> pair.
-                        </div>
+                        <EmptyState
+                            icon={KeyRound}
+                            size="sm"
+                            title="No MTProto credentials yet"
+                            description="Click Add credentials to store an api_id / api_hash pair."
+                        />
                     ) : (
                         <ul className="flex flex-col gap-2">
                             {credentials.map((c) => (
@@ -650,7 +651,10 @@ export default function TelegramConnectionsPage() {
                                 >
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <KeyRound className="h-3 w-3 text-[var(--st-text-secondary)]" />
+                                            <KeyRound
+                                                className="h-3 w-3 text-[var(--st-text-secondary)]"
+                                                aria-hidden="true"
+                                            />
                                             <span className="truncate text-[13px] text-[var(--st-text)]">
                                                 {c.label ?? (
                                                     <span className="italic text-[var(--st-text-secondary)]">
@@ -658,20 +662,18 @@ export default function TelegramConnectionsPage() {
                                                     </span>
                                                 )}
                                             </span>
-                                            <Badge
-                                                variant={STATUS_VARIANT[c.status] ?? 'ghost'}
-                                            >
+                                            <Badge tone={STATUS_TONE[c.status] ?? 'neutral'}>
                                                 {STATUS_LABEL[c.status] ?? c.status}
                                             </Badge>
                                         </div>
                                         <p className="mt-0.5 font-mono text-[11.5px] text-[var(--st-text-secondary)]">
-                                            api_id={c.apiId} · {c.phoneNumberMasked} ·{' '}
+                                            api_id={c.apiId} . {c.phoneNumberMasked} .{' '}
                                             {c.apiHashMasked}
                                         </p>
                                     </div>
                                     <Link
                                         href="/dashboard/telegram/api-credentials"
-                                        className="text-[12px] text-[var(--st-text)] hover:underline"
+                                        className="text-[12px] text-[var(--st-accent)] hover:underline"
                                     >
                                         Open
                                     </Link>
@@ -685,28 +687,28 @@ export default function TelegramConnectionsPage() {
                     <Button
                         variant="outline"
                         size="sm"
+                        iconRight={ArrowRight}
                         onClick={() =>
                             router.push('/dashboard/telegram/api-credentials')
                         }
                     >
                         Manage all
-                        <ArrowRight className="h-3 w-3" />
                     </Button>
                     <Button
                         size="sm"
+                        iconLeft={Plus}
                         onClick={() => {
                             setAddErr(null);
                             setAddOpen(true);
                         }}
                         disabled={!projectId}
                     >
-                        <Plus className="h-3 w-3" />
                         Add credentials
                     </Button>
                 </div>
             </Card>
 
-            {/* Add credentials dialog — inline shortcut from the connections page. */}
+            {/* Add credentials dialog, inline shortcut from the connections page. */}
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
                 <DialogContent className="max-w-lg">
                     <DialogHeader>
@@ -718,53 +720,43 @@ export default function TelegramConnectionsPage() {
                     </DialogHeader>
 
                     <div className="flex flex-col gap-4">
-                        <label className="flex flex-col gap-1.5">
-                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                                Label (optional)
-                            </span>
+                        <Field label="Label (optional)">
                             <Input
                                 value={addLabel}
                                 onChange={(e) => setAddLabel(e.target.value)}
                                 placeholder="e.g. main user account"
                             />
-                        </label>
+                        </Field>
                         <div className="grid gap-4 md:grid-cols-2">
-                            <label className="flex flex-col gap-1.5">
-                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                                    api_id
-                                </span>
+                            <Field label="api_id">
                                 <Input
                                     inputMode="numeric"
                                     value={apiId}
                                     placeholder="1234567"
                                     onChange={(e) => setApiId(e.target.value)}
                                 />
-                            </label>
-                            <label className="flex flex-col gap-1.5">
-                                <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                                    Phone number (E.164)
-                                </span>
+                            </Field>
+                            <Field label="Phone number (E.164)">
                                 <Input
                                     value={phoneNumber}
                                     placeholder="+14155552671"
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                 />
-                            </label>
+                            </Field>
                         </div>
-                        <label className="flex flex-col gap-1.5">
-                            <span className="text-[11.5px] uppercase tracking-[0.1em] text-[var(--st-text-secondary)]">
-                                api_hash
-                            </span>
+                        <Field label="api_hash">
                             <Input
                                 type="password"
                                 value={apiHash}
                                 placeholder="32-character hex string"
                                 onChange={(e) => setApiHash(e.target.value)}
                             />
-                        </label>
-                        <label className="flex items-center justify-between rounded-lg border border-[var(--st-border)] px-3 py-2">
+                        </Field>
+                        <div className="flex items-center justify-between gap-3 rounded-lg border border-[var(--st-border)] px-3 py-2">
                             <div>
-                                <p className="text-[12.5px] text-[var(--st-text)]">Test mode</p>
+                                <p className="text-[12.5px] text-[var(--st-text)]">
+                                    Test mode
+                                </p>
                                 <p className="text-[11.5px] text-[var(--st-text-secondary)]">
                                     Route through Telegram's test DC pair.
                                 </p>
@@ -772,12 +764,11 @@ export default function TelegramConnectionsPage() {
                             <Switch
                                 checked={testMode}
                                 onCheckedChange={(v) => setTestMode(!!v)}
+                                aria-label="Test mode"
                             />
-                        </label>
+                        </div>
                         {addErr ? (
-                            <div className="rounded-md border border-[var(--st-danger)] bg-[var(--st-danger-soft)] px-3 py-2 text-[12.5px] text-[var(--st-danger)]">
-                                {addErr}
-                            </div>
+                            <Alert tone="danger">{addErr}</Alert>
                         ) : null}
                     </div>
 
@@ -792,10 +783,9 @@ export default function TelegramConnectionsPage() {
                         </Button>
                         <Button
                             size="sm"
+                            loading={addBusy}
                             onClick={saveNewCredentials}
-                            disabled={addBusy}
                         >
-                            {addBusy ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
                             Save & open
                         </Button>
                     </DialogFooter>

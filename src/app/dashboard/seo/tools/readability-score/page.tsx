@@ -1,7 +1,8 @@
 'use client';
 
-import { Card, CardBody, Textarea, cn } from '@/components/sabcrm/20ui';
+import { Badge, Card, CardBody, EmptyState, Field, Textarea, cn } from '@/components/sabcrm/20ui';
 import { useMemo, useState } from 'react';
+import { FileText } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -13,14 +14,19 @@ import {
 } from 'recharts';
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { 
-  fleschKincaidGrade, 
-  fleschReadingEase, 
-  gunningFogIndex, 
+import {
+  fleschKincaidGrade,
+  fleschReadingEase,
+  gunningFogIndex,
   smogIndex,
   countWords,
-  countSyllablesInWord 
+  countSyllablesInWord
 } from '@/lib/seo-tools/text-utils';
+
+// Sentence-length highlight tints. Long sentences hurt readability, so they are
+// surfaced with warning/danger tints that match the legend swatches below.
+const TINT_LONG = 'rgba(199, 119, 0, 0.18)'; // warning, 21-30 words
+const TINT_VERY_LONG = 'rgba(193, 60, 44, 0.18)'; // danger, 31+ words
 
 function easeLabel(score: number): string {
   if (score >= 90) return 'Very easy';
@@ -30,6 +36,12 @@ function easeLabel(score: number): string {
   if (score >= 50) return 'Fairly diff.';
   if (score >= 30) return 'Difficult';
   return 'Very diff.';
+}
+
+function easeTone(score: number): 'success' | 'warning' | 'danger' {
+  if (score >= 60) return 'success';
+  if (score >= 30) return 'warning';
+  return 'danger';
 }
 
 function HighlightedPreview({ text }: { text: string }) {
@@ -50,12 +62,12 @@ function HighlightedPreview({ text }: { text: string }) {
       {chunks.map((chunk, idx) => {
         const words = countWords(chunk);
         let bgColor = 'transparent';
-        
+
         // Highlighting for long sentences
         if (words > 30) {
-          bgColor = 'rgba(252, 165, 165, 0.4)'; // red-300 with opacity
+          bgColor = TINT_VERY_LONG;
         } else if (words > 20) {
-          bgColor = 'rgba(253, 224, 71, 0.4)'; // yellow-300 with opacity
+          bgColor = TINT_LONG;
         }
 
         // Split chunk into words to highlight complex words
@@ -68,31 +80,31 @@ function HighlightedPreview({ text }: { text: string }) {
           if (wordMatch.index > lastIndex) {
             elements.push(<span key={`s_${lastIndex}`}>{chunk.slice(lastIndex, wordMatch.index)}</span>);
           }
-          
+
           const word = wordMatch[0];
           const syllables = countSyllablesInWord(word);
           const isComplex = syllables >= 3;
-          
+
           elements.push(
-            <span 
-              key={`w_${wordMatch.index}`} 
-              className={cn(isComplex && "bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium px-0.5 rounded-sm")}
+            <span
+              key={`w_${wordMatch.index}`}
+              className={cn(isComplex && "bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium px-0.5 rounded-sm underline decoration-dotted underline-offset-2")}
             >
               {word}
             </span>
           );
-          
+
           lastIndex = wordRegex.lastIndex;
         }
-        
+
         if (lastIndex < chunk.length) {
           elements.push(<span key={`s_${lastIndex}`}>{chunk.slice(lastIndex)}</span>);
         }
 
         return (
-          <span 
-            key={idx} 
-            style={{ backgroundColor: bgColor }} 
+          <span
+            key={idx}
+            style={{ backgroundColor: bgColor }}
             className={cn(bgColor !== 'transparent' && 'rounded-sm transition-colors duration-200')}
           >
             {elements}
@@ -105,7 +117,7 @@ function HighlightedPreview({ text }: { text: string }) {
 
 export default function ReadabilityScorePage() {
   const [text, setText] = useState('');
-  
+
   const ease = useMemo(() => fleschReadingEase(text), [text]);
   const grade = useMemo(() => fleschKincaidGrade(text), [text]);
   const gunningFog = useMemo(() => gunningFogIndex(text), [text]);
@@ -120,7 +132,7 @@ export default function ReadabilityScorePage() {
       '21-30': 0,
       '31+': 0
     };
-    
+
     for (let i = 0; i < parts.length; i += 2) {
       const sentence = parts[i];
       if (!sentence.trim()) continue;
@@ -143,56 +155,58 @@ export default function ReadabilityScorePage() {
     <ToolShell title="Readability Score" description="Analyze text readability and pinpoint complex sentences and words.">
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <div className="flex flex-col gap-6">
-          <Textarea 
-            value={text} 
-            onChange={(e) => setText(e.target.value)} 
-            placeholder="Paste content here to see real-time analysis..." 
-            className="min-h-[260px] text-base p-4 resize-y" 
-          />
-          
+          <Field label="Your content">
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste content here to see real-time analysis..."
+              className="min-h-[260px] text-base p-4 resize-y"
+            />
+          </Field>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card>
-              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
-                <div className="text-3xl font-bold">{ease.toFixed(1)}</div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">Flesch Ease</div>
-                <div className="text-[10px] text-[var(--st-text-secondary)] mt-1 font-medium bg-[var(--st-bg-muted)] px-2 py-0.5 rounded-full">{easeLabel(ease)}</div>
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center gap-1">
+                <div className="text-3xl font-bold text-[var(--st-text)]">{ease.toFixed(1)}</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Flesch Ease</div>
+                <Badge tone={easeTone(ease)} className="mt-1">{easeLabel(ease)}</Badge>
               </CardBody>
             </Card>
             <Card>
-              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
-                <div className="text-3xl font-bold">{grade.toFixed(1)}</div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">Flesch-Kincaid</div>
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center gap-1">
+                <div className="text-3xl font-bold text-[var(--st-text)]">{grade.toFixed(1)}</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Flesch-Kincaid</div>
               </CardBody>
             </Card>
             <Card>
-              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
-                <div className="text-3xl font-bold">{gunningFog.toFixed(1)}</div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">Gunning Fog</div>
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center gap-1">
+                <div className="text-3xl font-bold text-[var(--st-text)]">{gunningFog.toFixed(1)}</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">Gunning Fog</div>
               </CardBody>
             </Card>
             <Card>
-              <CardBody className="p-4 flex flex-col items-center text-center justify-center">
-                <div className="text-3xl font-bold">{smog.toFixed(1)}</div>
-                <div className="text-xs text-[var(--st-text-secondary)] mt-1">SMOG Index</div>
+              <CardBody className="p-4 flex flex-col items-center text-center justify-center gap-1">
+                <div className="text-3xl font-bold text-[var(--st-text)]">{smog.toFixed(1)}</div>
+                <div className="text-xs text-[var(--st-text-secondary)]">SMOG Index</div>
               </CardBody>
             </Card>
           </div>
 
           <Card>
             <CardBody className="p-4">
-              <div className="text-sm font-semibold mb-4">Sentence Length Distribution</div>
+              <div className="text-sm font-semibold text-[var(--st-text)] mb-4">Sentence Length Distribution</div>
               <div className="h-[200px] w-full">
                 {distribution.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={distribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{fill: 'var(--st-text-secondary)'}} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{fill: 'var(--st-text-secondary)'}} allowDecimals={false} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: 'var(--st-text-secondary)' }} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{ fill: 'var(--st-text-secondary)' }} allowDecimals={false} />
                       <Tooltip
-                        cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                        contentStyle={{ borderRadius: '8px', border: '1px solid var(--st-border)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        cursor={{ fill: 'var(--st-bg-muted)' }}
+                        contentStyle={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--st-border)', background: 'var(--st-bg)', color: 'var(--st-text)', boxShadow: 'var(--st-shadow)' }}
                       />
-                      <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                      <Bar dataKey="count" fill="var(--st-accent)" radius={[4, 4, 0, 0]} maxBarSize={50} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -206,30 +220,35 @@ export default function ReadabilityScorePage() {
         </div>
 
         <div className="flex flex-col gap-6">
-          <Card className="flex-1 min-h-[500px] shadow-sm border-[var(--st-border)]">
+          <Card className="flex-1 min-h-[500px]">
             <CardBody className="p-0 h-full flex flex-col">
-              <div className="p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-lg">
+              <div className="p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-t-[var(--st-radius)]">
                 <div className="text-sm font-semibold text-[var(--st-text)]">Real-time Analysis Preview</div>
                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-[var(--st-text)]">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)] border border-[var(--st-border)]"></div> 
+                    <span className="w-3 h-3 rounded-sm border border-[var(--st-warn)]" style={{ backgroundColor: TINT_LONG }} aria-hidden="true" />
                     Long (&gt;20w)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)] border border-[var(--st-border)]"></div> 
+                    <span className="w-3 h-3 rounded-sm border border-[var(--st-danger)]" style={{ backgroundColor: TINT_VERY_LONG }} aria-hidden="true" />
                     Very Long (&gt;30w)
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)] border border-[var(--st-border)]"></div> 
+                    <span className="w-3 h-3 rounded-sm bg-[var(--st-bg-muted)] border border-[var(--st-border)] underline decoration-dotted" aria-hidden="true" />
                     Complex
                   </div>
                 </div>
               </div>
               <div className="p-5 overflow-y-auto flex-1 max-h-[700px]">
-                <HighlightedPreview text={text} />
-                {!text && (
-                  <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]/60 text-center">
-                    Start typing or paste text in the editor<br/>to see the highlighted analysis...
+                {text ? (
+                  <HighlightedPreview text={text} />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <EmptyState
+                      icon={FileText}
+                      title="Nothing to analyze yet"
+                      description="Start typing or paste text in the editor to see the highlighted analysis."
+                    />
                   </div>
                 )}
               </div>

@@ -1,10 +1,20 @@
 'use client';
 
-import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Input,
+  Field,
+  Card,
+  CardBody,
+  Alert,
+  EmptyState,
+  Badge,
+  Progress,
+} from '@/components/sabcrm/20ui';
 import { useState, useEffect, useMemo } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
-import { LuWand as LuWand2, LuTriangleAlert as LuAlertTriangle, LuCircleCheck as LuCheckCircle2, LuInfo } from 'react-icons/lu';
+import { Wand2, AlertTriangle, CheckCircle2, Info, Sparkles } from 'lucide-react';
 
 const getPixelWidth = (() => {
   let canvas: HTMLCanvasElement | null = null;
@@ -36,13 +46,13 @@ function checkKeywordStuffing(title: string) {
 export default function TitleTagCheckerPage() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   const [originalTitle, setOriginalTitle] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [h1, setH1] = useState('');
-  
+
   const [error, setError] = useState('');
-  
+
   const [pixelWidth, setPixelWidth] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
@@ -55,11 +65,11 @@ export default function TitleTagCheckerPage() {
       setUrl(targetUrl);
     }
 
-    setLoading(true); 
-    setError(''); 
+    setLoading(true);
+    setError('');
     setOriginalTitle(null);
     setAiSuggestions([]);
-    
+
     try {
       const r = await apiFetchUrl(targetUrl);
       if (r.error) {
@@ -73,8 +83,8 @@ export default function TitleTagCheckerPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Failed to fetch URL');
-    } finally { 
-      setLoading(false); 
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,11 +96,15 @@ export default function TitleTagCheckerPage() {
 
   const DESKTOP_MAX = 600;
   const widthStatus = pixelWidth === 0 ? 'empty' : pixelWidth > DESKTOP_MAX ? 'too-long' : pixelWidth < 200 ? 'too-short' : 'ok';
-  
+
   const titleMatchesH1 = title && h1 && title.trim().toLowerCase() === h1.trim().toLowerCase();
   const titleContainsH1 = title && h1 && title.toLowerCase().includes(h1.toLowerCase());
 
   const h1StatusText = !h1 ? 'No H1 found on page' : titleMatchesH1 ? 'Matches H1 exactly' : titleContainsH1 ? 'Contains H1' : 'Differs from H1';
+
+  const widthTone = widthStatus === 'ok' ? 'success' : widthStatus === 'too-long' ? 'danger' : 'warning';
+  const widthProgressTone = widthStatus === 'ok' ? 'success' : widthStatus === 'too-long' ? 'danger' : 'warning';
+  const widthLabel = widthStatus === 'ok' ? 'Length OK' : widthStatus === 'too-long' ? 'Too long (over 600px)' : 'Too short';
 
   const generateAiTitles = async () => {
     setAiLoading(true);
@@ -103,7 +117,7 @@ export default function TitleTagCheckerPage() {
       });
       if (!res.ok) throw new Error('Failed to generate titles');
       const data = await res.json();
-      
+
       let suggestions: string[] = [];
       if (data.suggestions && Array.isArray(data.suggestions)) {
          suggestions = data.suggestions;
@@ -116,7 +130,7 @@ export default function TitleTagCheckerPage() {
       } else if (typeof data === 'string') {
          suggestions = [data];
       }
-      
+
       if (suggestions.length === 0) {
         suggestions = [
           `Optimized: ${title.split('|')[0].trim()} | Best Guide`,
@@ -138,106 +152,109 @@ export default function TitleTagCheckerPage() {
 
   return (
     <ToolShell title="Title Tag Checker" description="Check a page title's pixel width, keyword stuffing, and H1 match.">
-      <div className="flex gap-2">
-        <Input 
-          value={url} 
-          onChange={(e) => setUrl(e.target.value)} 
-          placeholder="https://example.com" 
-          onKeyDown={(e) => e.key === 'Enter' && run()}
-        />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
+      <div className="flex items-end gap-2">
+        <Field label="Page URL" className="flex-1">
+          <Input
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://example.com"
+            onKeyDown={(e) => e.key === 'Enter' && run()}
+          />
+        </Field>
+        <Button variant="primary" onClick={run} loading={loading}>
+          {loading ? 'Loading...' : 'Check'}
+        </Button>
       </div>
-      
+
       {error && (
-        <Card className="border-[var(--st-border)] mt-4">
-          <CardBody className="p-4 text-[var(--st-text)] text-sm">{error}</CardBody>
-        </Card>
+        <Alert tone="danger" title="Could not analyze page" className="mt-4">
+          {error}
+        </Alert>
       )}
-      
+
       {originalTitle !== null && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           <div className="space-y-4">
             <Card>
-              <CardBody className="p-4 space-y-4">
-                <div>
-                  <div className="text-sm font-semibold mb-2">Title Tag</div>
-                  <Input 
-                    value={title} 
+              <CardBody className="space-y-4">
+                <Field label="Title Tag">
+                  <Input
+                    value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full font-sans text-lg"
+                    className="text-lg"
                   />
-                </div>
-                
-                <div className="space-y-1">
+                </Field>
+
+                <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-medium">
-                    <span>{Math.round(pixelWidth)}px / {DESKTOP_MAX}px</span>
-                    <span className={widthStatus === 'ok' ? 'text-[var(--st-text)]' : widthStatus === 'too-long' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>
-                      {widthStatus === 'ok' ? 'Length OK' : widthStatus === 'too-long' ? 'Too long (> 600px)' : 'Too short'}
-                    </span>
+                    <span className="text-[var(--st-text-secondary)]">{Math.round(pixelWidth)}px / {DESKTOP_MAX}px</span>
+                    <Badge tone={widthTone} kind="soft">{widthLabel}</Badge>
                   </div>
-                  <div className="h-2 bg-[var(--st-bg-muted)] rounded overflow-hidden">
-                    <div 
-                      className={cn(
-                        "h-full transition-all duration-300",
-                        widthStatus === 'ok' ? 'bg-[var(--st-text)]' : widthStatus === 'too-long' ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'
-                      )} 
-                      style={{ width: `${Math.min(100, (pixelWidth / DESKTOP_MAX) * 100)}%` }} 
-                    />
-                  </div>
+                  <Progress
+                    value={Math.min(100, (pixelWidth / DESKTOP_MAX) * 100)}
+                    tone={widthProgressTone}
+                    size="sm"
+                    aria-label="Title pixel width"
+                  />
                   <p className="text-[11px] text-[var(--st-text-secondary)] mt-1">Google typically truncates titles over ~600 pixels on desktop.</p>
                 </div>
 
-                <div className="pt-2 space-y-3 border-t">
+                <div className="pt-3 space-y-3 border-t border-[var(--st-border)]">
                   <div className="flex items-start gap-2 text-sm">
-                    {stuffing ? <LuAlertTriangle className="text-[var(--st-text)] mt-0.5" /> : <LuCheckCircle2 className="text-[var(--st-text)] mt-0.5" />}
+                    {stuffing
+                      ? <AlertTriangle size={16} className="text-[var(--st-warn)] mt-0.5 shrink-0" aria-hidden="true" />
+                      : <CheckCircle2 size={16} className="text-[var(--st-status-ok)] mt-0.5 shrink-0" aria-hidden="true" />}
                     <div>
-                      <span className="font-medium">Keyword Stuffing: </span>
+                      <span className="font-medium text-[var(--st-text)]">Keyword Stuffing: </span>
                       {stuffing ? (
-                        <span className="text-[var(--st-text)]">Possible stuffing detected. Repeated words: {stuffedWords.join(', ')}.</span>
+                        <span className="text-[var(--st-text-secondary)]">Possible stuffing detected. Repeated words: {stuffedWords.join(', ')}.</span>
                       ) : (
-                        <span className="text-[var(--st-text)]">No stuffing detected.</span>
+                        <span className="text-[var(--st-text-secondary)]">No stuffing detected.</span>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-2 text-sm">
-                    {titleMatchesH1 || titleContainsH1 ? <LuCheckCircle2 className="text-[var(--st-text)] mt-0.5" /> : <LuInfo className="text-[var(--st-text)] mt-0.5" />}
+                    {titleMatchesH1 || titleContainsH1
+                      ? <CheckCircle2 size={16} className="text-[var(--st-status-ok)] mt-0.5 shrink-0" aria-hidden="true" />
+                      : <Info size={16} className="text-[var(--st-text-secondary)] mt-0.5 shrink-0" aria-hidden="true" />}
                     <div>
-                      <span className="font-medium">H1 Match: </span>
-                      <span className={titleMatchesH1 || titleContainsH1 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}>{h1StatusText}</span>
-                      {h1 && <div className="text-xs text-[var(--st-text-secondary)] mt-1">H1: "{h1}"</div>}
+                      <span className="font-medium text-[var(--st-text)]">H1 Match: </span>
+                      <span className="text-[var(--st-text-secondary)]">{h1StatusText}</span>
+                      {h1 && <div className="text-xs text-[var(--st-text-tertiary)] mt-1">H1: &quot;{h1}&quot;</div>}
                     </div>
                   </div>
                 </div>
               </CardBody>
             </Card>
           </div>
-          
+
           <div className="space-y-4">
             <Card>
-              <CardBody className="p-4 space-y-4">
+              <CardBody className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold">AI Title Suggestions</div>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={generateAiTitles} 
-                    disabled={aiLoading || !title}
+                  <div className="text-sm font-semibold text-[var(--st-text)]">AI Title Suggestions</div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    iconLeft={Wand2}
+                    onClick={generateAiTitles}
+                    loading={aiLoading}
+                    disabled={!title}
                   >
-                    <LuWand2 className="mr-2 h-4 w-4" />
                     {aiLoading ? 'Generating...' : 'Generate'}
                   </Button>
                 </div>
-                
+
                 {aiSuggestions.length > 0 ? (
                   <ul className="space-y-2">
                     {aiSuggestions.map((sug, idx) => (
-                      <li key={idx} className="p-3 bg-[var(--st-bg-muted)]/50 rounded-md text-sm flex justify-between items-center group">
-                        <span className="truncate mr-4" title={sug}>{sug}</span>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="h-7 px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      <li key={idx} className="p-3 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] text-sm flex justify-between items-center gap-3 group">
+                        <span className="truncate text-[var(--st-text)]" title={sug}>{sug}</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                           onClick={() => setTitle(sug)}
                         >
                           Use
@@ -246,9 +263,12 @@ export default function TitleTagCheckerPage() {
                     ))}
                   </ul>
                 ) : (
-                  <div className="text-sm text-[var(--st-text-secondary)] text-center py-6 border border-dashed rounded-md">
-                    Click generate to get AI-optimized title suggestions based on your page's H1 and current title.
-                  </div>
+                  <EmptyState
+                    icon={Sparkles}
+                    title="No suggestions yet"
+                    description="Generate AI-optimized title suggestions based on your page's H1 and current title."
+                    size="sm"
+                  />
                 )}
               </CardBody>
             </Card>

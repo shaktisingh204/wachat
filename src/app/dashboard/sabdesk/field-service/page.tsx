@@ -228,16 +228,14 @@ export default function FieldServiceDashboard() {
         <header className="h-16 border-b border-[var(--st-border)] bg-[var(--st-bg)] flex items-center justify-between px-6 shrink-0 z-10">
           <div className="flex items-center gap-4 flex-1">
             <div className="w-96 max-w-full">
-              <Field label="" className="!gap-0">
-                <Input
-                  type="text"
-                  iconLeft={Search}
-                  placeholder="Search jobs, technicians, customers, or serial numbers..."
-                  aria-label="Search field service"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </Field>
+              <Input
+                type="text"
+                iconLeft={Search}
+                placeholder="Search jobs, technicians, customers, or serial numbers..."
+                aria-label="Search field service"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
           </div>
 
@@ -457,13 +455,11 @@ function LiveMapTab({ technicians, jobs }: { technicians: any[]; jobs: any[] }) 
     <div className="h-full w-full flex relative bg-[var(--st-bg-secondary)]">
       {/* Background Map Grid Simulation */}
       <div
-        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(var(--st-accent) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none [background-image:radial-gradient(var(--st-accent)_1px,transparent_1px)] [background-size:40px_40px]"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 z-0 opacity-10 pointer-events-none"
-        style={{ backgroundImage: 'linear-gradient(var(--st-border) 1px, transparent 1px), linear-gradient(90deg, var(--st-border) 1px, transparent 1px)', backgroundSize: '100px 100px' }}
+        className="absolute inset-0 z-0 opacity-10 pointer-events-none [background-image:linear-gradient(var(--st-border)_1px,transparent_1px),linear-gradient(90deg,var(--st-border)_1px,transparent_1px)] [background-size:100px_100px]"
         aria-hidden="true"
       />
 

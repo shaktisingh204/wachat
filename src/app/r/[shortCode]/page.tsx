@@ -1,13 +1,16 @@
 import React from "react";
 import { notFound, redirect } from 'next/navigation';
+import { Clock, CalendarClock } from 'lucide-react';
 import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
 import { headers } from 'next/headers';
+
+import { Card, CardBody, EmptyState, Spinner } from '@/components/sabcrm/20ui';
 import { PasswordForm } from './password-form';
 
 export const dynamic = 'force-dynamic';
 
 
-type Props = { 
+type Props = {
     params: Promise<{ shortCode: string }>;
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
@@ -15,7 +18,7 @@ type Props = {
 async function RetargetingPageContent({ params, searchParams }: Props) {
     const { shortCode } = await params;
     const { pwd } = await searchParams;
-    
+
     const password = typeof pwd === 'string' ? pwd : null;
 
     const headersList = await headers();
@@ -31,11 +34,26 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
         return (
             <html lang="en">
                 <head><title>Link Expired</title></head>
-                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: 'var(--st-bg-secondary)' }}>
-                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--st-bg)', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                        <h1 style={{ fontSize: '1.5rem', color: 'var(--st-danger)', marginBottom: '1rem' }}>Link Expired</h1>
-                        <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>The link you are trying to access has expired or reached its click limit.</p>
-                        <a href="/" style={{ color: 'var(--st-accent)', textDecoration: 'none' }}>Go to Homepage</a>
+                <body className="m-0">
+                    <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                        <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
+                            <CardBody className="p-8">
+                                <EmptyState
+                                    icon={Clock}
+                                    tone="danger"
+                                    title="Link expired"
+                                    description="The link you are trying to access has expired or reached its click limit."
+                                    action={
+                                        <a
+                                            href="/"
+                                            className="text-sm font-medium text-[var(--st-accent)] no-underline hover:underline"
+                                        >
+                                            Go to homepage
+                                        </a>
+                                    }
+                                />
+                            </CardBody>
+                        </Card>
                     </div>
                 </body>
             </html>
@@ -46,11 +64,26 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
         return (
             <html lang="en">
                 <head><title>Link Not Active</title></head>
-                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: 'var(--st-bg-secondary)' }}>
-                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--st-bg)', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                        <h1 style={{ fontSize: '1.5rem', color: 'var(--st-warn)', marginBottom: '1rem' }}>Link Not Active</h1>
-                        <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>The link you are trying to access is not yet active.</p>
-                        <a href="/" style={{ color: 'var(--st-accent)', textDecoration: 'none' }}>Go to Homepage</a>
+                <body className="m-0">
+                    <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                        <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
+                            <CardBody className="p-8">
+                                <EmptyState
+                                    icon={CalendarClock}
+                                    tone="warning"
+                                    title="Link not active"
+                                    description="The link you are trying to access is not yet active."
+                                    action={
+                                        <a
+                                            href="/"
+                                            className="text-sm font-medium text-[var(--st-accent)] no-underline hover:underline"
+                                        >
+                                            Go to homepage
+                                        </a>
+                                    }
+                                />
+                            </CardBody>
+                        </Card>
                     </div>
                 </body>
             </html>
@@ -80,7 +113,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
         <html lang="en">
             <head>
                 <meta httpEquiv="refresh" content={`1;url=${originalUrl}`} />
-                <title>Redirecting…</title>
+                <title>Redirecting...</title>
                 {/* Insert Pixels here */}
                 {pixelIds.facebook && (
                     <script dangerouslySetInnerHTML={{
@@ -117,20 +150,34 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
                     }} />
                 )}
             </head>
-            <body style={{ backgroundColor: 'var(--st-bg)', margin: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif' }}>
-                <noscript>
-                    {pixelIds.facebook && (
-                        <img height="1" width="1" style={{ display: 'none' }} src={`https://www.facebook.com/tr?id=${pixelIds.facebook}&ev=PageView&noscript=1`} />
-                    )}
-                    <p>Click <a href={originalUrl}>here</a> to continue.</p>
-                </noscript>
-                
-                <div style={{ textAlign: 'center' }}>
-                    <div className="spinner" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 1rem' }}></div>
-                    <p style={{ color: '#4b5563' }}>Redirecting to your destination...</p>
-                    <style dangerouslySetInnerHTML={{__html: `
-                        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                    `}} />
+            <body className="m-0">
+                <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg)] p-6">
+                    <noscript>
+                        {pixelIds.facebook && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                height="1"
+                                width="1"
+                                className="hidden"
+                                alt=""
+                                src={`https://www.facebook.com/tr?id=${pixelIds.facebook}&ev=PageView&noscript=1`}
+                            />
+                        )}
+                        <p className="text-sm text-[var(--st-text-secondary)]">
+                            Click{' '}
+                            <a href={originalUrl} className="font-medium text-[var(--st-accent)] underline">
+                                here
+                            </a>{' '}
+                            to continue.
+                        </p>
+                    </noscript>
+
+                    <div className="flex flex-col items-center gap-3 text-center">
+                        <Spinner size="lg" label="Redirecting" />
+                        <p className="text-sm text-[var(--st-text-secondary)]">
+                            Redirecting to your destination...
+                        </p>
+                    </div>
                 </div>
 
                 <script
@@ -146,7 +193,11 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
 
 export default function RetargetingPage({ params, searchParams }: Props) {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={
+      <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg)]">
+        <Spinner size="lg" label="Loading" />
+      </div>
+    }>
       <RetargetingPageContent params={params} searchParams={searchParams} />
     </React.Suspense>
   );

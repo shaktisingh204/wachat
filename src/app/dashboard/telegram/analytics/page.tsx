@@ -10,6 +10,7 @@ import {
   BreadcrumbSeparator,
   Button,
   Card,
+  CardTitle,
   DateRangePicker,
   EmptyState,
   Field,
@@ -361,7 +362,7 @@ export default function Page() {
   const hasNoProject = !projectId;
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
+    <div className="ui20 flex min-h-full flex-col gap-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -385,7 +386,7 @@ export default function Page() {
           <PageEyebrow>Telegram</PageEyebrow>
           <div className="flex items-center gap-2.5">
             <span
-              aria-hidden
+              aria-hidden="true"
               className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]"
             >
               <BarChart3 className="h-4.5 w-4.5" />
@@ -401,21 +402,19 @@ export default function Page() {
           <Button
             variant="outline"
             size="sm"
+            iconLeft={isExporting ? Loader2 : Download}
             onClick={handleExport}
             disabled={isExporting || hasNoProject}
           >
-            {isExporting ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
-            ) : (
-              <Download className="h-3.5 w-3.5" aria-hidden />
-            )}
             Export CSV
           </Button>
         </PageActions>
       </PageHeader>
 
+      <TelegramProjectGate />
+
       {/* Filters */}
-      <Card className="flex flex-wrap items-end gap-4 p-4">
+      <Card padding="none" className="flex flex-wrap items-end gap-4 p-4">
         <Field label="Date range">
           <DateRangePicker
             value={{ from: range.from, to: range.to }}
@@ -439,7 +438,7 @@ export default function Page() {
             value={botId || '__all__'}
             onValueChange={(v) => setBotId(v === '__all__' ? '' : v)}
           >
-            <SelectTrigger className="min-w-[180px]">
+            <SelectTrigger className="min-w-[180px]" aria-label="Bot">
               <SelectValue placeholder="All bots" />
             </SelectTrigger>
             <SelectContent>
@@ -453,14 +452,14 @@ export default function Page() {
           </Select>
         </Field>
         <div className="ml-auto flex flex-wrap items-center gap-1.5 self-end pb-1.5">
-          <Filter className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" aria-hidden />
+          <Filter className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" aria-hidden="true" />
           {isLoading ? (
             <span className="inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
-              <Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Refreshing...
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> Refreshing...
             </span>
           ) : (
             <span className="text-xs text-[var(--st-text-secondary)]">
-              Showing {range.from.toLocaleDateString()} -{' '}
+              Showing {range.from.toLocaleDateString()} to{' '}
               {range.to.toLocaleDateString()}
             </span>
           )}
@@ -469,7 +468,7 @@ export default function Page() {
 
       {hasNoProject && (
         <EmptyState
-          icon={<Bot className="h-6 w-6" aria-hidden />}
+          icon={Bot}
           title="Choose a project"
           description="Telegram analytics is scoped to a workspace. Pick an active project from the sidebar to load data."
         />
@@ -508,9 +507,9 @@ export default function Page() {
           />
 
           {topLevelError && (
-            <Card className="border-[var(--st-danger)]/40 p-4 text-sm text-[var(--st-danger)]">
+            <Card padding="none" className="border-[var(--st-danger)]/40 p-4 text-sm text-[var(--st-danger)]">
               <div className="flex items-center gap-2">
-                <BadgeAlert className="h-4 w-4" aria-hidden />
+                <BadgeAlert className="h-4 w-4" aria-hidden="true" />
                 <span>Data load issue: {topLevelError}</span>
               </div>
             </Card>
@@ -655,8 +654,8 @@ function OverviewView({
         </ResponsiveContainer>
       </ChartCard>
 
-      <Card className="p-5">
-        <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top commands</h3>
+      <Card padding="none" className="p-5">
+        <CardTitle className="mb-3">Top commands</CardTitle>
         {isLoading ? (
           <SkeletonRows />
         ) : topCommands.length === 0 ? (
@@ -676,8 +675,8 @@ function OverviewView({
         )}
       </Card>
 
-      <Card className="p-5">
-        <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top contacts</h3>
+      <Card padding="none" className="p-5">
+        <CardTitle className="mb-3">Top contacts</CardTitle>
         {isLoading ? (
           <SkeletonRows />
         ) : topContacts.length === 0 ? (
@@ -759,8 +758,8 @@ function MessagesView({
         </ResponsiveContainer>
       </ChartCard>
 
-      <Card className="p-5">
-        <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top contacts by volume</h3>
+      <Card padding="none" className="p-5">
+        <CardTitle className="mb-3">Top contacts by volume</CardTitle>
         {isLoading ? (
           <SkeletonRows />
         ) : topContacts.length === 0 ? (
@@ -773,7 +772,7 @@ function MessagesView({
               <Tr>
                 <Th>Contact</Th>
                 <Th>Chat ID</Th>
-                <Th className="text-right">Messages</Th>
+                <Th align="right">Messages</Th>
               </Tr>
             </THead>
             <TBody>
@@ -783,7 +782,7 @@ function MessagesView({
                   <Td className="text-[var(--st-text-secondary)]">
                     {c.chatId}
                   </Td>
-                  <Td className="text-right tabular-nums">
+                  <Td align="right" className="tabular-nums">
                     {fmtNumber(c.messages)}
                   </Td>
                 </Tr>
@@ -841,8 +840,8 @@ function BroadcastsView({
         </ResponsiveContainer>
       </ChartCard>
 
-      <Card className="p-5">
-        <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Top error codes</h3>
+      <Card padding="none" className="p-5">
+        <CardTitle className="mb-3">Top error codes</CardTitle>
         {isLoading ? (
           <SkeletonRows />
         ) : topErrorCodes.length === 0 ? (
@@ -901,8 +900,8 @@ function CommandsView({
           </BarChart>
         </ResponsiveContainer>
       </ChartCard>
-      <Card className="p-5">
-        <h3 className="mb-3 text-[14px] text-[var(--st-text)]">Command catalogue</h3>
+      <Card padding="none" className="p-5">
+        <CardTitle className="mb-3">Command catalogue</CardTitle>
         {isLoading ? (
           <SkeletonRows />
         ) : commands.length === 0 ? (
@@ -915,7 +914,7 @@ function CommandsView({
               <Tr>
                 <Th>Command</Th>
                 <Th>Description</Th>
-                <Th className="text-right">Bots</Th>
+                <Th align="right">Bots</Th>
               </Tr>
             </THead>
             <TBody>
@@ -925,7 +924,7 @@ function CommandsView({
                   <Td className="text-[var(--st-text-secondary)]">
                     {c.label}
                   </Td>
-                  <Td className="text-right tabular-nums">
+                  <Td align="right" className="tabular-nums">
                     {fmtNumber(c.count)}
                   </Td>
                 </Tr>
@@ -1036,8 +1035,8 @@ function FunnelView({
   ];
   const top = Math.max(stages[0]?.value ?? 0, 1);
   return (
-    <Card className="p-5">
-      <h3 className="mb-4 text-[14px] text-[var(--st-text)]">Conversion funnel</h3>
+    <Card padding="none" className="p-5">
+      <CardTitle className="mb-4">Conversion funnel</CardTitle>
       {isLoading ? (
         <SkeletonRows />
       ) : top === 1 && stages.every((s) => s.value === 0) ? (
@@ -1100,12 +1099,12 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="p-5">
-      <h3 className="mb-3 text-[14px] text-[var(--st-text)]">{title}</h3>
+    <Card padding="none" className="p-5">
+      <CardTitle className="mb-3">{title}</CardTitle>
       <div style={{ height }} className="w-full">
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" aria-hidden />
+            <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" aria-hidden="true" />
           </div>
         ) : empty ? (
           <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
@@ -1146,8 +1145,7 @@ function MetricTile({
   hint?: string;
 }) {
   return (
-    <Card className="p-4">
-      <TelegramProjectGate />
+    <Card padding="none" className="p-4">
       <div className="text-[11.5px] text-[var(--st-text-secondary)]">{label}</div>
       <div className="text-[20px] leading-tight tabular-nums text-[var(--st-text)]">
         {isLoading ? (

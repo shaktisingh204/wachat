@@ -336,14 +336,7 @@ export default function RoutingPage() {
                 </div>
 
                 {/* Mock Canvas Area */}
-                <div
-                  className="flex-1 w-full h-full relative"
-                  style={{
-                    backgroundSize: "40px 40px",
-                    backgroundImage:
-                      "radial-gradient(circle, var(--st-border) 1px, transparent 1px)",
-                  }}
-                >
+                <div className="flex-1 w-full h-full relative [background-size:40px_40px] [background-image:radial-gradient(circle,var(--st-border)_1px,transparent_1px)]">
                   {/* Lines */}
                   <svg className="absolute inset-0 w-full h-full pointer-events-none">
                     <path
