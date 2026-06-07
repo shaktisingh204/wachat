@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * NodeDataInspector — right-side sliding panel showing per-node
+ * NodeDataInspector - right-side sliding panel showing per-node
  * Input / Output / Parameters / Error JSON for the selected block.
  *
  * Designed to sit alongside the existing Typebot-style block settings
@@ -17,20 +17,31 @@ import {
   useState,
 } from 'react';
 import {
-  LuX,
-  LuCopy,
-  LuPin,
-  LuSearch,
-  LuTable,
-  LuCode,
-  LuBraces,
-  LuCircleAlert,
-  LuTriangleAlert,
-} from 'react-icons/lu';
+  X,
+  Copy,
+  Pin,
+  Search,
+  Table as TableIcon,
+  Code,
+  Braces,
+  CircleAlert,
+} from 'lucide-react';
 import type { Block, Group } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { useNodeDataStore } from '@/lib/sabflow/execution/nodeData';
 import { getRegistryEntry } from '@/components/sabflow/editor/blockRegistry';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { NodeStatusBadge } from './NodeStatusBadge';
 import { JsonTreeView } from './JsonTreeView';
 import { JsonTableView } from './JsonTableView';
@@ -67,14 +78,16 @@ function safeStringify(value: unknown): string {
   }
 }
 
-async function writeToClipboard(text: string): Promise<void> {
+async function writeToClipboard(text: string): Promise<boolean> {
   try {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       await navigator.clipboard.writeText(text);
+      return true;
     }
   } catch {
     /* no-op */
   }
+  return false;
 }
 
 function humanizeBlockLabel(block: Block | undefined): string {
@@ -83,47 +96,10 @@ function humanizeBlockLabel(block: Block | undefined): string {
   return entry?.label ?? block.type;
 }
 
-/* ── Tab button ─────────────────────────────────────────────────── */
-
-interface TabButtonProps {
-  label: string;
-  active: boolean;
-  accent?: 'default' | 'red';
-  onClick: () => void;
-}
-
-function TabButton({ label, active, accent = 'default', onClick }: TabButtonProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        'relative px-3 py-2 text-[12px] font-medium transition-colors',
-        active
-          ? accent === 'red'
-            ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-            : 'text-[var(--gray-12)]'
-          : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-      )}
-    >
-      {label}
-      <span
-        className={cn(
-          'absolute left-0 right-0 -bottom-px h-0.5 rounded-full',
-          active
-            ? accent === 'red'
-              ? 'bg-[var(--st-text)]'
-              : 'bg-[var(--st-text)]'
-            : 'bg-transparent',
-        )}
-      />
-    </button>
-  );
-}
-
 /* ── Main panel ─────────────────────────────────────────────────── */
 
 function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
+  const { toast } = useToast();
   const nodeEntry = useNodeDataStore((s) => s.entries[nodeId]);
   const pinnedOutput = useNodeDataStore((s) => s.entries[nodeId]?.pinnedOutput);
   const pinData = useNodeDataStore((s) => s.pinData);
@@ -147,7 +123,7 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
   // When output is pinned, the pinned value takes precedence for display.
   const effectiveOutput = isPinned ? pinnedOutput : nodeEntry?.lastOutput;
   const input = nodeEntry?.lastInput;
-  // Fall back to block.options if the engine hasn't run yet — the store
+  // Fall back to block.options if the engine hasn't run yet - the store
   // doesn't track per-block parameters separately any more.
   const parameters: Record<string, unknown> = useMemo(() => {
     return (block?.options as Record<string, unknown> | undefined) ?? {};
@@ -173,14 +149,19 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
   const handlePinToggle = useCallback(() => {
     if (isPinned) {
       unpinData(nodeId);
+      toast.info('Output unpinned');
     } else {
       pinData(nodeId, nodeEntry?.lastOutput);
+      toast.success('Output pinned');
     }
-  }, [isPinned, nodeId, nodeEntry?.lastOutput, pinData, unpinData]);
+  }, [isPinned, nodeId, nodeEntry?.lastOutput, pinData, unpinData, toast]);
 
   const handleCopy = useCallback(() => {
-    void writeToClipboard(safeStringify(displayedData));
-  }, [displayedData]);
+    void writeToClipboard(safeStringify(displayedData)).then((ok) => {
+      if (ok) toast.success('JSON copied to clipboard');
+      else toast.error('Could not copy to clipboard');
+    });
+  }, [displayedData, toast]);
 
   /* ── Render ─────────────────────────────────────────────────── */
 
@@ -196,124 +177,102 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
   return (
     <div
       className={cn(
-        'shrink-0 flex flex-col w-[380px] bg-[var(--gray-1)] z-20 overflow-hidden',
-        'border-l border-[var(--gray-5)]',
-        isPinned && 'ring-2 ring-inset ring-[var(--st-border)]/60',
+        'shrink-0 flex flex-col w-[380px] bg-[var(--st-bg)] z-20 overflow-hidden',
+        'border-l border-[var(--st-border)]',
+        isPinned && 'ring-2 ring-inset ring-[var(--st-accent)]/60',
       )}
       aria-label="Node data inspector"
     >
       {/* ── Header ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-b border-[var(--gray-4)] px-3 py-2.5 shrink-0">
-        <LuBraces className="h-4 w-4 text-[var(--st-text)]" strokeWidth={2} />
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2.5 shrink-0">
+        <Braces className="h-4 w-4 text-[var(--st-text)]" strokeWidth={2} aria-hidden="true" />
         <div className="flex flex-col min-w-0 flex-1">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="text-[13px] font-semibold text-[var(--gray-12)] truncate">
+            <span className="text-[13px] font-semibold text-[var(--st-text)] truncate">
               {nodeLabel}
             </span>
             <NodeStatusBadge nodeId={nodeId} size="xs" showIdle />
           </div>
           {groupLabel && (
-            <span className="text-[11px] text-[var(--gray-9)] truncate">
+            <span className="text-[11px] text-[var(--st-text-secondary)] truncate">
               in {groupLabel}
             </span>
           )}
         </div>
-        <button
-          type="button"
+        <IconButton
+          icon={X}
+          label="Close inspector"
+          size="sm"
           onClick={onClose}
-          title="Close inspector"
-          aria-label="Close inspector"
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-        >
-          <LuX className="h-4 w-4" strokeWidth={2} />
-        </button>
+        />
       </div>
 
       {/* ── Filter ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 border-b border-[var(--gray-4)] px-3 py-2 shrink-0">
-        <LuSearch
-          className="h-3.5 w-3.5 text-[var(--gray-8)] shrink-0"
-          strokeWidth={2}
-        />
-        <input
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Filter keys…"
-          className="flex-1 min-w-0 bg-transparent outline-none text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-7)]"
-        />
+      <div className="border-b border-[var(--st-border)] px-3 py-2 shrink-0">
+        <Field label="Filter keys" className="[&_.u-field__label]:sr-only">
+          <Input
+            inputSize="sm"
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter keys..."
+            iconLeft={Search}
+          />
+        </Field>
       </div>
 
       {/* ── Tabs ──────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1 border-b border-[var(--gray-4)] px-2 shrink-0">
-        <TabButton label="Input" active={tab === 'input'} onClick={() => setTab('input')} />
-        <TabButton label="Output" active={tab === 'output'} onClick={() => setTab('output')} />
-        <TabButton
-          label="Parameters"
-          active={tab === 'parameters'}
-          onClick={() => setTab('parameters')}
-        />
-        <TabButton
-          label={errorMessage ? 'Error ●' : 'Error'}
-          active={tab === 'error'}
-          accent="red"
-          onClick={() => setTab('error')}
-        />
+      <div className="border-b border-[var(--st-border)] px-2 shrink-0">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+          <TabsList aria-label="Node data view">
+            <TabsTrigger value="input">Input</TabsTrigger>
+            <TabsTrigger value="output">Output</TabsTrigger>
+            <TabsTrigger value="parameters">Parameters</TabsTrigger>
+            <TabsTrigger value="error">
+              {errorMessage ? 'Error ●' : 'Error'}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {/* ── Toolbar (Output only) ─────────────────────────────── */}
       {tab === 'output' && (
-        <div className="flex items-center gap-1.5 border-b border-[var(--gray-4)] px-2 py-1.5 shrink-0">
-          <button
-            type="button"
+        <div className="flex items-center gap-1.5 border-b border-[var(--st-border)] px-2 py-1.5 shrink-0">
+          <Button
+            size="sm"
+            variant={isPinned ? 'primary' : 'ghost'}
+            iconLeft={Pin}
             onClick={handlePinToggle}
-            title={isPinned ? 'Unpin data' : 'Pin output data'}
             aria-pressed={isPinned}
-            className={cn(
-              'flex h-7 items-center gap-1 rounded-md px-2 text-[11.5px] font-medium transition-colors',
-              isPinned
-                ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-                : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] border border-transparent',
-            )}
+            title={isPinned ? 'Unpin data' : 'Pin output data'}
           >
-            <LuPin className="h-3 w-3" strokeWidth={2} />
             {isPinned ? 'Pinned' : 'Pin'}
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            iconLeft={Copy}
             onClick={handleCopy}
             title="Copy JSON to clipboard"
-            className="flex h-7 items-center gap-1 rounded-md px-2 text-[11.5px] font-medium text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
           >
-            <LuCopy className="h-3 w-3" strokeWidth={2} />
             Copy JSON
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            size="sm"
+            variant={viewAsTable ? 'secondary' : 'ghost'}
+            iconLeft={viewAsTable ? Code : TableIcon}
             onClick={() => setViewAsTable((v) => !v)}
             disabled={!outputIsArrayOfObjects}
+            aria-pressed={viewAsTable}
             title={
               outputIsArrayOfObjects
                 ? 'Toggle table view'
                 : 'Table view requires an array of objects'
             }
-            aria-pressed={viewAsTable}
-            className={cn(
-              'flex h-7 items-center gap-1 rounded-md px-2 text-[11.5px] font-medium transition-colors',
-              viewAsTable
-                ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
-                : 'text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-              !outputIsArrayOfObjects && 'opacity-50 cursor-not-allowed',
-            )}
           >
-            {viewAsTable ? (
-              <LuCode className="h-3 w-3" strokeWidth={2} />
-            ) : (
-              <LuTable className="h-3 w-3" strokeWidth={2} />
-            )}
             {viewAsTable ? 'JSON' : 'Table'}
-          </button>
-          <div className="ml-auto text-[10.5px] tabular-nums text-[var(--gray-8)]">
+          </Button>
+          <div className="ml-auto text-[10.5px] tabular-nums text-[var(--st-text-tertiary)]">
             {nodeEntry?.executionTimeMs !== undefined &&
               `${nodeEntry.executionTimeMs} ms`}
           </div>
@@ -324,25 +283,23 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2">
         {tab === 'error' ? (
           errorMessage ? (
-            <div className="rounded-md border border-[var(--st-border)]/30 bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 p-3">
-              <div className="flex items-center gap-1.5 text-[12px] font-semibold text-[var(--st-text)] dark:text-[var(--st-text-secondary)] mb-2">
-                <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
-                Execution error
-              </div>
-              <pre className="text-[11.5px] font-mono leading-relaxed whitespace-pre-wrap break-words text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+            <Alert tone="danger" title="Execution error" icon={CircleAlert}>
+              <pre className="text-[11.5px] font-mono leading-relaxed whitespace-pre-wrap break-words">
                 {errorMessage}
               </pre>
-            </div>
+            </Alert>
           ) : (
             <EmptyState
-              icon="triangle"
-              text="No error recorded for this node."
+              icon={CircleAlert}
+              title="No error recorded for this node."
+              size="sm"
             />
           )
         ) : displayedData === undefined ? (
           <EmptyState
-            icon="triangle"
-            text={
+            icon={CircleAlert}
+            size="sm"
+            title={
               tab === 'output'
                 ? 'No output yet. Run the flow to populate.'
                 : tab === 'input'
@@ -356,21 +313,6 @@ function NodeDataInspectorImpl({ nodeId, onClose, block, group }: Props) {
           <JsonTreeView data={displayedData} searchQuery={filter} />
         )}
       </div>
-    </div>
-  );
-}
-
-/* ── Empty state ─────────────────────────────────────────────────── */
-
-function EmptyState({ icon, text }: { icon: 'triangle' | 'alert'; text: string }) {
-  const Icon = icon === 'triangle' ? LuTriangleAlert : LuCircleAlert;
-  return (
-    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-      <Icon
-        className="h-5 w-5 text-[var(--gray-8)]"
-        strokeWidth={1.75}
-      />
-      <p className="text-[12px] text-[var(--gray-9)] max-w-[260px]">{text}</p>
     </div>
   );
 }

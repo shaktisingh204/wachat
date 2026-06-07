@@ -5,30 +5,40 @@
  *
  * Full visual diff between two SabFlowDoc snapshots.
  *
- * Top banner: numeric summary (+N groups / -N groups / ~N modified / ±N edges).
+ * Top banner: numeric summary (+N groups / -N groups / ~N modified).
  * Thumbnails: side-by-side FlowMiniPreview of `before` (left) and `after`
  * (right), with added/removed/modified elements colour-coded.
  * Body: accordion sections per domain (groups / edges / events / variables /
- * settings / theme).  Each row uses DiffRow for consistent styling.
+ * settings / theme). Each row uses DiffRow for consistent styling.
  *
- * Uses react-icons/lu only.  No lucide-react.
+ * Pure 20ui: design-system pieces come from "@/components/sabcrm/20ui",
+ * icons from lucide-react. Sections use the 20ui Accordion so open/close
+ * motion, ARIA, and the rotating chevron are built in.
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
-  LuX,
-  LuChevronDown,
-  LuChevronRight,
-  LuLayoutGrid,
-  LuArrowRight,
-  LuSlidersHorizontal,
-  LuPalette,
-  LuVariable,
-  LuPlay,
-  LuWorkflow,
-  LuGitCompare,
-} from 'react-icons/lu';
+  X,
+  LayoutGrid,
+  ArrowRight,
+  SlidersHorizontal,
+  Palette,
+  Variable,
+  Play,
+  Workflow,
+  GitCompare,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Badge,
+  Card,
+  EmptyState,
+  IconButton,
+} from '@/components/sabcrm/20ui';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import {
   computeFlowDiff,
@@ -39,7 +49,7 @@ import {
 import { FlowMiniPreview } from './FlowMiniPreview';
 import { DiffRow } from './DiffRow';
 
-/* ── Props ──────────────────────────────────────────────────────────────── */
+/* -- Props ---------------------------------------------------------------- */
 
 export interface FlowDiffViewProps {
   before: SabFlowDoc;
@@ -58,7 +68,7 @@ export interface FlowDiffViewProps {
   className?: string;
 }
 
-/* ── Summary banner ─────────────────────────────────────────────────────── */
+/* -- Summary chip --------------------------------------------------------- */
 
 interface SummaryChipProps {
   kind: 'added' | 'removed' | 'modified' | 'neutral';
@@ -67,92 +77,61 @@ interface SummaryChipProps {
 }
 
 function SummaryChip({ kind, count, label }: SummaryChipProps) {
-  const palette = {
-    added: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]/60',
-    removed: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]/60',
-    modified: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)] dark:border-[var(--st-border)]/60',
-    neutral: 'bg-[var(--gray-2)] text-[var(--gray-11)] border-[var(--gray-5)]',
-  }[kind];
-
-  const prefix = kind === 'added' ? '+' : kind === 'removed' ? '−' : kind === 'modified' ? '~' : '';
-
+  const prefix = kind === 'added' ? '+' : kind === 'removed' ? '-' : kind === 'modified' ? '~' : '';
   return (
-    <div
-      className={cn(
-        'flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[12px] font-medium',
-        palette,
-      )}
-    >
+    <Badge tone="neutral" kind="soft">
       <span className="tabular-nums font-semibold">
         {prefix}
         {count}
       </span>
-      <span className="text-[11.5px]">{label}</span>
-    </div>
+      <span className="ml-1">{label}</span>
+    </Badge>
   );
 }
 
-/* ── Accordion section wrapper ──────────────────────────────────────────── */
+/* -- Accordion section wrapper -------------------------------------------- */
 
 interface SectionProps {
+  value: string;
   title: string;
   icon: React.ReactNode;
   count: number;
-  /** Initial open state — defaults to `count > 0`. */
-  defaultOpen?: boolean;
   children: React.ReactNode;
 }
 
-function Section({ title, icon, count, defaultOpen, children }: SectionProps) {
-  const [isOpen, setIsOpen] = useState<boolean>(defaultOpen ?? count > 0);
-
+function Section({ value, title, icon, count, children }: SectionProps) {
   return (
-    <section className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setIsOpen((v) => !v)}
-        className="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left hover:bg-[var(--gray-2)] transition-colors"
-        aria-expanded={isOpen}
-      >
-        <span
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--gray-3)] text-[var(--gray-10)]"
-          aria-hidden="true"
-        >
-          {icon}
+    <AccordionItem value={value}>
+      <AccordionTrigger>
+        <span className="flex w-full items-center gap-2.5">
+          <span
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+          <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">{title}</span>
+          <Badge tone={count > 0 ? 'accent' : 'neutral'} kind="soft">
+            <span className="tabular-nums">{count}</span>
+          </Badge>
         </span>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">{title}</span>
-        <span
-          className={cn(
-            'rounded-md px-1.5 py-0.5 text-[11px] font-medium tabular-nums',
-            count > 0
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'bg-[var(--gray-3)] text-[var(--gray-9)]',
-          )}
-        >
-          {count}
-        </span>
-        {isOpen
-          ? <LuChevronDown className="h-4 w-4 text-[var(--gray-9)]" strokeWidth={2} />
-          : <LuChevronRight className="h-4 w-4 text-[var(--gray-9)]" strokeWidth={2} />}
-      </button>
-      {isOpen && (
-        <div className="border-t border-[var(--gray-5)] bg-[var(--gray-1)] px-3.5 py-3 space-y-1.5">
-          {children}
-        </div>
-      )}
-    </section>
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="space-y-1.5">{children}</div>
+      </AccordionContent>
+    </AccordionItem>
   );
 }
 
-/* ── Empty section placeholder ──────────────────────────────────────────── */
+/* -- Empty section placeholder ------------------------------------------- */
 
 function EmptySectionMessage({ message }: { message: string }) {
   return (
-    <p className="py-2 text-center text-[11.5px] text-[var(--gray-9)]">{message}</p>
+    <p className="py-2 text-center text-[11.5px] text-[var(--st-text-tertiary)]">{message}</p>
   );
 }
 
-/* ── Per-section renderers ──────────────────────────────────────────────── */
+/* -- Per-section renderers ----------------------------------------------- */
 
 function GroupsSection({ diff }: { diff: FlowDiff }) {
   const total =
@@ -160,8 +139,9 @@ function GroupsSection({ diff }: { diff: FlowDiff }) {
 
   return (
     <Section
+      value="groups"
       title="Groups"
-      icon={<LuLayoutGrid className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<LayoutGrid className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={total}
     >
       {total === 0 ? (
@@ -205,8 +185,9 @@ function EdgesSection({ diff }: { diff: FlowDiff }) {
   const total = diff.edges.added.length + diff.edges.removed.length;
   return (
     <Section
+      value="edges"
       title="Edges"
-      icon={<LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={total}
     >
       {total === 0 ? (
@@ -244,19 +225,20 @@ function edgeLabel(edge: { from: { eventId?: string; groupId?: string }; to: { g
       ? `Group:${short(edge.from.groupId)}`
       : 'unknown';
   const toPart = `Group:${short(edge.to.groupId)}${edge.to.blockId ? `/${short(edge.to.blockId)}` : ''}`;
-  return `${fromPart} → ${toPart}`;
+  return `${fromPart} -> ${toPart}`;
 }
 
 function short(id: string): string {
-  return id.length > 8 ? `${id.slice(0, 8)}…` : id;
+  return id.length > 8 ? `${id.slice(0, 8)}...` : id;
 }
 
 function EventsSection({ diff }: { diff: FlowDiff }) {
   const total = diff.events.added.length + diff.events.removed.length + diff.events.modified.length;
   return (
     <Section
+      value="events"
       title="Events"
-      icon={<LuPlay className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<Play className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={total}
     >
       {total === 0 ? (
@@ -302,8 +284,9 @@ function VariablesSection({ diff }: { diff: FlowDiff }) {
     diff.variables.added.length + diff.variables.removed.length + diff.variables.modified.length;
   return (
     <Section
+      value="variables"
       title="Variables"
-      icon={<LuVariable className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<Variable className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={total}
     >
       {total === 0 ? (
@@ -346,8 +329,9 @@ function VariablesSection({ diff }: { diff: FlowDiff }) {
 function SettingsSection({ diff }: { diff: FlowDiff }) {
   return (
     <Section
+      value="settings"
       title="Settings"
-      icon={<LuSlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={diff.settings.length}
     >
       {diff.settings.length === 0 ? (
@@ -370,8 +354,9 @@ function SettingsSection({ diff }: { diff: FlowDiff }) {
 function ThemeSection({ diff }: { diff: FlowDiff }) {
   return (
     <Section
+      value="theme"
       title="Theme"
-      icon={<LuPalette className="h-3.5 w-3.5" strokeWidth={2} />}
+      icon={<Palette className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />}
       count={diff.theme.length}
     >
       {diff.theme.length === 0 ? (
@@ -391,7 +376,7 @@ function ThemeSection({ diff }: { diff: FlowDiff }) {
   );
 }
 
-/* ── Highlight set helpers ──────────────────────────────────────────────── */
+/* -- Highlight set helpers ----------------------------------------------- */
 
 function buildHighlightSets(diff: FlowDiff) {
   const addedGroupIds = new Set<string>(diff.groups.added.map((g) => g.id));
@@ -425,7 +410,7 @@ function buildHighlightSets(diff: FlowDiff) {
   };
 }
 
-/* ── Component ──────────────────────────────────────────────────────────── */
+/* -- Component ------------------------------------------------------------ */
 
 export function FlowDiffView({
   before,
@@ -443,122 +428,122 @@ export function FlowDiffView({
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 bg-[var(--gray-2)] text-[var(--gray-12)]',
+        'flex flex-col gap-4 bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
         className,
       )}
     >
-      {/* ── Summary banner ─────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] px-4 py-3">
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]"
-          aria-hidden="true"
-        >
-          <LuGitCompare className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">
-            {isEmpty ? 'No changes' : `${totalChanges} change${totalChanges === 1 ? '' : 's'}`}
-          </p>
-          <p className="text-[11px] text-[var(--gray-9)] truncate">
-            Comparing <span className="font-medium text-[var(--gray-11)]">{beforeLabel}</span>
-            {' → '}
-            <span className="font-medium text-[var(--gray-11)]">{afterLabel}</span>
-          </p>
-        </div>
-
-        {!isEmpty && (
-          <div className="flex flex-wrap items-center gap-1.5">
-            <SummaryChip kind="added" count={diff.groups.added.length} label="groups" />
-            <SummaryChip kind="removed" count={diff.groups.removed.length} label="groups" />
-            <SummaryChip kind="modified" count={diff.groups.modified.length} label="modified" />
-            <SummaryChip kind="added" count={diff.edges.added.length} label="edges" />
-            <SummaryChip kind="removed" count={diff.edges.removed.length} label="edges" />
-          </div>
-        )}
-
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close diff view"
-            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
+      {/* -- Summary banner --------------------------------------- */}
+      <Card variant="outlined" padding="none">
+        <div className="flex flex-wrap items-center gap-2 px-4 py-3">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+            aria-hidden="true"
           >
-            <LuX className="h-4 w-4" strokeWidth={2} />
-          </button>
-        )}
-      </div>
+            <GitCompare className="h-4 w-4" strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12.5px] font-semibold text-[var(--st-text)]">
+              {isEmpty ? 'No changes' : `${totalChanges} change${totalChanges === 1 ? '' : 's'}`}
+            </p>
+            <p className="text-[11px] text-[var(--st-text-tertiary)] truncate">
+              Comparing <span className="font-medium text-[var(--st-text-secondary)]">{beforeLabel}</span>
+              {' -> '}
+              <span className="font-medium text-[var(--st-text-secondary)]">{afterLabel}</span>
+            </p>
+          </div>
 
-      {/* ── Thumbnails ─────────────────────────────────────────── */}
+          {!isEmpty && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <SummaryChip kind="added" count={diff.groups.added.length} label="groups" />
+              <SummaryChip kind="removed" count={diff.groups.removed.length} label="groups" />
+              <SummaryChip kind="modified" count={diff.groups.modified.length} label="modified" />
+              <SummaryChip kind="added" count={diff.edges.added.length} label="edges" />
+              <SummaryChip kind="removed" count={diff.edges.removed.length} label="edges" />
+            </div>
+          )}
+
+          {onClose && (
+            <IconButton label="Close diff view" icon={X} variant="ghost" size="sm" onClick={onClose} />
+          )}
+        </div>
+      </Card>
+
+      {/* -- Thumbnails ------------------------------------------- */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 items-center gap-1 rounded-md bg-[var(--gray-3)] px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-11)]">
-              <LuWorkflow className="h-2.5 w-2.5" strokeWidth={2.5} />
-              {beforeLabel}
-            </span>
-            <span className="truncate text-[11.5px] text-[var(--gray-9)]">
-              {before.name}
-            </span>
+        <Card variant="outlined" padding="none">
+          <div className="flex flex-col gap-1.5 p-3">
+            <div className="flex items-center gap-2">
+              <Badge tone="neutral" kind="soft">
+                <Workflow className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
+                <span className="ml-1 uppercase tracking-wide">{beforeLabel}</span>
+              </Badge>
+              <span className="truncate text-[11.5px] text-[var(--st-text-tertiary)]">
+                {before.name}
+              </span>
+            </div>
+            <FlowMiniPreview
+              groups={before.groups ?? []}
+              events={before.events ?? []}
+              edges={before.edges ?? []}
+              addedIds={highlights.beforeAdded}
+              removedIds={highlights.beforeRemoved}
+              modifiedIds={highlights.beforeModified}
+              width={480}
+              height={240}
+              className="w-full"
+              label={`${beforeLabel} preview`}
+            />
           </div>
-          <FlowMiniPreview
-            groups={before.groups ?? []}
-            events={before.events ?? []}
-            edges={before.edges ?? []}
-            addedIds={highlights.beforeAdded}
-            removedIds={highlights.beforeRemoved}
-            modifiedIds={highlights.beforeModified}
-            width={480}
-            height={240}
-            className="w-full"
-            label={`${beforeLabel} preview`}
-          />
-        </div>
+        </Card>
 
-        <div className="flex flex-col gap-1.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-5 items-center gap-1 rounded-md bg-[var(--st-bg-muted)] px-1.5 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-              <LuWorkflow className="h-2.5 w-2.5" strokeWidth={2.5} />
-              {afterLabel}
-            </span>
-            <span className="truncate text-[11.5px] text-[var(--gray-9)]">
-              {after.name}
-            </span>
+        <Card variant="outlined" padding="none">
+          <div className="flex flex-col gap-1.5 p-3">
+            <div className="flex items-center gap-2">
+              <Badge tone="accent" kind="soft">
+                <Workflow className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
+                <span className="ml-1 uppercase tracking-wide">{afterLabel}</span>
+              </Badge>
+              <span className="truncate text-[11.5px] text-[var(--st-text-tertiary)]">
+                {after.name}
+              </span>
+            </div>
+            <FlowMiniPreview
+              groups={after.groups ?? []}
+              events={after.events ?? []}
+              edges={after.edges ?? []}
+              addedIds={highlights.afterAdded}
+              removedIds={highlights.afterRemoved}
+              modifiedIds={highlights.afterModified}
+              width={480}
+              height={240}
+              className="w-full"
+              label={`${afterLabel} preview`}
+            />
           </div>
-          <FlowMiniPreview
-            groups={after.groups ?? []}
-            events={after.events ?? []}
-            edges={after.edges ?? []}
-            addedIds={highlights.afterAdded}
-            removedIds={highlights.afterRemoved}
-            modifiedIds={highlights.afterModified}
-            width={480}
-            height={240}
-            className="w-full"
-            label={`${afterLabel} preview`}
-          />
-        </div>
+        </Card>
       </div>
 
-      {/* ── Sections ───────────────────────────────────────────── */}
+      {/* -- Sections --------------------------------------------- */}
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--gray-5)] bg-[var(--gray-1)] py-10 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-            <LuGitCompare className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-          <p className="text-[13px] font-medium text-[var(--gray-11)]">No changes</p>
-          <p className="max-w-sm text-[11.5px] text-[var(--gray-9)]">
-            These two versions are identical across every tracked domain.
-          </p>
-        </div>
+        <Card variant="outlined" padding="lg">
+          <EmptyState
+            icon={GitCompare}
+            title="No changes"
+            description="These two versions are identical across every tracked domain."
+          />
+        </Card>
       ) : (
-        <div className="space-y-2">
+        <Accordion
+          type="multiple"
+          defaultValue={['groups', 'edges', 'events', 'variables', 'settings', 'theme']}
+        >
           <GroupsSection diff={diff} />
           <EdgesSection diff={diff} />
           <EventsSection diff={diff} />
           <VariablesSection diff={diff} />
           <SettingsSection diff={diff} />
           <ThemeSection diff={diff} />
-        </div>
+        </Accordion>
       )}
     </div>
   );

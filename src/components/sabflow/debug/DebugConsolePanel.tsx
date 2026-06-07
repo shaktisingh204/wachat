@@ -1,13 +1,13 @@
 'use client';
 
 /**
- * DebugConsolePanel — flow inspector shown alongside the preview.
+ * DebugConsolePanel - flow inspector shown alongside the preview.
  *
  * Tabs:
- *   - Steps    — execution timeline
- *   - Variables — live variable list with change highlights
- *   - Logs      — script / webhook console output
- *   - Network   — HTTP calls w/ expand details
+ *   - Steps     - execution timeline
+ *   - Variables - live variable list with change highlights
+ *   - Logs      - script / webhook console output
+ *   - Network   - HTTP calls w/ expand details
  *
  * Header:
  *   - Pause/resume ingestion
@@ -31,17 +31,25 @@ import {
   type ReactNode,
 } from 'react';
 import {
-  LuTrash2,
-  LuPause,
-  LuPlay,
-  LuDownload,
-  LuX,
-  LuSearch,
-  LuTerminal,
-  LuListOrdered,
-  LuVariable,
-  LuGlobe,
-} from 'react-icons/lu';
+  Trash2,
+  Pause,
+  Play,
+  Download,
+  X,
+  Search,
+  Terminal,
+  ListOrdered,
+  Variable as VariableIcon,
+  Globe,
+} from 'lucide-react';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+} from '@/components/sabcrm/20ui';
 import { useDebugStore } from '@/lib/sabflow/debug/store';
 import type {
   DebugLog,
@@ -53,7 +61,7 @@ import { StepTimelineItem } from './StepTimelineItem';
 import { VariableDiffItem, useTickingNow } from './VariableDiffItem';
 import { NetworkRequestItem } from './NetworkRequestItem';
 
-/* ── Tabs ─────────────────────────────────────────────────────────── */
+/* -- Tabs ----------------------------------------------------------- */
 
 type Tab = 'steps' | 'variables' | 'logs' | 'network';
 
@@ -61,26 +69,26 @@ const TABS: { id: Tab; label: string; icon: ReactNode }[] = [
   {
     id: 'steps',
     label: 'Steps',
-    icon: <LuListOrdered className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <ListOrdered className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />,
   },
   {
     id: 'variables',
     label: 'Variables',
-    icon: <LuVariable className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <VariableIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />,
   },
   {
     id: 'logs',
     label: 'Logs',
-    icon: <LuTerminal className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <Terminal className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />,
   },
   {
     id: 'network',
     label: 'Network',
-    icon: <LuGlobe className="h-3.5 w-3.5" strokeWidth={2} />,
+    icon: <Globe className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />,
   },
 ];
 
-/* ── Helpers ──────────────────────────────────────────────────────── */
+/* -- Helpers -------------------------------------------------------- */
 
 function fmtTimestamp(ms: number): string {
   const d = new Date(ms);
@@ -104,7 +112,7 @@ function downloadJson(filename: string, json: string): void {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* ── Props ────────────────────────────────────────────────────────── */
+/* -- Props ---------------------------------------------------------- */
 
 interface Props {
   open: boolean;
@@ -121,7 +129,7 @@ export function DebugConsolePanel({
   title = 'Debug console',
   layout = 'side',
 }: Props) {
-  /* ── Store subscriptions (only when open) ──────────────────────── */
+  /* -- Store subscriptions (only when open) ----------------------- */
   // `active` flag lives in the store so non-UI instrumentation can
   // short-circuit without ever touching React.
   const setActive = useDebugStore((s) => s.setActive);
@@ -144,7 +152,7 @@ export function DebugConsolePanel({
   const [tab, setTab] = useState<Tab>('steps');
   const [filter, setFilter] = useState('');
 
-  /* ── Filter logic (memoised per tab) ───────────────────────────── */
+  /* -- Filter logic (memoised per tab) ---------------------------- */
 
   const q = filter.trim().toLowerCase();
 
@@ -193,7 +201,7 @@ export function DebugConsolePanel({
     });
   }, [network, q]);
 
-  /* ── Auto-scroll to bottom on new entries ──────────────────────── */
+  /* -- Auto-scroll to bottom on new entries ----------------------- */
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const activeLen = (() => {
@@ -217,10 +225,10 @@ export function DebugConsolePanel({
     if (nearBottom) el.scrollTop = el.scrollHeight;
   }, [activeLen, tab]);
 
-  /* ── Ticking "now" for variable highlight fade-out ─────────────── */
+  /* -- Ticking "now" for variable highlight fade-out -------------- */
   const now = useTickingNow(open && tab === 'variables', 500);
 
-  /* ── Actions ───────────────────────────────────────────────────── */
+  /* -- Actions ---------------------------------------------------- */
 
   const onTogglePause = useCallback(() => {
     if (paused) resumeDebug();
@@ -233,77 +241,65 @@ export function DebugConsolePanel({
     downloadJson(`sabflow-debug-${stamp}.json`, json);
   }, [exportSessionJson]);
 
-  /* ── Early return when closed ──────────────────────────────────── */
+  /* -- Early return when closed ----------------------------------- */
   if (!open) return null;
 
-  /* ── Render ────────────────────────────────────────────────────── */
+  /* -- Render ----------------------------------------------------- */
 
   const layoutClasses =
     layout === 'bottom'
-      ? 'shrink-0 w-full h-[340px] border-t border-[var(--gray-5)]'
-      : 'shrink-0 h-full w-[420px] border-l border-[var(--gray-5)]';
+      ? 'shrink-0 w-full h-[340px] border-t border-[var(--st-border)]'
+      : 'shrink-0 h-full w-[420px] border-l border-[var(--st-border)]';
 
   return (
     <div
       className={
-        'flex flex-col bg-[var(--gray-1)] overflow-hidden relative ' + layoutClasses
+        'ui20 flex flex-col bg-[var(--st-bg)] overflow-hidden relative ' + layoutClasses
       }
     >
-      {/* ── Header ───────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2 shrink-0">
-        <LuTerminal className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
-        <span className="flex-1 text-[12.5px] font-semibold text-[var(--gray-12)]">
+      {/* -- Header --------------------------------------------------- */}
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shrink-0">
+        <Terminal className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} aria-hidden="true" />
+        <span className="flex-1 text-[12.5px] font-semibold text-[var(--st-text)]">
           {title}
         </span>
 
-        <button
-          type="button"
+        <IconButton
+          label={paused ? 'Resume ingestion' : 'Pause ingestion'}
+          icon={paused ? Play : Pause}
+          size="sm"
           onClick={onTogglePause}
-          title={paused ? 'Resume ingestion' : 'Pause ingestion'}
-          className={
-            'flex h-6 w-6 items-center justify-center rounded-md transition-colors active:scale-95 ' +
-            (paused
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]')
-          }
-        >
-          {paused ? (
-            <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
-          ) : (
-            <LuPause className="h-3.5 w-3.5" strokeWidth={2} />
-          )}
-        </button>
+          aria-pressed={paused}
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Clear debug session"
+          icon={Trash2}
+          size="sm"
           onClick={clearDebugSession}
-          title="Clear debug session"
-          className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--gray-9)] transition-colors hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] active:scale-95"
-        >
-          <LuTrash2 className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Export session as JSON"
+          icon={Download}
+          size="sm"
           onClick={onExport}
-          title="Export session as JSON"
-          className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--gray-9)] transition-colors hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] active:scale-95"
-        >
-          <LuDownload className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Close debug console"
+          icon={X}
+          size="sm"
           onClick={onClose}
-          title="Close debug console"
-          className="flex h-6 w-6 items-center justify-center rounded-md text-[var(--gray-9)] transition-colors hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] active:scale-95"
-        >
-          <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
       </div>
 
-      {/* ── Tabs ─────────────────────────────────────────────────── */}
-      <div className="flex gap-0.5 border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-2 shrink-0">
+      {/* -- Tabs ----------------------------------------------------- */}
+      <div
+        role="tablist"
+        aria-label="Debug console tabs"
+        className="flex items-center gap-0.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 shrink-0"
+      >
         {TABS.map((t) => {
           const count =
             t.id === 'steps'
@@ -315,70 +311,72 @@ export function DebugConsolePanel({
                   : network.length;
           const active = tab === t.id;
           return (
-            <button
+            <Button
               key={t.id}
-              type="button"
+              variant="ghost"
+              size="sm"
+              role="tab"
+              aria-selected={active}
               onClick={() => setTab(t.id)}
               className={
-                'flex items-center gap-1.5 px-2.5 py-1.5 text-[11.5px] font-medium transition-colors rounded-t-md ' +
-                (active
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] border border-[var(--gray-4)] border-b-[var(--gray-1)] -mb-px'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]')
+                active
+                  ? 'text-[var(--st-text)] bg-[var(--st-bg)]'
+                  : 'text-[var(--st-text-secondary)]'
               }
             >
-              {t.icon}
-              {t.label}
-              {count > 0 ? (
-                <span
-                  className={
-                    'inline-flex min-w-[16px] items-center justify-center rounded px-1 text-[10px] font-semibold tabular-nums ' +
-                    (active
-                      ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
-                      : 'bg-[var(--gray-3)] text-[var(--gray-10)]')
-                  }
-                >
-                  {count}
-                </span>
-              ) : null}
-            </button>
+              <span className="flex items-center gap-1.5">
+                {t.icon}
+                {t.label}
+                {count > 0 ? (
+                  <Badge tone={active ? 'accent' : 'neutral'} kind="soft" className="tabular-nums">
+                    {count}
+                  </Badge>
+                ) : null}
+              </span>
+            </Button>
           );
         })}
         {paused ? (
-          <span className="ml-auto self-center rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+          <Badge tone="warning" kind="soft" className="ml-auto self-center uppercase tracking-wide">
             Paused
-          </span>
+          </Badge>
         ) : null}
       </div>
 
-      {/* ── Filter ───────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 border-b border-[var(--gray-4)] bg-[var(--gray-1)] px-3 py-1.5 shrink-0">
-        <LuSearch className="h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
-        <input
-          type="text"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder={`Filter ${tab}…`}
-          className="flex-1 min-w-0 bg-transparent text-[12px] outline-none placeholder:text-[var(--gray-7)] text-[var(--gray-12)]"
-        />
+      {/* -- Filter --------------------------------------------------- */}
+      <div className="border-b border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1.5 shrink-0">
+        <Field className="!gap-0" label={<span className="sr-only">Filter {tab}</span>}>
+          <Input
+            inputSize="sm"
+            type="text"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder={`Filter ${tab}...`}
+            iconLeft={Search}
+          />
+        </Field>
         {filter ? (
-          <button
-            type="button"
-            onClick={() => setFilter('')}
-            className="text-[10px] text-[var(--gray-8)] hover:text-[var(--gray-12)]"
-          >
-            clear
-          </button>
+          <div className="mt-1 flex justify-end">
+            <Button variant="ghost" size="sm" onClick={() => setFilter('')}>
+              Clear
+            </Button>
+          </div>
         ) : null}
       </div>
 
-      {/* ── Body ─────────────────────────────────────────────────── */}
+      {/* -- Body ----------------------------------------------------- */}
       <div
         ref={scrollRef}
         className="flex-1 min-h-0 overflow-y-auto px-2 py-2 space-y-1.5"
       >
         {tab === 'steps' ? (
           filteredSteps.length === 0 ? (
-            <EmptyState message="No steps yet. Start the preview to begin." />
+            <EmptyState
+              icon={ListOrdered}
+              title="No steps yet"
+              description="Start the preview to begin."
+              size="sm"
+            />
           ) : (
             filteredSteps.map((s) => <StepTimelineItem key={s.id} step={s} />)
           )
@@ -386,7 +384,11 @@ export function DebugConsolePanel({
 
         {tab === 'variables' ? (
           filteredVariables.length === 0 ? (
-            <EmptyState message="No variables captured yet." />
+            <EmptyState
+              icon={VariableIcon}
+              title="No variables captured yet"
+              size="sm"
+            />
           ) : (
             filteredVariables.map(([name, v]) => (
               <VariableDiffItem key={name} name={name} state={v} now={now} />
@@ -396,7 +398,7 @@ export function DebugConsolePanel({
 
         {tab === 'logs' ? (
           filteredLogs.length === 0 ? (
-            <EmptyState message="No logs yet." />
+            <EmptyState icon={Terminal} title="No logs yet" size="sm" />
           ) : (
             filteredLogs.map((l) => <LogRow key={l.id} log={l} />)
           )
@@ -404,7 +406,7 @@ export function DebugConsolePanel({
 
         {tab === 'network' ? (
           filteredNetwork.length === 0 ? (
-            <EmptyState message="No HTTP requests yet." />
+            <EmptyState icon={Globe} title="No HTTP requests yet" size="sm" />
           ) : (
             filteredNetwork.map((r) => (
               <NetworkRequestItem key={r.id} request={r} />
@@ -416,47 +418,28 @@ export function DebugConsolePanel({
   );
 }
 
-/* ── Empty state ──────────────────────────────────────────────────── */
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-1.5 px-4 py-8 text-center">
-      <span className="text-[11.5px] italic text-[var(--gray-8)]">{message}</span>
-    </div>
-  );
-}
-
-/* ── Log row (inline — simple enough not to warrant its own file) ── */
+/* -- Log row (inline - simple enough not to warrant its own file) -- */
 
 function LogRow({ log }: { log: DebugLog }) {
   const tone =
     log.level === 'error'
-      ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
+      ? 'text-[var(--st-danger)]'
       : log.level === 'warn'
-        ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-        : 'text-[var(--gray-10)]';
+        ? 'text-[var(--st-warn)]'
+        : 'text-[var(--st-text-secondary)]';
 
-  const badge =
-    log.level === 'error'
-      ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-      : log.level === 'warn'
-        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-        : 'bg-[var(--gray-3)] text-[var(--gray-10)]';
+  const badgeTone =
+    log.level === 'error' ? 'danger' : log.level === 'warn' ? 'warning' : 'neutral';
 
   return (
-    <div className="flex items-start gap-2 rounded-md border border-[var(--gray-4)] bg-[var(--gray-1)] px-2.5 py-1.5">
-      <span
-        className={
-          'inline-flex min-w-[40px] justify-center rounded px-1 py-0.5 text-[9.5px] font-bold uppercase tracking-wide shrink-0 mt-[2px] ' +
-          badge
-        }
-      >
+    <div className="flex items-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5">
+      <Badge tone={badgeTone} kind="soft" className="shrink-0 mt-[2px] uppercase tracking-wide">
         {log.level}
-      </span>
-      <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-[var(--gray-8)] mt-[2px]">
+      </Badge>
+      <span className="shrink-0 font-mono text-[10.5px] tabular-nums text-[var(--st-text-tertiary)] mt-[2px]">
         {fmtTimestamp(log.timestamp)}
       </span>
-      <span className="shrink-0 truncate font-mono text-[10.5px] text-[var(--gray-9)] mt-[2px] max-w-[140px]">
+      <span className="shrink-0 truncate font-mono text-[10.5px] text-[var(--st-text-secondary)] mt-[2px] max-w-[140px]">
         {log.source}
       </span>
       <pre

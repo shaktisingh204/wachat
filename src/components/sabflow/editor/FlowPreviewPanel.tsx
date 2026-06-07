@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FlowPreviewPanel — client-side chat simulator for the SabFlow builder.
+ * FlowPreviewPanel - client-side chat simulator for the SabFlow builder.
  *
  * Walks the flow graph locally (no server calls). Supports:
  *   - Bubble blocks (text, image, video, audio, embed)
@@ -32,16 +32,22 @@ import type {
   InputBlockType,
 } from '@/lib/sabflow/types';
 import { findStartGroup } from '@/lib/sabflow/start';
-import { cn } from '@/lib/utils';
 import {
-  LuX,
-  LuRefreshCw,
-  LuSend,
-  LuChevronDown,
-  LuChevronRight,
-  LuGripVertical,
-  LuTerminal,
-} from 'react-icons/lu';
+  X,
+  RefreshCw,
+  Send,
+  ChevronDown,
+  ChevronRight,
+  GripVertical,
+  Terminal,
+} from 'lucide-react';
+import {
+  cn,
+  Button,
+  IconButton,
+  Input,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { DebugConsolePanel } from '@/components/sabflow/debug/DebugConsolePanel';
 import { useDebugStore } from '@/lib/sabflow/debug/store';
 import {
@@ -51,9 +57,9 @@ import {
   instrumentVariablesSeed,
 } from '@/lib/sabflow/debug/instrumentation';
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Internal message model
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 type HostMsg =
   | { kind: 'text'; text: string }
@@ -67,9 +73,9 @@ type ChatMsg =
   | { role: 'host'; msg: HostMsg }
   | { role: 'guest'; text: string };
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Flow-engine helpers
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 /** Resolve a value that may contain {{variableName}} references. */
 function resolveVars(
@@ -183,14 +189,14 @@ function evalConditionBlock(
         : conditions.every((c) => evalConditionItem(c, vars));
     if (pass) return item.id as string;
   }
-  return undefined; // else branch — will fall through to outgoingEdgeId
+  return undefined; // else branch - will fall through to outgoingEdgeId
 }
 
-/* ═══════════════════════════════════════════════════════════
-   Debug recorder — diffs post-run vs pre-run and pushes to the
+/* ===========================================================
+   Debug recorder - diffs post-run vs pre-run and pushes to the
    debug store.  Only invoked when the console is open; all pushes
    short-circuit inside the instrumentation helpers when it isn't.
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 function recordRunToDebug(args: {
   flow: SabFlowDoc;
@@ -220,7 +226,7 @@ function recordRunToDebug(args: {
   // skimmable.  Per-message steps are added below.
   instrumentStep({
     blockType: 'message',
-    label: `Run · ${nextMessages.length} message(s)`,
+    label: `Run - ${nextMessages.length} message(s)`,
     groupId: startGroupId,
     groupName: startGroupName,
     duration,
@@ -259,7 +265,7 @@ function recordRunToDebug(args: {
     // Resolve a friendly name when the key looks like an id.
     const varDef = flow.variables.find((v) => v.id === name);
     if (varDef && varDef.name !== name) {
-      // Skip recording the id entry as its own step — the name entry will cover it.
+      // Skip recording the id entry as its own step - the name entry will cover it.
       continue;
     }
     instrumentStep({
@@ -294,9 +300,9 @@ function recordRunToDebug(args: {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Simulator state machine
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 type PendingInput = {
   blockId: string;
@@ -328,9 +334,9 @@ function buildInitialState(): SimulatorState {
   };
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Engine: process blocks until we hit an input or end
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 interface EngineResult {
   newMessages: ChatMsg[];
@@ -386,7 +392,7 @@ function runFlowEngine(
     if (!group) { currentGroupId = null; break; }
 
     if (blockIndex >= group.blocks.length) {
-      // End of group — follow group-level edge if any
+      // End of group - follow group-level edge if any
       const groupEdge = findEdgeFrom(flow.edges, { groupId: group.id });
       if (!followEdge(groupEdge)) break;
       continue;
@@ -394,7 +400,7 @@ function runFlowEngine(
 
     const block = group.blocks[blockIndex];
 
-    /* ── Bubble blocks ─────────────────────────────────── */
+    /* -- Bubble blocks --------------------------------- */
     if (
       block.type === 'text' ||
       block.type === 'image' ||
@@ -436,7 +442,7 @@ function runFlowEngine(
       continue;
     }
 
-    /* ── Logic: set_variable ───────────────────────────── */
+    /* -- Logic: set_variable --------------------------- */
     if (block.type === 'set_variable') {
       const varId = block.options?.variableId as string | undefined;
       const value = resolveVars(block.options?.value as string | undefined ?? block.options?.expressionValue as string | undefined, currentVars);
@@ -451,7 +457,7 @@ function runFlowEngine(
       continue;
     }
 
-    /* ── Logic: condition ──────────────────────────────── */
+    /* -- Logic: condition ------------------------------ */
     if (block.type === 'condition') {
       const matchedItemId = evalConditionBlock(block, currentVars);
       let edgeFound = false;
@@ -471,14 +477,14 @@ function runFlowEngine(
       continue;
     }
 
-    /* ── Logic: wait ───────────────────────────────────── */
+    /* -- Logic: wait ----------------------------------- */
     if (block.type === 'wait') {
       const blockEdge = findEdgeFrom(flow.edges, { groupId: group.id, blockId: block.id });
       if (blockEdge) { followEdge(blockEdge); } else { blockIndex++; }
       continue;
     }
 
-    /* ── Logic: redirect ───────────────────────────────── */
+    /* -- Logic: redirect ------------------------------- */
     if (block.type === 'redirect') {
       const url = resolveVars(block.options?.url as string | undefined, currentVars);
       if (url) newMessages.push({ role: 'host', msg: { kind: 'redirect', url } });
@@ -486,7 +492,7 @@ function runFlowEngine(
       break;
     }
 
-    /* ── Logic: jump ───────────────────────────────────── */
+    /* -- Logic: jump ----------------------------------- */
     if (block.type === 'jump') {
       const targetGroupId = block.options?.groupId as string | undefined;
       const targetBlockId = block.options?.blockId as string | undefined;
@@ -505,7 +511,7 @@ function runFlowEngine(
       break;
     }
 
-    /* ── Logic: typebot_link / ab_test / script ────────── */
+    /* -- Logic: typebot_link / ab_test / script -------- */
     if (
       block.type === 'typebot_link' ||
       block.type === 'ab_test' ||
@@ -517,7 +523,7 @@ function runFlowEngine(
       continue;
     }
 
-    /* ── Integration blocks ────────────────────────────── */
+    /* -- Integration blocks ---------------------------- */
     if (
       block.type === 'webhook' ||
       block.type === 'send_email' ||
@@ -543,7 +549,7 @@ function runFlowEngine(
       continue;
     }
 
-    /* ── Input blocks ──────────────────────────────────── */
+    /* -- Input blocks ---------------------------------- */
     if (
       block.type === 'text_input' ||
       block.type === 'number_input' ||
@@ -559,7 +565,7 @@ function runFlowEngine(
       block.type === 'picture_choice_input'
     ) {
       if (userInput !== undefined && pendingInput != null && pendingInput.blockId === block.id) {
-        // User has provided input — store it and advance
+        // User has provided input - store it and advance
         if (pendingInput.variableId) {
           const varDef = flow.variables.find((v) => v.id === pendingInput!.variableId);
           currentVars = { ...currentVars, [pendingInput.variableId]: userInput };
@@ -592,7 +598,7 @@ function runFlowEngine(
         continue;
       }
 
-      // No input yet — build choice list for choice blocks
+      // No input yet - build choice list for choice blocks
       let choices: PendingInput['choices'] | undefined;
       if (block.type === 'choice_input' || block.type === 'picture_choice_input') {
         choices = (block.items ?? []).map((item) => ({
@@ -617,7 +623,7 @@ function runFlowEngine(
       };
     }
 
-    // Unknown block — skip
+    // Unknown block - skip
     blockIndex++;
   }
 
@@ -631,11 +637,11 @@ function runFlowEngine(
   };
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Sub-components
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
-/* ── Typing indicator ─────────────────────────────────── */
+/* -- Typing indicator ------------------------------------ */
 function TypingDots() {
   return (
     <div className="flex items-center gap-1 rounded-2xl rounded-tl-sm px-4 py-3 w-fit shadow-sm bg-[var(--st-bg-secondary)]">
@@ -650,7 +656,7 @@ function TypingDots() {
   );
 }
 
-/* ── Host message bubble ──────────────────────────────── */
+/* -- Host message bubble --------------------------------- */
 function HostBubble({ msg }: { msg: HostMsg }) {
   if (msg.kind === 'text') {
     return (
@@ -698,8 +704,8 @@ function HostBubble({ msg }: { msg: HostMsg }) {
   }
   if (msg.kind === 'redirect') {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)] italic px-1 animate-in fade-in-0 duration-200">
-        <LuChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+      <div className="flex items-center gap-2 text-[12px] text-[var(--st-text-secondary)] italic px-1 animate-in fade-in-0 duration-200">
+        <ChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
         <span>
           Redirect to{' '}
           <a
@@ -717,16 +723,16 @@ function HostBubble({ msg }: { msg: HostMsg }) {
   return null;
 }
 
-/* ── Guest message bubble ─────────────────────────────── */
+/* -- Guest message bubble -------------------------------- */
 function GuestBubble({ text }: { text: string }) {
   return (
-    <div className="max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm self-end bg-[var(--st-text)] text-white animate-in fade-in-0 slide-in-from-right-2 duration-200">
+    <div className="max-w-[80%] rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] leading-relaxed shadow-sm self-end bg-[var(--st-accent)] text-[var(--st-text-inverted)] animate-in fade-in-0 slide-in-from-right-2 duration-200">
       {text}
     </div>
   );
 }
 
-/* ── Choice buttons ───────────────────────────────────── */
+/* -- Choice buttons -------------------------------------- */
 function ChoiceButtons({
   choices,
   onChoose,
@@ -737,19 +743,20 @@ function ChoiceButtons({
   return (
     <div className="flex flex-wrap gap-2 mt-1 self-start max-w-[90%] animate-in fade-in-0 slide-in-from-bottom-2 duration-200">
       {choices.map((c) => (
-        <button
+        <Button
           key={c.id}
+          variant="outline"
+          size="sm"
           onClick={() => onChoose(c.id)}
-          className="rounded-xl border border-[var(--st-border)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-secondary)] active:scale-95"
         >
           {c.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
 }
 
-/* ── Variables panel ──────────────────────────────────── */
+/* -- Variables panel ------------------------------------- */
 function VariablesPanel({
   variables,
   runtimeVars,
@@ -767,38 +774,37 @@ function VariablesPanel({
   }));
 
   return (
-    <div className="shrink-0 border-t border-[var(--gray-4)] bg-[var(--gray-2)]">
-      <button
+    <div className="shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+      <Button
+        variant="ghost"
+        size="sm"
+        block
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 w-full px-4 py-2 text-[12px] font-medium text-[var(--gray-9)] hover:text-[var(--gray-12)] transition-colors"
+        iconLeft={open ? ChevronDown : ChevronRight}
+        className="!justify-start"
       >
-        {open ? (
-          <LuChevronDown className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-        ) : (
-          <LuChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-        )}
         Variables
-        <span className="ml-auto text-[11px] tabular-nums text-[var(--gray-8)]">
+        <span className="ml-auto text-[11px] tabular-nums text-[var(--st-text-tertiary)]">
           {rows.filter((r) => r.value !== '').length}/{rows.length}
         </span>
-      </button>
+      </Button>
       {open && (
         <div className="px-4 pb-3 max-h-[140px] overflow-y-auto flex flex-col gap-1.5">
           {rows.length === 0 ? (
-            <p className="text-[11.5px] italic text-[var(--gray-8)]">No variables defined.</p>
+            <p className="text-[11.5px] italic text-[var(--st-text-tertiary)]">No variables defined.</p>
           ) : (
             rows.map((row) => (
               <div
                 key={row.name}
                 className="flex items-baseline gap-2 text-[11.5px]"
               >
-                <code className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] shrink-0 font-mono">
+                <code className="text-[var(--st-text)] shrink-0 font-mono">
                   {row.name}
                 </code>
-                <span className="text-[var(--gray-7)] shrink-0">=</span>
-                <span className="text-[var(--gray-11)] truncate font-mono min-w-0">
+                <span className="text-[var(--st-text-tertiary)] shrink-0">=</span>
+                <span className="text-[var(--st-text-secondary)] truncate font-mono min-w-0">
                   {row.value === '' ? (
-                    <span className="italic text-[var(--gray-7)]">—</span>
+                    <span className="italic text-[var(--st-text-tertiary)]">empty</span>
                   ) : (
                     row.value
                   )}
@@ -812,9 +818,9 @@ function VariablesPanel({
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    Input-type helpers (re-used from SabFlowChat)
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 function getInputType(inputType: InputBlockType | undefined): string {
   switch (inputType) {
@@ -830,21 +836,21 @@ function getInputType(inputType: InputBlockType | undefined): string {
 
 function getInputPlaceholder(inputType: InputBlockType | undefined): string {
   switch (inputType) {
-    case 'email_input':   return 'Your email address…';
-    case 'number_input':  return 'Enter a number…';
-    case 'url_input':     return 'https://…';
-    case 'phone_input':   return 'Your phone number…';
-    case 'date_input':    return 'Select a date…';
-    case 'time_input':    return 'Select a time…';
-    case 'rating_input':  return 'Your rating (1–10)…';
-    case 'file_input':    return 'File URL…';
-    default:              return 'Type your answer…';
+    case 'email_input':   return 'Your email address...';
+    case 'number_input':  return 'Enter a number...';
+    case 'url_input':     return 'https://...';
+    case 'phone_input':   return 'Your phone number...';
+    case 'date_input':    return 'Select a date...';
+    case 'time_input':    return 'Select a time...';
+    case 'rating_input':  return 'Your rating (1-10)...';
+    case 'file_input':    return 'File URL...';
+    default:              return 'Type your answer...';
   }
 }
 
-/* ═══════════════════════════════════════════════════════════
+/* ===========================================================
    FlowPreviewPanel
-═══════════════════════════════════════════════════════════ */
+=========================================================== */
 
 interface Props {
   flow: SabFlowDoc & { _id: string };
@@ -852,7 +858,7 @@ interface Props {
 }
 
 export function FlowPreviewPanel({ flow, onClose }: Props) {
-  /* ── Resize state ───────────────────────────────────── */
+  /* -- Resize state -------------------------------------- */
   const [width, setWidth] = useState(380);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
@@ -881,14 +887,14 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     };
   }, []);
 
-  /* ── Simulator state ────────────────────────────────── */
+  /* -- Simulator state ----------------------------------- */
   const [state, setState] = useState<SimulatorState>(buildInitialState);
   const [textValue, setTextValue] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const runningRef = useRef(false);
 
-  /* ── Debug console toggle ───────────────────────────── */
+  /* -- Debug console toggle ------------------------------ */
   const [debugOpen, setDebugOpen] = useState(false);
   // Ref mirror of debugOpen so non-reactive helpers can read it
   // without re-subscribing; also used to avoid pushing debug entries
@@ -900,13 +906,13 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
   }, [debugOpen]);
   const clearDebugSession = useDebugStore((s) => s.clearDebugSession);
 
-  /* ── Auto-scroll on new messages ────────────────────── */
+  /* -- Auto-scroll on new messages ----------------------- */
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [state.messages, state.isTyping]);
 
-  /* ── Start / restart the simulator ─────────────────── */
+  /* -- Start / restart the simulator -------------------- */
   const startSimulator = useCallback(() => {
     if (runningRef.current) return;
     runningRef.current = true;
@@ -938,7 +944,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
         messages: [
           {
             role: 'host',
-            msg: { kind: 'text', text: '⚠ No Start event connected. Connect the Start block to a group first.' },
+            msg: { kind: 'text', text: 'No Start event connected. Connect the Start block to a group first.' },
           },
         ],
         isCompleted: true,
@@ -997,7 +1003,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
   }, []);
 
   /*
-   * Live mode — debounced auto-restart whenever the flow doc changes.
+   * Live mode - debounced auto-restart whenever the flow doc changes.
    * Opt-in (off by default) so users typing into a text bubble don't keep
    * losing their place mid-conversation.  When enabled, every edit that
    * changes the structural signature (groups + blocks + edges + variables)
@@ -1031,7 +1037,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     }
     if (!liveModeRef.current) return;
     const t = setTimeout(() => {
-      // Only restart if the user hasn't started typing into an input — avoid
+      // Only restart if the user hasn't started typing into an input - avoid
       // yanking the conversation out from under them mid-keystroke.
       if (textValue) return;
       startSimulator();
@@ -1039,7 +1045,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     return () => clearTimeout(t);
   }, [flowSignature, startSimulator, textValue]);
 
-  /* ── Submit user input ──────────────────────────────── */
+  /* -- Submit user input --------------------------------- */
   const submitInput = useCallback(
     (inputValue: string) => {
       if (!inputValue.trim() && state.pendingInput?.inputType !== 'choice_input') return;
@@ -1140,7 +1146,7 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
     (state.pendingInput.inputType === 'choice_input' ||
       state.pendingInput.inputType === 'picture_choice_input');
 
-  /* ── Render ─────────────────────────────────────────── */
+  /* -- Render -------------------------------------------- */
   return (
     <>
       {/* Debug console (rendered to the left of the preview so the
@@ -1153,87 +1159,81 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
       />
 
     <div
-      className="shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-white z-20 overflow-hidden relative"
+      className="shrink-0 flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden relative"
       style={{ width: `${width}px` }}
     >
-      {/* ── Drag handle (left border) ─────────────────── */}
+      {/* -- Drag handle (left border) ------------------- */}
       <div
         onMouseDown={handleDragMouseDown}
-        className="absolute left-0 top-0 h-full w-1.5 cursor-col-resize z-30 group/resize hover:bg-[var(--st-text)]/20 transition-colors"
+        className="absolute left-0 top-0 h-full w-1.5 cursor-col-resize z-30 group/resize hover:bg-[var(--st-accent-soft)] transition-colors"
         title="Drag to resize"
       >
         <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col items-center opacity-0 group-hover/resize:opacity-100 transition-opacity pointer-events-none">
-          <LuGripVertical className="h-5 w-5 text-[var(--gray-7)]" strokeWidth={1.5} />
+          <GripVertical className="h-5 w-5 text-[var(--st-text-tertiary)]" strokeWidth={1.5} aria-hidden="true" />
         </div>
       </div>
 
-      {/* ── Header ────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Preview</span>
+      {/* -- Header ------------------------------------- */}
+      <div className="flex items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3 shrink-0">
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">Preview</span>
 
         {/* Debug toggle */}
-        <button
+        <Button
+          variant={debugOpen ? 'secondary' : 'outline'}
+          size="sm"
           onClick={() => setDebugOpen((o) => !o)}
           title={debugOpen ? 'Hide debug console' : 'Show debug console'}
-          className={cn(
-            'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors active:scale-95',
-            debugOpen
-              ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] border border-[var(--st-border)]/30'
-              : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
+          iconLeft={Terminal}
         >
-          <LuTerminal className="h-3.5 w-3.5" strokeWidth={2} />
           Debug
-        </button>
+        </Button>
 
-        {/* Live mode toggle — auto-restart on flow edits when on. */}
-        <button
+        {/* Live mode toggle - auto-restart on flow edits when on. */}
+        <Button
+          variant={liveMode ? 'secondary' : 'outline'}
+          size="sm"
           onClick={() => setLiveMode((v) => !v)}
           title={
             liveMode
-              ? 'Live mode on — preview auto-restarts on edits'
+              ? 'Live mode on - preview auto-restarts on edits'
               : 'Enable live mode to auto-restart on edits'
           }
-          className={cn(
-            'flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition-colors',
-            liveMode
-              ? 'bg-[var(--st-text)]/15 text-[var(--st-text)] border border-[var(--st-border)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'border border-[var(--gray-5)] text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
         >
           <span
             className={cn(
               'inline-block h-1.5 w-1.5 rounded-full',
-              liveMode ? 'bg-[var(--st-text)] animate-pulse' : 'bg-[var(--gray-7)]',
+              liveMode ? 'bg-[var(--st-accent)] animate-pulse' : 'bg-[var(--st-text-tertiary)]',
             )}
+            aria-hidden="true"
           />
           Live
-        </button>
+        </Button>
 
         {/* Restart */}
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={startSimulator}
           title="Restart preview"
-          className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium text-white bg-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors active:scale-95"
+          iconLeft={RefreshCw}
         >
-          <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
           Restart
-        </button>
+        </Button>
 
         {/* Close */}
-        <button
+        <IconButton
+          label="Close preview"
+          icon={X}
+          variant="ghost"
+          size="sm"
           onClick={onClose}
-          title="Close preview"
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-        >
-          <LuX className="h-4 w-4" strokeWidth={2} />
-        </button>
+        />
       </div>
 
-      {/* ── Chat area ─────────────────────────────────── */}
+      {/* -- Chat area ---------------------------------- */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-2.5 bg-white"
+        className="flex-1 min-h-0 overflow-y-auto px-4 py-4 flex flex-col gap-2.5 bg-[var(--st-bg)]"
       >
         {state.messages.map((m, i) =>
           m.role === 'host' ? (
@@ -1264,50 +1264,54 @@ export function FlowPreviewPanel({ flow, onClose }: Props) {
 
         {/* Completed state */}
         {state.isCompleted && !state.isTyping && (
-          <div className="flex flex-col items-center gap-2.5 py-6 text-center animate-in fade-in-0 duration-200">
-            <span className="text-[12.5px] text-[var(--gray-9)]">Flow completed</span>
-            <button
-              onClick={startSimulator}
-              className="flex items-center gap-1.5 rounded-xl border border-[var(--gray-5)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-              Restart
-            </button>
+          <div className="py-6 animate-in fade-in-0 duration-200">
+            <EmptyState
+              size="sm"
+              title="Flow completed"
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={startSimulator}
+                  iconLeft={RefreshCw}
+                >
+                  Restart
+                </Button>
+              }
+            />
           </div>
         )}
       </div>
 
-      {/* ── Text input bar ────────────────────────────── */}
+      {/* -- Text input bar ----------------------------- */}
       {showTextInput && (
         <form
           onSubmit={handleFormSubmit}
-          className="shrink-0 flex items-center gap-2 border-t border-[var(--gray-5)] px-3 py-2.5 bg-white"
+          className="shrink-0 flex items-center gap-2 border-t border-[var(--st-border)] px-3 py-2.5 bg-[var(--st-bg)]"
         >
-          <input
+          <Input
             ref={inputRef}
             type={getInputType(state.pendingInput?.inputType)}
             value={textValue}
             onChange={(e) => setTextValue(e.target.value)}
             placeholder={getInputPlaceholder(state.pendingInput?.inputType)}
+            aria-label="Your answer"
             autoFocus
-            className="flex-1 min-w-0 bg-transparent text-[13px] outline-none placeholder:text-[var(--gray-7)] text-[var(--gray-12)]"
+            inputSize="sm"
+            className="flex-1 min-w-0"
           />
-          <button
+          <IconButton
             type="submit"
+            label="Send answer"
+            icon={Send}
+            variant="primary"
+            size="sm"
             disabled={!textValue.trim()}
-            className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors active:scale-95',
-              textValue.trim()
-                ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-                : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
-            )}
-          >
-            <LuSend className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
         </form>
       )}
 
-      {/* ── Variables panel ───────────────────────────── */}
+      {/* -- Variables panel ---------------------------- */}
       <VariablesPanel
         variables={{}}
         runtimeVars={state.variables}

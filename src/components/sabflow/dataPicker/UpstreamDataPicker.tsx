@@ -1,26 +1,26 @@
 'use client';
 
 /**
- * UpstreamDataPicker — the popover dropdown opened from a DataPickerInput.
+ * UpstreamDataPicker - the popover dropdown opened from a DataPickerInput.
  *
  * Layout (mirrors the user's diagram):
  *
- *   ┌───────────────────────────────────────┐
- *   │  Search…                              │  ← global, fuzzy
- *   ├───────────────────────────────────────┤
- *   │  ▸ WhatsApp Trigger        5          │  ← collapsible sections
- *   │  ▾ OpenAI                  10         │
- *   │      Str  Message content   "…"       │  ← rows
- *   │      Num  Total tokens      245       │
- *   │      ...                              │
- *   │  ▸ ElevenLabs              10         │
- *   └───────────────────────────────────────┘
+ *   +---------------------------------------+
+ *   |  Search...                            |  <- global, fuzzy
+ *   +---------------------------------------+
+ *   |  > WhatsApp Trigger        5          |  <- collapsible sections
+ *   |  v OpenAI                  10         |
+ *   |      Str  Message content   "..."     |  <- rows
+ *   |      Num  Total tokens      245       |
+ *   |      ...                              |
+ *   |  > ElevenLabs              10         |
+ *   +---------------------------------------+
  *
  * Beyond n8n/Typebot:
  *  - search filters across *all* nodes at once (not per-node)
  *  - per-field live preview from the last run
  *  - type-aware cast suggestion (`.toNumber()` when the consuming input is numeric)
- *  - keyboard nav ↑/↓ + Enter, Esc to close
+ *  - keyboard nav up/down + Enter, Esc to close
  *  - includes the flow's variables under a "Variables" section so picker is
  *    the single point of reference for any insertable value
  */
@@ -32,14 +32,20 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react';
-import { LuSearch, LuX, LuVariable, LuSparkles } from 'react-icons/lu';
+import { Search, X, Variable as VariableIcon, Sparkles } from 'lucide-react';
+import {
+  Badge,
+  EmptyState,
+  IconButton,
+  Input,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   tokenForField,
   type NodeOutputField,
   type UpstreamNode,
 } from '@/lib/sabflow/nodeOutputs';
 import type { Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
 import { NodeOutputBadge } from './NodeOutputBadge';
 import { NodeOutputRow } from './NodeOutputRow';
 
@@ -71,14 +77,14 @@ const GLOBAL_ENTRIES: GlobalEntry[] = [
   {
     id: 'prevNode-json',
     label: 'Previous node output',
-    description: '$prevNode.json — JSON from the immediately upstream block.',
+    description: '$prevNode.json. JSON from the immediately upstream block.',
     insert: '{{ $prevNode.json. }}',
     searchTokens: 'prevnode previous upstream json',
   },
   {
     id: 'prevNode-name',
     label: 'Previous node name',
-    description: '$prevNode.name — display name of the upstream block.',
+    description: '$prevNode.name. Display name of the upstream block.',
     insert: '{{ $prevNode.name }}',
     searchTokens: 'prevnode previous name upstream',
   },
@@ -99,28 +105,28 @@ const GLOBAL_ENTRIES: GlobalEntry[] = [
   {
     id: 'workflow-id',
     label: 'Workflow id',
-    description: '$workflow.id — id of the current flow.',
+    description: '$workflow.id. Id of the current flow.',
     insert: '{{ $workflow.id }}',
     searchTokens: 'workflow flow id',
   },
   {
     id: 'workflow-name',
     label: 'Workflow name',
-    description: '$workflow.name — human-readable flow name.',
+    description: '$workflow.name. Human-readable flow name.',
     insert: '{{ $workflow.name }}',
     searchTokens: 'workflow flow name',
   },
   {
     id: 'execution-id',
     label: 'Execution id',
-    description: '$execution.id — id of the current run.',
+    description: '$execution.id. Id of the current run.',
     insert: '{{ $execution.id }}',
     searchTokens: 'execution run id',
   },
   {
     id: 'execution-mode',
     label: 'Execution mode',
-    description: '$execution.mode — manual | trigger | test.',
+    description: '$execution.mode. manual | trigger | test.',
     insert: '{{ $execution.mode }}',
     searchTokens: 'execution mode trigger manual',
   },
@@ -141,7 +147,7 @@ const GLOBAL_ENTRIES: GlobalEntry[] = [
   {
     id: 'datetime-now',
     label: 'DateTime.now()',
-    description: 'Luxon DateTime instance — full formatting + math.',
+    description: 'Luxon DateTime instance. full formatting + math.',
     insert: "{{ DateTime.now().toFormat('yyyy-MM-dd') }}",
     searchTokens: 'datetime luxon date time',
   },
@@ -272,57 +278,62 @@ export function UpstreamDataPicker({
   const focusedKey = flatRowKey(flatRows[focusIdx]);
 
   const noResults = flatRows.length === 0;
+  const nothingToShow =
+    matchingFields.length === 0 &&
+    matchingVars.length === 0 &&
+    matchingGlobals.length === 0;
 
   return (
     <div
       className={cn(
         'absolute right-0 top-full z-50 mt-1 w-[320px] max-h-[420px]',
-        'overflow-hidden rounded-xl border border-[var(--gray-5)]',
-        'bg-[var(--gray-1)] shadow-xl',
+        'overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]',
+        'bg-[var(--st-bg)] shadow-xl',
       )}
       onMouseDown={(e) => {
         // Prevent the underlying input from losing focus when clicking inside
-        // the popover — without this the picker would close on every click.
+        // the popover. without this the picker would close on every click.
         e.preventDefault();
       }}
     >
       {/* Search */}
-      <div className="flex items-center gap-2 border-b border-[var(--gray-4)] px-2.5 py-2">
-        <LuSearch className="h-3.5 w-3.5 shrink-0 text-[var(--gray-9)]" />
-        <input
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-2.5 py-2">
+        <Search className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+        <Input
           ref={inputRef}
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Search node outputs…"
-          className="flex-1 min-w-0 bg-transparent text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)] outline-none"
+          placeholder="Search node outputs..."
+          aria-label="Search node outputs"
+          inputSize="sm"
+          className="flex-1 min-w-0"
         />
         {search && (
-          <button
-            type="button"
+          <IconButton
+            label="Clear search"
+            icon={X}
+            size="sm"
             onClick={() => setSearch('')}
-            className="text-[var(--gray-9)] hover:text-[var(--gray-12)]"
-            title="Clear search"
-          >
-            <LuX className="h-3.5 w-3.5" />
-          </button>
+          />
         )}
       </div>
 
       {/* List */}
       <div ref={listRef} className="max-h-[360px] overflow-y-auto p-1.5 space-y-1">
-        {matchingFields.length === 0 &&
-          matchingVars.length === 0 &&
-          matchingGlobals.length === 0 && (
-            <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-              <p className="text-[12px] text-[var(--gray-10)]">
-                {upstream.length === 0
-                  ? 'Connect this node to an upstream node to pick its output.'
-                  : 'No matching fields.'}
-              </p>
-            </div>
-          )}
+        {nothingToShow && (
+          <EmptyState
+            size="sm"
+            icon={Search}
+            title={upstream.length === 0 ? 'No upstream nodes' : 'No matching fields'}
+            description={
+              upstream.length === 0
+                ? 'Connect this node to an upstream node to pick its output.'
+                : 'Try a different search term.'
+            }
+          />
+        )}
 
         {matchingFields.map((node) => {
           const open = !collapsed.has(node.blockId);
@@ -370,8 +381,8 @@ export function UpstreamDataPicker({
 
         {matchingVars.length > 0 && (
           <div className="space-y-0.5 pt-2">
-            <div className="flex items-center gap-2 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
-              <LuVariable className="h-3 w-3" />
+            <div className="flex items-center gap-2 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+              <VariableIcon className="h-3 w-3" aria-hidden="true" />
               Flow variables
             </div>
             {matchingVars.map((variable) => {
@@ -389,19 +400,21 @@ export function UpstreamDataPicker({
                   }}
                   onClick={() => insertVar(variable)}
                   className={cn(
-                    'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
-                    focusedKey === key ? 'bg-[var(--st-text)]/10' : 'hover:bg-[var(--gray-3)]',
+                    'group flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5',
+                    focusedKey === key
+                      ? 'bg-[var(--st-accent-soft)]'
+                      : 'hover:bg-[var(--st-bg-muted)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+                  <Badge tone="accent" kind="soft" className="shrink-0">
                     Var
-                  </span>
+                  </Badge>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">
-                    <span className="truncate font-mono text-[12px] font-medium text-[var(--gray-12)]">
+                    <span className="truncate font-mono text-[12px] font-medium text-[var(--st-text)]">
                       {variable.name}
                     </span>
                     {variable.value && (
-                      <span className="truncate text-[10.5px] text-[var(--gray-9)]">
+                      <span className="truncate text-[10.5px] text-[var(--st-text-tertiary)]">
                         = {variable.value}
                       </span>
                     )}
@@ -414,8 +427,8 @@ export function UpstreamDataPicker({
 
         {matchingGlobals.length > 0 && (
           <div className="space-y-0.5 pt-2">
-            <div className="flex items-center gap-2 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
-              <LuSparkles className="h-3 w-3" />
+            <div className="flex items-center gap-2 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
               Globals
             </div>
             {matchingGlobals.map((entry) => {
@@ -433,20 +446,20 @@ export function UpstreamDataPicker({
                   }}
                   onClick={() => insertGlobal(entry)}
                   className={cn(
-                    'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
+                    'group flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5',
                     focusedKey === key
-                      ? 'bg-[var(--st-text)]/10'
-                      : 'hover:bg-[var(--gray-3)]',
+                      ? 'bg-[var(--st-accent-soft)]'
+                      : 'hover:bg-[var(--st-bg-muted)]',
                   )}
                 >
-                  <span className="shrink-0 rounded bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+                  <Badge tone="neutral" kind="soft" className="shrink-0">
                     Glb
-                  </span>
+                  </Badge>
                   <div className="flex flex-1 flex-col min-w-0 leading-tight">
-                    <span className="truncate text-[12px] font-medium text-[var(--gray-12)]">
+                    <span className="truncate text-[12px] font-medium text-[var(--st-text)]">
                       {entry.label}
                     </span>
-                    <span className="truncate text-[10.5px] text-[var(--gray-9)]">
+                    <span className="truncate text-[10.5px] text-[var(--st-text-tertiary)]">
                       {entry.description}
                     </span>
                   </div>
@@ -457,26 +470,26 @@ export function UpstreamDataPicker({
         )}
 
         {noResults && search && (
-          <div className="px-2 py-2 text-[11px] text-[var(--gray-9)]">
+          <div className="px-2 py-2 text-[11px] text-[var(--st-text-tertiary)]">
             Tip: connect more nodes upstream to expand this list.
           </div>
         )}
       </div>
 
       {/* Footer hint */}
-      <div className="border-t border-[var(--gray-4)] px-3 py-1.5 text-[10.5px] text-[var(--gray-9)]">
-        <kbd className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10px]">↑↓</kbd>{' '}
+      <div className="border-t border-[var(--st-border)] px-3 py-1.5 text-[10.5px] text-[var(--st-text-tertiary)]">
+        <kbd className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 font-mono text-[10px]">up/down</kbd>{' '}
         navigate ·{' '}
-        <kbd className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10px]">Enter</kbd>{' '}
+        <kbd className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 font-mono text-[10px]">Enter</kbd>{' '}
         insert ·{' '}
-        <kbd className="rounded bg-[var(--gray-3)] px-1 font-mono text-[10px]">Esc</kbd>{' '}
+        <kbd className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 font-mono text-[10px]">Esc</kbd>{' '}
         close
       </div>
     </div>
   );
 }
 
-/* ── Filtering helpers ──────────────────────────────────────────────────── */
+/* -- Filtering helpers --------------------------------------------------- */
 
 function filterNodes(upstream: UpstreamNode[], q: string): UpstreamNode[] {
   if (!q.trim()) return upstream;

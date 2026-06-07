@@ -1,9 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { createId } from '@paralleldrive/cuid2';
-import { LuCopy, LuTrash2 } from 'react-icons/lu';
+import { Copy, Trash2 } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import type { SabFlowDoc, Group, Edge, GraphPosition, Coordinates } from '@/lib/sabflow/types';
+import { IconButton } from '@/components/sabcrm/20ui';
 import { useSelectionStore } from '../hooks/useSelectionStore';
 import { useToast } from '@/hooks/use-toast';
 
@@ -56,7 +57,7 @@ export function ElementsSelectionMenu({
     return () => window.removeEventListener('mousemove', onMouseMove);
   }, []);
 
-  // ── Copy ──────────────────────────────────────────────────────────────────
+  // Copy
   const handleCopy = (): { groups: Group[]; edges: Edge[] } | undefined => {
     const groups = flow.groups.filter((g) => focusedElementIds.includes(g.id));
     if (groups.length === 0) return undefined;
@@ -67,7 +68,7 @@ export function ElementsSelectionMenu({
     return clipboard;
   };
 
-  // ── Delete ────────────────────────────────────────────────────────────────
+  // Delete
   const handleDelete = (targetIds?: string[]) => {
     const ids = new Set(targetIds ?? focusedElementIds);
     onFlowChange({
@@ -79,7 +80,7 @@ export function ElementsSelectionMenu({
     blurElements();
   };
 
-  // ── Paste ─────────────────────────────────────────────────────────────────
+  // Paste
   const handlePaste = (overrideClipboard?: { groups: Group[]; edges: Edge[] }) => {
     const clipboard = overrideClipboard ?? elementsInClipboard;
     if (!clipboard || clipboard.groups.length === 0 || !mousePosition) return;
@@ -94,7 +95,7 @@ export function ElementsSelectionMenu({
     const offsetX = canvasMousePos.x - farLeftGroup.graphCoordinates.x;
     const offsetY = canvasMousePos.y - farLeftGroup.graphCoordinates.y;
 
-    // Build old→new ID map for groups
+    // Build old to new ID map for groups
     const groupIdMap = new Map<string, string>(
       clipboard.groups.map((g) => [g.id, createId()]),
     );
@@ -112,7 +113,7 @@ export function ElementsSelectionMenu({
           ...b,
           id: createId(),
           groupId: newGroupId,
-          // Clear outgoing edge references — edges are remapped below
+          // Clear outgoing edge references, edges are remapped below
           outgoingEdgeId: undefined,
         })),
       };
@@ -150,7 +151,7 @@ export function ElementsSelectionMenu({
     setFocusedElements(newGroups.map((g) => g.id));
   };
 
-  // ── Keyboard shortcuts ────────────────────────────────────────────────────
+  // Keyboard shortcuts
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       const isMeta = e.metaKey || e.ctrlKey;
@@ -158,7 +159,7 @@ export function ElementsSelectionMenu({
       const isInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
       if (isInput) return;
 
-      // Cmd/Ctrl+A — select all groups
+      // Cmd/Ctrl+A selects all groups
       if (isMeta && e.key === 'a') {
         e.preventDefault();
         setFocusedElements(flow.groups.map((g) => g.id));
@@ -215,28 +216,24 @@ export function ElementsSelectionMenu({
       onPointerDownCapture={(e) => e.stopPropagation()}
       onPointerUpCapture={(e) => e.stopPropagation()}
     >
-      <span className="text-sm font-medium px-2 inline-flex items-center select-none text-[var(--gray-11)]">
+      <span className="text-sm font-medium px-2 inline-flex items-center select-none text-[var(--st-text-secondary)]">
         {focusedElementIds.length} selected
       </span>
-      <button
-        aria-label="Copy"
-        title="Copy (Cmd+C)"
+      <IconButton
+        label="Copy (Cmd+C)"
+        icon={Copy}
+        size="sm"
         onClick={() => {
           handleCopy();
           toast({ title: 'Copied', description: 'Elements copied to clipboard' });
         }}
-        className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
-      >
-        <LuCopy size={14} />
-      </button>
-      <button
-        aria-label="Delete"
-        title="Delete (Backspace)"
+      />
+      <IconButton
+        label="Delete (Backspace)"
+        icon={Trash2}
+        size="sm"
         onClick={() => handleDelete()}
-        className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
-      >
-        <LuTrash2 size={14} />
-      </button>
+      />
     </div>
   );
 }

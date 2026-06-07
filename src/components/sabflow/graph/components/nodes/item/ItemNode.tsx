@@ -1,9 +1,11 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Trash2 } from 'lucide-react';
 import type { Block, BlockItem, BlockType } from '@/lib/sabflow/types';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { useDragDistance } from '@/components/sabflow/graph/providers/GraphDndProvider';
+import { Button } from '@/components/sabcrm/20ui';
 import { BlockSourceEndpoint } from '../../endpoints/BlockSourceEndpoint';
 import { ItemNodeContent } from './ItemNodeContent';
 import { cn } from '@/lib/utils';
@@ -71,10 +73,10 @@ export function ItemNode({ item, block, blockType, groupId, onDelete, onMouseDow
       >
         <div
           className={cn(
-            'flex items-center rounded-md border w-full min-h-[36px] transition-colors bg-[var(--gray-1)] select-none',
+            'flex items-center rounded-[var(--st-radius)] border w-full min-h-[36px] transition-colors bg-[var(--st-bg)] select-none',
             isContextMenuOpen || isPreviewing
-              ? 'border-[var(--st-border)]'
-              : 'border-[var(--gray-5)] hover:border-[var(--gray-7)]',
+              ? 'border-[var(--st-border-strong)]'
+              : 'border-[var(--st-border)] hover:border-[var(--st-border-strong)]',
           )}
         >
           <ItemNodeContent item={item} blockType={blockType} />
@@ -99,16 +101,19 @@ export function ItemNode({ item, block, blockType, groupId, onDelete, onMouseDow
             onMouseDown={closeContextMenu}
           />
           <div
-            className="fixed z-[9999] min-w-[140px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-lg py-1"
+            className="ui20 fixed z-[9999] min-w-[140px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-lg p-1"
             style={{ left: contextMenuPos.x, top: contextMenuPos.y }}
           >
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              iconLeft={Trash2}
+              className="justify-start text-[var(--st-danger)]"
               onClick={handleDelete}
             >
               Delete
-            </button>
+            </Button>
           </div>
         </>
       )}

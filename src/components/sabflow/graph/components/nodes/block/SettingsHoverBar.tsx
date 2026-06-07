@@ -1,6 +1,9 @@
 'use client';
 
-import { LuSettings, LuCopy, LuTrash2 } from 'react-icons/lu';
+import type { MouseEvent } from 'react';
+import { Settings, Copy, Trash2 } from 'lucide-react';
+
+import { IconButton } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -24,74 +27,45 @@ export function SettingsHoverBar({
   onDuplicateClick,
   onDeleteClick,
 }: Props) {
+  const handle = (cb: () => void) => (e: MouseEvent) => {
+    e.stopPropagation();
+    cb();
+  };
+
   return (
     <div
       className={cn(
         'prevent-group-drag',
-        'flex items-center rounded-md border shadow-md bg-[var(--gray-1)]',
-        'divide-x divide-[var(--gray-4)]',
+        'flex items-center rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-md bg-[var(--st-bg-secondary)]',
+        'divide-x divide-[var(--st-border)]',
         className,
       )}
       // Stop pointer events so the bar itself never triggers group drag
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <HoverBarButton
+      <IconButton
         label="Block settings"
-        onClick={onSettingsClick}
-        className="rounded-l-md rounded-r-none"
-      >
-        <LuSettings className="h-3 w-3" />
-      </HoverBarButton>
+        icon={Settings}
+        size="sm"
+        onClick={handle(onSettingsClick)}
+        className="rounded-l-[var(--st-radius)] rounded-r-none"
+      />
 
-      <HoverBarButton
+      <IconButton
         label="Duplicate block"
-        onClick={onDuplicateClick}
+        icon={Copy}
+        size="sm"
+        onClick={handle(onDuplicateClick)}
         className="rounded-none"
-      >
-        <LuCopy className="h-3 w-3" />
-      </HoverBarButton>
+      />
 
-      <HoverBarButton
+      <IconButton
         label="Delete block"
-        onClick={onDeleteClick}
-        className="rounded-r-md rounded-l-none text-[var(--st-text)] hover:text-[var(--st-text)] dark:text-[var(--st-text-secondary)]"
-      >
-        <LuTrash2 className="h-3 w-3" />
-      </HoverBarButton>
+        icon={Trash2}
+        size="sm"
+        onClick={handle(onDeleteClick)}
+        className="rounded-r-[var(--st-radius)] rounded-l-none text-[var(--st-text)] hover:text-[var(--st-danger)]"
+      />
     </div>
-  );
-}
-
-/* ── tiny reusable button ────────────────────────────────────────────────── */
-
-function HoverBarButton({
-  children,
-  label,
-  onClick,
-  className,
-}: {
-  children: React.ReactNode;
-  label: string;
-  onClick: (e: React.MouseEvent) => void;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick(e);
-      }}
-      className={cn(
-        'flex h-6 w-6 items-center justify-center',
-        'text-[var(--gray-11)] hover:text-[var(--gray-12)]',
-        'hover:bg-[var(--gray-3)] transition-colors',
-        className,
-      )}
-    >
-      {children}
-    </button>
   );
 }

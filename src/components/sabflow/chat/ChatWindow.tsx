@@ -9,14 +9,15 @@ import {
   type ChangeEvent,
 } from 'react';
 import {
-  LuSend,
-  LuRotateCcw,
-  LuStar,
-  LuUpload,
-  LuCreditCard,
-  LuZap,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Send,
+  RotateCcw,
+  Star,
+  Upload,
+  CreditCard,
+  Zap,
+} from 'lucide-react';
+
+import { Button, IconButton, Field, Input, Alert } from '@/components/sabcrm/20ui';
 
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { FlowSession, ExecutionStep } from '@/lib/sabflow/execution/types';
@@ -64,15 +65,15 @@ function htmlInputType(inputType: PendingInput['type']): React.HTMLInputTypeAttr
 
 function inputPlaceholder(inputType: PendingInput['type']): string {
   switch (inputType) {
-    case 'email_input':  return 'Your email address…';
-    case 'number_input': return 'Enter a number…';
-    case 'url_input':    return 'https://…';
-    case 'phone_input':  return 'Your phone number…';
-    case 'date_input':   return 'Select a date…';
-    case 'time_input':   return 'Select a time…';
-    case 'rating_input': return 'Your rating…';
-    case 'file_input':   return 'File upload…';
-    default:             return 'Type your answer…';
+    case 'email_input':  return 'Your email address...';
+    case 'number_input': return 'Enter a number...';
+    case 'url_input':    return 'https://...';
+    case 'phone_input':  return 'Your phone number...';
+    case 'date_input':   return 'Select a date...';
+    case 'time_input':   return 'Select a time...';
+    case 'rating_input': return 'Your rating...';
+    case 'file_input':   return 'File upload...';
+    default:             return 'Type your answer...';
   }
 }
 
@@ -145,24 +146,22 @@ function StarRating({
 
   return (
     <div className="flex items-center gap-1.5 py-1 self-start">
-      {Array.from({ length }, (_, idx) => idx + 1).map((i) => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => handleClick(i)}
-          onMouseEnter={() => setHovered(i)}
-          onMouseLeave={() => setHovered(0)}
-          aria-label={`Rate ${i} out of ${length}`}
-          className="transition-transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
-          style={{ color: i <= (hovered || selected) ? accentColor : 'var(--gray-6)' }}
-        >
-          <LuStar
-            className="h-7 w-7"
-            strokeWidth={1.5}
-            fill={i <= (hovered || selected) ? 'currentColor' : 'none'}
+      {Array.from({ length }, (_, idx) => idx + 1).map((i) => {
+        const active = i <= (hovered || selected);
+        return (
+          <IconButton
+            key={i}
+            label={`Rate ${i} out of ${length}`}
+            icon={Star}
+            variant="ghost"
+            onClick={() => handleClick(i)}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(0)}
+            className="transition-transform hover:scale-110"
+            style={{ color: active ? accentColor : 'var(--st-text-tertiary)' }}
           />
-        </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -179,15 +178,15 @@ function ChoiceButtonList({
   return (
     <div className="flex flex-wrap gap-2 self-start max-w-[90%] py-1">
       {choices.map((c) => (
-        <button
+        <Button
           key={c.id}
-          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onChoose(c.label)}
-          className="rounded-xl border px-3.5 py-1.5 text-[13px] font-medium transition-all hover:opacity-80 active:scale-95 focus:outline-none focus-visible:ring-2"
           style={{ borderColor: accentColor, color: accentColor }}
         >
           {c.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -213,20 +212,20 @@ function toCssColor(value: unknown, fallback: string): string {
 export function ChatWindow({ flow }: ChatWindowProps) {
   /* ── theme ──────────────────────────────────────────────── */
   const theme = flow.theme;
-  const containerBg     = toCssColor(theme?.chat?.container?.backgroundColor,  'var(--gray-1)');
-  const headerBg        = toCssColor(theme?.chat?.header?.backgroundColor,     'var(--gray-2)');
-  const headerColor     = toCssColor(theme?.chat?.header?.color,               'var(--gray-12)');
-  const hostBubbleBg    = toCssColor(theme?.chat?.hostBubble?.backgroundColor, 'var(--gray-3)');
-  const hostBubbleColor = toCssColor(theme?.chat?.hostBubble?.color,           'var(--gray-12)');
-  const guestBubbleBg   = toCssColor(theme?.chat?.guestBubble?.backgroundColor,'var(--orange-8)');
-  const guestBubbleColor= toCssColor(theme?.chat?.guestBubble?.color,          '#ffffff');
-  const inputBg         = toCssColor(theme?.chat?.input?.backgroundColor,      'var(--gray-1)');
-  const inputColor      = toCssColor(theme?.chat?.input?.color,                'var(--gray-12)');
-  const buttonBg        = toCssColor(theme?.chat?.button?.backgroundColor,     'var(--orange-8)');
-  const buttonColor     = toCssColor(theme?.chat?.button?.color,               '#ffffff');
+  const containerBg     = toCssColor(theme?.chat?.container?.backgroundColor,  'var(--st-bg)');
+  const headerBg        = toCssColor(theme?.chat?.header?.backgroundColor,     'var(--st-bg-secondary)');
+  const headerColor     = toCssColor(theme?.chat?.header?.color,               'var(--st-text)');
+  const hostBubbleBg    = toCssColor(theme?.chat?.hostBubble?.backgroundColor, 'var(--st-bg-secondary)');
+  const hostBubbleColor = toCssColor(theme?.chat?.hostBubble?.color,           'var(--st-text)');
+  const guestBubbleBg   = toCssColor(theme?.chat?.guestBubble?.backgroundColor,'var(--st-accent)');
+  const guestBubbleColor= toCssColor(theme?.chat?.guestBubble?.color,          'var(--st-text-inverted)');
+  const inputBg         = toCssColor(theme?.chat?.input?.backgroundColor,      'var(--st-bg)');
+  const inputColor      = toCssColor(theme?.chat?.input?.color,                'var(--st-text)');
+  const buttonBg        = toCssColor(theme?.chat?.button?.backgroundColor,     'var(--st-accent)');
+  const buttonColor     = toCssColor(theme?.chat?.button?.color,               'var(--st-text-inverted)');
   const pageBg          = theme?.general?.background?.type === 'Color'
-    ? (theme.general.background.content ?? 'var(--gray-2)')
-    : 'var(--gray-2)';
+    ? (theme.general.background.content ?? 'var(--st-bg-secondary)')
+    : 'var(--st-bg-secondary)';
   const fontFamily      = theme?.general?.font                     ?? 'inherit';
 
   /* ── state ──────────────────────────────────────────────── */
@@ -386,27 +385,26 @@ export function ChatWindow({ flow }: ChatWindowProps) {
       style={{ backgroundColor: pageBg, fontFamily }}
     >
       <div
-        className="w-full flex flex-col overflow-hidden shadow-2xl"
+        className="w-full flex flex-col overflow-hidden shadow-2xl rounded-[var(--st-radius)]"
         style={{
           backgroundColor: containerBg,
           maxWidth:  theme?.chat?.container?.maxWidth  ?? '640px',
           maxHeight: theme?.chat?.container?.maxHeight ?? '700px',
           height: '100dvh',
-          borderRadius: '1rem',
         }}
       >
         {/* ── Header ────────────────────────────────────────── */}
         {theme?.chat?.header?.isEnabled !== false && (
           <div
-            className="shrink-0 flex items-center gap-3 px-5 py-3.5 border-b border-black/5"
+            className="shrink-0 flex items-center gap-3 px-5 py-3.5 border-b border-[var(--st-border)]"
             style={{ backgroundColor: headerBg }}
           >
             {/* Avatar circle */}
             <div
-              className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-sm"
-              style={{ backgroundColor: buttonBg }}
+              className="h-9 w-9 rounded-full flex items-center justify-center shrink-0 font-bold text-sm"
+              style={{ backgroundColor: buttonBg, color: buttonColor }}
             >
-              <LuZap className="h-4 w-4" strokeWidth={2.5} />
+              <Zap className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
             </div>
             <div>
               <p
@@ -415,7 +413,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
               >
                 {flow.name}
               </p>
-              <p className="text-[11.5px]" style={{ color: headerColor, opacity: 0.6 }}>
+              <p className="text-[11.5px] opacity-60" style={{ color: headerColor }}>
                 Automated assistant
               </p>
             </div>
@@ -504,8 +502,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-2 text-[12px] italic self-start"
-                  style={{ color: 'var(--gray-9)' }}
+                  className="flex items-center gap-2 text-[12px] italic self-start text-[var(--st-text-tertiary)]"
                 >
                   <span>Redirecting to</span>
                   <a
@@ -525,8 +522,7 @@ export function ChatWindow({ flow }: ChatWindowProps) {
               return (
                 <div
                   key={i}
-                  className="text-center text-[12px] italic px-2 py-1"
-                  style={{ color: 'var(--st-text)' }}
+                  className="text-center text-[12px] italic px-2 py-1 text-[var(--st-text)]"
                 >
                   {msg.text}
                 </div>
@@ -562,30 +558,30 @@ export function ChatWindow({ flow }: ChatWindowProps) {
           {/* File upload placeholder */}
           {isFileInput && (
             <div className="flex justify-start py-1">
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="md"
+                iconLeft={Upload}
                 onClick={() => submitAnswer('file_uploaded')}
-                className="flex items-center gap-2.5 rounded-xl border-2 border-dashed px-5 py-3 text-[13px] font-medium transition-colors hover:opacity-80"
                 style={{ borderColor: buttonBg, color: buttonBg }}
               >
-                <LuUpload className="h-4 w-4" strokeWidth={2} />
                 Upload file
-              </button>
+              </Button>
             </div>
           )}
 
           {/* Payment placeholder */}
           {isPaymentInput && (
             <div className="flex justify-start py-1">
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="md"
+                iconLeft={CreditCard}
                 onClick={() => submitAnswer('payment_completed')}
-                className="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90"
                 style={{ backgroundColor: buttonBg, color: buttonColor }}
               >
-                <LuCreditCard className="h-4 w-4" strokeWidth={2} />
                 Complete payment
-              </button>
+              </Button>
             </div>
           )}
 
@@ -596,38 +592,29 @@ export function ChatWindow({ flow }: ChatWindowProps) {
                 className="h-10 w-10 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: hostBubbleBg }}
               >
-                <LuZap className="h-5 w-5" style={{ color: buttonBg }} strokeWidth={2.5} />
+                <Zap className="h-5 w-5" style={{ color: buttonBg }} strokeWidth={2.5} aria-hidden="true" />
               </div>
-              <p className="text-[13px]" style={{ color: 'var(--gray-9)' }}>
+              <p className="text-[13px] text-[var(--st-text-tertiary)]">
                 Flow completed
               </p>
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
+                iconLeft={RotateCcw}
                 onClick={initFlow}
-                className="flex items-center gap-1.5 rounded-xl border px-4 py-1.5 text-[12.5px] font-medium transition-colors hover:opacity-80"
-                style={{
-                  borderColor: 'var(--gray-5)',
-                  color: 'var(--gray-11)',
-                }}
               >
-                <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
                 Restart
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {/* ── Error banner ──────────────────────────────────── */}
         {error && (
-          <div className="shrink-0 flex items-center justify-between gap-3 px-4 py-2.5 text-[12.5px] bg-[var(--st-bg-muted)] border-t border-[var(--st-border)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:border-[var(--st-border)] dark:text-[var(--st-text-secondary)]">
-            <span className="flex-1">{error}</span>
-            <button
-              type="button"
-              onClick={() => setError(null)}
-              className="shrink-0 text-[11px] underline hover:no-underline"
-            >
-              Dismiss
-            </button>
+          <div className="shrink-0 px-3 py-2 border-t border-[var(--st-border)]">
+            <Alert tone="danger" onClose={() => setError(null)}>
+              {error}
+            </Alert>
           </div>
         )}
 
@@ -635,49 +622,43 @@ export function ChatWindow({ flow }: ChatWindowProps) {
         {showTextInput && nextInput !== undefined && (
           <form
             onSubmit={handleFormSubmit}
-            className="shrink-0 flex items-center gap-2.5 border-t px-3 py-2.5"
-            style={{
-              backgroundColor: inputBg,
-              borderColor: 'var(--gray-5)',
-            }}
+            className="shrink-0 flex items-end gap-2.5 border-t border-[var(--st-border)] px-3 py-2.5"
+            style={{ backgroundColor: inputBg }}
           >
-            <input
-              ref={inputRef}
-              type={htmlInputType(nextInput.type)}
-              value={textValue}
-              onChange={handleTextChange}
-              placeholder={inputPlaceholder(nextInput.type)}
-              autoFocus
-              autoComplete="off"
-              className="flex-1 min-w-0 bg-transparent text-[13.5px] outline-none placeholder:opacity-50"
-              style={{ color: inputColor }}
-            />
-            <button
+            <Field className="flex-1 min-w-0" label="Your answer">
+              <Input
+                ref={inputRef}
+                type={htmlInputType(nextInput.type)}
+                value={textValue}
+                onChange={handleTextChange}
+                placeholder={inputPlaceholder(nextInput.type)}
+                autoFocus
+                autoComplete="off"
+                style={{ color: inputColor }}
+              />
+            </Field>
+            <IconButton
               type="submit"
+              label="Send"
+              icon={Send}
+              variant="primary"
               disabled={!textValue.trim()}
-              aria-label="Send"
-              className={cn(
-                'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-all',
+              className="shrink-0"
+              style={
                 textValue.trim()
-                  ? 'hover:opacity-90 active:scale-95'
-                  : 'opacity-30 cursor-not-allowed',
-              )}
-              style={{
-                backgroundColor: textValue.trim() ? buttonBg : 'var(--gray-4)',
-                color: textValue.trim() ? buttonColor : 'var(--gray-8)',
-              }}
-            >
-              <LuSend className="h-3.5 w-3.5" strokeWidth={2} />
-            </button>
+                  ? { backgroundColor: buttonBg, color: buttonColor }
+                  : undefined
+              }
+            />
           </form>
         )}
 
         {/* ── Powered-by footer ─────────────────────────────── */}
         <div
-          className="shrink-0 flex items-center justify-center gap-1 py-2 text-[11px]"
-          style={{ color: 'var(--gray-8)', backgroundColor: containerBg }}
+          className="shrink-0 flex items-center justify-center gap-1 py-2 text-[11px] text-[var(--st-text-tertiary)]"
+          style={{ backgroundColor: containerBg }}
         >
-          <LuZap className="h-3 w-3" strokeWidth={2.5} style={{ color: buttonBg }} />
+          <Zap className="h-3 w-3" strokeWidth={2.5} style={{ color: buttonBg }} aria-hidden="true" />
           <span>
             Powered by{' '}
             <span className="font-semibold" style={{ color: buttonBg }}>

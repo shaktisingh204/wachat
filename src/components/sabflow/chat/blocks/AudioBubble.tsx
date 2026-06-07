@@ -9,14 +9,14 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 import {
-  LuPlay,
-  LuPause,
-  LuVolume2,
-  LuVolumeX,
-  LuDownload,
-  LuAudioWaveform,
-  LuLoader,
-} from 'react-icons/lu';
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Download,
+  AudioWaveform,
+} from 'lucide-react';
+import { Button, IconButton } from '@/components/sabcrm/20ui';
 
 export interface AudioBubbleProps {
   /** Audio file URL. */
@@ -33,7 +33,7 @@ export interface AudioBubbleProps {
   accentColor?: string;
 }
 
-/* ── Constants for the fake waveform (stable between renders) ──────────── */
+/* Constants for the fake waveform (stable between renders). */
 
 const BAR_COUNT = 28;
 const BAR_HEIGHTS: number[] = (() => {
@@ -69,9 +69,9 @@ export function AudioBubble({
   url,
   isAutoplayEnabled = false,
   maxWidth = '320px',
-  backgroundColor = 'var(--gray-3)',
-  color = 'var(--gray-12)',
-  accentColor = 'var(--orange-8)',
+  backgroundColor = 'var(--st-bg-secondary)',
+  color = 'var(--st-text)',
+  accentColor = 'var(--st-accent)',
 }: AudioBubbleProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
@@ -83,7 +83,7 @@ export function AudioBubble({
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  /* ── Attach audio listeners ─────────────────────────────────────── */
+  /* Attach audio listeners. */
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return undefined;
@@ -115,7 +115,7 @@ export function AudioBubble({
     };
   }, [url]);
 
-  /* ── Autoplay (muted) ───────────────────────────────────────────── */
+  /* Autoplay (muted). */
   useEffect(() => {
     if (!isAutoplayEnabled) return;
     const el = audioRef.current;
@@ -123,7 +123,7 @@ export function AudioBubble({
     el.muted = true;
     setMuted(true);
     void el.play().catch(() => {
-      /* Browsers may still block — ignore. */
+      /* Browsers may still block, ignore. */
     });
   }, [isAutoplayEnabled]);
 
@@ -143,6 +143,18 @@ export function AudioBubble({
     el.muted = !el.muted;
     setMuted(el.muted);
   }, []);
+
+  const handleDownload = useCallback(() => {
+    if (typeof document === 'undefined') return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = '';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, [url]);
 
   const handleSeek = useCallback(
     (e: ReactMouseEvent<HTMLDivElement>) => {
@@ -165,15 +177,15 @@ export function AudioBubble({
     return Math.min(100, Math.max(0, (current / duration) * 100));
   }, [current, duration]);
 
-  /* ── Missing URL / load error ───────────────────────────────────── */
+  /* Missing URL / load error. */
   if (!url || typeof url !== 'string' || !url.trim() || errored) {
     return (
-      <div className="flex justify-start">
+      <div className="ui20 flex justify-start">
         <div
           className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
         >
-          <LuAudioWaveform className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+          <AudioWaveform className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <span>Audio unavailable</span>
         </div>
       </div>
@@ -181,36 +193,24 @@ export function AudioBubble({
   }
 
   return (
-    <div className="flex justify-start">
+    <div className="ui20 flex justify-start">
       <div
         className="flex w-full flex-col gap-2.5 rounded-2xl rounded-tl-sm px-3.5 py-3 shadow-sm"
         style={{ backgroundColor, color, maxWidth }}
       >
-        <audio
-          ref={audioRef}
-          src={url}
-          preload="metadata"
-          className="hidden"
-        />
+        <audio ref={audioRef} src={url} preload="metadata" className="hidden" />
 
         <div className="flex items-center gap-2.5">
           {/* Play / Pause */}
-          <button
-            type="button"
+          <Button
             onClick={togglePlay}
             aria-label={playing ? 'Pause audio' : 'Play audio'}
             disabled={!loaded}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-[1.04] active:scale-95 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+            loading={!loaded}
+            iconLeft={playing ? Pause : Play}
+            className="h-9 w-9 shrink-0 rounded-full p-0 text-white"
             style={{ backgroundColor: accentColor }}
-          >
-            {!loaded ? (
-              <LuLoader className="h-4 w-4 animate-spin" strokeWidth={2} />
-            ) : playing ? (
-              <LuPause className="h-4 w-4" strokeWidth={2.4} />
-            ) : (
-              <LuPlay className="ml-0.5 h-4 w-4" strokeWidth={2.4} />
-            )}
-          </button>
+          />
 
           {/* Waveform bars */}
           <div
@@ -224,15 +224,15 @@ export function AudioBubble({
               return (
                 <span
                   key={i}
-                  className="block w-[3px] rounded-full transition-colors"
+                  className={`block w-[3px] rounded-full transition-colors${
+                    playing ? ` sabflow-wave sabflow-wave-${i % 4}` : ''
+                  }`}
                   style={{
                     height: `${Math.round(h * 100)}%`,
                     backgroundColor: isActive
                       ? accentColor
                       : 'color-mix(in srgb, currentColor 25%, transparent)',
-                    animation: playing
-                      ? `sabflow-wave-${i % 4} 1.1s ease-in-out ${i * 40}ms infinite`
-                      : 'none',
+                    animationDelay: playing ? `${i * 40}ms` : undefined,
                   }}
                 />
               );
@@ -240,40 +240,27 @@ export function AudioBubble({
           </div>
 
           {/* Volume toggle */}
-          <button
-            type="button"
+          <IconButton
+            label={muted ? 'Unmute' : 'Mute'}
+            icon={muted ? VolumeX : Volume2}
+            size="sm"
             onClick={toggleMute}
-            aria-label={muted ? 'Unmute' : 'Mute'}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2"
-            style={{ color }}
-          >
-            {muted ? (
-              <LuVolumeX className="h-4 w-4" strokeWidth={2} />
-            ) : (
-              <LuVolume2 className="h-4 w-4" strokeWidth={2} />
-            )}
-          </button>
+            className="shrink-0 rounded-full"
+          />
 
           {/* Download */}
-          <a
-            href={url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Download audio"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-black/5 focus:outline-none focus-visible:ring-2"
-            style={{ color }}
-          >
-            <LuDownload className="h-4 w-4" strokeWidth={2} />
-          </a>
+          <IconButton
+            label="Download audio"
+            icon={Download}
+            size="sm"
+            onClick={handleDownload}
+            className="shrink-0 rounded-full"
+          />
         </div>
 
         {/* Progress bar */}
         <div className="flex items-center gap-2">
-          <span
-            className="font-mono text-[10.5px] tabular-nums"
-            style={{ color, opacity: 0.7 }}
-          >
+          <span className="font-mono text-[10.5px] tabular-nums opacity-70">
             {formatTime(current)}
           </span>
           <div
@@ -293,20 +280,51 @@ export function AudioBubble({
               style={{ width: `${percent}%`, backgroundColor: accentColor }}
             />
           </div>
-          <span
-            className="font-mono text-[10.5px] tabular-nums"
-            style={{ color, opacity: 0.7 }}
-          >
+          <span className="font-mono text-[10.5px] tabular-nums opacity-70">
             {formatTime(duration)}
           </span>
         </div>
 
-        {/* Animation keyframes — scoped to this component */}
+        {/* Waveform equaliser keyframes, scoped to this component. */}
         <style jsx>{`
-          @keyframes sabflow-wave-0 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.55); } }
-          @keyframes sabflow-wave-1 { 0%, 100% { transform: scaleY(0.7); } 50% { transform: scaleY(1); } }
-          @keyframes sabflow-wave-2 { 0%, 100% { transform: scaleY(0.85); } 50% { transform: scaleY(0.4); } }
-          @keyframes sabflow-wave-3 { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(0.95); } }
+          .sabflow-wave {
+            animation-duration: 1.1s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+          }
+          .sabflow-wave-0 {
+            animation-name: sabflow-wave-0;
+          }
+          .sabflow-wave-1 {
+            animation-name: sabflow-wave-1;
+          }
+          .sabflow-wave-2 {
+            animation-name: sabflow-wave-2;
+          }
+          .sabflow-wave-3 {
+            animation-name: sabflow-wave-3;
+          }
+          @keyframes sabflow-wave-0 {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.55); }
+          }
+          @keyframes sabflow-wave-1 {
+            0%, 100% { transform: scaleY(0.7); }
+            50% { transform: scaleY(1); }
+          }
+          @keyframes sabflow-wave-2 {
+            0%, 100% { transform: scaleY(0.85); }
+            50% { transform: scaleY(0.4); }
+          }
+          @keyframes sabflow-wave-3 {
+            0%, 100% { transform: scaleY(0.5); }
+            50% { transform: scaleY(0.95); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .sabflow-wave {
+              animation: none;
+            }
+          }
         `}</style>
       </div>
     </div>

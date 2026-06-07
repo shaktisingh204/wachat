@@ -3,38 +3,38 @@
 /**
  * DiffRow
  *
- * Generic row component used throughout the flow diff view.  Renders a
- * +/- / ~ indicator, a coloured label, and an optional expandable details
+ * Generic row component used throughout the flow diff view. Renders a
+ * +/- / ~ indicator, a labelled chip, and an optional expandable details
  * block for "modified" entries that carry a list of granular changes.
  *
- * Kind colour mapping:
- *   - added    → green
- *   - removed  → red
- *   - modified → amber
+ * Kind mapping:
+ *   - added    -> Added
+ *   - removed  -> Removed
+ *   - modified -> Modified
  */
 
 import { useState, type ReactNode } from 'react';
-import { LuPlus, LuMinus, LuPencil, LuChevronDown, LuChevronRight } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Plus, Minus, Pencil, ChevronDown, ChevronRight } from 'lucide-react';
+import { Badge, IconButton, cn } from '@/components/sabcrm/20ui';
 
-/* ── Types ──────────────────────────────────────────────────────────────── */
+/* -- Types --------------------------------------------------------------- */
 
 export type DiffKind = 'added' | 'removed' | 'modified';
 
 export interface DiffRowProps {
   kind: DiffKind;
-  /** Primary label — e.g. the entity name. */
+  /** Primary label, e.g. the entity name. */
   label: string;
   /**
    * Short domain tag rendered next to the label (e.g. "Group", "Edge",
-   * "Variable").  Helps readers scan mixed lists.
+   * "Variable"). Helps readers scan mixed lists.
    */
   typeLabel?: string;
   /** Secondary info shown under the label (e.g. entity id, timestamps). */
   subtext?: ReactNode;
   /**
-   * Granular changes for "modified" entries — rendered inside an
-   * expandable block.  Ignored when `kind !== 'modified'` or when
+   * Granular changes for "modified" entries, rendered inside an
+   * expandable block. Ignored when `kind !== 'modified'` or when
    * the array is empty.
    */
   details?: readonly string[];
@@ -46,54 +46,22 @@ export interface DiffRowProps {
   className?: string;
 }
 
-/* ── Style tokens per kind ──────────────────────────────────────────────── */
+/* -- Style tokens per kind ----------------------------------------------- */
 
-const KIND_STYLES: Record<DiffKind, {
-  rowBorder: string;
-  rowBg: string;
-  iconBg: string;
-  iconColor: string;
-  chipBg: string;
-  chipText: string;
-  chipLabel: string;
-}> = {
-  added: {
-    rowBorder: 'border-[var(--st-border)] dark:border-[var(--st-border)]/60',
-    rowBg: 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/20',
-    iconBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    iconColor: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    chipText: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipLabel: 'Added',
-  },
-  removed: {
-    rowBorder: 'border-[var(--st-border)] dark:border-[var(--st-border)]/60',
-    rowBg: 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/20',
-    iconBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    iconColor: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    chipText: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipLabel: 'Removed',
-  },
-  modified: {
-    rowBorder: 'border-[var(--st-border)] dark:border-[var(--st-border)]/60',
-    rowBg: 'bg-[var(--st-bg-muted)]/60 dark:bg-[var(--st-text)]/20',
-    iconBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    iconColor: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipBg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',
-    chipText: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-    chipLabel: 'Modified',
-  },
+const KIND_LABEL: Record<DiffKind, string> = {
+  added: 'Added',
+  removed: 'Removed',
+  modified: 'Modified',
 };
 
 function KindIcon({ kind }: { kind: DiffKind }) {
-  const props = { className: 'h-3 w-3', strokeWidth: 2.5 } as const;
-  if (kind === 'added') return <LuPlus {...props} />;
-  if (kind === 'removed') return <LuMinus {...props} />;
-  return <LuPencil {...props} />;
+  const props = { className: 'h-3 w-3', strokeWidth: 2.5, 'aria-hidden': true } as const;
+  if (kind === 'added') return <Plus {...props} />;
+  if (kind === 'removed') return <Minus {...props} />;
+  return <Pencil {...props} />;
 }
 
-/* ── Component ──────────────────────────────────────────────────────────── */
+/* -- Component ----------------------------------------------------------- */
 
 export function DiffRow({
   kind,
@@ -107,25 +75,17 @@ export function DiffRow({
   const hasDetails = kind === 'modified' && !!details && details.length > 0;
   const [isExpanded, setIsExpanded] = useState<boolean>(defaultExpanded);
 
-  const styles = KIND_STYLES[kind];
-
   return (
     <div
       className={cn(
-        'rounded-xl border px-3 py-2.5 transition-colors',
-        styles.rowBorder,
-        styles.rowBg,
+        'rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5 transition-colors',
         className,
       )}
     >
       <div className="flex items-start gap-2.5">
         {/* Indicator icon */}
         <div
-          className={cn(
-            'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg mt-0.5',
-            styles.iconBg,
-            styles.iconColor,
-          )}
+          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]"
           aria-hidden="true"
         >
           <KindIcon kind={kind} />
@@ -134,42 +94,33 @@ export function DiffRow({
         {/* Primary content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-            <span
-              className={cn(
-                'shrink-0 rounded-md px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide',
-                styles.chipBg,
-                styles.chipText,
-              )}
-            >
-              {styles.chipLabel}
-            </span>
+            <Badge tone="neutral" kind="soft" className="shrink-0 uppercase">
+              {KIND_LABEL[kind]}
+            </Badge>
             {typeLabel && (
-              <span className="shrink-0 rounded-md bg-[var(--gray-3)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-[var(--gray-10)]">
+              <Badge tone="neutral" kind="soft" className="shrink-0 uppercase">
                 {typeLabel}
-              </span>
+              </Badge>
             )}
-            <span className="truncate text-[12.5px] font-medium text-[var(--gray-12)]">
+            <span className="truncate text-[12.5px] font-medium text-[var(--st-text)]">
               {label}
             </span>
           </div>
           {subtext && (
-            <div className="mt-0.5 text-[11px] text-[var(--gray-9)]">{subtext}</div>
+            <div className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)]">{subtext}</div>
           )}
         </div>
 
-        {/* Expand/collapse — only relevant for modified rows with detail lines */}
+        {/* Expand/collapse, only relevant for modified rows with detail lines */}
         {hasDetails && (
-          <button
-            type="button"
+          <IconButton
+            label={isExpanded ? 'Collapse changes' : 'Expand changes'}
+            icon={isExpanded ? ChevronDown : ChevronRight}
+            size="sm"
             onClick={() => setIsExpanded((v) => !v)}
-            aria-label={isExpanded ? 'Collapse changes' : 'Expand changes'}
             aria-expanded={isExpanded}
-            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            {isExpanded
-              ? <LuChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
-              : <LuChevronRight className="h-3.5 w-3.5" strokeWidth={2} />}
-          </button>
+            className="shrink-0"
+          />
         )}
       </div>
 
@@ -179,9 +130,9 @@ export function DiffRow({
           {details!.map((d, i) => (
             <li
               key={`${d}-${i}`}
-              className="flex items-start gap-1.5 text-[11.5px] text-[var(--gray-11)] leading-snug"
+              className="flex items-start gap-1.5 text-[11.5px] leading-snug text-[var(--st-text-secondary)]"
             >
-              <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--st-text)]" aria-hidden="true" />
+              <span className="mt-1 h-1 w-1 shrink-0 rounded-full bg-[var(--st-text-tertiary)]" aria-hidden="true" />
               <span className="min-w-0 flex-1">{d}</span>
             </li>
           ))}

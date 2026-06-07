@@ -1,23 +1,23 @@
 'use client';
 
 /**
- * JsonTreeView — collapsible JSON tree with typed colour coding.
+ * JsonTreeView, a collapsible JSON tree with typed colour coding.
  *
  * Features:
- *   • Expand / collapse arrows (depth 0 opens by default)
- *   • Type-coloured primitives
- *       strings  → green  (quoted)
- *       numbers  → blue
- *       booleans → orange
- *       null     → gray italic
- *   • Path tooltip on hover        ($.data.users[0].name)
- *   • Right-click context menu:
+ *   - Expand / collapse arrows (depth 0 opens by default)
+ *   - Type-coloured primitives
+ *       strings  -> green  (quoted)
+ *       numbers  -> accent (blue)
+ *       booleans -> amber
+ *       null     -> muted italic
+ *   - Path tooltip on hover        ($.data.users[0].name)
+ *   - Right-click context menu:
  *        Copy path
  *        Copy value
  *        Use as expression ({{ $json.foo.bar }})
- *   • `searchQuery` filters keys (case-insensitive; keeps ancestors visible)
+ *   - `searchQuery` filters keys (case-insensitive; keeps ancestors visible)
  *
- * Original implementation — not copied from any other library.
+ * Original implementation, not copied from any other library. Pure 20ui.
  */
 
 import {
@@ -28,9 +28,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { LuChevronRight, LuChevronDown } from 'react-icons/lu';
+import { ChevronRight, ChevronDown, FileQuestion } from 'lucide-react';
 
-/* ── Types ───────────────────────────────────────────────────────── */
+import { Button, EmptyState, useToast } from '@/components/sabcrm/20ui';
+
+/* -- Types -------------------------------------------------------------- */
 
 type Primitive = string | number | boolean | null | undefined;
 type JsonValue = Primitive | JsonObject | JsonArray;
@@ -45,17 +47,17 @@ type ContextMenuState = {
 };
 
 interface Props {
-  /** Unknown JSON-ish value — we narrow at render time. */
+  /** Unknown JSON-ish value, we narrow at render time. */
   data: unknown;
   /** Case-insensitive key filter. Empty string = no filter. */
   searchQuery?: string;
-  /** Callback for "Use as expression" — receives a `$json.path…` string. */
+  /** Callback for "Use as expression", receives a `$json.path` string. */
   onUseAsExpression?: (expression: string) => void;
   /** Root path label shown in the tooltip. Default: `$`. */
   rootLabel?: string;
 }
 
-/* ── Utilities ───────────────────────────────────────────────────── */
+/* -- Utilities ---------------------------------------------------------- */
 
 /** Safe stringify with circular-ref detection. */
 function safeStringify(value: unknown): string {
@@ -77,19 +79,19 @@ function safeStringify(value: unknown): string {
   }
 }
 
-async function writeToClipboard(text: string): Promise<void> {
+async function writeToClipboard(text: string): Promise<boolean> {
   try {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       await navigator.clipboard.writeText(text);
-      return;
+      return true;
     }
   } catch {
     /* fall through */
   }
-  // no-op if clipboard unavailable
+  return false;
 }
 
-/** Build an expression reference (`$json.foo[0].bar`) from a `$.…` path. */
+/** Build an expression reference (`$json.foo[0].bar`) from a `$.` path. */
 function toExpression(path: string): string {
   // path is like `$` or `$.foo.bar[0].name`
   const tail = path.startsWith('$') ? path.slice(1) : path;
@@ -115,36 +117,38 @@ function subtreeMatches(
   return false;
 }
 
-/* ── Primitive renderer ──────────────────────────────────────────── */
+/* -- Primitive renderer ------------------------------------------------- */
 
 function PrimitiveView({ value }: { value: Primitive }) {
   if (value === null) {
-    return <span className="italic text-[var(--gray-8)]">null</span>;
+    return <span className="italic text-[var(--st-text-tertiary)]">null</span>;
   }
   if (value === undefined) {
-    return <span className="italic text-[var(--gray-8)]">undefined</span>;
+    return (
+      <span className="italic text-[var(--st-text-tertiary)]">undefined</span>
+    );
   }
   if (typeof value === 'string') {
     return (
-      <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] break-all">
+      <span className="text-[var(--st-status-ok)] break-all">
         &quot;{value}&quot;
       </span>
     );
   }
   if (typeof value === 'number') {
     return (
-      <span className="text-[var(--st-text)] dark:text-[var(--st-text-secondary)] tabular-nums">
+      <span className="text-[var(--st-accent)] tabular-nums">
         {Number.isFinite(value) ? value : String(value)}
       </span>
     );
   }
   if (typeof value === 'boolean') {
-    return <span className="text-[var(--st-text)]">{String(value)}</span>;
+    return <span className="text-[var(--st-warn)]">{String(value)}</span>;
   }
-  return <span>{String(value)}</span>;
+  return <span className="text-[var(--st-text)]">{String(value)}</span>;
 }
 
-/* ── Node renderer (recursive) ───────────────────────────────────── */
+/* -- Node renderer (recursive) ------------------------------------------ */
 
 interface NodeProps {
   name: string | null;
@@ -184,18 +188,18 @@ function JsonNode({
     onContextMenu(e, path, value);
   };
 
-  /* ── Primitive leaf ─────────────────────────────────────────── */
+  /* -- Primitive leaf -------------------------------------------------- */
   if (!isContainer) {
     return (
       <div
-        className="flex items-baseline gap-1.5 pl-4 py-0.5 font-mono text-[12px] leading-5 hover:bg-[var(--gray-3)] rounded cursor-default"
+        className="flex items-baseline gap-1.5 pl-4 py-0.5 font-mono text-[12px] leading-5 hover:bg-[var(--st-bg-secondary)] rounded-[var(--st-radius-sm)] cursor-default"
         title={path}
         onContextMenu={handleContextMenu}
       >
         {name !== null && (
           <>
-            <span className="text-[var(--gray-11)]">{name}</span>
-            <span className="text-[var(--gray-7)]">:</span>
+            <span className="text-[var(--st-text)]">{name}</span>
+            <span className="text-[var(--st-text-tertiary)]">:</span>
           </>
         )}
         <PrimitiveView value={value as Primitive} />
@@ -203,7 +207,7 @@ function JsonNode({
     );
   }
 
-  /* ── Container (array or object) ────────────────────────────── */
+  /* -- Container (array or object) ------------------------------------- */
   const entries: Array<[string, unknown]> = isArray
     ? (value as unknown[]).map((v, i) => [String(i), v])
     : Object.entries(value as JsonObject);
@@ -215,38 +219,60 @@ function JsonNode({
   const bracketOpen = isArray ? '[' : '{';
   const bracketClose = isArray ? ']' : '}';
 
+  const toggle = () => setExpanded((e) => !e);
+
   return (
     <div>
       <div
-        className="flex items-baseline gap-1 py-0.5 font-mono text-[12px] leading-5 hover:bg-[var(--gray-3)] rounded cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        aria-label={`${name ?? rootBracketLabel(isArray)} ${
+          expanded ? 'collapse' : 'expand'
+        }`}
+        className="flex items-baseline gap-1 py-0.5 font-mono text-[12px] leading-5 hover:bg-[var(--st-bg-secondary)] rounded-[var(--st-radius-sm)] cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent-ring)]"
         title={path}
-        onClick={() => setExpanded((e) => !e)}
+        onClick={toggle}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggle();
+          }
+        }}
         onContextMenu={handleContextMenu}
       >
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--gray-8)]">
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center text-[var(--st-text-tertiary)]">
           {expanded ? (
-            <LuChevronDown className="h-3 w-3" strokeWidth={2} />
+            <ChevronDown className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
           ) : (
-            <LuChevronRight className="h-3 w-3" strokeWidth={2} />
+            <ChevronRight
+              className="h-3 w-3"
+              strokeWidth={2}
+              aria-hidden="true"
+            />
           )}
         </span>
         {name !== null && (
           <>
-            <span className="text-[var(--gray-11)]">{name}</span>
-            <span className="text-[var(--gray-7)]">:</span>
+            <span className="text-[var(--st-text)]">{name}</span>
+            <span className="text-[var(--st-text-tertiary)]">:</span>
           </>
         )}
-        <span className="text-[var(--gray-7)]">{bracketOpen}</span>
+        <span className="text-[var(--st-text-tertiary)]">{bracketOpen}</span>
         {!expanded && (
-          <span className="italic text-[var(--gray-8)] ml-1">{summary}</span>
+          <span className="italic text-[var(--st-text-tertiary)] ml-1">
+            {summary}
+          </span>
         )}
         {!expanded && (
-          <span className="text-[var(--gray-7)] ml-0.5">{bracketClose}</span>
+          <span className="text-[var(--st-text-tertiary)] ml-0.5">
+            {bracketClose}
+          </span>
         )}
       </div>
 
       {expanded && (
-        <div className="pl-4 border-l border-[var(--gray-4)] ml-2">
+        <div className="pl-4 border-l border-[var(--st-border)] ml-2">
           {entries.map(([k, v]) => {
             const childPath = isArray ? `${path}[${k}]` : `${path}.${k}`;
             return (
@@ -261,7 +287,7 @@ function JsonNode({
               />
             );
           })}
-          <div className="pl-0 font-mono text-[12px] leading-5 text-[var(--gray-7)]">
+          <div className="pl-0 font-mono text-[12px] leading-5 text-[var(--st-text-tertiary)]">
             {bracketClose}
           </div>
         </div>
@@ -270,7 +296,12 @@ function JsonNode({
   );
 }
 
-/* ── Context-menu popup ──────────────────────────────────────────── */
+/** Human label for an unnamed root container, used in the toggle aria-label. */
+function rootBracketLabel(isArray: boolean): string {
+  return isArray ? 'array' : 'object';
+}
+
+/* -- Context-menu popup ------------------------------------------------- */
 
 interface MenuProps {
   state: ContextMenuState;
@@ -278,7 +309,9 @@ interface MenuProps {
   onUseAsExpression?: (expression: string) => void;
 }
 
-function ContextMenu({ state, onClose, onUseAsExpression }: MenuProps) {
+function JsonContextMenu({ state, onClose, onUseAsExpression }: MenuProps) {
+  const { toast } = useToast();
+
   useEffect(() => {
     const close = () => onClose();
     window.addEventListener('click', close);
@@ -291,43 +324,56 @@ function ContextMenu({ state, onClose, onUseAsExpression }: MenuProps) {
     };
   }, [onClose]);
 
+  const copy = async (text: string, label: string) => {
+    const ok = await writeToClipboard(text);
+    if (ok) toast.success(`${label} copied`);
+    else toast.error('Clipboard unavailable');
+  };
+
   const item = (label: string, onClick: () => void): ReactNode => (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
+      block
+      className="!justify-start text-left text-[12px]"
       onClick={(e) => {
         e.stopPropagation();
         onClick();
         onClose();
       }}
-      className="block w-full text-left px-3 py-1.5 text-[12px] text-[var(--gray-12)] hover:bg-[var(--gray-3)]"
     >
       {label}
-    </button>
+    </Button>
   );
 
   return (
+    // top/left are runtime-computed from the cursor position, so inline style is allowed here.
     <div
       style={{ top: state.y, left: state.x }}
-      className="fixed z-[100] min-w-[160px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-lg py-1"
+      className="fixed z-[100] min-w-[160px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-pop)] p-1 flex flex-col gap-0.5"
+      role="menu"
+      aria-label="JSON node actions"
       onClick={(e) => e.stopPropagation()}
     >
-      {item('Copy path', () => void writeToClipboard(state.path))}
+      {item('Copy path', () => void copy(state.path, 'Path'))}
       {item('Copy value', () =>
-        void writeToClipboard(
+        void copy(
           typeof state.value === 'string'
             ? state.value
             : safeStringify(state.value),
+          'Value',
         ),
       )}
       {item('Use as expression', () => {
         const expr = toExpression(state.path);
         onUseAsExpression?.(expr);
-        void writeToClipboard(expr);
+        void copy(expr, 'Expression');
       })}
     </div>
   );
 }
 
-/* ── Main component ─────────────────────────────────────────────── */
+/* -- Main component ----------------------------------------------------- */
 
 function JsonTreeViewImpl({
   data,
@@ -353,8 +399,13 @@ function JsonTreeViewImpl({
 
   if (data === undefined) {
     return (
-      <div className="text-[12px] italic text-[var(--gray-8)] px-2 py-3">
-        No data.
+      <div className="px-2 py-3">
+        <EmptyState
+          size="sm"
+          icon={FileQuestion}
+          title="No data"
+          description="Nothing to inspect yet."
+        />
       </div>
     );
   }
@@ -370,7 +421,7 @@ function JsonTreeViewImpl({
         onContextMenu={handleContextMenu}
       />
       {menu && (
-        <ContextMenu
+        <JsonContextMenu
           state={menu}
           onClose={() => setMenu(null)}
           onUseAsExpression={onUseAsExpression}

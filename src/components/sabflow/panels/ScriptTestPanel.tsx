@@ -1,25 +1,35 @@
 'use client';
 
 /**
- * ScriptTestPanel — shown after the user clicks "Test run" in the Script
+ * ScriptTestPanel - shown after the user clicks "Test run" in the Script
  * block's settings. Presents the sandbox's SandboxResult across four tabs:
  *
- *   • Result             — JSON-pretty-printed return value
- *   • Logs               — console.log / .error entries
- *   • Variables changed  — diff (before → after) for mutated variables
- *   • Error              — stack trace, only when the run failed
+ *   - Result             - JSON-pretty-printed return value
+ *   - Logs               - console.log / .error entries
+ *   - Variables changed  - diff (before to after) for mutated variables
+ *   - Error              - stack trace, only when the run failed
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import {
-  LuCircleCheck,
-  LuCircleX,
-  LuInfo,
-  LuTriangleAlert,
-  LuClock,
-  LuX,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  CircleCheck,
+  CircleX,
+  Info,
+  TriangleAlert,
+  Clock,
+  X,
+} from 'lucide-react';
+import {
+  Card,
+  IconButton,
+  Badge,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  EmptyState,
+  cn,
+} from '@/components/sabcrm/20ui';
 import type { SandboxResult } from '@/lib/sabflow/execution/sandbox';
 
 type TabId = 'result' | 'logs' | 'vars' | 'error';
@@ -32,7 +42,6 @@ type Props = {
 
 export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
   const defaultTab: TabId = result.success ? 'result' : 'error';
-  const [tab, setTab] = useState<TabId>(defaultTab);
 
   const tabs: { id: TabId; label: string; disabled?: boolean }[] = useMemo(
     () => [
@@ -48,115 +57,100 @@ export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
   );
 
   return (
-    <div className="mt-1 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] overflow-hidden">
+    <Card
+      variant="outlined"
+      padding="none"
+      className="ui20 mt-1 overflow-hidden bg-[var(--st-bg-secondary)]"
+    >
       {/* Header row */}
-      <div
-        className={cn(
-          'flex items-center gap-2 px-3 py-2 border-b border-[var(--gray-5)]',
-          result.success ? 'bg-[var(--st-text)]/5' : 'bg-[var(--st-text)]/5',
-        )}
-      >
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
         {result.success ? (
-          <LuCircleCheck
-            className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0"
+          <CircleCheck
+            className="h-3.5 w-3.5 shrink-0 text-[var(--st-status-ok)]"
             strokeWidth={2.2}
-            aria-label="Success"
+            aria-hidden="true"
           />
         ) : (
-          <LuCircleX
-            className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0"
+          <CircleX
+            className="h-3.5 w-3.5 shrink-0 text-[var(--st-danger)]"
             strokeWidth={2.2}
-            aria-label="Error"
+            aria-hidden="true"
           />
         )}
-        <span
-          className={cn(
-            'text-[11.5px] font-semibold uppercase tracking-wide',
-            result.success ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]' : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-          )}
-        >
+        <Badge tone={result.success ? 'success' : 'danger'} kind="soft">
           {result.success ? 'Passed' : 'Failed'}
-        </span>
-        <span className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] ml-auto">
-          <LuClock className="h-3 w-3" strokeWidth={1.8} />
+        </Badge>
+        <span className="ml-auto flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
+          <Clock className="h-3 w-3" strokeWidth={1.8} aria-hidden="true" />
           {result.executionTimeMs}ms
         </span>
         {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            title="Close"
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-11)] transition-colors"
-          >
-            <LuX className="h-3 w-3" strokeWidth={2.2} />
-          </button>
+          <IconButton label="Close" icon={X} size="sm" onClick={onClose} />
         )}
       </div>
 
-      {/* Tab strip */}
-      <div
-        role="tablist"
-        aria-label="Test result sections"
-        className="flex border-b border-[var(--gray-5)] bg-[var(--gray-1)]"
-      >
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            aria-controls={`script-test-${t.id}`}
-            disabled={t.disabled}
-            onClick={() => !t.disabled && setTab(t.id)}
-            className={cn(
-              'flex-1 px-2 py-2 text-[11px] font-medium transition-colors',
-              t.disabled
-                ? 'text-[var(--gray-6)] cursor-not-allowed'
-                : tab === t.id
-                ? 'text-[var(--st-text)] border-b-2 border-[var(--st-border)] -mb-px'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {/* Tabs */}
+      <Tabs defaultValue={defaultTab} className="w-full">
+        <TabsList
+          aria-label="Test result sections"
+          className="border-b border-[var(--st-border)] bg-[var(--st-bg)]"
+        >
+          {tabs.map((t) => (
+            <TabsTrigger
+              key={t.id}
+              value={t.id}
+              disabled={t.disabled}
+              className="flex-1 text-[11px]"
+            >
+              {t.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* Tab body */}
-      <div
-        id={`script-test-${tab}`}
-        role="tabpanel"
-        className="p-3 max-h-[320px] overflow-y-auto"
-      >
-        {tab === 'result' && <ResultTab result={result} />}
-        {tab === 'logs' && <LogsTab logs={result.logs} />}
-        {tab === 'vars' && (
-          <VariablesTab before={variablesBefore} after={result.variables ?? {}} />
-        )}
-        {tab === 'error' && <ErrorTab message={result.error} />}
-      </div>
-    </div>
+        <TabsContent
+          value="result"
+          className="max-h-[320px] overflow-y-auto p-3"
+        >
+          <ResultTab result={result} />
+        </TabsContent>
+        <TabsContent value="logs" className="max-h-[320px] overflow-y-auto p-3">
+          <LogsTab logs={result.logs} />
+        </TabsContent>
+        <TabsContent value="vars" className="max-h-[320px] overflow-y-auto p-3">
+          <VariablesTab
+            before={variablesBefore}
+            after={result.variables ?? {}}
+          />
+        </TabsContent>
+        <TabsContent value="error" className="max-h-[320px] overflow-y-auto p-3">
+          <ErrorTab message={result.error} />
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 }
 
-/* ── Tabs ────────────────────────────────────────────────────────────────── */
+/* -- Tabs ------------------------------------------------------------------- */
 
 function ResultTab({ result }: { result: SandboxResult }) {
   // Hooks must run unconditionally, before any early return.
   const pretty = useMemo(() => safeStringify(result.returnValue), [result]);
   if (!result.success) {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)]">
-        <LuInfo className="h-3.5 w-3.5" strokeWidth={1.8} />
-        Script failed — see the Error tab for details.
-      </div>
+      <EmptyState
+        icon={Info}
+        size="sm"
+        tone="info"
+        title="Script failed"
+        description="See the Error tab for details."
+      />
     );
   }
   return (
     <pre
       className={cn(
-        'rounded-lg bg-[var(--st-text)] p-3',
-        'font-mono text-[11.5px] leading-[1.55] text-[var(--st-text-secondary)]',
+        'rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3',
+        'font-mono text-[11.5px] leading-[1.55] text-[var(--st-text)]',
         'overflow-auto whitespace-pre-wrap break-words',
       )}
     >
@@ -168,10 +162,13 @@ function ResultTab({ result }: { result: SandboxResult }) {
 function LogsTab({ logs }: { logs: SandboxResult['logs'] }) {
   if (logs.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)]">
-        <LuInfo className="h-3.5 w-3.5" strokeWidth={1.8} />
-        No log output.
-      </div>
+      <EmptyState
+        icon={Info}
+        size="sm"
+        tone="neutral"
+        title="No log output"
+        description="This run did not print any console messages."
+      />
     );
   }
   return (
@@ -180,27 +177,29 @@ function LogsTab({ logs }: { logs: SandboxResult['logs'] }) {
         <li
           key={idx}
           className={cn(
-            'flex items-start gap-2 rounded-md px-2 py-1.5',
+            'flex items-start gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5',
             'font-mono text-[11.5px] leading-relaxed',
             entry.level === 'error'
-              ? 'bg-[var(--st-text)]/5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-              : 'bg-[var(--gray-1)] text-[var(--gray-12)]',
+              ? 'bg-[var(--st-danger-soft)] text-[var(--st-danger)]'
+              : 'bg-[var(--st-bg)] text-[var(--st-text)]',
           )}
         >
           {entry.level === 'error' ? (
-            <LuTriangleAlert
-              className="h-3 w-3 mt-0.5 shrink-0"
+            <TriangleAlert
+              className="mt-0.5 h-3 w-3 shrink-0"
               strokeWidth={2}
-              aria-label="error"
+              aria-hidden="true"
             />
           ) : (
-            <LuInfo
-              className="h-3 w-3 mt-0.5 shrink-0 text-[var(--gray-8)]"
+            <Info
+              className="mt-0.5 h-3 w-3 shrink-0 text-[var(--st-text-secondary)]"
               strokeWidth={1.8}
-              aria-label="log"
+              aria-hidden="true"
             />
           )}
-          <span className="whitespace-pre-wrap break-words">{entry.message}</span>
+          <span className="whitespace-pre-wrap break-words">
+            {entry.message}
+          </span>
         </li>
       ))}
     </ul>
@@ -217,38 +216,43 @@ function VariablesTab({
   const keys = useMemo(() => Object.keys(after), [after]);
   if (keys.length === 0) {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)]">
-        <LuInfo className="h-3.5 w-3.5" strokeWidth={1.8} />
-        No variables changed.
-      </div>
+      <EmptyState
+        icon={Info}
+        size="sm"
+        tone="neutral"
+        title="No variables changed"
+        description="The script did not mutate any flow variables."
+      />
     );
   }
   return (
-    <ul className="divide-y divide-[var(--gray-4)] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] overflow-hidden">
+    <ul className="divide-y divide-[var(--st-border)] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]">
       {keys.map((k) => {
         const b = safeStringify(before[k]);
         const a = safeStringify(after[k]);
         const changed = b !== a;
         return (
           <li key={k} className="px-3 py-2 text-[11.5px]">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-[var(--gray-11)]">{k}</span>
+            <div className="mb-1 flex items-center gap-2">
+              <span className="font-mono text-[var(--st-text)]">{k}</span>
               {changed && (
-                <span className="text-[9.5px] font-semibold text-[var(--st-text)] uppercase tracking-widest">
+                <Badge tone="accent" kind="soft" className="text-[9.5px]">
                   changed
-                </span>
+                </Badge>
               )}
             </div>
             <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
-              <span className="text-[var(--gray-8)]">before</span>
-              <code className="font-mono text-[var(--gray-10)] whitespace-pre-wrap break-words">
+              <span className="text-[var(--st-text-secondary)]">before</span>
+              <code className="whitespace-pre-wrap break-words font-mono text-[var(--st-text-secondary)]">
                 {b}
               </code>
-              <span className="text-[var(--gray-8)]">after</span>
+              <span className="text-[var(--st-text-secondary)]">after</span>
               <code
                 className={cn(
-                  'font-mono whitespace-pre-wrap break-words',
-                  changed ? 'text-[var(--st-text)]' : 'text-[var(--gray-10)]',
+                  'whitespace-pre-wrap break-words font-mono',
+                  changed
+                    ? 'text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)]',
                 )}
               >
                 {a}
@@ -264,17 +268,20 @@ function VariablesTab({
 function ErrorTab({ message }: { message?: string }) {
   if (!message) {
     return (
-      <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)]">
-        <LuInfo className="h-3.5 w-3.5" strokeWidth={1.8} />
-        No error.
-      </div>
+      <EmptyState
+        icon={Info}
+        size="sm"
+        tone="success"
+        title="No error"
+        description="The script ran without throwing."
+      />
     );
   }
   return (
     <pre
       className={cn(
-        'rounded-lg bg-[var(--st-text)]/5 border border-[var(--st-border)]/20 p-3',
-        'font-mono text-[11px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+        'rounded-[var(--st-radius)] border border-[var(--st-danger)] bg-[var(--st-danger-soft)] p-3',
+        'font-mono text-[11px] leading-relaxed text-[var(--st-danger)]',
         'overflow-auto whitespace-pre-wrap break-words',
       )}
     >
@@ -283,13 +290,17 @@ function ErrorTab({ message }: { message?: string }) {
   );
 }
 
-/* ── Helpers ─────────────────────────────────────────────────────────────── */
+/* -- Helpers ---------------------------------------------------------------- */
 
 function safeStringify(value: unknown): string {
   if (value === undefined) return 'undefined';
   if (value === null) return 'null';
   if (typeof value === 'string') return JSON.stringify(value);
-  if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+  if (
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    typeof value === 'bigint'
+  ) {
     return String(value);
   }
   try {

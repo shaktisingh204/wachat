@@ -1,6 +1,8 @@
 'use client';
 
-import { LuPlay, LuCopy, LuTrash2 } from 'react-icons/lu';
+import { Play, Copy, Trash2 } from 'lucide-react';
+
+import { ButtonGroup, IconButton } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 const isMac = () =>
@@ -32,57 +34,41 @@ export function GroupFocusToolbar({ isSingleFocus, onPlayClick, className }: Pro
   };
 
   return (
-    <div
+    <ButtonGroup
       className={cn(
         'prevent-group-drag',
-        'flex items-center rounded-md border shadow-md',
-        'bg-[var(--gray-1)] border-[var(--gray-5)]',
+        'rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-md',
         'animate-in fade-in-0 slide-in-from-bottom-2',
         className,
       )}
     >
-      {/* Play */}
-      <button
-        type="button"
-        aria-label="Preview flow from this group"
+      <IconButton
+        label="Preview flow from this group"
+        icon={Play}
+        size="sm"
         onClick={(e) => {
           e.stopPropagation();
           onPlayClick();
         }}
-        className="h-7 w-7 flex items-center justify-center hover:bg-[var(--gray-3)] transition-colors rounded-l-md"
-      >
-        <LuPlay size={13} />
-      </button>
-
-      <div className="w-px self-stretch bg-[var(--gray-5)]" />
-
-      {/* Copy */}
-      <button
-        type="button"
-        aria-label="Copy group"
+      />
+      <IconButton
+        label="Copy group"
+        icon={Copy}
+        size="sm"
         onClick={(e) => {
           e.stopPropagation();
           dispatchCopyEvent();
         }}
-        className="h-7 w-7 flex items-center justify-center hover:bg-[var(--gray-3)] transition-colors"
-      >
-        <LuCopy size={13} />
-      </button>
-
-      <div className="w-px self-stretch bg-[var(--gray-5)]" />
-
-      {/* Delete */}
-      <button
-        type="button"
-        aria-label="Delete group"
+      />
+      <IconButton
+        label="Delete group"
+        icon={Trash2}
+        size="sm"
         onClick={(e) => {
           e.stopPropagation();
           dispatchDeleteEvent();
         }}
-        className="h-7 w-7 flex items-center justify-center hover:bg-[var(--gray-3)] transition-colors rounded-r-md"
-      >
-        <LuTrash2 size={13} />
-      </button>
-    </div>
+      />
+    </ButtonGroup>
   );
 }

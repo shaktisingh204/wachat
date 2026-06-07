@@ -1,18 +1,28 @@
 'use client';
 
 /**
- * JsonTableView — renders an array-of-objects as a paginated table.
+ * JsonTableView - renders an array-of-objects as a paginated table.
  *
- *   • Dynamic columns — the union of all object keys (insertion order).
- *   • 50 rows per page.
- *   • Click a row → inline JSON detail expands beneath it.
- *   • Falls back to a message when `data` is not an array of objects.
+ *   - Dynamic columns: the union of all object keys (insertion order).
+ *   - 50 rows per page.
+ *   - Click a row to expand an inline JSON detail beneath it.
+ *   - Falls back to a message when `data` is not an array of objects.
  *
  * Scalars inside cells are pretty-printed with type-aware colour.
  */
 
 import { Fragment, memo, useMemo, useState } from 'react';
-import { LuChevronLeft, LuChevronRight } from 'react-icons/lu';
+import { ChevronLeft, ChevronRight, TableProperties } from 'lucide-react';
+import {
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  IconButton,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { JsonTreeView } from './JsonTreeView';
 
 const PAGE_SIZE = 50;
@@ -23,43 +33,43 @@ interface Props {
 
 type Row = Record<string, unknown>;
 
-/* ── Helpers ─────────────────────────────────────────────────────── */
+/* -- Helpers ------------------------------------------------------------- */
 
 function isObjectRow(v: unknown): v is Row {
   return !!v && typeof v === 'object' && !Array.isArray(v);
 }
 
 function formatCell(v: unknown): { text: string; cls: string } {
-  if (v === null) return { text: 'null', cls: 'text-[var(--gray-8)] italic' };
-  if (v === undefined) return { text: '—', cls: 'text-[var(--gray-7)]' };
+  if (v === null) return { text: 'null', cls: 'text-[var(--st-text-tertiary)] italic' };
+  if (v === undefined) return { text: '-', cls: 'text-[var(--st-text-tertiary)]' };
   if (typeof v === 'string') {
     return {
-      text: v.length > 120 ? `${v.slice(0, 117)}…` : v,
-      cls: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
+      text: v.length > 120 ? `${v.slice(0, 117)}...` : v,
+      cls: 'text-[var(--st-text)]',
     };
   }
   if (typeof v === 'number') {
-    return { text: String(v), cls: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]' };
+    return { text: String(v), cls: 'text-[var(--st-text)]' };
   }
   if (typeof v === 'boolean') {
     return { text: String(v), cls: 'text-[var(--st-text)]' };
   }
   if (Array.isArray(v)) {
-    return { text: `Array(${v.length})`, cls: 'text-[var(--gray-9)] italic' };
+    return { text: `Array(${v.length})`, cls: 'text-[var(--st-text-secondary)] italic' };
   }
   if (typeof v === 'object') {
-    return { text: '{…}', cls: 'text-[var(--gray-9)] italic' };
+    return { text: '{...}', cls: 'text-[var(--st-text-secondary)] italic' };
   }
   return { text: String(v), cls: '' };
 }
 
-/* ── Component ───────────────────────────────────────────────────── */
+/* -- Component ----------------------------------------------------------- */
 
 function JsonTableViewImpl({ data }: Props) {
   const [page, setPage] = useState(0);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  /* ── Validate shape ─────────────────────────────────────────── */
+  /* -- Validate shape -------------------------------------------------- */
   const rows = useMemo<Row[] | null>(() => {
     if (!Array.isArray(data)) return null;
     if (data.length === 0) return [];
@@ -90,122 +100,112 @@ function JsonTableViewImpl({ data }: Props) {
     return rows.slice(start, start + PAGE_SIZE);
   }, [rows, clampedPage]);
 
-  /* ── Unsupported shape ──────────────────────────────────────── */
+  /* -- Unsupported shape ----------------------------------------------- */
   if (rows === null) {
     return (
-      <div className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 text-[12px] text-[var(--gray-10)]">
-        Table view requires an array of objects.
-      </div>
+      <EmptyState
+        size="sm"
+        icon={TableProperties}
+        title="Table view unavailable"
+        description="Table view requires an array of objects."
+      />
     );
   }
 
   if (rows.length === 0) {
     return (
-      <div className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 text-[12px] italic text-[var(--gray-9)]">
-        Empty array.
-      </div>
+      <EmptyState
+        size="sm"
+        icon={TableProperties}
+        title="Empty array"
+        description="There are no rows to show."
+      />
     );
   }
 
-  /* ── Render ─────────────────────────────────────────────────── */
+  /* -- Render ---------------------------------------------------------- */
   return (
     <div className="flex flex-col gap-2">
-      <div className="overflow-auto rounded-md border border-[var(--gray-5)]">
-        <table className="w-full text-[12px] font-mono">
-          <thead className="bg-[var(--gray-3)]">
-            <tr>
-              <th className="w-10 px-2 py-1.5 text-left font-medium text-[var(--gray-10)]">
-                #
-              </th>
+      <div className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+        <Table density="compact" hover className="font-mono text-[12px]">
+          <THead>
+            <Tr>
+              <Th className="w-10">#</Th>
               {columns.map((c) => (
-                <th
-                  key={c}
-                  className="px-2 py-1.5 text-left font-medium text-[var(--gray-11)] whitespace-nowrap"
-                >
+                <Th key={c} className="whitespace-nowrap">
                   {c}
-                </th>
+                </Th>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </Tr>
+          </THead>
+          <TBody>
             {pageRows.map((row, idx) => {
               const absoluteIdx = clampedPage * PAGE_SIZE + idx;
               const isExpanded = expandedIndex === absoluteIdx;
               return (
                 <Fragment key={absoluteIdx}>
-                  <tr
+                  <Tr
+                    selected={isExpanded}
+                    className="cursor-pointer"
                     onClick={() =>
                       setExpandedIndex((cur) =>
                         cur === absoluteIdx ? null : absoluteIdx,
                       )
                     }
-                    className={`cursor-pointer border-t border-[var(--gray-4)] hover:bg-[var(--gray-3)] ${
-                      isExpanded ? 'bg-[var(--gray-3)]' : ''
-                    }`}
                   >
-                    <td className="px-2 py-1 text-[var(--gray-9)] tabular-nums">
+                    <Td className="tabular-nums text-[var(--st-text-tertiary)]">
                       {absoluteIdx}
-                    </td>
+                    </Td>
                     {columns.map((c) => {
                       const cell = formatCell(row[c]);
                       return (
-                        <td
-                          key={c}
-                          className={`px-2 py-1 whitespace-nowrap ${cell.cls}`}
-                        >
+                        <Td key={c} className={`whitespace-nowrap ${cell.cls}`}>
                           {cell.text}
-                        </td>
+                        </Td>
                       );
                     })}
-                  </tr>
+                  </Tr>
                   {isExpanded && (
-                    <tr className="bg-[var(--gray-2)]">
-                      <td
-                        colSpan={columns.length + 1}
-                        className="px-3 py-2 border-t border-[var(--gray-4)]"
-                      >
+                    <Tr>
+                      <Td colSpan={columns.length + 1}>
                         <JsonTreeView data={row} rootLabel={`$[${absoluteIdx}]`} />
-                      </td>
-                    </tr>
+                      </Td>
+                    </Tr>
                   )}
                 </Fragment>
               );
             })}
-          </tbody>
-        </table>
+          </TBody>
+        </Table>
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-[11.5px] text-[var(--gray-10)]">
+        <div className="flex items-center justify-between text-[11.5px] text-[var(--st-text-secondary)]">
           <span>
-            {clampedPage * PAGE_SIZE + 1}–
+            {clampedPage * PAGE_SIZE + 1}-
             {Math.min(rows.length, (clampedPage + 1) * PAGE_SIZE)} of{' '}
             {rows.length}
           </span>
           <div className="flex items-center gap-1">
-            <button
-              type="button"
+            <IconButton
+              label="Previous page"
+              icon={ChevronLeft}
+              size="sm"
+              variant="outline"
               disabled={clampedPage === 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="flex h-6 w-6 items-center justify-center rounded border border-[var(--gray-5)] text-[var(--gray-11)] disabled:opacity-40 hover:bg-[var(--gray-3)]"
-              aria-label="Previous page"
-            >
-              <LuChevronLeft className="h-3 w-3" strokeWidth={2} />
-            </button>
-            <span className="tabular-nums px-1">
+            />
+            <span className="px-1 tabular-nums">
               {clampedPage + 1}/{totalPages}
             </span>
-            <button
-              type="button"
+            <IconButton
+              label="Next page"
+              icon={ChevronRight}
+              size="sm"
+              variant="outline"
               disabled={clampedPage >= totalPages - 1}
-              onClick={() =>
-                setPage((p) => Math.min(totalPages - 1, p + 1))
-              }
-              className="flex h-6 w-6 items-center justify-center rounded border border-[var(--gray-5)] text-[var(--gray-11)] disabled:opacity-40 hover:bg-[var(--gray-3)]"
-              aria-label="Next page"
-            >
-              <LuChevronRight className="h-3 w-3" strokeWidth={2} />
-            </button>
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            />
           </div>
         </div>
       )}

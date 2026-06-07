@@ -3,29 +3,43 @@
 import * as React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import {
-  LuBell,
-  LuMail,
-  LuWebhook,
-  LuCalendarClock,
-  LuPlus,
-  LuX,
-  LuCheck,
-  LuLoader,
-  LuSend,
-  LuSave,
-  LuCircleAlert,
-  LuChevronDown,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Bell,
+  Mail,
+  Webhook,
+  CalendarClock,
+  Plus,
+  Check,
+  Send,
+  Save,
+  X,
+} from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Switch,
+  Alert,
+  Skeleton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import type { FlowNotificationSettings } from '@/lib/sabflow/types';
 
-/* ── Props ───────────────────────────────────────────────── */
+/* Props */
 
 interface NotificationsPanelProps {
   flowId: string;
 }
 
-/* ── Email regex ─────────────────────────────────────────── */
+/* Email regex */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,7 +47,7 @@ function isValidEmail(v: string): boolean {
   return EMAIL_RE.test(v.trim());
 }
 
-/* ── Toggle row ──────────────────────────────────────────── */
+/* Toggle row */
 
 interface ToggleRowProps {
   id: string;
@@ -45,46 +59,27 @@ interface ToggleRowProps {
 
 function ToggleRow({ id, label, description, checked, onChange }: ToggleRowProps) {
   return (
-    <label
-      htmlFor={id}
-      className="flex cursor-pointer items-start justify-between gap-4 py-2"
-    >
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[13px] font-medium text-[var(--st-text)] dark:text-white">
-          {label}
-        </span>
+    <div className="flex items-start justify-between gap-4 py-2">
+      <label htmlFor={id} className="flex cursor-pointer flex-col gap-0.5">
+        <span className="text-[13px] font-medium text-[var(--st-text)]">{label}</span>
         {description && (
-          <span className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] leading-snug">
+          <span className="text-[11.5px] leading-snug text-[var(--st-text-secondary)]">
             {description}
           </span>
         )}
-      </div>
-      {/* Toggle pill */}
-      <button
+      </label>
+      <Switch
         id={id}
-        role="switch"
-        aria-checked={checked}
-        type="button"
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40',
-          checked
-            ? 'bg-[var(--st-text)]'
-            : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-            checked ? 'translate-x-4' : 'translate-x-0.5',
-          )}
-        />
-      </button>
-    </label>
+        checked={checked}
+        onCheckedChange={onChange}
+        aria-label={label}
+        className="mt-0.5 shrink-0"
+      />
+    </div>
   );
 }
 
-/* ── Section wrapper ─────────────────────────────────────── */
+/* Section wrapper */
 
 interface SectionProps {
   icon: React.ElementType;
@@ -94,22 +89,22 @@ interface SectionProps {
 
 function Section({ icon: Icon, title, children }: SectionProps) {
   return (
-    <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] overflow-hidden">
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
-        <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
-        <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white">
-          {title}
-        </span>
-      </div>
-      <div className="px-4 py-3 flex flex-col gap-3">{children}</div>
-    </div>
+    <Card padding="none" className="overflow-hidden">
+      <CardHeader className="flex items-center gap-2.5 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} aria-hidden="true" />
+        <CardTitle className="text-[13px] font-semibold text-[var(--st-text)]">{title}</CardTitle>
+      </CardHeader>
+      <div className="flex flex-col gap-3 px-4 py-3">{children}</div>
+    </Card>
   );
 }
 
-/* ── Main component ──────────────────────────────────────── */
+/* Main component */
 
 export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
-  /* ── State ─────────────────────────────────────────────── */
+  const { toast } = useToast();
+
+  /* State */
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -132,7 +127,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
   const [digestFrequency, setDigestFrequency] = useState<'daily' | 'weekly'>('daily');
   const [digestTime, setDigestTime] = useState('09:00');
 
-  /* ── Load settings ─────────────────────────────────────── */
+  /* Load settings */
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -156,10 +151,12 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
       }
     }
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [flowId]);
 
-  /* ── Add email ─────────────────────────────────────────── */
+  /* Add email */
   const addEmail = useCallback(() => {
     const val = newEmail.trim();
     if (!val) return;
@@ -180,7 +177,7 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
     setEmailAddresses((prev) => prev.filter((e) => e !== addr));
   }, []);
 
-  /* ── Test webhook ──────────────────────────────────────── */
+  /* Test webhook */
   const handleTestWebhook = useCallback(async () => {
     if (!webhookUrl.trim()) return;
     setTesting(true);
@@ -198,16 +195,23 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
         }),
       });
       setTestStatus(res.ok ? 'ok' : 'error');
-      if (!res.ok) setTestError(`HTTP ${res.status}`);
+      if (res.ok) {
+        toast.success('Webhook responded successfully.');
+      } else {
+        setTestError(`HTTP ${res.status}`);
+        toast.error(`Webhook returned HTTP ${res.status}.`);
+      }
     } catch (err) {
       setTestStatus('error');
-      setTestError(err instanceof Error ? err.message : 'Request failed');
+      const message = err instanceof Error ? err.message : 'Request failed';
+      setTestError(message);
+      toast.error(message);
     } finally {
       setTesting(false);
     }
-  }, [webhookUrl, flowId]);
+  }, [webhookUrl, flowId, toast]);
 
-  /* ── Save ──────────────────────────────────────────────── */
+  /* Save */
   const handleSave = useCallback(async () => {
     setSaving(true);
     setSaveStatus('idle');
@@ -228,8 +232,14 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
         body: JSON.stringify(payload),
       });
       setSaveStatus(res.ok ? 'saved' : 'error');
+      if (res.ok) {
+        toast.success('Notification settings saved.');
+      } else {
+        toast.error('Could not save notification settings.');
+      }
     } catch {
       setSaveStatus('error');
+      toast.error('Could not save notification settings.');
     } finally {
       setSaving(false);
       // Reset saved status after 3 s
@@ -244,36 +254,31 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
     digestEnabled,
     digestFrequency,
     digestTime,
+    toast,
   ]);
 
-  /* ── Loading skeleton ──────────────────────────────────── */
+  /* Loading skeleton */
   if (loading) {
     return (
       <div className="flex flex-col gap-4 p-4">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-28 animate-pulse rounded-xl bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]"
-          />
+          <Skeleton key={i} height={112} radius={12} width="100%" />
         ))}
       </div>
     );
   }
 
-  /* ── Render ────────────────────────────────────────────── */
+  /* Render */
   return (
     <div className="flex flex-col gap-4 p-4">
-
       {/* Header */}
-      <div className="flex items-center gap-2 mb-1">
-        <LuBell className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
-        <h2 className="text-[14px] font-semibold text-[var(--st-text)] dark:text-white">
-          Notifications
-        </h2>
+      <div className="mb-1 flex items-center gap-2">
+        <Bell className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} aria-hidden="true" />
+        <h2 className="text-[14px] font-semibold text-[var(--st-text)]">Notifications</h2>
       </div>
 
-      {/* ── Email section ─────────────────────────────── */}
-      <Section icon={LuMail} title="Email notifications">
+      {/* Email section */}
+      <Section icon={Mail} title="Email notifications">
         <ToggleRow
           id="emailOnSubmission"
           label="Send email on each submission"
@@ -294,63 +299,55 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
                 {emailAddresses.map((addr) => (
                   <li
                     key={addr}
-                    className="flex items-center justify-between gap-2 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/60 px-3 py-1.5"
+                    className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5"
                   >
-                    <span className="text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] truncate">
-                      {addr}
-                    </span>
-                    <button
-                      type="button"
+                    <span className="truncate text-[12.5px] text-[var(--st-text)]">{addr}</span>
+                    <IconButton
+                      icon={X}
+                      label={`Remove ${addr}`}
+                      size="sm"
                       onClick={() => removeEmail(addr)}
-                      className="shrink-0 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
-                      aria-label={`Remove ${addr}`}
-                    >
-                      <LuX className="h-3.5 w-3.5" />
-                    </button>
+                      className="shrink-0"
+                    />
                   </li>
                 ))}
               </ul>
             )}
 
             {/* Add new email */}
-            <div className="flex gap-2">
-              <div className="flex-1 flex flex-col gap-1">
-                <input
+            <div className="flex items-start gap-2">
+              <Field className="flex-1" error={emailError || undefined}>
+                <Input
                   type="email"
                   value={newEmail}
-                  onChange={(e) => { setNewEmail(e.target.value); setEmailError(''); }}
-                  onKeyDown={(e) => e.key === 'Enter' && addEmail()}
+                  onChange={(e) => {
+                    setNewEmail(e.target.value);
+                    setEmailError('');
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addEmail();
+                    }
+                  }}
                   placeholder="name@example.com"
-                  className={cn(
-                    'w-full rounded-lg border px-3 py-1.5 text-[12.5px] bg-white dark:bg-[var(--st-text)] outline-none transition-colors',
-                    'focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)]',
-                    emailError
-                      ? 'border-[var(--st-border)] dark:border-[var(--st-border)]'
-                      : 'border-[var(--st-border)] dark:border-[var(--st-border)]',
-                  )}
+                  inputSize="sm"
                 />
-                {emailError && (
-                  <span className="text-[11px] text-[var(--st-text)] flex items-center gap-1">
-                    <LuCircleAlert className="h-3 w-3" />
-                    {emailError}
-                  </span>
-                )}
-              </div>
-              <button
-                type="button"
+              </Field>
+              <IconButton
+                icon={Plus}
+                label="Add email"
+                variant="outline"
                 onClick={addEmail}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
-                aria-label="Add email"
-              >
-                <LuPlus className="h-4 w-4" strokeWidth={2} />
-              </button>
+                className="shrink-0"
+              />
             </div>
           </div>
         )}
       </Section>
 
-      {/* ── Webhook section ───────────────────────────── */}
-      <Section icon={LuWebhook} title="Webhook">
+      {/* Webhook section */}
+      <Section icon={Webhook} title="Webhook">
         <ToggleRow
           id="webhookOnSubmission"
           label="Send webhook on each submission"
@@ -361,65 +358,47 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
 
         {webhookOnSubmission && (
           <div className="flex flex-col gap-2 pt-1">
-            <label className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-              Webhook URL
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={webhookUrl}
-                onChange={(e) => { setWebhookUrl(e.target.value); setTestStatus('idle'); }}
-                placeholder="https://example.com/webhook"
-                className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
-              />
-              <button
-                type="button"
-                onClick={handleTestWebhook}
-                disabled={testing || !webhookUrl.trim()}
-                className={cn(
-                  'flex items-center gap-1.5 shrink-0 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors',
-                  'border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)]',
-                  'hover:border-[var(--st-border)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:pointer-events-none',
-                )}
-              >
-                {testing ? (
-                  <LuLoader className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <LuSend className="h-3.5 w-3.5" strokeWidth={1.75} />
-                )}
-                Test
-              </button>
-            </div>
+            <Field label="Webhook URL">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="url"
+                  value={webhookUrl}
+                  onChange={(e) => {
+                    setWebhookUrl(e.target.value);
+                    setTestStatus('idle');
+                  }}
+                  placeholder="https://example.com/webhook"
+                  inputSize="sm"
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={Send}
+                  loading={testing}
+                  disabled={!webhookUrl.trim()}
+                  onClick={handleTestWebhook}
+                  className="shrink-0"
+                >
+                  Test
+                </Button>
+              </div>
+            </Field>
 
             {/* Test result */}
             {testStatus !== 'idle' && (
-              <div
-                className={cn(
-                  'flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px]',
-                  testStatus === 'ok'
-                    ? 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-                    : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',
-                )}
-              >
-                {testStatus === 'ok' ? (
-                  <>
-                    <LuCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-                    Webhook responded successfully.
-                  </>
-                ) : (
-                  <>
-                    <LuCircleAlert className="h-3.5 w-3.5" />
-                    {testError || 'Webhook request failed.'}
-                  </>
-                )}
-              </div>
+              <Alert tone={testStatus === 'ok' ? 'success' : 'danger'}>
+                {testStatus === 'ok'
+                  ? 'Webhook responded successfully.'
+                  : testError || 'Webhook request failed.'}
+              </Alert>
             )}
           </div>
         )}
       </Section>
 
-      {/* ── Digest section ────────────────────────────── */}
-      <Section icon={LuCalendarClock} title="Digest email">
+      {/* Digest section */}
+      <Section icon={CalendarClock} title="Digest email">
         <ToggleRow
           id="digestEnabled"
           label="Send periodic digest"
@@ -431,82 +410,48 @@ export function NotificationsPanel({ flowId }: NotificationsPanelProps) {
         {digestEnabled && (
           <div className="flex gap-3 pt-1">
             {/* Frequency select */}
-            <div className="flex flex-col gap-1 flex-1">
-              <label
-                htmlFor="digestFrequency"
-                className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
+            <Field label="Frequency" className="flex-1">
+              <Select
+                value={digestFrequency}
+                onValueChange={(v) => setDigestFrequency(v as 'daily' | 'weekly')}
               >
-                Frequency
-              </label>
-              <div className="relative">
-                <select
-                  id="digestFrequency"
-                  value={digestFrequency}
-                  onChange={(e) =>
-                    setDigestFrequency(e.target.value as 'daily' | 'weekly')
-                  }
-                  className="w-full appearance-none rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 pr-8 text-[12.5px] text-[var(--st-text)] dark:text-white outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
-                <LuChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
-              </div>
-            </div>
+                <SelectTrigger aria-label="Digest frequency">
+                  <SelectValue placeholder="Pick a frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
 
             {/* Time input */}
-            <div className="flex flex-col gap-1 w-28">
-              <label
-                htmlFor="digestTime"
-                className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
-              >
-                At time
-              </label>
-              <input
-                id="digestTime"
+            <Field label="At time" className="w-28">
+              <Input
                 type="time"
                 value={digestTime}
                 onChange={(e) => setDigestTime(e.target.value)}
-                className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] text-[var(--st-text)] dark:text-white outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
+                inputSize="sm"
               />
-            </div>
+            </Field>
           </div>
         )}
       </Section>
 
-      {/* ── Save button ───────────────────────────────── */}
-      <button
-        type="button"
+      {/* Save button */}
+      <Button
+        variant="primary"
+        block
+        loading={saving}
+        iconLeft={saveStatus === 'saved' ? Check : Save}
         onClick={handleSave}
-        disabled={saving}
-        className={cn(
-          'flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors',
-          'bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white disabled:opacity-50 disabled:pointer-events-none',
-          saveStatus === 'error' && 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
-        )}
       >
-        {saving ? (
-          <>
-            <LuLoader className="h-4 w-4 animate-spin" />
-            Saving…
-          </>
-        ) : saveStatus === 'saved' ? (
-          <>
-            <LuCheck className="h-4 w-4" strokeWidth={2.5} />
-            Saved
-          </>
-        ) : saveStatus === 'error' ? (
-          <>
-            <LuCircleAlert className="h-4 w-4" />
-            Save failed
-          </>
-        ) : (
-          <>
-            <LuSave className="h-4 w-4" strokeWidth={1.75} />
-            Save settings
-          </>
-        )}
-      </button>
+        {saveStatus === 'saved'
+          ? 'Saved'
+          : saveStatus === 'error'
+            ? 'Save failed'
+            : 'Save settings'}
+      </Button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useCallback } from 'react';
-import { LuX } from 'react-icons/lu';
+
+import { Modal, Badge, Table, TBody, Tr, Td } from '@/components/sabcrm/20ui';
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -56,7 +57,7 @@ const SECTIONS: ShortcutSection[] = [
       { keys: [MOD, 'X'], description: 'Cut selected' },
       { keys: [MOD, 'V'], description: 'Paste' },
       { keys: [MOD, 'D'], description: 'Duplicate selected' },
-      { keys: ['Del', '/\u00a0Backspace'], description: 'Delete selected' },
+      { keys: ['Del', '/ Backspace'], description: 'Delete selected' },
       { keys: [MOD, 'S'], description: 'Save flow' },
     ],
   },
@@ -79,34 +80,27 @@ function KeyPill({ label }: { label: string }) {
   const isPlain = label.startsWith('/');
   if (isPlain) {
     return (
-      <span className="text-[var(--gray-10)] text-xs select-none">{label}</span>
+      <span className="text-[var(--st-text-secondary)] text-xs select-none">
+        {label}
+      </span>
     );
   }
   return (
-    <kbd
-      className="
-        inline-flex items-center justify-center
-        px-1.5 py-0.5 min-w-[1.5rem]
-        rounded border border-[var(--gray-6)]
-        bg-[var(--gray-2)]
-        text-[var(--gray-12)] text-[11px] font-mono font-medium
-        shadow-[0_1px_0_var(--gray-6)]
-        select-none
-      "
-    >
+    <Badge tone="neutral" kind="outline" className="font-mono select-none">
       {label}
-    </kbd>
+    </Badge>
   );
 }
 
 /* ─── Component ──────────────────────────────────────────────────────────── */
 
 export function ShortcutsHelp({ isOpen, onClose }: Props) {
-  // Close on Escape or '?' key
+  // The Modal already closes on Escape and overlay click; we additionally close
+  // when the user presses '?' to toggle the panel off.
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!isOpen) return;
-      if (e.key === 'Escape' || e.key === '?') {
+      if (e.key === '?') {
         e.preventDefault();
         onClose();
       }
@@ -119,97 +113,48 @@ export function ShortcutsHelp({ isOpen, onClose }: Props) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  if (!isOpen) return null;
-
   return (
-    /* Backdrop */
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Keyboard shortcuts reference"
-      className="
-        fixed inset-0 z-50
-        flex items-center justify-center
-        bg-black/40 backdrop-blur-sm
-        animate-in fade-in duration-150
-      "
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title="Keyboard Shortcuts"
+      size="lg"
+      footer={
+        <p className="w-full text-[11px] text-[var(--st-text-tertiary)] text-center">
+          Press <KeyPill label="?" /> or <KeyPill label="Esc" /> to close
+        </p>
+      }
     >
-      {/* Panel */}
-      <div
-        className="
-          relative
-          w-full max-w-2xl mx-4
-          max-h-[85vh] overflow-y-auto
-          rounded-xl
-          border border-[var(--gray-5)]
-          bg-[var(--gray-1)]
-          shadow-2xl
-          animate-in zoom-in-95 duration-150
-        "
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--gray-5)]">
-          <h2 className="text-sm font-semibold text-[var(--gray-12)] tracking-wide uppercase">
-            Keyboard Shortcuts
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close keyboard shortcuts"
-            className="
-              flex h-7 w-7 items-center justify-center rounded-md
-              text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]
-              transition-colors
-            "
-          >
-            <LuX size={15} />
-          </button>
-        </div>
-
-        {/* Body — two-column grid of sections */}
-        <div className="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {SECTIONS.map((section) => (
-            <div key={section.heading}>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gray-9)] mb-2">
-                {section.heading}
-              </p>
-              <table className="w-full border-collapse">
-                <tbody>
-                  {section.rows.map((row, i) => (
-                    <tr
-                      key={i}
-                      className="group border-b border-[var(--gray-4)] last:border-b-0"
-                    >
-                      {/* Key combo cell */}
-                      <td className="py-1.5 pr-4 align-middle whitespace-nowrap">
-                        <span className="flex items-center gap-1 flex-wrap">
-                          {row.keys.map((k, ki) => (
-                            <KeyPill key={ki} label={k} />
-                          ))}
-                        </span>
-                      </td>
-                      {/* Description cell */}
-                      <td className="py-1.5 align-middle text-xs text-[var(--gray-11)] group-hover:text-[var(--gray-12)] transition-colors">
-                        {row.description}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer hint */}
-        <div className="px-6 py-3 border-t border-[var(--gray-5)]">
-          <p className="text-[11px] text-[var(--gray-9)] text-center">
-            Press <KeyPill label="?" /> or <KeyPill label="Esc" /> to close
-          </p>
-        </div>
+      {/* Two-column grid of sections */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {SECTIONS.map((section) => (
+          <div key={section.heading}>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)] mb-2">
+              {section.heading}
+            </p>
+            <Table density="compact" hover={false} className="w-full">
+              <TBody>
+                {section.rows.map((row, i) => (
+                  <Tr key={i}>
+                    {/* Key combo cell */}
+                    <Td className="whitespace-nowrap align-middle">
+                      <span className="flex items-center gap-1 flex-wrap">
+                        {row.keys.map((k, ki) => (
+                          <KeyPill key={ki} label={k} />
+                        ))}
+                      </span>
+                    </Td>
+                    {/* Description cell */}
+                    <Td className="align-middle text-xs text-[var(--st-text-secondary)]">
+                      {row.description}
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </div>
+        ))}
       </div>
-    </div>
+    </Modal>
   );
 }

@@ -1,55 +1,50 @@
 'use client';
 
 /**
- * NetworkRequestItem — a single HTTP row in the "Network" tab.
+ * NetworkRequestItem - a single HTTP row in the "Network" tab.
  *
- * Expanded view shows Headers / Request body / Response body in
- * tabs.  Colors follow HTTP convention (2xx green, 4xx amber, 5xx red).
+ * Expanded view shows Headers / Request body / Response body in tabs.
+ * Status colours follow HTTP convention (2xx ok, 4xx warn, 5xx danger) and are
+ * carried by 20ui Badge tones so meaning never relies on colour alone.
  */
 
 import { memo, useState, type ReactNode } from 'react';
-import { LuChevronDown, LuChevronRight } from 'react-icons/lu';
+import { ChevronDown } from 'lucide-react';
+import {
+  Badge,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import type { DebugNetworkRequest } from '@/lib/sabflow/debug/types';
 
 type NetTab = 'headers' | 'request' | 'response';
 
-function methodClass(method: string): string {
-  switch (method.toUpperCase()) {
-    case 'GET':
-      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-    case 'POST':
-      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-    case 'PUT':
-    case 'PATCH':
-      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-    case 'DELETE':
-      return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-    default:
-      return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
-  }
-}
-
-function statusClass(status: number | undefined, error: string | undefined): string {
-  if (error) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-  if (status === undefined) return 'bg-[var(--gray-3)] text-[var(--gray-10)]';
-  if (status >= 500) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-  if (status >= 400) return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-  if (status >= 200 && status < 300)
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-  return 'bg-[var(--gray-3)] text-[var(--gray-11)]';
+function statusTone(status: number | undefined, error: string | undefined): BadgeTone {
+  if (error) return 'danger';
+  if (status === undefined) return 'neutral';
+  if (status >= 500) return 'danger';
+  if (status >= 400) return 'warning';
+  if (status >= 200 && status < 300) return 'success';
+  return 'neutral';
 }
 
 function fmtHeaders(h: Record<string, string> | undefined): string {
-  if (!h) return '—';
+  if (!h) return '-';
   return Object.entries(h)
     .map(([k, v]) => `${k}: ${v}`)
     .join('\n');
 }
 
 function prettyBody(body: string | undefined): string {
-  if (!body) return '—';
+  if (!body) return '-';
   const trimmed = body.trim();
-  if (!trimmed) return '—';
+  if (!trimmed) return '-';
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     try {
       return JSON.stringify(JSON.parse(trimmed), null, 2);
@@ -71,106 +66,81 @@ function NetworkRequestItemImpl({ request }: Props) {
   const isPending = request.status === undefined && !request.error;
 
   return (
-    <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-1)] overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--gray-3)]"
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]"
+    >
+      <CollapsibleTrigger
+        hideChevron
+        className="flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--st-bg-muted)]"
       >
-        {open ? (
-          <LuChevronDown className="h-3 w-3 shrink-0 text-[var(--gray-9)]" strokeWidth={2} />
-        ) : (
-          <LuChevronRight className="h-3 w-3 shrink-0 text-[var(--gray-9)]" strokeWidth={2} />
-        )}
-
-        <span
+        <ChevronDown
+          size={12}
+          strokeWidth={2}
+          aria-hidden="true"
           className={
-            'inline-flex h-[18px] min-w-[38px] items-center justify-center rounded px-1.5 font-mono text-[10px] font-bold uppercase shrink-0 ' +
-            methodClass(request.method)
+            'shrink-0 text-[var(--st-text-tertiary)] transition-transform ' +
+            (open ? 'rotate-0' : '-rotate-90')
           }
+        />
+
+        <Badge
+          tone="neutral"
+          className="min-w-[38px] shrink-0 justify-center font-mono text-[10px] font-bold uppercase"
         >
           {request.method}
-        </span>
+        </Badge>
 
         <span
-          className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-[var(--gray-12)]"
+          className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-[var(--st-text)]"
           title={request.url}
         >
           {request.url}
         </span>
 
-        <span
-          className={
-            'inline-flex h-[18px] min-w-[34px] items-center justify-center rounded px-1.5 font-mono text-[10px] font-semibold tabular-nums shrink-0 ' +
-            statusClass(request.status, request.error)
-          }
+        <Badge
+          tone={statusTone(request.status, request.error)}
+          className="min-w-[34px] shrink-0 justify-center font-mono text-[10px] font-semibold tabular-nums"
         >
-          {request.error
-            ? 'ERR'
-            : isPending
-              ? '…'
-              : request.status}
-        </span>
+          {request.error ? 'ERR' : isPending ? '...' : request.status}
+        </Badge>
 
         {typeof request.duration === 'number' ? (
-          <span className="shrink-0 rounded bg-[var(--gray-3)] px-1.5 py-0.5 text-[10px] tabular-nums text-[var(--gray-9)]">
+          <Badge
+            tone="neutral"
+            className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--st-text-secondary)]"
+          >
             {request.duration}ms
-          </span>
+          </Badge>
         ) : null}
-      </button>
+      </CollapsibleTrigger>
 
-      {open ? (
-        <div className="border-t border-[var(--gray-4)] bg-[var(--gray-2)]">
-          <div className="flex gap-1 border-b border-[var(--gray-4)] px-2 pt-1.5">
-            <TabBtn label="Headers" active={tab === 'headers'} onClick={() => setTab('headers')} />
-            <TabBtn label="Request" active={tab === 'request'} onClick={() => setTab('request')} />
-            <TabBtn label="Response" active={tab === 'response'} onClick={() => setTab('response')} />
-          </div>
+      <CollapsibleContent className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as NetTab)}>
+          <TabsList className="px-2 pt-1.5">
+            <TabsTrigger value="headers">Headers</TabsTrigger>
+            <TabsTrigger value="request">Request</TabsTrigger>
+            <TabsTrigger value="response">Response</TabsTrigger>
+          </TabsList>
+
           <div className="px-2.5 py-2">
-            {request.error ? (
-              <Pane
-                label="Error"
-                body={request.error}
-                tone="error"
-              />
-            ) : null}
-            {tab === 'headers' ? (
-              <>
-                <Pane label="Request headers" body={fmtHeaders(request.requestHeaders)} />
-                <Pane label="Response headers" body={fmtHeaders(request.responseHeaders)} />
-              </>
-            ) : null}
-            {tab === 'request' ? <Pane label="Request body" body={prettyBody(request.requestBody)} /> : null}
-            {tab === 'response' ? <Pane label="Response body" body={prettyBody(request.responseBody)} /> : null}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
+            {request.error ? <Pane label="Error" body={request.error} tone="error" /> : null}
 
-function TabBtn({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}): ReactNode {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        'rounded-t px-2 py-1 text-[11px] font-medium transition-colors ' +
-        (active
-          ? 'bg-[var(--gray-1)] text-[var(--gray-12)] border border-[var(--gray-4)] border-b-[var(--gray-1)] -mb-px'
-          : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]')
-      }
-    >
-      {label}
-    </button>
+            <TabsContent value="headers">
+              <Pane label="Request headers" body={fmtHeaders(request.requestHeaders)} />
+              <Pane label="Response headers" body={fmtHeaders(request.responseHeaders)} />
+            </TabsContent>
+            <TabsContent value="request">
+              <Pane label="Request body" body={prettyBody(request.requestBody)} />
+            </TabsContent>
+            <TabsContent value="response">
+              <Pane label="Response body" body={prettyBody(request.responseBody)} />
+            </TabsContent>
+          </div>
+        </Tabs>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -188,19 +158,15 @@ function Pane({
       <div
         className={
           'mb-1 text-[10px] font-semibold uppercase tracking-wide ' +
-          (tone === 'error'
-            ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-            : 'text-[var(--gray-9)]')
+          (tone === 'error' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-tertiary)]')
         }
       >
         {label}
       </div>
       <pre
         className={
-          'max-h-[220px] overflow-auto whitespace-pre-wrap break-all rounded bg-[var(--gray-1)] p-2 font-mono text-[11px] leading-snug ' +
-          (tone === 'error'
-            ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-            : 'text-[var(--gray-11)]')
+          'max-h-[220px] overflow-auto whitespace-pre-wrap break-all rounded-[var(--st-radius-sm)] bg-[var(--st-bg)] p-2 font-mono text-[11px] leading-snug ' +
+          (tone === 'error' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]')
         }
       >
         {body}

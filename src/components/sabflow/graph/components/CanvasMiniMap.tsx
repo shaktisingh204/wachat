@@ -1,8 +1,9 @@
 'use client';
 import { useRef } from 'react';
-import { LuX } from 'react-icons/lu';
+import { X } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Group, SabFlowEvent, GraphPosition } from '@/lib/sabflow/types';
+import { IconButton } from '@/components/sabcrm/20ui';
 
 /** Minimap viewport dimensions (px). */
 const MINI_W = 160;
@@ -120,59 +121,54 @@ export function CanvasMiniMap({
 
   return (
     <div
-      className="absolute bottom-16 right-4 z-20 rounded-lg overflow-hidden shadow-lg border border-[var(--gray-5)]"
-      style={{ width: MINI_W, height: MINI_H, backgroundColor: 'var(--gray-2)' }}
+      className="ui20 absolute bottom-16 right-4 z-20 overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-[var(--st-shadow-lg)]"
+      style={{ width: MINI_W, height: MINI_H }}
     >
       {/* Close button */}
-      <button
+      <IconButton
+        label="Close minimap"
+        icon={X}
+        variant="ghost"
+        size="sm"
         onClick={onClose}
-        className="absolute top-1 right-1 z-10 flex h-4 w-4 items-center justify-center rounded text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-4)] transition-colors"
-        title="Close minimap"
-      >
-        <LuX size={10} />
-      </button>
+        className="absolute right-1 top-1 z-10 h-4 w-4 min-h-0 min-w-0 p-0"
+      />
 
       {/* Clickable minimap surface */}
       <div
         ref={miniRef}
-        className="absolute inset-0 cursor-crosshair"
+        className="absolute inset-0 cursor-crosshair bg-[radial-gradient(var(--st-border)_1px,transparent_0)] [background-size:8px_8px]"
         onClick={handleClick}
-        style={{
-          backgroundImage: 'radial-gradient(var(--gray-5) 1px, transparent 0)',
-          backgroundSize: '8px 8px',
-        }}
       >
-        {/* Group nodes — orange rectangles */}
+        {/* Group nodes - accent rectangles */}
         {groups.map((g) => {
           const pos = toMini(g.graphCoordinates.x, g.graphCoordinates.y);
           return (
             <div
               key={g.id}
-              className="absolute rounded-[1px]"
+              className="absolute rounded-[1px] bg-[var(--st-accent)] opacity-70"
               style={{
                 left: pos.left,
                 top: pos.top,
                 width: GROUP_W * miniScale,
                 height: GROUP_H * miniScale,
-                backgroundColor: 'rgba(249, 115, 22, 0.7)',
               }}
             />
           );
         })}
 
-        {/* Event nodes — gray rectangles */}
+        {/* Event nodes - neutral rectangles */}
         {events.map((ev) => {
           const pos = toMini(ev.graphCoordinates.x, ev.graphCoordinates.y);
           return (
             <div
               key={ev.id}
-              className="absolute rounded-[1px]"
+              className="absolute rounded-[1px] bg-[var(--st-text-tertiary)] opacity-70"
               style={{
                 left: pos.left,
                 top: pos.top,
                 width: EVENT_W * miniScale,
                 height: EVENT_H * miniScale,
-                backgroundColor: 'rgba(107, 114, 128, 0.7)',
               }}
             />
           );
@@ -180,14 +176,12 @@ export function CanvasMiniMap({
 
         {/* Current viewport indicator */}
         <div
-          className="absolute pointer-events-none rounded-[1px]"
+          className="pointer-events-none absolute rounded-[1px] border-[1.5px] border-[var(--st-accent)] bg-[var(--st-accent-soft)]"
           style={{
             left: vpMini.left,
             top: vpMini.top,
             width: vpMiniW,
             height: vpMiniH,
-            border: '1.5px solid rgba(249, 115, 22, 0.9)',
-            backgroundColor: 'rgba(249, 115, 22, 0.08)',
           }}
         />
       </div>

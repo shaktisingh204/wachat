@@ -1,25 +1,25 @@
 'use client';
 
 /**
- * SabFlow Marketplace — upgrade diff modal.
+ * SabFlow Marketplace - upgrade diff modal.
  *
- * Phase C.10.7 — Template versioning + upgrade diff.
+ * Phase C.10.7 - Template versioning + upgrade diff.
  *
  * Displays the computed diff between two marketplace template versions and
  * lets the user apply the upgrade (which installs the newer version as a
- * fresh doc — it does NOT overwrite the existing flow).
+ * fresh doc - it does NOT overwrite the existing flow).
  *
  * Props:
- *   - `templateId`   — marketplace template id (used in API calls)
- *   - `installedDocId` — the existing SabFlow doc id (sent to the upgrade API
+ *   - `templateId`   - marketplace template id (used in API calls)
+ *   - `installedDocId` - the existing SabFlow doc id (sent to the upgrade API
  *                        so it can stamp the lineage on the new doc)
- *   - `fromVersion`  — currently installed version string, e.g. `"1.0.0"`
- *   - `toVersion`    — target version string, e.g. `"1.1.0"`
- *   - `onClose`      — close callback
+ *   - `fromVersion`  - currently installed version string, e.g. `"1.0.0"`
+ *   - `toVersion`    - target version string, e.g. `"1.1.0"`
+ *   - `onClose`      - close callback
  *
  * Data flow:
- *   1. On mount, fetches `GET /api/sabflow/marketplace/templates/[id]/diff?from=…&to=…`.
- *   2. Renders added/removed/changed nodes with colour-coded badges.
+ *   1. On mount, fetches `GET /api/sabflow/marketplace/templates/[id]/diff?from=...&to=...`.
+ *   2. Renders added/removed/changed nodes with tone-coded badges.
  *   3. "Apply Upgrade" posts to `POST /api/sabflow/marketplace/templates/[id]/upgrade`
  *      and navigates to the new flow's editor URL on success.
  */
@@ -28,17 +28,26 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuArrowUpRight,
-  LuCheck,
-  LuLoader,
-  LuMinus,
-  LuPlus,
-  LuRefreshCw,
-  LuX,
-} from 'react-icons/lu';
+  ArrowUpRight,
+  Check,
+  Loader,
+  Minus,
+  Plus,
+  RefreshCw,
+  X,
+} from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
-import { cn } from '@/lib/utils';
+import {
+  Alert,
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -176,13 +185,13 @@ export function UpgradeDiffModal({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <LuArrowUpRight className="h-4 w-4 text-[var(--st-text)]" />
+            <ArrowUpRight className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
             Upgrade template
           </DialogTitle>
           <DialogDescription>
             Changes from version{' '}
             <span className="font-mono text-xs">{fromVersion}</span>
-            {' '}→{' '}
+            {' '}to{' '}
             <span className="font-mono text-xs">{toVersion}</span>
           </DialogDescription>
         </DialogHeader>
@@ -191,22 +200,16 @@ export function UpgradeDiffModal({
           {/* Loading */}
           {fetchState.phase === 'loading' && (
             <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-              <LuLoader className="h-4 w-4 animate-spin" />
-              Computing diff…
+              <Loader className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Computing diff...
             </div>
           )}
 
           {/* Error fetching diff */}
           {fetchState.phase === 'error' && (
-            <div className="rounded-md border border-destructive/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
+            <Alert tone="danger" title="Could not compute diff">
               {fetchState.message}
-              <button
-                className="ml-2 underline underline-offset-2"
-                onClick={() => void fetchDiff()}
-              >
-                Retry
-              </button>
-            </div>
+            </Alert>
           )}
 
           {/* Diff ready */}
@@ -216,59 +219,40 @@ export function UpgradeDiffModal({
 
           {/* Upgrade error */}
           {upgradeState.phase === 'error' && (
-            <div className="rounded-md border border-destructive/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
-              Upgrade failed: {upgradeState.message}
-            </div>
+            <Alert tone="danger" title="Upgrade failed">
+              {upgradeState.message}
+            </Alert>
           )}
 
           {/* Upgrade done */}
           {isDone && (
-            <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)]/50 bg-[var(--st-text)]/10 px-3 py-2 text-sm text-[var(--st-text)]">
-              <LuCheck className="h-4 w-4" />
-              Upgrade applied — opening new flow…
-            </div>
+            <Alert tone="success" title="Upgrade applied" icon={Check}>
+              Opening the new flow...
+            </Alert>
           )}
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex items-center justify-end gap-2">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={isUpgrading || isDone}>
-            <LuX className="mr-1 h-3.5 w-3.5" />
+        <DialogFooter className="mt-6">
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={isUpgrading || isDone} iconLeft={X}>
             Cancel
           </Button>
           {fetchState.phase === 'error' && (
-            <Button variant="outline" size="sm" onClick={() => void fetchDiff()}>
-              <LuRefreshCw className="mr-1 h-3.5 w-3.5" />
+            <Button variant="outline" size="sm" onClick={() => void fetchDiff()} iconLeft={RefreshCw}>
               Retry diff
             </Button>
           )}
           <Button
+            variant="primary"
             size="sm"
             onClick={() => void handleUpgrade()}
-            disabled={
-              fetchState.phase !== 'ready' ||
-              isUpgrading ||
-              isDone
-            }
+            loading={isUpgrading}
+            iconLeft={isDone ? Check : ArrowUpRight}
+            disabled={fetchState.phase !== 'ready' || isUpgrading || isDone}
           >
-            {isUpgrading ? (
-              <>
-                <LuLoader className="mr-1 h-3.5 w-3.5 animate-spin" />
-                Upgrading…
-              </>
-            ) : isDone ? (
-              <>
-                <LuCheck className="mr-1 h-3.5 w-3.5" />
-                Done
-              </>
-            ) : (
-              <>
-                <LuArrowUpRight className="mr-1 h-3.5 w-3.5" />
-                Apply Upgrade
-              </>
-            )}
+            {isUpgrading ? 'Upgrading...' : isDone ? 'Done' : 'Apply Upgrade'}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
@@ -297,20 +281,20 @@ function DiffSummary({ diff }: { diff: DiffData }) {
       <NodeList
         label="Added nodes"
         items={diff.addedNodes}
-        icon={<LuPlus className="h-3.5 w-3.5" />}
-        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
+        icon={<Plus className="h-3.5 w-3.5" aria-hidden="true" />}
+        tone="success"
       />
       <NodeList
         label="Removed nodes"
         items={diff.removedNodes}
-        icon={<LuMinus className="h-3.5 w-3.5" />}
-        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
+        icon={<Minus className="h-3.5 w-3.5" aria-hidden="true" />}
+        tone="danger"
       />
       <NodeList
         label="Changed nodes"
         items={diff.changedNodes}
-        icon={<LuRefreshCw className="h-3.5 w-3.5" />}
-        colorClass="text-[var(--st-text)] bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
+        icon={<RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />}
+        tone="warning"
       />
 
       {(diff.addedConnections > 0 || diff.removedConnections > 0) && (
@@ -327,12 +311,12 @@ function NodeList({
   label,
   items,
   icon,
-  colorClass,
+  tone,
 }: {
   label: string;
   items: string[];
   icon: React.ReactNode;
-  colorClass: string;
+  tone: 'success' | 'danger' | 'warning';
 }) {
   if (items.length === 0) return null;
   return (
@@ -342,15 +326,11 @@ function NodeList({
       </p>
       <ul className="space-y-1">
         {items.map((item) => (
-          <li
-            key={item}
-            className={cn(
-              'flex items-center gap-1.5 rounded border px-2 py-1 text-xs font-mono',
-              colorClass,
-            )}
-          >
-            {icon}
-            {item}
+          <li key={item}>
+            <Badge tone={tone} kind="soft" className="w-full justify-start font-mono">
+              {icon}
+              {item}
+            </Badge>
           </li>
         ))}
       </ul>
@@ -368,16 +348,16 @@ function ConnectionDelta({
   return (
     <div className="flex flex-wrap gap-2">
       {added > 0 && (
-        <span className="flex items-center gap-1 rounded border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-xs text-[var(--st-text)]">
-          <LuPlus className="h-3 w-3" />
+        <Badge tone="success" kind="soft">
+          <Plus className="h-3 w-3" aria-hidden="true" />
           {added} connection{added !== 1 ? 's' : ''} added
-        </span>
+        </Badge>
       )}
       {removed > 0 && (
-        <span className="flex items-center gap-1 rounded border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 px-2 py-0.5 text-xs text-[var(--st-text)]">
-          <LuMinus className="h-3 w-3" />
+        <Badge tone="danger" kind="soft">
+          <Minus className="h-3 w-3" aria-hidden="true" />
           {removed} connection{removed !== 1 ? 's' : ''} removed
-        </span>
+        </Badge>
       )}
     </div>
   );

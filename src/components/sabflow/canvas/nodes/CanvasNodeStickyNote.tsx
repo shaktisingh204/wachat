@@ -1,17 +1,18 @@
 'use client';
 /**
- * CanvasNodeStickyNote — port of n8n's CanvasNodeStickyNote.vue.
+ * CanvasNodeStickyNote - port of n8n's CanvasNodeStickyNote.vue.
  *
  * A resizable sticky note rendered as its own React Flow node type. Features:
- *   • 6 color presets (matches SabFlow's AnnotationColor palette)
- *   • Click-to-edit — double-click (or Enter) enters edit mode; blur commits.
- *   • Corner resize handle — drag-to-resize, clamps to min 160×100.
+ *   - 6 color presets (matches SabFlow's AnnotationColor palette)
+ *   - Click-to-edit: double-click (or Enter) enters edit mode; blur commits.
+ *   - Corner resize handle: drag-to-resize, clamps to min 160x100.
  */
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { NodeProps } from '@xyflow/react';
 import { NodeResizer } from '@xyflow/react';
 import type { AnnotationColor } from '@/lib/sabflow/types';
-import { LuPalette, LuTrash2 } from 'react-icons/lu';
+import { Palette, Trash2 } from 'lucide-react';
+import { Button, IconButton, Textarea } from '@/components/sabcrm/20ui';
 
 const COLOR_PALETTE: Record<AnnotationColor, { bg: string; border: string }> = {
   yellow: { bg: '#fef3c7', border: '#fcd34d' },
@@ -70,7 +71,7 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
 
   return (
     <div
-      className="sabflow-sticky"
+      className="ui20 sabflow-sticky relative overflow-visible p-3 text-[13px] text-[var(--st-text)]"
       data-testid="canvas-sticky-note"
       style={{
         width: w,
@@ -81,10 +82,6 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
         boxShadow: selected
           ? `0 0 0 3px rgba(247, 104, 8, 0.25), 0 8px 20px -6px rgba(0,0,0,0.18)`
           : `0 4px 12px -4px rgba(0,0,0,0.12)`,
-        position: 'relative',
-        padding: 12,
-        fontSize: 13,
-        color: 'var(--gray-12)',
       }}
       onDoubleClick={(e) => {
         e.stopPropagation();
@@ -96,9 +93,9 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
         minWidth={160}
         minHeight={100}
         /**
-         * onResizeEnd (not onResize) — otherwise React Flow fires onResize
+         * onResizeEnd (not onResize): otherwise React Flow fires onResize
          * during mount with the measured DOM size, which round-trips through
-         * flow state and triggers a re-render → onResize → ... (React #185).
+         * flow state and triggers a re-render to onResize to ... (React #185).
          */
         onResizeEnd={(_e, params) => {
           onUpdate?.(id, { width: params.width, height: params.height });
@@ -106,43 +103,27 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
         lineStyle={{ borderColor: palette.border }}
         handleStyle={{
           background: palette.border,
-          border: '2px solid var(--gray-1)',
+          border: '2px solid var(--st-bg)',
           width: 10,
           height: 10,
         }}
       />
 
       {editing ? (
-        <textarea
+        <Textarea
           ref={textareaRef}
+          aria-label="Sticky note content"
           defaultValue={d.content ?? ''}
           onBlur={(e) => {
             setEditing(false);
             onContentCommit(e.currentTarget.value);
           }}
-          className="nodrag nopan"
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'transparent',
-            border: 0,
-            outline: 'none',
-            resize: 'none',
-            fontFamily: 'inherit',
-            fontSize: 'inherit',
-            color: 'inherit',
-            lineHeight: 1.4,
-          }}
+          className="nodrag nopan h-full !min-h-0 !resize-none !border-0 !bg-transparent !p-0 !leading-snug !text-inherit !shadow-none"
         />
       ) : (
         <div
-          style={{
-            whiteSpace: 'pre-wrap',
-            overflow: 'hidden',
-            height: '100%',
-            lineHeight: 1.4,
-            color: d.content ? 'var(--gray-12)' : 'var(--gray-9)',
-          }}
+          className="h-full overflow-hidden whitespace-pre-wrap leading-snug"
+          style={{ color: d.content ? 'var(--st-text)' : 'var(--st-text-tertiary)' }}
         >
           {d.content || 'Double-click to edit'}
         </div>
@@ -150,68 +131,39 @@ export const CanvasNodeStickyNote = memo(function CanvasNodeStickyNote({
 
       {selected && !isReadOnly && !editing ? (
         <div
-          className="nodrag nopan"
-          style={{
-            position: 'absolute',
-            top: -34,
-            right: 0,
-            display: 'flex',
-            gap: 4,
-            padding: 4,
-            background: 'var(--gray-1)',
-            border: '1px solid var(--gray-5)',
-            borderRadius: 8,
-            boxShadow: '0 4px 14px -4px rgba(0,0,0,0.18)',
-          }}
+          className="nodrag nopan absolute -top-[34px] right-0 flex gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)]"
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            aria-label="Change color"
-            className="sabflow-node__toolbar-btn"
+          <IconButton
+            label="Change color"
+            icon={Palette}
+            size="sm"
             onClick={() => setShowPalette((v) => !v)}
-          >
-            <LuPalette className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Delete"
-            className="sabflow-node__toolbar-btn is-danger"
+          />
+          <IconButton
+            label="Delete"
+            icon={Trash2}
+            size="sm"
+            variant="danger"
             onClick={() => onDelete?.(id)}
-          >
-            <LuTrash2 className="h-3.5 w-3.5" />
-          </button>
+          />
           {showPalette ? (
-            <div
-              style={{
-                position: 'absolute',
-                top: 34,
-                right: 0,
-                display: 'flex',
-                gap: 4,
-                padding: 6,
-                background: 'var(--gray-1)',
-                border: '1px solid var(--gray-5)',
-                borderRadius: 8,
-                boxShadow: '0 4px 14px -4px rgba(0,0,0,0.18)',
-              }}
-            >
+            <div className="absolute right-0 top-[34px] flex gap-1 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 shadow-[0_4px_14px_-4px_rgba(0,0,0,0.18)]">
               {COLOR_KEYS.map((k) => (
-                <button
+                <Button
                   key={k}
-                  type="button"
+                  variant="ghost"
+                  size="sm"
                   aria-label={`Use ${k}`}
+                  title={`Use ${k}`}
+                  className="!h-5 !w-5 !min-w-0 !rounded-full !border-2 !p-0"
+                  style={{
+                    borderColor: COLOR_PALETTE[k].border,
+                    background: COLOR_PALETTE[k].bg,
+                  }}
                   onClick={() => {
                     onUpdate?.(id, { color: k });
                     setShowPalette(false);
-                  }}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 999,
-                    border: `2px solid ${COLOR_PALETTE[k].border}`,
-                    background: COLOR_PALETTE[k].bg,
-                    cursor: 'pointer',
                   }}
                 />
               ))}

@@ -1,17 +1,18 @@
 'use client';
 /**
- * NodeCreator — port of n8n's NodeCreator.vue (trimmed).
+ * NodeCreator - port of n8n's NodeCreator.vue (trimmed).
  *
  * Search-driven picker panel. Opens from:
- *   • the canvas "+" button
- *   • the edge midpoint "+" (splicing a node onto an existing connection)
- *   • a drag-from-handle that didn't land on an input
- *   • keyboard shortcut (Tab)
+ *   - the canvas "+" button
+ *   - the edge midpoint "+" (splicing a node onto an existing connection)
+ *   - a drag-from-handle that didn't land on an input
+ *   - keyboard shortcut (Tab)
  * Categories are drill-down; search filters across label/description.
  * Keyboard: Up/Down to move, Enter to select, Esc to close.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LuX, LuSearch } from 'react-icons/lu';
+import { Search, SearchX, X } from 'lucide-react';
+import { Field, Input, IconButton, EmptyState } from '@/components/sabcrm/20ui';
 import { REGISTRY_CATEGORIES, type BlockRegistryEntry } from '@/components/sabflow/editor/blockRegistry';
 import type { BlockType } from '@/lib/sabflow/types';
 import type { NodeCreatorState } from './useNodeCreator';
@@ -101,38 +102,38 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
 
   let runningIndex = 0;
   return (
-    <div className="sabflow-node-creator" onMouseDown={(e) => e.stopPropagation()}>
-      <div className="sabflow-node-creator__header">
-        <LuSearch className="h-3.5 w-3.5 text-[var(--gray-9)]" />
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          placeholder="Search nodes…"
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setActiveIndex(0);
-          }}
-          className="sabflow-node-creator__search"
-        />
-        <button
-          type="button"
-          aria-label="Close"
-          className="sabflow-node-creator__close"
-          onClick={onClose}
-        >
-          <LuX className="h-3.5 w-3.5" />
-        </button>
+    <div className="sabflow-node-creator ui20" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="flex items-center gap-2 p-2.5 border-b border-[var(--st-border)]">
+        <Field className="flex-1" label="Search nodes">
+          <Input
+            ref={inputRef}
+            inputSize="sm"
+            value={query}
+            placeholder="Search nodes"
+            iconLeft={Search}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
+          />
+        </Field>
+        <IconButton label="Close" icon={X} size="sm" onClick={onClose} />
       </div>
-      <div className="sabflow-node-creator__body">
+      <div className="flex-1 overflow-y-auto p-1.5">
         {grouped.length === 0 ? (
-          <div className="px-3 py-6 text-center text-[12px] text-[var(--gray-9)]">
-            No nodes match &ldquo;{query}&rdquo;
-          </div>
+          <EmptyState
+            size="sm"
+            icon={SearchX}
+            title="No nodes found"
+            description={query ? `Nothing matches "${query}".` : 'No nodes available here.'}
+          />
         ) : (
           grouped.map((group) => (
             <div key={group.catLabel}>
-              <div className="sabflow-node-creator__group-label" style={{ color: group.catColor }}>
+              <div
+                className="px-2.5 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.06em]"
+                style={{ color: group.catColor }}
+              >
                 {group.catLabel}
               </div>
               {group.entries.map((entry) => {
@@ -145,19 +146,23 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
                     role="option"
                     aria-selected={isActive}
                     tabIndex={0}
-                    className={`sabflow-node-creator__item${isActive ? ' is-active' : ''}`}
+                    className={`flex items-center gap-2.5 px-2.5 py-2 rounded-[var(--st-radius)] cursor-pointer text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]${
+                      isActive ? ' bg-[var(--st-bg-secondary)]' : ''
+                    }`}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => onPick(entry.type)}
                   >
                     <span
-                      className="sabflow-node-creator__item-icon"
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
                       style={{ backgroundColor: entry.color + '22', color: entry.color }}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
                     </span>
                     <span>
                       {entry.label}
-                      <span className="sabflow-node-creator__item-desc">{entry.description}</span>
+                      <span className="block text-[11px] leading-[1.25] text-[var(--st-text-secondary)]">
+                        {entry.description}
+                      </span>
                     </span>
                   </div>
                 );

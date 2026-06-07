@@ -11,13 +11,23 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { LuArrowRight, LuPlay } from 'react-icons/lu';
+import { ArrowRight, Play } from 'lucide-react';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { Icon as IconifyIcon } from '@iconify/react';
 import type { Block, SabFlowDoc, SabFlowEvent, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import {
+  Field,
+  Input,
+  IconButton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { TRIGGER_OPTIONS } from '@/components/sabflow/canvas/triggerPanel/triggerOptions';
 import { TriggerEventSettings } from './TriggerEventSettings';
 import { PinOutputSection } from './PinOutputSection';
@@ -49,7 +59,7 @@ import { ForgeBlockSettings } from '@/components/sabflow/panels/blocks/forge/For
 // The full forge barrel (`@/lib/sabflow/forge`) is `server-only` because some
 // blocks transitively import Node-only packages (mongodb, pg, ssh2, …).
 // We fetch a serializable metadata snapshot from `/api/sabflow/forge-metadata`
-// instead — see `metadata-client.ts`.
+// instead - see `metadata-client.ts`.
 import {
   preloadForgeMetadata,
   getForgeBlockMetadataSync,
@@ -104,7 +114,7 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
     ? flow.groups.flatMap((g) => g.blocks).find((b) => b.id === openedNodeId) ?? null
     : null;
 
-  /* If the opened id isn't a block, see if it matches a trigger event — the
+  /* If the opened id isn't a block, see if it matches a trigger event - the
      event-level editor renders in this same right-rail slot. */
   const openedEvent = useMemo<SabFlowEvent | null>(() => {
     if (!openedNodeId || openedBlock) return null;
@@ -163,7 +173,7 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
         isOpen ? 'w-80' : 'w-0',
       )}
     >
-      <div className="w-80 h-full flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20">
+      <div className="w-80 h-full flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20">
         {/* ── Header ──────────────────────────────────────────── */}
         <PanelHeader block={openedBlock} event={openedEvent} onClose={handleClose} />
 
@@ -228,44 +238,43 @@ function PanelHeader({
     brand = getBlockBrandIcon(block.type);
   } else if (event) {
     const meta = TRIGGER_OPTIONS.find((o) => o.appEvent === event.appEvent);
-    Icon = (meta?.icon as ReturnType<typeof getBlockIcon>) ?? LuPlay;
+    Icon = (meta?.icon as ReturnType<typeof getBlockIcon>) ?? Play;
     label = meta?.label ?? 'Trigger';
     color = meta?.color ?? '#10b981';
   }
 
   return (
-    <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-      {/* Block / event icon — brand logo when available, else tinted Lucide */}
+    <div className="flex items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3 shrink-0">
+      {/* Block / event icon - brand logo when available, else tinted Lucide */}
       {brand ? (
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--gray-2)]">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-secondary)]">
           <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
         </div>
       ) : Icon ? (
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+          // Block tint is runtime-computed from the block type's brand color.
           style={{ background: `${color}22`, color }}
         >
-          <Icon className="h-4 w-4" />
+          <Icon className="h-4 w-4" aria-hidden />
         </div>
       ) : null}
 
       {/* Label */}
-      <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">
+      <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)] truncate">
         {label}
       </span>
 
-      {/* Live status badge (hidden when idle) — blocks only */}
+      {/* Live status badge (hidden when idle) - blocks only */}
       {block && <NodeStatusBadge nodeId={block.id} size="sm" />}
 
-      {/* Close button — back arrow (slides panel away) */}
-      <button
+      {/* Close button - back arrow (slides panel away) */}
+      <IconButton
+        icon={ArrowRight}
+        label="Close settings panel"
+        size="sm"
         onClick={onClose}
-        className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-        aria-label="Close settings panel"
-        title="Close"
-      >
-        <LuArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
-      </button>
+      />
     </div>
   );
 }
@@ -274,9 +283,9 @@ function PanelHeader({
 
 type BodyProps = {
   block: Block;
-  /** Raw Variable objects — used by components that need id-based lookup (e.g. ConditionSettings) */
+  /** Raw Variable objects - used by components that need id-based lookup (e.g. ConditionSettings) */
   variables: Variable[];
-  /** Flat name list — used by legacy components that accept string[] */
+  /** Flat name list - used by legacy components that accept string[] */
   variableNames: string[];
   onUpdate: (changes: Partial<Block>) => void;
   /** Allow block-level VariableSelect to create a new variable inline */
@@ -304,12 +313,11 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     return (
       <div className="space-y-4">
         <Field label={urlLabel[block.type] ?? 'URL'}>
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.url ?? '')}
             onChange={(e) => update({ url: e.target.value })}
-            placeholder="https://…"
+            placeholder="https://example.com/file"
           />
         </Field>
       </div>
@@ -347,18 +355,16 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     return (
       <div className="space-y-4">
         <Field label="Placeholder">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.placeholder ?? '')}
             onChange={(e) => update({ placeholder: e.target.value })}
-            placeholder="Enter placeholder…"
+            placeholder="Enter your answer"
           />
         </Field>
         <Field label="Save answer to variable">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.variableName ?? '')}
             onChange={(e) => update({ variableName: e.target.value })}
             placeholder="{{answerVariable}}"
@@ -402,23 +408,26 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     return (
       <div className="space-y-4">
         <Field label="Redirect URL">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.url ?? '')}
             onChange={(e) => update({ url: e.target.value })}
-            placeholder="https://…"
+            placeholder="https://example.com"
           />
         </Field>
         <Field label="Open in">
-          <select
-            className={inputClass}
+          <Select
             value={String(options.target ?? '_blank')}
-            onChange={(e) => update({ target: e.target.value })}
+            onValueChange={(v) => update({ target: v })}
           >
-            <option value="_blank">New tab</option>
-            <option value="_self">Same tab</option>
-          </select>
+            <SelectTrigger aria-label="Open in">
+              <SelectValue placeholder="Select target" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_blank">New tab</SelectItem>
+              <SelectItem value="_self">Same tab</SelectItem>
+            </SelectContent>
+          </Select>
         </Field>
       </div>
     );
@@ -428,11 +437,10 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     return (
       <div className="space-y-4">
         <Field label="Traffic split (% to path A)">
-          <input
+          <Input
             type="number"
             min={0}
             max={100}
-            className={inputClass}
             value={String(options.percentageToA ?? 50)}
             onChange={(e) => update({ percentageToA: Number(e.target.value) })}
           />
@@ -445,9 +453,8 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     return (
       <div className="space-y-4">
         <Field label="Jump to group ID">
-          <input
+          <Input
             type="text"
-            className={inputClass}
             value={String(options.groupId ?? '')}
             onChange={(e) => update({ groupId: e.target.value })}
             placeholder="target-group-id"
@@ -636,7 +643,7 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
   }
 
   /* ── Forge blocks (declarative integrations registered in
-   *    @/lib/sabflow/forge — forge_github, forge_slack, forge_notion, etc.) */
+   *    @/lib/sabflow/forge - forge_github, forge_slack, forge_notion, etc.) */
   if (block.type.startsWith('forge_')) {
     // Metadata is loaded asynchronously via `/api/sabflow/forge-metadata`.
     // Settings panels never call `run`, so the cast back to `ForgeBlock` is
@@ -652,7 +659,7 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
         />
       );
     }
-    // Either still loading or unknown forge id — fall through.
+    // Either still loading or unknown forge id - fall through.
   }
 
   /* ── Fallback: render the generic descriptor-driven settings panel.
@@ -666,7 +673,7 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
       values={options}
       onChange={(next) => onUpdate({ options: next })}
       onChangeBlockType={(nextType) =>
-        // Stub-fallback "Swap" button — replace the block type in place
+        // Stub-fallback "Swap" button - replace the block type in place
         // while keeping every option that overlaps.  Cast through the
         // string-keyed `Block.type` union (NodeSettings only suggests
         // forge types we know exist).
@@ -675,27 +682,3 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     />
   );
 }
-
-/* ── Shared primitives ───────────────────────────────────────────────────── */
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-4 text-center text-[12px] text-[var(--gray-9)]">
-      Settings for <strong>{label}</strong> coming soon.
-    </div>
-  );
-}
-
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

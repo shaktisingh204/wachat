@@ -26,17 +26,8 @@ import { SABFLOW_COLLAB_ENABLED } from '@/lib/sabflow/features';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { countValidationResults } from '@/lib/sabflow/validation';
 import type { ValidationError } from '@/lib/sabflow/validation';
-import { cn } from '@/lib/utils';
-import {
-  LuSettings,
-  LuPlay,
-  LuVariable,
-  LuPalette,
-  LuHistory,
-  LuLink,
-  LuCopy,
-  LuX,
-} from 'react-icons/lu';
+import { IconButton } from '@/components/sabcrm/20ui';
+import { Settings, Play, Variable, Palette, History, Link, Copy, X } from 'lucide-react';
 
 /* ── Constants ───────────────────────────────────────────────────────────── */
 
@@ -153,7 +144,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   );
 
   /**
-   * Full-document replace — used by the n8n-style WorkflowCanvas, which
+   * Full-document replace - used by the n8n-style WorkflowCanvas, which
    * returns the entire next SabFlowDoc rather than a diff patch. We preserve
    * the mongo _id so downstream saves still target the right record.
    */
@@ -184,7 +175,7 @@ function EditorContent({ flow: initialFlow }: Props) {
     (overrides?: Partial<SabFlowDoc>) => {
       setSaveError(null);
       // Defensively unwrap callers like `onClick={save}` that pass a
-      // SyntheticEvent — spreading an Event into the payload leaks
+      // SyntheticEvent - spreading an Event into the payload leaks
       // `event.target` (a DOM element) and explodes BSON nested-depth.
       const safeOverrides: Partial<SabFlowDoc> | undefined =
         overrides && typeof overrides === 'object'
@@ -207,7 +198,7 @@ function EditorContent({ flow: initialFlow }: Props) {
         // Strip every non-JSON value (functions, React elements, Symbols, class
         // instances without toJSON, etc.) before the payload crosses the server
         // action boundary. Without this, an unserializable value gets wrapped
-        // in a "temporary client reference" Proxy on the server — and when
+        // in a "temporary client reference" Proxy on the server - and when
         // Mongo's BSON encoder probes `.toBSON()` on it, the Proxy throws
         // "Cannot access toBSON on the server. You cannot dot into a
         // temporary client reference from a server component."
@@ -229,21 +220,21 @@ function EditorContent({ flow: initialFlow }: Props) {
     const handler = (e: KeyboardEvent) => {
       const meta = e.metaKey || e.ctrlKey;
 
-      // Cmd+S — save
+      // Cmd+S - save
       if (meta && e.key === 's' && !e.shiftKey) {
         e.preventDefault();
         save();
         return;
       }
 
-      // Cmd+Shift+Z — redo (must come before plain Cmd+Z)
+      // Cmd+Shift+Z - redo (must come before plain Cmd+Z)
       if (meta && e.key === 'z' && e.shiftKey) {
         e.preventDefault();
         redo();
         return;
       }
 
-      // Cmd+Z — undo
+      // Cmd+Z - undo
       if (meta && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
         undo();
@@ -284,35 +275,33 @@ function EditorContent({ flow: initialFlow }: Props) {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 flex flex-col overflow-clip bg-[var(--gray-2)]"
+      className="ui20 absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
     >
       {/* ── Webhook URL banner (shown after activation) ────────────── */}
       {webhookBanner && webhookBanner.length > 0 && (
-        <div className="relative bg-[var(--st-text)] border-b border-[var(--st-border)]/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
-          <LuLink className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0 mt-0.5" strokeWidth={1.8} />
+        <div className="relative bg-[var(--st-accent-soft)] border-b border-[var(--st-border)] px-4 py-2.5 flex items-start gap-3 text-[12px]">
+          <Link className="h-3.5 w-3.5 text-[var(--st-accent)] shrink-0 mt-0.5" strokeWidth={1.8} aria-hidden="true" />
           <div className="flex-1 space-y-1.5">
-            <p className="text-[var(--gray-11)] font-medium">Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered</p>
+            <p className="text-[var(--st-text)] font-medium">Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered</p>
             {webhookBanner.map((w) => (
               <div key={w.webhookId ?? w.webhookUrl} className="flex items-center gap-2">
-                <span className="font-mono text-[var(--st-text)] break-all">{w.webhookUrl}</span>
-                <button
-                  type="button"
-                  title="Copy URL"
+                <span className="font-mono text-[var(--st-text-secondary)] break-all">{w.webhookUrl}</span>
+                <IconButton
+                  label="Copy URL"
+                  icon={Copy}
+                  size="sm"
                   onClick={() => navigator.clipboard?.writeText(w.webhookUrl)}
-                  className="shrink-0 text-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
-                >
-                  <LuCopy className="h-3.5 w-3.5" strokeWidth={1.8} />
-                </button>
+                />
               </div>
             ))}
           </div>
-          <button
-            type="button"
+          <IconButton
+            label="Dismiss banner"
+            icon={X}
+            size="sm"
+            className="shrink-0"
             onClick={() => setWebhookBanner(null)}
-            className="shrink-0 text-[var(--gray-7)] hover:text-[var(--gray-11)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={1.8} />
-          </button>
+          />
         </div>
       )}
 
@@ -336,7 +325,7 @@ function EditorContent({ flow: initialFlow }: Props) {
       >
         {/* Panel toggle buttons rendered after the divider in the header */}
 
-        {/* Presence avatar stack — active collaborators (Phase C.8.2).
+        {/* Presence avatar stack - active collaborators (Phase C.8.2).
             Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED; renders nothing
             when the flag is off or no peers are connected. Sits before the
             panel toggles so it doesn't get pushed off-screen on narrow
@@ -348,84 +337,49 @@ function EditorContent({ flow: initialFlow }: Props) {
         </div>
 
         {/* Variables panel toggle */}
-        <button
-          type="button"
+        <IconButton
+          label="Toggle variables panel"
+          icon={Variable}
+          variant={activePanel === 'variables' ? 'secondary' : 'ghost'}
+          aria-pressed={activePanel === 'variables'}
           onClick={() => togglePanel('variables')}
-          title="Variables"
-          aria-label="Toggle variables panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'variables'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuVariable className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
 
         {/* Theme panel toggle */}
-        <button
-          type="button"
+        <IconButton
+          label="Toggle theme panel"
+          icon={Palette}
+          variant={activePanel === 'theme' ? 'secondary' : 'ghost'}
+          aria-pressed={activePanel === 'theme'}
           onClick={() => togglePanel('theme')}
-          title="Theme"
-          aria-label="Toggle theme panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'theme'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuPalette className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
 
         {/* Preview panel toggle */}
-        <button
-          type="button"
+        <IconButton
+          label="Toggle preview panel"
+          icon={Play}
+          variant={activePanel === 'preview' ? 'secondary' : 'ghost'}
+          aria-pressed={activePanel === 'preview'}
           onClick={() => togglePanel('preview')}
-          title="Preview"
-          aria-label="Toggle preview panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'preview'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuPlay className="h-4 w-4 translate-x-px" strokeWidth={1.8} />
-        </button>
+        />
 
         {/* Settings panel toggle */}
-        <button
-          type="button"
+        <IconButton
+          label="Toggle settings panel"
+          icon={Settings}
+          variant={activePanel === 'settings' ? 'secondary' : 'ghost'}
+          aria-pressed={activePanel === 'settings'}
           onClick={() => togglePanel('settings')}
-          title="Flow settings"
-          aria-label="Toggle settings panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'settings'
-              ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuSettings className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
 
         {/* Version history panel toggle */}
-        <button
-          type="button"
+        <IconButton
+          label="Toggle version history panel"
+          icon={History}
+          variant={activePanel === 'versions' ? 'secondary' : 'ghost'}
+          aria-pressed={activePanel === 'versions'}
           onClick={() => togglePanel('versions')}
-          title="Version history"
-          aria-label="Toggle version history panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'versions'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuHistory className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
       </FlowEditorHeader>
 
       {/* ── Main area ─────────────────────────────────────────────────── */}
@@ -451,7 +405,7 @@ function EditorContent({ flow: initialFlow }: Props) {
             containerRef={containerRef}
           />
 
-          {/* Remote cursors overlay — sibling of the canvas so cursors render
+          {/* Remote cursors overlay - sibling of the canvas so cursors render
              on top of the workflow surface but underneath any side panels.
              Gated behind NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED. Renders null
              when collab is disabled or no remote peers are connected. */}
@@ -460,7 +414,7 @@ function EditorContent({ flow: initialFlow }: Props) {
 
         {/* Right rail: one panel at a time */}
 
-        {/* Block settings panel — slides in from the right when a block node is clicked */}
+        {/* Block settings panel - slides in from the right when a block node is clicked */}
         <BlockSettingsPanel
           flow={flow}
           onFlowChange={handleFlowChange}
@@ -469,7 +423,7 @@ function EditorContent({ flow: initialFlow }: Props) {
 
         {/* Variables panel */}
         {activePanel === 'variables' && (
-          <div className="w-[300px] shrink-0 border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden flex flex-col">
+          <div className="w-[300px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
             <VariablesPanel
               variables={flow.variables}
               onVariablesChange={(variables) => setFlow((prev) => ({ ...prev, variables }))}

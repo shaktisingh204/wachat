@@ -1,15 +1,16 @@
 'use client';
 
 /**
- * CanvasNodeDefault — port of n8n's CanvasNodeDefault.vue.
+ * CanvasNodeDefault - port of n8n's CanvasNodeDefault.vue.
  *
  * Renders the standard n8n rectangular node (icon + handles + description
  * beneath), plus trigger variant (left side rounded). Status borders, disabled
- * strike-through, running gradient-ring, hover toolbar — all ported visually.
+ * strike-through, running gradient-ring, hover toolbar - all ported visually.
  */
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import type { NodeProps } from '@xyflow/react';
-import { LuPlay, LuPlus, LuTrash2, LuPower, LuCopy, LuCircle } from 'react-icons/lu';
+import { Play, Plus, Trash2, Power, Copy, Circle } from 'lucide-react';
+import { Button, IconButton, Input } from '@/components/sabcrm/20ui';
 import { CanvasHandle } from '../handles/CanvasHandle';
 import { CanvasConnectionMode, type CanvasNode, type CanvasNodeData } from '../types';
 import { blockRegistryMap } from '@/components/sabflow/editor/blockRegistry';
@@ -17,7 +18,7 @@ import { cn } from '@/lib/utils';
 
 type Props = NodeProps<CanvasNode> & {
   /** Add a new node downstream of this one. `handleId` identifies which
-      specific output port to wire from — required for multi-output nodes
+      specific output port to wire from - required for multi-output nodes
       like Condition (True/False), Switch (per-case), Choice (per-item),
       Loop (Loop/Done), AB-test (A/B), and integrations (Success/Error). */
   onAdd?: (nodeId: string, handleId: string) => void;
@@ -26,7 +27,7 @@ type Props = NodeProps<CanvasNode> & {
   onDuplicate?: (nodeId: string) => void;
   onExecute?: (nodeId: string) => void;
   onRename?: (nodeId: string, label: string) => void;
-  /** ID of the node currently being renamed — switches its label to an input. */
+  /** ID of the node currently being renamed - switches its label to an input. */
   renamingId?: string;
   onRenameDone?: () => void;
   isReadOnly?: boolean;
@@ -55,10 +56,12 @@ function RenameInput({
     ref.current?.select();
   }, []);
   return (
-    <input
+    <Input
       ref={ref}
       value={value}
-      className="nodrag nopan"
+      inputSize="sm"
+      aria-label="Rename node"
+      className="nodrag nopan w-[90%] text-center [pointer-events:all]"
       onChange={(e) => setValue(e.target.value)}
       onBlur={() => onCommit(value.trim() || initial)}
       onKeyDown={(e) => {
@@ -70,17 +73,6 @@ function RenameInput({
           e.preventDefault();
           onCommit(initial);
         }
-      }}
-      style={{
-        background: 'var(--gray-1)',
-        border: '1px solid #f76808',
-        borderRadius: 6,
-        padding: '3px 6px',
-        fontSize: 13,
-        color: 'var(--gray-12)',
-        pointerEvents: 'all',
-        textAlign: 'center',
-        width: '90%',
       }}
     />
   );
@@ -103,7 +95,7 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
   const d = data as CanvasNodeData;
   const entry = d.blockType ? blockRegistryMap.get(d.blockType) : undefined;
   const Icon = entry?.icon;
-  const accent = entry?.color ?? '#f76808';
+  const accent = entry?.color ?? 'var(--st-accent)';
 
   const classes = useMemo(
     () =>
@@ -129,7 +121,7 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
 
   return (
     <div className={classes} data-node-id={id} data-testid="canvas-node">
-      {/* Handles — left for inputs, right for outputs */}
+      {/* Handles - left for inputs, right for outputs */}
       <CanvasHandle
         nodeId={id}
         mode={CanvasConnectionMode.Input}
@@ -143,14 +135,14 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
         isReadOnly={isReadOnly}
       />
 
-      {/* Main icon */}
+      {/* Main icon. `accent` is a runtime, block-driven color. */}
       <div className="sabflow-node__icon" style={{ color: accent }}>
         {Icon ? (
           <Icon className="h-6 w-6" />
         ) : d.isTrigger ? (
-          <LuPlay className="h-6 w-6" />
+          <Play className="h-6 w-6" aria-hidden="true" />
         ) : (
-          <LuCircle className="h-6 w-6" />
+          <Circle className="h-6 w-6" aria-hidden="true" />
         )}
       </div>
 
@@ -170,12 +162,12 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
             <span className="sabflow-node__status-dot is-error" title="Error" />
           ) : null}
           {d.execution.running ? (
-            <span className="sabflow-node__status-dot is-running" title="Running…" />
+            <span className="sabflow-node__status-dot is-running" title="Running" />
           ) : null}
         </div>
       ) : null}
 
-      {/* Description (label + subtitle) — renders an input when renaming */}
+      {/* Description (label + subtitle). Renders an input when renaming */}
       <div className="sabflow-node__description">
         {renamingId === id && !isReadOnly ? (
           <RenameInput initial={d.label} onCommit={(v) => {
@@ -193,63 +185,56 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
       {!isReadOnly ? (
         <div className="sabflow-node__toolbar" onMouseDown={(e) => e.stopPropagation()}>
           {!d.isTrigger ? (
-            <button
-              type="button"
-              title="Execute node"
-              aria-label="Execute node"
+            <IconButton
+              label="Execute node"
+              icon={Play}
+              size="sm"
               className="sabflow-node__toolbar-btn"
               onClick={(e) => {
                 e.stopPropagation();
                 onExecute?.(id);
               }}
-            >
-              <LuPlay className="h-3.5 w-3.5" />
-            </button>
+            />
           ) : null}
-          <button
-            type="button"
-            title="Duplicate"
-            aria-label="Duplicate"
+          <IconButton
+            label="Duplicate"
+            icon={Copy}
+            size="sm"
             className="sabflow-node__toolbar-btn"
             onClick={(e) => {
               e.stopPropagation();
               onDuplicate?.(id);
             }}
-          >
-            <LuCopy className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            title={d.disabled ? 'Enable' : 'Disable'}
-            aria-label={d.disabled ? 'Enable' : 'Disable'}
+          />
+          <IconButton
+            label={d.disabled ? 'Enable' : 'Disable'}
+            icon={Power}
+            size="sm"
             className="sabflow-node__toolbar-btn"
             onClick={(e) => {
               e.stopPropagation();
               onToggleDisabled?.(id);
             }}
-          >
-            <LuPower className="h-3.5 w-3.5" />
-          </button>
-          <button
-            type="button"
-            title="Delete"
-            aria-label="Delete"
+          />
+          <IconButton
+            label="Delete"
+            icon={Trash2}
+            size="sm"
+            variant="danger"
             className="sabflow-node__toolbar-btn is-danger"
             onClick={(e) => {
               e.stopPropagation();
               onDelete?.(id);
             }}
-          >
-            <LuTrash2 className="h-3.5 w-3.5" />
-          </button>
+          />
         </div>
       ) : null}
 
-      {/* Right-side "+" affordances — one per MAIN output port so multi-output
+      {/* Right-side "+" affordances. One per MAIN output port so multi-output
          blocks (Condition True/False, Switch per-case, Choice per-item, Loop,
          AB-test, integrations Success/Error) each get their own
          "Add next step" button. AI/Tool outputs live on the top edge and use
-         a different affordance — they're skipped here. Triggers without any
+         a different affordance, so they're skipped here. Triggers without any
          downstream edge get a larger, pulsing variant as a setup hint. */}
       {!isReadOnly &&
         d.outputs
@@ -259,21 +244,23 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
           const top = plusTopForIndex(arr.length, index);
           const showLabel = arr.length > 1 && !!port.label;
           return (
-            <button
+            <Button
               key={handleId}
-              type="button"
+              variant="ghost"
+              size="sm"
+              iconLeft={Plus}
               title={
                 d.isUnconnected
                   ? 'Connect a step after this trigger'
                   : port.label
-                    ? `Add node — ${port.label}`
+                    ? `Add node - ${port.label}`
                     : 'Add node'
               }
               aria-label={port.label ? `Add node (${port.label})` : 'Add node'}
               className={cn('sabflow-node__plus', d.isUnconnected && 'is-prompt')}
               /* Only override `top` so CSS keeps owning `transform`
                  (hover scale, etc.). The base rule already supplies
-                 translateY(-50%) for vertical centring. */
+                 translateY(-50%) for vertical centring. `top` is runtime-computed. */
               style={{ top }}
               onClick={(e) => {
                 e.stopPropagation();
@@ -281,11 +268,10 @@ export const CanvasNodeDefault = memo(function CanvasNodeDefault({
               }}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              <LuPlus className="h-3 w-3" />
               {showLabel ? (
                 <span className="sabflow-node__plus-label">{port.label}</span>
               ) : null}
-            </button>
+            </Button>
           );
         })}
     </div>

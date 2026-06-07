@@ -2,7 +2,8 @@
 
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { useGesture } from '@use-gesture/react';
-import { LuKeyboard } from 'react-icons/lu';
+import { Keyboard } from 'lucide-react';
+import { IconButton } from '@/components/sabcrm/20ui';
 import { useGraph } from '../providers/GraphProvider';
 import { useSelectionStore } from '../hooks/useSelectionStore';
 import { useBlockDnd } from '../providers/GraphDndProvider';
@@ -35,9 +36,9 @@ type Props = {
   flow: SabFlowDoc;
   onFlowChange: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => void;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  /** Optional undo callback — wired to Ctrl/Cmd+Z on the canvas. */
+  /** Optional undo callback, wired to Ctrl/Cmd+Z on the canvas. */
   onUndo?: () => void;
-  /** Optional redo callback — wired to Ctrl/Cmd+Shift+Z and Ctrl/Cmd+Y. */
+  /** Optional redo callback, wired to Ctrl/Cmd+Shift+Z and Ctrl/Cmd+Y. */
   onRedo?: () => void;
 };
 
@@ -70,13 +71,13 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
   // Shortcuts help panel
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
 
-  // Analytics heatmap sub-toggle — lives here so HeatmapOverlay can read it.
+  // Analytics heatmap sub-toggle, lives here so HeatmapOverlay can read it.
   const [isHeatmapEnabled, setIsHeatmapEnabled] = useState(false);
 
   // Rubber-band selection
   const [selectBoxCoordinates, setSelectBoxCoordinates] = useState<SelectBoxCoordinates | undefined>(undefined);
 
-  // ── Keyboard shortcuts ─────────────────────────────────────────────────────
+  // Keyboard shortcuts
   useKeyboardShortcuts({
     flow,
     onFlowChange,
@@ -112,7 +113,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
     });
   }, [graphPosition, setCanvasPosition]);
 
-  // Space-bar pan mode — keydown/keyup + '?' shortcut to open shortcuts help
+  // Space-bar pan mode: keydown/keyup + '?' shortcut to open shortcuts help
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isEditable =
@@ -120,7 +121,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
         e.target instanceof HTMLTextAreaElement ||
         (e.target instanceof HTMLElement && e.target.isContentEditable);
 
-      // '?' → open shortcuts help
+      // '?' opens shortcuts help
       if (e.key === '?' && !e.metaKey && !e.ctrlKey && !isEditable) {
         e.preventDefault();
         setIsShortcutsHelpOpen((v) => !v);
@@ -162,7 +163,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
     };
   }, [setIsDraggingGraph]);
 
-  // Rubber-band selection — native mouse events on the canvas element
+  // Rubber-band selection: native mouse events on the canvas element
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -222,7 +223,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setFocusedElements]);
 
-  // Project screen coords → canvas coords
+  // Project screen coords to canvas coords
   const projectMouse = useCallback(
     (clientX: number, clientY: number): Coordinates => {
       if (!canvasRef.current) return { x: 0, y: 0 };
@@ -280,7 +281,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
     (e: React.MouseEvent) => {
       const current = connectingIdsRef.current;
       if (current?.target?.groupId) {
-        // Build the "from" side — could be event-sourced or block/group-sourced
+        // Build the "from" side, could be event-sourced or block/group-sourced
         const fromSource = current.source.eventId
           ? { eventId: current.source.eventId }
           : current.source.blockId
@@ -350,7 +351,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
       }
     },
     [
-      // connectingIds intentionally omitted — we use connectingIdsRef.current for fresh reads
+      // connectingIds intentionally omitted, we use connectingIdsRef.current for fresh reads
       draggedBlockType,
       projectMouse,
       flow.groups,
@@ -431,14 +432,12 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
     <AnalyticsProvider flowId={flowIdStr}>
     <div
       ref={canvasRef}
-      className={cn('relative flex-1 overflow-hidden', cursorClass)}
-      style={{
-        touchAction: 'none',
-        backgroundColor: 'var(--gray-3)',
-        backgroundImage: 'radial-gradient(var(--gray-7) 1px, transparent 0)',
-        backgroundSize: '40px 40px',
-        backgroundPosition: '-19px -19px',
-      }}
+      className={cn(
+        'relative flex-1 overflow-hidden touch-none bg-[var(--st-bg-secondary)]',
+        'bg-[length:40px_40px] [background-position:-19px_-19px]',
+        '[background-image:radial-gradient(var(--st-border-strong)_1px,transparent_0)]',
+        cursorClass,
+      )}
       onMouseUp={handleMouseUp}
       onClick={(e) => {
         if (e.target === canvasRef.current) blurElements();
@@ -451,11 +450,9 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
 
       {/* Transformed canvas layer */}
       <div
-        className="flex flex-1 w-full h-full absolute will-change-transform"
+        className="flex flex-1 w-full h-full absolute will-change-transform [transform-origin:0_0] [perspective:1000px]"
         style={{
           transform: `translate(${graphPosition.x}px, ${graphPosition.y}px) scale(${graphPosition.scale})`,
-          transformOrigin: '0 0',
-          perspective: 1000,
         }}
       >
         <GraphElements
@@ -470,7 +467,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
       </div>
 
       {/* Zoom controls + selection menu */}
-      <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-1.5 shadow-sm z-10">
+      <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 shadow-sm z-10">
         <ElementsSelectionMenu
           graphPosition={graphPosition}
           focusedElementIds={focusedElementsId}
@@ -479,7 +476,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
           onFlowChange={onFlowChange}
         />
         {focusedElementsId.length > 0 && (
-          <div className="w-px bg-[var(--gray-5)] self-stretch" />
+          <div className="w-px bg-[var(--st-border)] self-stretch" />
         )}
         <ZoomButtons
           graphPosition={graphPosition}
@@ -491,7 +488,7 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
           canvasRef={canvasRef}
         />
 
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
+        <div className="w-px bg-[var(--st-border)] self-stretch" />
 
         {/* Analytics overlay toggle + popover */}
         <AnalyticsToggle
@@ -499,20 +496,16 @@ export function Graph({ flow, onFlowChange, containerRef, onUndo, onRedo }: Prop
           onHeatmapToggle={setIsHeatmapEnabled}
         />
 
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
+        <div className="w-px bg-[var(--st-border)] self-stretch" />
 
         {/* Keyboard shortcuts reference */}
-        <button
-          aria-label="Keyboard shortcuts"
-          title="Keyboard shortcuts (?)"
+        <IconButton
+          label="Keyboard shortcuts (?)"
+          icon={Keyboard}
+          size="sm"
           onClick={() => setIsShortcutsHelpOpen((v) => !v)}
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors',
-            isShortcutsHelpOpen && 'bg-[var(--gray-4)]',
-          )}
-        >
-          <LuKeyboard size={14} />
-        </button>
+          className={cn(isShortcutsHelpOpen && 'bg-[var(--st-bg-muted)]')}
+        />
       </div>
 
       {/* Canvas minimap */}

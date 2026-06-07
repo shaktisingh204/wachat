@@ -1,20 +1,27 @@
 'use client';
 
 /**
- * MarketplaceFilters — C.10.5
+ * MarketplaceFilters - C.10.5
  *
- * Category + complexity filter chips, a debounced search input, and a
- * "Reset filters" link.  Fully controlled: all state lives in the parent
+ * Category + complexity segmented filters, a debounced search input, and a
+ * "Reset filters" action. Fully controlled: all state lives in the parent
  * (`MarketplaceBrowseClient`) and is passed down via props so the page URL
  * can remain the single source of truth.
  *
- * No external UI library — Tailwind only, dark-theme matching the SabFlow
- * editor palette.
+ * Built entirely on the 20ui design system.
  */
 
 import * as React from 'react';
-import { LuSearch, LuX } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Search, X } from 'lucide-react';
+
+import {
+  Field,
+  Input,
+  SegmentedControl,
+  type SegmentedItem,
+  IconButton,
+  Button,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -41,26 +48,21 @@ interface Props {
 
 /* ── Constants ──────────────────────────────────────────────────────────── */
 
-const CATEGORIES: MarketplaceCategory[] = [
-  'All',
-  'Data',
-  'Communication',
-  'DevOps',
-  'Finance',
-  'Productivity',
+const CATEGORY_ITEMS: ReadonlyArray<SegmentedItem<MarketplaceCategory>> = [
+  { value: 'All', label: 'All' },
+  { value: 'Data', label: 'Data' },
+  { value: 'Communication', label: 'Communication' },
+  { value: 'DevOps', label: 'DevOps' },
+  { value: 'Finance', label: 'Finance' },
+  { value: 'Productivity', label: 'Productivity' },
 ];
 
-const COMPLEXITIES: MarketplaceComplexity[] = ['All', 'Starter', 'Intermediate', 'Advanced'];
-
-const COMPLEXITY_COLOURS: Record<MarketplaceComplexity, string> = {
-  All: '',
-  Starter:
-    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
-  Intermediate:
-    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
-  Advanced:
-    'data-[active=true]:border-[var(--st-border)] data-[active=true]:bg-[var(--st-text)]/40 data-[active=true]:text-[var(--st-text-secondary)]',
-};
+const COMPLEXITY_ITEMS: ReadonlyArray<SegmentedItem<MarketplaceComplexity>> = [
+  { value: 'All', label: 'All' },
+  { value: 'Starter', label: 'Starter' },
+  { value: 'Intermediate', label: 'Intermediate' },
+  { value: 'Advanced', label: 'Advanced' },
+];
 
 const DEBOUNCE_MS = 300;
 
@@ -109,97 +111,60 @@ export function MarketplaceFilters({ value, onChange }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {/* ── Search ─────────────────────────────────────────────────────────── */}
-      <div className="relative">
-        <LuSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text)]" />
-        <input
-          type="search"
-          aria-label="Search templates"
-          placeholder="Search templates…"
-          value={rawSearch}
-          onChange={handleSearchChange}
-          className={cn(
-            'w-full rounded-xl border border-[var(--st-border)] bg-[var(--st-text)] py-2.5 pl-9 pr-9',
-            'text-[13px] text-white placeholder-[var(--st-text)]',
-            'outline-none transition-colors',
-            'focus:border-[var(--st-border)] focus:ring-2 focus:ring-[var(--st-border)]/30',
-          )}
+      <Field label="Search templates">
+        <div className="relative">
+          <Input
+            type="search"
+            placeholder="Search templates..."
+            value={rawSearch}
+            onChange={handleSearchChange}
+            iconLeft={Search}
+            className="pr-9"
+          />
+          {rawSearch ? (
+            <span className="absolute right-1.5 top-1/2 -translate-y-1/2">
+              <IconButton
+                size="sm"
+                label="Clear search"
+                icon={X}
+                onClick={clearSearch}
+              />
+            </span>
+          ) : null}
+        </div>
+      </Field>
+
+      {/* ── Category ────────────────────────────────────────────────────────── */}
+      <SegmentedControl<MarketplaceCategory>
+        aria-label="Category filter"
+        items={CATEGORY_ITEMS}
+        value={value.category}
+        onChange={setCategory}
+        size="sm"
+      />
+
+      {/* ── Complexity ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[11px] font-medium text-[var(--st-text-secondary)]">
+          Complexity:
+        </span>
+        <SegmentedControl<MarketplaceComplexity>
+          aria-label="Complexity filter"
+          items={COMPLEXITY_ITEMS}
+          value={value.complexity}
+          onChange={setComplexity}
+          size="sm"
         />
-        {rawSearch && (
-          <button
-            type="button"
-            aria-label="Clear search"
-            onClick={clearSearch}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--st-text)] hover:text-[var(--st-text-secondary)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* ── Category chips ──────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Category filter">
-        {CATEGORIES.map((cat) => {
-          const isActive = value.category === cat;
-          return (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategory(cat)}
-              data-active={isActive}
-              className={cn(
-                'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium',
-                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-                isActive
-                  ? 'border-[var(--st-border)] bg-[var(--st-text)] text-white'
-                  : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:border-[var(--st-border)] hover:text-white',
-              )}
-              aria-pressed={isActive}
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* ── Complexity chips ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Complexity filter">
-        <span className="text-[11px] font-medium text-[var(--st-text)] mr-1">Complexity:</span>
-        {COMPLEXITIES.map((cmp) => {
-          const isActive = value.complexity === cmp;
-          const colourClass = COMPLEXITY_COLOURS[cmp];
-          return (
-            <button
-              key={cmp}
-              type="button"
-              onClick={() => setComplexity(cmp)}
-              data-active={isActive}
-              className={cn(
-                'inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-medium',
-                'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-                isActive
-                  ? cn('border-[var(--st-border)] bg-[var(--st-text)] text-white', colourClass)
-                  : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:border-[var(--st-border)] hover:text-white',
-              )}
-              aria-pressed={isActive}
-            >
-              {cmp}
-            </button>
-          );
-        })}
       </div>
 
       {/* ── Reset ───────────────────────────────────────────────────────────── */}
-      {isDirty && (
+      {isDirty ? (
         <div>
-          <button
-            type="button"
-            onClick={reset}
-            className="text-[11px] text-[var(--st-text-secondary)] underline underline-offset-2 hover:text-white transition-colors"
-          >
+          <Button variant="ghost" size="sm" iconLeft={X} onClick={reset}>
             Reset filters
-          </button>
+          </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -1,13 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { ChartNoAxesColumn, RefreshCw, Flame } from 'lucide-react';
 import {
-  LuChartNoAxesColumn,
-  LuRefreshCw,
-  LuFlame,
-  LuX,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Alert,
+  Button,
+  EmptyState,
+  IconButton,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Skeleton,
+  Switch,
+  cn,
+} from '@/components/sabcrm/20ui';
 import { useAnalytics } from '../providers/AnalyticsProvider';
 import { AnalyticsDateRangePicker } from './AnalyticsDateRangePicker';
 
@@ -18,7 +23,7 @@ type Props = {
 };
 
 function formatDurationSeconds(seconds: number | null): string {
-  if (seconds == null || !Number.isFinite(seconds) || seconds <= 0) return '—';
+  if (seconds == null || !Number.isFinite(seconds) || seconds <= 0) return '-';
   if (seconds < 60) return `${seconds}s`;
   const minutes = Math.floor(seconds / 60);
   const rem = seconds % 60;
@@ -41,203 +46,136 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
     totals,
   } = useAnalytics();
 
-  const [isOpen, setIsOpen] = useState(false);
-  const popoverRef = useRef<HTMLDivElement | null>(null);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-
-  // Close popover on outside click / Escape.
-  useEffect(() => {
-    if (!isOpen) return;
-    const onClick = (e: MouseEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-      if (popoverRef.current?.contains(target)) return;
-      if (buttonRef.current?.contains(target)) return;
-      setIsOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
-    };
-    window.addEventListener('mousedown', onClick);
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('mousedown', onClick);
-      window.removeEventListener('keydown', onKey);
-    };
-  }, [isOpen]);
-
   const isLoading = status === 'loading';
 
   return (
-    <div className="relative">
-      <button
-        ref={buttonRef}
-        type="button"
-        aria-label="Analytics overlay"
-        aria-expanded={isOpen}
-        title="Analytics overlay"
-        onClick={() => setIsOpen((v) => !v)}
-        className={cn(
-          'flex h-7 w-7 items-center justify-center rounded transition-colors',
-          isEnabled
-            ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-            : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
-        )}
-      >
-        <LuChartNoAxesColumn size={14} />
-      </button>
+    <div className="ui20 relative">
+      <Popover>
+        <PopoverTrigger asChild>
+          <IconButton
+            label="Analytics overlay"
+            icon={ChartNoAxesColumn}
+            variant={isEnabled ? 'primary' : 'ghost'}
+            size="sm"
+          />
+        </PopoverTrigger>
 
-      {isOpen && (
-        <div
-          ref={popoverRef}
-          role="dialog"
-          aria-label="Analytics settings"
-          className="absolute right-0 top-[calc(100%+6px)] z-20 w-[300px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-3 shadow-md"
-        >
+        <PopoverContent align="end" className="w-[300px] p-3">
           {/* Header */}
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-[12px] font-semibold text-[var(--gray-12)]">
+          <div className="mb-2">
+            <h3 className="text-[12px] font-semibold text-[var(--st-text)]">
               Analytics overlay
             </h3>
-            <button
-              type="button"
-              aria-label="Close"
-              onClick={() => setIsOpen(false)}
-              className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-10)] hover:bg-[var(--gray-3)]"
-            >
-              <LuX size={12} />
-            </button>
           </div>
 
           {/* Enabled toggle */}
-          <label className="mb-3 flex items-center justify-between gap-2">
-            <span className="text-[12px] text-[var(--gray-11)]">Show on nodes</span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={isEnabled}
-              onClick={toggleEnabled}
-              className={cn(
-                'relative h-4 w-7 rounded-full transition-colors',
-                isEnabled ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-              )}
-            >
-              <span
-                className={cn(
-                  'absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform',
-                  isEnabled ? 'translate-x-3.5' : 'translate-x-0.5',
-                )}
-              />
-            </button>
-          </label>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
+              Show on nodes
+            </span>
+            <Switch
+              checked={isEnabled}
+              onCheckedChange={toggleEnabled}
+              size="sm"
+              aria-label="Show analytics on nodes"
+            />
+          </div>
 
           {/* Heatmap sub-toggle */}
-          <label
+          <div
             className={cn(
               'mb-3 flex items-center justify-between gap-2',
               !isEnabled && 'opacity-50',
             )}
           >
-            <span className="flex items-center gap-1.5 text-[12px] text-[var(--gray-11)]">
-              <LuFlame size={12} />
+            <span className="flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]">
+              <Flame size={12} aria-hidden="true" />
               Edge heatmap
             </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={isHeatmapEnabled}
+            <Switch
+              checked={isHeatmapEnabled && isEnabled}
+              onCheckedChange={onHeatmapToggle}
               disabled={!isEnabled}
-              onClick={() => onHeatmapToggle(!isHeatmapEnabled)}
-              className={cn(
-                'relative h-4 w-7 rounded-full transition-colors',
-                isHeatmapEnabled && isEnabled
-                  ? 'bg-[var(--st-text)]'
-                  : 'bg-[var(--gray-5)]',
-                !isEnabled && 'cursor-not-allowed',
-              )}
-            >
-              <span
-                className={cn(
-                  'absolute top-0.5 h-3 w-3 rounded-full bg-white shadow-sm transition-transform',
-                  isHeatmapEnabled && isEnabled ? 'translate-x-3.5' : 'translate-x-0.5',
-                )}
-              />
-            </button>
-          </label>
+              size="sm"
+              aria-label="Edge heatmap"
+            />
+          </div>
 
           {/* Date range picker */}
           <div className="mb-3">
-            <div className="mb-1.5 text-[10px] uppercase tracking-wide text-[var(--gray-10)]">
+            <div className="mb-1.5 text-[10px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
               Date range
             </div>
             <AnalyticsDateRangePicker value={dateRange} onChange={setDateRange} />
           </div>
 
           {/* Totals summary */}
-          <div className="mb-3 rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] p-2">
-            <div className="mb-1 text-[10px] uppercase tracking-wide text-[var(--gray-10)]">
+          <div className="mb-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
+            <div className="mb-1 text-[10px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
               Summary
             </div>
             {isEnabled ? (
               isLoading && !totals ? (
                 <div className="space-y-1">
-                  <div className="h-3 w-24 animate-pulse rounded bg-[var(--gray-5)]" />
-                  <div className="h-3 w-20 animate-pulse rounded bg-[var(--gray-5)]" />
-                  <div className="h-3 w-28 animate-pulse rounded bg-[var(--gray-5)]" />
+                  <Skeleton width={96} height={12} />
+                  <Skeleton width={80} height={12} />
+                  <Skeleton width={112} height={12} />
                 </div>
               ) : error ? (
-                <div className="text-[11px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+                <Alert tone="danger" className="text-[11px]">
                   {error}
-                </div>
+                </Alert>
               ) : totals ? (
                 <dl className="space-y-1 text-[11px]">
                   <div className="flex items-center justify-between">
-                    <dt className="text-[var(--gray-10)]">Sessions</dt>
-                    <dd className="font-medium text-[var(--gray-12)] tabular-nums">
+                    <dt className="text-[var(--st-text-tertiary)]">Sessions</dt>
+                    <dd className="font-medium text-[var(--st-text)] tabular-nums">
                       {totals.totalSessions.toLocaleString()}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between">
-                    <dt className="text-[var(--gray-10)]">Completion</dt>
-                    <dd className="font-medium text-[var(--gray-12)] tabular-nums">
+                    <dt className="text-[var(--st-text-tertiary)]">Completion</dt>
+                    <dd className="font-medium text-[var(--st-text)] tabular-nums">
                       {totals.completionRate}%
                     </dd>
                   </div>
                   <div className="flex items-center justify-between">
-                    <dt className="text-[var(--gray-10)]">Avg. time</dt>
-                    <dd className="font-medium text-[var(--gray-12)] tabular-nums">
+                    <dt className="text-[var(--st-text-tertiary)]">Avg. time</dt>
+                    <dd className="font-medium text-[var(--st-text)] tabular-nums">
                       {formatDurationSeconds(totals.averageCompletionTime)}
                     </dd>
                   </div>
                 </dl>
               ) : (
-                <div className="text-[11px] text-[var(--gray-10)]">No data yet.</div>
+                <EmptyState
+                  size="sm"
+                  title="No data yet"
+                  description="Run a flow to populate analytics."
+                />
               )
             ) : (
-              <div className="text-[11px] text-[var(--gray-10)]">
+              <p className="text-[11px] text-[var(--st-text-tertiary)]">
                 Enable analytics to load data.
-              </div>
+              </p>
             )}
           </div>
 
           {/* Refresh button */}
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
+            block
+            iconLeft={RefreshCw}
+            loading={isLoading}
             onClick={() => {
               if (!isEnabled) setEnabled(true);
               void refresh();
             }}
-            disabled={isLoading}
-            className={cn(
-              'flex w-full items-center justify-center gap-1.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1.5 text-[11px] font-medium text-[var(--gray-11)] transition-colors',
-              'hover:bg-[var(--gray-3)] disabled:cursor-not-allowed disabled:opacity-60',
-            )}
           >
-            <LuRefreshCw size={12} className={cn(isLoading && 'animate-spin')} />
-            {isLoading ? 'Refreshing…' : 'Refresh'}
-          </button>
-        </div>
-      )}
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

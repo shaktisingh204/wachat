@@ -1,6 +1,9 @@
 'use client';
 
 import { Icon as IconifyIcon } from '@iconify/react';
+import { ChevronRight } from 'lucide-react';
+
+import { Badge, Button, Dot } from '@/components/sabcrm/20ui';
 import { getBlockColor, getBlockIcon } from '@/lib/sabflow/blocks';
 import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { cn } from '@/lib/utils';
@@ -37,60 +40,60 @@ export function NodeOutputBadge({
   const brand = getBlockBrandIcon(blockType);
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      block
       onClick={onToggle}
+      aria-expanded={open}
       className={cn(
-        'flex w-full items-center gap-2 rounded-lg px-2 py-1.5',
-        'text-left transition-colors',
-        open
-          ? 'bg-[var(--gray-3)]'
-          : 'hover:bg-[var(--gray-3)]',
+        'h-auto justify-start gap-2 px-2 py-1.5 text-left whitespace-normal',
+        '[&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:items-center [&_.u-btn__label]:gap-2 [&_.u-btn__label]:overflow-visible',
+        open && 'bg-[var(--st-bg-secondary)]',
       )}
     >
-      <div
+      <span
         className={cn(
-          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
-          brand && 'bg-[var(--gray-1)]',
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)]',
+          brand && 'bg-[var(--st-bg-secondary)]',
         )}
         style={brand ? undefined : { background: `${color}22`, color }}
       >
         {brand ? (
           <IconifyIcon icon={brand} className="h-3.5 w-3.5" aria-hidden />
         ) : (
-          Icon && <Icon className="h-3.5 w-3.5" />
+          Icon && <Icon className="h-3.5 w-3.5" aria-hidden />
         )}
-      </div>
-      <div className="flex flex-1 flex-col leading-tight min-w-0">
-        <span className="flex items-center gap-1.5 truncate text-[12.5px] font-medium text-[var(--gray-12)]">
+      </span>
+      <span className="flex flex-1 flex-col min-w-0 leading-tight">
+        <span className="flex items-center gap-1.5 truncate text-[12.5px] font-medium text-[var(--st-text)]">
           <span className="truncate">{displayName}</span>
           {hasLiveData && (
-            <span
-              title="Has data from the most recent run"
+            <Dot
+              tone="success"
+              pulse
+              role="img"
               aria-label="Live data available"
-              className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-text)]"
+              title="Has data from the most recent run"
             />
           )}
         </span>
-        <span className="truncate text-[10.5px] text-[var(--gray-9)]">
+        <span className="truncate text-[10.5px] text-[var(--st-text-tertiary)]">
           {typeLabel}
-          {distance > 1 ? ` · ${distance} steps back` : ''}
-          {!hasLiveData ? ' · no run yet' : ''}
+          {distance > 1 ? ` , ${distance} steps back` : ''}
+          {!hasLiveData ? ' , no run yet' : ''}
         </span>
-      </div>
-      <span className="shrink-0 rounded-md bg-[var(--gray-4)] px-1.5 py-0.5 text-[10.5px] font-medium tabular-nums text-[var(--gray-11)]">
-        {fieldCount}
       </span>
-      <svg
+      <Badge tone="neutral" kind="soft" className="shrink-0 tabular-nums">
+        {fieldCount}
+      </Badge>
+      <ChevronRight
+        size={12}
+        aria-hidden="true"
         className={cn(
-          'h-3 w-3 shrink-0 text-[var(--gray-9)] transition-transform',
-          open ? 'rotate-90' : '',
+          'shrink-0 text-[var(--st-text-tertiary)] transition-transform',
+          open && 'rotate-90',
         )}
-        viewBox="0 0 12 12"
-        fill="none"
-      >
-        <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </button>
+      />
+    </Button>
   );
 }

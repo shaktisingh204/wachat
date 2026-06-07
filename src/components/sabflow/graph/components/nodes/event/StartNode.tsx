@@ -3,7 +3,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { useDrag } from '@use-gesture/react';
 import { useShallow } from 'zustand/react/shallow';
-import { LuPlay } from 'react-icons/lu';
+import { Play } from 'lucide-react';
+import { Input } from '@/components/sabcrm/20ui';
 import type { SabFlowEvent, SabFlowDoc } from '@/lib/sabflow/types';
 import { useGraph } from '../../../providers/GraphProvider';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
@@ -94,19 +95,16 @@ export function StartNode({ event, onEventUpdate, flow }: Props) {
       data-moving-element={`event-${event.id}`}
       data-selectable={event.id}
       style={{
+        // Runtime-computed: store-driven canvas position + node width.
         transform: `translate(${eventCoords.x}px, ${eventCoords.y}px)`,
-        touchAction: 'none',
         width: eventWidth,
-        position: 'absolute',
-        top: 0,
-        left: 0,
       }}
       className={cn(
-        'flex flex-col rounded-xl border select-none',
-        // NOTE: no overflow-hidden — the EventSourceEndpoint sits outside the right edge
+        'absolute left-0 top-0 flex flex-col rounded-[var(--st-radius)] border select-none touch-none',
+        // NOTE: no overflow-hidden, the EventSourceEndpoint sits outside the right edge
         'transition-[border-color,box-shadow]',
         'hover:shadow-md',
-        isFocused ? 'border-2 border-[var(--st-border)]' : 'border border-[var(--gray-5)]',
+        isFocused ? 'border-2 border-[var(--st-border)]' : 'border border-[var(--st-border)]',
         isMouseDown ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
         isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
       )}
@@ -121,26 +119,23 @@ export function StartNode({ event, onEventUpdate, flow }: Props) {
         setContextMenuPos({ x: e.clientX, y: e.clientY });
       }}
     >
-      {/* Orange gradient header — rounded top corners only */}
-      <div
-        className="flex items-center gap-2.5 px-3 py-2.5 rounded-t-xl"
-        style={{
-          background: 'linear-gradient(135deg, #f76808 0%, #f7a035 100%)',
-        }}
-      >
+      {/* Accent header, rounded top corners only */}
+      <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-t-[var(--st-radius)] bg-[var(--st-accent)]">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/20">
-          <LuPlay className="h-3.5 w-3.5 text-white translate-x-[1px]" strokeWidth={2.5} />
+          <Play className="h-3.5 w-3.5 text-white translate-x-[1px]" strokeWidth={2.5} aria-hidden="true" />
         </div>
         <span className="text-[13px] font-semibold text-white">Start</span>
       </div>
 
       {/* Description row */}
-      <div className="flex items-center px-3 py-2 bg-[var(--gray-1)] rounded-b-xl min-h-[34px]">
+      <div className="flex items-center px-3 py-2 bg-[var(--st-bg-secondary)] rounded-b-[var(--st-radius)] min-h-[34px]">
         {editingDescription ? (
-          <input
+          <Input
             autoFocus
+            inputSize="sm"
             value={description}
             placeholder="Flow starts"
+            aria-label="Start description"
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => setEditingDescription(false)}
             onKeyDown={(e) => {
@@ -149,23 +144,23 @@ export function StartNode({ event, onEventUpdate, flow }: Props) {
               }
             }}
             onClick={(e) => e.stopPropagation()}
-            className="prevent-group-drag flex-1 text-[12px] text-[var(--gray-10)] bg-transparent border-b border-[var(--st-border)] outline-none"
+            className="prevent-group-drag flex-1"
           />
         ) : (
-          <span className="text-[12px] text-[var(--gray-10)]">
+          <span className="text-[12px] text-[var(--st-text-secondary)]">
             {description || 'Flow starts'}
           </span>
         )}
       </div>
 
-      {/* Source endpoint — floats outside the right edge, vertically centred */}
+      {/* Source endpoint floats outside the right edge, vertically centred */}
       <EventSourceEndpoint
         eventId={event.id}
         className="absolute right-[-16px] top-1/2 -translate-y-1/2"
       />
     </div>
 
-    {/* ── Right-click context menu ── */}
+    {/* Right-click context menu */}
     {contextMenuPos && (
       <EventContextMenu
         eventId={event.id}

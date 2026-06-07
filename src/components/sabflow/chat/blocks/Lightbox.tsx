@@ -8,14 +8,16 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from 'react';
 import {
-  LuX,
-  LuZoomIn,
-  LuZoomOut,
-  LuMaximize,
-  LuChevronLeft,
-  LuChevronRight,
-  LuImageOff,
-} from 'react-icons/lu';
+  X,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
+  ChevronLeft,
+  ChevronRight,
+  ImageOff,
+} from 'lucide-react';
+
+import { Button, IconButton, EmptyState } from '@/components/sabcrm/20ui';
 
 export interface LightboxImage {
   url: string;
@@ -35,12 +37,16 @@ const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 5;
 const ZOOM_STEP = 0.25;
 
+/* Shared glass-control styling for the dark, full-screen image viewer. */
+const GLASS_CONTROL =
+  'text-white bg-transparent hover:bg-white/10 border-transparent';
+
 /**
  * Full-screen image modal with backdrop blur and basic zoom / nav controls.
  *
  * - Escape key closes
  * - Click on backdrop (not on the image) closes
- * - Left/Right arrows navigate between images when >1 supplied
+ * - Left/Right arrows navigate between images when more than one supplied
  * - +, -, 0 keys zoom in / out / reset
  */
 export function Lightbox({
@@ -85,7 +91,7 @@ export function Lightbox({
   );
   const zoomFit = useCallback(() => setZoom(1), []);
 
-  /* ── Keyboard bindings ───────────────────────────────────────────── */
+  /* Keyboard bindings */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -122,7 +128,7 @@ export function Lightbox({
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose, goPrev, goNext, zoomIn, zoomOut, zoomFit]);
 
-  /* ── Prevent page scroll while open ─────────────────────────────── */
+  /* Prevent page scroll while open */
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -151,45 +157,34 @@ export function Lightbox({
       aria-modal="true"
       aria-label={current.alt ?? 'Image preview'}
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
-      style={{
-        backgroundColor: 'rgba(0, 0, 0, 0.78)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/[0.78] p-4 backdrop-blur-xl"
     >
       {/* Top-right close */}
-      <button
-        type="button"
+      <IconButton
+        label="Close"
+        icon={X}
         onClick={onClose}
-        aria-label="Close"
-        className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-      >
-        <LuX className="h-5 w-5" strokeWidth={2} />
-      </button>
+        className={`absolute right-4 top-4 ${GLASS_CONTROL}`}
+      />
 
       {/* Previous */}
       {hasMultiple && (
-        <button
-          type="button"
+        <IconButton
+          label="Previous image"
+          icon={ChevronLeft}
           onClick={goPrev}
-          aria-label="Previous image"
-          className="absolute left-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <LuChevronLeft className="h-6 w-6" strokeWidth={2} />
-        </button>
+          className={`absolute left-4 top-1/2 -translate-y-1/2 ${GLASS_CONTROL}`}
+        />
       )}
 
       {/* Next */}
       {hasMultiple && (
-        <button
-          type="button"
+        <IconButton
+          label="Next image"
+          icon={ChevronRight}
           onClick={goNext}
-          aria-label="Next image"
-          className="absolute right-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <LuChevronRight className="h-6 w-6" strokeWidth={2} />
-        </button>
+          className={`absolute right-4 top-1/2 -translate-y-1/2 ${GLASS_CONTROL}`}
+        />
       )}
 
       {/* Image (or error placeholder) */}
@@ -198,12 +193,12 @@ export function Lightbox({
         onClick={(e) => e.stopPropagation()}
       >
         {imgError ? (
-          <div
-            className="flex flex-col items-center gap-3 rounded-xl px-6 py-8 text-white/80"
-            style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
-          >
-            <LuImageOff className="h-10 w-10" strokeWidth={1.5} />
-            <p className="text-[13px]">Image failed to load.</p>
+          <div className="rounded-xl bg-white/[0.06] px-6 py-8 text-white">
+            <EmptyState
+              icon={ImageOff}
+              title="Image failed to load"
+              description="The file could not be displayed. It may have moved or been removed."
+            />
           </div>
         ) : (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -220,38 +215,37 @@ export function Lightbox({
 
       {/* Bottom toolbar */}
       <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1 rounded-full px-2 py-1.5"
-        style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+        className="absolute bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-white/[0.08] px-2 py-1.5"
+        onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
+        <IconButton
+          label="Zoom out"
+          icon={ZoomOut}
+          size="sm"
           onClick={zoomOut}
-          aria-label="Zoom out"
           disabled={zoom <= MIN_ZOOM}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <LuZoomOut className="h-4 w-4" strokeWidth={2} />
-        </button>
-        <button
-          type="button"
+          className={GLASS_CONTROL}
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={Maximize}
           onClick={zoomFit}
           aria-label="Reset zoom"
-          className="flex h-8 items-center gap-1.5 rounded-full px-3 text-[11.5px] font-medium text-white transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+          className={GLASS_CONTROL}
         >
-          <LuMaximize className="h-3.5 w-3.5" strokeWidth={2} />
           {Math.round(zoom * 100)}%
-        </button>
-        <button
-          type="button"
+        </Button>
+        <IconButton
+          label="Zoom in"
+          icon={ZoomIn}
+          size="sm"
           onClick={zoomIn}
-          aria-label="Zoom in"
           disabled={zoom >= MAX_ZOOM}
-          className="flex h-8 w-8 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-        >
-          <LuZoomIn className="h-4 w-4" strokeWidth={2} />
-        </button>
+          className={GLASS_CONTROL}
+        />
         {hasMultiple && (
-          <div className="ml-1 pl-2 text-[11px] text-white/70 border-l border-white/20">
+          <div className="ml-1 border-l border-white/20 pl-2 text-[11px] text-white/70">
             {index + 1} / {safeImages.length}
           </div>
         )}

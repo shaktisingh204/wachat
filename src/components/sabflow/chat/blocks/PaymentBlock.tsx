@@ -8,7 +8,8 @@ import {
   useState,
   type FormEvent,
 } from 'react';
-import { LuCreditCard, LuLock, LuLoader, LuCheck } from 'react-icons/lu';
+import { CreditCard, Lock, Check } from 'lucide-react';
+import { Button, Field, Input, Spinner, Alert } from '@/components/sabcrm/20ui';
 import type { PaymentInputOptions } from '@/lib/sabflow/types';
 
 /* ── Stripe.js global declaration ───────────────────────────────────────── */
@@ -42,7 +43,7 @@ declare global {
   }
 }
 
-/* ── Script loader — loaded lazily on first mount ───────────────────────── */
+/* ── Script loader: loaded lazily on first mount ────────────────────────── */
 
 let stripeScriptPromise: Promise<void> | null = null;
 
@@ -106,9 +107,9 @@ interface PaymentBlockProps {
   options: PaymentInputOptions;
   flowId: string;
   sessionId: string;
-  /** Resolved amount (with {{variables}} substituted) — string decimal. */
+  /** Resolved amount (with {{variables}} substituted), string decimal. */
   resolvedAmount: string;
-  /** Resolved button label — {{amount}} already substituted. */
+  /** Resolved button label, {{amount}} already substituted. */
   resolvedButtonLabel: string;
   /** Called with a summary string once the payment succeeds. */
   onComplete: (summary: string) => void;
@@ -117,12 +118,6 @@ interface PaymentBlockProps {
   buttonColor: string;
   bubbleBg: string;
   bubbleColor: string;
-}
-
-/* ── UI helper ──────────────────────────────────────────────────────────── */
-
-function inputClass(): string {
-  return 'w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-[13px] text-black outline-none focus:border-black/30 transition-colors dark:bg-white/5 dark:text-white dark:border-white/10';
 }
 
 /* ── Main component ─────────────────────────────────────────────────────── */
@@ -312,8 +307,9 @@ export function PaymentBlock({
 
   const startButton = useMemo(
     () => (
-      <button
+      <Button
         type="button"
+        iconLeft={CreditCard}
         onClick={() => {
           if (needsCustomerForm) {
             setPhase('collecting');
@@ -321,12 +317,11 @@ export function PaymentBlock({
             void beginPayment();
           }
         }}
-        className="flex items-center gap-2.5 rounded-xl px-5 py-2.5 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90 active:scale-95"
-        style={{ backgroundColor: buttonBg, color: buttonColor }}
+        className="active:scale-95"
+        style={{ backgroundColor: buttonBg, color: buttonColor, borderColor: 'transparent' }}
       >
-        <LuCreditCard className="h-4 w-4" strokeWidth={2} />
         {resolvedButtonLabel}
-      </button>
+      </Button>
     ),
     [beginPayment, buttonBg, buttonColor, needsCustomerForm, resolvedButtonLabel],
   );
@@ -340,7 +335,7 @@ export function PaymentBlock({
           className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-2.5 text-[13.5px] shadow-sm"
           style={{ backgroundColor: bubbleBg, color: bubbleColor }}
         >
-          <LuCheck className="h-4 w-4 shrink-0" strokeWidth={2.5} style={{ color: buttonBg }} />
+          <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} style={{ color: buttonBg }} aria-hidden="true" />
           <span>{options.labels?.success ?? 'Payment successful!'}</span>
         </div>
       </div>
@@ -351,8 +346,8 @@ export function PaymentBlock({
     return (
       <div className="flex flex-col items-start gap-1.5 py-1">
         {startButton}
-        <div className="flex items-center gap-1 text-[10.5px]" style={{ color: 'var(--gray-8)' }}>
-          <LuLock className="h-2.5 w-2.5" strokeWidth={2.5} />
+        <div className="flex items-center gap-1 text-[10.5px] text-[var(--st-text-tertiary)]">
+          <Lock className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
           <span>Secure payment via Stripe</span>
         </div>
       </div>
@@ -369,109 +364,116 @@ export function PaymentBlock({
         <p className="text-[12px] font-medium opacity-80">Your details</p>
 
         {needsName && (
-          <input
-            type="text"
-            required
-            value={customer.name}
-            onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))}
-            placeholder="Full name"
-            className={inputClass()}
-            autoComplete="name"
-          />
+          <Field label="Full name" required>
+            <Input
+              type="text"
+              value={customer.name}
+              onChange={(e) => setCustomer((c) => ({ ...c, name: e.target.value }))}
+              placeholder="Jane Cooper"
+              autoComplete="name"
+            />
+          </Field>
         )}
         {needsEmail && (
-          <input
-            type="email"
-            required
-            value={customer.email}
-            onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))}
-            placeholder="Email"
-            className={inputClass()}
-            autoComplete="email"
-          />
+          <Field label="Email" required>
+            <Input
+              type="email"
+              value={customer.email}
+              onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))}
+              placeholder="jane@example.com"
+              autoComplete="email"
+            />
+          </Field>
         )}
         {needsPhone && (
-          <input
-            type="tel"
-            required
-            value={customer.phone}
-            onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
-            placeholder="Phone"
-            className={inputClass()}
-            autoComplete="tel"
-          />
+          <Field label="Phone" required>
+            <Input
+              type="tel"
+              value={customer.phone}
+              onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))}
+              placeholder="+1 555 123 4567"
+              autoComplete="tel"
+            />
+          </Field>
         )}
 
         {needsAddress && (
           <div className="flex flex-col gap-2">
-            <input
-              type="text"
-              value={customer.country}
-              onChange={(e) => setCustomer((c) => ({ ...c, country: e.target.value }))}
-              placeholder="Country"
-              className={inputClass()}
-              autoComplete="country"
-            />
-            <input
-              type="text"
-              value={customer.line1}
-              onChange={(e) => setCustomer((c) => ({ ...c, line1: e.target.value }))}
-              placeholder="Address line 1"
-              className={inputClass()}
-              autoComplete="address-line1"
-            />
-            <input
-              type="text"
-              value={customer.line2}
-              onChange={(e) => setCustomer((c) => ({ ...c, line2: e.target.value }))}
-              placeholder="Address line 2"
-              className={inputClass()}
-              autoComplete="address-line2"
-            />
+            <Field label="Country">
+              <Input
+                type="text"
+                value={customer.country}
+                onChange={(e) => setCustomer((c) => ({ ...c, country: e.target.value }))}
+                placeholder="United States"
+                autoComplete="country"
+              />
+            </Field>
+            <Field label="Address line 1">
+              <Input
+                type="text"
+                value={customer.line1}
+                onChange={(e) => setCustomer((c) => ({ ...c, line1: e.target.value }))}
+                placeholder="123 Market Street"
+                autoComplete="address-line1"
+              />
+            </Field>
+            <Field label="Address line 2">
+              <Input
+                type="text"
+                value={customer.line2}
+                onChange={(e) => setCustomer((c) => ({ ...c, line2: e.target.value }))}
+                placeholder="Suite 400"
+                autoComplete="address-line2"
+              />
+            </Field>
             <div className="grid grid-cols-2 gap-2">
-              <input
-                type="text"
-                value={customer.city}
-                onChange={(e) => setCustomer((c) => ({ ...c, city: e.target.value }))}
-                placeholder="City"
-                className={inputClass()}
-              />
-              <input
-                type="text"
-                value={customer.state}
-                onChange={(e) => setCustomer((c) => ({ ...c, state: e.target.value }))}
-                placeholder="State"
-                className={inputClass()}
-              />
+              <Field label="City">
+                <Input
+                  type="text"
+                  value={customer.city}
+                  onChange={(e) => setCustomer((c) => ({ ...c, city: e.target.value }))}
+                  placeholder="San Francisco"
+                />
+              </Field>
+              <Field label="State">
+                <Input
+                  type="text"
+                  value={customer.state}
+                  onChange={(e) => setCustomer((c) => ({ ...c, state: e.target.value }))}
+                  placeholder="CA"
+                />
+              </Field>
             </div>
-            <input
-              type="text"
-              value={customer.postalCode}
-              onChange={(e) => setCustomer((c) => ({ ...c, postalCode: e.target.value }))}
-              placeholder="Postal code"
-              className={inputClass()}
-              autoComplete="postal-code"
-            />
+            <Field label="Postal code">
+              <Input
+                type="text"
+                value={customer.postalCode}
+                onChange={(e) => setCustomer((c) => ({ ...c, postalCode: e.target.value }))}
+                placeholder="94103"
+                autoComplete="postal-code"
+              />
+            </Field>
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
-          className="mt-1 flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90 active:scale-95"
-          style={{ backgroundColor: buttonBg, color: buttonColor }}
+          block
+          iconLeft={CreditCard}
+          className="mt-1 active:scale-95"
+          style={{ backgroundColor: buttonBg, color: buttonColor, borderColor: 'transparent' }}
         >
-          <LuCreditCard className="h-4 w-4" strokeWidth={2} />
           Continue
-        </button>
+        </Button>
       </form>
     );
   }
 
   if (phase === 'loading') {
     return (
-      <div className="flex items-center gap-2 self-start py-2 text-[13px]" style={{ color: 'var(--gray-9)' }}>
-        <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-        <span>Preparing secure checkout…</span>
+      <div className="flex items-center gap-2 self-start py-2 text-[13px] text-[var(--st-text-secondary)]">
+        <Spinner size="sm" label="Preparing checkout" />
+        <span>Preparing secure checkout.</span>
       </div>
     );
   }
@@ -483,34 +485,28 @@ export function PaymentBlock({
         className="flex max-w-[92%] flex-col gap-3 self-start rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm"
         style={{ backgroundColor: bubbleBg, color: bubbleColor }}
       >
-        <div ref={elementsContainerRef} className="rounded-lg bg-white p-2 dark:bg-white/5" />
+        <div ref={elementsContainerRef} className="rounded-[var(--st-radius)] bg-[var(--st-bg)] p-2" />
 
         {errorMessage && (
-          <p className="text-[11.5px] text-[var(--st-text)]">{errorMessage}</p>
+          <Alert tone="danger" className="text-[11.5px]">
+            {errorMessage}
+          </Alert>
         )}
 
-        <button
+        <Button
           type="button"
+          block
+          loading={isConfirming}
+          iconLeft={isConfirming ? undefined : Lock}
           onClick={() => void confirmPayment()}
-          disabled={isConfirming}
-          className="flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-          style={{ backgroundColor: buttonBg, color: buttonColor }}
+          className="active:scale-95"
+          style={{ backgroundColor: buttonBg, color: buttonColor, borderColor: 'transparent' }}
         >
-          {isConfirming ? (
-            <>
-              <LuLoader className="h-4 w-4 animate-spin" strokeWidth={2} />
-              Processing…
-            </>
-          ) : (
-            <>
-              <LuLock className="h-4 w-4" strokeWidth={2} />
-              {resolvedButtonLabel}
-            </>
-          )}
-        </button>
+          {isConfirming ? 'Processing.' : resolvedButtonLabel}
+        </Button>
 
         <p className="flex items-center gap-1 text-[10.5px] opacity-70">
-          <LuLock className="h-2.5 w-2.5" strokeWidth={2.5} />
+          <Lock className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
           Payments are encrypted end-to-end and processed by Stripe.
         </p>
       </div>
@@ -520,24 +516,20 @@ export function PaymentBlock({
   // phase === 'error'
   return (
     <div className="flex flex-col items-start gap-2 py-1">
-      <div
-        className="flex items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px]"
-        style={{ borderColor: 'var(--st-border)', backgroundColor: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
-      >
-        <span>{errorMessage ?? 'Payment failed. Please try again.'}</span>
-      </div>
-      <button
+      <Alert tone="danger" className="text-[12.5px]">
+        {errorMessage ?? 'Payment failed. Please try again.'}
+      </Alert>
+      <Button
         type="button"
+        iconLeft={CreditCard}
         onClick={() => {
           setPhase('idle');
           setErrorMessage(null);
         }}
-        className="flex items-center gap-2 rounded-xl px-4 py-2 text-[13px] font-semibold shadow-sm transition-opacity hover:opacity-90"
-        style={{ backgroundColor: buttonBg, color: buttonColor }}
+        style={{ backgroundColor: buttonBg, color: buttonColor, borderColor: 'transparent' }}
       >
-        <LuCreditCard className="h-4 w-4" strokeWidth={2} />
         Try again
-      </button>
+      </Button>
     </div>
   );
 }

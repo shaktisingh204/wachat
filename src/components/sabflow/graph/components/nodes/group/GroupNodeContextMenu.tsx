@@ -1,14 +1,15 @@
 'use client';
 import { useEffect, useRef, useCallback } from 'react';
 import {
-  LuPencil,
-  LuFiles,
-  LuCopy,
-  LuClipboardPaste,
-  LuNetwork,
-  LuTrash2,
-} from 'react-icons/lu';
+  Pencil,
+  Files,
+  Copy,
+  ClipboardPaste,
+  Network,
+  Trash2,
+} from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
+import { MenuItem, MenuSeparator } from '@/components/sabcrm/20ui';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
 
@@ -16,54 +17,13 @@ const isMac = () =>
   typeof navigator !== 'undefined' &&
   /Mac|iPhone|iPad|iPod/.test(navigator.platform);
 
-// ── Menu item sub-components ──────────────────────────────────────────────────
-
-type MenuItemProps = {
-  icon: React.ReactNode;
-  label: string;
-  shortcut?: string;
-  variant?: 'default' | 'danger';
-  disabled?: boolean;
-  onClick: () => void;
-};
-
-function MenuItem({ icon, label, shortcut, variant = 'default', disabled = false, onClick }: MenuItemProps) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={[
-        'flex w-full items-center gap-2.5 px-3 py-[7px] text-[12.5px] transition-colors select-none',
-        disabled
-          ? 'cursor-not-allowed opacity-40'
-          : variant === 'danger'
-            ? 'cursor-pointer text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/30'
-            : 'cursor-pointer text-[var(--gray-12)] hover:bg-[var(--gray-3)]',
-      ].join(' ')}
-    >
-      <span className={variant === 'danger' ? 'shrink-0' : 'shrink-0 text-[var(--gray-10)]'}>
-        {icon}
-      </span>
-      <span className="flex-1 text-left">{label}</span>
-      {shortcut && (
-        <span className="ml-3 text-[11px] text-[var(--gray-9)] font-mono">{shortcut}</span>
-      )}
-    </button>
-  );
-}
-
-function Separator() {
-  return <div className="my-1 h-px bg-[var(--gray-5)]" />;
-}
-
-// ── Main component ────────────────────────────────────────────────────────────
+// -- Main component ------------------------------------------------------------
 
 type Props = {
   groupId: string;
   position: { x: number; y: number };
   onClose: () => void;
-  /** Full flow doc — needed for connected-edge traversal, paste, delete. */
+  /** Full flow doc, needed for connected-edge traversal, paste, delete. */
   flow?: Pick<SabFlowDoc, 'groups' | 'edges'>;
   /** Callback to commit flow mutations upward. */
   onFlowChange?: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
@@ -86,7 +46,7 @@ export function GroupNodeContextMenu({
 
   const metaKey = isMac() ? '⌘' : 'Ctrl+';
 
-  // ── Selection store ─────────────────────────────────────────────────────────
+  // -- Selection store ---------------------------------------------------------
   const elementsInClipboard = useSelectionStore(useShallow((s) => s.elementsInClipboard));
   const { setFocusedElements } = useSelectionStore(
     useShallow((s) => ({
@@ -94,7 +54,7 @@ export function GroupNodeContextMenu({
     })),
   );
 
-  // ── Close on outside click (capture) + Escape ────────────────────────────────
+  // -- Close on outside click (capture) + Escape --------------------------------
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -112,7 +72,7 @@ export function GroupNodeContextMenu({
     };
   }, [onClose]);
 
-  // ── Helpers to dispatch keyboard shortcuts that ElementsSelectionMenu handles ──
+  // -- Helpers to dispatch keyboard shortcuts that ElementsSelectionMenu handles --
   const dispatchKey = useCallback((key: string, modifiers?: { meta?: boolean }) => {
     window.dispatchEvent(
       new KeyboardEvent('keydown', {
@@ -123,31 +83,31 @@ export function GroupNodeContextMenu({
     );
   }, []);
 
-  // ── Action: Edit title ───────────────────────────────────────────────────────
+  // -- Action: Edit title -------------------------------------------------------
   const handleEditTitle = () => {
     onEditTitle?.();
     onClose();
   };
 
-  // ── Action: Duplicate (Cmd+D) ─────────────────────────────────────────────────
+  // -- Action: Duplicate (Cmd+D) -------------------------------------------------
   const handleDuplicate = () => {
     dispatchKey('d', { meta: true });
     onClose();
   };
 
-  // ── Action: Copy ──────────────────────────────────────────────────────────────
+  // -- Action: Copy --------------------------------------------------------------
   const handleCopy = () => {
     dispatchKey('c', { meta: true });
     onClose();
   };
 
-  // ── Action: Paste ─────────────────────────────────────────────────────────────
+  // -- Action: Paste -------------------------------------------------------------
   const handlePaste = () => {
     dispatchKey('v', { meta: true });
     onClose();
   };
 
-  // ── Action: Select connected ──────────────────────────────────────────────────
+  // -- Action: Select connected --------------------------------------------------
   // BFS over edges to find all groups reachable from this group.
   const handleSelectConnected = useCallback(() => {
     if (!flow) { onClose(); return; }
@@ -182,7 +142,7 @@ export function GroupNodeContextMenu({
     onClose();
   }, [flow, groupId, setFocusedElements, onFocusGroup, onClose]);
 
-  // ── Action: Delete ────────────────────────────────────────────────────────────
+  // -- Action: Delete ------------------------------------------------------------
   const handleDelete = useCallback(() => {
     if (!flow || !onFlowChange) {
       // Fallback: dispatch Backspace so ElementsSelectionMenu handles it
@@ -203,7 +163,7 @@ export function GroupNodeContextMenu({
     onClose();
   }, [flow, onFlowChange, groupId, dispatchKey, onClose]);
 
-  // ── Paste available? ──────────────────────────────────────────────────────────
+  // -- Paste available? ----------------------------------------------------------
   const hasPasteContent =
     elementsInClipboard != null && (elementsInClipboard.groups?.length ?? 0) > 0;
 
@@ -211,54 +171,41 @@ export function GroupNodeContextMenu({
     <div
       ref={menuRef}
       style={{ top: position.y, left: position.x }}
-      className="fixed z-[9999] min-w-[200px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-xl py-1 select-none"
+      className="ui20 u-menu fixed z-[9999] min-w-[200px] select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
-      <MenuItem
-        icon={<LuPencil size={13} />}
-        label="Edit title"
-        onClick={handleEditTitle}
-      />
-      <MenuItem
-        icon={<LuFiles size={13} />}
-        label="Duplicate"
-        shortcut={`${metaKey}D`}
-        onClick={handleDuplicate}
-      />
+      <MenuItem icon={Pencil} onSelect={handleEditTitle}>
+        Edit title
+      </MenuItem>
+      <MenuItem icon={Files} hint={`${metaKey}D`} onSelect={handleDuplicate}>
+        Duplicate
+      </MenuItem>
 
-      <Separator />
+      <MenuSeparator />
 
+      <MenuItem icon={Copy} hint={`${metaKey}C`} onSelect={handleCopy}>
+        Copy
+      </MenuItem>
       <MenuItem
-        icon={<LuCopy size={13} />}
-        label="Copy"
-        shortcut={`${metaKey}C`}
-        onClick={handleCopy}
-      />
-      <MenuItem
-        icon={<LuClipboardPaste size={13} />}
-        label="Paste"
-        shortcut={`${metaKey}V`}
+        icon={ClipboardPaste}
+        hint={`${metaKey}V`}
         disabled={!hasPasteContent}
-        onClick={handlePaste}
-      />
+        onSelect={handlePaste}
+      >
+        Paste
+      </MenuItem>
 
-      <Separator />
+      <MenuSeparator />
 
-      <MenuItem
-        icon={<LuNetwork size={13} />}
-        label="Select connected"
-        onClick={handleSelectConnected}
-      />
+      <MenuItem icon={Network} onSelect={handleSelectConnected}>
+        Select connected
+      </MenuItem>
 
-      <Separator />
+      <MenuSeparator />
 
-      <MenuItem
-        icon={<LuTrash2 size={13} />}
-        label="Delete group"
-        shortcut="⌫"
-        variant="danger"
-        onClick={handleDelete}
-      />
+      <MenuItem icon={Trash2} hint="⌫" danger onSelect={handleDelete}>
+        Delete group
+      </MenuItem>
     </div>
   );
 }

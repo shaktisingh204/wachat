@@ -9,6 +9,7 @@ import { useBlockDnd } from '../../../providers/GraphDndProvider';
 import { useSelectionStore } from '../../../hooks/useSelectionStore';
 import { BlockNodesList } from '../block/BlockNodesList';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/sabcrm/20ui';
 import { GroupFocusToolbar } from './GroupFocusToolbar';
 import { GroupNodeContextMenu } from './GroupNodeContextMenu';
 import { AnalyticsBadge } from '../AnalyticsBadge';
@@ -22,7 +23,7 @@ type Props = {
   onGroupUpdate?: (id: string, changes: Partial<Group>) => void;
   onGroupBlocksChange?: (groupId: string, blocks: Group['blocks']) => void;
   onPlayClick?: () => void;
-  /** Optional: full groups+edges slice — forwarded to the context menu for
+  /** Optional: full groups+edges slice - forwarded to the context menu for
    *  delete/select-connected operations that need the whole graph. */
   flow?: Pick<SabFlowDoc, 'groups' | 'edges'>;
   onFlowChange?: (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges'>>) => void;
@@ -52,7 +53,7 @@ export function GroupNode({
   const focusedGroups = useSelectionStore(useShallow((s) => s.focusedElementsId));
   const isFocused = focusedGroups.includes(group.id);
 
-  // Live position from store — falls back to prop coordinates if not yet seeded
+  // Live position from store - falls back to prop coordinates if not yet seeded
   const groupCoords = useSelectionStore(
     useShallow((s) => s.elementsCoordinates?.[group.id] ?? group.graphCoordinates),
   );
@@ -80,7 +81,7 @@ export function GroupNode({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [group.title]);
 
-  // Derived — no useState/useEffect lag. isConnecting is true when an edge drag
+  // Derived - no useState/useEffect lag. isConnecting is true when an edge drag
   // is targeting this group (but not a specific block inside it).
   const isConnecting =
     connectingIds?.target?.groupId === group.id && !connectingIds.target?.blockId;
@@ -89,12 +90,12 @@ export function GroupNode({
   // NOTE: filterTaps is intentionally NOT set here.
   // Without filterTaps, `first` fires on pointerdown, so event.stopPropagation()
   // prevents the canvas gesture from starting (it never receives pointerdown).
-  // With filterTaps, `first` fires on pointermove — by then the canvas has already
+  // With filterTaps, `first` fires on pointermove - by then the canvas has already
   // registered its window listeners and both pan + group-drag run simultaneously.
   useDrag(
     ({ first, last, delta: [dx, dy], event, target }) => {
       // Prevent the canvas useGesture from also starting a drag/pan on every
-      // event (first call is the critical one — it stops canvas pointerdown).
+      // event (first call is the critical one - it stops canvas pointerdown).
       event.stopPropagation();
 
       // Don't initiate drag when the pointer is over title input, connection
@@ -142,22 +143,16 @@ export function GroupNode({
       ref={groupRef}
       id={`group-${group.id}`}
       data-selectable={group.id}
-      style={{
-        transform: `translate(${groupCoords.x}px, ${groupCoords.y}px)`,
-        touchAction: 'none',
-        width: GROUP_WIDTH,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-      }}
+      style={{ transform: `translate(${groupCoords.x}px, ${groupCoords.y}px)` }}
       className={cn(
-        'flex flex-col rounded-xl border select-none',
-        'bg-[var(--gray-1)] pt-3 pb-2',
+        'absolute left-0 top-0 w-[300px] touch-none',
+        'flex flex-col rounded-[var(--st-radius-lg)] border select-none',
+        'bg-[var(--st-bg)] pt-3 pb-2',
         'transition-[border-color,box-shadow]',
         'hover:shadow-md',
         isFocused || isConnecting
-          ? 'border-2 border-[var(--st-border)]'
-          : 'border border-[var(--gray-5)]',
+          ? 'border-2 border-[var(--st-border-strong)]'
+          : 'border border-[var(--st-border)]',
         isMouseDown ? 'cursor-grabbing shadow-lg z-10' : 'cursor-grab',
         isDraggingGraph ? 'pointer-events-none' : 'pointer-events-auto',
       )}
@@ -191,8 +186,10 @@ export function GroupNode({
       {/* ── Title bar ───────────────────────────────────────── */}
       <div className="px-4 pb-2 flex items-center gap-2 min-h-[28px]">
         {editingTitle ? (
-          <input
+          <Input
             autoFocus
+            inputSize="sm"
+            aria-label="Group title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             onBlur={() => {
@@ -205,19 +202,19 @@ export function GroupNode({
                 onGroupUpdate?.(group.id, { title });
               }
             }}
-            className="prevent-group-drag flex-1 text-[13px] font-semibold bg-transparent border-b border-[var(--st-border)] outline-none text-[var(--gray-12)]"
+            className="prevent-group-drag flex-1 font-semibold"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
           <span
-            className="flex-1 text-[13px] font-semibold truncate text-[var(--gray-12)]"
+            className="flex-1 text-[13px] font-semibold truncate text-[var(--st-text)]"
             onDoubleClick={(e) => {
               e.stopPropagation();
               setEditingTitle(true);
             }}
           >
             {title || (
-              <span className="text-[var(--gray-8)] italic text-[12px]">Untitled</span>
+              <span className="text-[var(--st-text-tertiary)] italic text-[12px]">Untitled</span>
             )}
           </span>
         )}
@@ -234,7 +231,7 @@ export function GroupNode({
       />
 
       {/* ── Target endpoint (incoming connection dot, left side) ──
-           Do NOT stopPropagation here — the event must bubble to Graph.tsx's
+           Do NOT stopPropagation here - the event must bubble to Graph.tsx's
            handleMouseUp so the edge is created. We just ensure the target is
            set in case onMouseEnter hasn't fired yet. */}
       <div
@@ -251,10 +248,10 @@ export function GroupNode({
       >
         <div
           className={cn(
-            'h-3 w-3 rounded-full border-2 bg-[var(--gray-1)] transition-colors',
+            'h-3 w-3 rounded-full border-2 bg-[var(--st-bg)] transition-colors',
             isConnecting
-              ? 'border-[var(--st-border)] bg-[var(--st-text)]'
-              : 'border-[var(--gray-7)] hover:border-[var(--st-border)]',
+              ? 'border-[var(--st-accent)] bg-[var(--st-accent)]'
+              : 'border-[var(--st-border-strong)] hover:border-[var(--st-accent)]',
           )}
         />
       </div>

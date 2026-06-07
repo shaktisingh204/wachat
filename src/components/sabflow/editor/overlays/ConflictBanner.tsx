@@ -1,5 +1,5 @@
 /**
- * SabFlow editor — Conflict Banner overlay.
+ * SabFlow editor, Conflict Banner overlay.
  *
  * Track A · Phase 6 · sub-task 9/10.
  *
@@ -12,7 +12,7 @@
  *   - View a JSON diff of "Your draft" vs "Server state".
  *   - Discard their pending edit (default safe action).
  *   - Force-overwrite the server (admin role only; Phase 8 will plumb the
- *     real role-check — we leak a `canForceOverwrite` prop today).
+ *     real role-check, we leak a `canForceOverwrite` prop today).
  *
  * Auto-dismisses after 30s of no interaction. Also fires a domain toast via
  * `toastConflictRejected` for the non-modal "ack" path, and emits telemetry
@@ -25,19 +25,21 @@
  *   - persist a force-overwrite (Phase 8 will hand a callback in)
  *   - know about the wire / sync transport
  *
- * Zero new deps — TSX, native `<dialog>`-less modal (positioned div + focus
- * trap-lite), and Tailwind utility classes already in the design system.
+ * Pure 20ui: the banner is an Alert, the diff dialog is a Modal (which owns
+ * focus trap, Escape, overlay-click + close-button), and every control is a
+ * 20ui Button. Diff panes are Cards.
  */
 'use client';
 
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Eye } from 'lucide-react';
+
 import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+  Alert,
+  Button,
+  Card,
+  Modal,
+} from '@/components/sabcrm/20ui';
 import type { OptimisticBuffer, RollbackEventDetail } from '@/lib/sabflow/client/optimistic';
 import { toastConflictRejected } from '@/lib/sabflow/client/toasts';
 import { track } from '@/lib/sabflow/client/telemetry';
@@ -47,7 +49,7 @@ import { track } from '@/lib/sabflow/client/telemetry';
 // ---------------------------------------------------------------------------
 
 export interface ConflictSnapshot {
-  /** Human-readable block label, e.g. "Send Email — Welcome". */
+  /** Human-readable block label, e.g. "Send Email - Welcome". */
   readonly blockName: string;
   /** Stable id for telemetry / dedupe. Falls back to the rolled-back updateId. */
   readonly blockId?: string;
@@ -62,7 +64,7 @@ export interface ConflictBannerProps {
   readonly optimisticBuffer: OptimisticBuffer;
   /**
    * Resolver invoked when a rollback event lands. Returns the human-friendly
-   * snapshot to display, or `null` to swallow the event (banner won't show —
+   * snapshot to display, or `null` to swallow the event (banner won't show,
    * useful when the rollback is for a block the user already moved past).
    *
    * If omitted, the banner shows a generic "your last edit" message with no
@@ -79,7 +81,7 @@ export interface ConflictBannerProps {
   readonly canForceOverwrite?: boolean;
   /**
    * Called when the user clicks "Discard mine". Parent should ensure the
-   * optimistic buffer / Yjs doc has fully reconciled to server state — the
+   * optimistic buffer / Yjs doc has fully reconciled to server state, the
    * buffer's `rollback()` already ran the undo closure, so this is usually a
    * no-op + close.
    */
@@ -94,7 +96,7 @@ export interface ConflictBannerProps {
 }
 
 // ---------------------------------------------------------------------------
-// Telemetry — bridge through the strongly-typed `track()` until the taxonomy
+// Telemetry, bridge through the strongly-typed `track()` until the taxonomy
 // is widened in a sibling task. The string events are stable and documented
 // in the task spec; the runtime call is identical.
 // ---------------------------------------------------------------------------
@@ -117,7 +119,7 @@ function safePretty(v: unknown): string {
     const out = JSON.stringify(v, null, 2);
     if (typeof out !== 'string') return String(v);
     if (out.length > MAX_PRETTY_BYTES) {
-      return `${out.slice(0, MAX_PRETTY_BYTES)}\n… (truncated)`;
+      return `${out.slice(0, MAX_PRETTY_BYTES)}\n... (truncated)`;
     }
     return out;
   } catch {
@@ -132,7 +134,7 @@ interface DiffLine {
 }
 
 /**
- * O(n) line-level diff — for the typical CRDT block-payload sizes (<10 KB)
+ * O(n) line-level diff, for the typical CRDT block-payload sizes (<10 KB)
  * a Set-based "is this line in the other side?" heuristic is fast and avoids
  * an LCS implementation. Good enough for visual highlighting; not a
  * semantically-perfect diff.
@@ -158,7 +160,7 @@ function diffLines(left: string, right: string): {
 }
 
 // ---------------------------------------------------------------------------
-// Reason → user copy
+// Reason to user copy
 // ---------------------------------------------------------------------------
 
 function reasonLabel(reason: number): string {
@@ -200,8 +202,6 @@ export function ConflictBanner({
   const [active, setActive] = useState<ActiveConflict | null>(null);
   const [diffOpen, setDiffOpen] = useState(false);
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-  const titleId = useId();
 
   // ---- timer helpers ----------------------------------------------------
   const clearDismissTimer = useCallback(() => {
@@ -250,30 +250,6 @@ export function ConflictBanner({
       clearDismissTimer();
     };
   }, [optimisticBuffer, resolveConflict, autoDismissMs, clearDismissTimer]);
-
-  // ---- modal focus + esc ------------------------------------------------
-  useEffect(() => {
-    if (!diffOpen) return;
-    const prev = typeof document !== 'undefined' ? document.activeElement : null;
-    modalRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        setDiffOpen(false);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      if (prev instanceof HTMLElement) {
-        try {
-          prev.focus();
-        } catch {
-          // ignore restore failures
-        }
-      }
-    };
-  }, [diffOpen]);
 
   // ---- actions ----------------------------------------------------------
   const handleView = useCallback(() => {
@@ -330,112 +306,69 @@ export function ConflictBanner({
   const reasonText = reasonLabel(active.detail.reason);
 
   return (
-    <>
+    <div className="ui20">
       {/* ------------------------------------------------------------------ */}
       {/* Top banner                                                          */}
       {/* ------------------------------------------------------------------ */}
-      <div
-        role="alert"
-        aria-live="assertive"
-        className="fixed left-1/2 top-3 z-40 flex max-w-[640px] -translate-x-1/2 items-center gap-3 rounded-lg border border-[var(--st-border)]/40 bg-[var(--st-bg-muted)] px-4 py-2.5 text-[var(--st-text)] shadow-md dark:bg-[var(--st-text)]/80 dark:text-white"
-      >
-        <span className="text-[13px] leading-snug">
-          Your change to{' '}
-          <span className="font-semibold">&ldquo;{blockName}&rdquo;</span>{' '}
-          couldn&rsquo;t be saved — {reasonText}.
-        </span>
-        <button
-          type="button"
-          onClick={handleView}
-          className="rounded-md border border-[var(--st-border)]/30 bg-white/60 px-2 py-1 text-[12px] font-medium text-[var(--st-text)] transition hover:bg-white dark:bg-[var(--st-text)]/40 dark:text-white dark:hover:bg-[var(--st-text)]/60"
+      <div className="fixed left-1/2 top-3 z-40 w-full max-w-[640px] -translate-x-1/2 px-4">
+        <Alert
+          tone="warning"
+          title="Change rejected"
+          onClose={dismiss}
+          closeLabel="Dismiss conflict banner"
+          className="shadow-[var(--st-shadow-md)]"
         >
-          View diff
-        </button>
-        <button
-          type="button"
-          aria-label="Dismiss conflict banner"
-          onClick={dismiss}
-          className="rounded-md px-1.5 py-0.5 text-[var(--st-text)]/70 hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)] dark:text-white/70 dark:hover:bg-[var(--st-text)]/60"
-        >
-          {'×'}
-        </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="leading-snug">
+              Your change to{' '}
+              <span className="font-semibold">"{blockName}"</span>{' '}
+              could not be saved, {reasonText}.
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              iconLeft={Eye}
+              onClick={handleView}
+            >
+              View diff
+            </Button>
+          </div>
+        </Alert>
       </div>
 
       {/* ------------------------------------------------------------------ */}
       {/* Diff modal                                                          */}
       {/* ------------------------------------------------------------------ */}
-      {diffOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={(e) => {
-            // backdrop click closes — don't bubble into editor
-            if (e.target === e.currentTarget) setDiffOpen(false);
-          }}
-        >
-          <div
-            ref={modalRef}
-            tabIndex={-1}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className="flex max-h-[80vh] w-full max-w-5xl flex-col rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-2xl outline-none"
-          >
-            <div className="flex items-start justify-between gap-4 border-b border-[var(--gray-5)] px-5 py-3.5">
-              <div>
-                <h2
-                  id={titleId}
-                  className="text-[15px] font-semibold text-[var(--gray-12)]"
-                >
-                  Conflict on &ldquo;{blockName}&rdquo;
-                </h2>
-                <p className="mt-0.5 text-[12px] text-[var(--gray-10)]">
-                  The server rejected your change ({reasonText}). Review the
-                  difference and choose how to proceed.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDiffOpen(false)}
-                aria-label="Close diff"
-                className="rounded-md px-2 py-1 text-[var(--gray-10)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-              >
-                {'×'}
-              </button>
-            </div>
-
-            <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-hidden p-4 md:grid-cols-2">
-              <DiffPane title="Your draft" lines={pretty?.left ?? null} side="left" />
-              <DiffPane title="Server state" lines={pretty?.right ?? null} side="right" />
-            </div>
-
-            <div className="flex items-center justify-end gap-2 border-t border-[var(--gray-5)] px-5 py-3">
-              {canForceOverwrite ? (
-                <button
-                  type="button"
-                  onClick={handleForce}
-                  className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-bg-muted)] px-3 py-1.5 text-[12px] font-medium text-[var(--st-text)] transition hover:bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 dark:text-white dark:hover:bg-[var(--st-text)]/60"
-                >
-                  Force overwrite
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={handleDiscard}
-                autoFocus
-                className="rounded-md bg-[var(--gray-12)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-1)] transition hover:opacity-90"
-              >
-                Discard mine
-              </button>
-            </div>
+      <Modal
+        open={diffOpen}
+        onClose={() => setDiffOpen(false)}
+        size="lg"
+        title={`Conflict on "${blockName}"`}
+        description={`The server rejected your change (${reasonText}). Review the difference and choose how to proceed.`}
+        footer={
+          <div className="flex items-center justify-end gap-2">
+            {canForceOverwrite ? (
+              <Button variant="secondary" onClick={handleForce}>
+                Force overwrite
+              </Button>
+            ) : null}
+            <Button variant="primary" onClick={handleDiscard}>
+              Discard mine
+            </Button>
           </div>
+        }
+      >
+        <div className="grid min-h-0 grid-cols-1 gap-3 md:grid-cols-2">
+          <DiffPane title="Your draft" lines={pretty?.left ?? null} side="left" />
+          <DiffPane title="Server state" lines={pretty?.right ?? null} side="right" />
         </div>
-      ) : null}
-    </>
+      </Modal>
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// DiffPane — extracted for readability + memo-friendliness
+// DiffPane, extracted for readability + memo-friendliness
 // ---------------------------------------------------------------------------
 
 function DiffPane({
@@ -448,16 +381,18 @@ function DiffPane({
   side: 'left' | 'right';
 }) {
   return (
-    <section
+    <Card
+      variant="outlined"
+      padding="none"
       aria-label={title}
-      className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]"
+      className="flex min-h-0 max-h-[60vh] flex-col overflow-hidden bg-[var(--st-bg-secondary)]"
     >
-      <header className="border-b border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-11)]">
+      <header className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         {title}
       </header>
-      <pre className="m-0 flex-1 overflow-auto p-0 text-[12px] leading-[1.55] text-[var(--gray-12)]">
+      <div className="m-0 flex-1 overflow-auto p-0 text-[12px] leading-[1.55] text-[var(--st-text)]">
         {lines === null ? (
-          <div className="px-3 py-2 text-[var(--gray-10)]">
+          <div className="px-3 py-2 text-[var(--st-text-tertiary)]">
             No snapshot captured for this conflict.
           </div>
         ) : (
@@ -468,20 +403,20 @@ function DiffPane({
                 line.kind === 'same'
                   ? 'px-3'
                   : line.kind === 'add'
-                    ? 'bg-[var(--st-text)]/15 px-3'
-                    : 'bg-[var(--st-text)]/15 px-3'
+                    ? 'bg-[var(--st-status-ok)]/15 px-3'
+                    : 'bg-[var(--st-danger)]/15 px-3'
               }
             >
-              <span className="select-none pr-2 text-[var(--gray-9)]">
+              <span className="select-none pr-2 text-[var(--st-text-tertiary)]">
                 {line.kind === 'same' ? ' ' : line.kind === 'add' ? '+' : '-'}
               </span>
-              <span className="whitespace-pre-wrap break-words font-mono">
-                {line.text === '' ? ' ' : line.text}
+              <span className="whitespace-pre-wrap break-words font-[family-name:var(--st-font-mono)]">
+                {line.text === '' ? ' ' : line.text}
               </span>
             </div>
           ))
         )}
-      </pre>
-    </section>
+      </div>
+    </Card>
   );
 }

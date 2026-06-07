@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * EditorContentCollab — CRDT-backed twin of `EditorContent` from
+ * EditorContentCollab - CRDT-backed twin of `EditorContent` from
  * `./EditorPage.tsx`. Phase C.8 sub-task #1.
  *
  * This file is lazy-loaded (see `EditorPage.tsx`'s `next/dynamic` call) so
@@ -11,20 +11,20 @@
  * Architectural contract
  * ----------------------
  * 1. `useSabFlowDoc({ workspaceId, docId, fetchToken })` owns the WebSocket
- *    + Y.Doc lifecycle (Phase 5 sub-task #1).
+ *    plus Y.Doc lifecycle (Phase 5 sub-task #1).
  * 2. The full `SabFlowDoc` payload is mirrored on a single `Y.Map` named
  *    `meta` for this sub-task. Per ADR
- *    `docs/adr/sabflow-state-management.md` §4 step 6, downstream sub-tasks
- *    (#2..#5) promote `groups` / `edges` / `variables` / `theme` /
+ *    `docs/adr/sabflow-state-management.md` section 4 step 6, downstream
+ *    sub-tasks (#2..#5) promote `groups` / `edges` / `variables` / `theme` /
  *    `settings` to their own Y.Array / Y.Map structures for proper merge
  *    granularity. Until then this file keeps the shape consistent with the
- *    legacy `useState` branch — the swap is invisible to the rest of the
+ *    legacy `useState` branch, so the swap is invisible to the rest of the
  *    editor.
  * 3. Every local mutation runs inside `doc.transact(..., SABFLOW_LOCAL_ORIGIN)`
  *    so {@link SabFlowUndoManager} captures it on the local-undo path.
  *    Remote applies (tagged `'from server'` upstream by `useSabFlowDoc`'s
  *    `PROVIDER_ORIGIN`) are NOT in `trackedOrigins` and therefore NOT
- *    undoable — that's the property we want for collab.
+ *    undoable, that's the property we want for collab.
  * 4. Undo/redo replaces the legacy `history`/`historyIndex` snapshot stack
  *    with `SabFlowUndoManager` (`Y.UndoManager` wrapper per Phase 5 #6).
  * 5. The component's `Props` shape is identical to `EditorContent`'s so
@@ -68,18 +68,17 @@ import {
   type YUndoManagerOptions,
 } from '@/lib/sabflow/client/undo-redo';
 import { cn } from '@/lib/utils';
+import { Alert, IconButton } from '@/components/sabcrm/20ui';
 import {
-  LuSettings,
-  LuPlay,
-  LuVariable,
-  LuPalette,
-  LuHistory,
-  LuLink,
-  LuCopy,
-  LuX,
-} from 'react-icons/lu';
+  Settings,
+  Play,
+  Variable,
+  Palette,
+  History,
+  Copy,
+} from 'lucide-react';
 
-/* ── Types ───────────────────────────────────────────────────────────────── */
+/* -- Types -------------------------------------------------------------- */
 
 type Props = {
   flow: SabFlowDoc & { _id: string };
@@ -97,13 +96,13 @@ type RightPanel =
 /**
  * Single Y.Map key used to mirror the SabFlowDoc payload in this first-cut
  * adapter. Phase 6 sub-tasks #2-5 will promote sub-fields to their own
- * top-level Y.Array / Y.Map structures (per ADR §4 step 6) — at which point
- * this constant goes away. Until then, one Y.Map with per-field entries is
- * enough to prove the hook-swap end to end.
+ * top-level Y.Array / Y.Map structures (per ADR section 4 step 6), at which
+ * point this constant goes away. Until then, one Y.Map with per-field entries
+ * is enough to prove the hook-swap end to end.
  */
 const META_MAP_KEY = 'meta';
 
-/* ── Workspace + token plumbing ─────────────────────────────────────────── */
+/* -- Workspace plus token plumbing -------------------------------------- */
 
 /**
  * Resolve the workspace id for the running session. The WebSocket gateway
@@ -116,10 +115,10 @@ const FALLBACK_WORKSPACE = process.env.NEXT_PUBLIC_SABFLOW_WORKSPACE_ID ?? 'defa
 
 /**
  * Fetch a short-lived JWT for the WS handshake. The real endpoint
- * (Phase 8 sub-task #3 — share-link tokens, owner transfer) lands later; for
+ * (Phase 8 sub-task #3, share-link tokens, owner transfer) lands later; for
  * the C.8 hook-swap we POST to a placeholder route. If the route is missing
  * or returns non-2xx we surface the failure to `useSabFlowDoc` which will
- * back off + retry per its own contract.
+ * back off plus retry per its own contract.
  */
 async function fetchSabFlowToken(docId: string): Promise<string> {
   const res = await fetch(`/api/sabflow/ws-token?docId=${encodeURIComponent(docId)}`, {
@@ -134,12 +133,12 @@ async function fetchSabFlowToken(docId: string): Promise<string> {
   return body.token;
 }
 
-/* ── Meta-map snapshot subscription ─────────────────────────────────────── */
+/* -- Meta-map snapshot subscription ------------------------------------- */
 
 /**
  * Read the doc's current SabFlowDoc projection out of the meta Y.Map. Falls
- * back to {@link initialFlow} fields when the meta map hasn't been seeded yet
- * — that gives the editor a meaningful first paint while the WS is still
+ * back to {@link initialFlow} fields when the meta map hasn't been seeded yet,
+ * that gives the editor a meaningful first paint while the WS is still
  * connecting.
  */
 function readFlowFromDoc(
@@ -165,7 +164,7 @@ function readFlowFromDoc(
   } as SabFlowDoc & { _id: string };
 }
 
-/* ── EditorContentCollab ─────────────────────────────────────────────────── */
+/* -- EditorContentCollab ------------------------------------------------ */
 
 export function EditorContentCollab({ flow: initialFlow }: Props) {
   const [isSaving, startSaving] = useTransition();
@@ -179,7 +178,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const { setOpenedNodeId } = useGraph();
 
-  /* ── Yjs doc lifecycle (replaces `useState(initialFlow)`) ───────────── */
+  /* -- Yjs doc lifecycle (replaces `useState(initialFlow)`) ------------- */
 
   const fetchToken = useCallback(() => fetchSabFlowToken(initialFlow._id), [initialFlow._id]);
 
@@ -190,9 +189,9 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
   });
 
   // Seed the meta Y.Map from `initialFlow` once the doc is connected, but ONLY
-  // when the doc is empty (i.e. brand-new room) — otherwise we'd clobber peer
-  // writes. The check + seed runs inside a single transaction so it counts as
-  // a local-undoable op (matches the n8n "I opened my workflow" expectation).
+  // when the doc is empty (i.e. brand-new room), otherwise we'd clobber peer
+  // writes. The check plus seed runs inside a single transaction so it counts
+  // as a local-undoable op (matches the n8n "I opened my workflow" expectation).
   const seededRef = useRef(false);
   useEffect(() => {
     if (!doc) return;
@@ -200,7 +199,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     if (docStatus !== 'connected') return;
     const meta = doc.getMap(META_MAP_KEY);
     if (meta.size > 0) {
-      // Doc already populated by a peer — nothing to seed.
+      // Doc already populated by a peer, nothing to seed.
       seededRef.current = true;
       return;
     }
@@ -219,14 +218,14 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
 
   // Subscribe to the meta Y.Map and materialize a stable `flow` snapshot for
   // React. `useSyncExternalStore` is the React-19-safe primitive for external
-  // mutable sources — using `useState + useEffect` here would tear during
+  // mutable sources; using `useState + useEffect` here would tear during
   // concurrent renders.
   //
   // Snapshot identity: `getSnapshot` MUST return a stable reference between
   // calls when nothing changed, otherwise React enters an infinite render
   // loop (see https://react.dev/reference/react/useSyncExternalStore#caveats).
   // We cache the materialised flow in a ref and only recompute it inside the
-  // `subscribe` notify path — exactly the pattern used by `useCrdtNodes`.
+  // `subscribe` notify path, exactly the pattern used by `useCrdtNodes`.
   const flowCacheRef = useRef<(SabFlowDoc & { _id: string }) | null>(null);
 
   const subscribeFlow = useCallback(
@@ -253,18 +252,18 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     return flowCacheRef.current;
   }, [doc, initialFlow]);
 
-  // Server snapshot — matches the SSR-safe fallback path inside
+  // Server snapshot, matches the SSR-safe fallback path inside
   // `useSabFlowDoc`. Until first connect, render `initialFlow`.
   const getServerFlowSnapshot = useCallback(() => initialFlow, [initialFlow]);
 
   const flow = useSyncExternalStore(subscribeFlow, getFlowSnapshot, getServerFlowSnapshot);
 
-  /* ── CRDT undo/redo (replaces `history` / `historyIndex` snapshot stack) ─ */
+  /* -- CRDT undo/redo (replaces `history` / `historyIndex` snapshot stack) - */
 
   const undoManager = useMemo<SabFlowUndoManager | null>(() => {
     if (!doc) return null;
     // Bridge the structural `YDocLike` contract from `undo-redo.ts` to the
-    // concrete `Y.Doc`. The shapes line up — both `getArray` and `getMap` exist
+    // concrete `Y.Doc`. The shapes line up, both `getArray` and `getMap` exist
     // on Y.Doc with compatible signatures.
     const docBridge: UndoYDocLike = {
       getArray: (name: string) => doc.getArray(name) as unknown as YAbstractTypeLike,
@@ -282,7 +281,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
             captureTimeout: options.captureTimeout,
           },
         );
-        // `Y.UndoManager` matches our `YUndoManagerLike` surface — the only
+        // `Y.UndoManager` matches our `YUndoManagerLike` surface, the only
         // gap is the stack types, which we narrow via `unknown`.
         return um as unknown as YUndoManagerLike;
       },
@@ -305,12 +304,12 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
   const undo = useCallback(() => undoManager?.undo(), [undoManager]);
   const redo = useCallback(() => undoManager?.redo(), [undoManager]);
 
-  /* ── Mutation helpers (every `setFlow` callsite maps to one of these) ── */
+  /* -- Mutation helpers (every `setFlow` callsite maps to one of these) -- */
 
   /**
    * Apply a partial patch to the meta map inside a single local-origin
    * transaction. Mirrors `setFlow(prev => ({ ...prev, ...patch }))` from the
-   * legacy branch — the Y.Doc absorbs concurrent peer updates between the
+   * legacy branch, the Y.Doc absorbs concurrent peer updates between the
    * read and write because the transaction is the atomic unit, not the
    * JavaScript object spread.
    */
@@ -320,7 +319,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
       doc.transact(() => {
         const meta = doc.getMap(META_MAP_KEY);
         for (const [key, value] of Object.entries(patch)) {
-          // Never mirror the mongo `_id` into the CRDT — it's an external
+          // Never mirror the mongo `_id` into the CRDT, it's an external
           // identifier owned by the route, not by the editor doc.
           if (key === '_id') continue;
           if (value === undefined) {
@@ -334,7 +333,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [doc],
   );
 
-  /* ── Panel toggle (unchanged from legacy branch) ─────────────────────── */
+  /* -- Panel toggle (unchanged from legacy branch) --------------------- */
 
   const togglePanel = useCallback(
     (panel: Exclude<RightPanel, null>) => {
@@ -347,7 +346,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [setOpenedNodeId],
   );
 
-  /* ── Validation focus handler (unchanged) ────────────────────────────── */
+  /* -- Validation focus handler (unchanged) ---------------------------- */
 
   const handleFocusBlock = useCallback(
     (_groupId: string, blockId?: string) => {
@@ -357,7 +356,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [setOpenedNodeId],
   );
 
-  /* ── Flow change handler (legacy `handleFlowChange`) ──────────────────── */
+  /* -- Flow change handler (legacy `handleFlowChange`) ----------------- */
 
   const handleFlowChange = useCallback(
     (changes: Partial<Pick<SabFlowDoc, 'groups' | 'edges' | 'events'>>) => {
@@ -369,7 +368,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
   /**
    * Full-document replace from `WorkflowCanvas`. Mirrors `handleDocChange`
    * but writes through the meta map. `_id` (when present from upstream
-   * spread) is a route-level mongo id that lives outside the CRDT — we
+   * spread) is a route-level mongo id that lives outside the CRDT, we
    * `patchMeta` with the whole payload anyway because the meta map only
    * mirrors the SabFlowDoc fields and silently ignores extras at read time.
    */
@@ -380,7 +379,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [patchMeta],
   );
 
-  /* ── Name change (from header) ───────────────────────────────────────── */
+  /* -- Name change (from header) --------------------------------------- */
 
   const handleNameChange = useCallback(
     (name: string) => {
@@ -389,7 +388,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [patchMeta],
   );
 
-  /* ── Save (server-side snapshot — Cmd+S still works) ─────────────────── */
+  /* -- Save (server-side snapshot, Cmd+S still works) ------------------ */
 
   const save = useCallback(
     (overrides?: Partial<SabFlowDoc>) => {
@@ -425,7 +424,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     [flow],
   );
 
-  /* ── Keyboard shortcuts (same surface, undo/redo now hits Y.UndoManager) ─ */
+  /* -- Keyboard shortcuts (same surface, undo/redo now hits Y.UndoManager) - */
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -453,7 +452,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [save, undo, redo]);
 
-  /* ── Publish toggle ──────────────────────────────────────────────────── */
+  /* -- Publish toggle -------------------------------------------------- */
 
   const handlePublishToggle = useCallback(() => {
     const isPublished = flow.status === 'PUBLISHED';
@@ -481,42 +480,47 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     });
   }, [flow.status, flow._id, patchMeta]);
 
-  /* ── Render (identical tree to the legacy `EditorContent`) ───────────── */
+  /* -- Toolbar toggle button styling ----------------------------------- */
+
+  const toggleBtnClass = (isOn: boolean) =>
+    cn(
+      'rounded-[var(--st-radius)]',
+      isOn
+        ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
+        : 'text-[var(--st-text-secondary)]',
+    );
+
+  /* -- Render (identical tree to the legacy `EditorContent`) ----------- */
 
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 flex flex-col overflow-clip bg-[var(--gray-2)]"
+      className="ui20 absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
     >
       {webhookBanner && webhookBanner.length > 0 && (
-        <div className="relative bg-[var(--st-text)] border-b border-[var(--st-border)]/30 px-4 py-2.5 flex items-start gap-3 text-[12px]">
-          <LuLink className="h-3.5 w-3.5 text-[var(--st-text)] shrink-0 mt-0.5" strokeWidth={1.8} />
-          <div className="flex-1 space-y-1.5">
-            <p className="text-[var(--gray-11)] font-medium">
-              Webhook URL{webhookBanner.length > 1 ? 's' : ''} registered
-            </p>
+        <Alert
+          tone="success"
+          title={`Webhook URL${webhookBanner.length > 1 ? 's' : ''} registered`}
+          onClose={() => setWebhookBanner(null)}
+          closeLabel="Dismiss webhook banner"
+          className="rounded-none border-x-0 border-t-0"
+        >
+          <div className="space-y-1.5">
             {webhookBanner.map((w) => (
               <div key={w.webhookId ?? w.webhookUrl} className="flex items-center gap-2">
-                <span className="font-mono text-[var(--st-text)] break-all">{w.webhookUrl}</span>
-                <button
-                  type="button"
-                  title="Copy URL"
+                <span className="font-mono text-[12px] break-all text-[var(--st-text)]">
+                  {w.webhookUrl}
+                </span>
+                <IconButton
+                  label="Copy webhook URL"
+                  icon={Copy}
+                  size="sm"
                   onClick={() => navigator.clipboard?.writeText(w.webhookUrl)}
-                  className="shrink-0 text-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
-                >
-                  <LuCopy className="h-3.5 w-3.5" strokeWidth={1.8} />
-                </button>
+                />
               </div>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={() => setWebhookBanner(null)}
-            className="shrink-0 text-[var(--gray-7)] hover:text-[var(--gray-11)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={1.8} />
-          </button>
-        </div>
+        </Alert>
       )}
 
       <FlowEditorHeader
@@ -536,80 +540,50 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
         isValidationPanelOpen={activePanel === 'validation'}
         onValidationToggle={() => togglePanel('validation')}
       >
-        <button
-          type="button"
+        <IconButton
+          label="Toggle variables panel"
+          icon={Variable}
+          size="sm"
+          aria-pressed={activePanel === 'variables'}
           onClick={() => togglePanel('variables')}
-          title="Variables"
-          aria-label="Toggle variables panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'variables'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuVariable className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+          className={toggleBtnClass(activePanel === 'variables')}
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Toggle theme panel"
+          icon={Palette}
+          size="sm"
+          aria-pressed={activePanel === 'theme'}
           onClick={() => togglePanel('theme')}
-          title="Theme"
-          aria-label="Toggle theme panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'theme'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuPalette className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+          className={toggleBtnClass(activePanel === 'theme')}
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Toggle preview panel"
+          icon={Play}
+          size="sm"
+          aria-pressed={activePanel === 'preview'}
           onClick={() => togglePanel('preview')}
-          title="Preview"
-          aria-label="Toggle preview panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'preview'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuPlay className="h-4 w-4 translate-x-px" strokeWidth={1.8} />
-        </button>
+          className={toggleBtnClass(activePanel === 'preview')}
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Toggle settings panel"
+          icon={Settings}
+          size="sm"
+          aria-pressed={activePanel === 'settings'}
           onClick={() => togglePanel('settings')}
-          title="Flow settings"
-          aria-label="Toggle settings panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'settings'
-              ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuSettings className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+          className={toggleBtnClass(activePanel === 'settings')}
+        />
 
-        <button
-          type="button"
+        <IconButton
+          label="Toggle version history panel"
+          icon={History}
+          size="sm"
+          aria-pressed={activePanel === 'versions'}
           onClick={() => togglePanel('versions')}
-          title="Version history"
-          aria-label="Toggle version history panel"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            activePanel === 'versions'
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuHistory className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+          className={toggleBtnClass(activePanel === 'versions')}
+        />
       </FlowEditorHeader>
 
       <div className="flex flex-1 min-h-0 relative overflow-clip">
@@ -628,7 +602,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
         />
 
         {activePanel === 'variables' && (
-          <div className="w-[300px] shrink-0 border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden flex flex-col">
+          <div className="w-[300px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
             <VariablesPanel
               variables={flow.variables}
               onVariablesChange={(variables) => patchMeta({ variables })}
@@ -697,4 +671,3 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
     </div>
   );
 }
-

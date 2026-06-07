@@ -2,8 +2,10 @@
 import { createPortal } from 'react-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createId } from '@paralleldrive/cuid2';
+import { Plus } from 'lucide-react';
 import type { Block, BlockItem } from '@/lib/sabflow/types';
 import { useBlockDnd, computeNearestPlaceholderIndex } from '@/components/sabflow/graph/providers/GraphDndProvider';
+import { Button } from '@/components/sabcrm/20ui';
 import { PlaceholderNode } from '../PlaceholderNode';
 import { ItemNode } from './ItemNode';
 import { getItemName } from './getItemName';
@@ -153,13 +155,16 @@ export function ItemNodesList({ block, groupId, onBlockChange }: Props) {
       ))}
 
       {/* Add item button */}
-      <button
-        type="button"
-        className="mt-1 w-full rounded-md border border-dashed border-[var(--gray-6)] py-1.5 text-[11px] text-[var(--gray-9)] hover:border-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
+      <Button
+        variant="outline"
+        size="sm"
+        block
+        iconLeft={Plus}
         onClick={handleAddItem}
+        className="mt-1 border-dashed"
       >
-        + Add {itemName}
-      </button>
+        Add {itemName}
+      </Button>
 
       {/* Drag overlay portal */}
       {draggedItem && draggedItem.blockId === block.id &&

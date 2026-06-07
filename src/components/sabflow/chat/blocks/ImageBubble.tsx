@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { LuImageOff, LuLoader } from 'react-icons/lu';
+import { ImageOff } from 'lucide-react';
+import { Button, Spinner } from '@/components/sabcrm/20ui';
 import { Lightbox } from './Lightbox';
 
 export interface ImageBubbleProps {
@@ -24,15 +25,15 @@ export interface ImageBubbleProps {
  *
  * - Lazy-loaded.
  * - Click opens a full-screen Lightbox (unless `link` is provided).
- * - If the image fails to load, renders an `LuImageOff` fallback.
+ * - If the image fails to load, renders an `ImageOff` fallback.
  */
 export function ImageBubble({
   url,
   alt,
   link,
   maxWidth = '280px',
-  backgroundColor = 'var(--gray-3)',
-  color = 'var(--gray-11)',
+  backgroundColor = 'var(--st-bg-secondary)',
+  color = 'var(--st-text-secondary)',
 }: ImageBubbleProps) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
@@ -47,15 +48,15 @@ export function ImageBubble({
     setLightboxOpen(true);
   }, [link, errored]);
 
-  /* ── Missing URL ─────────────────────────────────────────────── */
+  /* Missing URL */
   if (!url || typeof url !== 'string' || !url.trim()) {
     return (
       <div className="flex justify-start">
         <div
-          className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
+          className="flex items-center gap-2 rounded-2xl rounded-tl-sm border border-[var(--st-border)] px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
         >
-          <LuImageOff className="h-4 w-4 shrink-0" strokeWidth={1.8} />
+          <ImageOff className="h-4 w-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
           <span>No image URL</span>
         </div>
       </div>
@@ -65,14 +66,14 @@ export function ImageBubble({
   return (
     <>
       <div className="flex justify-start">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
           onClick={handleClick}
           aria-label={alt ?? 'Open image'}
-          className="group relative block overflow-hidden rounded-2xl rounded-tl-sm shadow-sm transition-transform hover:scale-[1.01] active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="group relative !block h-auto !p-0 overflow-hidden rounded-2xl rounded-tl-sm shadow-sm"
           style={{ maxWidth, backgroundColor }}
         >
-          {/* Loading shimmer */}
+          {/* Loading state */}
           {!loaded && !errored && (
             <div
               className="flex items-center justify-center"
@@ -82,11 +83,7 @@ export function ImageBubble({
                 backgroundColor,
               }}
             >
-              <LuLoader
-                className="h-5 w-5 animate-spin"
-                strokeWidth={2}
-                style={{ color }}
-              />
+              <Spinner size="md" label="Loading image" />
             </div>
           )}
 
@@ -100,7 +97,7 @@ export function ImageBubble({
                 color,
               }}
             >
-              <LuImageOff className="h-6 w-6" strokeWidth={1.5} />
+              <ImageOff className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />
               <span>Image failed to load</span>
             </div>
           )}
@@ -126,7 +123,7 @@ export function ImageBubble({
               }}
             />
           )}
-        </button>
+        </Button>
       </div>
 
       {lightboxOpen && !errored && (

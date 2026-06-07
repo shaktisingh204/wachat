@@ -1,14 +1,15 @@
 'use client';
 /**
- * TriggerStartPanel — port of n8n's "What triggers this workflow?" rail.
+ * TriggerStartPanel - port of n8n's "What triggers this workflow?" rail.
  *
  * Auto-opens on the right side of the canvas when a flow has no trigger
  * events. Picking a row creates the corresponding SabFlowEvent and closes
  * the panel. Search filters across label + description; the list is
- * grouped by SabNode product category (Wachat, CRM, Calls, Broadcasts, …).
+ * grouped by SabNode product category (Wachat, CRM, Calls, Broadcasts).
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LuSearch, LuX } from 'react-icons/lu';
+import { Search, X } from 'lucide-react';
+import { Button, IconButton, Input, EmptyState } from '@/components/sabcrm/20ui';
 import type { EventType } from '@/lib/sabflow/types';
 import {
   TRIGGER_OPTIONS,
@@ -96,29 +97,34 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
 
   let runningIndex = 0;
   return (
-    <div className="sabflow-trigger-panel" onMouseDown={(e) => e.stopPropagation()}>
+    <div
+      className="ui20 sabflow-trigger-panel"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <div className="sabflow-trigger-panel__head">
         <div className="sabflow-trigger-panel__title">What triggers this workflow?</div>
         <div className="sabflow-trigger-panel__subtitle">
           A trigger is a step that starts your workflow
         </div>
-        <button
-          type="button"
-          aria-label="Close trigger picker"
+        <IconButton
+          label="Close trigger picker"
+          icon={X}
+          variant="ghost"
+          size="sm"
           className="sabflow-trigger-panel__close"
           onClick={onClose}
-        >
-          <LuX className="h-4 w-4" />
-        </button>
+        />
       </div>
 
       <div className="sabflow-trigger-panel__search">
-        <LuSearch className="h-3.5 w-3.5 text-[var(--gray-9)]" />
-        <input
+        <Input
           ref={inputRef}
           type="text"
+          inputSize="sm"
           value={query}
-          placeholder="Search triggers…"
+          placeholder="Search triggers..."
+          aria-label="Search triggers"
+          iconLeft={Search}
           onChange={(e) => {
             setQuery(e.target.value);
             setActiveIndex(0);
@@ -128,9 +134,12 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
 
       <div className="sabflow-trigger-panel__body">
         {grouped.length === 0 ? (
-          <div className="sabflow-trigger-panel__empty">
-            No triggers match &ldquo;{query}&rdquo;
-          </div>
+          <EmptyState
+            icon={Search}
+            size="sm"
+            title="No triggers found"
+            description={`Nothing matches "${query}".`}
+          />
         ) : (
           grouped.map((group) => (
             <div key={group.key} className="sabflow-trigger-panel__group">
@@ -145,9 +154,9 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
                 const idx = runningIndex++;
                 const isActive = idx === activeIndex;
                 return (
-                  <button
+                  <Button
                     key={option.appEvent}
-                    type="button"
+                    variant="ghost"
                     role="option"
                     aria-selected={isActive}
                     className={`sabflow-trigger-panel__item${isActive ? ' is-active' : ''}`}
@@ -161,13 +170,13 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
                         color: option.color,
                       }}
                     >
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <span className="sabflow-trigger-panel__item-text">
                       <span className="sabflow-trigger-panel__item-label">{option.label}</span>
                       <span className="sabflow-trigger-panel__item-desc">{option.description}</span>
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>

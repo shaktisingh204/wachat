@@ -1,13 +1,8 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import {
-  LuSettings2,
-  LuCopy,
-  LuTrash2,
-  LuPin,
-  LuPinOff,
-  LuPlay,
-} from 'react-icons/lu';
+import { Settings2, Copy, Trash2, Pin, PinOff, Play } from 'lucide-react';
+
+import { MenuItem, MenuSeparator } from '@/components/sabcrm/20ui';
 
 type Props = {
   x: number;
@@ -17,11 +12,11 @@ type Props = {
   isPinned?: boolean;
   onSettings: () => void;
   onDuplicate: () => void;
-  /** Fired when the user picks the pin/unpin menu item. Optional — when
+  /** Fired when the user picks the pin/unpin menu item. Optional. When
    *  omitted (e.g. for trigger event nodes that can't be pinned) the
    *  menu item is hidden. */
   onTogglePin?: () => void;
-  /** Fired when the user picks "Run from here". Optional — when omitted
+  /** Fired when the user picks "Run from here". Optional. When omitted
    *  the menu item is hidden (e.g. read-only flows, trigger nodes). */
   onRunFrom?: () => void;
   onDelete: () => void;
@@ -89,72 +84,40 @@ export function BlockNodeContextMenu({
   return (
     <div
       ref={menuRef}
-      className="fixed z-[9999] min-w-[160px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-lg py-1 select-none"
+      className="ui20 u-menu fixed z-[9999] min-w-[184px] select-none"
       style={{ left: x, top: y }}
       onContextMenu={(e) => e.preventDefault()}
     >
-      <button
-        type="button"
-        className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
-        onClick={handleSettings}
-      >
-        <LuSettings2 className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
-        Settings
-      </button>
+      <div className="u-menu__list" role="menu" aria-label="Block actions">
+        <MenuItem icon={Settings2} onSelect={handleSettings}>
+          Settings
+        </MenuItem>
 
-      {onRunFrom && (
-        <button
-          type="button"
-          className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
-          onClick={handleRunFrom}
-        >
-          <LuPlay
-            className="h-3.5 w-3.5 shrink-0 text-[var(--green-10)]"
-            strokeWidth={2.5}
-          />
-          Run from here
-        </button>
-      )}
+        {onRunFrom && (
+          <MenuItem icon={Play} onSelect={handleRunFrom}>
+            Run from here
+          </MenuItem>
+        )}
 
-      <button
-        type="button"
-        className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
-        onClick={handleDuplicate}
-      >
-        <LuCopy className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
-        Duplicate
-      </button>
+        <MenuItem icon={Copy} onSelect={handleDuplicate}>
+          Duplicate
+        </MenuItem>
 
-      {onTogglePin && (
-        <button
-          type="button"
-          className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
-          onClick={handleTogglePin}
-        >
-          {isPinned ? (
-            <>
-              <LuPinOff className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
-              Unpin output
-            </>
-          ) : (
-            <>
-              <LuPin className="h-3.5 w-3.5 shrink-0 text-[var(--amber-10)]" />
-              Pin output
-            </>
-          )}
-        </button>
-      )}
+        {onTogglePin && (
+          <MenuItem
+            icon={isPinned ? PinOff : Pin}
+            onSelect={handleTogglePin}
+          >
+            {isPinned ? 'Unpin output' : 'Pin output'}
+          </MenuItem>
+        )}
 
-      <div className="my-1 h-px bg-[var(--gray-4)]" />
+        <MenuSeparator />
 
-      <button
-        type="button"
-        className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:hover:bg-[var(--st-text)]/30 transition-colors"
-        onClick={handleDelete}
-      >
-        <LuTrash2 className="h-3.5 w-3.5 shrink-0" />
-        Delete
-      </button>
+        <MenuItem icon={Trash2} danger onSelect={handleDelete}>
+          Delete
+        </MenuItem>
+      </div>
     </div>
   );
 }

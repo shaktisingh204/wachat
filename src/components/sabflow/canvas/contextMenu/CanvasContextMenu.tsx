@@ -1,6 +1,6 @@
 'use client';
 /**
- * CanvasContextMenu — port of n8n's ContextMenu.vue + useContextMenuItems.
+ * CanvasContextMenu - port of n8n's ContextMenu.vue + useContextMenuItems.
  *
  * Renders a positioned menu with an action list, where the set of visible
  * actions depends on the target (canvas / node / edge) and the current
@@ -8,28 +8,32 @@
  */
 import { useEffect } from 'react';
 import {
-  LuCopy,
-  LuCopyPlus,
-  LuTrash2,
-  LuPower,
-  LuPencil,
-  LuPin,
-  LuPlay,
-  LuSquarePlus,
-  LuStickyNote,
-  LuMousePointer,
-  LuAlignHorizontalJustifyCenter,
-  LuZap,
-  LuClock,
-  LuGlobe,
-  LuHand,
-} from 'react-icons/lu';
+  Copy,
+  CopyPlus,
+  Trash2,
+  Power,
+  Pencil,
+  Pin,
+  Play,
+  SquarePlus,
+  StickyNote,
+  MousePointer,
+  AlignHorizontalJustifyCenter,
+  Zap,
+  Clock,
+  Globe,
+  Hand,
+  type LucideIcon,
+} from 'lucide-react';
+
+import { MenuItem, MenuSeparator } from '@/components/sabcrm/20ui';
+
 import type { ContextMenuState } from './useContextMenu';
 
 type Action = {
   id: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: LucideIcon;
   shortcut?: string;
   danger?: boolean;
   run: () => void;
@@ -43,12 +47,12 @@ type Props = {
   onClose: () => void;
   isReadOnly?: boolean;
   /**
-   * Map of nodeId → 'trigger' for trigger nodes. When a trigger node is
+   * Map of nodeId to 'trigger' for trigger nodes. When a trigger node is
    * right-clicked we surface a "Change trigger" sub-list instead of the
    * normal node actions.
    */
   nodeKinds?: Map<string, 'trigger' | 'block' | 'sticky'>;
-  /** True for the sole remaining trigger — disables the delete row for it. */
+  /** True for the sole remaining trigger - disables the delete row for it. */
   isSoleTrigger?: (nodeId: string) => boolean;
   actions: {
     onAddNode?: (screenX: number, screenY: number) => void;
@@ -103,28 +107,28 @@ export function CanvasContextMenu({
       {
         id: 'add-node',
         label: 'Add node',
-        icon: LuSquarePlus,
+        icon: SquarePlus,
         shortcut: 'Tab',
         run: () => actions.onAddNode?.(state.x, state.y),
       },
       {
         id: 'add-sticky',
         label: 'Add sticky note',
-        icon: LuStickyNote,
+        icon: StickyNote,
         shortcut: '⇧ S',
         run: () => actions.onAddSticky?.(state.x, state.y),
       },
       {
         id: 'select-all',
         label: 'Select all',
-        icon: LuMousePointer,
+        icon: MousePointer,
         shortcut: '⌘ A',
         run: () => actions.onSelectAll?.(),
       },
       {
         id: 'tidy-up',
         label: 'Tidy up',
-        icon: LuAlignHorizontalJustifyCenter,
+        icon: AlignHorizontalJustifyCenter,
         shortcut: '⇧ ⌥ T',
         run: () => actions.onTidyUp?.(),
       },
@@ -139,7 +143,7 @@ export function CanvasContextMenu({
       items.push({
         id: 'open',
         label: 'Open',
-        icon: LuPencil,
+        icon: Pencil,
         shortcut: '↵',
         run: () => actions.onOpen?.(single),
       });
@@ -147,7 +151,7 @@ export function CanvasContextMenu({
         items.push({
           id: 'execute',
           label: 'Execute step',
-          icon: LuPlay,
+          icon: Play,
           run: () => actions.onExecute?.(single),
         });
       }
@@ -157,31 +161,31 @@ export function CanvasContextMenu({
         items.push({
           id: 'trigger-start',
           label: 'Trigger: When flow starts',
-          icon: LuPlay,
+          icon: Play,
           run: () => actions.onChangeTrigger?.(single, 'start'),
         });
         items.push({
           id: 'trigger-webhook',
           label: 'Trigger: On webhook',
-          icon: LuGlobe,
+          icon: Globe,
           run: () => actions.onChangeTrigger?.(single, 'webhook'),
         });
         items.push({
           id: 'trigger-schedule',
           label: 'Trigger: On schedule',
-          icon: LuClock,
+          icon: Clock,
           run: () => actions.onChangeTrigger?.(single, 'schedule'),
         });
         items.push({
           id: 'trigger-manual',
           label: 'Trigger: Manual',
-          icon: LuHand,
+          icon: Hand,
           run: () => actions.onChangeTrigger?.(single, 'manual'),
         });
         items.push({
           id: 'trigger-error',
           label: 'Trigger: On error',
-          icon: LuZap,
+          icon: Zap,
           run: () => actions.onChangeTrigger?.(single, 'error'),
         });
       }
@@ -190,14 +194,14 @@ export function CanvasContextMenu({
       {
         id: 'copy',
         label: nodeIds.length > 1 ? 'Copy nodes' : 'Copy node',
-        icon: LuCopy,
+        icon: Copy,
         shortcut: '⌘ C',
         run: () => actions.onCopy?.(nodeIds),
       },
       {
         id: 'duplicate',
         label: nodeIds.length > 1 ? 'Duplicate nodes' : 'Duplicate',
-        icon: LuCopyPlus,
+        icon: CopyPlus,
         shortcut: '⌘ D',
         run: () => actions.onDuplicate?.(nodeIds),
       },
@@ -206,14 +210,14 @@ export function CanvasContextMenu({
       items.push({
         id: 'pin',
         label: 'Pin / unpin data',
-        icon: LuPin,
+        icon: Pin,
         shortcut: 'P',
         run: () => actions.onTogglePin?.(single),
       });
       items.push({
         id: 'rename',
         label: 'Rename',
-        icon: LuPencil,
+        icon: Pencil,
         shortcut: 'F2',
         run: () => actions.onRename?.(single),
       });
@@ -223,7 +227,7 @@ export function CanvasContextMenu({
     items.push({
       id: 'disable',
       label: nodeIds.length > 1 ? 'Toggle disabled' : 'Disable / enable',
-      icon: LuPower,
+      icon: Power,
       shortcut: 'D',
       run: () => actions.onToggleDisabled?.(nodeIds),
     });
@@ -231,7 +235,7 @@ export function CanvasContextMenu({
       items.push({
         id: 'delete',
         label: nodeIds.length > 1 ? 'Delete nodes' : 'Delete',
-        icon: LuTrash2,
+        icon: Trash2,
         shortcut: '⌫',
         danger: true,
         run: () => actions.onDeleteNodes?.(nodeIds),
@@ -243,44 +247,43 @@ export function CanvasContextMenu({
     items.push({
       id: 'delete-edge',
       label: 'Delete connection',
-      icon: LuTrash2,
+      icon: Trash2,
       shortcut: '⌫',
       danger: true,
       run: () => actions.onDeleteEdge?.(edgeId),
     });
   }
 
+  const visible = items.filter(
+    (item) => !(isReadOnly && item.id !== 'select-all' && item.id !== 'copy'),
+  );
+
   return (
     <div
-      className="sabflow-context-menu"
+      className="sabflow-context-menu u-menu"
       role="menu"
-      style={{ left: state.x, top: state.y }}
+      aria-label="Canvas actions"
+      style={{ position: 'fixed', zIndex: 60, left: state.x, top: state.y }}
       onMouseDown={(e) => e.stopPropagation()}
     >
-      {items.map((item, idx) => {
-        const Icon = item.icon;
-        const disabled = isReadOnly && item.id !== 'select-all' && item.id !== 'copy';
-        if (disabled) return null;
-        return (
+      <div className="u-menu__list" role="presentation">
+        {visible.map((item, idx) => (
           <div key={item.id}>
-            {item.divider && idx > 0 ? <div className="sabflow-context-menu__divider" /> : null}
-            <button
-              type="button"
-              className={`sabflow-context-menu__item${item.danger ? ' is-danger' : ''}`}
-              onClick={() => {
+            {item.divider && idx > 0 ? <MenuSeparator /> : null}
+            <MenuItem
+              icon={item.icon}
+              danger={item.danger}
+              hint={item.shortcut}
+              onSelect={() => {
                 item.run();
                 onClose();
               }}
             >
-              <Icon className="h-3.5 w-3.5" />
-              <span>{item.label}</span>
-              {item.shortcut ? (
-                <span className="sabflow-context-menu__shortcut">{item.shortcut}</span>
-              ) : null}
-            </button>
+              {item.label}
+            </MenuItem>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }

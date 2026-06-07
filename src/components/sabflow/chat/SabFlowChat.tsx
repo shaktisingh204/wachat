@@ -8,10 +8,11 @@ import {
   type FormEvent,
 } from 'react';
 import type { OutgoingMessage, InputRequest, SabFlowTheme } from '@/lib/sabflow/types';
+import { Button, IconButton, Field, Input, Spinner, EmptyState } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
-import { LuSend, LuLoader, LuRotateCcw, LuChevronRight } from 'react-icons/lu';
+import { Send, RotateCcw, ChevronRight } from 'lucide-react';
 
-/* ── API helpers ────────────────────────────────────────── */
+/* -- API helpers ----------------------------------------------------- */
 
 async function createSession(
   flowId: string,
@@ -45,21 +46,21 @@ async function executeStep(
   return res.json();
 }
 
-/* ── Message types ──────────────────────────────────────── */
+/* -- Message types --------------------------------------------------- */
 
 type ChatMessage =
   | { role: 'bot'; content: OutgoingMessage }
   | { role: 'user'; text: string }
   | { role: 'error'; text: string };
 
-/* ── Props ──────────────────────────────────────────────── */
+/* -- Props ----------------------------------------------------------- */
 
 interface Props {
   /** MongoDB ID of the published SabFlow. */
   flowId: string;
   /** Optional pre-seeded variable values passed to the session. */
   initialVariables?: Record<string, string>;
-  /** Theming — if not provided the flow's stored theme is used (server-side).
+  /** Theming. If not provided the flow's stored theme is used (server-side).
    *  For client-side preview pass directly. */
   theme?: SabFlowTheme;
   /** Extra CSS class on the root wrapper. */
@@ -68,7 +69,7 @@ interface Props {
   height?: string;
 }
 
-/* ── Bubble renderers ───────────────────────────────────── */
+/* -- Bubble renderers ------------------------------------------------ */
 
 function BotBubble({
   msg,
@@ -84,9 +85,19 @@ function BotBubble({
     if (msg.content.startsWith('__redirect__:')) {
       const url = msg.content.slice('__redirect__:'.length);
       return (
-        <div className="flex items-center gap-2 text-[12px] text-[var(--gray-9)] italic px-1">
-          <LuChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span>Redirect to <a href={url} target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--st-text)]">{url}</a></span>
+        <div className="flex items-center gap-2 text-[12px] italic px-1 text-[var(--st-text-tertiary)]">
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" strokeWidth={2} aria-hidden="true" />
+          <span>
+            Redirect to{' '}
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-[var(--st-text)]"
+            >
+              {url}
+            </a>
+          </span>
         </div>
       );
     }
@@ -126,9 +137,7 @@ function BotBubble({
   }
 
   if (msg.type === 'audio') {
-    return (
-      <audio src={msg.url} controls className="max-w-[240px]" />
-    );
+    return <audio src={msg.url} controls className="max-w-[240px]" />;
   }
 
   if (msg.type === 'embed') {
@@ -163,7 +172,7 @@ function UserBubble({
   );
 }
 
-/* ── Typing indicator ───────────────────────────────────── */
+/* -- Typing indicator ------------------------------------------------ */
 
 function TypingDots({ bg }: { bg: string }) {
   return (
@@ -182,7 +191,7 @@ function TypingDots({ bg }: { bg: string }) {
   );
 }
 
-/* ── Choice buttons ─────────────────────────────────────── */
+/* -- Choice buttons -------------------------------------------------- */
 
 function ChoiceButtons({
   choices,
@@ -196,20 +205,21 @@ function ChoiceButtons({
   return (
     <div className="flex flex-wrap gap-2 mt-1 self-start max-w-[90%]">
       {choices.map((c) => (
-        <button
+        <Button
           key={c.id}
+          variant="outline"
+          size="sm"
           onClick={() => onChoose(c.id)}
-          className="rounded-xl border px-3 py-1.5 text-[12.5px] font-medium transition-colors hover:opacity-80"
           style={{ borderColor: accentColor, color: accentColor }}
         >
           {c.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
 }
 
-/* ── SabFlowChat ────────────────────────────────────────── */
+/* -- SabFlowChat ----------------------------------------------------- */
 
 export function SabFlowChat({
   flowId,
@@ -229,7 +239,7 @@ export function SabFlowChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* ── Theming ──────────────────────────────────────────── */
+  /* -- Theming ------------------------------------------------------- */
   // Coerce string | ThemeColor objects into a CSS-applicable string.
   const toCss = (v: unknown, fb: string): string => {
     if (typeof v === 'string') return v;
@@ -239,22 +249,22 @@ export function SabFlowChat({
     }
     return fb;
   };
-  const hostBg    = toCss(theme?.chat?.hostBubble?.backgroundColor,  '#f0f0f0');
-  const hostColor = toCss(theme?.chat?.hostBubble?.color,            '#161616');
-  const guestBg   = toCss(theme?.chat?.guestBubble?.backgroundColor, '#f76808');
-  const guestColor= toCss(theme?.chat?.guestBubble?.color,           '#ffffff');
-  const inputBg   = toCss(theme?.chat?.input?.backgroundColor,       '#ffffff');
-  const inputColor= toCss(theme?.chat?.input?.color,                 '#161616');
-  const chatBg    = theme?.general?.background?.content       ?? 'transparent';
-  const font      = theme?.general?.font                      ?? 'inherit';
+  const hostBg = toCss(theme?.chat?.hostBubble?.backgroundColor, '#f0f0f0');
+  const hostColor = toCss(theme?.chat?.hostBubble?.color, '#161616');
+  const guestBg = toCss(theme?.chat?.guestBubble?.backgroundColor, '#f76808');
+  const guestColor = toCss(theme?.chat?.guestBubble?.color, '#ffffff');
+  const inputBg = toCss(theme?.chat?.input?.backgroundColor, '#ffffff');
+  const inputColor = toCss(theme?.chat?.input?.color, '#161616');
+  const chatBg = theme?.general?.background?.content ?? 'transparent';
+  const font = theme?.general?.font ?? 'inherit';
 
-  /* ── Auto-scroll ──────────────────────────────────────── */
+  /* -- Auto-scroll --------------------------------------------------- */
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, isLoading]);
 
-  /* ── Apply step result ────────────────────────────────── */
+  /* -- Apply step result --------------------------------------------- */
   const applyStepResult = useCallback(
     (result: { messages: OutgoingMessage[]; nextInput?: InputRequest; isCompleted: boolean }) => {
       const newMsgs: ChatMessage[] = result.messages.map((m) => ({
@@ -268,7 +278,7 @@ export function SabFlowChat({
     [],
   );
 
-  /* ── Init session ─────────────────────────────────────── */
+  /* -- Init session -------------------------------------------------- */
   const initSession = useCallback(async () => {
     setMessages([]);
     setNextInput(undefined);
@@ -293,7 +303,7 @@ export function SabFlowChat({
     initSession();
   }, [initSession]);
 
-  /* ── Submit user input ────────────────────────────────── */
+  /* -- Submit user input --------------------------------------------- */
   const submitInput = useCallback(
     async (inputValue: string) => {
       if (!sessionId || !inputValue.trim()) return;
@@ -325,31 +335,35 @@ export function SabFlowChat({
     submitInput(textValue);
   };
 
-  const showInput = !isCompleted && !isLoading && nextInput &&
+  const showInput =
+    !isCompleted &&
+    !isLoading &&
+    nextInput &&
     nextInput.inputType !== 'choice_input' &&
     nextInput.inputType !== 'picture_choice_input';
 
-  const showChoices = !isCompleted && !isLoading && nextInput &&
-    (nextInput.inputType === 'choice_input' || nextInput.inputType === 'picture_choice_input');
+  const showChoices =
+    !isCompleted &&
+    !isLoading &&
+    nextInput &&
+    (nextInput.inputType === 'choice_input' ||
+      nextInput.inputType === 'picture_choice_input');
 
   const inputPlaceholder = getInputPlaceholder(nextInput?.inputType);
 
-  /* ── Render ───────────────────────────────────────────── */
+  /* -- Render -------------------------------------------------------- */
   return (
     <div
-      className={cn('flex flex-col overflow-hidden', className)}
+      className={cn('ui20 flex flex-col overflow-hidden relative', className)}
       style={{ height, backgroundColor: chatBg, fontFamily: font }}
     >
       {/* Error banner */}
       {initError && (
-        <div className="mx-3 mt-3 flex items-center gap-2.5 rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2.5 text-[12.5px] text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+        <div className="mx-3 mt-3 flex items-center gap-2.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5 text-[12.5px] text-[var(--st-text)]">
           <span className="flex-1">{initError}</span>
-          <button
-            onClick={initSession}
-            className="flex items-center gap-1 rounded-lg border border-[var(--st-border)] px-2 py-1 text-[11.5px] font-medium hover:bg-[var(--st-bg-muted)] transition-colors dark:border-[var(--st-border)] dark:hover:bg-[var(--st-text)]/40"
-          >
-            <LuRotateCcw className="h-3 w-3" strokeWidth={2} /> Retry
-          </button>
+          <Button variant="outline" size="sm" iconLeft={RotateCcw} onClick={initSession}>
+            Retry
+          </Button>
         </div>
       )}
 
@@ -375,14 +389,21 @@ export function SabFlowChat({
           }
           // error
           return (
-            <div key={i} className="text-center text-[11.5px] text-[var(--st-text)] italic px-2">
+            <div
+              key={i}
+              className="text-center text-[11.5px] italic px-2 text-[var(--st-danger)]"
+            >
               {msg.text}
             </div>
           );
         })}
 
         {/* Typing indicator */}
-        {isLoading && <div className="flex justify-start"><TypingDots bg={hostBg} /></div>}
+        {isLoading && (
+          <div className="flex justify-start">
+            <TypingDots bg={hostBg} />
+          </div>
+        )}
 
         {/* Choice buttons */}
         {showChoices && nextInput?.choices && (
@@ -395,15 +416,15 @@ export function SabFlowChat({
 
         {/* Completed state */}
         {isCompleted && !isLoading && (
-          <div className="flex flex-col items-center gap-2.5 py-6 text-center">
-            <span className="text-[12.5px] text-[var(--gray-9)]">Flow completed</span>
-            <button
-              onClick={initSession}
-              className="flex items-center gap-1.5 rounded-xl border border-[var(--gray-5)] px-3 py-1.5 text-[12px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} /> Restart
-            </button>
-          </div>
+          <EmptyState
+            size="sm"
+            title="Flow completed"
+            action={
+              <Button variant="outline" size="sm" iconLeft={RotateCcw} onClick={initSession}>
+                Restart
+              </Button>
+            }
+          />
         )}
       </div>
 
@@ -411,68 +432,81 @@ export function SabFlowChat({
       {showInput && (
         <form
           onSubmit={handleFormSubmit}
-          className="shrink-0 flex items-center gap-2 border-t border-[var(--gray-5)] px-3 py-2.5"
+          className="shrink-0 flex items-center gap-2 border-t border-[var(--st-border)] px-3 py-2.5"
           style={{ backgroundColor: inputBg }}
         >
-          <input
-            ref={inputRef}
-            type={getInputType(nextInput?.inputType)}
-            value={textValue}
-            onChange={(e) => setTextValue(e.target.value)}
-            placeholder={inputPlaceholder}
-            autoFocus
-            className="flex-1 min-w-0 bg-transparent text-[13px] outline-none placeholder:text-[var(--gray-8)]"
-            style={{ color: inputColor }}
-          />
-          <button
+          <Field className="flex-1 min-w-0">
+            <Input
+              ref={inputRef}
+              type={getInputType(nextInput?.inputType)}
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              placeholder={inputPlaceholder}
+              aria-label={inputPlaceholder}
+              autoFocus
+              style={{ color: inputColor }}
+            />
+          </Field>
+          <IconButton
             type="submit"
+            variant="primary"
+            label="Send message"
+            icon={Send}
             disabled={!textValue.trim()}
-            className={cn(
-              'flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors',
-              textValue.trim()
-                ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-                : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
-            )}
-          >
-            <LuSend className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
         </form>
       )}
 
       {/* Idle state while loading and no messages yet */}
       {isLoading && messages.length === 0 && !initError && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <LuLoader className="h-5 w-5 animate-spin text-[var(--gray-8)]" strokeWidth={2} />
+          <Spinner size="lg" label="Loading flow" />
         </div>
       )}
     </div>
   );
 }
 
-/* ── Input type helpers ─────────────────────────────────── */
+/* -- Input type helpers ---------------------------------------------- */
 
 function getInputType(inputType?: string): string {
   switch (inputType) {
-    case 'email_input': return 'email';
-    case 'number_input': return 'number';
-    case 'url_input': return 'url';
-    case 'phone_input': return 'tel';
-    case 'date_input': return 'date';
-    case 'time_input': return 'time';
-    default: return 'text';
+    case 'email_input':
+      return 'email';
+    case 'number_input':
+      return 'number';
+    case 'url_input':
+      return 'url';
+    case 'phone_input':
+      return 'tel';
+    case 'date_input':
+      return 'date';
+    case 'time_input':
+      return 'time';
+    default:
+      return 'text';
   }
 }
 
 function getInputPlaceholder(inputType?: string): string {
   switch (inputType) {
-    case 'email_input': return 'Your email address…';
-    case 'number_input': return 'Enter a number…';
-    case 'url_input': return 'https://…';
-    case 'phone_input': return 'Your phone number…';
-    case 'date_input': return 'Select a date…';
-    case 'time_input': return 'Select a time…';
-    case 'rating_input': return 'Your rating (1–10)…';
-    case 'file_input': return 'File URL…';
-    default: return 'Type your answer…';
+    case 'email_input':
+      return 'Your email address...';
+    case 'number_input':
+      return 'Enter a number...';
+    case 'url_input':
+      return 'https://...';
+    case 'phone_input':
+      return 'Your phone number...';
+    case 'date_input':
+      return 'Select a date...';
+    case 'time_input':
+      return 'Select a time...';
+    case 'rating_input':
+      return 'Your rating (1-10)...';
+    case 'file_input':
+      return 'File URL...';
+    default:
+      return 'Type your answer...';
   }
 }

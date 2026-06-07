@@ -1,52 +1,61 @@
 'use client';
 
 /**
- * SabFlow editor — top-right presence avatar stack (Track A · Phase 7 · #2/10).
+ * SabFlow editor, top-right presence avatar stack (Track A, Phase 7, #2/10).
  *
  * Renders up to `max` active peers as a tight, outer-first overlapping stack
- * of 28×28 rounded-square avatars, each ringed by the peer's deterministic
- * color. Overflow collapses into a neutral zinc "+N more" pill that opens a
+ * of 28x28 rounded-square avatars, each ringed by the peer's deterministic
+ * color. Overflow collapses into a neutral "+N more" pill that opens a
  * popover listing every remaining peer. Idle peers (no setLocal in
- * {@link IDLE_MS}) render at 50 % opacity with a gray "status" dot instead
+ * the idle window) render at 50% opacity with a gray "status" dot instead
  * of the green "active" dot.
  *
  * Design contract
- * ───────────────
- *   • Pure presentational. The hook (`usePresence`) lives one layer up; this
- *     component just maps a `peers` array to DOM. That keeps it SSR-safe —
+ * ...............
+ *   - Pure presentational. The hook (`usePresence`) lives one layer up; this
+ *     component just maps a `peers` array to DOM. That keeps it SSR-safe:
  *     parents can pass `peers={[]}` during the server render and hydrate
  *     real data on the client without divergent markup.
- *   • Color comes from `peer.color` when provided, falling back to
+ *   - Color comes from `peer.color` when provided, falling back to
  *     `colorForUserId(peer.id)` so the ring stays stable even if the parent
  *     forgot to plumb the color through (e.g. older awareness payloads).
- *   • Initials come from `peer.name` via {@link nameInitials} (handles
+ *   - Initials come from `peer.name` via {@link nameInitials} (handles
  *     emoji / ZWJ / RTL gracefully) and are only rendered when no avatar
  *     URL is supplied.
- *   • Click is opt-in. Sub-task #6 (follow-user) will plumb the handler.
+ *   - Click is opt-in. Sub-task #6 (follow-user) will plumb the handler.
  *     Without `onPeerClick` the avatar renders as a plain `<span>` (no
  *     focus ring, no pointer cursor) so it stays inert and quiet.
  *
  * Layout
- * ──────
- *   • Inline-flex row, `-space-x-2` (= 8 px overlap per pair).
- *   • `flex-row-reverse` + reversed source order = first peer ends up on
- *     the *left* and visually on top (outer-first stacking).
- *   • Each avatar gets `z-${idx}` so hover/focus surfaces above its
+ * ......
+ *   - Inline-flex row, `-space-x-2` (= 8px overlap per pair).
+ *   - `flex-row-reverse` + reversed source order = first peer ends up on
+ *     the left and visually on top (outer-first stacking).
+ *   - Each avatar gets a `zIndex` so hover/focus surfaces above its
  *     neighbours without breaking the overlap.
  */
 
 import * as React from 'react';
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, Popover, PopoverContent, PopoverTrigger } from '@/components/sabcrm/20ui';
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Button,
+} from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import {
 	colorForUserId,
 	nameInitials,
 } from '@/lib/sabflow/client/user-color';
 
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 // Public types
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 
 /**
  * Minimal shape this component needs to render a peer. Designed as a
@@ -54,7 +63,7 @@ import {
  * awareness entries through with at most a 1-line `.map`.
  */
 export interface PresencePeer {
-	/** Stable user id — feeds {@link colorForUserId} as a fallback. */
+	/** Stable user id, feeds {@link colorForUserId} as a fallback. */
 	readonly id: string;
 	/** Display name. Used for initials, tooltip, and popover row. */
 	readonly name: string;
@@ -76,15 +85,15 @@ export interface PresenceAvatarStackProps {
 	readonly peers: readonly PresencePeer[];
 	/** Max avatars shown before collapsing into "+N more". Default 5. */
 	readonly max?: number;
-	/** Invoked with the peer id on click — wired by sub-task #6. */
+	/** Invoked with the peer id on click, wired by sub-task #6. */
 	readonly onPeerClick?: (peerId: string) => void;
 	/** Optional className for the outer wrapper (positioning, etc.). */
 	readonly className?: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 // Helpers
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 
 /**
  * Format a millisecond timestamp as a human-friendly "X ago" suffix for the
@@ -111,9 +120,9 @@ function resolveColor(peer: PresencePeer): string {
 		: colorForUserId(peer.id);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 // Internal avatar tile
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 
 interface AvatarTileProps {
 	readonly peer: PresencePeer;
@@ -122,8 +131,8 @@ interface AvatarTileProps {
 }
 
 /**
- * One 28×28 avatar in the stack. Memoised so re-renders triggered by an
- * unrelated peer's heartbeat don't repaint the whole row.
+ * One 28x28 avatar in the stack. Memoised so re-renders triggered by an
+ * unrelated peer's heartbeat do not repaint the whole row.
  */
 const AvatarTile = React.memo(function AvatarTile({
 	peer,
@@ -139,44 +148,32 @@ const AvatarTile = React.memo(function AvatarTile({
 		onPeerClick?.(peer.id);
 	}, [onPeerClick, peer.id]);
 
-	const handleKeyDown = React.useCallback(
-		(e: React.KeyboardEvent<HTMLButtonElement>) => {
-			if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
-				onPeerClick?.(peer.id);
-			}
-		},
-		[onPeerClick, peer.id],
-	);
-
 	const tileClass = cn(
-		'relative inline-flex h-7 w-7 items-center justify-center rounded-md',
+		'relative inline-flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] p-0',
 		'bg-[var(--st-bg-muted)] text-[10px] font-semibold uppercase text-[var(--st-text)]',
-		'dark:bg-[var(--st-text)] dark:text-white',
 		'transition-opacity',
 		isIdle && 'opacity-50',
 		onPeerClick &&
-			'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-zoru-surface',
+			'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--st-bg)]',
 	);
-	// 3 px solid border in the peer's color. Inline so the dynamic hex value
+	// 3px solid border in the peer's color. Inline because the dynamic hex value
 	// never needs to round-trip through Tailwind's JIT.
 	const borderStyle: React.CSSProperties = {
 		border: `3px solid ${color}`,
-		// `box-sizing: border-box` is the Tailwind default — the 28 px outer
+		// `box-sizing: border-box` is the Tailwind default; the 28px outer
 		// dimension already includes the ring.
 	};
 
 	const dotClass = cn(
-		'absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2',
-		'ring-background',
-		isIdle ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]',
+		'absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full ring-2 ring-[var(--st-bg)]',
+		isIdle ? 'bg-[var(--st-text-tertiary)]' : 'bg-[var(--st-status-ok)]',
 	);
 
 	const inner = (
 		<>
 			{peer.avatarUrl ? (
-				// Presence avatars are tiny (28 px) and short-lived in the
-				// viewport — `next/image` would force the host page into a
+				// Presence avatars are tiny (28px) and short-lived in the
+				// viewport, so `next/image` would force the host page into a
 				// dynamic-import path with no measurable bandwidth win.
 				// eslint-disable-next-line @next/next/no-img-element
 				<img
@@ -196,28 +193,27 @@ const AvatarTile = React.memo(function AvatarTile({
 		<div className="flex flex-col gap-0.5 text-left">
 			<span className="font-semibold leading-tight">{peer.name}</span>
 			<span className="text-[10px] leading-tight text-[var(--st-text-secondary)]">
-				{isIdle ? `Idle · ${lastActive}` : `Active · ${lastActive}`}
+				{isIdle ? `Idle, ${lastActive}` : `Active, ${lastActive}`}
 			</span>
 		</div>
 	);
 
 	// `zIndex: stackIndex` keeps the natural DOM-order layering so the
 	// left-most avatar sits on top while still allowing hover to bring the
-	// focused tile forward via `:hover { z-index: 100 }` (handled in CSS).
+	// focused tile forward.
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>
 				{onPeerClick ? (
-					<button
-						type="button"
+					<Button
+						variant="ghost"
 						onClick={handleClick}
-						onKeyDown={handleKeyDown}
 						aria-label={`Follow ${peer.name}`}
 						className={tileClass}
 						style={{ ...borderStyle, zIndex: stackIndex }}
 					>
 						{inner}
-					</button>
+					</Button>
 				) : (
 					<span
 						role="img"
@@ -234,9 +230,9 @@ const AvatarTile = React.memo(function AvatarTile({
 	);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 // Overflow popover
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 
 interface OverflowPillProps {
 	readonly overflow: readonly PresencePeer[];
@@ -253,20 +249,19 @@ const OverflowPill = React.memo(function OverflowPill({
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<button
-					type="button"
+				<Button
+					variant="ghost"
 					aria-label={`${count} more ${count === 1 ? 'collaborator' : 'collaborators'}`}
 					className={cn(
-						'relative inline-flex h-7 min-w-7 items-center justify-center rounded-md',
-						'border-2 border-background bg-[var(--st-bg-muted)] px-1.5 text-[10px] font-semibold text-[var(--st-text)]',
-						'hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2',
-						'focus-visible:ring-offset-2 focus-visible:ring-offset-zoru-surface',
-						'dark:bg-[var(--st-text)] dark:text-white dark:hover:bg-[var(--st-text)]',
+						'relative inline-flex h-7 min-w-7 items-center justify-center rounded-[var(--st-radius)]',
+						'border-2 border-[var(--st-bg)] bg-[var(--st-bg-muted)] px-1.5 text-[10px] font-semibold text-[var(--st-text)]',
+						'hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
+						'focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--st-bg)]',
 					)}
 					style={{ zIndex: 0 }}
 				>
 					+{count}
-				</button>
+				</Button>
 			</PopoverTrigger>
 			<PopoverContent
 				align="end"
@@ -286,14 +281,14 @@ const OverflowPill = React.memo(function OverflowPill({
 						const isIdle = peer.idle === true;
 						const lastActive = formatLastActive(peer.lastActiveAt);
 						const rowClass = cn(
-							'flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm',
+							'flex items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm',
 							'transition-colors',
 							isIdle && 'opacity-60',
 							onPeerClick && 'hover:bg-[var(--st-bg-muted)] cursor-pointer',
 						);
 						const tile = (
 							<span
-								className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--st-bg-muted)] text-[9px] font-semibold uppercase text-[var(--st-text)] dark:bg-[var(--st-text)] dark:text-white"
+								className="relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[9px] font-semibold uppercase text-[var(--st-text)]"
 								style={{ border: `2px solid ${color}` }}
 								aria-hidden="true"
 							>
@@ -318,7 +313,7 @@ const OverflowPill = React.memo(function OverflowPill({
 										{peer.name}
 									</span>
 									<span className="truncate text-[10px] text-[var(--st-text-secondary)]">
-										{isIdle ? `Idle · ${lastActive}` : `Active · ${lastActive}`}
+										{isIdle ? `Idle, ${lastActive}` : `Active, ${lastActive}`}
 									</span>
 								</span>
 							</>
@@ -326,13 +321,13 @@ const OverflowPill = React.memo(function OverflowPill({
 						return (
 							<li key={peer.id}>
 								{onPeerClick ? (
-									<button
-										type="button"
-										className={cn(rowClass, 'w-full')}
+									<Button
+										variant="ghost"
+										className={cn(rowClass, 'w-full justify-start')}
 										onClick={() => onPeerClick(peer.id)}
 									>
 										{body}
-									</button>
+									</Button>
 								) : (
 									<div className={rowClass}>{body}</div>
 								)}
@@ -345,9 +340,9 @@ const OverflowPill = React.memo(function OverflowPill({
 	);
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 // Public component
-// ─────────────────────────────────────────────────────────────────────────────
+// .............................................................................
 
 /**
  * Stacked-avatar presence indicator for the SabFlow editor chrome.

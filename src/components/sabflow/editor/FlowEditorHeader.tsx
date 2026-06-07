@@ -3,18 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  LuArrowLeft,
-  LuSave,
-  LuCheck,
-  LuLoader,
-  LuCircleDot,
-  LuCircleOff,
-  LuUndo2,
-  LuRedo2,
-  LuShieldCheck,
-  LuChartBar as LuBarChart2,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  ArrowLeft,
+  Save,
+  Check,
+  CircleDot,
+  CircleOff,
+  Undo2,
+  Redo2,
+  ShieldCheck,
+  BarChart2,
+} from 'lucide-react';
+import { Button, IconButton, Badge, Input, cn } from '@/components/sabcrm/20ui';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 
 /* ── Props ──────────────────────────────────────────────────────────────── */
@@ -37,7 +36,7 @@ export type FlowEditorHeaderProps = {
   onSave: () => void;
   onPublishToggle: () => void;
   onNameChange: (name: string) => void;
-  /** Validation state — drives the shield badge in the header. */
+  /** Validation state, drives the shield badge in the header. */
   validationErrorCount?: number;
   validationWarningCount?: number;
   isValidationPanelOpen?: boolean;
@@ -96,14 +95,15 @@ function EditableFlowName({ name, onChange, onCommit }: EditableFlowNameProps) {
 
   if (editing) {
     return (
-      <input
+      <Input
         ref={inputRef}
+        inputSize="sm"
         type="text"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={handleKeyDown}
-        className="text-[14px] font-semibold text-[var(--gray-12)] bg-[var(--gray-3)] border border-[var(--gray-6)] rounded px-1.5 py-0.5 outline-none focus:ring-2 focus:ring-[var(--st-border)]/60 min-w-0 w-[200px] truncate"
+        className="w-[200px] min-w-0 truncate text-[14px] font-semibold"
         aria-label="Flow name"
         autoFocus
       />
@@ -111,14 +111,15 @@ function EditableFlowName({ name, onChange, onCommit }: EditableFlowNameProps) {
   }
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="sm"
       onDoubleClick={enter}
       title="Double-click to rename"
-      className="text-[14px] font-semibold text-[var(--gray-12)] bg-transparent border-none outline-none min-w-0 max-w-[200px] truncate hover:bg-[var(--gray-3)] rounded px-1.5 py-0.5 transition-colors cursor-default select-none"
+      className="min-w-0 max-w-[200px] truncate text-[14px] font-semibold"
     >
       {draft}
-    </button>
+    </Button>
   );
 }
 
@@ -147,35 +148,35 @@ export function FlowEditorHeader({
   return (
     <header
       className={cn(
-        'flex h-12 shrink-0 items-center gap-2 border-b border-[var(--gray-5)] bg-[var(--gray-1)] px-3 z-30',
+        'z-30 flex h-12 shrink-0 items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-3',
       )}
     >
       {/* ── Left: back button ──────────────────────────────────────────── */}
       <Link
         href="/dashboard/sabflow"
-        className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors shrink-0"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-text-tertiary)] transition-colors hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
         title="Back to flows"
         aria-label="Back to flows"
       >
-        <LuArrowLeft className="h-4 w-4" strokeWidth={2} />
+        <ArrowLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
       </Link>
 
-      <div className="h-5 w-px bg-[var(--gray-5)] shrink-0" />
+      <div className="h-5 w-px shrink-0 bg-[var(--st-border)]" />
 
       {/* ── Results link ──────────────────────────────────────────────── */}
       <Link
         href={`/dashboard/sabflow/flow-builder/${flow._id}/results`}
-        className="flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[12px] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors shrink-0"
-        title="View results & analytics"
+        className="flex h-8 shrink-0 items-center gap-1.5 rounded-[var(--st-radius)] px-2.5 text-[12px] text-[var(--st-text-tertiary)] transition-colors hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]"
+        title="View results and analytics"
       >
-        <LuBarChart2 className="h-3.5 w-3.5" strokeWidth={1.8} />
+        <BarChart2 className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
         <span className="hidden sm:inline">Results</span>
       </Link>
 
-      <div className="h-5 w-px bg-[var(--gray-5)] shrink-0" />
+      <div className="h-5 w-px shrink-0 bg-[var(--st-border)]" />
 
       {/* ── Centre: editable flow name ─────────────────────────────────── */}
-      <div className="flex-1 min-w-0 flex items-center justify-center">
+      <div className="flex min-w-0 flex-1 items-center justify-center">
         <EditableFlowName
           name={flow.name}
           onChange={onNameChange}
@@ -184,134 +185,97 @@ export function FlowEditorHeader({
       </div>
 
       {/* ── Right cluster ─────────────────────────────────────────────── */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex shrink-0 items-center gap-1.5">
 
         {/* Undo */}
-        <button
-          type="button"
+        <IconButton
+          label="Undo"
+          icon={Undo2}
           onClick={onUndo}
           disabled={!canUndo}
           title="Undo (Cmd+Z)"
-          aria-label="Undo"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            canUndo
-              ? 'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]'
-              : 'text-[var(--gray-6)] cursor-not-allowed',
-          )}
-        >
-          <LuUndo2 className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
 
         {/* Redo */}
-        <button
-          type="button"
+        <IconButton
+          label="Redo"
+          icon={Redo2}
           onClick={onRedo}
           disabled={!canRedo}
           title="Redo (Cmd+Shift+Z)"
-          aria-label="Redo"
-          className={cn(
-            'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-            canRedo
-              ? 'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]'
-              : 'text-[var(--gray-6)] cursor-not-allowed',
-          )}
-        >
-          <LuRedo2 className="h-4 w-4" strokeWidth={1.8} />
-        </button>
+        />
 
-        <div className="h-5 w-px bg-[var(--gray-5)]" />
+        <div className="h-5 w-px bg-[var(--st-border)]" />
 
         {/* Save status indicator */}
         {saveError ? (
-          <span className="text-[11px] text-[var(--st-text)] max-w-[140px] truncate" title={saveError}>
+          <span className="max-w-[140px] truncate text-[11px] text-[var(--st-danger)]" title={saveError}>
             {saveError}
           </span>
         ) : lastSaved ? (
-          <span className="text-[11px] text-[var(--gray-9)] flex items-center gap-1">
-            <LuCheck className="h-3 w-3 text-[var(--st-text)] shrink-0" strokeWidth={2.5} />
+          <span className="flex items-center gap-1 text-[11px] text-[var(--st-text-tertiary)]">
+            <Check className="h-3 w-3 shrink-0 text-[var(--st-status-ok)]" strokeWidth={2.5} aria-hidden="true" />
             Saved
           </span>
         ) : null}
 
-        {/* Save button */}
-        <button
-          type="button"
+        {/* Save button (built-in spinner via the loading prop) */}
+        <Button
+          variant="primary"
+          size="sm"
+          iconLeft={Save}
+          loading={isSaving}
           onClick={() => onSave()}
           disabled={isSaving}
           title="Save (Cmd+S)"
-          aria-label="Save"
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            isSaving
-              ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]',
-          )}
         >
-          {isSaving ? (
-            <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-          ) : (
-            <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
-          )}
-          {isSaving ? 'Saving…' : 'Save'}
-        </button>
+          {isSaving ? 'Saving...' : 'Save'}
+        </Button>
 
         {/* Publish / Unpublish toggle */}
-        <button
-          type="button"
+        <Button
+          variant={isPublished ? 'outline' : 'secondary'}
+          size="sm"
+          iconLeft={isPublished ? CircleDot : CircleOff}
           onClick={onPublishToggle}
           disabled={isSaving}
           title={isPublished ? 'Click to unpublish' : 'Click to publish'}
           aria-label={isPublished ? 'Unpublish flow' : 'Publish flow'}
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            isPublished
-              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] dark:hover:bg-[var(--st-text)]/60'
-              : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
-          )}
         >
-          {isPublished ? (
-            <>
-              <LuCircleDot className="h-3.5 w-3.5" strokeWidth={2} />
-              Published
-            </>
-          ) : (
-            <>
-              <LuCircleOff className="h-3.5 w-3.5" strokeWidth={2} />
-              Publish
-            </>
-          )}
-        </button>
+          {isPublished ? 'Published' : 'Publish'}
+        </Button>
 
         {/* Validation toggle */}
         {onValidationToggle && (
           <>
-            <div className="h-5 w-px bg-[var(--gray-5)]" />
+            <div className="h-5 w-px bg-[var(--st-border)]" />
             <div className="relative">
-              <button
-                type="button"
+              <IconButton
+                label="Toggle validation panel"
+                icon={ShieldCheck}
                 onClick={onValidationToggle}
                 title="Validate flow"
-                aria-label="Toggle validation panel"
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-                  isValidationPanelOpen
-                    ? 'bg-[var(--gray-4)] text-[var(--gray-12)]'
-                    : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-                )}
-              >
-                <LuShieldCheck className="h-4 w-4" strokeWidth={1.8} />
-              </button>
-              {/* Badge: red if errors, yellow if only warnings */}
+                aria-pressed={isValidationPanelOpen}
+                className={isValidationPanelOpen ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]' : undefined}
+              />
+              {/* Badge: danger if errors, warning if only warnings */}
               {(validationErrorCount !== undefined && validationErrorCount > 0) && (
-                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-text)] px-0.5 text-[9px] font-bold text-white tabular-nums">
+                <Badge
+                  tone="danger"
+                  kind="solid"
+                  className="pointer-events-none absolute -right-1 -top-1 tabular-nums"
+                >
                   {validationErrorCount > 99 ? '99+' : validationErrorCount}
-                </span>
+                </Badge>
               )}
               {(validationErrorCount === 0 && validationWarningCount !== undefined && validationWarningCount > 0) && (
-                <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] px-0.5 text-[9px] font-bold text-white tabular-nums">
+                <Badge
+                  tone="warning"
+                  kind="solid"
+                  className="pointer-events-none absolute -right-1 -top-1 tabular-nums"
+                >
                   {validationWarningCount > 99 ? '99+' : validationWarningCount}
-                </span>
+                </Badge>
               )}
             </div>
           </>
@@ -320,7 +284,7 @@ export function FlowEditorHeader({
         {/* Optional extra toolbar buttons (panel toggles, etc.) */}
         {children && (
           <>
-            <div className="h-5 w-px bg-[var(--gray-5)]" />
+            <div className="h-5 w-px bg-[var(--st-border)]" />
             {children}
           </>
         )}

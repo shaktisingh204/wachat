@@ -1,24 +1,32 @@
 'use client';
 
 /**
- * MarketplaceBrowseClient — C.10.5
+ * MarketplaceBrowseClient - C.10.5
  *
  * Interactive browse layer for the SabFlow marketplace page.
  *
  * Receives the full (serialised) template list from the server component and
- * handles all filtering, sorting, and pagination client-side.  This keeps the
+ * handles all filtering, sorting, and pagination client-side. This keeps the
  * server component thin (auth + Mongo query) while giving instant UI feedback
  * without extra round-trips.
  *
- * Grid:   3-col on desktop  ·  2-col on tablet  ·  1-col on mobile
+ * Grid:   3-col on desktop, 2-col on tablet, 1-col on mobile
  * Page:   12 templates per page
- * Sort:   Most Popular (installCount desc)  ·  Newest (publishedAt desc)  ·  A–Z
+ * Sort:   Most Popular (installCount desc), Newest (publishedAt desc), A-Z
  * Filter: category + complexity + freetext search (debounced 300 ms)
  */
 
 import * as React from 'react';
-import { LuShoppingBag, LuArrowUpDown } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { ShoppingBag, ArrowUpDown } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  EmptyState,
+  Pagination,
+} from '@/components/sabcrm/20ui';
 import { MarketplaceFilters, type MarketplaceFilterState, type MarketplaceCategory, type MarketplaceComplexity } from './MarketplaceFilters';
 import { TemplateCard, type TemplateCardData } from './TemplateCard';
 
@@ -37,7 +45,7 @@ const PAGE_SIZE = 12;
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'popular', label: 'Most Popular' },
   { value: 'newest', label: 'Newest' },
-  { value: 'az', label: 'A–Z' },
+  { value: 'az', label: 'A-Z' },
 ];
 
 /* ── Category normalisation ─────────────────────────────────────────────── */
@@ -55,7 +63,7 @@ function normaliseCategoryForFilter(raw: string): MarketplaceCategory {
     DevOps: 'DevOps',
     Finance: 'Finance',
     Productivity: 'Productivity',
-    // Registry → filter bucket
+    // Registry to filter bucket
     Sales: 'Productivity',
     Marketing: 'Communication',
     Support: 'Communication',
@@ -149,43 +157,39 @@ export function MarketplaceBrowseClient({ templates }: Props) {
 
       {/* ── Toolbar: count + sort ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[12px] text-[var(--st-text)]">
+        <p className="text-[12px] text-[var(--st-text-secondary)]">
           {sorted.length === 0
             ? 'No templates found'
             : `${sorted.length} template${sorted.length === 1 ? '' : 's'}`}
         </p>
 
         <div className="flex items-center gap-2">
-          <LuArrowUpDown className="h-3.5 w-3.5 text-[var(--st-text)] flex-shrink-0" />
-          <select
-            aria-label="Sort templates"
-            value={sort}
-            onChange={(e) => handleSortChange(e.target.value as SortOption)}
-            className={cn(
-              'rounded-lg border border-[var(--st-border)] bg-[var(--st-text)] py-1.5 pl-2.5 pr-7',
-              'text-[12px] text-white outline-none',
-              'focus:border-[var(--st-border)] focus:ring-2 focus:ring-[var(--st-border)]/30',
-              'transition-colors cursor-pointer',
-            )}
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <ArrowUpDown
+            className="h-3.5 w-3.5 flex-shrink-0 text-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          />
+          <Select value={sort} onValueChange={(v) => handleSortChange(v as SortOption)}>
+            <SelectTrigger aria-label="Sort templates" className="min-w-[10rem]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
       {/* ── Grid ─────────────────────────────────────────────────────────── */}
       {isEmpty ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-[var(--st-border)] py-16 text-center">
-          <LuShoppingBag className="h-8 w-8 text-[var(--st-text)]" strokeWidth={1.2} />
-          <p className="text-[13px] font-medium text-[var(--st-text-secondary)]">No templates match your filters</p>
-          <p className="text-[12px] text-[var(--st-text)]">
-            Try adjusting or resetting the filters above.
-          </p>
-        </div>
+        <EmptyState
+          icon={ShoppingBag}
+          title="No templates match your filters"
+          description="Try adjusting or resetting the filters above."
+        />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {pageItems.map((tpl) => (
@@ -196,72 +200,15 @@ export function MarketplaceBrowseClient({ templates }: Props) {
 
       {/* ── Pagination ───────────────────────────────────────────────────── */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1.5 pt-2">
-          <PaginationButton
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={safePage === 1}
-            aria-label="Previous page"
-          >
-            ‹
-          </PaginationButton>
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <PaginationButton
-              key={p}
-              onClick={() => setPage(p)}
-              active={p === safePage}
-              aria-label={`Page ${p}`}
-              aria-current={p === safePage ? 'page' : undefined}
-            >
-              {p}
-            </PaginationButton>
-          ))}
-
-          <PaginationButton
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={safePage === totalPages}
-            aria-label="Next page"
-          >
-            ›
-          </PaginationButton>
+        <div className="flex items-center justify-center pt-2">
+          <Pagination
+            page={safePage}
+            pageCount={totalPages}
+            onPageChange={setPage}
+            label="Template pages"
+          />
         </div>
       )}
     </div>
-  );
-}
-
-/* ── PaginationButton ───────────────────────────────────────────────────── */
-
-function PaginationButton({
-  children,
-  onClick,
-  disabled = false,
-  active = false,
-  ...rest
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  disabled?: boolean;
-  active?: boolean;
-  'aria-label'?: string;
-  'aria-current'?: 'page' | undefined;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        'inline-flex h-8 min-w-[2rem] items-center justify-center rounded-lg border text-[12px] font-medium px-2',
-        'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-        active
-          ? 'border-[var(--st-border)] bg-[var(--st-text)] text-white'
-          : 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text-secondary)] hover:border-[var(--st-border)] hover:text-white',
-        disabled && 'pointer-events-none opacity-40',
-      )}
-      {...rest}
-    >
-      {children}
-    </button>
   );
 }

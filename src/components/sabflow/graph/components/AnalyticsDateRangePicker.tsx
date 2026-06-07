@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import { Button, Field, Input } from '@/components/sabcrm/20ui';
 import type { AnalyticsDateRange } from '../providers/AnalyticsProvider';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   onChange: (range: AnalyticsDateRange) => void;
 };
 
-/* ── Helpers ──────────────────────────────────────────────── */
+/* Helpers */
 
 function toInputValue(d: Date): string {
   // yyyy-MM-dd in local time
@@ -84,7 +84,7 @@ function isApproxEqualRange(a: AnalyticsDateRange, b: AnalyticsDateRange): boole
   );
 }
 
-/* ── Component ────────────────────────────────────────────── */
+/* Component */
 
 export function AnalyticsDateRangePicker({ value, onChange }: Props) {
   const activePreset = useMemo(() => {
@@ -98,7 +98,7 @@ export function AnalyticsDateRangePicker({ value, onChange }: Props) {
     const parsed = fromInputValue(raw);
     if (!parsed) return;
     const nextStart = startOfDay(parsed);
-    // Ensure start ≤ end.
+    // Ensure start is not after end.
     const nextEnd = parsed.getTime() > value.end.getTime() ? endOfDay(parsed) : value.end;
     onChange({ start: nextStart, end: nextEnd });
   };
@@ -119,47 +119,38 @@ export function AnalyticsDateRangePicker({ value, onChange }: Props) {
         {PRESETS.map((preset) => {
           const isActive = activePreset === preset.label;
           return (
-            <button
+            <Button
               key={preset.label}
               type="button"
+              size="sm"
+              variant={isActive ? 'primary' : 'secondary'}
+              aria-pressed={isActive}
               onClick={() => onChange(preset.make())}
-              className={cn(
-                'rounded-md px-2 py-1 text-[11px] font-medium transition-colors',
-                isActive
-                  ? 'bg-[var(--st-text)] text-white'
-                  : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)]',
-              )}
             >
               {preset.label}
-            </button>
+            </Button>
           );
         })}
       </div>
 
       {/* Custom date inputs */}
       <div className="flex items-center gap-2">
-        <label className="flex flex-1 flex-col gap-0.5">
-          <span className="text-[10px] uppercase tracking-wide text-[var(--gray-10)]">
-            Start
-          </span>
-          <input
+        <Field label="Start" className="flex-1">
+          <Input
             type="date"
+            inputSize="sm"
             value={toInputValue(value.start)}
             onChange={(e) => handleStartInput(e.target.value)}
-            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-[var(--st-border)] focus:outline-none"
           />
-        </label>
-        <label className="flex flex-1 flex-col gap-0.5">
-          <span className="text-[10px] uppercase tracking-wide text-[var(--gray-10)]">
-            End
-          </span>
-          <input
+        </Field>
+        <Field label="End" className="flex-1">
+          <Input
             type="date"
+            inputSize="sm"
             value={toInputValue(value.end)}
             onChange={(e) => handleEndInput(e.target.value)}
-            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] px-2 py-1 text-[12px] text-[var(--gray-12)] focus:border-[var(--st-border)] focus:outline-none"
           />
-        </label>
+        </Field>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  forwardRef,
   useCallback,
   useEffect,
   useMemo,
@@ -11,14 +12,15 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react';
-import { LuPalette, LuTrash2, LuX } from 'react-icons/lu';
+import { Check, Palette, Trash2, X, type LucideIcon } from 'lucide-react';
 import { useShallow } from 'zustand/react/shallow';
 import type { Annotation, AnnotationColor } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
+import { Button, IconButton, Textarea } from '@/components/sabcrm/20ui';
 import { useGraph } from '../../providers/GraphProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
 
-/* ─── Colour palette ──────────────────────────────────────────────────────── */
+/* --- Colour palette --------------------------------------------------------- */
 
 type ColorTokens = {
   /** Paper background */
@@ -49,7 +51,7 @@ const COLOR_ORDER: AnnotationColor[] = [
   'orange',
 ];
 
-/* ─── Constants ───────────────────────────────────────────────────────────── */
+/* --- Constants -------------------------------------------------------------- */
 
 const DEFAULT_WIDTH = 200;
 const DEFAULT_HEIGHT = 150;
@@ -57,7 +59,7 @@ const MIN_WIDTH = 120;
 const MIN_HEIGHT = 90;
 const DEFAULT_COLOR: AnnotationColor = 'yellow';
 
-/** Deterministic "playful" rotation per annotation id — range ±2deg. */
+/** Deterministic "playful" rotation per annotation id, range +/- 2deg. */
 function rotationFor(id: string): number {
   let hash = 0;
   for (let i = 0; i < id.length; i += 1) {
@@ -68,7 +70,7 @@ function rotationFor(id: string): number {
   return (normalized - 200) / 100;
 }
 
-/* ─── Props ───────────────────────────────────────────────────────────────── */
+/* --- Props ------------------------------------------------------------------ */
 
 type Props = {
   annotation: Annotation;
@@ -78,7 +80,18 @@ type Props = {
   onDelete: (id: string) => void;
 };
 
-/* ─── Component ───────────────────────────────────────────────────────────── */
+/**
+ * A blank lucide-compatible icon so unselected colour swatches render as a plain
+ * disc (only their runtime background shows). Lets every swatch be an accessible
+ * `IconButton` instead of a raw `<button>`.
+ */
+const EmptySwatchIcon = forwardRef<SVGSVGElement, { size?: number | string }>(
+  function EmptySwatchIcon({ size = 24 }, ref) {
+    return <svg ref={ref} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" />;
+  },
+) as unknown as LucideIcon;
+
+/* --- Component -------------------------------------------------------------- */
 
 export function StickyNote({ annotation, onChange, onDelete }: Props) {
   const { graphPosition, isReadOnly } = useGraph();
@@ -97,7 +110,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
   const [draftContent, setDraftContent] = useState(annotation.content);
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
 
-  // Live drag/resize offsets — applied via transform to avoid per-frame React renders.
+  // Live drag/resize offsets, applied via transform to avoid per-frame React renders.
   const dragState = useRef<{
     mode: 'drag' | 'resize' | null;
     startClientX: number;
@@ -140,12 +153,13 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
     if (!isEditing) setDraftContent(annotation.content);
   }, [annotation.content, isEditing]);
 
-  /* ─── Colours & style ───────────────────────────────────────────────────── */
+  /* --- Colours & style ------------------------------------------------------ */
 
   const color: AnnotationColor = annotation.color ?? DEFAULT_COLOR;
   const tokens = COLOR_TOKENS[color];
   const rotation = useMemo(() => rotationFor(annotation.id), [annotation.id]);
 
+  // Runtime-computed: position transform, size, paper colours, font size.
   const rootStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -162,7 +176,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
     touchAction: 'none',
   };
 
-  /* ─── Drag ──────────────────────────────────────────────────────────────── */
+  /* --- Drag ----------------------------------------------------------------- */
 
   const onBodyPointerDown = useCallback(
     (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -269,7 +283,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
     liveSizeRef.current = liveSize;
   }, [liveSize]);
 
-  /* ─── Editing ───────────────────────────────────────────────────────────── */
+  /* --- Editing -------------------------------------------------------------- */
 
   const beginEditing = useCallback(() => {
     if (isReadOnly) return;
@@ -301,7 +315,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
     }
   };
 
-  /* ─── Context menu ──────────────────────────────────────────────────────── */
+  /* --- Context menu --------------------------------------------------------- */
 
   const onContextMenu = (e: ReactMouseEvent<HTMLDivElement>) => {
     if (isReadOnly) return;
@@ -333,7 +347,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
     };
   }, [annotation.id, closeMenu, menuPos]);
 
-  /* ─── Render ────────────────────────────────────────────────────────────── */
+  /* --- Render --------------------------------------------------------------- */
 
   return (
     <>
@@ -344,9 +358,9 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
         data-selectable={annotation.id}
         style={rootStyle}
         className={cn(
-          'select-none rounded-[6px] border-[1.5px]',
+          'ui20 select-none rounded-[6px] border-[1.5px]',
           'will-change-transform',
-          isFocused && 'ring-2 ring-[var(--st-border)] ring-offset-1 ring-offset-transparent',
+          isFocused && 'ring-2 ring-[var(--st-accent)] ring-offset-1 ring-offset-transparent',
           isEditing ? 'cursor-text' : 'cursor-grab',
           dragState.current.mode === 'drag' && 'cursor-grabbing',
         )}
@@ -361,7 +375,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
         }}
         onContextMenu={onContextMenu}
       >
-        {/* "Tape" strip on top — purely decorative */}
+        {/* "Tape" strip on top, purely decorative. Runtime paper colour. */}
         <div
           aria-hidden="true"
           className="h-[14px] w-full rounded-t-[4px]"
@@ -371,7 +385,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
         {/* Body */}
         <div className="relative flex h-[calc(100%-14px)] w-full flex-col p-2">
           {isEditing ? (
-            <textarea
+            <Textarea
               ref={textareaRef}
               value={draftContent}
               onChange={(e) => setDraftContent(e.target.value)}
@@ -380,7 +394,8 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
               onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
               placeholder="Type a note..."
-              className="h-full w-full resize-none bg-transparent outline-none placeholder:text-current/40"
+              aria-label="Note content"
+              className="!h-full !min-h-0 !w-full !resize-none !border-0 !bg-transparent !p-0 !shadow-none placeholder:!opacity-40 focus:!shadow-none"
               style={{ color: tokens.text }}
             />
           ) : (
@@ -394,44 +409,42 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
             </div>
           )}
 
-          {/* Resize handle — bottom right */}
+          {/* Resize handle, bottom right. Runtime gradient colour. */}
           {!isReadOnly && (
             <div
               role="presentation"
               onPointerDown={onResizePointerDown}
-              className="absolute bottom-0 right-0 h-3.5 w-3.5 cursor-nwse-resize"
+              className="absolute bottom-0 right-0 h-3.5 w-3.5 cursor-nwse-resize rounded-br-[4px]"
               style={{
                 background: `linear-gradient(135deg, transparent 50%, ${tokens.border} 50%)`,
-                borderBottomRightRadius: 4,
               }}
             />
           )}
         </div>
       </div>
 
-      {/* ─── Right-click context menu (fixed / screen coords) ─── */}
+      {/* --- Right-click context menu (fixed / screen coords) --- */}
       {menuPos && (
         <div
           id={`sticky-note-menu-${annotation.id}`}
           role="menu"
+          // Runtime cursor coordinates.
           style={{ top: menuPos.y, left: menuPos.x }}
-          className="fixed z-[9999] min-w-[200px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] py-1.5 shadow-xl select-none"
+          className="ui20 fixed z-[9999] min-w-[200px] select-none rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] py-1.5 shadow-xl"
           onContextMenu={(e) => e.preventDefault()}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-3 pb-1.5 pt-0.5">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--gray-10)]">
-              <LuPalette size={11} />
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              <Palette size={11} aria-hidden="true" />
               Color
             </span>
-            <button
-              type="button"
-              aria-label="Close menu"
+            <IconButton
+              label="Close menu"
+              icon={X}
+              size="sm"
               onClick={closeMenu}
-              className="text-[var(--gray-10)] hover:text-[var(--gray-12)]"
-            >
-              <LuX size={12} />
-            </button>
+            />
           </div>
 
           {/* Colour swatches */}
@@ -440,42 +453,48 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
               const t = COLOR_TOKENS[c];
               const selected = c === color;
               return (
-                <button
+                <IconButton
                   key={c}
-                  type="button"
-                  aria-label={`Set color ${c}`}
+                  label={`Set color ${c}`}
+                  icon={selected ? Check : EmptySwatchIcon}
+                  size="sm"
+                  aria-pressed={selected}
                   onClick={() => {
                     onChange(annotation.id, { color: c });
                     closeMenu();
                   }}
                   className={cn(
-                    'h-5 w-5 rounded-full border transition-transform',
-                    'hover:scale-110',
+                    '!h-5 !w-5 !rounded-full !border transition-transform hover:scale-110',
                     selected
-                      ? 'ring-2 ring-offset-1 ring-[var(--gray-12)] ring-offset-[var(--gray-1)]'
+                      ? '!ring-2 !ring-[var(--st-text)] !ring-offset-1 !ring-offset-[var(--st-bg)]'
                       : '',
                   )}
-                  style={{ backgroundColor: t.bg, borderColor: t.border }}
+                  // Runtime swatch colour from the annotation palette.
+                  style={{ backgroundColor: t.bg, borderColor: t.border, color: t.text }}
                 />
               );
             })}
           </div>
 
-          <div className="my-1 h-px bg-[var(--gray-5)]" />
+          <div className="my-1 h-px bg-[var(--st-border)]" />
 
           {/* Delete */}
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              onDelete(annotation.id);
-              closeMenu();
-            }}
-            className="flex w-full items-center gap-2.5 px-3 py-[7px] text-[12.5px] text-[var(--red-11,_#d04b2d)] hover:bg-[var(--red-3,_#ffecec)]"
-          >
-            <LuTrash2 size={13} />
-            <span className="flex-1 text-left">Delete note</span>
-          </button>
+          <div className="px-2 pb-0.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              iconLeft={Trash2}
+              role="menuitem"
+              onClick={() => {
+                onDelete(annotation.id);
+                closeMenu();
+              }}
+              className="!justify-start !text-[var(--st-danger)]"
+            >
+              Delete note
+            </Button>
+          </div>
         </div>
       )}
     </>

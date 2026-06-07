@@ -1,36 +1,50 @@
 'use client';
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  LuGlobe,
-  LuShield,
-  LuCopy,
-  LuCheck,
-  LuClock,
-  LuX,
-  LuTrash2,
-  LuLoader,
-  LuTriangleAlert,
-  LuChevronDown,
-  LuChevronUp,
-  LuInfo,
-  LuRefreshCw,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Globe,
+  Shield,
+  Copy,
+  Check,
+  Clock,
+  X,
+  Trash2,
+  TriangleAlert,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  RefreshCw,
+} from 'lucide-react';
+import {
+  Alert,
+  Badge,
+  Button,
+  Callout,
+  Card,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Spinner,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import type {
   CustomDomain,
   DomainStatus,
   SslStatus,
 } from '@/lib/sabflow/domains/types';
 
-/* ── Constants ───────────────────────────────────────────── */
+/* Constants */
 
-const ACCENT = '#f76808';
 /** Host users must point their CNAME to. Override via NEXT_PUBLIC_* at build. */
 const CNAME_TARGET =
   process.env.NEXT_PUBLIC_SABFLOW_CNAME_TARGET ?? 'flow.sabnode.com';
 
-/* ── Props ───────────────────────────────────────────────── */
+/* Props */
 
 export interface DomainsPanelProps {
   /** Optional: scope new domains to a specific flow. */
@@ -39,7 +53,7 @@ export interface DomainsPanelProps {
   flowName?: string;
 }
 
-/* ── API helpers (client) ────────────────────────────────── */
+/* API helpers (client) */
 
 interface ApiDomain extends Omit<CustomDomain, 'createdAt' | 'lastCheckedAt'> {
   createdAt: string;
@@ -104,17 +118,9 @@ async function apiDelete(id: string): Promise<void> {
   }
 }
 
-/* ── Copy button ─────────────────────────────────────────── */
+/* Copy button */
 
-function CopyButton({
-  text,
-  label = 'Copy',
-  className,
-}: {
-  text: string;
-  label?: string;
-  className?: string;
-}) {
+function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -128,101 +134,59 @@ function CopyButton({
   }, [text]);
 
   return (
-    <button
-      type="button"
+    <Button
+      size="sm"
+      variant={copied ? 'primary' : 'secondary'}
+      iconLeft={copied ? Check : Copy}
       onClick={handleCopy}
-      title={copied ? 'Copied!' : 'Copy to clipboard'}
-      aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
-      className={cn(
-        'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors shrink-0',
-        copied
-          ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-          : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]',
-        className,
-      )}
+      className="shrink-0"
     >
-      {copied ? (
-        <LuCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-      ) : (
-        <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
-      )}
-      {copied ? 'Copied!' : label}
-    </button>
+      {copied ? 'Copied' : label}
+    </Button>
   );
 }
 
-/* ── Status pill ─────────────────────────────────────────── */
+/* Status pill */
 
 function StatusPill({ status }: { status: DomainStatus }) {
-  const { Icon, label, cls } = useMemo(() => {
+  const { Icon, label, tone } = useMemo(() => {
     if (status === 'verified') {
-      return {
-        Icon: LuCheck,
-        label: 'Verified',
-        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-      };
+      return { Icon: Check, label: 'Verified', tone: 'success' as const };
     }
     if (status === 'failed') {
-      return {
-        Icon: LuX,
-        label: 'Failed',
-        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-      };
+      return { Icon: X, label: 'Failed', tone: 'danger' as const };
     }
-    return {
-      Icon: LuClock,
-      label: 'Pending',
-      cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-    };
+    return { Icon: Clock, label: 'Pending', tone: 'warning' as const };
   }, [status]);
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold',
-        cls,
-      )}
-    >
-      <Icon className="h-3 w-3" strokeWidth={2.5} />
+    <Badge tone={tone} kind="soft">
+      <Icon className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
       {label}
-    </span>
+    </Badge>
   );
 }
 
 function SslPill({ status }: { status: SslStatus }) {
-  const { label, cls } = useMemo(() => {
+  const { label, tone } = useMemo(() => {
     if (status === 'issued') {
-      return {
-        label: 'SSL issued',
-        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-      };
+      return { label: 'SSL issued', tone: 'success' as const };
     }
     if (status === 'failed') {
-      return {
-        label: 'SSL failed',
-        cls: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]',
-      };
+      return { label: 'SSL failed', tone: 'danger' as const };
     }
-    return {
-      label: 'SSL pending',
-      cls: 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-    };
+    return { label: 'SSL pending', tone: 'neutral' as const };
   }, [status]);
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium',
-        cls,
-      )}
-    >
-      <LuShield className="h-3 w-3" strokeWidth={2} />
+    <Badge tone={tone} kind="soft">
+      <Shield className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
       {label}
-    </span>
+    </Badge>
   );
 }
 
-/* ── DNS record row ──────────────────────────────────────── */
+/* DNS record row */
 
 function DnsRecordRow({
   label,
@@ -234,23 +198,23 @@ function DnsRecordRow({
   value: string;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-3">
+    <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
           {label}
         </span>
       </div>
       <dl className="space-y-2 text-[12px]">
         <div className="flex items-center gap-2">
-          <dt className="w-16 shrink-0 text-[var(--gray-9)]">Name</dt>
-          <dd className="flex-1 truncate font-mono text-[var(--gray-12)]">
+          <dt className="w-16 shrink-0 text-[var(--st-text-tertiary)]">Name</dt>
+          <dd className="flex-1 truncate font-mono text-[var(--st-text)]">
             {name}
           </dd>
           <CopyButton text={name} />
         </div>
         <div className="flex items-center gap-2">
-          <dt className="w-16 shrink-0 text-[var(--gray-9)]">Value</dt>
-          <dd className="flex-1 truncate font-mono text-[var(--gray-12)]">
+          <dt className="w-16 shrink-0 text-[var(--st-text-tertiary)]">Value</dt>
+          <dd className="flex-1 truncate font-mono text-[var(--st-text)]">
             {value}
           </dd>
           <CopyButton text={value} />
@@ -260,7 +224,7 @@ function DnsRecordRow({
   );
 }
 
-/* ── Domain row ──────────────────────────────────────────── */
+/* Domain row */
 
 function DomainRow({
   domain,
@@ -271,6 +235,7 @@ function DomainRow({
   onVerified: (updated: CustomDomain) => void;
   onDeleted: (id: string) => void;
 }) {
+  const { toast } = useToast();
   const [expanded, setExpanded] = useState(domain.status !== 'verified');
   const [verifying, setVerifying] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -314,144 +279,115 @@ function DomainRow({
     try {
       await apiDelete(domain.id);
       onDeleted(domain.id);
+      toast.success('Domain deleted.');
     } catch (err) {
-      setMessage({
-        kind: 'error',
-        text: err instanceof Error ? err.message : 'Delete failed',
-      });
+      toast.error(err instanceof Error ? err.message : 'Delete failed');
       setDeleting(false);
     }
-  }, [domain.domain, domain.id, onDeleted]);
+  }, [domain.domain, domain.id, onDeleted, toast]);
 
   return (
-    <li className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] overflow-hidden">
-      {/* Header row */}
-      <div className="flex items-center gap-3 px-4 py-3">
-        <LuGlobe
-          className="h-4 w-4 shrink-0 text-[var(--gray-9)]"
-          strokeWidth={1.8}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate text-[13px] font-semibold text-[var(--gray-12)]">
-              {domain.domain}
-            </span>
-          </div>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <StatusPill status={domain.status} />
-            <SslPill status={domain.sslStatus} />
-            {domain.flowId ? (
-              <span className="rounded-full bg-[var(--gray-3)] px-2 py-0.5 text-[11px] font-medium text-[var(--gray-10)]">
-                Flow-scoped
+    <li>
+      <Card variant="outlined" padding="none" className="overflow-hidden">
+        {/* Header row */}
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Globe
+            className="h-4 w-4 shrink-0 text-[var(--st-text-tertiary)]"
+            strokeWidth={1.8}
+            aria-hidden="true"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="truncate text-[13px] font-semibold text-[var(--st-text)]">
+                {domain.domain}
               </span>
-            ) : null}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <StatusPill status={domain.status} />
+              <SslPill status={domain.sslStatus} />
+              {domain.flowId ? (
+                <Badge tone="neutral" kind="soft">
+                  Flow-scoped
+                </Badge>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1">
+            <Button
+              size="sm"
+              variant="secondary"
+              iconLeft={RefreshCw}
+              loading={verifying}
+              disabled={verifying || deleting}
+              onClick={handleVerify}
+            >
+              Verify now
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={Trash2}
+              loading={deleting}
+              disabled={verifying || deleting}
+              onClick={handleDelete}
+              aria-label="Delete domain"
+              title="Delete domain"
+            />
+            <IconButton
+              label={expanded ? 'Hide DNS records' : 'Show DNS records'}
+              icon={expanded ? ChevronUp : ChevronDown}
+              variant="ghost"
+              size="sm"
+              aria-expanded={expanded}
+              onClick={() => setExpanded((v) => !v)}
+            />
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
-          <button
-            type="button"
-            onClick={handleVerify}
-            disabled={verifying || deleting}
-            title="Verify now"
-            aria-label="Verify now"
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--gray-3)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--gray-11)] transition-colors hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)] disabled:opacity-60"
-          >
-            {verifying ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-            ) : (
-              <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
-            )}
-            Verify now
-          </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={verifying || deleting}
-            title="Delete domain"
-            aria-label="Delete domain"
-            className="flex items-center justify-center rounded-lg p-1.5 text-[var(--gray-9)] transition-colors hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-60 dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]"
-          >
-            {deleting ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-            ) : (
-              <LuTrash2 className="h-3.5 w-3.5" strokeWidth={2} />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            title={expanded ? 'Hide DNS records' : 'Show DNS records'}
-            aria-label={expanded ? 'Hide DNS records' : 'Show DNS records'}
-            aria-expanded={expanded}
-            className="flex items-center justify-center rounded-lg p-1.5 text-[var(--gray-9)] transition-colors hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]"
-          >
-            {expanded ? (
-              <LuChevronUp className="h-3.5 w-3.5" strokeWidth={2} />
-            ) : (
-              <LuChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Expanded: DNS instructions */}
-      {expanded && (
-        <div className="border-t border-[var(--gray-4)] bg-[var(--gray-2)] px-4 py-4 space-y-3">
-          <p className="text-[12.5px] text-[var(--gray-10)] leading-relaxed">
-            Add the following DNS records at your registrar.  Both are required
-            — the <span className="font-semibold">TXT</span> record proves
-            ownership, and the <span className="font-semibold">CNAME</span>{' '}
-            record routes live traffic to SabFlow.
-          </p>
-
-          <DnsRecordRow
-            label="TXT record (verification)"
-            name={`_sabflow.${domain.domain}`}
-            value={domain.verificationToken}
-          />
-          <DnsRecordRow
-            label="CNAME record (routing)"
-            name={domain.domain}
-            value={CNAME_TARGET}
-          />
-
-          {message && (
-            <div
-              className={cn(
-                'flex items-start gap-2 rounded-lg px-3 py-2 text-[12px]',
-                message.kind === 'error'
-                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]'
-                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]',
-              )}
-            >
-              {message.kind === 'error' ? (
-                <LuTriangleAlert
-                  className="h-3.5 w-3.5 shrink-0 mt-0.5"
-                  strokeWidth={2}
-                />
-              ) : (
-                <LuCheck
-                  className="h-3.5 w-3.5 shrink-0 mt-0.5"
-                  strokeWidth={2.5}
-                />
-              )}
-              <span className="leading-relaxed">{message.text}</span>
-            </div>
-          )}
-
-          {domain.lastCheckedAt && (
-            <p className="text-[11px] text-[var(--gray-8)]">
-              Last checked {domain.lastCheckedAt.toLocaleString()}
+        {/* Expanded: DNS instructions */}
+        {expanded && (
+          <div className="space-y-3 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-4">
+            <p className="text-[12.5px] leading-relaxed text-[var(--st-text-secondary)]">
+              Add the following DNS records at your registrar. Both are required.
+              The <span className="font-semibold">TXT</span> record proves
+              ownership, and the <span className="font-semibold">CNAME</span>{' '}
+              record routes live traffic to SabFlow.
             </p>
-          )}
-        </div>
-      )}
+
+            <DnsRecordRow
+              label="TXT record (verification)"
+              name={`_sabflow.${domain.domain}`}
+              value={domain.verificationToken}
+            />
+            <DnsRecordRow
+              label="CNAME record (routing)"
+              name={domain.domain}
+              value={CNAME_TARGET}
+            />
+
+            {message && (
+              <Alert
+                tone={message.kind === 'error' ? 'danger' : 'success'}
+                icon={message.kind === 'error' ? TriangleAlert : Check}
+              >
+                {message.text}
+              </Alert>
+            )}
+
+            {domain.lastCheckedAt && (
+              <p className="text-[11px] text-[var(--st-text-tertiary)]">
+                Last checked {domain.lastCheckedAt.toLocaleString()}
+              </p>
+            )}
+          </div>
+        )}
+      </Card>
     </li>
   );
 }
 
-/* ── Add-domain form ─────────────────────────────────────── */
+/* Add-domain form */
 
 function AddDomainForm({
   flowId,
@@ -460,7 +396,7 @@ function AddDomainForm({
   flowId?: string;
   onCreated: (d: CustomDomain) => void;
 }) {
-  const inputId = useId();
+  const { toast } = useToast();
   const [value, setValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -475,61 +411,49 @@ function AddDomainForm({
         const created = await apiCreate(value.trim(), flowId);
         onCreated(created);
         setValue('');
+        toast.success('Domain added.');
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to add domain');
+        const text = err instanceof Error ? err.message : 'Failed to add domain';
+        setError(text);
+        toast.error(text);
       } finally {
         setLoading(false);
       }
     },
-    [value, loading, flowId, onCreated],
+    [value, loading, flowId, onCreated, toast],
   );
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] px-4 py-3"
-    >
-      <label
-        htmlFor={inputId}
-        className="mb-2 block text-[11.5px] font-medium text-[var(--gray-10)]"
-      >
-        Add a custom domain
-      </label>
-      <div className="flex items-center gap-2">
-        <input
-          id={inputId}
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="chat.mysite.com"
-          autoComplete="off"
-          autoCapitalize="off"
-          spellCheck={false}
-          className="flex-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] outline-none transition-colors focus:border-[var(--gray-8)] focus:ring-1 focus:ring-[var(--gray-6)]"
-        />
-        <button
-          type="submit"
-          disabled={loading || !value.trim()}
-          style={{ backgroundColor: ACCENT }}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-        >
-          {loading ? (
-            <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-          ) : null}
-          Add domain
-        </button>
-      </div>
-      {error && (
-        <p className="mt-2 flex items-center gap-1.5 text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-          <LuTriangleAlert className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          {error}
-        </p>
-      )}
-    </form>
+    <Card variant="outlined" padding="md">
+      <form onSubmit={handleSubmit}>
+        <Field label="Add a custom domain" error={error ?? undefined}>
+          <div className="flex items-center gap-2">
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="chat.mysite.com"
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              className="flex-1"
+            />
+            <Button
+              type="submit"
+              variant="primary"
+              loading={loading}
+              disabled={loading || !value.trim()}
+              className="shrink-0"
+            >
+              Add domain
+            </Button>
+          </div>
+        </Field>
+      </form>
+    </Card>
   );
 }
 
-/* ── Main panel ──────────────────────────────────────────── */
+/* Main panel */
 
 export function DomainsPanel({ flowId, flowName }: DomainsPanelProps) {
   const [domains, setDomains] = useState<CustomDomain[]>([]);
@@ -557,7 +481,10 @@ export function DomainsPanel({ flowId, flowName }: DomainsPanelProps) {
   }, []);
 
   const scoped = useMemo(
-    () => (flowId ? domains.filter((d) => !d.flowId || d.flowId === flowId) : domains),
+    () =>
+      flowId
+        ? domains.filter((d) => !d.flowId || d.flowId === flowId)
+        : domains,
     [domains, flowId],
   );
 
@@ -574,81 +501,63 @@ export function DomainsPanel({ flowId, flowName }: DomainsPanelProps) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
+    <div className="ui20 mx-auto flex max-w-2xl flex-col gap-6 p-6">
       {/* Page heading */}
-      <div className="flex items-center gap-3">
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-xl shrink-0"
-          style={{ backgroundColor: `${ACCENT}18` }}
+      <PageHeader bordered={false} className="items-center">
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius-lg)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+          aria-hidden="true"
         >
-          <LuGlobe
-            className="h-5 w-5"
-            strokeWidth={1.8}
-            style={{ color: ACCENT }}
-          />
-        </div>
-        <div>
-          <h1 className="text-[16px] font-semibold text-[var(--gray-12)]">
-            Custom domains
-          </h1>
-          <p className="text-[12.5px] text-[var(--gray-10)]">
+          <Globe className="h-5 w-5" strokeWidth={1.8} />
+        </span>
+        <PageHeaderHeading>
+          <PageTitle>Custom domains</PageTitle>
+          <PageDescription>
             {flowName ?? 'Serve your flows from your own domain'}
-          </p>
-        </div>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
       {/* Info callout */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] px-3.5 py-3">
-        <LuInfo
-          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--gray-9)]"
-          strokeWidth={1.8}
-        />
-        <div className="space-y-1 text-[12.5px] text-[var(--gray-10)] leading-relaxed">
-          <p>
+      <Callout icon={Info} tone="info">
+        <span className="space-y-1 leading-relaxed">
+          <span className="block">
             Point your own domain (e.g.{' '}
-            <span className="font-mono text-[var(--gray-12)]">
+            <span className="font-mono text-[var(--st-text)]">
               chat.mysite.com
             </span>
             ) at SabFlow to serve this flow under your brand.
-          </p>
-          <p className="text-[11.5px] text-[var(--gray-9)]">
-            DNS changes can take up to <strong>48 hours</strong> to propagate.
-            If verification fails on the first try, wait a few minutes and try
-            again.
-          </p>
-        </div>
-      </div>
+          </span>
+          <span className="block text-[var(--st-text-tertiary)]">
+            DNS changes can take up to 48 hours to propagate. If verification
+            fails on the first try, wait a few minutes and try again.
+          </span>
+        </span>
+      </Callout>
 
       {/* Add form */}
       <AddDomainForm flowId={flowId} onCreated={handleCreated} />
 
       {/* Domain list */}
       {loading ? (
-        <div className="flex items-center justify-center rounded-xl border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-4 py-10 text-[12.5px] text-[var(--gray-9)]">
-          <LuLoader className="mr-2 h-4 w-4 animate-spin" strokeWidth={2} />
-          Loading domains…
-        </div>
+        <Card
+          variant="ghost"
+          padding="lg"
+          className="flex items-center justify-center gap-2 border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[12.5px] text-[var(--st-text-tertiary)]"
+        >
+          <Spinner size="sm" label="Loading domains" />
+          Loading domains
+        </Card>
       ) : loadError ? (
-        <div className="flex items-start gap-2 rounded-xl bg-[var(--st-bg-muted)] px-3.5 py-3 text-[12.5px] text-[var(--st-text)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
-          <LuTriangleAlert
-            className="mt-0.5 h-4 w-4 shrink-0"
-            strokeWidth={2}
-          />
-          <span>{loadError}</span>
-        </div>
+        <Alert tone="danger" title="Could not load domains">
+          {loadError}
+        </Alert>
       ) : scoped.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-4 py-10">
-          <LuGlobe
-            className="h-7 w-7 text-[var(--gray-7)]"
-            strokeWidth={1.4}
-          />
-          <p className="text-[12.5px] font-medium text-[var(--gray-11)]">
-            No custom domains yet
-          </p>
-          <p className="text-[11.5px] text-[var(--gray-9)] text-center max-w-xs">
-            Add a domain above to serve your flow under your own brand.
-          </p>
-        </div>
+        <EmptyState
+          icon={Globe}
+          title="No custom domains yet"
+          description="Add a domain above to serve your flow under your own brand."
+        />
       ) : (
         <ul className="flex flex-col gap-3">
           {scoped.map((d) => (

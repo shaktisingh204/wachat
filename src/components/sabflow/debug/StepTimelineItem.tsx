@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * StepTimelineItem — a single row in the debug "Steps" tab.
+ * StepTimelineItem - a single row in the debug "Steps" tab.
  *
  * Shows a compact summary (icon + label + timestamp + duration) and,
  * when expanded, a JSON dump of options / inputs / outputs / errors.
@@ -9,21 +9,22 @@
 
 import { useState, memo, type ReactNode } from 'react';
 import {
-  LuCircle,
-  LuMessageSquare,
-  LuGitBranch,
-  LuVariable,
-  LuArrowRight,
-  LuCornerDownRight,
-  LuClock,
-  LuChevronRight,
-  LuChevronDown,
-  LuCircleAlert,
-  LuCode,
-  LuGlobe,
-  LuCheck,
-  LuTimerReset,
-} from 'react-icons/lu';
+  Circle,
+  MessageSquare,
+  GitBranch,
+  Variable,
+  ArrowRight,
+  CornerDownRight,
+  Clock,
+  ChevronRight,
+  ChevronDown,
+  CircleAlert,
+  Code,
+  Globe,
+  Check,
+  TimerReset,
+} from 'lucide-react';
+import { Button } from '@/components/sabcrm/20ui';
 import type { DebugStep } from '@/lib/sabflow/debug/types';
 
 const ICON_SIZE = 'h-3.5 w-3.5';
@@ -32,32 +33,32 @@ const ICON_STROKE = 2;
 function iconFor(type: string): ReactNode {
   switch (type) {
     case 'init':
-      return <LuCircle className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Circle className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'message':
     case 'text':
-      return <LuMessageSquare className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <MessageSquare className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'condition':
-      return <LuGitBranch className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <GitBranch className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'set_variable':
-      return <LuVariable className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Variable className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'input':
-      return <LuCornerDownRight className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <CornerDownRight className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'jump':
     case 'redirect':
-      return <LuArrowRight className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <ArrowRight className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'wait':
-      return <LuTimerReset className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <TimerReset className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'script':
-      return <LuCode className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Code className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'webhook':
     case 'integration':
-      return <LuGlobe className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Globe className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'end':
-      return <LuCheck className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Check className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     case 'error':
-      return <LuCircleAlert className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <CircleAlert className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
     default:
-      return <LuCircle className={ICON_SIZE} strokeWidth={ICON_STROKE} />;
+      return <Circle className={ICON_SIZE} strokeWidth={ICON_STROKE} aria-hidden="true" />;
   }
 }
 
@@ -80,7 +81,7 @@ function fmtJSON(value: unknown): string {
 
 interface Props {
   step: DebugStep;
-  /** If true, render as error-styled row (amber/red accent). */
+  /** If true, render expanded by default. */
   defaultOpen?: boolean;
 }
 
@@ -95,67 +96,71 @@ function StepTimelineItemImpl({ step, defaultOpen = false }: Props) {
   return (
     <div
       className={
-        'rounded-lg border border-[var(--gray-4)] bg-[var(--gray-1)] overflow-hidden ' +
-        (isError ? 'border-[var(--st-border)] dark:border-[var(--st-border)]/60 ' : '')
+        'rounded-[var(--st-radius)] border bg-[var(--st-bg)] overflow-hidden ' +
+        (isError ? 'border-[var(--st-danger)]/40' : 'border-[var(--st-border)]')
       }
     >
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        block
         onClick={() => hasDetails && setOpen((o) => !o)}
+        aria-expanded={hasDetails ? open : undefined}
         className={
-          'flex w-full items-center gap-2 px-2.5 py-1.5 text-left transition-colors ' +
-          (hasDetails ? 'hover:bg-[var(--gray-3)] cursor-pointer' : 'cursor-default')
+          '!h-auto !justify-start !rounded-none !px-2.5 !py-1.5 ' +
+          (hasDetails ? 'cursor-pointer' : '!cursor-default hover:!bg-transparent')
         }
       >
-        {hasDetails ? (
-          open ? (
-            <LuChevronDown className="h-3 w-3 shrink-0 text-[var(--gray-9)]" strokeWidth={2} />
+        <span className="flex w-full items-center gap-2 text-left">
+          {hasDetails ? (
+            open ? (
+              <ChevronDown className="h-3 w-3 shrink-0 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+            ) : (
+              <ChevronRight className="h-3 w-3 shrink-0 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+            )
           ) : (
-            <LuChevronRight className="h-3 w-3 shrink-0 text-[var(--gray-9)]" strokeWidth={2} />
-          )
-        ) : (
-          <span className="h-3 w-3 shrink-0" />
-        )}
-        <span
-          className={
-            'flex h-5 w-5 items-center justify-center rounded-md shrink-0 ' +
-            (isError
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-              : 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]')
-          }
-        >
-          {iconFor(step.blockType)}
-        </span>
+            <span className="h-3 w-3 shrink-0" />
+          )}
+          <span
+            className={
+              'flex h-5 w-5 items-center justify-center rounded-[var(--st-radius-sm)] shrink-0 ' +
+              (isError
+                ? 'bg-[var(--st-danger-soft)] text-[var(--st-danger)]'
+                : 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]')
+            }
+          >
+            {iconFor(step.blockType)}
+          </span>
 
-        <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[var(--gray-12)]">
-          {step.label ?? step.blockType}
-          {step.groupName ? (
-            <span className="text-[var(--gray-8)] font-normal">
-              {' · '}
-              {step.groupName}
-            </span>
-          ) : null}
-        </span>
+          <span className="min-w-0 flex-1 truncate text-[12px] font-medium text-[var(--st-text)]">
+            {step.label ?? step.blockType}
+            {step.groupName ? (
+              <span className="text-[var(--st-text-tertiary)] font-normal">
+                {' · '}
+                {step.groupName}
+              </span>
+            ) : null}
+          </span>
 
-        <span className="flex items-center gap-1.5 text-[10.5px] tabular-nums text-[var(--gray-8)] shrink-0">
-          <span className="font-mono">{fmtTimestamp(step.timestamp)}</span>
-          {typeof step.duration === 'number' ? (
-            <span className="inline-flex items-center gap-0.5 rounded bg-[var(--gray-3)] px-1.5 py-0.5">
-              <LuClock className="h-2.5 w-2.5" strokeWidth={2} />
-              {step.duration}ms
-            </span>
-          ) : null}
+          <span className="flex items-center gap-1.5 text-[10.5px] tabular-nums text-[var(--st-text-tertiary)] shrink-0">
+            <span className="font-mono">{fmtTimestamp(step.timestamp)}</span>
+            {typeof step.duration === 'number' ? (
+              <span className="inline-flex items-center gap-0.5 rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5">
+                <Clock className="h-2.5 w-2.5" strokeWidth={2} aria-hidden="true" />
+                {step.duration}ms
+              </span>
+            ) : null}
+          </span>
         </span>
-      </button>
+      </Button>
 
       {open && hasDetails ? (
-        <div className="border-t border-[var(--gray-4)] bg-[var(--gray-2)] px-2.5 py-2 space-y-2">
+        <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-2 space-y-2">
           {step.error ? (
             <div>
-              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+              <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-danger)]">
                 Error
               </div>
-              <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+              <pre className="whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--st-danger)]">
                 {step.error}
               </pre>
             </div>
@@ -174,10 +179,10 @@ function StepTimelineItemImpl({ step, defaultOpen = false }: Props) {
 function Section({ title, body }: { title: string; body: string }) {
   return (
     <div>
-      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+      <div className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {title}
       </div>
-      <pre className="max-h-[200px] overflow-auto whitespace-pre-wrap break-all rounded bg-[var(--gray-1)] p-2 font-mono text-[11px] leading-snug text-[var(--gray-11)]">
+      <pre className="max-h-[200px] overflow-auto whitespace-pre-wrap break-all rounded-[var(--st-radius-sm)] bg-[var(--st-bg)] p-2 font-mono text-[11px] leading-snug text-[var(--st-text-secondary)]">
         {body}
       </pre>
     </div>

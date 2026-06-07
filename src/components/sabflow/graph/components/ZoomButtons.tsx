@@ -1,6 +1,7 @@
 'use client';
-import { LuPlus, LuMinus, LuMaximize2, LuMap } from 'react-icons/lu';
+import { Plus, Minus, Maximize2, Map } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
+import { Button, IconButton } from '@/components/sabcrm/20ui';
 import type { Group, SabFlowEvent, GraphPosition } from '@/lib/sabflow/types';
 
 /** Approximate dimensions of a rendered group node (px in canvas space). */
@@ -107,52 +108,66 @@ export function ZoomButtons({
     setGraphPosition({ x: newX, y: newY, scale: newScale });
   };
 
-  const btnBase =
-    'flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors';
-  const divider = <div className="w-px bg-[var(--gray-5)] self-stretch" />;
+  const divider = <div className="w-px self-stretch bg-[var(--st-border)]" />;
 
   return (
     <>
       {/* Zoom out */}
-      <button onClick={handleZoomOut} className={btnBase} title="Zoom out (−)">
-        <LuMinus size={14} />
-      </button>
+      <IconButton
+        label="Zoom out (-)"
+        icon={Minus}
+        size="sm"
+        variant="ghost"
+        onClick={handleZoomOut}
+      />
 
       {divider}
 
-      {/* Current zoom — click to reset to 100% */}
-      <button
+      {/* Current zoom - click to reset to 100% */}
+      <Button
+        size="sm"
+        variant="ghost"
         onClick={handleResetZoom}
-        className="px-2 h-7 text-[11px] rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors tabular-nums"
         title="Reset zoom to 100%"
+        aria-label="Reset zoom to 100 percent"
+        className="tabular-nums"
       >
         {Math.round(graphPosition.scale * 100)}%
-      </button>
+      </Button>
 
       {divider}
 
       {/* Zoom in */}
-      <button onClick={handleZoomIn} className={btnBase} title="Zoom in (+)">
-        <LuPlus size={14} />
-      </button>
+      <IconButton
+        label="Zoom in (+)"
+        icon={Plus}
+        size="sm"
+        variant="ghost"
+        onClick={handleZoomIn}
+      />
 
       {divider}
 
       {/* Fit view */}
-      <button onClick={handleFitView} className={btnBase} title="Fit all nodes in view">
-        <LuMaximize2 size={14} />
-      </button>
+      <IconButton
+        label="Fit all nodes in view"
+        icon={Maximize2}
+        size="sm"
+        variant="ghost"
+        onClick={handleFitView}
+      />
 
       {divider}
 
       {/* Toggle minimap */}
-      <button
+      <IconButton
+        label={isMiniMapOpen ? 'Hide minimap' : 'Show minimap'}
+        icon={Map}
+        size="sm"
+        variant={isMiniMapOpen ? 'outline' : 'ghost'}
+        aria-pressed={isMiniMapOpen}
         onClick={onToggleMiniMap}
-        className={`${btnBase} ${isMiniMapOpen ? 'bg-[var(--gray-4)]' : ''}`}
-        title={isMiniMapOpen ? 'Hide minimap' : 'Show minimap'}
-      >
-        <LuMap size={14} />
-      </button>
+      />
     </>
   );
 }

@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useShallow } from 'zustand/react/shallow';
-import { LuPlus, LuX } from 'react-icons/lu';
+import { Plus, X } from 'lucide-react';
+import { Button, ButtonGroup, IconButton } from '@/components/sabcrm/20ui';
 import { useGraph } from '../../providers/GraphProvider';
 import { useEndpoints } from '../../providers/EndpointsProvider';
 import { useSelectionStore } from '../../hooks/useSelectionStore';
@@ -150,7 +151,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
           stroke="white"
           fill="none"
           pointerEvents="stroke"
-          style={{ cursor: 'pointer', visibility: 'hidden' }}
+          className="invisible cursor-pointer"
           onMouseEnter={() => setIsMouseOver(true)}
           onMouseLeave={() => setIsMouseOver(false)}
           onClick={() => setPreviewingEdge(edge)}
@@ -170,57 +171,53 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
           fill="none"
           markerEnd={markerEnd}
           pointerEvents="none"
-          strokeDasharray={isNonMain ? '5,6' : 'none'}
-          style={isRunning ? {
-            strokeDasharray: '8,4',
-            animation: 'edgeFlowAnimation 1s linear infinite',
-          } : undefined}
+          strokeDasharray={isRunning ? '8,4' : isNonMain ? '5,6' : 'none'}
+          // Animated "flow" dashes are a runtime SVG animation referencing the
+          // edgeFlowAnimation keyframe declared in Edges.tsx, no token equivalent.
+          style={isRunning ? { animation: 'edgeFlowAnimation 1s linear infinite' } : undefined}
         />
 
-        {/* Edge toolbar — appears at midpoint after hover delay */}
+        {/* Edge toolbar, appears at midpoint after hover delay */}
         {showToolbar && midPoint && !isReadOnly && (
           <foreignObject
             x={midPoint.x - TOOLBAR_SIZE}
             y={midPoint.y - TOOLBAR_SIZE / 2}
             width={TOOLBAR_SIZE * 2}
             height={TOOLBAR_SIZE}
-            style={{ overflow: 'visible' }}
+            className="overflow-visible"
           >
             <div
-              className="flex items-center gap-0.5 rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-sm"
-              style={{ width: 'fit-content', margin: '0 auto' }}
+              className="ui20 mx-auto w-fit rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm"
               onMouseEnter={() => setIsMouseOver(true)}
               onMouseLeave={() => setIsMouseOver(false)}
             >
-              {/* Add node button */}
-              <button
-                type="button"
-                aria-label="Insert node"
-                title="Insert node"
-                className="flex h-6 w-6 items-center justify-center rounded-l-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--st-text)] transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onInsertNode?.(edge.id, midPoint);
-                }}
-              >
-                <LuPlus size={12} />
-              </button>
-
-              {/* Delete edge button */}
-              {onDelete && (
-                <button
-                  type="button"
-                  aria-label="Delete edge"
-                  title="Delete edge"
-                  className="flex h-6 w-6 items-center justify-center rounded-r-md text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--st-text)] transition-colors"
+              <ButtonGroup>
+                {/* Add node button */}
+                <IconButton
+                  label="Insert node"
+                  icon={Plus}
+                  size="sm"
+                  variant="ghost"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onDelete(edge.id);
+                    onInsertNode?.(edge.id, midPoint);
                   }}
-                >
-                  <LuX size={12} />
-                </button>
-              )}
+                />
+
+                {/* Delete edge button */}
+                {onDelete && (
+                  <IconButton
+                    label="Delete edge"
+                    icon={X}
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(edge.id);
+                    }}
+                  />
+                )}
+              </ButtonGroup>
             </div>
           </foreignObject>
         )}
@@ -230,20 +227,23 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
       {contextMenu &&
         createPortal(
           <div
-            className="fixed z-[9999] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] shadow-md py-1 min-w-[120px]"
+            className="ui20 fixed z-[9999] min-w-[120px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-md"
             style={{ left: contextMenu.x, top: contextMenu.y }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-[var(--st-text)] hover:bg-[var(--gray-3)]"
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              iconLeft={X}
+              className="justify-start"
               onClick={() => {
                 onDelete?.(edge.id);
                 setContextMenu(null);
               }}
             >
               Delete edge
-            </button>
+            </Button>
           </div>,
           document.body,
         )}
