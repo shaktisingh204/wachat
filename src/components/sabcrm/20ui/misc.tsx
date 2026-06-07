@@ -73,31 +73,32 @@ export function Kbd({ className, children, ...rest }: KbdProps): React.JSX.Eleme
   );
 }
 
-export interface BreadcrumbItem {
+export interface BreadcrumbTrailItem {
   label: React.ReactNode;
   /** Omit `href` for the current (last) page, or any non-link crumb. */
   href?: string;
 }
 
-export interface BreadcrumbProps
+export interface BreadcrumbTrailProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
-  items: BreadcrumbItem[];
+  items: BreadcrumbTrailItem[];
   /** Accessible label for the landmark. */
   label?: string;
 }
 
 /**
- * A breadcrumb trail. Renders nav[aria-label] > ol with ChevronRight separators
- * (aria-hidden). The final crumb is rendered as plain text with aria-current=page;
- * earlier crumbs with an `href` are links that pick up the accent on hover.
+ * An items-based breadcrumb trail. Distinct from the compound `Breadcrumb`
+ * (see ./breadcrumb.tsx, `<Breadcrumb><BreadcrumbList>…`) which is the app-wide
+ * default — this one takes an `items` array. Renamed to avoid an ambiguous
+ * `export *` collision with the compound `Breadcrumb` that silently shadowed it.
  */
-export function Breadcrumb({
+export function BreadcrumbTrail({
   items,
   label = 'Breadcrumb',
   className,
   ...rest
-}: BreadcrumbProps): React.JSX.Element {
-  const last = items.length - 1;
+}: BreadcrumbTrailProps): React.JSX.Element {
+  const last = (items?.length ?? 0) - 1;
   return (
     <nav
       aria-label={label}
@@ -105,7 +106,7 @@ export function Breadcrumb({
       {...rest}
     >
       <ol className="u-breadcrumb__list">
-        {items.map((item, i) => {
+        {(items ?? []).map((item, i) => {
           const isLast = i === last;
           return (
             <li className="u-breadcrumb__item" key={item.href ?? i}>
