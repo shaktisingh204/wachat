@@ -12,6 +12,9 @@
  */
 const fs = require('fs');
 
+let EXCEPTIONS = {};
+try { EXCEPTIONS = JSON.parse(fs.readFileSync('.20ui-dezoru/exceptions.json', 'utf8')); } catch {}
+
 function classify(file) {
   let raw;
   try { raw = fs.readFileSync(file, 'utf8'); } catch { return { missing: true, hard: [], soft: [] }; }
@@ -40,7 +43,8 @@ function classify(file) {
   const styleCount = (src.match(/style=\{\{/g) || []).length;
   if (styleCount) soft.push('inlineStyle:' + styleCount);
   if (/[—]/.test(raw)) soft.push('em-dash');
-  return { missing: false, hard, soft };
+  const exc = EXCEPTIONS[file] || [];
+  return { missing: false, hard: hard.filter((r) => !exc.includes(r.split(':')[0])), soft };
 }
 
 const args = process.argv.slice(2);

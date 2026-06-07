@@ -19,7 +19,7 @@ interface RouteParams {
  * Public-ish runtime for SabCreator apps inside the tenant's own org.
  * Looks up by slug, then renders forms + pages via the same runner the
  * builder preview uses. Real public/embed serving will go through the
- * SabCreator publication snapshot — that's a follow-up.
+ * SabCreator publication snapshot, that is a follow-up.
  */
 export default async function SabcreatorRuntimePage({
   params,
@@ -27,7 +27,7 @@ export default async function SabcreatorRuntimePage({
   params: Promise<RouteParams>;
 }) {
   const { appSlug } = await params;
-  // Slug isn't indexed-search via /apps yet — list + filter is OK for now.
+  // Slug isn't indexed-search via /apps yet, list + filter is OK for now.
   const apps = await listSabcreatorApps({ status: 'published', limit: 500 }).catch(
     () => ({ items: [], page: 0, limit: 500, hasMore: false }),
   );
@@ -44,7 +44,7 @@ export default async function SabcreatorRuntimePage({
   ]);
 
   return (
-    <div className="zoruui min-h-screen bg-[var(--st-bg-secondary)]">
+    <div className="ui20 min-h-screen bg-[var(--st-bg-secondary)]">
       <div className="px-6 py-8 space-y-6 max-w-5xl mx-auto">
         <PageHeader>
           <div>
@@ -53,7 +53,7 @@ export default async function SabcreatorRuntimePage({
               {app.description ?? 'A SabCreator app.'}
             </PageDescription>
           </div>
-          <Badge variant="default">{app.status}</Badge>
+          <Badge tone="accent">{app.status}</Badge>
         </PageHeader>
         {forms.items.length === 0 && pages.items.length === 0 ? (
           <EmptyState
@@ -61,7 +61,7 @@ export default async function SabcreatorRuntimePage({
             description="Ask the app owner to publish at least one form or page."
           />
         ) : (
-          <Card className="p-4">
+          <Card padding="md">
             <PreviewRunnerClient forms={forms.items} pages={pages.items} />
           </Card>
         )}

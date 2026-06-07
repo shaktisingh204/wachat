@@ -1,9 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { MonitorPlay } from 'lucide-react';
 
 import type { SabshowSlideDoc } from '@/lib/rust-client/sabshow-slides';
 import type { SabshowElementDoc } from '@/lib/rust-client/sabshow-elements';
+
+import { EmptyState } from '@/components/sabcrm/20ui';
 
 import { SlideCanvas } from '@/app/dashboard/sabshow/[deckId]/present/_present-view';
 
@@ -45,14 +48,18 @@ export function PublicPresent({
 
     if (!current) {
         return (
-            <div className="zoruui sabshow-public flex h-screen items-center justify-center bg-black text-white">
-                No slides
+            <div className="ui20 dark sabshow-public flex h-screen items-center justify-center bg-black">
+                <EmptyState
+                    icon={MonitorPlay}
+                    title="No slides"
+                    description="This presentation has no slides to show yet."
+                />
             </div>
         );
     }
 
     return (
-        <div className="zoruui sabshow-public flex h-screen w-screen flex-col bg-black text-white">
+        <div className="ui20 dark sabshow-public flex h-screen w-screen flex-col bg-black text-white">
             <div className="flex items-center justify-between px-4 py-2 text-xs">
                 <span className="font-medium">/present/{slug}</span>
                 <span>

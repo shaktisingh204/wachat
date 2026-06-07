@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (
-    <div className="zoruui w-full p-6 space-y-6 animate-in fade-in duration-500 bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="ui20 w-full p-6 space-y-6 animate-in fade-in duration-500 bg-[var(--st-bg)] text-[var(--st-text)]">
       <div className="space-y-2">
         <Skeleton className="h-8 w-[250px]" />
         <Skeleton className="h-4 w-[350px]" />

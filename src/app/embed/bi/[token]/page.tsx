@@ -1,13 +1,25 @@
 /**
  * Public BI embed render route.
  *
- * Anonymous — looks up an embed by token, then renders the workbook's
+ * Anonymous: looks up an embed by token, then renders the workbook's
  * charts inline. No login required. The token's expiry + allowOrigins
  * are enforced server-side by `resolveBiEmbedByToken`.
  */
 import { notFound } from 'next/navigation';
+import { BarChart3 } from 'lucide-react';
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import { resolveEmbedAction } from '@/app/actions/analytics-bi.actions';
 
 export const dynamic = 'force-dynamic';
@@ -27,23 +39,26 @@ export default async function PublicEmbedPage({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-[var(--st-bg)] p-6">
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
-        <header>
-          <h1 className="text-2xl font-semibold text-[var(--st-text)]">{payload.name}</h1>
-          {payload.description && (
-            <p className="text-sm text-[var(--st-text-secondary)]">{payload.description}</p>
-          )}
-        </header>
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>{payload.name}</PageTitle>
+            {payload.description && (
+              <PageDescription>{payload.description}</PageDescription>
+            )}
+          </PageHeaderHeading>
+        </PageHeader>
 
         {payload.charts.length === 0 ? (
           <Card>
-            <CardHeader>
-              <CardTitle>No charts published</CardTitle>
-              <CardDescription>
-                The workbook owner hasn&apos;t added any charts yet.
-              </CardDescription>
-            </CardHeader>
+            <CardBody>
+              <EmptyState
+                icon={BarChart3}
+                title="No charts published"
+                description="The workbook owner hasn't added any charts yet."
+              />
+            </CardBody>
           </Card>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -53,9 +68,7 @@ export default async function PublicEmbedPage({
                 <Card key={(c.chartId as string) ?? i}>
                   <CardHeader>
                     <CardTitle>{(c.name as string) ?? 'Chart'}</CardTitle>
-                    <CardDescription>
-                      <Badge variant="outline">{(c.type as string) ?? 'unknown'}</Badge>
-                    </CardDescription>
+                    <Badge variant="outline">{(c.type as string) ?? 'unknown'}</Badge>
                   </CardHeader>
                   <CardBody>
                     <p className="text-sm text-[var(--st-text-secondary)]">

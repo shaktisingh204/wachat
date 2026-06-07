@@ -3,9 +3,9 @@ import type { ReactNode } from 'react';
 /**
  * Public portal layout.
  *
- * Used by customer-facing pages under `/p/*` — pages that leads or
+ * Used by customer-facing pages under `/p/*`, pages that leads or
  * clients reach via a shared URL without authenticating. This layout
- * intentionally avoids the Clay sidebar/topbar chrome. It renders a
+ * intentionally avoids the authenticated sidebar/topbar chrome. It renders a
  * centered, calm surface that is safe to share externally.
  */
 export default function PublicPortalLayout({
@@ -14,7 +14,7 @@ export default function PublicPortalLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="zoruui min-h-screen w-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+    <div className="ui20 min-h-screen w-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
         <header className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
           <div className="flex items-center gap-2">

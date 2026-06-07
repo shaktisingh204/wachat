@@ -1,24 +1,33 @@
 'use client';
 
 /**
- * Public rating form (client) — submits to `submitProjectRating`.
+ * Public rating form (client) - submits to `submitProjectRating`.
  *
- * Each category is a 1–5 star row, plus an overall "How would you rate
+ * Each category is a 1-5 star row, plus an overall "How would you rate
  * your overall experience?" star input and a comments textarea. Stars
- * are radio buttons styled as `Star` icons so the form remains
- * keyboard-accessible without a custom widget.
+ * are icon buttons exposing radio semantics (role="radio" + aria-checked)
+ * so the form stays keyboard-accessible without a bespoke widget.
  */
 
 import { useState, useTransition } from 'react';
 import { Star, Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
-import { Button, Label, Textarea, Input, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Label,
+  Field,
+  Input,
+  Textarea,
+  Card,
+  CardTitle,
+  Alert,
+} from '@/components/sabcrm/20ui';
 import {
   submitProjectRating,
   type PublicProjectRatingCategories,
   type SyndicationUrl,
 } from '@/app/actions/public-project-rating.actions';
 
-type Props = { 
+type Props = {
   hash: string;
   alreadyRated?: boolean;
   existingRating?: { overall: number; comment: string };
@@ -33,11 +42,11 @@ const CATEGORIES: { key: keyof PublicProjectRatingCategories; label: string }[] 
     { key: 'value', label: 'Value for money' },
   ];
 
-export function PublicRatingForm({ 
-  hash, 
-  alreadyRated, 
-  existingRating, 
-  syndicationUrls = [] 
+export function PublicRatingForm({
+  hash,
+  alreadyRated,
+  existingRating,
+  syndicationUrls = [],
 }: Props): React.ReactElement {
   const [overall, setOverall] = useState(0);
   const [categories, setCategories] = useState<PublicProjectRatingCategories>({
@@ -111,37 +120,31 @@ export function PublicRatingForm({
 
     return (
       <div className="space-y-4">
-        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-4 text-sm text-[var(--st-text)]">
-          <p className="font-semibold">Thank you!</p>
-          <p className="mt-1">
-            {alreadyRated 
-              ? "You've already submitted feedback for this project."
-              : "Your feedback has been recorded."}
-          </p>
-        </div>
+        <Alert tone="success" title="Thank you!">
+          {alreadyRated
+            ? "You've already submitted feedback for this project."
+            : 'Your feedback has been recorded.'}
+        </Alert>
 
         {hasSyndication && (
-          <div className="rounded-md border border-[var(--st-border)] bg-white p-4 shadow-sm">
-            <h3 className="font-semibold text-[var(--st-text)]">Share your experience</h3>
+          <Card variant="elevated" padding="md">
+            <CardTitle>Share your experience</CardTitle>
             <p className="mt-1 text-sm text-[var(--st-text)]">
-              We appreciate your positive feedback! It would mean the world to us if you could share it on these platforms:
+              We appreciate your positive feedback! It would mean the world to
+              us if you could share it on these platforms:
             </p>
-            
+
             {finalComment.trim().length > 0 && (
-              <div className="mt-4 rounded bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)] relative group border border-[var(--st-border)]">
+              <div className="group relative mt-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
                 <p className="whitespace-pre-wrap pr-20">{finalComment}</p>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   type="button"
-                  className="absolute top-2 right-2 h-8 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity bg-white"
+                  iconLeft={copied ? CheckCircle2 : Copy}
+                  className="absolute right-2 top-2 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
                   onClick={handleCopy}
                 >
-                  {copied ? (
-                    <CheckCircle2 className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" />
-                  ) : (
-                    <Copy className="mr-1.5 h-3.5 w-3.5" />
-                  )}
                   {copied ? 'Copied!' : 'Copy'}
                 </Button>
               </div>
@@ -149,15 +152,19 @@ export function PublicRatingForm({
 
             <div className="mt-4 flex flex-wrap gap-2">
               {syndicationUrls.map((link) => (
-                <Button key={link.url} variant="outline" asChild>
-                  <a href={link.url} target="_blank" rel="noopener noreferrer">
-                    {link.platform}
-                    <ExternalLink className="ml-2 h-4 w-4 text-[var(--st-text-secondary)]" />
-                  </a>
+                <Button
+                  key={link.url}
+                  variant="outline"
+                  iconRight={ExternalLink}
+                  onClick={() =>
+                    window.open(link.url, '_blank', 'noopener,noreferrer')
+                  }
+                >
+                  {link.platform}
                 </Button>
               ))}
             </div>
-          </div>
+          </Card>
         )}
       </div>
     );
@@ -169,7 +176,7 @@ export function PublicRatingForm({
         <Label className="text-sm font-semibold text-[var(--st-text)]">
           Overall experience
         </Label>
-        <p className="mt-0.5 text-xs text-[var(--st-text)]">
+        <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
           How would you rate this project overall?
         </p>
         <div className="mt-2">
@@ -182,7 +189,7 @@ export function PublicRatingForm({
         </div>
       </section>
 
-      <section className="space-y-3 rounded-md border border-[var(--st-border)] p-3">
+      <section className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
         {CATEGORIES.map((c) => (
           <div
             key={c.key}
@@ -200,56 +207,47 @@ export function PublicRatingForm({
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <Label className="text-sm text-[var(--st-text)]">
-            Your name (optional)
-          </Label>
+        <Field label="Your name (optional)">
           <Input
             type="text"
             value={raterName}
             onChange={(e) => setRaterName(e.target.value)}
             maxLength={200}
-            className="mt-1"
             placeholder="Jane Doe"
           />
-        </div>
-        <div>
-          <Label className="text-sm text-[var(--st-text)]">
-            Email (optional)
-          </Label>
+        </Field>
+        <Field label="Email (optional)">
           <Input
             type="email"
             value={raterEmail}
             onChange={(e) => setRaterEmail(e.target.value)}
             maxLength={200}
-            className="mt-1"
             placeholder="jane@example.com"
           />
-        </div>
+        </Field>
       </section>
 
-      <section>
-        <Label className="text-sm text-[var(--st-text)]">
-          Comments (optional)
-        </Label>
+      <Field label="Comments (optional)">
         <Textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           maxLength={4000}
-          className="mt-1"
           placeholder="What went well? What could we improve?"
         />
-      </section>
+      </Field>
 
       {error ? (
-        <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
-          {error}
-        </div>
+        <Alert tone="danger">{error}</Alert>
       ) : null}
 
-      <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-        {isPending ? 'Submitting…' : 'Submit feedback'}
+      <Button
+        type="submit"
+        variant="primary"
+        loading={isPending}
+        className="w-full sm:w-auto"
+      >
+        {isPending ? 'Submitting...' : 'Submit feedback'}
       </Button>
     </form>
   );
@@ -279,30 +277,32 @@ function StarRow({
       {[1, 2, 3, 4, 5].map((n) => {
         const filled = n <= active;
         return (
-          <button
+          <Button
             key={n}
             type="button"
+            variant="ghost"
+            size="sm"
             role="radio"
             aria-checked={value === n}
             aria-label={`${n} star${n === 1 ? '' : 's'}`}
             onMouseEnter={() => setHover(n)}
             onFocus={() => setHover(n)}
             onClick={() => onChange(n)}
-            className={cn(
-              'rounded p-0.5 transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-            )}
+            className="!h-auto !w-auto !px-1.5 !py-1"
           >
             <Star
               width={size}
               height={size}
               strokeWidth={1.5}
-              className={cn(
-                filled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
-                'transition-colors',
-              )}
               fill={filled ? 'currentColor' : 'none'}
+              className={
+                filled
+                  ? 'text-[var(--st-accent)]'
+                  : 'text-[var(--st-text-tertiary)]'
+              }
+              aria-hidden="true"
             />
-          </button>
+          </Button>
         );
       })}
     </div>

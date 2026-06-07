@@ -1,5 +1,5 @@
 /**
- * /portal/client/contracts — Contract list with "Sign" CTA for unsigned.
+ * /portal/client/contracts - Contract list with "Sign" CTA for unsigned.
  */
 
 export const dynamic = 'force-dynamic';
@@ -7,17 +7,31 @@ export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import { getClientContracts } from '@/app/actions/client-portal.actions';
 import { ClientContractsClient } from './client-contracts-client';
-import { Skeleton } from '@/components/sabcrm/20ui';
+import {
+    Skeleton,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    Card,
+    CardBody,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+} from '@/components/sabcrm/20ui';
 
 export default function ClientContractsPage() {
     return (
         <div className="flex flex-col gap-4">
-            <div>
-                <h1 className="text-2xl font-semibold text-[var(--st-text)]">Contracts</h1>
-                <p className="text-sm text-[var(--st-text-secondary)]">
-                    Active agreements and pending signatures.
-                </p>
-            </div>
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Contracts</PageTitle>
+                    <PageDescription>Active agreements and pending signatures.</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             <Suspense fallback={<ContractsSkeleton />}>
                 <ContractsData />
@@ -37,36 +51,34 @@ function ContractsSkeleton() {
             <div className="flex sm:justify-between items-center">
                 <Skeleton className="h-10 w-full sm:max-w-sm rounded-md" />
             </div>
-            <div className="rounded-xl border bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow">
-                <div className="p-0">
-                    <div className="w-full relative overflow-auto">
-                        <table className="w-full caption-bottom text-sm">
-                            <thead className="[&_tr]:border-b">
-                                <tr className="border-b transition-colors hover:bg-[var(--st-bg-muted)]/50 data-[state=selected]:bg-[var(--st-bg-muted)]">
-                                    <th className="h-12 px-4 text-left align-middle font-medium text-[var(--st-text-secondary)] w-[200px]"><Skeleton className="h-4 w-20" /></th>
-                                    <th className="h-12 px-4 text-left align-middle font-medium text-[var(--st-text-secondary)]"><Skeleton className="h-4 w-16" /></th>
-                                    <th className="h-12 px-4 text-left align-middle font-medium text-[var(--st-text-secondary)]"><Skeleton className="h-4 w-16" /></th>
-                                    <th className="h-12 px-4 text-left align-middle font-medium text-[var(--st-text-secondary)]"><Skeleton className="h-4 w-24" /></th>
-                                    <th className="h-12 px-4 text-left align-middle font-medium text-[var(--st-text-secondary)]"><Skeleton className="h-4 w-16" /></th>
-                                    <th className="h-12 px-4 align-middle font-medium text-[var(--st-text-secondary)] text-right"><Skeleton className="h-4 w-12 ml-auto" /></th>
-                                </tr>
-                            </thead>
-                            <tbody className="[&_tr:last-child]:border-0">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <tr key={i} className="border-b transition-colors hover:bg-[var(--st-bg-muted)]/50 data-[state=selected]:bg-[var(--st-bg-muted)]">
-                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-full max-w-[150px]" /></td>
-                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-16" /></td>
-                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-20" /></td>
-                                        <td className="p-4 align-middle"><Skeleton className="h-4 w-24" /></td>
-                                        <td className="p-4 align-middle"><Skeleton className="h-6 w-20 rounded-full" /></td>
-                                        <td className="p-4 align-middle text-right"><Skeleton className="h-8 w-8 rounded-md ml-auto" /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            <Card padding="none">
+                <CardBody className="p-0 overflow-x-auto">
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th><Skeleton className="h-4 w-20" /></Th>
+                                <Th><Skeleton className="h-4 w-16" /></Th>
+                                <Th><Skeleton className="h-4 w-16" /></Th>
+                                <Th><Skeleton className="h-4 w-24" /></Th>
+                                <Th><Skeleton className="h-4 w-16" /></Th>
+                                <Th align="right"><Skeleton className="h-4 w-12 ml-auto" /></Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <Tr key={i}>
+                                    <Td><Skeleton className="h-4 w-full max-w-[150px]" /></Td>
+                                    <Td><Skeleton className="h-4 w-16" /></Td>
+                                    <Td><Skeleton className="h-4 w-20" /></Td>
+                                    <Td><Skeleton className="h-4 w-24" /></Td>
+                                    <Td><Skeleton className="h-6 w-20 rounded-full" /></Td>
+                                    <Td align="right"><Skeleton className="h-8 w-8 rounded-md ml-auto" /></Td>
+                                </Tr>
+                            ))}
+                        </TBody>
+                    </Table>
+                </CardBody>
+            </Card>
         </div>
     );
 }

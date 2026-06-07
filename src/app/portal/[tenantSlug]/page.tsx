@@ -1,6 +1,6 @@
 import React from "react";
 /**
- * Portal dashboard — the post-sign-in landing surface for a customer /
+ * Portal dashboard - the post-sign-in landing surface for a customer /
  * vendor / employee end-user. Verifies the `portal_session` cookie, loads
  * the matching `crm_portal_users` row, and renders a minimal grid of
  * role-aware placeholder cards.
@@ -10,8 +10,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ObjectId } from "mongodb";
+import { ArrowUpRight, FolderOpen } from "lucide-react";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getPortalSession } from "@/lib/portal/auth";
+import {
+  Button,
+  Card,
+  CardTitle,
+  CardDescription,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from "@/components/sabcrm/20ui";
 
 export const dynamic = "force-dynamic";
 
@@ -264,17 +278,18 @@ async function PortalDashboardPageContent({ params }: PageProps) {
 
   const portalUser = await loadPortalUser(session.userId, tenantInfo.tenantId);
   if (!portalUser) {
-    // Session was valid but row is gone / suspended — bounce to login
+    // Session was valid but row is gone / suspended - bounce to login
     redirect(
       `/portal/${encodeURIComponent(tenantSlug)}/login?error=no_account`,
     );
   }
 
   const theme = tenantInfo.config.theme || {};
-  const bgColor = theme.backgroundColor || "#f9fafb";
-  const primaryColor = theme.primaryColor || "#0f172a";
-  const textColor = theme.textColor || "#64748b";
-  const headerColor = theme.headerColor || primaryColor;
+  // Tenant-branded colours are user-picked at runtime, so they drive the 20ui
+  // accent/background tokens via runtime-computed CSS variables on the wrapper.
+  const brandVars: React.CSSProperties = {};
+  if (theme.primaryColor) brandVars["--st-accent" as string] = theme.primaryColor;
+  if (theme.backgroundColor) brandVars["--st-bg" as string] = theme.backgroundColor;
 
   const cards = getCardsForRole(
     portalUser.portalType,
@@ -287,99 +302,70 @@ async function PortalDashboardPageContent({ params }: PageProps) {
 
   return (
     <main
-      style={{
-        minHeight: "100vh",
-        background: bgColor,
-        padding: 32,
-        fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
-      }}
+      className="ui20 min-h-screen bg-[var(--st-bg)] px-6 py-8"
+      style={brandVars}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          maxWidth: 1080,
-          margin: "0 auto 24px",
-        }}
-      >
-        <div>
-          {theme.logoUrl && (
-            <img
-              src={theme.logoUrl}
-              alt={`${tenantInfo.name} Logo`}
-              style={{ height: 40, marginBottom: 16, display: "block" }}
-            />
-          )}
-          <p style={{ margin: 0, fontSize: 13, color: textColor }}>
-            Welcome back
-          </p>
-          <h1
-            style={{
-              margin: "4px 0 0",
-              fontSize: 24,
-              fontWeight: 700,
-              color: headerColor,
-            }}
-          >
-            {portalUser.name || portalUser.email}
-          </h1>
-          <p style={{ margin: "4px 0 0", fontSize: 13, color: textColor }}>
-            Signed in as <strong>{roleLabel}</strong> at {tenantInfo.name}
-          </p>
-        </div>
-        <form
-          action={`/portal/${encodeURIComponent(tenantSlug)}/auth/sign-out`}
-          method="post"
-        >
-          <button
-            type="submit"
-            style={{
-              background: "transparent",
-              border: `1px solid ${textColor}40`, // slight opacity
-              color: textColor,
-              padding: "8px 12px",
-              borderRadius: 8,
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
-            Sign out
-          </button>
-        </form>
-      </header>
-
-      <section
-        style={{
-          maxWidth: 1080,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-          gap: 16,
-        }}
-      >
-        {cards.map((c) => (
-          <Link
-            key={c.id}
-            href={c.href}
-            className="block bg-white rounded-[14px] p-5 border border-[#e2e8f0] text-inherit no-underline shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-          >
-            <h2
-              style={{
-                margin: 0,
-                fontSize: 15,
-                fontWeight: 600,
-                color: primaryColor,
-              }}
+      <div className="mx-auto max-w-[1080px]">
+        <PageHeader>
+          <PageHeaderHeading>
+            {theme.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={theme.logoUrl}
+                alt={`${tenantInfo.name} logo`}
+                className="mb-3 block h-10 w-auto"
+              />
+            ) : null}
+            <PageEyebrow>Welcome back</PageEyebrow>
+            <PageTitle>{portalUser.name || portalUser.email}</PageTitle>
+            <PageDescription>
+              Signed in as {roleLabel} at {tenantInfo.name}
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <form
+              action={`/portal/${encodeURIComponent(tenantSlug)}/auth/sign-out`}
+              method="post"
             >
-              {c.title}
-            </h2>
-            <p style={{ margin: "8px 0 0", fontSize: 13, color: textColor }}>
-              {c.description}
-            </p>
-          </Link>
-        ))}
-      </section>
+              <Button type="submit" variant="outline" size="sm">
+                Sign out
+              </Button>
+            </form>
+          </PageActions>
+        </PageHeader>
+
+        <section className="mt-6">
+          {cards.length === 0 ? (
+            <EmptyState
+              icon={FolderOpen}
+              title="Nothing here yet"
+              description="Your portal does not have any sections configured. Check back soon."
+            />
+          ) : (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+              {cards.map((c) => (
+                <Link
+                  key={c.id}
+                  href={c.href}
+                  className="block no-underline text-inherit rounded-[var(--st-radius)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+                >
+                  <Card variant="interactive" padding="md" className="h-full">
+                    <div className="flex items-start justify-between gap-3">
+                      <CardTitle>{c.title}</CardTitle>
+                      <ArrowUpRight
+                        size={16}
+                        className="shrink-0 text-[var(--st-text-tertiary)]"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    <CardDescription>{c.description}</CardDescription>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }
@@ -387,7 +373,7 @@ async function PortalDashboardPageContent({ params }: PageProps) {
 
 export default function PortalDashboardPage({ params }: PageProps) {
   return (
-    <React.Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={<div className="ui20 p-6 text-[var(--st-text-secondary)]">Loading...</div>}>
       <PortalDashboardPageContent params={params} />
     </React.Suspense>
   );

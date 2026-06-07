@@ -3,13 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
+import { Button } from '@/components/sabcrm/20ui';
+
 export function SuccessClient({ tenantSlug }: { tenantSlug: string }) {
     const [timeLeft, setTimeLeft] = useState(60);
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
         setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-        
+
         if (timeLeft > 0) {
             const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
             return () => clearTimeout(timerId);
@@ -23,12 +25,9 @@ export function SuccessClient({ tenantSlug }: { tenantSlug: string }) {
     return (
         <div className="mt-8 flex w-full flex-col items-center gap-6">
             {isMobile && (
-                <button
-                    onClick={handleOpenEmail}
-                    className="w-full rounded-md bg-[var(--st-text)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--st-text)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2"
-                >
+                <Button variant="primary" block onClick={handleOpenEmail}>
                     Open Email App
-                </button>
+                </Button>
             )}
 
             <div className="text-[13px] text-[var(--st-text-secondary)]">

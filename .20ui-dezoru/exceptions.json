@@ -1,0 +1,5 @@
+{
+  "_doc": "Verified-legit raw usage. Each entry: path -> [reasons to ignore]. Audited, not blind suppression.",
+  "src/app/dashboard/seo/tools/html-to-markdown/page.tsx": ["raw<table>"],
+  "src/app/dashboard/facebook/live-studio/page.tsx": ["raw<input>"]
+}

@@ -1,137 +1,317 @@
 'use client';
-import React, { useState } from 'react';
-import { 
-    BarChart, Activity, Users, Settings, Filter, Search, Download, 
-    Share2, Plus, RefreshCw, ChevronDown, Bell, Zap, ShieldCheck, 
-    Clock, Calendar, FileText, Layers, Target
+
+import React, { useMemo, useState } from 'react';
+import {
+  Activity,
+  Users,
+  Filter,
+  Search,
+  Download,
+  Plus,
+  RefreshCw,
+  Bell,
+  Zap,
+  ShieldCheck,
+  Clock,
 } from 'lucide-react';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  StatCard,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  Input,
+  SegmentedControl,
+  type SegmentedItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
+
+type RangeValue = 'today' | '7d' | '30d' | 'quarter' | 'custom';
+
+const RANGE_ITEMS: ReadonlyArray<SegmentedItem<RangeValue>> = [
+  { value: 'today', label: 'Today' },
+  { value: '7d', label: '7 Days' },
+  { value: '30d', label: '30 Days' },
+  { value: 'quarter', label: 'This Quarter' },
+  { value: 'custom', label: 'Custom' },
+];
+
+const KPIS: ReadonlyArray<{
+  label: string;
+  value: string;
+  icon: typeof Activity;
+  accent: string;
+  delta: { value: string; tone: 'up' | 'down' | 'neutral' };
+}> = [
+  {
+    label: 'Total Volume',
+    value: '124,592',
+    icon: Activity,
+    accent: 'var(--st-accent)',
+    delta: { value: '+14%', tone: 'up' },
+  },
+  {
+    label: 'Active Users',
+    value: '8,432',
+    icon: Users,
+    accent: 'var(--st-status-ok)',
+    delta: { value: '+5%', tone: 'up' },
+  },
+  {
+    label: 'System Health',
+    value: '99.9%',
+    icon: ShieldCheck,
+    accent: 'var(--st-accent)',
+    delta: { value: 'Stable', tone: 'neutral' },
+  },
+  {
+    label: 'Avg Resolution',
+    value: '1.2 hrs',
+    icon: Clock,
+    accent: 'var(--st-warn)',
+    delta: { value: '-12%', tone: 'down' },
+  },
+];
+
+interface LogRow {
+  id: string;
+  name: string;
+  status: 'Active';
+  priority: 'High';
+}
+
+const INSIGHTS: ReadonlyArray<{ id: number; title: string; body: string }> = [
+  {
+    id: 1,
+    title: 'Optimization Required',
+    body: 'The system has detected an anomaly in the standard workflow pattern for integrations API logs.',
+  },
+  {
+    id: 2,
+    title: 'Latency Spike',
+    body: 'Outbound webhook latency rose 22 percent in the last hour. Review the retry backoff settings.',
+  },
+  {
+    id: 3,
+    title: 'Quota Threshold',
+    body: 'Daily API quota is at 78 percent. Consider raising the plan limit before peak traffic.',
+  },
+  {
+    id: 4,
+    title: 'Deprecated Endpoint',
+    body: 'Three integrations still call the v1 logs endpoint. Migrate them to v2 before the cutover.',
+  },
+  {
+    id: 5,
+    title: 'Signature Mismatch',
+    body: 'A handful of inbound events failed signature verification. Rotate the shared secret to resolve.',
+  },
+];
 
 export default function IntegrationsApiLogsPage() {
-    const [searchTerm, setSearchTerm] = useState('');
-    
-    return (
-        <div className="flex flex-col w-full h-full min-h-screen bg-neutral-950 text-neutral-200">
-            {/* Header */}
-            <header className="flex items-center justify-between px-8 py-6 border-b border-white/10 bg-neutral-900/50 backdrop-blur-md">
-                <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Integrations Api Logs Dashboard</h1>
-                    <p className="text-neutral-400 mt-1">Manage and optimize your integrations api logs workflows and metrics.</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Search className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Bell className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all">
-                        <Plus className="w-4 h-4" />
-                        Create New
-                    </button>
-                </div>
-            </header>
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [range, setRange] = useState<RangeValue>('7d');
 
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-8 py-4 border-b border-white/5 bg-neutral-900/20">
-                <div className="flex gap-2">
-                    {['Today', '7 Days', '30 Days', 'This Quarter', 'Custom'].map(t => (
-                        <button key={t} className="px-4 py-1.5 text-sm font-medium bg-neutral-800/50 hover:bg-neutral-700 rounded-full border border-white/5 transition-all">
-                            {t}
-                        </button>
-                    ))}
-                </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Filter className="w-4 h-4" /> Filter
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Download className="w-4 h-4" /> Export
-                    </button>
-                </div>
-            </div>
+  const rows = useMemo<LogRow[]>(
+    () =>
+      Array.from({ length: 15 }).map((_, i) => ({
+        id: `INT-${1000 + i}`,
+        name: `Integrations API Logs Item ${i + 1}`,
+        status: 'Active',
+        priority: 'High',
+      })),
+    [],
+  );
 
-            {/* Main Content Grid */}
-            <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
-                {/* KPI Cards */}
-                <div className="col-span-12 grid grid-cols-4 gap-6">
-                    {[
-                        { label: 'Total Volume', value: '124,592', change: '+14%', icon: Activity, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                        { label: 'Active Users', value: '8,432', change: '+5%', icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                        { label: 'System Health', value: '99.9%', change: 'Stable', icon: ShieldCheck, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                        { label: 'Avg Resolution', value: '1.2 hrs', change: '-12%', icon: Clock, color: 'text-rose-400', bg: 'bg-rose-500/10' }
-                    ].map((kpi, i) => (
-                        <div key={i} className="p-6 bg-neutral-900 border border-white/10 rounded-2xl relative overflow-hidden group hover:border-white/20 transition-all">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <kpi.icon className="w-24 h-24" />
-                            </div>
-                            <div className={`w-12 h-12 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
-                                <kpi.icon className={`w-6 h-6 ${kpi.color}`} />
-                            </div>
-                            <h3 className="text-neutral-400 font-medium mb-1">{kpi.label}</h3>
-                            <div className="flex items-end gap-3">
-                                <span className="text-4xl font-bold text-white">{kpi.value}</span>
-                                <span className="text-sm text-emerald-400 font-medium mb-1">{kpi.change}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Main Data View */}
-                <div className="col-span-8 bg-neutral-900 border border-white/10 rounded-2xl flex flex-col h-[600px]">
-                    <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-white">Live Data Feed</h2>
-                        <button className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"><RefreshCw className="w-5 h-5 text-neutral-400" /></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-2">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-white/5">
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">ID</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Name</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Priority</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.from({ length: 15 }).map((_, i) => (
-                                    <tr key={i} className="border-b border-white/5 hover:bg-neutral-800/50 transition-colors cursor-pointer">
-                                        <td className="p-4 text-sm text-neutral-300 font-mono">#INT-{1000 + i}</td>
-                                        <td className="p-4 text-sm text-white font-medium">Integrations Api Logs Item {i + 1}</td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">Active</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">High</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Side Panel */}
-                <div className="col-span-4 flex flex-col gap-6 h-[600px]">
-                    <div className="flex-1 bg-neutral-900 border border-white/10 rounded-2xl p-6">
-                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Zap className="text-amber-400" /> AI Insights</h2>
-                        <div className="space-y-4">
-                            {[1,2,3,4,5].map(i => (
-                                <div key={i} className="p-4 bg-neutral-800/50 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-medium text-neutral-200">Optimization Required</h4>
-                                        <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Action</span>
-                                    </div>
-                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for integrations api logs.</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+  const visibleRows = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (r) => r.name.toLowerCase().includes(q) || r.id.toLowerCase().includes(q),
     );
+  }, [rows, searchTerm]);
+
+  return (
+    <div className="ui20 flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Integrations API Logs Dashboard</PageTitle>
+          <PageDescription>
+            Manage and optimize your integrations API logs workflows and metrics.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <IconButton
+            label="Search logs"
+            icon={Search}
+            variant="secondary"
+            onClick={() => toast.info({ title: 'Search', description: 'Use the live data filter below.' })}
+          />
+          <IconButton
+            label="Notifications"
+            icon={Bell}
+            variant="secondary"
+            onClick={() => toast.info('You are all caught up.')}
+          />
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => toast.success('New integration draft created.')}
+          >
+            Create New
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 px-8 py-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <SegmentedControl<RangeValue>
+          aria-label="Time range"
+          items={RANGE_ITEMS}
+          value={range}
+          onChange={setRange}
+        />
+        <div className="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            iconLeft={Filter}
+            onClick={() => toast.info({ title: 'Filters', description: 'Filter panel coming soon.' })}
+          >
+            Filter
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            iconLeft={Download}
+            onClick={() => toast.success('Export queued. We will email the file shortly.')}
+          >
+            Export
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content Grid */}
+      <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
+        {/* KPI Cards */}
+        <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {KPIS.map((kpi) => (
+            <StatCard
+              key={kpi.label}
+              label={kpi.label}
+              value={kpi.value}
+              icon={kpi.icon}
+              accent={kpi.accent}
+              delta={kpi.delta}
+            />
+          ))}
+        </div>
+
+        {/* Main Data View */}
+        <Card variant="outlined" padding="none" className="col-span-12 lg:col-span-8 flex flex-col h-[600px]">
+          <CardHeader className="flex items-center justify-between gap-4">
+            <CardTitle>Live Data Feed</CardTitle>
+            <div className="flex items-center gap-3">
+              <Input
+                inputSize="sm"
+                iconLeft={Search}
+                placeholder="Search logs"
+                aria-label="Search live data feed"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-56"
+              />
+              <IconButton
+                label="Refresh feed"
+                icon={RefreshCw}
+                variant="ghost"
+                onClick={() => toast.success('Feed refreshed.')}
+              />
+            </div>
+          </CardHeader>
+          <CardBody className="flex-1 overflow-y-auto p-2">
+            <Table stickyHeader>
+              <THead>
+                <Tr>
+                  <Th>ID</Th>
+                  <Th>Name</Th>
+                  <Th>Status</Th>
+                  <Th>Priority</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {visibleRows.map((row) => (
+                  <Tr key={row.id}>
+                    <Td>
+                      <span className="font-mono text-[var(--st-text-secondary)]">#{row.id}</span>
+                    </Td>
+                    <Td>
+                      <span className="font-medium text-[var(--st-text)]">{row.name}</span>
+                    </Td>
+                    <Td>
+                      <Badge tone="success" dot>
+                        {row.status}
+                      </Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone="danger">{row.priority}</Badge>
+                    </Td>
+                    <Td align="right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toast.info(`Opening ${row.id}`)}
+                      >
+                        View Details
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </CardBody>
+        </Card>
+
+        {/* Side Panel */}
+        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 h-[600px]">
+          <Card variant="outlined" padding="lg" className="flex-1 overflow-y-auto">
+            <CardTitle className="flex items-center gap-2">
+              <Zap size={18} className="text-[var(--st-warn)]" aria-hidden="true" />
+              AI Insights
+            </CardTitle>
+            <div className="mt-6 space-y-4">
+              {INSIGHTS.map((insight) => (
+                <div
+                  key={insight.id}
+                  className="p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+                >
+                  <div className="flex justify-between items-start gap-2 mb-2">
+                    <h4 className="font-medium text-[var(--st-text)]">{insight.title}</h4>
+                    <Badge tone="warning">Action</Badge>
+                  </div>
+                  <p className="text-sm text-[var(--st-text-secondary)]">{insight.body}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
 }

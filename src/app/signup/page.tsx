@@ -1,12 +1,27 @@
 'use client';
 
-import "@/components/sabcrm/20ui/zoru-legacy.css";
 import { useEffect, useState, useTransition, useRef } from 'react';
 import Link from 'next/link';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Card, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Checkbox,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   getPublicSignupSettings,
   submitClientSignup,
@@ -80,9 +95,9 @@ export default function ClientSignupPage() {
     idleTimeoutRef.current = setTimeout(() => {
       reset();
       toast({
-        title: 'Session Expired',
+        title: 'Session expired',
         description: 'For your security, your form has been reset due to inactivity.',
-        variant: 'destructive',
+        tone: 'warning',
       });
     }, 30 * 60 * 1000); // 30 minutes
   };
@@ -120,9 +135,9 @@ export default function ClientSignupPage() {
         });
 
         if (res.error) {
-          toast({ title: 'Signup failed', description: res.error, variant: 'destructive' });
+          toast({ title: 'Signup failed', description: res.error, tone: 'danger' });
           if (res.error.toLowerCase().includes('timeout') || res.error.toLowerCase().includes('token')) {
-             reset();
+            reset();
           }
           return;
         }
@@ -130,19 +145,21 @@ export default function ClientSignupPage() {
         setSubmitted(true);
         reset();
       } catch (err: any) {
-        toast({ title: 'Signup failed', description: err.message || 'An error occurred', variant: 'destructive' });
+        toast({ title: 'Signup failed', description: err.message || 'An error occurred', tone: 'danger' });
       }
     });
   };
 
   if (settings && !settings.allowClientSignup) {
     return (
-      <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
-        <Card className="mx-auto max-w-lg p-8 text-center">
-          <h1 className="text-2xl text-[var(--st-text)]">Signup unavailable</h1>
-          <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
-            New client signups are currently closed. Please contact the SabNode team for access.
-          </p>
+      <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
+        <Card className="mx-auto max-w-lg text-center" padding="lg">
+          <CardHeader>
+            <CardTitle>Signup unavailable</CardTitle>
+            <CardDescription>
+              New client signups are currently closed. Please contact the SabNode team for access.
+            </CardDescription>
+          </CardHeader>
         </Card>
       </main>
     );
@@ -150,171 +167,127 @@ export default function ClientSignupPage() {
 
   if (submitted) {
     return (
-      <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
-        <Card className="mx-auto max-w-lg p-8 text-center">
-          <h1 className="text-2xl text-[var(--st-text)]">Account created</h1>
-          <p className="mt-3 text-sm text-[var(--st-text-secondary)]">
-            {settings?.requireAdminApproval
-              ? 'Your account is awaiting admin approval. You will receive an email when activated.'
-              : 'Your account has been created and is ready to use. You will receive a welcome email shortly.'}
-          </p>
-          <div className="mt-6 flex justify-center">
-            <Link href="/login">
-              <Button variant="outline">Back to login</Button>
-            </Link>
-          </div>
+      <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
+        <Card className="mx-auto max-w-lg text-center" padding="lg">
+          <CardHeader>
+            <CardTitle>Account created</CardTitle>
+            <CardDescription>
+              {settings?.requireAdminApproval
+                ? 'Your account is awaiting admin approval. You will receive an email when activated.'
+                : 'Your account has been created and is ready to use. You will receive a welcome email shortly.'}
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <div className="flex justify-center">
+              <Link href="/login">
+                <Button variant="outline">Back to login</Button>
+              </Link>
+            </div>
+          </CardBody>
         </Card>
       </main>
     );
   }
 
   return (
-    <main className="zoruui min-h-screen bg-[var(--st-bg)] px-4 py-12 text-[var(--st-text)]">
-      <Card className="mx-auto max-w-xl p-8">
-        <header className="mb-6">
-          <h1 className="text-2xl text-[var(--st-text)]">Create a client account</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+    <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-12 text-[var(--st-text)]">
+      <Card className="mx-auto max-w-xl" padding="lg">
+        <CardHeader>
+          <CardTitle>Create a client account</CardTitle>
+          <CardDescription>
             {settings?.requireAdminApproval
               ? 'Tell us about your business. An admin will review your request before activation.'
               : 'Tell us about your business to get started.'}
-          </p>
-        </header>
+          </CardDescription>
+        </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="company_name">Company name</Label>
-            <Input id="company_name" {...register('company_name')} />
-            {errors.company_name && (
-              <span className="text-xs text-[var(--st-text)]">{errors.company_name.message}</span>
-            )}
-          </div>
+        <CardBody>
+          <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+            <Field label="Company name" error={errors.company_name?.message}>
+              <Input {...register('company_name')} />
+            </Field>
 
-          <div className="grid gap-2">
-            <Label htmlFor="contact_name">Contact name</Label>
-            <Input id="contact_name" {...register('contact_name')} />
-            {errors.contact_name && (
-              <span className="text-xs text-[var(--st-text)]">{errors.contact_name.message}</span>
-            )}
-          </div>
+            <Field label="Contact name" error={errors.contact_name?.message}>
+              <Input {...register('contact_name')} />
+            </Field>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Work email</Label>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                {...register('email')}
-              />
-              {errors.email && (
-                <span className="text-xs text-[var(--st-text)]">{errors.email.message}</span>
-              )}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field label="Work email" error={errors.email?.message}>
+                <Input type="email" autoComplete="email" {...register('email')} />
+              </Field>
+              <Field label="Password" error={errors.password?.message}>
+                <Input type="password" autoComplete="new-password" {...register('password')} />
+              </Field>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                {...register('password')}
-              />
-              {errors.password && (
-                <span className="text-xs text-[var(--st-text)]">{errors.password.message}</span>
-              )}
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Field label="Mobile" error={errors.mobile?.message}>
+                <Input type="tel" {...register('mobile')} />
+              </Field>
+              <Field label="Country" error={errors.country?.message}>
+                <Controller
+                  control={control}
+                  name="country"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger aria-label="Country">
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COUNTRIES.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </Field>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="mobile">Mobile</Label>
-              <Input
-                id="mobile"
-                type="tel"
-                {...register('mobile')}
-              />
-              {errors.mobile && (
-                <span className="text-xs text-[var(--st-text)]">{errors.mobile.message}</span>
-              )}
+            <Field label="Website (optional)" error={errors.website?.message}>
+              <Input type="url" prefix="https://" {...register('website')} />
+            </Field>
+
+            <Field error={errors.agree_to_terms?.message}>
+              <label className="flex items-start gap-2 text-sm text-[var(--st-text)]">
+                <Controller
+                  control={control}
+                  name="agree_to_terms"
+                  render={({ field }) => (
+                    <Checkbox
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                      aria-label="Agree to terms"
+                    />
+                  )}
+                />
+                <span>
+                  {settings?.termsText ??
+                    'I agree to the Terms of Service and Privacy Policy.'}{' '}
+                  <Link
+                    href={settings?.termsLink ?? '/terms'}
+                    className="underline"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Read terms
+                  </Link>
+                </span>
+              </label>
+            </Field>
+
+            <div className="mt-2 flex items-center justify-between gap-3">
+              <Link href="/login" className="text-sm text-[var(--st-text-secondary)] underline">
+                Already have an account? Sign in
+              </Link>
+              <Button type="submit" variant="primary" loading={isPending}>
+                {isPending ? 'Submitting' : 'Create account'}
+              </Button>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="country">Country</Label>
-              <Controller
-                control={control}
-                name="country"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="country">
-                      <SelectValue placeholder="Select country" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COUNTRIES.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.country && (
-                <span className="text-xs text-[var(--st-text)]">{errors.country.message}</span>
-              )}
-            </div>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="website">Website (optional)</Label>
-            <Input
-              id="website"
-              type="url"
-              placeholder="https://"
-              {...register('website')}
-            />
-            {errors.website && (
-              <span className="text-xs text-[var(--st-text)]">{errors.website.message}</span>
-            )}
-          </div>
-
-          <div className="mt-2 grid gap-1">
-            <label className="flex items-start gap-2 text-sm text-[var(--st-text)]">
-              <Controller
-                control={control}
-                name="agree_to_terms"
-                render={({ field }) => (
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    aria-label="Agree to terms"
-                  />
-                )}
-              />
-              <span>
-                {settings?.termsText ??
-                  'I agree to the Terms of Service and Privacy Policy.'}{' '}
-                <Link
-                  href={settings?.termsLink ?? '/terms'}
-                  className="underline"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Read terms
-                </Link>
-              </span>
-            </label>
-            {errors.agree_to_terms && (
-              <span className="text-xs text-[var(--st-text)]">{errors.agree_to_terms.message}</span>
-            )}
-          </div>
-
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <Link href="/login" className="text-sm text-[var(--st-text-secondary)] underline">
-              Already have an account? Sign in
-            </Link>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Submitting…' : 'Create account'}
-            </Button>
-          </div>
-        </form>
+          </form>
+        </CardBody>
       </Card>
     </main>
   );

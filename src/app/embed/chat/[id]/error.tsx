@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 
 export default function EmbedError({
   error,
@@ -15,43 +18,20 @@ export default function EmbedError({
   }, [error]);
 
   return (
-    <main
-      style={{
-        margin: 0,
-        padding: 24,
-        fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-        color: 'var(--st-text)',
-        background: 'var(--st-bg)',
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-      }}
-    >
-      <div>
-        <h1 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: 'var(--st-danger)' }}>
-          Unable to load chat
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--st-text-secondary)', marginBottom: 16 }}>
-          {error.message || 'An unexpected error occurred while loading this widget.'}
-        </p>
-        <button
-          onClick={() => reset()}
-          style={{
-            padding: '8px 16px',
-            fontSize: 13,
-            fontWeight: 500,
-            color: 'var(--st-text-inverted)',
-            background: '#111827',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-          }}
-        >
-          Try again
-        </button>
-      </div>
+    <main className="ui20 m-0 flex h-screen items-center justify-center bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
+      <EmptyState
+        icon={AlertTriangle}
+        tone="danger"
+        title="Unable to load chat"
+        description={
+          error.message || 'An unexpected error occurred while loading this widget.'
+        }
+        action={
+          <Button variant="primary" iconLeft={RotateCcw} onClick={() => reset()}>
+            Try again
+          </Button>
+        }
+      />
     </main>
   );
 }

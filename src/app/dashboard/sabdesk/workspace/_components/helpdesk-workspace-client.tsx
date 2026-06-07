@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * <HelpdeskWorkspaceClient> — three-pane Zoho-Desk-style helpdesk view.
+ * <HelpdeskWorkspaceClient> - three-pane Zoho-Desk-style helpdesk view.
  *
  * Layout (resizable via flex-basis, 12-col virtual grid on desktop):
  *   - LEFT (3 cols)   : ticket list with search + status filter
@@ -30,9 +30,31 @@ import {
   User,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
-import { EmptyState } from '@/components/sabcrm/20ui';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  Field,
+  Input,
+  ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+  useToast,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/sabcrm/20ui";
 
 import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
 import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";
@@ -44,7 +66,7 @@ import {
   setTicketAssignee,
 } from "@/app/actions/helpdesk.actions";
 
-/* ─── Types ───────────────────────────────────────────────────── */
+/* --- Types --------------------------------------------------------- */
 
 type TabKey = "reply" | "note";
 
@@ -56,45 +78,39 @@ type Props = {
   templates: { items: CrmReplyTemplateDoc[] };
 };
 
-/* ─── Helpers ─────────────────────────────────────────────────── */
+/* --- Helpers ------------------------------------------------------- */
 
-const STATUS_COLORS: Record<
-  string,
-  "success" | "warning" | "danger" | "info" | "ghost"
-> = {
+const STATUS_TONES: Record<string, BadgeTone> = {
   open: "info",
   pending: "warning",
   on_hold: "warning",
   resolved: "success",
-  closed: "ghost",
+  closed: "neutral",
   reopened: "danger",
 };
 
-const PRIORITY_COLORS: Record<
-  string,
-  "success" | "warning" | "danger" | "ghost"
-> = {
-  low: "ghost",
+const PRIORITY_TONES: Record<string, BadgeTone> = {
+  low: "neutral",
   medium: "warning",
   high: "danger",
   urgent: "danger",
 };
 
 const CHANNEL_ICONS: Record<string, React.ReactNode> = {
-  email: <Mail className="h-3 w-3" />,
-  whatsapp: <MessageSquare className="h-3 w-3" />,
-  chat: <MessageSquare className="h-3 w-3" />,
-  phone: <Phone className="h-3 w-3" />,
-  portal: <User className="h-3 w-3" />,
-  web: <MessageSquare className="h-3 w-3" />,
-  form: <StickyNote className="h-3 w-3" />,
-  api: <TicketIcon className="h-3 w-3" />,
+  email: <Mail className="h-3 w-3" aria-hidden="true" />,
+  whatsapp: <MessageSquare className="h-3 w-3" aria-hidden="true" />,
+  chat: <MessageSquare className="h-3 w-3" aria-hidden="true" />,
+  phone: <Phone className="h-3 w-3" aria-hidden="true" />,
+  portal: <User className="h-3 w-3" aria-hidden="true" />,
+  web: <MessageSquare className="h-3 w-3" aria-hidden="true" />,
+  form: <StickyNote className="h-3 w-3" aria-hidden="true" />,
+  api: <TicketIcon className="h-3 w-3" aria-hidden="true" />,
 };
 
 function formatRelative(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso).getTime();
-  if (!Number.isFinite(d)) return "—";
+  if (!Number.isFinite(d)) return "-";
   const diff = Date.now() - d;
   if (diff < 60_000) return "just now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
@@ -106,34 +122,34 @@ function slaState(
   dueBy?: string,
   status?: string,
 ): {
-  variant: "success" | "warning" | "danger" | "ghost";
+  tone: BadgeTone;
   label: string;
 } {
   if (!dueBy || status === "closed" || status === "resolved") {
-    return { variant: "ghost", label: "No SLA" };
+    return { tone: "neutral", label: "No SLA" };
   }
   const now = Date.now();
   const due = new Date(dueBy).getTime();
-  if (!Number.isFinite(due)) return { variant: "ghost", label: "No SLA" };
+  if (!Number.isFinite(due)) return { tone: "neutral", label: "No SLA" };
   const diff = due - now;
-  if (diff <= 0) return { variant: "danger", label: "Breached" };
+  if (diff <= 0) return { tone: "danger", label: "Breached" };
   if (diff < 60 * 60_000)
     return {
-      variant: "warning",
+      tone: "warning",
       label: `Due in ${Math.floor(diff / 60_000)}m`,
     };
   if (diff < 24 * 60 * 60_000)
     return {
-      variant: "warning",
+      tone: "warning",
       label: `Due in ${Math.floor(diff / 3_600_000)}h`,
     };
   return {
-    variant: "success",
+    tone: "success",
     label: `Due in ${Math.floor(diff / 86_400_000)}d`,
   };
 }
 
-/* ─── Component ───────────────────────────────────────────────── */
+/* --- Component ----------------------------------------------------- */
 
 export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
   const { toast } = useToast();
@@ -168,7 +184,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     });
   }, [tickets, search, statusFilter]);
 
-  /* ── Mutators ─────────────────────────────────────────────── */
+  /* -- Mutators ----------------------------------------------------- */
 
   const patchSelected = (patch: Partial<CrmTicketDoc>) => {
     if (!selected) return;
@@ -184,11 +200,11 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await action(selected._id, body);
       if (res.success) {
-        toast({ title: tab === "note" ? "Internal note added" : "Reply sent" });
+        toast.success(tab === "note" ? "Internal note added" : "Reply sent");
         setComposer("");
         router.refresh();
       } else {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
       }
     });
   };
@@ -199,7 +215,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await setTicketStatus(selected._id, status);
       if (!res.success) {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
         router.refresh();
       }
     });
@@ -211,7 +227,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await setTicketPriority(selected._id, priority);
       if (!res.success) {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
         router.refresh();
       }
     });
@@ -224,7 +240,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await setTicketAssignee(selected._id, next);
       if (!res.success) {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
         router.refresh();
       }
     });
@@ -235,32 +251,31 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     setComposer((prev) => (prev ? `${prev}\n\n${tpl.body}` : tpl.body));
   };
 
-  /* ── Render ───────────────────────────────────────────────── */
+  /* -- Render ------------------------------------------------------- */
 
   return (
-    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
+    <div className="flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
       {/* LEFT: ticket list */}
       <aside className="flex h-full w-[320px] min-w-[280px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-3 py-3">
           <div className="flex items-center justify-between gap-2">
             <span className="text-sm font-semibold text-[var(--st-text)]">Tickets</span>
-            <Button asChild size="sm" variant="outline">
-              <Link href="/dashboard/sabdesk/new">
-                <Plus className="mr-1 h-3 w-3" /> New
-              </Link>
-            </Button>
+            <Link href="/dashboard/sabdesk/new">
+              <Button size="sm" variant="outline" iconLeft={Plus}>
+                New
+              </Button>
+            </Link>
           </div>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search tickets..."
-              className="h-8 pl-7 text-[13px]"
-            />
-          </div>
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tickets..."
+            inputSize="sm"
+            iconLeft={Search}
+            aria-label="Search tickets"
+          />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-8 text-[13px]">
+            <SelectTrigger aria-label="Filter by status">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -292,10 +307,18 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 const channel = (t.channel ?? "web").toLowerCase();
                 return (
                   <li key={t._id}>
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive}
                       onClick={() => setSelectedId(t._id)}
-                      className={`flex w-full flex-col gap-1.5 px-3 py-3 text-left transition-colors hover:bg-[var(--st-bg-muted)] ${
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedId(t._id);
+                        }
+                      }}
+                      className={`flex w-full cursor-pointer flex-col gap-1.5 px-3 py-3 text-left transition-colors hover:bg-[var(--st-bg-muted)] ${
                         isActive ? "bg-[var(--st-bg-muted)]" : ""
                       }`}
                     >
@@ -303,29 +326,25 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         <span className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)]">
                           {t.subject ?? "(no subject)"}
                         </span>
-                        <Badge
-                          variant={STATUS_COLORS[t.status ?? "open"] ?? "ghost"}
-                        >
+                        <Badge tone={STATUS_TONES[t.status ?? "open"] ?? "neutral"}>
                           {t.status ?? "open"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-[var(--st-text-secondary)]">
-                        <Badge variant="ghost" className="gap-1">
+                        <Badge tone="neutral" className="gap-1">
                           {CHANNEL_ICONS[channel] ?? (
-                            <MessageSquare className="h-3 w-3" />
+                            <MessageSquare className="h-3 w-3" aria-hidden="true" />
                           )}
                           {channel}
                         </Badge>
                         {t.priority ? (
-                          <Badge
-                            variant={PRIORITY_COLORS[t.priority] ?? "ghost"}
-                          >
+                          <Badge tone={PRIORITY_TONES[t.priority] ?? "neutral"}>
                             {t.priority}
                           </Badge>
                         ) : null}
-                        <Badge variant={sla.variant}>
-                          {sla.variant === "danger" ? (
-                            <AlertTriangle className="mr-1 h-3 w-3" />
+                        <Badge tone={sla.tone}>
+                          {sla.tone === "danger" ? (
+                            <AlertTriangle className="mr-1 h-3 w-3" aria-hidden="true" />
                           ) : null}
                           {sla.label}
                         </Badge>
@@ -333,7 +352,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                           {formatRelative(t.updatedAt)}
                         </span>
                       </div>
-                    </button>
+                    </div>
                   </li>
                 );
               })}
@@ -355,21 +374,15 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   {selected.subject ?? "(no subject)"}
                 </Link>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-[var(--st-text-secondary)]">
-                  <Badge variant="ghost" className="gap-1">
+                  <Badge tone="neutral" className="gap-1">
                     {CHANNEL_ICONS[(selected.channel ?? "web").toLowerCase()] ??
                       null}
                     {selected.channel ?? "web"}
                   </Badge>
-                  <Badge
-                    variant={
-                      STATUS_COLORS[selected.status ?? "open"] ?? "ghost"
-                    }
-                  >
+                  <Badge tone={STATUS_TONES[selected.status ?? "open"] ?? "neutral"}>
                     {selected.status ?? "open"}
                   </Badge>
-                  <Badge
-                    variant={slaState(selected.dueBy, selected.status).variant}
-                  >
+                  <Badge tone={slaState(selected.dueBy, selected.status).tone}>
                     {slaState(selected.dueBy, selected.status).label}
                   </Badge>
                   <span>Updated {formatRelative(selected.updatedAt)}</span>
@@ -387,16 +400,13 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   (
                     selected.internalNotes as Array<Record<string, unknown>>
                   ).map((n, i) => (
-                    <Card
-                      key={String(n._id ?? i)}
-                      className={n.isInternal ? "border-[var(--st-border)]/30" : ""}
-                    >
+                    <Card key={String(n._id ?? i)} padding="none">
                       <CardBody className="space-y-1 p-3 text-[13px]">
                         <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
                           {n.isInternal ? (
-                            <Badge variant="warning">Internal</Badge>
+                            <Badge tone="warning">Internal</Badge>
                           ) : (
-                            <Badge variant="info">Reply</Badge>
+                            <Badge tone="info">Reply</Badge>
                           )}
                           <span>
                             {formatRelative(n.createdAt as string | undefined)}
@@ -420,24 +430,26 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
             <footer className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3">
               <div className="mb-2 flex items-center gap-2">
                 <Button
-                  variant={tab === "reply" ? "default" : "outline"}
+                  variant={tab === "reply" ? "primary" : "outline"}
                   size="sm"
+                  iconLeft={Send}
                   onClick={() => setTab("reply")}
                 >
-                  <Send className="mr-1 h-3 w-3" /> Reply
+                  Reply
                 </Button>
                 <Button
-                  variant={tab === "note" ? "default" : "outline"}
+                  variant={tab === "note" ? "primary" : "outline"}
                   size="sm"
+                  iconLeft={StickyNote}
                   onClick={() => setTab("note")}
                 >
-                  <StickyNote className="mr-1 h-3 w-3" /> Internal note
+                  Internal note
                 </Button>
                 <div className="ml-auto">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        Templates <ChevronDown className="ml-1 h-3 w-3" />
+                      <Button size="sm" variant="outline" iconRight={ChevronDown}>
+                        Templates
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -483,16 +495,18 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 placeholder={
                   tab === "reply"
                     ? "Type your reply to the requester..."
-                    : "Internal note — visible to staff only."
+                    : "Internal note, visible to staff only."
                 }
+                aria-label={tab === "reply" ? "Reply body" : "Internal note body"}
                 rows={4}
               />
               <div className="mt-2 flex items-center justify-end">
                 <Button
                   onClick={handleSend}
+                  variant="primary"
+                  iconLeft={Send}
                   disabled={isPending || !composer.trim()}
                 >
-                  <Send className="mr-1 h-3 w-3" />
                   {tab === "reply" ? "Send reply" : "Save note"}
                 </Button>
               </div>
@@ -518,40 +532,30 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   Workflow
                 </h3>
                 <div className="space-y-3">
-                  <div>
-                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
-                      Status
-                    </Label>
+                  <Field label="Status">
                     <Select
                       value={selected.status ?? "open"}
                       onValueChange={handleStatus}
                     >
-                      <SelectTrigger className="mt-1 h-8 text-[13px]">
+                      <SelectTrigger aria-label="Status">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="open">Open</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="on_hold">On hold</SelectItem>
-                        <SelectItem value="resolved">
-                          Resolved
-                        </SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
                         <SelectItem value="closed">Closed</SelectItem>
-                        <SelectItem value="reopened">
-                          Reopened
-                        </SelectItem>
+                        <SelectItem value="reopened">Reopened</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
-                      Priority
-                    </Label>
+                  </Field>
+                  <Field label="Priority">
                     <Select
                       value={selected.priority ?? "medium"}
                       onValueChange={handlePriority}
                     >
-                      <SelectTrigger className="mt-1 h-8 text-[13px]">
+                      <SelectTrigger aria-label="Priority">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -561,22 +565,22 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         <SelectItem value="urgent">Urgent</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <Label className="text-[12px] text-[var(--st-text-secondary)]">
-                      Assignee
-                    </Label>
+                  </Field>
+                  <Field
+                    label="Assignee"
+                    help="Paste a user id, or 'unassign' to clear."
+                  >
                     <Input
                       placeholder="Paste user id or 'unassign'"
                       defaultValue={selected.assigneeId ?? ""}
+                      inputSize="sm"
                       onBlur={(e) => {
                         const v = e.target.value.trim();
                         if (v === (selected.assigneeId ?? "")) return;
                         handleAssignee(v || "unassign");
                       }}
-                      className="mt-1 h-8 text-[13px]"
                     />
-                  </div>
+                  </Field>
                 </div>
               </section>
 
@@ -588,9 +592,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 </h3>
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--st-text-secondary)]">Due by</span>
-                  <Badge
-                    variant={slaState(selected.dueBy, selected.status).variant}
-                  >
+                  <Badge tone={slaState(selected.dueBy, selected.status).tone}>
                     {slaState(selected.dueBy, selected.status).label}
                   </Badge>
                 </div>
@@ -610,24 +612,24 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 <dl className="space-y-1.5">
                   <div className="flex justify-between">
                     <dt className="text-[var(--st-text-secondary)]">Channel</dt>
-                    <dd className="text-[var(--st-text)]">{selected.channel ?? "—"}</dd>
+                    <dd className="text-[var(--st-text)]">{selected.channel ?? "-"}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-[var(--st-text-secondary)]">Severity</dt>
                     <dd className="text-[var(--st-text)]">
-                      {selected.severity ?? "—"}
+                      {selected.severity ?? "-"}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-[var(--st-text-secondary)]">Category</dt>
                     <dd className="text-[var(--st-text)]">
-                      {selected.category ?? "—"}
+                      {selected.category ?? "-"}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-[var(--st-text-secondary)]">Requester</dt>
                     <dd className="truncate text-[var(--st-text)]">
-                      {selected.requesterId ?? "—"}
+                      {selected.requesterId ?? "-"}
                     </dd>
                   </div>
                 </dl>
@@ -635,11 +637,11 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
 
               <Separator />
 
-              <Button asChild variant="outline" className="w-full">
-                <Link href={`/dashboard/sabdesk/${selected._id}`}>
+              <Link href={`/dashboard/sabdesk/${selected._id}`} className="block">
+                <Button variant="outline" block>
                   Open full ticket
-                </Link>
-              </Button>
+                </Button>
+              </Link>
             </div>
           </ScrollArea>
         ) : (

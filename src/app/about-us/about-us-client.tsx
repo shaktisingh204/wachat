@@ -6,11 +6,21 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import { LandingHeader } from '@/components/landing/landing-header';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { StatCard } from '@/components/ui/stat-card';
-import { Activity, Clock } from 'lucide-react';
+import { Activity, ArrowLeft, Clock } from 'lucide-react';
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  StatCard,
+} from '@/components/sabcrm/20ui';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollToPlugin, useGSAP);
@@ -20,6 +30,15 @@ const TEAM_MEMBERS = [
   { name: 'Alice Smith', role: 'Lead Architect', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026704d', init: 'AS' },
   { name: 'Bob Jones', role: 'Head of Reliability', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d', init: 'BJ' },
   { name: 'Charlie Davis', role: 'Security Engineer', avatar: 'https://i.pravatar.cc/150?u=a04258114e29026702d', init: 'CD' },
+];
+
+const NAV_ITEMS = [
+  { id: '#abstract', label: '1.0 Abstract' },
+  { id: '#mission', label: '2.0 Mission' },
+  { id: '#architecture', label: '3.0 Architecture' },
+  { id: '#endpoints', label: '4.0 Capabilities' },
+  { id: '#team', label: '5.0 Team' },
+  { id: '#metrics', label: '6.0 Metrics' },
 ];
 
 export function AboutUsClient() {
@@ -65,22 +84,18 @@ export function AboutUsClient() {
   });
 
   return (
-    <div ref={container} className="min-h-screen bg-black text-white font-mono selection:bg-white selection:text-black">
+    <div
+      ref={container}
+      className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono selection:bg-[var(--st-text)] selection:text-[var(--st-bg)]"
+    >
       <LandingHeader />
       <div className="flex w-full">
         {/* Sidebar mimicking OpenAPI docs */}
-        <aside className="hidden lg:block w-64 border-r border-white/20 p-6 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto">
+        <aside className="hidden lg:block w-64 border-r border-[var(--st-border)] p-6 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto">
           <nav aria-label="About Us Navigation" className="space-y-4 text-sm">
-            <div className="font-bold uppercase tracking-widest text-white/50 mb-2">/docs/about</div>
-            <ul className="space-y-2 text-white/80" role="menu">
-              {[
-                { id: '#abstract', label: '1.0 Abstract' },
-                { id: '#mission', label: '2.0 Mission' },
-                { id: '#architecture', label: '3.0 Architecture' },
-                { id: '#endpoints', label: '4.0 Capabilities' },
-                { id: '#team', label: '5.0 Team' },
-                { id: '#metrics', label: '6.0 Metrics' },
-              ].map((navItem) => (
+            <div className="font-bold uppercase tracking-widest text-[var(--st-text-tertiary)] mb-2">/docs/about</div>
+            <ul className="space-y-2 text-[var(--st-text-secondary)]" role="menu">
+              {NAV_ITEMS.map((navItem) => (
                 <li key={navItem.id} role="none">
                   <a
                     href={navItem.id}
@@ -88,7 +103,9 @@ export function AboutUsClient() {
                     role="menuitem"
                     aria-current={activeHash === navItem.id ? 'true' : undefined}
                     aria-label={`Navigate to ${navItem.label}`}
-                    className={`block hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/50 rounded px-2 py-1 ${activeHash === navItem.id ? 'bg-white/10 text-white' : ''}`}
+                    className={`block rounded-[var(--st-radius)] px-2 py-1 transition-colors hover:text-[var(--st-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)] ${
+                      activeHash === navItem.id ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]' : ''
+                    }`}
                   >
                     {navItem.label}
                   </a>
@@ -96,122 +113,151 @@ export function AboutUsClient() {
               ))}
             </ul>
             <div className="mt-8">
-              <Link href="/" aria-label="Return to Root" className="inline-flex items-center text-xs border border-white/30 px-3 py-1.5 hover:bg-white hover:text-black transition-colors uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-white">
-                &larr; Return to Root
+              <Link href="/" aria-label="Return to Root">
+                <Button variant="outline" size="sm" iconLeft={ArrowLeft} className="uppercase tracking-wider">
+                  Return to Root
+                </Button>
               </Link>
             </div>
           </nav>
         </aside>
 
         {/* Main Content mimicking technical whitepaper */}
-        <main className="flex-1 max-w-4xl px-6 py-12 lg:px-12 mx-auto focus:outline-none" tabIndex={-1} aria-label="Main Content">
-          <article className="prose prose-invert prose-p:font-mono prose-headings:font-mono prose-a:font-mono max-w-none">
-            <header className="border-b border-white/20 pb-8 mb-8">
-              <h1 className="text-4xl lg:text-5xl font-bold tracking-tight mb-2 uppercase">SabNode Specification</h1>
-              <div className="text-white/60 text-sm flex gap-4 uppercase tracking-wider">
-                <Badge variant="outline" className="text-white border-white/20 rounded-none bg-transparent">Version: 1.0.0</Badge>
-                <Badge variant="outline" className="text-emerald-400 border-white/20 rounded-none bg-transparent">Status: Active</Badge>
-                <Badge variant="outline" className="text-white border-white/20 rounded-none bg-transparent">Classification: Public</Badge>
-              </div>
-            </header>
+        <main
+          className="flex-1 max-w-4xl px-6 py-12 lg:px-12 mx-auto focus:outline-none"
+          tabIndex={-1}
+          aria-label="Main Content"
+        >
+          <article className="max-w-none">
+            <PageHeader className="mb-8">
+              <PageHeaderHeading>
+                <PageTitle className="uppercase">SabNode Specification</PageTitle>
+                <div className="mt-3 flex flex-wrap gap-2 text-sm uppercase tracking-wider">
+                  <Badge tone="neutral" kind="outline">Version: 1.0.0</Badge>
+                  <Badge tone="success" kind="outline">Status: Active</Badge>
+                  <Badge tone="neutral" kind="outline">Classification: Public</Badge>
+                </div>
+              </PageHeaderHeading>
+              <PageActions />
+            </PageHeader>
 
             <section id="abstract" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">1.0 Abstract</h2>
-              <p className="text-white/80 leading-relaxed text-sm md:text-base">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                1.0 Abstract
+              </h2>
+              <p className="text-sm leading-relaxed text-[var(--st-text-secondary)] md:text-base">
                 Welcome to SabNode. This document outlines the foundational principles and technical objectives of our all-in-one business communication and marketing automation infrastructure. SabNode is designed to orchestrate customer engagement workflows programmatically, prioritizing reliability, scale, and uncompromising precision.
               </p>
             </section>
 
             <section id="mission" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">2.0 Mission</h2>
-              <p className="text-white/80 leading-relaxed text-sm md:text-base">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                2.0 Mission
+              </h2>
+              <p className="text-sm leading-relaxed text-[var(--st-text-secondary)] md:text-base">
                 Our objective is to abstract the complexities of omni-channel messaging routing. By providing a unified interface to fragmented communication protocols (e.g., WhatsApp, Meta APIs), SabNode empowers developers and enterprises to execute high-throughput campaigns and automated conversational states with minimal latency and maximal determinism.
               </p>
             </section>
 
             <section id="architecture" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">3.0 Architecture Vision</h2>
-              <div className="bg-white/5 border border-white/20 p-6 rounded-none font-mono text-sm">
-                <p className="text-white/80 mb-4">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                3.0 Architecture Vision
+              </h2>
+              <Card variant="outlined" padding="lg" className="font-mono text-sm">
+                <p className="mb-4 text-[var(--st-text-secondary)]">
                   We engineer our systems around the following core tenets:
                 </p>
-                <ul className="space-y-2 list-none p-0 m-0">
-                  <li className="flex gap-2"><span className="text-white font-bold">[SYS-01]</span> <span className="text-white/70">Stateless execution where possible.</span></li>
-                  <li className="flex gap-2"><span className="text-white font-bold">[SYS-02]</span> <span className="text-white/70">Idempotent API design.</span></li>
-                  <li className="flex gap-2"><span className="text-white font-bold">[SYS-03]</span> <span className="text-white/70">Strict typing and structural validation.</span></li>
-                  <li className="flex gap-2"><span className="text-white font-bold">[SYS-04]</span> <span className="text-white/70">Developer-first observability.</span></li>
+                <ul className="m-0 list-none space-y-2 p-0">
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[var(--st-text)]">[SYS-01]</span>
+                    <span className="text-[var(--st-text-secondary)]">Stateless execution where possible.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[var(--st-text)]">[SYS-02]</span>
+                    <span className="text-[var(--st-text-secondary)]">Idempotent API design.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[var(--st-text)]">[SYS-03]</span>
+                    <span className="text-[var(--st-text-secondary)]">Strict typing and structural validation.</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[var(--st-text)]">[SYS-04]</span>
+                    <span className="text-[var(--st-text-secondary)]">Developer-first observability.</span>
+                  </li>
                 </ul>
-              </div>
+              </Card>
             </section>
 
             <section id="endpoints" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">4.0 Core Capabilities</h2>
-              <p className="text-white/80 leading-relaxed text-sm md:text-base mb-6">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                4.0 Core Capabilities
+              </h2>
+              <p className="mb-6 text-sm leading-relaxed text-[var(--st-text-secondary)] md:text-base">
                 The platform exposes primitive building blocks that can be composed into complex marketing state machines:
               </p>
-              
+
               <div className="space-y-4">
-                <div className="border border-white/20 p-4 hover:border-white/40 transition-colors focus-within:ring-2 focus-within:ring-white bg-transparent">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="bg-white text-black px-2 py-0.5 text-xs font-bold uppercase">Execute</span>
+                <Card variant="outlined" padding="md">
+                  <div className="mb-2 flex items-center gap-3">
+                    <Badge tone="accent" kind="solid">Execute</Badge>
                     <span className="font-bold">/campaigns/dispatch</span>
                   </div>
-                  <p className="text-white/60 text-sm">Initiates high-volume message delivery across configured channels.</p>
-                </div>
-                
-                <div className="border border-white/20 p-4 hover:border-white/40 transition-colors focus-within:ring-2 focus-within:ring-white bg-transparent">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="bg-white text-black px-2 py-0.5 text-xs font-bold uppercase">Listen</span>
+                  <p className="text-sm text-[var(--st-text-secondary)]">Initiates high-volume message delivery across configured channels.</p>
+                </Card>
+
+                <Card variant="outlined" padding="md">
+                  <div className="mb-2 flex items-center gap-3">
+                    <Badge tone="info" kind="solid">Listen</Badge>
                     <span className="font-bold">/webhooks/incoming</span>
                   </div>
-                  <p className="text-white/60 text-sm">Processes inbound payloads and triggers defined workflow heuristics.</p>
-                </div>
+                  <p className="text-sm text-[var(--st-text-secondary)]">Processes inbound payloads and triggers defined workflow heuristics.</p>
+                </Card>
               </div>
             </section>
 
             <section id="team" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">5.0 Leadership Node</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                5.0 Leadership Node
+              </h2>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {TEAM_MEMBERS.map((member, i) => (
-                  <Card key={i} className="team-member bg-black border-white/20 text-white rounded-none hover:bg-white/5 transition-colors focus-within:ring-2 focus-within:ring-white/50">
-                    <CardContent className="p-6 flex flex-col items-center text-center">
-                      <Avatar className="w-20 h-20 mb-4 border-2 border-white/20">
+                  <Card key={i} variant="interactive" padding="none" className="team-member">
+                    <CardBody className="flex flex-col items-center p-6 text-center">
+                      <Avatar className="mb-4 h-20 w-20 border-2 border-[var(--st-border)]">
                         <AvatarImage src={member.avatar} alt={`Avatar of ${member.name}`} />
-                        <AvatarFallback className="bg-white/10 text-white">{member.init}</AvatarFallback>
+                        <AvatarFallback>{member.init}</AvatarFallback>
                       </Avatar>
-                      <h3 className="font-bold text-lg font-mono">{member.name}</h3>
-                      <p className="text-xs text-white/60 uppercase tracking-wider font-mono mt-1">{member.role}</p>
-                    </CardContent>
+                      <h3 className="font-mono text-lg font-bold">{member.name}</h3>
+                      <p className="mt-1 font-mono text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">{member.role}</p>
+                    </CardBody>
                   </Card>
                 ))}
               </div>
             </section>
 
             <section id="metrics" className="mb-12 scroll-mt-24" tabIndex={-1}>
-              <h2 className="text-2xl font-bold uppercase border-l-4 border-white pl-4 mb-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50">6.0 Live Telemetry</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <h2 className="mb-6 border-l-4 border-[var(--st-accent)] pl-4 text-2xl font-bold uppercase focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]">
+                6.0 Live Telemetry
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <StatCard
                   label="Requests Processed"
-                  value={metrics.requests}
+                  value={metrics.requests.toLocaleString()}
                   icon={Activity}
-                  tone="indigo"
-                  className="bg-black border-white/20 text-white rounded-none hover:border-white/40 focus-within:ring-2 focus-within:ring-white/50 font-mono"
-                  delta={12}
-                  deltaLabel="vs last month"
+                  delta={{ value: '+12% vs last month', tone: 'up' }}
+                  className="font-mono"
                 />
                 <StatCard
                   label="Uptime (30 Days)"
                   value={`${metrics.uptime}%`}
                   icon={Clock}
-                  tone="emerald"
-                  className="bg-black border-white/20 text-white rounded-none hover:border-white/40 focus-within:ring-2 focus-within:ring-white/50 font-mono"
-                  delta={0.01}
-                  deltaLabel="vs previous period"
+                  delta={{ value: '+0.01% vs previous period', tone: 'up' }}
+                  className="font-mono"
                 />
               </div>
             </section>
-            
-            <footer className="border-t border-white/20 pt-8 text-center text-white/40 text-xs">
+
+            <footer className="border-t border-[var(--st-border)] pt-8 text-center text-xs text-[var(--st-text-tertiary)]">
               <p>END OF SPECIFICATION // SABNODE_CORE</p>
             </footer>
           </article>
@@ -220,4 +266,3 @@ export function AboutUsClient() {
     </div>
   );
 }
-

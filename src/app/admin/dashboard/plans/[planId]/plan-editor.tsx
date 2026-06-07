@@ -1,22 +1,43 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState,
-  useTransition } from 'react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    EmptyState,
+    Field,
+    Input,
+    Label,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Switch,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { useEffect, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { useRouter,
-  useParams } from 'next/navigation';
-import { getPlanById,
-  savePlan } from '@/app/actions/plan.actions';
+import { useRouter } from 'next/navigation';
+import { savePlan } from '@/app/actions/plan.actions';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 import {
     ChevronLeft,
-    LoaderCircle,
     Save,
     Sparkles,
     CreditCard,
@@ -37,15 +58,11 @@ function SubmitButton() {
     return (
         <Button
             type="submit"
-            disabled={pending}
+            variant="primary"
             size="lg"
-            className="rounded-xl gap-2 shadow-lg shadow-primary/20"
+            loading={pending}
+            iconLeft={Save}
         >
-            {pending ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-                <Save className="h-4 w-4" />
-            )}
             Save Plan
         </Button>
     );
@@ -56,79 +73,29 @@ function SectionCard({
     description,
     icon: Icon,
     premium,
-    accent,
     children,
 }: {
     title: string;
     description?: string;
     icon?: React.ComponentType<{ className?: string }>;
     premium?: boolean;
-    accent?: 'primary' | 'amber' | 'violet' | 'emerald' | 'sky' | 'rose';
     children: React.ReactNode;
 }) {
-    const accentMap: Record<string, { tile: string; icon: string; glow: string }> = {
-        primary: {
-            tile: 'bg-[var(--st-text)]/10 border-primary/30',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-primary/10',
-        },
-        amber: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        violet: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        emerald: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        sky: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        rose: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-    };
-    const styles = accentMap[accent || 'primary'];
     return (
-        <Card
-            className={cn(
-                'rounded-2xl border-[var(--st-border)] bg-[var(--st-bg)] backdrop-blur-xl shadow-sm overflow-hidden',
-                premium && 'ring-1 ring-[var(--st-border)]/40 shadow-[var(--st-border)]/10',
-            )}
-        >
-            <CardHeader
-                className={cn(
-                    'border-b border-[var(--st-border)] bg-gradient-to-r to-transparent',
-                    styles.glow,
-                )}
-            >
+        <Card className="overflow-hidden">
+            <CardHeader>
                 <div className="flex items-start gap-3">
                     {Icon && (
-                        <div
-                            className={cn(
-                                'h-9 w-9 rounded-xl border flex items-center justify-center shrink-0',
-                                styles.tile,
-                            )}
-                        >
-                            <Icon className={cn('h-4 w-4', styles.icon)} />
+                        <div className="h-9 w-9 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] flex items-center justify-center shrink-0">
+                            <Icon className="h-4 w-4 text-[var(--st-text)]" />
                         </div>
                     )}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                             <CardTitle className="text-base">{title}</CardTitle>
                             {premium && (
-                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-[var(--st-text)]/80 to-[var(--st-bg-muted)]/80 text-[var(--st-text)] border-0 font-bold uppercase tracking-wider">
-                                    <Crown className="h-2.5 w-2.5" />
+                                <Badge tone="accent" dot>
+                                    <Crown className="h-2.5 w-2.5" aria-hidden="true" />
                                     Premium
                                 </Badge>
                             )}
@@ -146,28 +113,8 @@ function SectionCard({
     );
 }
 
-function Field({
-    label,
-    hint,
-    children,
-}: {
-    label: string;
-    hint?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-[var(--st-text-secondary)]">{label}</Label>
-            {children}
-            {hint && <p className="text-[10px] text-[var(--st-text-secondary)]/70">{hint}</p>}
-        </div>
-    );
-}
-
-const inputClass = 'rounded-xl bg-[var(--st-bg)] border-[var(--st-border)] backdrop-blur focus-visible:ring-primary/40';
-
 export default function PlanEditor({ planId, initialPlan, initialHistory }: { planId: string, initialPlan: WithId<Plan> | null, initialHistory: (WithId<Plan> & { versionedAt: Date | string })[] }) {
-    
+
     const router = useRouter();
     const { toast } = useToast();
     const [state, setState] = useState<{ message?: string | null, error?: string | null }>(initialState);
@@ -187,62 +134,58 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
         });
     };
 
-    
-
     useEffect(() => {
         if (state.message) {
-            toast({ title: 'Success', description: state.message });
+            toast({ title: 'Plan saved', description: state.message, tone: 'success' });
             router.push('/admin/dashboard/plans');
         }
         if (state.error) {
             toast({
-                title: 'Error',
+                title: 'Could not save plan',
                 description: state.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     }, [state, toast, router]);
-
-    
 
     return (
         <form action={formAction} className="space-y-6 pb-24">
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--st-border)] bg-gradient-to-br from-primary/5 via-[var(--st-bg)] to-[var(--st-bg-muted)] p-6">
-                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--st-text)]/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[var(--st-bg-muted)] blur-3xl pointer-events-none" />
-                <div className="relative">
+            <PageHeader>
+                <PageHeaderHeading>
                     <Button
                         type="button"
                         variant="ghost"
-                        asChild
                         size="sm"
-                        className="-ml-2 mb-2 hover:bg-[var(--st-bg-secondary)] rounded-lg"
+                        iconLeft={ChevronLeft}
+                        onClick={() => router.push('/admin/dashboard/plans')}
+                        className="-ml-2 mb-2 self-start"
                     >
-                        <Link href="/admin/dashboard/plans">
-                            <ChevronLeft className="mr-1 h-4 w-4" />
-                            Back to Plans
-                        </Link>
+                        Back to Plans
                     </Button>
-                    <div className="inline-flex items-center gap-2 text-xs font-medium text-[var(--st-text)] mb-1">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        {isNew ? 'New Plan' : 'Editing Plan'}
-                    </div>
-                    <h1 className="text-2xl md:text-3xl text-[var(--st-text)]">
-                        {isNew ? 'Create a new plan' : plan?.name}
-                    </h1>
-                    <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-2xl">
+                    <PageEyebrow>
+                        <span className="inline-flex items-center gap-1.5">
+                            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                            {isNew ? 'New Plan' : 'Editing Plan'}
+                        </span>
+                    </PageEyebrow>
+                    <PageTitle>{isNew ? 'Create a new plan' : plan?.name}</PageTitle>
+                    <PageDescription>
                         Configure pricing, usage limits, and the master permission ceiling for
                         every module in the app.
-                    </p>
-                </div>
-            </div>
+                    </PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
 
             {/* Segmented tab strip */}
-            <div className="space-y-5">
-                <div className="flex w-full flex-wrap justify-start gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1">
+            <Tabs
+                value={activeTab}
+                onValueChange={(v) => setActiveTab(v as typeof activeTab)}
+                className="space-y-5"
+            >
+                <TabsList>
                     {(
                         [
                             { key: 'overview', icon: CreditCard, label: 'Overview' },
@@ -254,25 +197,17 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                             { key: 'history', icon: History, label: 'History' },
                         ] as const
                     ).map(({ key, icon: Icon, label }) => (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => setActiveTab(key)}
-                            className={cn(
-                                'flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
-                                activeTab === key
-                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
-                                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-                            )}
-                        >
-                            <Icon className="h-4 w-4" />
-                            {label}
-                        </button>
+                        <TabsTrigger key={key} value={key}>
+                            <span className="flex items-center gap-2">
+                                <Icon className="h-4 w-4" aria-hidden="true" />
+                                {label}
+                            </span>
+                        </TabsTrigger>
                     ))}
-                </div>
+                </TabsList>
 
                 {/* OVERVIEW */}
-                <div className={cn('space-y-5', activeTab !== 'overview' && 'hidden')}>
+                <TabsContent value="overview" className="space-y-5">
                     <SectionCard
                         title="Basic details"
                         description="Name, category, and visibility flags for this plan."
@@ -285,13 +220,12 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.name}
                                     required
                                     placeholder="e.g. Pro Tier"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Category">
                                 <Select name="appCategory" defaultValue={plan?.appCategory}>
-                                    <SelectTrigger className={inputClass}>
-                                        <SelectValue placeholder="Select category…" />
+                                    <SelectTrigger aria-label="Category">
+                                        <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="All-In-One">All-In-One</SelectItem>
@@ -325,12 +259,11 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     required
                                     min="0"
                                     step="1"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Currency">
                                 <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
-                                    <SelectTrigger className={inputClass}>
+                                    <SelectTrigger aria-label="Currency">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -343,7 +276,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                         </div>
 
                         <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-[var(--st-border)]">
-                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isPublic"
                                     name="isPublic"
@@ -353,7 +286,7 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     Publicly visible
                                 </Label>
                             </div>
-                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isDefault"
                                     name="isDefault"
@@ -365,10 +298,10 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                             </div>
                         </div>
                     </SectionCard>
-                </div>
+                </TabsContent>
 
                 {/* PRICING & CREDITS */}
-                <div className={cn('space-y-5', activeTab !== 'pricing' && 'hidden')}>
+                <TabsContent value="pricing" className="space-y-5">
                     <SectionCard
                         title="Signup & initial credits"
                         description="One-time credits granted to users when they land on this plan."
@@ -382,7 +315,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.signupCredits ?? 0}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Broadcast">
@@ -391,7 +323,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.initialCredits?.broadcast ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="SMS">
@@ -400,7 +331,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.initialCredits?.sms ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Meta Suite">
@@ -409,7 +339,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.initialCredits?.meta ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Email">
@@ -418,7 +347,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.initialCredits?.email ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -437,7 +365,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     required
                                     min="0"
                                     step="0.001"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Utility">
@@ -448,7 +375,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     required
                                     min="0"
                                     step="0.001"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Authentication">
@@ -459,7 +385,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     required
                                     min="0"
                                     step="0.001"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -480,7 +405,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                     <Field label="Utility rate">
@@ -491,7 +415,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                     <Field label="Authentication rate">
@@ -502,7 +425,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                 </div>
@@ -520,7 +442,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                     <Field label="Meta rate">
@@ -531,7 +452,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                     <Field label="Email rate">
@@ -542,17 +462,16 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                             required
                                             min="0"
                                             step="0.1"
-                                            className={inputClass}
                                         />
                                     </Field>
                                 </div>
                             </div>
                         </div>
                     </SectionCard>
-                </div>
+                </TabsContent>
 
                 {/* USAGE LIMITS */}
-                <div className={cn('space-y-5', activeTab !== 'limits' && 'hidden')}>
+                <TabsContent value="limits" className="space-y-5">
                     <SectionCard
                         title="General limits"
                         description="Set to 0 for unlimited."
@@ -566,7 +485,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.projectLimit ?? 5}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Agents / project">
@@ -576,7 +494,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.agentLimit ?? 10}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Custom attributes">
@@ -586,7 +503,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.attributeLimit ?? 20}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Templates">
@@ -596,7 +512,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.templateLimit ?? 50}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Flow builder">
@@ -606,7 +521,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.flowLimit ?? 10}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Meta flows">
@@ -616,7 +530,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.metaFlowLimit ?? 10}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Canned messages">
@@ -626,7 +539,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.cannedMessageLimit ?? 25}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Custom roles">
@@ -636,7 +548,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.customRoleLimit ?? 3}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Team channels">
@@ -646,7 +557,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.teamChannelLimit ?? 10}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Team tasks">
@@ -656,20 +566,18 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     defaultValue={plan?.teamTaskLimit ?? 50}
                                     required
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
                     </SectionCard>
-                </div>
+                </TabsContent>
 
                 {/* MODULE LIMITS */}
-                <div className={cn('space-y-5', activeTab !== 'modules' && 'hidden')}>
+                <TabsContent value="modules" className="space-y-5">
                     <SectionCard
                         title="WaChat"
                         description="Limits for WhatsApp Business tooling."
                         icon={Boxes}
-                        accent="emerald"
                     >
                         <div className="grid gap-4 md:grid-cols-4">
                             <Field label="Templates">
@@ -678,7 +586,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.templates ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Flows">
@@ -687,7 +594,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.flows ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Meta flows">
@@ -696,7 +602,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.metaFlows ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Canned messages">
@@ -705,7 +610,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.wachat?.cannedMessages ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -714,7 +618,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="CRM"
                         description="Resource limits for the CRM module."
-                        accent="sky"
                     >
                         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
                             <Field label="Products">
@@ -723,7 +626,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.products ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Customers">
@@ -732,7 +634,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.customers ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Vendors">
@@ -741,7 +642,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.vendors ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Warehouses">
@@ -750,7 +650,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.warehouses ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Pipelines">
@@ -759,7 +658,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.crm?.pipelines ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -768,7 +666,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="Facebook"
                         description="Facebook Pages, posts, automation rules, and shops."
-                        accent="sky"
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field label="Pages">
@@ -781,7 +678,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                         0
                                     }
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Scheduled posts">
@@ -790,7 +686,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.scheduledPosts ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Automation rules">
@@ -799,7 +694,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.automationRules ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Shops">
@@ -808,7 +702,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.facebook?.shops ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -817,7 +710,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="Instagram"
                         description="Instagram business accounts, scheduled content, and hashtag research."
-                        accent="rose"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Connected accounts">
@@ -826,7 +718,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.accounts ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Scheduled posts">
@@ -835,7 +726,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.scheduledPosts ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Hashtag tracking">
@@ -844,7 +734,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.instagram?.hashtagTracking ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -852,16 +741,12 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
 
                     <SectionCard
                         title="Ad Manager"
-                        description="Meta Ads Manager — manage ad accounts, campaigns, and audiences."
+                        description="Meta Ads Manager. Manage ad accounts, campaigns, and audiences."
                         icon={Crown}
                         premium
-                        accent="amber"
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                            <Field
-                                label="Ad accounts"
-                                hint="Max Meta Ad Accounts linkable to projects."
-                            >
+                            <Field label="Ad accounts" help="Max Meta Ad Accounts linkable to projects.">
                                 <Input
                                     name="limit_ads_accounts"
                                     type="number"
@@ -871,7 +756,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                         0
                                     }
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Active campaigns">
@@ -880,7 +764,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.campaigns ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Custom audiences">
@@ -889,19 +772,17 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.audiences ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field
                                 label="Monthly ad spend cap"
-                                hint="0 = uncapped. Enforced before placing ads."
+                                help="0 = uncapped. Enforced before placing ads."
                             >
                                 <Input
                                     name="limit_ads_spend_cap"
                                     type="number"
                                     defaultValue={plan?.appLimits?.adManager?.monthlyAdSpendCap ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -910,7 +791,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="Email"
                         description="Email channel throughput."
-                        accent="violet"
                     >
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="Connected accounts">
@@ -919,7 +799,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.email?.connectedAccounts ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Daily sending limit">
@@ -928,7 +807,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.email?.dailyLimit ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -937,7 +815,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="SabChat"
                         description="Live chat widgets, visitors, and canned replies."
-                        accent="emerald"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Widgets">
@@ -946,7 +823,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.widgets ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Monthly visitors">
@@ -955,7 +831,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.monthlyVisitors ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Quick replies">
@@ -964,7 +839,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.sabchat?.quickReplies ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -973,7 +847,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="SEO"
                         description="SEO projects, brand radars, and tracked keywords."
-                        accent="sky"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Projects">
@@ -982,7 +855,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.projects ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Brand radars">
@@ -991,7 +863,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.brandRadars ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Tracked keywords">
@@ -1000,7 +871,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.seo?.trackedKeywords ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -1009,7 +879,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                     <SectionCard
                         title="Website Builder"
                         description="Portfolio and website builder resources."
-                        accent="violet"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Sites">
@@ -1018,7 +887,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.websiteBuilder?.sites ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Pages / site">
@@ -1027,7 +895,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.websiteBuilder?.pages ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Custom domains">
@@ -1038,7 +905,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                         plan?.appLimits?.websiteBuilder?.customDomains ?? 0
                                     }
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
@@ -1052,7 +918,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.sms?.dailyLimit ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Shortened links">
@@ -1061,7 +926,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.urlShortener?.links ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="Custom domains">
@@ -1070,7 +934,6 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.urlShortener?.domains ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                             <Field label="QR codes">
@@ -1079,31 +942,29 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                     type="number"
                                     defaultValue={plan?.appLimits?.qrCode?.limit ?? 0}
                                     min="0"
-                                    className={inputClass}
                                 />
                             </Field>
                         </div>
                     </SectionCard>
-                </div>
+                </TabsContent>
 
                 {/* FEATURES */}
-                <div className={cn(activeTab !== 'features' && 'hidden')}>
+                <TabsContent value="features">
                     <PlanFeaturesSelector defaultFeatures={plan?.features} />
-                </div>
+                </TabsContent>
 
                 {/* PERMISSIONS */}
-                <div className={cn(activeTab !== 'permissions' && 'hidden')}>
+                <TabsContent value="permissions">
                     <PlanPermissionSelector defaultPermissions={plan?.permissions as Record<string, any>} />
-                </div>
-
+                </TabsContent>
 
                 {/* HISTORY */}
-                <div className={cn(activeTab !== 'history' && 'hidden')}>
+                <TabsContent value="history">
                     <SectionCard title="Plan History" description="Recent versions of this plan." icon={History}>
                         {initialHistory && initialHistory.length > 0 ? (
                             <div className="space-y-4">
                                 {initialHistory.map((h, i) => (
-                                    <div key={i} className="p-4 border border-[var(--st-border)] rounded-xl bg-[var(--st-bg-secondary)]">
+                                    <div key={i} className="p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
                                         <div className="flex justify-between items-center">
                                             <div className="font-semibold text-[var(--st-text)]">{h.name} <span className="text-[var(--st-text-secondary)] text-sm font-normal">v{initialHistory.length - i}</span></div>
                                             <div className="text-xs text-[var(--st-text-secondary)]">{new Date(h.versionedAt).toLocaleString()}</div>
@@ -1113,20 +974,19 @@ export default function PlanEditor({ planId, initialPlan, initialHistory }: { pl
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-sm text-[var(--st-text-secondary)]">No history available for this plan.</div>
+                            <EmptyState
+                                icon={History}
+                                title="No history yet"
+                                description="No history available for this plan."
+                            />
                         )}
                     </SectionCard>
-                </div>
-
-            </div>
+                </TabsContent>
+            </Tabs>
 
             {/* Sticky save bar */}
-            <div
-                className={cn(
-                    'fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4',
-                )}
-            >
-                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/90 backdrop-blur-xl shadow-2xl shadow-[var(--st-text)]/10 px-4 py-3">
+            <div className="fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)] px-4 py-3">
                     <span className="text-xs text-[var(--st-text-secondary)] hidden sm:inline">
                         Changes take effect immediately after saving.
                     </span>

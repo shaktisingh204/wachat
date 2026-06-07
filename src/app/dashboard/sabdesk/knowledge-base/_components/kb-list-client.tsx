@@ -1,15 +1,33 @@
 "use client";
 
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  SegmentedControl,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useDebouncedCallback } from "use-debounce";
-import { ChevronDown, LayoutList, ListChecks, Plus } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  LayoutList,
+  ListChecks,
+  ListTree,
+  Plus,
+} from "lucide-react";
 import type { DateRange } from "react-day-picker";
 
 import { EntityListShell } from "@/components/crm/entity-list-shell";
 import { ConfirmDialog } from "@/components/crm/confirm-dialog";
 
 /**
- * <KbListClient> — interactive shell for the KB list page (§1D.1).
+ * <KbListClient> - interactive shell for the KB list page (§1D.1).
  *
  * Owns search, filters, KPI strip, view switcher (table / category
  * tree), bulk-action bar, and per-row dialogs. The article dataset is
@@ -17,7 +35,7 @@ import { ConfirmDialog } from "@/components/crm/confirm-dialog";
  */
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   bulkKbAction,
@@ -38,15 +56,23 @@ import { KbCategoryTree } from "./kb-category-tree";
 
 type KbViewMode = "table" | "tree";
 
+const NEW_ARTICLE_HREF = "/dashboard/sabdesk/knowledge-base/new";
+
 const VIEW_PRESETS: { id: string; label: string; description?: string }[] = [
   { id: "all", label: "All articles", description: "Default view" },
   { id: "my-drafts", label: "My drafts", description: "Owned by me, draft" },
   { id: "recent", label: "Recently updated", description: "Last 7 days" },
-  { id: "helpful", label: "Most helpful", description: "Helpful ≥ 80%" },
+  { id: "helpful", label: "Most helpful", description: "Helpful 80% or more" },
+];
+
+const VIEW_MODE_ITEMS = [
+  { value: "table" as const, label: "Table", icon: LayoutList },
+  { value: "tree" as const, label: "Tree", icon: ListTree },
 ];
 
 export function KbListClient() {
   const { toast } = useToast();
+  const router = useRouter();
 
   const [articles, setArticles] = React.useState<KbArticleDoc[]>([]);
   const [loading, startTransition] = React.useTransition();
@@ -80,7 +106,7 @@ export function KbListClient() {
         toast({
           title: "Could not load articles",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       }
       setArticles(res.articles);
@@ -118,7 +144,7 @@ export function KbListClient() {
     activePresetId !== "all" ||
     kpiKey !== "all";
 
-  /* ─── Filtering ───────────────────────────────────────────────── */
+  /* --- Filtering --------------------------------------------------- */
   const visibleArticles = React.useMemo(() => {
     const now = Date.now();
     const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
@@ -212,7 +238,7 @@ export function KbListClient() {
 
   const kpiCounts = React.useMemo(() => computeKbKpis(articles), [articles]);
 
-  /* ─── Selection ───────────────────────────────────────────────── */
+  /* --- Selection --------------------------------------------------- */
   const handleToggleOne = React.useCallback((id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -231,7 +257,7 @@ export function KbListClient() {
     [visibleArticles],
   );
 
-  /* ─── Row actions ─────────────────────────────────────────────── */
+  /* --- Row actions ------------------------------------------------- */
   const handleConfirmDelete = React.useCallback(async () => {
     if (!deleteTargetId) return;
     const res = await deleteKbArticle(deleteTargetId);
@@ -242,13 +268,13 @@ export function KbListClient() {
       toast({
         title: "Delete failed",
         description: res.error,
-        variant: "destructive",
+        tone: "danger",
       });
     }
     setDeleteTargetId(null);
   }, [deleteTargetId, fetchData, toast]);
 
-  /* ─── Bulk ────────────────────────────────────────────────────── */
+  /* --- Bulk -------------------------------------------------------- */
   const runBulk = React.useCallback(
     async (op: "publish" | "unpublish" | "delete") => {
       if (selected.size === 0) return;
@@ -264,7 +290,7 @@ export function KbListClient() {
         toast({
           title: "Bulk action failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       }
       setBulkConfirm(null);
@@ -327,7 +353,7 @@ export function KbListClient() {
     }
     if (presetId === "my-drafts") {
       setStatusFilter("draft");
-      // owner filter is left to user — KB doesn't have a clean
+      // owner filter is left to user - KB doesn't have a clean
       // "session user id" client side without an explicit fetch.
     }
     if (presetId === "helpful") {
@@ -347,9 +373,13 @@ export function KbListClient() {
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <ListChecks className="h-3.5 w-3.5" /> {activePreset.label}
-                  <ChevronDown className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={ListChecks}
+                  iconRight={ChevronDown}
+                >
+                  {activePreset.label}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-64">
@@ -374,46 +404,23 @@ export function KbListClient() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="inline-flex rounded-md border border-[var(--st-border)] p-0.5">
-              <button
-                type="button"
-                onClick={() => setView("table")}
-                aria-pressed={view === "table"}
-                className={[
-                  "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]",
-                  view === "table"
-                    ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-                    : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
-                ].join(" ")}
-              >
-                <LayoutList className="h-3.5 w-3.5" /> Table
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("tree")}
-                aria-pressed={view === "tree"}
-                className={[
-                  "inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px]",
-                  view === "tree"
-                    ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-                    : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
-                ].join(" ")}
-              >
-                Tree
-              </button>
-            </div>
+            <SegmentedControl
+              size="sm"
+              aria-label="Switch view"
+              items={VIEW_MODE_ITEMS}
+              value={view}
+              onChange={(next) => setView(next)}
+            />
           </div>
         }
         search={{
           value: search,
           onChange: (v) => handleSearch(v),
-          placeholder: "Search title, slug, body, tags…",
+          placeholder: "Search title, slug, body, tags...",
         }}
         primaryAction={
-          <Button asChild>
-            <Link href="/dashboard/sabdesk/knowledge-base/new">
-              <Plus className="h-4 w-4" /> New article
-            </Link>
+          <Button iconLeft={Plus} onClick={() => router.push(NEW_ARTICLE_HREF)}>
+            New article
           </Button>
         }
         filters={
@@ -466,20 +473,19 @@ export function KbListClient() {
         }
         empty={
           !loading && visibleArticles.length === 0 && articles.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 p-4">
-              <h3 className="text-base font-medium text-[var(--st-text)]">
-                No articles yet
-              </h3>
-              <p className="max-w-sm text-sm text-[var(--st-text-secondary)]">
-                Author your first help article to deflect common tickets and
-                empower your support agents.
-              </p>
-              <Button asChild>
-                <Link href="/dashboard/sabdesk/knowledge-base/new">
-                  <Plus className="h-4 w-4" /> Add your first article
-                </Link>
-              </Button>
-            </div>
+            <EmptyState
+              icon={BookOpen}
+              title="No articles yet"
+              description="Author your first help article to deflect common tickets and empower your support agents."
+              action={
+                <Button
+                  iconLeft={Plus}
+                  onClick={() => router.push(NEW_ARTICLE_HREF)}
+                >
+                  Add your first article
+                </Button>
+              }
+            />
           ) : null
         }
         loading={loading && articles.length === 0}

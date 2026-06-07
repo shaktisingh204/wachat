@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock } from 'lucide-react';
+
+import { Button, Card, CardBody, Field, Input } from '@/components/sabcrm/20ui';
 
 export function PasswordForm({ shortCode, hasError }: { shortCode: string, hasError?: boolean }) {
     const [password, setPassword] = useState('');
@@ -11,7 +14,7 @@ export function PasswordForm({ shortCode, hasError }: { shortCode: string, hasEr
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        
+
         // Append pwd to the search params so the page reloads with it and passes it to the server action
         router.replace(`/r/${shortCode}?pwd=${encodeURIComponent(password)}`);
     };
@@ -19,37 +22,42 @@ export function PasswordForm({ shortCode, hasError }: { shortCode: string, hasEr
     return (
         <html lang="en">
             <head><title>Password Protected Link</title></head>
-            <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: 'var(--st-bg-secondary)' }}>
-                <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--st-bg)', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '400px', width: '100%' }}>
-                    <h1 style={{ fontSize: '1.25rem', color: 'var(--st-text)', margin: '0 0 1rem 0' }}>Password Protected</h1>
-                    <p style={{ color: '#4b5563', marginBottom: '1.5rem', fontSize: '0.875rem' }}>This link requires a password to access.</p>
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter password"
-                            style={{ padding: '0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', width: '100%', boxSizing: 'border-box' }}
-                            required
-                        />
-                        {hasError && <p style={{ color: 'var(--st-danger)', fontSize: '0.875rem', margin: 0 }}>Incorrect password. Please try again.</p>}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            style={{
-                                padding: '0.75rem',
-                                backgroundColor: 'var(--st-accent)',
-                                color: 'var(--st-text-inverted)',
-                                border: 'none',
-                                borderRadius: '0.375rem',
-                                fontWeight: '500',
-                                cursor: loading ? 'not-allowed' : 'pointer',
-                                opacity: loading ? 0.7 : 1
-                            }}
-                        >
-                            {loading ? 'Verifying...' : 'Submit'}
-                        </button>
-                    </form>
+            <body>
+                <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                    <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
+                        <CardBody className="flex flex-col items-center gap-4 p-8 text-center">
+                            <span
+                                className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-accent)]"
+                                aria-hidden="true"
+                            >
+                                <Lock size={22} />
+                            </span>
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-lg font-semibold text-[var(--st-text)]">Password Protected</h1>
+                                <p className="text-sm text-[var(--st-text-secondary)]">
+                                    This link requires a password to access.
+                                </p>
+                            </div>
+                            <form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+                                <Field
+                                    label="Password"
+                                    error={hasError ? 'Incorrect password. Please try again.' : undefined}
+                                >
+                                    <Input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Enter password"
+                                        autoFocus
+                                        required
+                                    />
+                                </Field>
+                                <Button type="submit" variant="primary" block loading={loading}>
+                                    {loading ? 'Verifying...' : 'Submit'}
+                                </Button>
+                            </form>
+                        </CardBody>
+                    </Card>
                 </div>
             </body>
         </html>

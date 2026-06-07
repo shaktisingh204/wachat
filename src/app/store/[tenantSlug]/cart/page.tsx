@@ -1,8 +1,31 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, ShoppingCart, Trash2 } from 'lucide-react';
+
+import {
+    Button,
+    Card,
+    CardBody,
+    EmptyState,
+    IconButton,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Spinner,
+    Table,
+    TBody,
+    Td,
+    TFoot,
+    Th,
+    THead,
+    Tr,
+    useToast,
+} from '@/components/sabcrm/20ui';
 
 import { getOrCreateCart, updateCartItems, startCheckout } from '@/app/actions/storefront.actions';
 import { getStoredCartId, setStoredCartId } from '../_components/add-to-cart-button';
@@ -36,6 +59,7 @@ function getGuestSession(): string {
 export default function CartPage(): React.JSX.Element {
     const params = useParams<{ tenantSlug: string }>();
     const router = useRouter();
+    const { toast } = useToast();
     const tenantSlug = params.tenantSlug;
     const [cart, setCart] = React.useState<CartShape | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -68,54 +92,151 @@ export default function CartPage(): React.JSX.Element {
         setBusy(true);
         const r = await startCheckout({ tenantSlug, cartId: cart._id });
         setBusy(false);
-        if (r.ok) router.push(`/store/${tenantSlug}/checkout/address?co=${r.checkoutId}`);
+        if (r.ok) {
+            router.push(`/store/${tenantSlug}/checkout/address?co=${r.checkoutId}`);
+        } else {
+            toast.error('Could not start checkout. Please try again.');
+        }
     }
 
-    if (loading) return <p className="opacity-70">Loading cart…</p>;
-    if (!cart || cart.lineItems.length === 0) {
+    const currency = cart?.currency ?? '₹';
+
+    if (loading) {
         return (
-            <div>
-                <h1 className="mb-2 text-2xl font-semibold">Your cart is empty</h1>
-                <Link className="storefront-button secondary" href={`/store/${tenantSlug}`}>← Continue shopping</Link>
+            <div className="flex items-center gap-3 py-10 text-[var(--st-text-secondary)]">
+                <Spinner label="Loading cart" />
+                <span>Loading cart.</span>
             </div>
         );
     }
 
+    if (!cart || cart.lineItems.length === 0) {
+        return (
+            <EmptyState
+                icon={ShoppingCart}
+                title="Your cart is empty"
+                description="Browse the catalog and add a few items to get started."
+                action={
+                    <Button
+                        variant="primary"
+                        iconLeft={ArrowLeft}
+                        onClick={() => router.push(`/store/${tenantSlug}`)}
+                    >
+                        Continue shopping
+                    </Button>
+                }
+            />
+        );
+    }
+
     return (
-        <div>
-            <h1 className="mb-4 text-2xl font-semibold">Your cart</h1>
-            <ul className="divide-y">
-                {cart.lineItems.map((li) => (
-                    <li key={li.productId} className="flex items-center gap-4 py-4">
-                        {li.imageUrl ? (
-                            <img src={li.imageUrl} alt={li.name} className="h-16 w-16 rounded-md object-cover" />
-                        ) : (
-                            <div className="h-16 w-16 rounded-md bg-[var(--st-bg-muted)]" />
-                        )}
-                        <div className="flex-1">
-                            <div className="font-medium">{li.name}</div>
-                            <div className="text-sm opacity-70">{cart.currency ?? '₹'} {li.unitPrice}</div>
-                        </div>
-                        <input
-                            type="number"
-                            min={0}
-                            value={li.quantity}
-                            onChange={(e) => setQty(li.productId, Number(e.target.value))}
-                            className="storefront-input w-20"
-                        />
-                        <div className="w-24 text-right font-medium">{cart.currency ?? '₹'} {li.lineTotal}</div>
-                    </li>
-                ))}
-            </ul>
-            <div className="mt-6 flex items-center justify-between">
-                <Link className="storefront-button secondary" href={`/store/${tenantSlug}`}>← Keep shopping</Link>
-                <div className="text-right">
-                    <div className="text-sm opacity-70">Subtotal</div>
-                    <div className="text-2xl font-semibold">{cart.currency ?? '₹'} {cart.totals.total}</div>
-                    <button onClick={onCheckout} disabled={busy} className="storefront-button mt-3">
-                        {busy ? 'Starting…' : 'Checkout'}
-                    </button>
-                </div>
+        <div className="space-y-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Your cart</PageTitle>
+                    <PageDescription>
+                        Review your items and adjust quantities before checkout.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button
+                        variant="secondary"
+                        iconLeft={ArrowLeft}
+                        onClick={() => router.push(`/store/${tenantSlug}`)}
+                    >
+                        Keep shopping
+                    </Button>
+                </PageActions>
+            </PageHeader>
+
+            <Card padding="none">
+                <CardBody className="p-0">
+                    <Table>
+                        <THead>
+                            <Tr>
+                                <Th>Product</Th>
+                                <Th align="right">Price</Th>
+                                <Th align="center" width={120}>Quantity</Th>
+                                <Th align="right">Total</Th>
+                                <Th align="center" width={56}>
+                                    <span className="sr-only">Remove</span>
+                                </Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {cart.lineItems.map((li) => (
+                                <Tr key={li.productId}>
+                                    <Td>
+                                        <div className="flex items-center gap-3">
+                                            {li.imageUrl ? (
+                                                // eslint-disable-next-line @next/next/no-img-element
+                                                <img
+                                                    src={li.imageUrl}
+                                                    alt={li.name}
+                                                    className="h-12 w-12 rounded-[var(--st-radius)] object-cover"
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="h-12 w-12 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]"
+                                                    aria-hidden="true"
+                                                />
+                                            )}
+                                            <span className="font-medium text-[var(--st-text)]">{li.name}</span>
+                                        </div>
+                                    </Td>
+                                    <Td align="right" className="text-[var(--st-text-secondary)]">
+                                        {currency} {li.unitPrice}
+                                    </Td>
+                                    <Td align="center">
+                                        <Input
+                                            type="number"
+                                            min={0}
+                                            inputSize="sm"
+                                            value={li.quantity}
+                                            aria-label={`Quantity for ${li.name}`}
+                                            onChange={(e) => setQty(li.productId, Number(e.target.value))}
+                                            className="w-20"
+                                        />
+                                    </Td>
+                                    <Td align="right" className="font-medium text-[var(--st-text)]">
+                                        {currency} {li.lineTotal}
+                                    </Td>
+                                    <Td align="center">
+                                        <IconButton
+                                            label={`Remove ${li.name}`}
+                                            icon={Trash2}
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setQty(li.productId, 0)}
+                                        />
+                                    </Td>
+                                </Tr>
+                            ))}
+                        </TBody>
+                        <TFoot>
+                            <Tr>
+                                <Td colSpan={3} align="right" className="text-[var(--st-text-secondary)]">
+                                    Subtotal
+                                </Td>
+                                <Td align="right" className="text-lg font-semibold text-[var(--st-text)]">
+                                    {currency} {cart.totals.total}
+                                </Td>
+                                <Td />
+                            </Tr>
+                        </TFoot>
+                    </Table>
+                </CardBody>
+            </Card>
+
+            <div className="flex flex-col items-stretch justify-end gap-3 sm:flex-row sm:items-center">
+                <Button
+                    variant="primary"
+                    size="lg"
+                    loading={busy}
+                    onClick={onCheckout}
+                >
+                    {busy ? 'Starting checkout' : 'Checkout'}
+                </Button>
             </div>
         </div>
     );

@@ -1,15 +1,52 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Globe, Search, Filter, Plus, Edit2, Trash2, Save, X, Check,
-  ChevronDown, ChevronRight, MoreVertical, Download, Upload, AlertCircle,
+  Globe, Search, Plus, Edit2, Trash2, Save, X, Check,
+  MoreVertical, Download, Upload, AlertCircle,
   Clock, MapPin, Calendar, Settings, Languages, LayoutTemplate,
-  MessageSquare, Shield, Activity, RefreshCcw, AlignLeft, AlignRight,
-  Sun, Moon, Plane, Server, Database, Zap, FileText, ArrowRight,
-  ToggleLeft, ToggleRight, History, Hash, Terminal, Cpu, HardDrive,
-  Copy, CheckSquare, Square, SearchX, MousePointerClick, Maximize2, Minimize2
+  MessageSquare, Activity, RefreshCcw,
+  Sun, Moon, Server, Database, Zap,
+  History, Hash, SearchX, Maximize2
 } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  Switch,
+  Badge,
+  Dot,
+  Tag,
+  Progress,
+  StatCard,
+  Avatar,
+  EmptyState,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Pagination,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 // ==========================================
 // TYPES & INTERFACES
@@ -97,17 +134,17 @@ const generateTranslations = (): TranslationItem[] => {
     'nav.home', 'nav.reports', 'nav.integrations', 'nav.billing', 'nav.support',
     'action.approve', 'action.reject', 'action.submit', 'action.review'
   ];
-  
+
   for (let i = 0; i < 500; i++) {
     const ns = NAMESPACES[Math.floor(Math.random() * NAMESPACES.length)];
     const baseKey = baseKeys[Math.floor(Math.random() * baseKeys.length)];
     const key = i < baseKeys.length ? baseKey : `${baseKey}_${i}`;
-    
+
     const statuses: TranslationItem['status'][] = ['approved', 'needs_review', 'missing', 'auto_translated'];
     const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
+
     const itemTags = Array.from({ length: Math.floor(Math.random() * 3) }).map(() => TAGS[Math.floor(Math.random() * TAGS.length)]);
-    
+
     data.push({
       id: `tr_${i}`,
       namespace: ns,
@@ -184,7 +221,7 @@ const INITIAL_REGIONS: RegionSchedule[] = [
     })),
     holidays: [
       { date: '2026-01-01', name: 'New Year' },
-      { date: '2026-05-05', name: 'Children\'s Day' }
+      { date: '2026-05-05', name: "Children's Day" }
     ],
     overrides: []
   }
@@ -199,29 +236,43 @@ const INITIAL_MAPPINGS: TimezoneMapping[] = [
   { id: 'map_6', serverRegion: 'ap-south-1', localTimezone: 'Asia/Kolkata', offset: '+05:30', dst: false, latency: 210, activeNodes: 42 },
 ];
 
+const STATUS_TONE: Record<TranslationItem['status'], 'success' | 'warning' | 'danger' | 'accent'> = {
+  approved: 'success',
+  needs_review: 'warning',
+  missing: 'danger',
+  auto_translated: 'accent',
+};
+
+const STATUS_LABEL: Record<TranslationItem['status'], string> = {
+  approved: 'Approved',
+  needs_review: 'Needs Review',
+  missing: 'Missing',
+  auto_translated: 'Auto Translated',
+};
 
 // ==========================================
 // SUB-COMPONENTS
 // ==========================================
 
 // 1. Translations Tab
-const TranslationsTab = ({ translations, setTranslations }: { translations: TranslationItem[], setTranslations: any }) => {
+const TranslationsTab = ({ translations, setTranslations }: { translations: TranslationItem[], setTranslations: React.Dispatch<React.SetStateAction<TranslationItem[]>> }) => {
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [namespaceFilter, setNamespaceFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [targetLang, setTargetLang] = useState<string>('es');
-  
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
-  
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  
+
   const [page, setPage] = useState(1);
   const itemsPerPage = 50;
 
   const filteredTranslations = useMemo(() => {
     return translations.filter(t => {
-      const matchesSearch = t.key.toLowerCase().includes(search.toLowerCase()) || 
+      const matchesSearch = t.key.toLowerCase().includes(search.toLowerCase()) ||
                             t.en.toLowerCase().includes(search.toLowerCase()) ||
                             (t.translations[targetLang] && t.translations[targetLang].toLowerCase().includes(search.toLowerCase()));
       const matchesNs = namespaceFilter === 'all' || t.namespace === namespaceFilter;
@@ -263,13 +314,14 @@ const TranslationsTab = ({ translations, setTranslations }: { translations: Tran
         return {
           ...t,
           translations: { ...t.translations, [targetLang]: editValue },
-          status: 'approved',
+          status: 'approved' as const,
           lastUpdated: new Date().toISOString()
         };
       }
       return t;
     }));
     setEditingId(null);
+    toast.success('Translation saved');
   };
 
   const cancelEdit = () => {
@@ -277,217 +329,205 @@ const TranslationsTab = ({ translations, setTranslations }: { translations: Tran
     setEditValue('');
   };
 
+  const allSelected = selectedIds.size > 0 && selectedIds.size === paginated.length;
+
   return (
     <div className="flex flex-col h-full space-y-4">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-gray-900 border border-gray-800 rounded-xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)]">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search keys or text..." 
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-64 text-white"
-            />
-          </div>
-          <select 
-            value={namespaceFilter}
-            onChange={e => setNamespaceFilter(e.target.value)}
-            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-white"
-          >
-            <option value="all">All Namespaces</option>
-            {NAMESPACES.map(ns => <option key={ns} value={ns}>{ns}</option>)}
-          </select>
-          <select 
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500 text-white"
-          >
-            <option value="all">All Statuses</option>
-            <option value="approved">Approved</option>
-            <option value="needs_review">Needs Review</option>
-            <option value="missing">Missing</option>
-            <option value="auto_translated">Auto Translated</option>
-          </select>
+          <Input
+            iconLeft={Search}
+            type="text"
+            placeholder="Search keys or text..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            aria-label="Search translations"
+            className="w-64"
+          />
+          <Select value={namespaceFilter} onValueChange={setNamespaceFilter}>
+            <SelectTrigger aria-label="Filter by namespace" className="min-w-[160px]">
+              <SelectValue placeholder="All Namespaces" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Namespaces</SelectItem>
+              {NAMESPACES.map(ns => <SelectItem key={ns} value={ns}>{ns}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger aria-label="Filter by status" className="min-w-[150px]">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="needs_review">Needs Review</SelectItem>
+              <SelectItem value="missing">Missing</SelectItem>
+              <SelectItem value="auto_translated">Auto Translated</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
+
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg">
-            <span className="text-xs text-gray-400 uppercase font-semibold">Target:</span>
-            <select 
-              value={targetLang}
-              onChange={e => setTargetLang(e.target.value)}
-              className="bg-transparent text-sm focus:outline-none text-white font-medium"
-            >
-              {LANGUAGES.filter(l => !l.isDefault).map(l => (
-                <option key={l.code} value={l.code}>{l.name} ({l.code})</option>
-              ))}
-            </select>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-[var(--st-text-secondary)] uppercase font-semibold">Target</span>
+            <Select value={targetLang} onValueChange={setTargetLang}>
+              <SelectTrigger aria-label="Target language" className="min-w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.filter(l => !l.isDefault).map(l => (
+                  <SelectItem key={l.code} value={l.code}>{l.name} ({l.code})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          
-          <button className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors" title="Import CSV">
-            <Upload className="w-4 h-4 text-gray-300" />
-          </button>
-          <button className="p-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition-colors" title="Export CSV">
-            <Download className="w-4 h-4 text-gray-300" />
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
-            <Plus className="w-4 h-4" />
+
+          <IconButton label="Import CSV" icon={Upload} variant="outline" onClick={() => toast.info('Import dialog coming soon')} />
+          <IconButton label="Export CSV" icon={Download} variant="outline" onClick={() => toast.info('Export started')} />
+          <Button variant="primary" iconLeft={Plus} onClick={() => toast.info('Add key form coming soon')}>
             Add Key
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Bulk Actions Bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between p-3 bg-blue-900/30 border border-blue-800/50 rounded-xl animate-in fade-in slide-in-from-top-2">
-          <span className="text-sm text-blue-200">{selectedIds.size} items selected</span>
+        <div className="flex items-center justify-between p-3 bg-[var(--st-accent-soft)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)]">
+          <span className="text-sm text-[var(--st-accent)]">{selectedIds.size} items selected</span>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-medium rounded border border-gray-700 text-white">Approve Selected</button>
-            <button className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-xs font-medium rounded border border-gray-700 text-white flex items-center gap-1">
-              <RefreshCcw className="w-3 h-3" /> Auto-Translate
-            </button>
-            <button className="px-3 py-1.5 bg-red-900/50 hover:bg-red-900/80 text-xs font-medium rounded border border-red-800/50 text-red-200">Delete Selected</button>
+            <Button size="sm" variant="secondary" onClick={() => toast.success(`${selectedIds.size} approved`)}>Approve Selected</Button>
+            <Button size="sm" variant="secondary" iconLeft={RefreshCcw} onClick={() => toast.info('Auto-translation queued')}>Auto-Translate</Button>
+            <Button size="sm" variant="danger" onClick={() => toast.error(`${selectedIds.size} deleted`)}>Delete Selected</Button>
           </div>
         </div>
       )}
 
       {/* Data Grid */}
-      <div className="flex-1 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
+      <Card padding="none" className="flex-1 overflow-hidden flex flex-col">
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left text-sm text-gray-300">
-            <thead className="text-xs text-gray-400 uppercase bg-gray-800/50 border-b border-gray-800 sticky top-0 z-10">
-              <tr>
-                <th className="px-4 py-3 w-12">
-                  <button onClick={toggleSelectAll} className="text-gray-400 hover:text-white">
-                    {selectedIds.size > 0 && selectedIds.size === paginated.length ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                  </button>
-                </th>
-                <th className="px-4 py-3 font-semibold">Key Information</th>
-                <th className="px-4 py-3 font-semibold w-1/3">Source (English)</th>
-                <th className="px-4 py-3 font-semibold w-1/3">Target ({targetLang})</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-800/50">
+          <Table stickyHeader>
+            <THead>
+              <Tr>
+                <Th align="center" width={48}>
+                  <Checkbox
+                    checked={allSelected}
+                    indeterminate={selectedIds.size > 0 && !allSelected}
+                    onChange={toggleSelectAll}
+                    aria-label="Select all translations on this page"
+                  />
+                </Th>
+                <Th>Key Information</Th>
+                <Th width="33%">Source (English)</Th>
+                <Th width="33%">Target ({targetLang})</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {paginated.map((t) => (
-                <tr key={t.id} className={`hover:bg-gray-800/30 transition-colors group ${selectedIds.has(t.id) ? 'bg-blue-900/10' : ''}`}>
-                  <td className="px-4 py-3">
-                    <button onClick={() => toggleSelect(t.id)} className="text-gray-500 hover:text-gray-300">
-                      {selectedIds.has(t.id) ? <CheckSquare className="w-4 h-4 text-blue-500" /> : <Square className="w-4 h-4" />}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <div className="flex flex-col gap-1">
-                      <span className="font-mono text-xs text-blue-400 font-medium break-all">{t.key}</span>
+                <Tr key={t.id} selected={selectedIds.has(t.id)} className="group">
+                  <Td align="center">
+                    <Checkbox
+                      checked={selectedIds.has(t.id)}
+                      onChange={() => toggleSelect(t.id)}
+                      aria-label={`Select ${t.key}`}
+                    />
+                  </Td>
+                  <Td>
+                    <div className="flex flex-col gap-1 align-top">
+                      <span className="font-mono text-xs text-[var(--st-accent)] font-medium break-all">{t.key}</span>
                       <div className="flex items-center gap-2">
-                        <span className="px-1.5 py-0.5 rounded-md bg-gray-800 text-[10px] text-gray-400 border border-gray-700">{t.namespace}</span>
-                        {t.status === 'approved' && <span className="w-2 h-2 rounded-full bg-green-500" title="Approved"></span>}
-                        {t.status === 'needs_review' && <span className="w-2 h-2 rounded-full bg-yellow-500" title="Needs Review"></span>}
-                        {t.status === 'missing' && <span className="w-2 h-2 rounded-full bg-red-500" title="Missing"></span>}
-                        {t.status === 'auto_translated' && <span className="w-2 h-2 rounded-full bg-purple-500" title="Auto Translated"></span>}
+                        <Badge tone="neutral" kind="outline">{t.namespace}</Badge>
+                        <Dot tone={STATUS_TONE[t.status]} aria-label={STATUS_LABEL[t.status]} />
                       </div>
                       {t.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {t.tags.map(tag => (
-                            <span key={tag} className="text-[9px] px-1 bg-gray-800 text-gray-500 rounded flex items-center gap-0.5">
-                              <Hash className="w-2 h-2" /> {tag}
-                            </span>
+                          {t.tags.map((tag, ti) => (
+                            <Tag key={`${tag}-${ti}`}>
+                              <Hash size={9} aria-hidden="true" /> {tag}
+                            </Tag>
                           ))}
                         </div>
                       )}
                     </div>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <p className="text-gray-300 text-sm whitespace-pre-wrap">{t.en}</p>
-                  </td>
-                  <td className="px-4 py-3 align-top">
+                  </Td>
+                  <Td>
+                    <p className="text-[var(--st-text)] text-sm whitespace-pre-wrap align-top">{t.en}</p>
+                  </Td>
+                  <Td>
                     {editingId === t.id ? (
                       <div className="flex flex-col gap-2">
-                        <textarea 
-                          className="w-full bg-gray-950 border border-blue-500 rounded-lg p-2 text-sm text-white focus:outline-none resize-y min-h-[80px]"
+                        <Textarea
                           value={editValue}
                           onChange={e => setEditValue(e.target.value)}
+                          aria-label={`Edit translation for ${t.key}`}
                           autoFocus
+                          rows={3}
                         />
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={cancelEdit} className="p-1 text-gray-400 hover:text-white bg-gray-800 rounded"><X className="w-4 h-4" /></button>
-                          <button onClick={() => saveEdit(t.id)} className="p-1 text-green-400 hover:text-green-300 bg-green-900/30 rounded"><Check className="w-4 h-4" /></button>
+                          <IconButton label="Cancel edit" icon={X} variant="ghost" size="sm" onClick={cancelEdit} />
+                          <IconButton label="Save translation" icon={Check} variant="primary" size="sm" onClick={() => saveEdit(t.id)} />
                         </div>
                       </div>
                     ) : (
-                      <div 
-                        className={`text-sm whitespace-pre-wrap p-2 rounded-lg border border-transparent hover:border-gray-700 hover:bg-gray-800/50 cursor-text min-h-[40px] ${!t.translations[targetLang] ? 'text-gray-600 italic' : 'text-gray-200'}`}
+                      <Button
+                        variant="ghost"
+                        className={`!h-auto !justify-start !block w-full text-left text-sm whitespace-pre-wrap !p-2 !rounded-[var(--st-radius)] border border-transparent hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] cursor-text min-h-[40px] ${!t.translations[targetLang] ? 'text-[var(--st-text-tertiary)] italic' : 'text-[var(--st-text)]'}`}
                         onClick={() => startEdit(t)}
                       >
-                        {t.translations[targetLang] || 'Empty translation... Click to add.'}
-                      </div>
+                        {t.translations[targetLang] || 'Empty translation. Click to add.'}
+                      </Button>
                     )}
-                  </td>
-                  <td className="px-4 py-3 align-top text-right">
+                  </Td>
+                  <Td align="right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-800 rounded-lg" onClick={() => startEdit(t)} title="Edit">
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                      <button className="p-1.5 text-gray-400 hover:text-purple-400 hover:bg-gray-800 rounded-lg" title="View History">
-                        <History className="w-3.5 h-3.5" />
-                      </button>
-                      <button className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg" title="Delete">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <IconButton label="Edit" icon={Edit2} variant="ghost" size="sm" onClick={() => startEdit(t)} />
+                      <IconButton label="View history" icon={History} variant="ghost" size="sm" onClick={() => toast.info('History view coming soon')} />
+                      <IconButton label="Delete" icon={Trash2} variant="ghost" size="sm" onClick={() => toast.error('Deleted')} />
                     </div>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
               {paginated.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                    <div className="flex flex-col items-center justify-center gap-3">
-                      <SearchX className="w-8 h-8 text-gray-600" />
-                      <p>No translations found matching your criteria.</p>
-                    </div>
-                  </td>
-                </tr>
+                <Tr>
+                  <Td colSpan={5}>
+                    <EmptyState
+                      icon={SearchX}
+                      title="No translations found"
+                      description="No translations match your current search and filters."
+                    />
+                  </Td>
+                </Tr>
               )}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
-        
+
         {/* Pagination */}
-        <div className="p-3 border-t border-gray-800 bg-gray-900/50 flex items-center justify-between">
-          <span className="text-xs text-gray-500">
-            Showing {(page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, filteredTranslations.length)} of {filteredTranslations.length} entries
+        <div className="p-3 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between">
+          <span className="text-xs text-[var(--st-text-tertiary)]">
+            Showing {filteredTranslations.length === 0 ? 0 : (page - 1) * itemsPerPage + 1} to {Math.min(page * itemsPerPage, filteredTranslations.length)} of {filteredTranslations.length} entries
           </span>
-          <div className="flex items-center gap-1">
-            <button 
-              disabled={page === 1} 
-              onClick={() => setPage(p => p - 1)}
-              className="px-3 py-1 bg-gray-800 disabled:opacity-50 border border-gray-700 rounded text-xs text-gray-300 hover:bg-gray-700"
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1 text-xs text-gray-400">Page {page} of {totalPages || 1}</span>
-            <button 
-              disabled={page === totalPages || totalPages === 0} 
-              onClick={() => setPage(p => p + 1)}
-              className="px-3 py-1 bg-gray-800 disabled:opacity-50 border border-gray-700 rounded text-xs text-gray-300 hover:bg-gray-700"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination
+            page={page}
+            pageCount={totalPages || 1}
+            onPageChange={setPage}
+          />
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
 
 // 2. Regional Settings Tab
 const RegionalSettingsTab = () => {
+  const { toast } = useToast();
   const [activeLang, setActiveLang] = useState('en');
   const [previewText, setPreviewText] = useState('Welcome to our advanced dashboard. Please configure your settings below.');
-  
+  const [langActive, setLangActive] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(LANGUAGES.map(l => [l.code, l.active]))
+  );
+
   const currentLangObj = LANGUAGES.find(l => l.code === activeLang);
   const isRtl = currentLangObj?.dir === 'rtl';
 
@@ -495,168 +535,201 @@ const RegionalSettingsTab = () => {
     <div className="flex flex-col lg:flex-row gap-6 h-full">
       {/* Settings Form */}
       <div className="flex-1 space-y-6 overflow-y-auto pr-2">
-        
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-blue-900/30 rounded-lg text-blue-400">
-              <Languages className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Default Regional Preferences</h2>
-              <p className="text-sm text-gray-400">Set the default formatting for users who haven't specified their preferences.</p>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Primary Language</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
-              </select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Fallback Language</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500" defaultValue="en">
-                {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name}</option>)}
-              </select>
-              <p className="text-xs text-gray-500">Used when a translation is missing in the primary language.</p>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Default Timezone</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Currency Format</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                <option value="USD">USD ($1,234.56)</option>
-                <option value="EUR">EUR (1.234,56 €)</option>
-                <option value="GBP">GBP (£1,234.56)</option>
-                <option value="JPY">JPY (¥1,234)</option>
-                <option value="INR">INR (₹1,234.56)</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Date Format</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                <option value="MM/DD/YYYY">MM/DD/YYYY (12/31/2026)</option>
-                <option value="DD/MM/YYYY">DD/MM/YYYY (31/12/2026)</option>
-                <option value="YYYY-MM-DD">YYYY-MM-DD (2026-12-31)</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Time Format</label>
-              <select className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500">
-                <option value="12h">12-hour (02:30 PM)</option>
-                <option value="24h">24-hour (14:30)</option>
-              </select>
-            </div>
-          </div>
-          
-          <div className="mt-8 pt-6 border-t border-gray-800 flex justify-end">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
-              <Save className="w-4 h-4" /> Save Preferences
-            </button>
-          </div>
-        </div>
-
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-purple-900/30 rounded-lg text-purple-400">
-              <LayoutTemplate className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Language Availability</h2>
-              <p className="text-sm text-gray-400">Manage which languages are available to end users.</p>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {LANGUAGES.map(lang => (
-              <div key={lang.code} className="flex items-center justify-between p-3 bg-gray-950 border border-gray-800 rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-xs font-bold text-gray-400 uppercase">
-                    {lang.code}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-200">{lang.name}</span>
-                      {lang.isDefault && <span className="text-[10px] px-1.5 py-0.5 bg-blue-900/50 text-blue-300 rounded border border-blue-800">Default</span>}
-                      {lang.dir === 'rtl' && <span className="text-[10px] px-1.5 py-0.5 bg-purple-900/50 text-purple-300 rounded border border-purple-800">RTL</span>}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full ${lang.completion > 90 ? 'bg-green-500' : lang.completion > 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                          style={{ width: `${lang.completion}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-gray-500">{lang.completion}% translated</span>
-                    </div>
-                  </div>
-                </div>
-                <button className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${lang.active ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                  <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${lang.active ? 'translate-x-5' : 'translate-x-1'}`} />
-                </button>
+        <Card padding="lg">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <span className="p-2 bg-[var(--st-accent-soft)] rounded-[var(--st-radius)] text-[var(--st-accent)]">
+                <Languages size={20} aria-hidden="true" />
+              </span>
+              <div>
+                <CardTitle>Default Regional Preferences</CardTitle>
+                <CardDescription>Set the default formatting for users who have not specified their preferences.</CardDescription>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field label="Primary Language">
+                <Select defaultValue="en">
+                  <SelectTrigger aria-label="Primary language">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map(l => <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Fallback Language" help="Used when a translation is missing in the primary language.">
+                <Select defaultValue="en">
+                  <SelectTrigger aria-label="Fallback language">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LANGUAGES.map(l => <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Default Timezone">
+                <Select defaultValue="UTC">
+                  <SelectTrigger aria-label="Default timezone">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIMEZONES.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Currency Format">
+                <Select defaultValue="USD">
+                  <SelectTrigger aria-label="Currency format">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD ($1,234.56)</SelectItem>
+                    <SelectItem value="EUR">EUR (1.234,56 €)</SelectItem>
+                    <SelectItem value="GBP">GBP (£1,234.56)</SelectItem>
+                    <SelectItem value="JPY">JPY (¥1,234)</SelectItem>
+                    <SelectItem value="INR">INR (₹1,234.56)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Date Format">
+                <Select defaultValue="MM/DD/YYYY">
+                  <SelectTrigger aria-label="Date format">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="MM/DD/YYYY">MM/DD/YYYY (12/31/2026)</SelectItem>
+                    <SelectItem value="DD/MM/YYYY">DD/MM/YYYY (31/12/2026)</SelectItem>
+                    <SelectItem value="YYYY-MM-DD">YYYY-MM-DD (2026-12-31)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Time Format">
+                <Select defaultValue="12h">
+                  <SelectTrigger aria-label="Time format">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="12h">12-hour (02:30 PM)</SelectItem>
+                    <SelectItem value="24h">24-hour (14:30)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-[var(--st-border)] flex justify-end">
+              <Button variant="primary" iconLeft={Save} onClick={() => toast.success('Preferences saved')}>
+                Save Preferences
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card padding="lg">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <span className="p-2 bg-[var(--st-accent-soft)] rounded-[var(--st-radius)] text-[var(--st-accent)]">
+                <LayoutTemplate size={20} aria-hidden="true" />
+              </span>
+              <div>
+                <CardTitle>Language Availability</CardTitle>
+                <CardDescription>Manage which languages are available to end users.</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-3">
+              {LANGUAGES.map(lang => (
+                <div key={lang.code} className="flex items-center justify-between p-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
+                  <div className="flex items-center gap-4">
+                    <span className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-xs font-bold text-[var(--st-text-secondary)] uppercase">
+                      {lang.code}
+                    </span>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[var(--st-text)]">{lang.name}</span>
+                        {lang.isDefault && <Badge tone="accent" kind="outline">Default</Badge>}
+                        {lang.dir === 'rtl' && <Badge tone="info" kind="outline">RTL</Badge>}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Progress
+                          value={lang.completion}
+                          tone={lang.completion > 90 ? 'success' : lang.completion > 50 ? 'warning' : 'danger'}
+                          size="sm"
+                          className="w-24"
+                          aria-label={`${lang.name} translation progress`}
+                        />
+                        <span className="text-xs text-[var(--st-text-tertiary)]">{lang.completion}% translated</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={langActive[lang.code]}
+                    onCheckedChange={(next) => setLangActive(prev => ({ ...prev, [lang.code]: next }))}
+                    aria-label={`Toggle ${lang.name} availability`}
+                  />
+                </div>
+              ))}
+            </div>
+          </CardBody>
+        </Card>
 
       </div>
 
       {/* Preview Panel */}
       <div className="w-full lg:w-[400px] xl:w-[500px] flex flex-col gap-4">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 sticky top-4 flex-1">
+        <Card padding="lg" className="sticky top-4 flex-1">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-              <Maximize2 className="w-4 h-4 text-gray-400" /> Layout Preview
+            <h2 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
+              <Maximize2 size={16} className="text-[var(--st-text-secondary)]" aria-hidden="true" /> Layout Preview
             </h2>
-            <select 
-              value={activeLang}
-              onChange={e => setActiveLang(e.target.value)}
-              className="bg-gray-950 border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none"
-            >
-              {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.name} ({l.dir.toUpperCase()})</option>)}
-            </select>
+            <Select value={activeLang} onValueChange={setActiveLang}>
+              <SelectTrigger aria-label="Preview language" className="min-w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {LANGUAGES.map(l => <SelectItem key={l.code} value={l.code}>{l.name} ({l.dir.toUpperCase()})</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="mb-4">
-            <label className="text-xs text-gray-500 mb-1 block">Test String</label>
-            <textarea 
-              value={previewText}
-              onChange={e => setPreviewText(e.target.value)}
-              className="w-full bg-gray-950 border border-gray-800 rounded-lg p-2 text-sm text-gray-300 focus:outline-none focus:border-gray-600"
-              rows={2}
-            />
+            <Field label="Test String">
+              <Textarea
+                value={previewText}
+                onChange={e => setPreviewText(e.target.value)}
+                rows={2}
+              />
+            </Field>
           </div>
 
-          <div className="border border-gray-700 rounded-lg overflow-hidden bg-white mt-4 relative min-h-[400px]">
+          <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden bg-white mt-4 relative min-h-[400px]">
             {/* Fake Browser Top */}
             <div className="bg-gray-200 px-3 py-2 flex items-center gap-2 border-b border-gray-300">
               <div className="flex gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                <span className="w-2.5 h-2.5 rounded-full bg-red-400" aria-hidden="true"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" aria-hidden="true"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-green-400" aria-hidden="true"></span>
               </div>
               <div className="mx-auto bg-white px-24 py-0.5 rounded text-[10px] text-gray-500 font-mono">dashboard.preview</div>
             </div>
-            
+
             {/* Preview Content */}
-            <div 
+            <div
               className="p-6 text-gray-800 flex flex-col gap-6"
               dir={isRtl ? 'rtl' : 'ltr'}
             >
               {/* Header Mock */}
               <div className="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-lg"></div>
+                  <div className="w-8 h-8 bg-blue-600 rounded-lg" aria-hidden="true"></div>
                   <div className="font-bold text-lg">AppName</div>
                 </div>
                 <div className="flex gap-4 text-sm text-gray-500">
@@ -669,22 +742,22 @@ const RegionalSettingsTab = () => {
               {/* Main Content Mock */}
               <div className="flex gap-6">
                 {/* Sidebar Mock */}
-                <div className="w-32 flex flex-col gap-3">
+                <div className="w-32 flex flex-col gap-3" aria-hidden="true">
                   <div className="h-6 bg-gray-200 rounded-md w-full"></div>
                   <div className="h-6 bg-gray-100 rounded-md w-4/5"></div>
                   <div className="h-6 bg-gray-100 rounded-md w-5/6"></div>
                   <div className="h-6 bg-gray-100 rounded-md w-3/4"></div>
                 </div>
-                
+
                 {/* Content Area Mock */}
                 <div className="flex-1 space-y-4">
                   <h1 className="text-2xl font-bold">{isRtl ? 'مرحبا بك في لوحة القيادة' : 'Dashboard Overview'}</h1>
-                  
+
                   <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg text-blue-900 shadow-sm">
                     <p className="text-sm font-medium">{previewText}</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4" aria-hidden="true">
                     <div className="p-4 border border-gray-200 rounded-lg flex flex-col gap-2">
                       <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                       <div className="h-8 bg-gray-100 rounded w-full mt-2"></div>
@@ -704,13 +777,13 @@ const RegionalSettingsTab = () => {
 
             </div>
           </div>
-          
-          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-            <span>Direction: <strong className="text-gray-300 uppercase">{isRtl ? 'RTL' : 'LTR'}</strong></span>
-            <span>Alignment: <strong className="text-gray-300">{isRtl ? 'Right-to-Left' : 'Left-to-Right'}</strong></span>
+
+          <div className="mt-4 flex items-center justify-between text-xs text-[var(--st-text-tertiary)]">
+            <span>Direction: <strong className="text-[var(--st-text)] uppercase">{isRtl ? 'RTL' : 'LTR'}</strong></span>
+            <span>Alignment: <strong className="text-[var(--st-text)]">{isRtl ? 'Right-to-Left' : 'Left-to-Right'}</strong></span>
           </div>
 
-        </div>
+        </Card>
       </div>
     </div>
   );
@@ -718,7 +791,8 @@ const RegionalSettingsTab = () => {
 
 // 3. Business Hours Tab
 const BusinessHoursTab = () => {
-  const [regions, setRegions] = useState<RegionSchedule[]>(INITIAL_REGIONS);
+  const { toast } = useToast();
+  const [regions] = useState<RegionSchedule[]>(INITIAL_REGIONS);
   const [selectedRegionId, setSelectedRegionId] = useState<string>(INITIAL_REGIONS[0].id);
 
   const selectedRegion = useMemo(() => regions.find(r => r.id === selectedRegionId) || regions[0], [regions, selectedRegionId]);
@@ -727,108 +801,110 @@ const BusinessHoursTab = () => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full">
-      
+
       {/* Sidebar List */}
       <div className="w-full lg:w-64 flex flex-col gap-3">
-        <button className="flex items-center justify-center gap-2 w-full py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-xl text-white text-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" /> Add Region
-        </button>
-        
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-          {regions.map(r => (
-            <button 
-              key={r.id}
-              onClick={() => setSelectedRegionId(r.id)}
-              className={`w-full text-left px-4 py-3 flex flex-col gap-1 border-b border-gray-800 transition-colors last:border-0
-                ${selectedRegionId === r.id ? 'bg-blue-900/20 border-l-2 border-l-blue-500' : 'hover:bg-gray-800/50 border-l-2 border-l-transparent'}`}
-            >
-              <span className="font-medium text-sm text-gray-200">{r.name}</span>
-              <span className="text-xs text-gray-500 flex items-center gap-1"><MapPin className="w-3 h-3" /> {r.timezone}</span>
-            </button>
-          ))}
-        </div>
+        <Button variant="secondary" block iconLeft={Plus} onClick={() => toast.info('Add region form coming soon')}>
+          Add Region
+        </Button>
+
+        <Card padding="none" className="overflow-hidden">
+          {regions.map(r => {
+            const isActive = selectedRegionId === r.id;
+            return (
+              <Button
+                key={r.id}
+                variant="ghost"
+                onClick={() => setSelectedRegionId(r.id)}
+                aria-pressed={isActive}
+                className={`!h-auto !justify-start w-full text-left !px-4 !py-3 flex flex-col !items-start gap-1 border-b border-[var(--st-border)] transition-colors last:border-0 border-l-2 !rounded-none
+                  ${isActive ? 'bg-[var(--st-accent-soft)] border-l-[var(--st-accent)]' : 'hover:bg-[var(--st-bg-muted)] border-l-transparent'}`}
+              >
+                <span className="font-medium text-sm text-[var(--st-text)]">{r.name}</span>
+                <span className="text-xs text-[var(--st-text-tertiary)] flex items-center gap-1"><MapPin size={12} aria-hidden="true" /> {r.timezone}</span>
+              </button>
+            );
+          })}
+        </Card>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-gray-900 border border-gray-800 rounded-xl overflow-y-auto">
-        
+      <Card padding="none" className="flex-1 overflow-y-auto">
+
         {/* Header */}
-        <div className="p-6 border-b border-gray-800 flex items-start justify-between">
+        <div className="p-6 border-b border-[var(--st-border)] flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[var(--st-text)] flex items-center gap-2">
               {selectedRegion.name}
-              <button className="text-gray-500 hover:text-white"><Edit2 className="w-4 h-4" /></button>
+              <IconButton label="Rename region" icon={Edit2} variant="ghost" size="sm" onClick={() => toast.info('Rename coming soon')} />
             </h2>
-            <p className="text-sm text-gray-400 mt-1">Configure operating hours, timezone, and holidays for this region.</p>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-1">Configure operating hours, timezone, and holidays for this region.</p>
           </div>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm border border-gray-700">Discard</button>
-            <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium">Save Changes</button>
+            <Button variant="secondary" onClick={() => toast.info('Changes discarded')}>Discard</Button>
+            <Button variant="primary" onClick={() => toast.success('Changes saved')}>Save Changes</Button>
           </div>
         </div>
 
         <div className="p-6 space-y-8">
-          
+
           {/* General Config */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Timezone</label>
-              <select 
-                value={selectedRegion.timezone}
-                onChange={() => {}}
-                className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
-              >
-                {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Status</label>
-              <div className="flex items-center gap-3 bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-sm text-white">Currently Open (Local time: 10:45 AM)</span>
+            <Field label="Timezone">
+              <Select value={selectedRegion.timezone} onValueChange={() => {}}>
+                <SelectTrigger aria-label="Region timezone">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIMEZONES.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="Status">
+              <div className="flex items-center gap-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] px-4 py-2.5">
+                <Dot tone="success" pulse aria-label="Open" />
+                <span className="text-sm text-[var(--st-text)]">Currently Open (Local time: 10:45 AM)</span>
               </div>
-            </div>
+            </Field>
           </div>
 
           {/* Weekly Schedule */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Clock className="w-5 h-5 text-gray-400" /> Weekly Schedule</h3>
-            <div className="border border-gray-800 rounded-xl overflow-hidden bg-gray-950">
+            <h3 className="text-lg font-semibold text-[var(--st-text)] mb-4 flex items-center gap-2"><Clock size={20} className="text-[var(--st-text-secondary)]" aria-hidden="true" /> Weekly Schedule</h3>
+            <div className="border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden bg-[var(--st-bg-secondary)]">
               {selectedRegion.hours.map((dayHour, idx) => (
-                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border-b border-gray-800 last:border-0 hover:bg-gray-900/50 transition-colors">
-                  
+                <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border-b border-[var(--st-border)] last:border-0 hover:bg-[var(--st-bg-muted)] transition-colors">
+
                   <div className="w-32 flex items-center gap-3">
-                    <button className={`w-10 h-6 rounded-full transition-colors relative ${dayHour.isOpen ? 'bg-blue-600' : 'bg-gray-700'}`}>
-                      <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${dayHour.isOpen ? 'left-5' : 'left-1'}`}></span>
-                    </button>
-                    <span className={`text-sm font-medium ${dayHour.isOpen ? 'text-gray-200' : 'text-gray-500'}`}>{daysOfWeek[dayHour.day]}</span>
+                    <Switch checked={dayHour.isOpen} aria-label={`Toggle ${daysOfWeek[dayHour.day]}`} />
+                    <span className={`text-sm font-medium ${dayHour.isOpen ? 'text-[var(--st-text)]' : 'text-[var(--st-text-tertiary)]'}`}>{daysOfWeek[dayHour.day]}</span>
                   </div>
-                  
+
                   <div className="flex-1">
                     {dayHour.isOpen ? (
                       <div className="flex flex-col gap-2">
                         {dayHour.shifts.length > 0 ? (
                           dayHour.shifts.map((shift, sIdx) => (
                             <div key={sIdx} className="flex items-center gap-2">
-                              <input type="time" value={shift.start} onChange={() => {}} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
-                              <span className="text-gray-500">-</span>
-                              <input type="time" value={shift.end} onChange={() => {}} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
-                              <button className="p-1.5 text-gray-500 hover:text-red-400 rounded"><X className="w-4 h-4" /></button>
+                              <Input type="time" value={shift.start} onChange={() => {}} inputSize="sm" aria-label="Shift start" className="w-auto" />
+                              <span className="text-[var(--st-text-tertiary)]">-</span>
+                              <Input type="time" value={shift.end} onChange={() => {}} inputSize="sm" aria-label="Shift end" className="w-auto" />
+                              <IconButton label="Remove shift" icon={X} variant="ghost" size="sm" />
                               {sIdx === dayHour.shifts.length - 1 && (
-                                <button className="p-1.5 text-gray-500 hover:text-blue-400 rounded" title="Add Shift"><Plus className="w-4 h-4" /></button>
+                                <IconButton label="Add shift" icon={Plus} variant="ghost" size="sm" />
                               )}
                             </div>
                           ))
                         ) : (
-                           <button className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300"><Plus className="w-4 h-4" /> Add Hours</button>
+                          <Button size="sm" variant="ghost" iconLeft={Plus}>Add Hours</Button>
                         )}
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-600 italic">Closed</span>
+                      <span className="text-sm text-[var(--st-text-tertiary)] italic">Closed</span>
                     )}
                   </div>
-                  
-                  <button className="text-gray-500 hover:text-white" title="Copy to all"><Copy className="w-4 h-4" /></button>
+
+                  <IconButton label="Copy hours to all days" icon={History} variant="ghost" size="sm" />
                 </div>
               ))}
             </div>
@@ -836,174 +912,141 @@ const BusinessHoursTab = () => {
 
           {/* Holidays & Exceptions */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
+
             <div>
-               <div className="flex items-center justify-between mb-4">
-                 <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Calendar className="w-5 h-5 text-gray-400" /> Holidays (Closed)</h3>
-                 <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"><Plus className="w-4 h-4" /> Add</button>
-               </div>
-               
-               <div className="space-y-2">
-                 {selectedRegion.holidays.length > 0 ? selectedRegion.holidays.map((h, i) => (
-                   <div key={i} className="flex items-center justify-between p-3 bg-gray-950 border border-gray-800 rounded-lg">
-                     <div className="flex flex-col">
-                       <span className="text-sm font-medium text-gray-200">{h.name}</span>
-                       <span className="text-xs text-gray-500">{h.date}</span>
-                     </div>
-                     <button className="p-1.5 text-gray-500 hover:text-red-400 rounded"><Trash2 className="w-4 h-4" /></button>
-                   </div>
-                 )) : (
-                   <div className="p-4 text-center border border-dashed border-gray-700 rounded-lg text-sm text-gray-500">No holidays configured</div>
-                 )}
-               </div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2"><Calendar size={20} className="text-[var(--st-text-secondary)]" aria-hidden="true" /> Holidays (Closed)</h3>
+                <Button size="sm" variant="ghost" iconLeft={Plus}>Add</Button>
+              </div>
+
+              <div className="space-y-2">
+                {selectedRegion.holidays.length > 0 ? selectedRegion.holidays.map((h, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-[var(--st-text)]">{h.name}</span>
+                      <span className="text-xs text-[var(--st-text-tertiary)]">{h.date}</span>
+                    </div>
+                    <IconButton label={`Remove holiday ${h.name}`} icon={Trash2} variant="ghost" size="sm" />
+                  </div>
+                )) : (
+                  <div className="p-4 text-center border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] text-sm text-[var(--st-text-tertiary)]">No holidays configured</div>
+                )}
+              </div>
             </div>
 
             <div>
-               <div className="flex items-center justify-between mb-4">
-                 <h3 className="text-lg font-semibold text-white flex items-center gap-2"><AlertCircle className="w-5 h-5 text-gray-400" /> Overrides (Custom Hours)</h3>
-                 <button className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"><Plus className="w-4 h-4" /> Add</button>
-               </div>
-               
-               <div className="space-y-2">
-                 {selectedRegion.overrides.length > 0 ? selectedRegion.overrides.map((o, i) => (
-                   <div key={i} className="flex items-center justify-between p-3 bg-gray-950 border border-gray-800 rounded-lg">
-                     <div className="flex flex-col gap-1">
-                       <span className="text-sm font-medium text-gray-200">Date: {o.date}</span>
-                       <div className="flex gap-2">
-                         {o.shifts.map((s, si) => (
-                           <span key={si} className="text-xs px-2 py-0.5 bg-gray-800 text-gray-300 rounded border border-gray-700">{s.start} - {s.end}</span>
-                         ))}
-                       </div>
-                     </div>
-                     <button className="p-1.5 text-gray-500 hover:text-red-400 rounded"><Trash2 className="w-4 h-4" /></button>
-                   </div>
-                 )) : (
-                   <div className="p-4 text-center border border-dashed border-gray-700 rounded-lg text-sm text-gray-500">No overrides configured</div>
-                 )}
-               </div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2"><AlertCircle size={20} className="text-[var(--st-text-secondary)]" aria-hidden="true" /> Overrides (Custom Hours)</h3>
+                <Button size="sm" variant="ghost" iconLeft={Plus}>Add</Button>
+              </div>
+
+              <div className="space-y-2">
+                {selectedRegion.overrides.length > 0 ? selectedRegion.overrides.map((o, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-[var(--st-text)]">Date: {o.date}</span>
+                      <div className="flex gap-2">
+                        {o.shifts.map((s, si) => (
+                          <Badge key={si} tone="neutral" kind="outline">{s.start} - {s.end}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <IconButton label={`Remove override ${o.date}`} icon={Trash2} variant="ghost" size="sm" />
+                  </div>
+                )) : (
+                  <div className="p-4 text-center border border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] text-sm text-[var(--st-text-tertiary)]">No overrides configured</div>
+                )}
+              </div>
             </div>
 
           </div>
 
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
 
 // 4. Content Delivery Tab (CDN & Timezone grid)
 const ContentDeliveryTab = () => {
-  const [mappings, setMappings] = useState<TimezoneMapping[]>(INITIAL_MAPPINGS);
+  const { toast } = useToast();
+  const [mappings] = useState<TimezoneMapping[]>(INITIAL_MAPPINGS);
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Active Edge Nodes</h3>
-            <Server className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-3xl font-bold text-white">528</div>
-          <div className="text-xs text-green-400 mt-2 flex items-center gap-1">+12 this week</div>
-        </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Global Avg Latency</h3>
-            <Zap className="w-4 h-4 text-yellow-400" />
-          </div>
-          <div className="text-3xl font-bold text-white">42ms</div>
-          <div className="text-xs text-green-400 mt-2 flex items-center gap-1">-5ms optimization</div>
-        </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Cached Assets</h3>
-            <Database className="w-4 h-4 text-purple-400" />
-          </div>
-          <div className="text-3xl font-bold text-white">99.8%</div>
-          <div className="text-xs text-gray-500 mt-2">Hit ratio across all regions</div>
-        </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-gray-400">Localization Sync</h3>
-            <RefreshCcw className="w-4 h-4 text-green-400" />
-          </div>
-          <div className="text-3xl font-bold text-white">Healthy</div>
-          <div className="text-xs text-gray-500 mt-2">Last sync 2 mins ago</div>
-        </div>
+        <StatCard label="Active Edge Nodes" value="528" icon={Server} delta={{ value: '+12 this week', tone: 'up' }} />
+        <StatCard label="Global Avg Latency" value="42ms" icon={Zap} delta={{ value: '-5ms optimization', tone: 'up' }} />
+        <StatCard label="Cached Assets" value="99.8%" icon={Database} delta={{ value: 'Hit ratio all regions', tone: 'neutral' }} />
+        <StatCard label="Localization Sync" value="Healthy" icon={RefreshCcw} delta={{ value: 'Last sync 2 mins ago', tone: 'neutral' }} />
       </div>
 
-      <div className="flex-1 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden flex flex-col">
-        <div className="p-5 border-b border-gray-800 flex items-center justify-between">
+      <Card padding="none" className="flex-1 overflow-hidden flex flex-col">
+        <div className="p-5 border-b border-[var(--st-border)] flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">Regional Server Mapping</h2>
-            <p className="text-sm text-gray-400">Map specific physical server regions to logical timezones to optimize routing for localized users.</p>
+            <h2 className="text-lg font-bold text-[var(--st-text)]">Regional Server Mapping</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">Map physical server regions to logical timezones to optimize routing for localized users.</p>
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm border border-gray-700 transition-colors">
-            <Plus className="w-4 h-4" /> Add Mapping
-          </button>
+          <Button variant="secondary" iconLeft={Plus} onClick={() => toast.info('Add mapping form coming soon')}>
+            Add Mapping
+          </Button>
         </div>
 
         <div className="flex-1 overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-300">
-            <thead className="text-xs text-gray-400 uppercase bg-gray-800/50 border-b border-gray-800">
-              <tr>
-                <th className="px-6 py-4 font-semibold">Server Region (AWS/GCP)</th>
-                <th className="px-6 py-4 font-semibold">Assigned Timezone</th>
-                <th className="px-6 py-4 font-semibold">UTC Offset</th>
-                <th className="px-6 py-4 font-semibold">DST Active</th>
-                <th className="px-6 py-4 font-semibold">Latency</th>
-                <th className="px-6 py-4 font-semibold">Nodes</th>
-                <th className="px-6 py-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-800/50">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Server Region (AWS/GCP)</Th>
+                <Th>Assigned Timezone</Th>
+                <Th>UTC Offset</Th>
+                <Th>DST Active</Th>
+                <Th>Latency</Th>
+                <Th>Nodes</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {mappings.map(m => (
-                <tr key={m.id} className="hover:bg-gray-800/30 transition-colors">
-                  <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                    <Server className="w-4 h-4 text-gray-500" />
-                    {m.serverRegion}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-blue-400" />
+                <Tr key={m.id}>
+                  <Td>
+                    <span className="font-medium text-[var(--st-text)] flex items-center gap-2">
+                      <Server size={16} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                      {m.serverRegion}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="flex items-center gap-2">
+                      <Globe size={16} className="text-[var(--st-accent)]" aria-hidden="true" />
                       {m.localTimezone}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 font-mono text-gray-400">
-                    UTC {m.offset}
-                  </td>
-                  <td className="px-6 py-4">
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="font-mono text-[var(--st-text-secondary)]">UTC {m.offset}</span>
+                  </Td>
+                  <Td>
                     {m.dst ? (
-                      <span className="px-2 py-1 bg-yellow-900/30 text-yellow-500 rounded text-xs border border-yellow-800/50 flex w-fit items-center gap-1">
-                        <Sun className="w-3 h-3" /> Yes
-                      </span>
+                      <Badge tone="warning" kind="soft"><Sun size={12} aria-hidden="true" /> Yes</Badge>
                     ) : (
-                       <span className="px-2 py-1 bg-gray-800 text-gray-400 rounded text-xs border border-gray-700 flex w-fit items-center gap-1">
-                        <Moon className="w-3 h-3" /> No
-                      </span>
+                      <Badge tone="neutral" kind="soft"><Moon size={12} aria-hidden="true" /> No</Badge>
                     )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${m.latency < 50 ? 'bg-green-500' : m.latency < 100 ? 'bg-yellow-500' : 'bg-red-500'}`}></div>
+                  </Td>
+                  <Td>
+                    <span className="flex items-center gap-2">
+                      <Dot tone={m.latency < 50 ? 'success' : m.latency < 100 ? 'warning' : 'danger'} aria-label="Latency status" />
                       {m.latency}ms
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {m.activeNodes}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
+                    </span>
+                  </Td>
+                  <Td>{m.activeNodes}</Td>
+                  <Td align="right">
+                    <IconButton label={`Actions for ${m.serverRegion}`} icon={MoreVertical} variant="ghost" size="sm" />
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };
@@ -1015,7 +1058,7 @@ const ContentDeliveryTab = () => {
 
 export default function LocalizationDashboard() {
   const [activeTab, setActiveTab] = useState<'translations' | 'regional' | 'business' | 'cdn'>('translations');
-  
+
   // Data states lifted up if needed globally, otherwise kept in tabs
   const [translations, setTranslations] = useState<TranslationItem[]>(INITIAL_TRANSLATIONS);
 
@@ -1027,77 +1070,71 @@ export default function LocalizationDashboard() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-black text-gray-200 flex flex-col font-sans">
-      
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+
       {/* Header */}
-      <header className="h-16 border-b border-gray-800 bg-gray-950 flex items-center justify-between px-6 shrink-0 z-20 sticky top-0">
+      <header className="h-16 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between px-6 shrink-0 z-20 sticky top-0">
         <div className="flex items-center gap-4">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-900/20">
-            <Globe className="w-4 h-4 text-white" />
-          </div>
+          <span className="w-8 h-8 rounded-[var(--st-radius)] bg-[var(--st-accent)] flex items-center justify-center">
+            <Globe size={16} className="text-[var(--st-text-inverted)]" aria-hidden="true" />
+          </span>
           <div>
-            <h1 className="font-bold text-white leading-tight">Localization Hub</h1>
-            <p className="text-xs text-gray-500">SabDesk Global Workspace Settings</p>
+            <h1 className="font-bold text-[var(--st-text)] leading-tight">Localization Hub</h1>
+            <p className="text-xs text-[var(--st-text-tertiary)]">SabDesk Global Workspace Settings</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-900 px-3 py-1.5 rounded-full border border-gray-800">
-            <Activity className="w-4 h-4 text-green-500" />
-            Sync Status: <span className="text-white">Up to date</span>
-          </div>
-          <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition-colors relative">
-            <MessageSquare className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-500"></span>
-          </button>
-          <button className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-full transition-colors">
-            <Settings className="w-5 h-5" />
-          </button>
-          <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center text-xs font-bold">
-            AD
-          </div>
+          <Badge tone="success" kind="soft" dot>
+            <Activity size={14} aria-hidden="true" /> Sync Status: Up to date
+          </Badge>
+          <IconButton label="Messages" icon={MessageSquare} variant="ghost" />
+          <IconButton label="Settings" icon={Settings} variant="ghost" />
+          <Avatar name="Ada Diaz" size="md" />
         </div>
       </header>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden max-w-[1600px] w-full mx-auto px-6 py-6 gap-6">
-        
-        {/* Top Info Bar & Tabs Navigation */}
-        <div className="flex flex-col gap-6 shrink-0">
-          
-          <div className="flex flex-wrap gap-2 border-b border-gray-800 pb-px">
+
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as 'translations' | 'regional' | 'business' | 'cdn')}
+          className="flex-1 flex flex-col overflow-hidden gap-6"
+        >
+          <TabsList className="shrink-0">
             {TABS.map(tab => {
               const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 transition-colors relative top-[1px]
-                    ${isActive 
-                      ? 'border-blue-500 text-blue-400 bg-blue-900/10 rounded-t-lg' 
-                      : 'border-transparent text-gray-400 hover:text-gray-200 hover:bg-gray-900/50 rounded-t-lg'}`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                  {tab.id === 'translations' && (
-                    <span className="ml-1.5 bg-gray-800 text-gray-300 py-0.5 px-2 rounded-full text-[10px] border border-gray-700">
-                      {translations.length}
-                    </span>
-                  )}
-                </button>
-              )
+                <TabsTrigger key={tab.id} value={tab.id}>
+                  <span className="flex items-center gap-2">
+                    <Icon size={16} aria-hidden="true" />
+                    {tab.label}
+                    {tab.id === 'translations' && (
+                      <Badge tone="neutral" kind="soft">{translations.length}</Badge>
+                    )}
+                  </span>
+                </TabsTrigger>
+              );
             })}
-          </div>
-        </div>
+          </TabsList>
 
-        {/* Dynamic Tab Content Area */}
-        <div className="flex-1 overflow-hidden relative">
-          {activeTab === 'translations' && <TranslationsTab translations={translations} setTranslations={setTranslations} />}
-          {activeTab === 'regional' && <RegionalSettingsTab />}
-          {activeTab === 'business' && <BusinessHoursTab />}
-          {activeTab === 'cdn' && <ContentDeliveryTab />}
-        </div>
+          {/* Dynamic Tab Content Area */}
+          <div className="flex-1 overflow-hidden relative">
+            <TabsContent value="translations" className="h-full">
+              <TranslationsTab translations={translations} setTranslations={setTranslations} />
+            </TabsContent>
+            <TabsContent value="regional" className="h-full">
+              <RegionalSettingsTab />
+            </TabsContent>
+            <TabsContent value="business" className="h-full">
+              <BusinessHoursTab />
+            </TabsContent>
+            <TabsContent value="cdn" className="h-full">
+              <ContentDeliveryTab />
+            </TabsContent>
+          </div>
+        </Tabs>
 
       </div>
     </div>

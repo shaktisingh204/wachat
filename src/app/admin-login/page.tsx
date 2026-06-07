@@ -1,4 +1,3 @@
-import "@/components/sabcrm/20ui/zoru-legacy.css";
 import { isAdminConfigured } from '@/app/actions/admin.actions';
 import AdminLoginClient from './admin-login-client';
 
@@ -11,7 +10,7 @@ export default async function AdminLoginPage() {
     }
 
     return (
-        <div className="zoruui min-h-screen bg-[var(--st-text)] text-white">
+        <div className="ui20 min-h-screen bg-[var(--st-text)] text-white">
             <AdminLoginClient initialMode={configured ? 'login' : 'setup'} />
         </div>
     );

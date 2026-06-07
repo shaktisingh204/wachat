@@ -1,10 +1,19 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, RefreshCw } from 'lucide-react';
 import { FEATURE_CATEGORIES, Feature } from '@/lib/features/types';
 import { FEATURES } from '@/lib/features/catalog';
+import { Button } from '@/components/sabcrm/20ui';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
+import { Alert } from '@/components/sabcrm/20ui';
 import { FilterBar } from './FilterBar';
 import { FeatureList } from './FeatureList';
 import { SkeletonList } from './SkeletonList';
@@ -25,15 +34,15 @@ async function fetchFeaturesAPI(query: string, category: string, sort: string): 
       }
 
       let results = [...FEATURES];
-      
+
       if (category && category !== 'all') {
         results = results.filter(f => f.category === category);
       }
-      
+
       if (query) {
         const q = query.toLowerCase();
-        results = results.filter(f => 
-          f.name.toLowerCase().includes(q) || 
+        results = results.filter(f =>
+          f.name.toLowerCase().includes(q) ||
           f.tagline.toLowerCase().includes(q)
         );
       }
@@ -55,10 +64,11 @@ async function fetchFeaturesAPI(query: string, category: string, sort: string): 
 }
 
 export function FeaturesClient() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [sort, setSort] = useState('default');
-  
+
   const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,28 +93,32 @@ export function FeaturesClient() {
   const totalCount = FEATURES.length;
 
   return (
-    <main className="flex-1 flex flex-col lg:flex-row border-y border-black">
+    <main className="flex-1 flex flex-col lg:flex-row border-y border-[var(--st-border)]">
       {/* Left Column */}
       <div className="w-full lg:w-[55%] p-6 md:p-12 lg:p-20 overflow-y-auto">
-        <div className="mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase mb-6">
-            Features API
-          </h1>
-          <p className="text-lg leading-relaxed max-w-xl mb-8">
-            Explore the entire catalog of SabNode capabilities. Strict monochrome. Zero color. 
-            {totalCount} features exposed via this OpenAPI-inspired documentation layout.
-          </p>
-          <div className="flex gap-4 items-center">
-            <Link href="/signup" className="border border-black px-6 py-3 uppercase tracking-widest text-sm font-bold hover:bg-black hover:text-white transition-colors flex items-center gap-2">
-              Init Session <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
+        <PageHeader bordered={false} className="mb-16">
+          <PageHeaderHeading>
+            <PageTitle>Features API</PageTitle>
+            <PageDescription>
+              Explore the entire catalog of SabNode capabilities. {totalCount} features exposed
+              via this OpenAPI-inspired documentation layout.
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="primary"
+              iconRight={ArrowRight}
+              onClick={() => router.push('/signup')}
+            >
+              Init Session
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-        <FilterBar 
-          query={query} 
-          setQuery={setQuery} 
-          category={category} 
+        <FilterBar
+          query={query}
+          setQuery={setQuery}
+          category={category}
           setCategory={setCategory}
           sort={sort}
           setSort={setSort}
@@ -114,19 +128,17 @@ export function FeaturesClient() {
           {loading ? (
             <SkeletonList />
           ) : error ? (
-            <div className="border border-black p-6 bg-red-50 text-red-900">
-              <div className="flex items-center gap-2 mb-2 font-bold uppercase tracking-widest">
-                <AlertTriangle className="w-5 h-5" />
-                API Error
-              </div>
+            <Alert tone="danger" title="API Error">
               <p className="font-mono text-sm mb-4">{error}</p>
-              <button 
+              <Button
+                variant="danger"
+                size="sm"
+                iconLeft={RefreshCw}
                 onClick={() => loadFeatures()}
-                className="border border-red-900 px-4 py-2 text-xs uppercase tracking-widest font-bold hover:bg-red-900 hover:text-white transition-colors flex items-center gap-2"
               >
-                <RefreshCw className="w-3 h-3" /> Retry Request
-              </button>
-            </div>
+                Retry Request
+              </Button>
+            </Alert>
           ) : (
             <FeatureList features={features} />
           )}
@@ -134,9 +146,9 @@ export function FeaturesClient() {
       </div>
 
       {/* Right Column: Code Blocks / Interactive */}
-      <div className="w-full lg:w-[45%] bg-black text-white p-6 md:p-12 lg:p-20 lg:sticky lg:top-0 lg:h-screen overflow-y-auto border-l border-black">
-        <InteractiveConsole 
-          activeCategory={category} 
+      <div className="w-full lg:w-[45%] bg-[var(--st-text)] text-[var(--st-bg)] p-6 md:p-12 lg:p-20 lg:sticky lg:top-0 lg:h-screen overflow-y-auto border-l border-[var(--st-border)]">
+        <InteractiveConsole
+          activeCategory={category}
           activeQuery={query}
           isError={!!error}
           isLoading={loading}

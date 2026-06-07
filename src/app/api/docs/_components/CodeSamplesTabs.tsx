@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react';
-import { Button } from '@/components/sabcrm/20ui';
+import { Button, Tabs, TabsList, TabsTrigger } from '@/components/sabcrm/20ui';
 import { Copy, Check } from 'lucide-react';
 
 export interface CodeSample {
@@ -26,11 +26,12 @@ interface Props {
 }
 
 export function CodeSamplesTabs({ samples }: Props): JSX.Element {
-  const [active, setActive] = useState(0);
+  const [activeLang, setActiveLang] = useState(samples[0]?.lang ?? '');
   const [copied, setCopied] = useState(false);
-  const sample = samples[active];
+  const sample = samples.find((s) => s.lang === activeLang) ?? samples[0];
 
   const copy = async (): Promise<void> => {
+    if (!sample) return;
     try {
       await navigator.clipboard.writeText(sample.source);
       setCopied(true);
@@ -42,34 +43,31 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
 
   return (
     <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-      <div className="flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
-        <div className="flex overflow-x-auto" role="tablist">
-          {samples.map((s, i) => (
-            <button
-              key={s.lang}
-              role="tab"
-              aria-selected={i === active}
-              onClick={() => setActive(i)}
-              className={
-                'px-3 py-2 text-xs font-medium border-r border-[var(--st-border)] whitespace-nowrap transition-colors ' +
-                (i === active
-                  ? 'text-[var(--st-text)] bg-[var(--st-bg)]'
-                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]')
-              }
-            >
+      <Tabs
+        value={activeLang}
+        onValueChange={setActiveLang}
+        className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+      >
+        <TabsList className="flex-1 overflow-x-auto">
+          {samples.map((s) => (
+            <TabsTrigger key={s.lang} value={s.lang} noPill>
               {s.lang}
-            </button>
+            </TabsTrigger>
           ))}
-        </div>
+        </TabsList>
         <div className="px-2 flex-shrink-0">
           <Button variant="ghost" size="sm" onClick={copy}>
-            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? (
+              <Check className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
             <span className="ml-1 text-xs">{copied ? 'Copied' : 'Copy'}</span>
           </Button>
         </div>
-      </div>
-      <pre className="px-4 py-3 text-xs text-white m-0 overflow-x-auto leading-relaxed">
-        <code>{sample.source}</code>
+      </Tabs>
+      <pre className="px-4 py-3 text-xs text-[var(--st-text)] m-0 overflow-x-auto leading-relaxed">
+        <code>{sample?.source}</code>
       </pre>
     </div>
   );

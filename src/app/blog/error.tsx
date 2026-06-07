@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { AlertTriangle, RotateCw } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 
 export default function BlogError({
   error,
@@ -14,17 +17,18 @@ export default function BlogError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-8">
-      <h2 className="text-2xl font-bold mb-4 font-sans">Something went wrong!</h2>
-      <p className="text-neutral-400 font-mono text-sm mb-8 max-w-md text-center">
-        We encountered an error while loading the changelog content.
-      </p>
-      <button
-        onClick={() => reset()}
-        className="px-4 py-2 bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 transition-colors rounded text-sm font-mono"
-      >
-        Try again
-      </button>
+    <div className="ui20 dark min-h-screen flex flex-col items-center justify-center bg-[var(--st-bg)] p-8">
+      <EmptyState
+        tone="danger"
+        icon={AlertTriangle}
+        title="Something went wrong"
+        description="We encountered an error while loading the changelog content."
+        action={
+          <Button variant="primary" iconLeft={RotateCw} onClick={() => reset()}>
+            Try again
+          </Button>
+        }
+      />
     </div>
   );
 }

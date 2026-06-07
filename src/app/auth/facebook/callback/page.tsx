@@ -1,6 +1,4 @@
-import "@/components/sabcrm/20ui/zoru-legacy.css";
-
-import { Card, CardHeader, CardTitle, CardDescription, Button } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter, Button } from '@/components/sabcrm/20ui';
 import { Suspense } from 'react'
 import { LoaderCircle, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -17,7 +15,7 @@ type PageProps = {
 export default async function FacebookCallbackPage({
   searchParams,
 }: PageProps) {
-  // ✅ unwrap promise
+  // unwrap promise
   const params = await searchParams
 
   const code = params.code as string | undefined
@@ -46,12 +44,12 @@ export default async function FacebookCallbackPage({
   // 2. Inline fallback for invalid code or errors (fails entirely)
   if (error || !code || !state) {
     return (
-      <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
-        <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
+      <div className="min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
           <Card className="max-w-sm text-center">
             <CardHeader>
               <div className="flex justify-center mb-4">
-                <AlertCircle className="h-10 w-10 text-[var(--st-text)]" />
+                <AlertCircle className="h-10 w-10 text-[var(--st-danger)]" aria-hidden="true" />
               </div>
               <CardTitle>Connection Failed</CardTitle>
               <CardDescription>
@@ -60,11 +58,11 @@ export default async function FacebookCallbackPage({
                   : "No connection code or state was provided. The process might have been cancelled."}
               </CardDescription>
             </CardHeader>
-            <div className="p-6 pt-0">
-              <Link href={getRedirectPath(state)}>
-                <Button variant="outline" className="w-full">Return to Dashboard</Button>
+            <CardFooter>
+              <Link href={getRedirectPath(state)} className="w-full">
+                <Button variant="outline" block>Return to Dashboard</Button>
               </Link>
-            </div>
+            </CardFooter>
           </Card>
         </div>
       </div>
@@ -72,14 +70,14 @@ export default async function FacebookCallbackPage({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <Suspense
         fallback={
-          <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)]">
+          <div className="flex h-screen w-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
             <Card className="max-w-sm text-center">
               <CardHeader>
                 <div className="flex justify-center mb-4">
-                  <LoaderCircle className="h-10 w-10 animate-spin text-[var(--st-text)]" />
+                  <LoaderCircle className="h-10 w-10 animate-spin text-[var(--st-accent)]" aria-hidden="true" />
                 </div>
                 <CardTitle>Loading...</CardTitle>
               </CardHeader>

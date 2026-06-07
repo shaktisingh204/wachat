@@ -2,19 +2,29 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
-import { 
-  ArrowRight, 
-  Code2, 
-  Terminal, 
-  Users, 
-  Building, 
-  ChevronRight, 
-  CheckCircle2, 
-  Shield, 
-  Zap, 
-  FileJson,
-  ArrowUpRight
+import {
+  ArrowRight,
+  Code2,
+  Terminal,
+  Users,
+  Building,
+  ChevronRight,
+  CheckCircle2,
+  Shield,
+  Zap,
+  ArrowUpRight,
 } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  Separator,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+} from '@/components/sabcrm/20ui';
 import { MobileSidebar } from './components/MobileSidebar';
 import { PartnerApplicationForm } from './components/PartnerApplicationForm';
 import { PartnerDirectory } from './components/PartnerDirectory';
@@ -29,29 +39,29 @@ export const metadata: Metadata = {
 
 export default function PartnersPage() {
   return (
-    <div className="min-h-screen bg-black text-white font-mono selection:bg-white selection:text-black antialiased">
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono antialiased">
       {/* Developer-First OpenAPI layout style */}
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/10 bg-black/80 backdrop-blur-md px-6 py-4">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)]/80 backdrop-blur-md px-6 py-4">
         <div className="flex items-center gap-4">
           <MobileSidebar />
-          <Link href="/" className="font-bold tracking-tighter text-xl hover:text-white/80 transition-colors">
+          <Link href="/" className="font-bold tracking-tighter text-xl text-[var(--st-text)] hover:text-[var(--st-text-secondary)] transition-colors">
             SabNode
           </Link>
-          <span className="text-white/30">/</span>
-          <span className="text-white/90 font-medium">Partners</span>
-          
-          <nav className="hidden lg:flex items-center gap-6 ml-8 text-sm text-white/50">
-            <Link href="#agency" className="hover:text-white transition-colors">Agency</Link>
-            <Link href="#developer" className="hover:text-white transition-colors">Developer</Link>
-            <Link href="#referral" className="hover:text-white transition-colors">Referral</Link>
-            <Link href="#directory" className="hover:text-white transition-colors">Directory</Link>
+          <span className="text-[var(--st-text-tertiary)]">/</span>
+          <span className="text-[var(--st-text)] font-medium">Partners</span>
+
+          <nav className="hidden lg:flex items-center gap-6 ml-8 text-sm text-[var(--st-text-secondary)]">
+            <Link href="#agency" className="hover:text-[var(--st-text)] transition-colors">Agency</Link>
+            <Link href="#developer" className="hover:text-[var(--st-text)] transition-colors">Developer</Link>
+            <Link href="#referral" className="hover:text-[var(--st-text)] transition-colors">Referral</Link>
+            <Link href="#directory" className="hover:text-[var(--st-text)] transition-colors">Directory</Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">
-          <Link 
-            href="/login" 
-            className="text-sm text-white/50 hover:text-white transition-colors hidden sm:block"
+          <Link
+            href="/login"
+            className="text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors hidden sm:block"
           >
             Partner Login
           </Link>
@@ -61,74 +71,81 @@ export default function PartnersPage() {
 
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-73px)] items-stretch">
         {/* Left Sidebar - Navigation */}
-        <aside className="w-full lg:w-64 border-r border-white/10 p-6 hidden lg:block overflow-y-auto shrink-0 bg-black sticky top-[73px] h-[calc(100vh-73px)]">
+        <aside className="w-full lg:w-64 border-r border-[var(--st-border)] p-6 hidden lg:block overflow-y-auto shrink-0 bg-[var(--st-bg)] sticky top-[73px] h-[calc(100vh-73px)]">
           <div className="space-y-10 text-sm">
             <div>
-              <h3 className="font-bold text-white/40 uppercase tracking-widest mb-4 text-xs">Overview</h3>
+              <h3 className="font-bold text-[var(--st-text-tertiary)] uppercase tracking-widest mb-4 text-xs">Overview</h3>
               <ul className="space-y-3">
-                <li><Link href="#introduction" className="text-white flex items-center justify-between group">Introduction <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity"/></Link></li>
-                <li><Link href="#benefits" className="text-white/50 hover:text-white transition-colors">Benefits</Link></li>
-                <li><Link href="#requirements" className="text-white/50 hover:text-white transition-colors">Requirements</Link></li>
+                <li><Link href="#introduction" className="text-[var(--st-text)] flex items-center justify-between group">Introduction <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true" /></Link></li>
+                <li><Link href="#benefits" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors">Benefits</Link></li>
+                <li><Link href="#requirements" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors">Requirements</Link></li>
               </ul>
             </div>
-            
+
             <div>
-              <h3 className="font-bold text-white/40 uppercase tracking-widest mb-4 text-xs">Programs</h3>
+              <h3 className="font-bold text-[var(--st-text-tertiary)] uppercase tracking-widest mb-4 text-xs">Programs</h3>
               <ul className="space-y-3">
-                <li><Link href="#agency" className="text-white/50 hover:text-white transition-colors flex items-center gap-2"><Building className="w-3.5 h-3.5"/> Agency Partner</Link></li>
-                <li><Link href="#developer" className="text-white/50 hover:text-white transition-colors flex items-center gap-2"><Code2 className="w-3.5 h-3.5"/> Tech Partner</Link></li>
-                <li><Link href="#referral" className="text-white/50 hover:text-white transition-colors flex items-center gap-2"><Users className="w-3.5 h-3.5"/> Referral Partner</Link></li>
+                <li><Link href="#agency" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2"><Building className="w-3.5 h-3.5" aria-hidden="true" /> Agency Partner</Link></li>
+                <li><Link href="#developer" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2"><Code2 className="w-3.5 h-3.5" aria-hidden="true" /> Tech Partner</Link></li>
+                <li><Link href="#referral" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2"><Users className="w-3.5 h-3.5" aria-hidden="true" /> Referral Partner</Link></li>
               </ul>
             </div>
-            
+
             <div>
-              <h3 className="font-bold text-white/40 uppercase tracking-widest mb-4 text-xs">Resources</h3>
+              <h3 className="font-bold text-[var(--st-text-tertiary)] uppercase tracking-widest mb-4 text-xs">Resources</h3>
               <ul className="space-y-3">
-                <li><Link href="#directory" className="text-white/50 hover:text-white transition-colors flex items-center gap-2">Partner Directory <ArrowRight className="w-3 h-3"/></Link></li>
-                <li><Link href="#" className="text-white/50 hover:text-white transition-colors flex items-center gap-2">API Reference <ArrowUpRight className="w-3 h-3"/></Link></li>
-                <li><Link href="#" className="text-white/50 hover:text-white transition-colors flex items-center gap-2">Brand Assets <ArrowUpRight className="w-3 h-3"/></Link></li>
-                <li><Link href="#" className="text-white/50 hover:text-white transition-colors flex items-center gap-2">Support <ArrowUpRight className="w-3 h-3"/></Link></li>
+                <li><Link href="#directory" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2">Partner Directory <ArrowRight className="w-3 h-3" aria-hidden="true" /></Link></li>
+                <li><Link href="#" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2">API Reference <ArrowUpRight className="w-3 h-3" aria-hidden="true" /></Link></li>
+                <li><Link href="#" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2">Brand Assets <ArrowUpRight className="w-3 h-3" aria-hidden="true" /></Link></li>
+                <li><Link href="#" className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-2">Support <ArrowUpRight className="w-3 h-3" aria-hidden="true" /></Link></li>
               </ul>
             </div>
           </div>
         </aside>
 
         {/* Main Content Area - Split into Docs & Code/Examples */}
-        <main className="flex-1 flex flex-col xl:flex-row bg-black min-w-0">
-          
+        <main className="flex-1 flex flex-col xl:flex-row bg-[var(--st-bg)] min-w-0">
+
           {/* Center Docs Column */}
-          <div className="flex-1 p-6 md:p-12 lg:p-16 xl:max-w-3xl border-r border-white/10">
+          <div className="flex-1 p-6 md:p-12 lg:p-16 xl:max-w-3xl border-r border-[var(--st-border)]">
             <div className="max-w-2xl mx-auto space-y-20">
-              
+
               {/* Hero Section */}
-              <section id="introduction" className="space-y-8 scroll-mt-24">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/20 text-xs font-semibold bg-white/5 text-white/80">
-                  <Terminal className="w-3.5 h-3.5" /> sabnode-partner-network
-                </div>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-                  Scale your operations <br/><span className="text-white/40">with SabNode.</span>
-                </h1>
-                <p className="text-lg text-white/60 leading-relaxed font-sans">
-                  Join an elite network of agencies, developers, and consultants building the next generation of customer operations. Gain access to exclusive APIs, revenue sharing, and co-marketing opportunities.
-                </p>
+              <section id="introduction" className="scroll-mt-24">
+                <PageHeader bordered={false}>
+                  <PageHeaderHeading>
+                    <PageEyebrow>
+                      <Badge tone="neutral" kind="outline" className="font-mono">
+                        <Terminal className="w-3.5 h-3.5" aria-hidden="true" /> sabnode-partner-network
+                      </Badge>
+                    </PageEyebrow>
+                    <PageTitle className="text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+                      Scale your operations{' '}
+                      <span className="text-[var(--st-text-tertiary)]">with SabNode.</span>
+                    </PageTitle>
+                    <PageDescription className="text-lg text-[var(--st-text-secondary)] leading-relaxed font-sans">
+                      Join an elite network of agencies, developers, and consultants building the next generation of customer operations. Gain access to exclusive APIs, revenue sharing, and co-marketing opportunities.
+                    </PageDescription>
+                  </PageHeaderHeading>
+                </PageHeader>
               </section>
 
-              <hr className="border-white/10" />
+              <Separator />
 
               {/* Agency Program */}
               <section id="agency" className="space-y-8 scroll-mt-24">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white text-black rounded">
-                      <Building className="w-5 h-5" />
+                    <div className="p-2.5 bg-[var(--st-text)] text-[var(--st-bg)] rounded-[var(--st-radius)]">
+                      <Building className="w-5 h-5" aria-hidden="true" />
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight">Agency Program</h2>
+                    <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">Agency Program</h2>
                   </div>
-                  <p className="text-white/60 leading-relaxed font-sans">
+                  <p className="text-[var(--st-text-secondary)] leading-relaxed font-sans">
                     For digital agencies and system integrators. Deliver superior CRM, automation, and operational solutions to your clients on top of the SabNode architecture.
                   </p>
                 </div>
-                
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   {[
                     { title: "Revenue Share", desc: "Up to 30% lifetime commission on referred accounts." },
@@ -136,34 +153,34 @@ export default function PartnersPage() {
                     { title: "Priority Support", desc: "Direct Slack channel with our engineering team." },
                     { title: "Co-Marketing", desc: "Featured case studies and joint webinars." }
                   ].map((item, i) => (
-                    <div key={i} className="p-5 border border-white/10 rounded-lg bg-[#050505] hover:bg-white/5 transition-colors group">
-                      <h4 className="font-bold text-sm flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" /> 
+                    <Card key={i} variant="interactive" padding="md" className="bg-[var(--st-bg-secondary)] group">
+                      <h4 className="font-bold text-sm flex items-center gap-2 mb-2 text-[var(--st-text)]">
+                        <CheckCircle2 className="w-4 h-4 text-[var(--st-text-tertiary)] group-hover:text-[var(--st-text)] transition-colors" aria-hidden="true" />
                         {item.title}
                       </h4>
-                      <p className="text-sm text-white/50 font-sans leading-relaxed">{item.desc}</p>
-                    </div>
+                      <p className="text-sm text-[var(--st-text-secondary)] font-sans leading-relaxed">{item.desc}</p>
+                    </Card>
                   ))}
                 </div>
               </section>
-              
-              <hr className="border-white/10" />
+
+              <Separator />
 
               {/* Developer Program */}
               <section id="developer" className="space-y-8 scroll-mt-24">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-white text-black rounded">
-                      <Code2 className="w-5 h-5" />
+                    <div className="p-2.5 bg-[var(--st-text)] text-[var(--st-bg)] rounded-[var(--st-radius)]">
+                      <Code2 className="w-5 h-5" aria-hidden="true" />
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight">Technology Partner</h2>
+                    <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">Technology Partner</h2>
                   </div>
-                  <p className="text-white/60 leading-relaxed font-sans">
+                  <p className="text-[var(--st-text-secondary)] leading-relaxed font-sans">
                     For ISVs and developers building integrations. Publish your app in the SabNode Marketplace and access thousands of potential customers.
                   </p>
                 </div>
-                
-                <div className="bg-[#050505] border border-white/10 rounded-lg p-6">
+
+                <Card variant="outlined" padding="lg" className="bg-[var(--st-bg-secondary)]">
                   <ul className="space-y-5">
                     {[
                       "OAuth 2.0 application registration and management.",
@@ -171,34 +188,34 @@ export default function PartnersPage() {
                       "Dedicated solutions engineering support for complex builds.",
                       "Revenue share for paid marketplace applications."
                     ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm text-white/70 font-sans">
-                        <Shield className="w-4 h-4 mt-0.5 text-white/30 shrink-0" />
+                      <li key={i} className="flex items-start gap-3 text-sm text-[var(--st-text-secondary)] font-sans">
+                        <Shield className="w-4 h-4 mt-0.5 text-[var(--st-text-tertiary)] shrink-0" aria-hidden="true" />
                         <span className="leading-relaxed">{item}</span>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Card>
               </section>
 
-              <hr className="border-white/10" />
+              <Separator />
 
               {/* Referral Program */}
               <section id="referral" className="space-y-8 scroll-mt-24 pb-20">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 border border-white/20 text-white rounded">
-                      <Users className="w-5 h-5" />
+                    <div className="p-2.5 border border-[var(--st-border-strong)] text-[var(--st-text)] rounded-[var(--st-radius)]">
+                      <Users className="w-5 h-5" aria-hidden="true" />
                     </div>
-                    <h2 className="text-2xl font-bold tracking-tight">Referral Partner</h2>
+                    <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">Referral Partner</h2>
                   </div>
-                  <p className="text-white/60 leading-relaxed font-sans">
+                  <p className="text-[var(--st-text-secondary)] leading-relaxed font-sans">
                     For consultants, creators, and advisors. Simply refer clients to SabNode and earn a commission for every successful conversion.
                   </p>
                 </div>
                 <CommissionCalculator />
               </section>
 
-              <hr className="border-white/10" />
+              <Separator />
 
               <section id="directory" className="space-y-8 scroll-mt-24 pb-20">
                 <PartnerDirectory />
@@ -208,14 +225,14 @@ export default function PartnersPage() {
           </div>
 
           {/* Right Column - Code / Examples */}
-          <div className="w-full xl:w-[480px] 2xl:w-[540px] p-6 lg:p-8 bg-[#050505] xl:sticky xl:top-[73px] xl:h-[calc(100vh-73px)] xl:overflow-y-auto">
+          <div className="w-full xl:w-[480px] 2xl:w-[540px] p-6 lg:p-8 bg-[var(--st-bg-secondary)] xl:sticky xl:top-[73px] xl:h-[calc(100vh-73px)] xl:overflow-y-auto">
             <div className="space-y-8">
-              
+
               {/* Terminal Mockup */}
               <TerminalMockup />
 
               {/* API Response Mockup */}
-              <CopyableCodeBlock 
+              <CopyableCodeBlock
                 method="GET"
                 endpoint="/v1/partners/commissions"
                 code={`{
@@ -262,17 +279,17 @@ export default function PartnersPage() {
               />
 
               {/* CTA Block in the code column */}
-              <div className="p-6 rounded border border-white bg-white text-black mt-8">
+              <Card variant="elevated" padding="lg" className="bg-[var(--st-accent)] text-[var(--st-text-inverted)] mt-8">
                 <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-                  <Zap className="w-5 h-5" /> Start Building
+                  <Zap className="w-5 h-5" aria-hidden="true" /> Start Building
                 </h3>
-                <p className="text-sm opacity-80 mb-5 font-sans leading-relaxed">
+                <p className="text-sm opacity-90 mb-5 font-sans leading-relaxed">
                   Get your partner API keys instantly. No credit card required for sandbox environments.
                 </p>
-                <button className="w-full py-2.5 bg-black text-white rounded font-semibold text-sm hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
-                  Generate API Key <ArrowRight className="w-4 h-4"/>
-                </button>
-              </div>
+                <Button variant="secondary" block iconRight={ArrowRight}>
+                  Generate API Key
+                </Button>
+              </Card>
 
             </div>
           </div>

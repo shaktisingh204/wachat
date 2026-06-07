@@ -1,12 +1,29 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClayButton, ClayCard, ClayInput, ClaySelect } from '@/components/zoruui-domain';
-import { LoaderCircle, Send, UploadCloud, X, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Alert,
+  Spinner,
+} from '@/components/sabcrm/20ui';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { Send, X, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react';
 import { submitPublicTicket } from '@/app/actions/worksuite/public.actions';
 
-interface Field {
+interface FormField {
   _id: string;
   field_name: string;
   field_type: string;
@@ -14,7 +31,13 @@ interface Field {
   is_required?: boolean;
 }
 
-const BASE_FIELDS: Field[] = [
+interface Attachment {
+  name: string;
+  url: string;
+  type: string;
+}
+
+const BASE_FIELDS: FormField[] = [
   { _id: 'name', field_name: 'name', field_type: 'text', is_required: true },
   { _id: 'email', field_name: 'email', field_type: 'email', is_required: true },
   { _id: 'subject', field_name: 'subject', field_type: 'text', is_required: true },
@@ -31,19 +54,18 @@ export function TicketFormRenderer({
   fields,
 }: {
   formId: string;
-  fields: Field[];
+  fields: FormField[];
 }) {
   const router = useRouter();
   const [values, setValues] = useState<Record<string, any>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Optimistic UI state
   const [isSubmittedOptimistically, setIsSubmittedOptimistically] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<boolean | null>(null);
 
   // Spam protection
-  const [spamVerified, setSpamVerified] = useState(false);
   const [mathA] = useState(Math.floor(Math.random() * 10) + 1);
   const [mathB] = useState(Math.floor(Math.random() * 10) + 1);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
@@ -79,7 +101,7 @@ export function TicketFormRenderer({
         return;
       }
     }
-    
+
     if (parseInt(captchaAnswer) !== mathA + mathB) {
       setError('Spam protection verification failed. Please try again.');
       return;
@@ -88,25 +110,25 @@ export function TicketFormRenderer({
     // Optimistic UI update
     setBusy(true);
     setIsSubmittedOptimistically(true);
-    
+
     // Merge hidden tracking data
     const finalData = {
       ...values,
-      ...trackingData
+      ...trackingData,
     };
 
     const res = await submitPublicTicket(formId, finalData);
     setBusy(false);
-    
+
     if (!res.success) {
       setSubmissionSuccess(false);
       setError(res.error);
       setIsSubmittedOptimistically(false);
       return;
     }
-    
+
     setSubmissionSuccess(true);
-    // Optional: wait a bit and redirect, or just keep the success message
+    // Wait a beat, then redirect to the thank-you page.
     setTimeout(() => {
       router.push('/p/thanks?type=ticket');
     }, 2000);
@@ -114,219 +136,173 @@ export function TicketFormRenderer({
 
   if (isSubmittedOptimistically) {
     return (
-      <ClayCard className="flex flex-col items-center justify-center py-12 text-center">
-        {submissionSuccess === null ? (
-          <>
-            <LoaderCircle className="h-12 w-12 text-[var(--st-text)] animate-spin mb-4" />
-            <h3 className="text-lg font-medium text-[var(--st-text)]">Submitting ticket...</h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-2">Please wait while we process your request.</p>
-          </>
-        ) : submissionSuccess === true ? (
-          <>
-            <CheckCircle2 className="h-12 w-12 text-[var(--st-text)] mb-4" />
-            <h3 className="text-lg font-medium text-[var(--st-text)]">Ticket submitted!</h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-2">Redirecting you shortly...</p>
-          </>
-        ) : (
-          <>
-            <AlertCircle className="h-12 w-12 text-[var(--st-text)] mb-4" />
-            <h3 className="text-lg font-medium text-[var(--st-text)]">Submission Failed</h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-2">{error}</p>
-            <ClayButton 
-              className="mt-6" 
-              onClick={() => { setIsSubmittedOptimistically(false); setError(null); }}
-            >
-              Try Again
-            </ClayButton>
-          </>
-        )}
-      </ClayCard>
+      <Card>
+        <CardBody className="flex flex-col items-center justify-center py-12 text-center">
+          {submissionSuccess === null ? (
+            <>
+              <Spinner size="lg" label="Submitting ticket" className="mb-4" />
+              <h3 className="text-lg font-medium text-[var(--st-text)]">Submitting ticket...</h3>
+              <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
+                Please wait while we process your request.
+              </p>
+            </>
+          ) : submissionSuccess === true ? (
+            <>
+              <CheckCircle2
+                className="mb-4 h-12 w-12 text-[var(--st-status-ok)]"
+                aria-hidden="true"
+              />
+              <h3 className="text-lg font-medium text-[var(--st-text)]">Ticket submitted!</h3>
+              <p className="mt-2 text-sm text-[var(--st-text-secondary)]">
+                Redirecting you shortly...
+              </p>
+            </>
+          ) : (
+            <>
+              <AlertCircle
+                className="mb-4 h-12 w-12 text-[var(--st-danger)]"
+                aria-hidden="true"
+              />
+              <h3 className="text-lg font-medium text-[var(--st-text)]">Submission Failed</h3>
+              <p className="mt-2 text-sm text-[var(--st-text-secondary)]">{error}</p>
+              <Button
+                className="mt-6"
+                onClick={() => {
+                  setIsSubmittedOptimistically(false);
+                  setError(null);
+                }}
+              >
+                Try Again
+              </Button>
+            </>
+          )}
+        </CardBody>
+      </Card>
     );
   }
 
+  const attachments: Attachment[] = values.attachments || [];
+
   return (
     <div className="flex flex-col gap-6">
-      <ClayCard>
-        <div className="grid gap-4">
-          {allFields.map((f) => (
-            <FieldInput
-              key={f._id}
-              field={f}
-              value={values[f.field_name] || ''}
-              onChange={(v) => setValue(f.field_name, v)}
-              disabled={busy}
-            />
-          ))}
-          
-          <div className="flex flex-col gap-1">
-            <span className="text-[12.5px] text-[var(--st-text)]">Attachments</span>
-            <FileDropzone 
-              files={values.attachments || []} 
-              onFilesChange={(files) => setValue('attachments', files)} 
-              disabled={busy}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1 rounded-md border border-[var(--st-border)] p-3 bg-[var(--st-bg-muted)]/20">
-            <span className="text-[12.5px] text-[var(--st-text)] font-medium mb-2 flex items-center gap-2">
-              Spam Protection <span className="text-[var(--st-text)]">*</span>
-            </span>
-            <div className="flex items-center gap-3">
-              <span className="text-sm">What is {mathA} + {mathB}?</span>
-              <ClayInput 
-                type="number" 
-                value={captchaAnswer} 
-                onChange={(e) => setCaptchaAnswer(e.target.value)}
+      <Card>
+        <CardBody>
+          <div className="grid gap-4">
+            {allFields.map((f) => (
+              <FieldInput
+                key={f._id}
+                field={f}
+                value={values[f.field_name] || ''}
+                onChange={(v) => setValue(f.field_name, v)}
                 disabled={busy}
-                className="w-20"
-                placeholder="="
               />
+            ))}
+
+            <Field label="Attachments">
+              <div className="flex flex-col gap-2">
+                <SabFilePickerButton
+                  variant="outline"
+                  onPick={(pick: SabFilePick) =>
+                    setValue('attachments', [
+                      ...attachments,
+                      { name: pick.name, url: pick.url, type: pick.mime || '' },
+                    ])
+                  }
+                >
+                  Add attachment
+                </SabFilePickerButton>
+
+                {attachments.length > 0 && (
+                  <div className="mt-1 flex flex-col gap-2">
+                    {attachments.map((file, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-xs"
+                      >
+                        <span className="max-w-[200px] truncate sm:max-w-xs text-[var(--st-text)]">
+                          {file.name}
+                        </span>
+                        <IconButton
+                          label={`Remove ${file.name}`}
+                          icon={X}
+                          size="sm"
+                          disabled={busy}
+                          onClick={() =>
+                            setValue(
+                              'attachments',
+                              attachments.filter((_, idx) => idx !== i),
+                            )
+                          }
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Field>
+
+            <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+              <span className="text-[12.5px] font-medium text-[var(--st-text)]">
+                Spam Protection <span className="text-[var(--st-danger)]">*</span>
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-[var(--st-text)]">
+                  What is {mathA} + {mathB}?
+                </span>
+                <Input
+                  type="number"
+                  value={captchaAnswer}
+                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                  disabled={busy}
+                  className="w-20"
+                  placeholder="="
+                  aria-label={`Sum of ${mathA} plus ${mathB}`}
+                />
+              </div>
             </div>
           </div>
-        </div>
-        
-        {error ? (
-          <p className="mt-4 text-[13px] text-[var(--st-text)] font-medium">{error}</p>
-        ) : null}
-        
-        <div className="mt-6 flex justify-end">
-          <ClayButton
-            variant="obsidian"
+
+          {error ? (
+            <Alert tone="danger" className="mt-4">
+              {error}
+            </Alert>
+          ) : null}
+        </CardBody>
+
+        <CardFooter className="flex justify-end">
+          <Button
+            variant="primary"
             onClick={submit}
-            disabled={busy}
-            leading={
-              busy ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )
-            }
+            loading={busy}
+            iconLeft={Send}
           >
             Submit ticket
-          </ClayButton>
-        </div>
-      </ClayCard>
-      
+          </Button>
+        </CardFooter>
+      </Card>
+
       {/* Live Chat Fallback */}
-      <ClayCard className="bg-[var(--st-bg-muted)]/30 border-dashed">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex flex-col">
-            <h4 className="text-sm font-medium text-[var(--st-text)] flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              Need faster help?
-            </h4>
-            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
-              Our support agents are available for live chat.
-            </p>
-          </div>
-          <ClayButton 
-            variant="outline" 
-            onClick={() => alert('Live chat initiated. (Demo fallback)')}
-          >
-            Start Live Chat
-          </ClayButton>
-        </div>
-      </ClayCard>
-    </div>
-  );
-}
-
-function FileDropzone({ 
-  files, 
-  onFilesChange,
-  disabled
-}: { 
-  files: {name: string, url: string, type: string}[]; 
-  onFilesChange: (files: {name: string, url: string, type: string}[]) => void;
-  disabled?: boolean;
-}) {
-  const [isDragging, setIsDragging] = useState(false);
-  
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!disabled) setIsDragging(true);
-  };
-  
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-  
-  const processFiles = (newFiles) => {
-    const filePromises = Array.from(newFiles).map(file => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve({ name: file.name, url: e.target?.result, type: file.type });
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-    
-    Promise.all(filePromises).then(processed => {
-      onFilesChange([...files, ...processed]);
-    });
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (disabled) return;
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      processFiles(e.dataTransfer.files);
-    }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      processFiles(e.target.files);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    if (disabled) return;
-    const newFiles = [...files];
-    newFiles.splice(index, 1);
-    onFilesChange(newFiles);
-  };
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div 
-        className={`relative border-2 border-dashed rounded-md p-6 text-center transition-colors ${isDragging ? 'border-primary bg-[var(--st-text)]/5' : 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/10'} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-[var(--st-bg-muted)]/20'}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <input 
-          type="file" 
-          multiple 
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-          onChange={handleFileInput}
-          disabled={disabled}
-        />
-        <UploadCloud className="h-6 w-6 text-[var(--st-text-secondary)] mx-auto mb-2" />
-        <p className="text-xs text-[var(--st-text-secondary)]">
-          <span className="font-medium text-[var(--st-text)]">Click to upload</span> or drag and drop
-        </p>
-      </div>
-      
-      {files.length > 0 && (
-        <div className="flex flex-col gap-2 mt-2">
-          {files.map((file, i) => (
-            <div key={i} className="flex items-center justify-between bg-[var(--st-bg-muted)]/30 p-2 rounded text-xs border border-[var(--st-border)]">
-              <span className="truncate max-w-[200px] sm:max-w-xs">{file.name}</span>
-              <button 
-                type="button" 
-                onClick={() => removeFile(i)}
-                disabled={disabled}
-                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-50"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
+      <Card variant="ghost" className="border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <CardBody>
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex flex-col">
+              <h4 className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                Need faster help?
+              </h4>
+              <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
+                Our support agents are available for live chat.
+              </p>
             </div>
-          ))}
-        </div>
-      )}
+            <Button
+              variant="outline"
+              onClick={() => alert('Live chat initiated. (Demo fallback)')}
+            >
+              Start Live Chat
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 }
@@ -337,54 +313,54 @@ function FieldInput({
   onChange,
   disabled,
 }: {
-  field: Field;
+  field: FormField;
   value: string;
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
   const labelText = labelize(field.field_name);
-  const label = (
-    <span className="text-[12.5px] text-[var(--st-text)]">
-      {labelText}
-      {field.is_required ? (
-        <span className="text-[var(--st-text)]"> *</span>
-      ) : null}
-    </span>
-  );
+
   if (field.field_type === 'textarea') {
     return (
-      <label className="flex flex-col gap-1">
-        {label}
-        <textarea
+      <Field label={labelText} required={field.is_required}>
+        <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="clay-input min-h-[120px] py-2"
           rows={5}
+          className="min-h-[120px]"
         />
-      </label>
+      </Field>
     );
   }
+
   if (field.field_type === 'select' && field.field_values) {
     const opts = field.field_values
       .split(/[,\n]/)
       .map((v) => v.trim())
       .filter(Boolean);
     return (
-      <label className="flex flex-col gap-1">
-        {label}
-        <ClaySelect
+      <Field label={labelText} required={field.is_required}>
+        <Select
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onValueChange={onChange}
           disabled={disabled}
-          options={[
-            { value: '', label: 'Select…' },
-            ...opts.map((v) => ({ value: v, label: v })),
-          ]}
-        />
-      </label>
+        >
+          <SelectTrigger aria-label={labelText}>
+            <SelectValue placeholder="Select an option" />
+          </SelectTrigger>
+          <SelectContent>
+            {opts.map((v) => (
+              <SelectItem key={v} value={v}>
+                {v}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
     );
   }
+
   const inputType =
     field.field_type === 'date'
       ? 'date'
@@ -395,16 +371,16 @@ function FieldInput({
           : field.field_type === 'url'
             ? 'url'
             : 'text';
+
   return (
-    <label className="flex flex-col gap-1">
-      {label}
-      <ClayInput
+    <Field label={labelText} required={field.is_required}>
+      <Input
         type={inputType}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
       />
-    </label>
+    </Field>
   );
 }
 

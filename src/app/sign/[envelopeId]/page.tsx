@@ -16,7 +16,27 @@
 
 import * as React from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { Button, Card, Input, Label } from '@/components/sabcrm/20ui';
+import { FileX2 } from 'lucide-react';
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Badge,
+  Field,
+  Input,
+  Checkbox,
+  Spinner,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { issueSignerOtp, submitSignature } from '@/app/actions/sabsign.actions';
 
 interface SignPagePayload {
@@ -46,6 +66,7 @@ interface SignPagePayload {
 export default function PublicSignPage() {
   const params = useParams<{ envelopeId: string }>();
   const search = useSearchParams();
+  const { toast } = useToast();
   const signerId = search.get('signerId') || '';
   const accessToken = search.get('t') || '';
 
@@ -81,7 +102,7 @@ export default function PublicSignPage() {
     setBusy(true);
     try {
       const res = await issueSignerOtp(params.envelopeId, payload.signer.id);
-      if (res.otpPreview) alert(`Dev OTP: ${res.otpPreview}`);
+      if (res.otpPreview) toast.info(`Dev OTP: ${res.otpPreview}`);
     } finally {
       setBusy(false);
     }
@@ -119,10 +140,16 @@ export default function PublicSignPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="p-6 max-w-md">
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">Unable to load envelope</h2>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{error}</p>
+      <div className="ui20 min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
+        <Card className="max-w-md w-full">
+          <CardBody>
+            <EmptyState
+              icon={FileX2}
+              tone="danger"
+              title="Unable to load envelope"
+              description={error}
+            />
+          </CardBody>
         </Card>
       </div>
     );
@@ -130,18 +157,21 @@ export default function PublicSignPage() {
 
   if (!payload) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 text-sm text-[var(--st-text-secondary)]">
-        Loading envelope…
+      <div className="ui20 min-h-screen flex flex-col items-center justify-center gap-3 p-6 bg-[var(--st-bg)]">
+        <Spinner size="lg" label="Loading envelope" />
+        <p className="text-sm text-[var(--st-text-secondary)]">Loading envelope.</p>
       </div>
     );
   }
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="p-6 max-w-md text-center">
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">All set</h2>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-2">{done}</p>
+      <div className="ui20 min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
+        <Card className="max-w-md w-full text-center">
+          <CardBody>
+            <h2 className="text-lg font-semibold text-[var(--st-text)]">All set</h2>
+            <p className="text-sm text-[var(--st-text-secondary)] mt-2">{done}</p>
+          </CardBody>
         </Card>
       </div>
     );
@@ -150,9 +180,9 @@ export default function PublicSignPage() {
   const fields = payload.fields.filter((f) => f.recipientRole === payload.signer.role);
 
   return (
-    <div className="min-h-screen bg-[var(--st-bg)] p-4">
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
-        <Card className="overflow-hidden border border-[var(--st-border)]">
+        <Card padding="none" className="overflow-hidden">
           {payload.docUrl ? (
             <iframe
               src={payload.docUrl}
@@ -164,95 +194,117 @@ export default function PublicSignPage() {
           )}
         </Card>
         <div className="space-y-3">
-          <Card className="p-4 border border-[var(--st-border)]">
-            <h2 className="text-lg font-semibold text-[var(--st-text)]">{payload.name}</h2>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              {payload.signer.name} ({payload.signer.email}) — role{' '}
-              <strong>{payload.signer.role}</strong>
-            </p>
+          <Card>
+            <CardHeader>
+              <CardTitle>{payload.name}</CardTitle>
+              <CardDescription>
+                {payload.signer.name} ({payload.signer.email}), role{' '}
+                <Badge tone="accent">{payload.signer.role}</Badge>
+              </CardDescription>
+            </CardHeader>
           </Card>
 
           {payload.signer.authMethod === 'sms_otp' && (
-            <Card className="p-4 border border-[var(--st-border)] space-y-2">
-              <Label>SMS code</Label>
-              <div className="flex gap-2">
-                <Input value={otp} onChange={(e) => setOtp(e.target.value)} />
-                <Button variant="outline" onClick={requestOtp} disabled={busy}>
-                  Send code
-                </Button>
-              </div>
+            <Card>
+              <CardBody>
+                <Field label="SMS code">
+                  <div className="flex gap-2">
+                    <Input value={otp} onChange={(e) => setOtp(e.target.value)} />
+                    <Button variant="outline" onClick={requestOtp} disabled={busy}>
+                      Send code
+                    </Button>
+                  </div>
+                </Field>
+              </CardBody>
             </Card>
           )}
 
           {payload.signer.authMethod === 'pin' && (
-            <Card className="p-4 border border-[var(--st-border)] space-y-2">
-              <Label>PIN</Label>
-              <Input type="password" value={pin} onChange={(e) => setPin(e.target.value)} />
+            <Card>
+              <CardBody>
+                <Field label="PIN">
+                  <Input type="password" value={pin} onChange={(e) => setPin(e.target.value)} />
+                </Field>
+              </CardBody>
             </Card>
           )}
 
           {payload.signer.authMethod === 'kba' && payload.signer.kbaQuestions && (
-            <Card className="p-4 border border-[var(--st-border)] space-y-3">
-              <h3 className="text-sm font-medium text-[var(--st-text)]">Identity questions</h3>
-              {payload.signer.kbaQuestions.map((q, i) => (
-                <div key={i}>
-                  <Label className="text-xs">{q.question}</Label>
-                  <Input
-                    value={kbaAnswers[i] || ''}
-                    onChange={(e) => {
-                      const out = [...kbaAnswers];
-                      out[i] = e.target.value;
-                      setKbaAnswers(out);
-                    }}
-                  />
-                </div>
-              ))}
+            <Card>
+              <CardBody className="space-y-3">
+                <h3 className="text-sm font-medium text-[var(--st-text)]">Identity questions</h3>
+                {payload.signer.kbaQuestions.map((q, i) => (
+                  <Field key={i} label={q.question}>
+                    <Input
+                      value={kbaAnswers[i] || ''}
+                      onChange={(e) => {
+                        const out = [...kbaAnswers];
+                        out[i] = e.target.value;
+                        setKbaAnswers(out);
+                      }}
+                    />
+                  </Field>
+                ))}
+              </CardBody>
             </Card>
           )}
 
-          <Card className="p-4 border border-[var(--st-border)] space-y-3">
-            <h3 className="text-sm font-medium text-[var(--st-text)]">Your fields</h3>
-            {fields.length === 0 ? (
-              <p className="text-xs text-[var(--st-text-secondary)]">
-                Nothing to fill — only your signature is required.
-              </p>
-            ) : (
-              fields.map((f) => (
-                <div key={f.id}>
-                  <Label className="text-xs">{f.label || f.fieldType}</Label>
-                  {f.fieldType === 'checkbox' ? (
-                    <input
-                      type="checkbox"
-                      checked={values[f.id] === 'true'}
-                      onChange={(e) =>
-                        setValues({ ...values, [f.id]: e.target.checked ? 'true' : 'false' })
-                      }
-                    />
-                  ) : f.fieldType === 'dropdown' ? (
-                    <select
-                      className="w-full h-9 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm"
-                      value={values[f.id] || ''}
-                      onChange={(e) => setValues({ ...values, [f.id]: e.target.value })}
-                    >
-                      <option value="">—</option>
-                      {(f.options || []).map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <Input
-                      value={values[f.id] || ''}
-                      onChange={(e) => setValues({ ...values, [f.id]: e.target.value })}
-                      placeholder={
-                        f.fieldType === 'signature' ? 'Type your name to sign' : undefined
-                      }
-                    />
-                  )}
-                </div>
-              ))
-            )}
+          <Card>
+            <CardBody className="space-y-3">
+              <h3 className="text-sm font-medium text-[var(--st-text)]">Your fields</h3>
+              {fields.length === 0 ? (
+                <p className="text-xs text-[var(--st-text-secondary)]">
+                  Nothing to fill. Only your signature is required.
+                </p>
+              ) : (
+                fields.map((f) => {
+                  if (f.fieldType === 'checkbox') {
+                    return (
+                      <Checkbox
+                        key={f.id}
+                        label={f.label || f.fieldType}
+                        checked={values[f.id] === 'true'}
+                        onChange={(e) =>
+                          setValues({ ...values, [f.id]: e.target.checked ? 'true' : 'false' })
+                        }
+                      />
+                    );
+                  }
+                  if (f.fieldType === 'dropdown') {
+                    return (
+                      <Field key={f.id} label={f.label || f.fieldType}>
+                        <Select
+                          value={values[f.id] || ''}
+                          onValueChange={(v) => setValues({ ...values, [f.id]: v })}
+                        >
+                          <SelectTrigger aria-label={f.label || f.fieldType}>
+                            <SelectValue placeholder="Select an option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(f.options || []).map((o) => (
+                              <SelectItem key={o} value={o}>
+                                {o}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </Field>
+                    );
+                  }
+                  return (
+                    <Field key={f.id} label={f.label || f.fieldType}>
+                      <Input
+                        value={values[f.id] || ''}
+                        onChange={(e) => setValues({ ...values, [f.id]: e.target.value })}
+                        placeholder={
+                          f.fieldType === 'signature' ? 'Type your name to sign' : undefined
+                        }
+                      />
+                    </Field>
+                  );
+                })
+              )}
+            </CardBody>
           </Card>
 
           <div className="flex gap-2">

@@ -3,10 +3,29 @@
 import React, { useState, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, ChevronLeft, ChevronRight, Mail, ArrowRight, Play, FileText, BookOpen, Clock, Calendar } from 'lucide-react';
+import { Search, Mail, ArrowRight, Play, FileText, BookOpen, Clock, Calendar, FolderOpen } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import ScrollTrigger from 'gsap/ScrollTrigger';
+
+import {
+  Button,
+  Card,
+  CardBody,
+  Badge,
+  Field,
+  Input,
+  EmptyState,
+  Pagination,
+  SegmentedControl,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  useToast,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(useGSAP, ScrollTrigger);
@@ -23,29 +42,38 @@ const RESOURCES = [
   { id: 8, title: 'SabNode Community Townhall', category: 'Video', image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?auto=format&fit=crop&w=800&q=80', date: 'Apr 28, 2026', readTime: '45 min' },
   { id: 9, title: 'Advanced Analytics Patterns', category: 'Blog', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80', date: 'Apr 20, 2026', readTime: '6 min' },
   { id: 10, title: 'Migration from Legacy CRMs', category: 'Guide', image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80', date: 'Apr 15, 2026', readTime: '12 min' },
-  { id: 11, title: 'Data Sovereignty & Compliance', category: 'Whitepaper', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80', date: 'Apr 10, 2026', readTime: '25 min' },
+  { id: 11, title: 'Data Sovereignty and Compliance', category: 'Whitepaper', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80', date: 'Apr 10, 2026', readTime: '25 min' },
   { id: 12, title: 'Building Plugins for SabNode', category: 'Video', image: 'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=800&q=80', date: 'Apr 05, 2026', readTime: '30 min' },
 ];
 
-const CATEGORIES = ['All', 'Blog', 'Whitepaper', 'Guide', 'Video'];
+const CATEGORY_ITEMS: SegmentedItem[] = [
+  { value: 'All', label: 'All' },
+  { value: 'Blog', label: 'Blog', icon: FileText },
+  { value: 'Whitepaper', label: 'Whitepaper', icon: BookOpen },
+  { value: 'Guide', label: 'Guide', icon: Search },
+  { value: 'Video', label: 'Video', icon: Play },
+];
+
 const ITEMS_PER_PAGE = 6;
 
 const CategoryIcon = ({ category }: { category: string }) => {
   switch (category) {
-    case 'Blog': return <FileText className="w-4 h-4" />;
-    case 'Whitepaper': return <BookOpen className="w-4 h-4" />;
-    case 'Guide': return <Search className="w-4 h-4" />;
-    case 'Video': return <Play className="w-4 h-4" />;
-    default: return <FileText className="w-4 h-4" />;
+    case 'Blog': return <FileText className="w-3.5 h-3.5" aria-hidden="true" />;
+    case 'Whitepaper': return <BookOpen className="w-3.5 h-3.5" aria-hidden="true" />;
+    case 'Guide': return <Search className="w-3.5 h-3.5" aria-hidden="true" />;
+    case 'Video': return <Play className="w-3.5 h-3.5" aria-hidden="true" />;
+    default: return <FileText className="w-3.5 h-3.5" aria-hidden="true" />;
   }
 };
 
 export default function ResourcesClient() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+  const { toast } = useToast();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
+  const [email, setEmail] = useState('');
 
   // Reset page to 1 when filters change
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +99,17 @@ export default function ResourcesClient() {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error('Enter a valid email address.');
+      return;
+    }
+    toast.success('You are subscribed. Watch your inbox for updates.');
+    setEmail('');
+  };
 
   useGSAP(() => {
     // Animate header and filters
@@ -99,7 +138,7 @@ export default function ResourcesClient() {
   // Separate useGSAP for resources grid so it animates when page/filters change
   useGSAP(() => {
     if (currentResources.length > 0) {
-      gsap.fromTo('.resource-card', 
+      gsap.fromTo('.resource-card',
         { y: 50, opacity: 0 },
         {
           y: 0,
@@ -114,27 +153,30 @@ export default function ResourcesClient() {
   }, { scope: containerRef, dependencies: [currentResources, currentPage] });
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-zinc-50 text-black font-mono">
+    <div ref={containerRef} className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Hero Section */}
-      <section className="bg-black text-white py-20 px-6 border-b-8 border-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="header-elem text-5xl md:text-7xl font-black uppercase tracking-tighter mb-6">
-            Resource Hub
-          </h1>
-          <p className="header-elem text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            Explore our collection of blogs, whitepapers, guides, and videos to help you scale your CRM data and architecture.
-          </p>
-          
-          <div className="header-elem max-w-xl mx-auto relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400 group-focus-within:text-white transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search resources..." 
+      <section className="py-16 px-6 border-b border-[var(--st-border)]">
+        <PageHeader bordered={false} className="header-elem max-w-4xl mx-auto !block text-center">
+          <PageHeaderHeading className="items-center">
+            <PageEyebrow>Resource Hub</PageEyebrow>
+            <PageTitle>Learn, build, and scale with SabNode</PageTitle>
+            <PageDescription className="mx-auto">
+              Explore our collection of blogs, whitepapers, guides, and videos to help you scale your CRM data and architecture.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
+
+        <div className="header-elem max-w-xl mx-auto mt-8">
+          <Field label="Search resources" className="text-left">
+            <Input
+              type="text"
+              placeholder="Search by title, e.g. API Integration"
               value={searchQuery}
               onChange={handleSearch}
-              className="w-full bg-zinc-900 border-2 border-zinc-700 text-white px-12 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zinc-500 font-bold"
+              iconLeft={Search}
+              inputSize="lg"
             />
-          </div>
+          </Field>
         </div>
       </section>
 
@@ -142,144 +184,131 @@ export default function ResourcesClient() {
       <section className="py-12 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 mb-12 header-elem">
-            <span className="font-bold uppercase text-sm tracking-widest mr-4 text-zinc-500">Filters:</span>
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => handleCategory(cat)}
-                className={`px-4 py-2 text-sm font-bold uppercase transition-all border-2 ${
-                  activeCategory === cat 
-                    ? 'bg-black text-white border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]' 
-                    : 'bg-white text-black border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="header-elem flex flex-wrap items-center gap-4 mb-10">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[var(--st-text-secondary)]">
+              Filter
+            </span>
+            <SegmentedControl
+              items={CATEGORY_ITEMS}
+              value={activeCategory}
+              onChange={handleCategory}
+              aria-label="Filter resources by category"
+            />
           </div>
 
           {/* Grid */}
           {currentResources.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {currentResources.map(resource => (
-                <div 
-                  key={resource.id} 
-                  className="resource-card group bg-white border-2 border-black hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 flex flex-col h-full overflow-hidden"
+                <Card
+                  key={resource.id}
+                  variant="interactive"
+                  padding="none"
+                  className="resource-card group flex flex-col h-full overflow-hidden"
                 >
-                  <div className="relative h-48 w-full border-b-2 border-black overflow-hidden bg-zinc-200">
+                  <div className="relative h-48 w-full overflow-hidden bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)]">
                     <Image
                       src={resource.image}
                       alt={resource.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
-                    <div className="absolute top-4 left-4 bg-black text-white px-3 py-1 text-xs font-bold uppercase flex items-center gap-2">
-                      <CategoryIcon category={resource.category} />
-                      {resource.category}
+                    <div className="absolute top-3 left-3">
+                      <Badge tone="accent" kind="solid">
+                        <CategoryIcon category={resource.category} />
+                        {resource.category}
+                      </Badge>
                     </div>
                   </div>
-                  
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="flex items-center gap-4 text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">
-                      <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {resource.date}</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {resource.readTime}</span>
+
+                  <CardBody className="flex flex-col flex-1">
+                    <div className="flex items-center gap-4 text-xs font-medium text-[var(--st-text-secondary)] mb-3">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5" aria-hidden="true" /> {resource.date}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {resource.readTime}
+                      </span>
                     </div>
-                    <h3 className="text-xl font-black uppercase leading-tight mb-4 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    <h3 className="text-lg font-semibold leading-snug mb-4 line-clamp-2 text-[var(--st-text)] transition-colors group-hover:text-[var(--st-accent)]">
                       {resource.title}
                     </h3>
-                    
-                    <div className="mt-auto pt-4 flex items-center justify-between border-t-2 border-dashed border-zinc-200">
-                      <Link href="#" className="text-sm font-bold uppercase hover:underline flex items-center gap-2">
-                        Read More <ArrowRight className="w-4 h-4" />
+
+                    <div className="mt-auto pt-4 border-t border-[var(--st-border)]">
+                      <Link href="#" tabIndex={-1}>
+                        <Button variant="ghost" size="sm" iconRight={ArrowRight}>
+                          Read more
+                        </Button>
                       </Link>
                     </div>
-                  </div>
-                </div>
+                  </CardBody>
+                </Card>
               ))}
             </div>
           ) : (
-            <div className="py-20 text-center border-2 border-dashed border-zinc-300 bg-white">
-              <p className="text-xl font-bold uppercase text-zinc-500 mb-2">No resources found</p>
-              <p className="text-zinc-400">Try adjusting your search or category filters.</p>
-              <button 
-                onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
-                className="mt-6 px-6 py-2 bg-black text-white font-bold uppercase text-sm"
-              >
-                Clear Filters
-              </button>
+            <div className="py-12">
+              <EmptyState
+                icon={FolderOpen}
+                title="No resources found"
+                description="Try adjusting your search or category filters."
+                action={
+                  <Button
+                    variant="primary"
+                    onClick={() => { setSearchQuery(''); setActiveCategory('All'); setCurrentPage(1); }}
+                  >
+                    Clear filters
+                  </Button>
+                }
+              />
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 mb-20 header-elem">
-              <button 
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-black transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={`w-10 h-10 flex items-center justify-center font-bold border-2 transition-all ${
-                      currentPage === i + 1
-                        ? 'bg-black text-white border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]'
-                        : 'bg-white text-black border-black hover:bg-zinc-100'
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                ))}
-              </div>
-
-              <button 
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white disabled:opacity-50 disabled:hover:bg-white disabled:hover:text-black transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+            <div className="header-elem flex items-center justify-center mb-20">
+              <Pagination
+                page={currentPage}
+                pageCount={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </div>
       </section>
 
       {/* Newsletter Signup */}
-      <section className="newsletter-section bg-black text-white py-20 px-6 border-t-8 border-white border-b-8">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-10">
-          <div className="flex-1 text-center md:text-left">
-            <h2 className="text-4xl font-black uppercase tracking-tight mb-4 flex items-center justify-center md:justify-start gap-3">
-              <Mail className="w-10 h-10" /> Stay Updated
-            </h2>
-            <p className="text-zinc-400 text-lg">
-              Get the latest SabNode architectural updates, whitepapers, and guides delivered straight to your inbox.
-            </p>
-          </div>
-          <div className="flex-1 w-full">
-            <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
-              <input 
-                type="email" 
-                placeholder="developer@company.com" 
-                required
-                className="w-full bg-zinc-900 border-2 border-zinc-700 text-white px-6 py-4 focus:outline-none focus:border-white transition-colors rounded-none placeholder:text-zinc-500 font-bold"
-              />
-              <button 
-                type="submit"
-                className="w-full bg-white text-black font-black uppercase tracking-widest px-6 py-4 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2"
-              >
-                Subscribe <ArrowRight className="w-5 h-5" />
-              </button>
-            </form>
-          </div>
-        </div>
+      <section className="newsletter-section py-16 px-6 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <Card variant="elevated" padding="lg" className="max-w-4xl mx-auto">
+          <CardBody className="flex flex-col md:flex-row items-center gap-10">
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-2xl font-semibold tracking-tight mb-3 flex items-center justify-center md:justify-start gap-3 text-[var(--st-text)]">
+                <Mail className="w-7 h-7 text-[var(--st-accent)]" aria-hidden="true" /> Stay updated
+              </h2>
+              <p className="text-[var(--st-text-secondary)] text-base">
+                Get the latest SabNode architectural updates, whitepapers, and guides delivered straight to your inbox.
+              </p>
+            </div>
+            <div className="flex-1 w-full">
+              <form className="flex flex-col gap-4" onSubmit={handleSubscribe}>
+                <Field label="Work email">
+                  <Input
+                    type="email"
+                    placeholder="developer@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    iconLeft={Mail}
+                    required
+                  />
+                </Field>
+                <Button type="submit" variant="primary" block iconRight={ArrowRight}>
+                  Subscribe
+                </Button>
+              </form>
+            </div>
+          </CardBody>
+        </Card>
       </section>
     </div>
   );

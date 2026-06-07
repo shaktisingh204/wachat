@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/sabcrm/20ui';
+import { IconButton, EmptyState, Field, Input, Skeleton } from '@/components/sabcrm/20ui';
 import { Suspense, useState, useEffect, useMemo } from 'react';
 import {
     BarChart3,
@@ -28,13 +28,13 @@ const HIGHLIGHTS = [
     {
         title: 'Full-stack CRM',
         description:
-            'Sales, inventory, accounting, HR/payroll, and GST reports — already wired up.',
+            'Sales, inventory, accounting, HR/payroll, and GST reports, already wired up.',
         icon: Users,
     },
     {
         title: 'SabFlow automation',
         description:
-            'Visual flow builder across 20+ apps (Meta, Slack, Stripe, Shopify, Notion…).',
+            'Visual flow builder across 20+ apps (Meta, Slack, Stripe, Shopify, Notion).',
         icon: GitFork,
     },
     {
@@ -52,7 +52,7 @@ const HIGHLIGHTS = [
     {
         title: 'Sites, shops, portfolios',
         description:
-            'Website builder, storefronts, custom domains — everything your brand needs.',
+            'Website builder, storefronts, custom domains, everything your brand needs.',
         icon: Globe,
     },
 ];
@@ -60,7 +60,7 @@ const HIGHLIGHTS = [
 // 1. Improved Skeleton
 function LoginFormSkeleton() {
     return (
-        <div className="w-full max-w-md space-y-6 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-8 shadow-2xl animate-pulse">
+        <div className="w-full max-w-md space-y-6 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-8 shadow-2xl animate-pulse">
             <div className="space-y-2">
                 <Skeleton className="h-8 w-3/5 rounded-md" />
                 <Skeleton className="h-4 w-4/5 rounded-md" />
@@ -99,11 +99,11 @@ function CurrentYear() {
     return <span>{year ?? ''}</span>;
 }
 
-// "Enhance real-time updates" -> A small live status indicator
+// A small live status indicator for real-time reassurance.
 function LiveStatus() {
     const [statusText, setStatusText] = useState('All systems operational');
     const [fade, setFade] = useState(false);
-    
+
     useEffect(() => {
         const statuses = ['All systems operational', 'API Latency: 12ms', 'Real-time sync active'];
         let i = 0;
@@ -131,13 +131,13 @@ function LiveStatus() {
     );
 }
 
-// 3. Refactored Sidebar with Filtering, Sorting, and Real-time elements
+// 3. Sidebar with filtering, sorting, and real-time elements.
 function BrandSidebar() {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortAsc, setSortAsc] = useState(true);
 
     const filteredHighlights = useMemo(() => {
-        let items = HIGHLIGHTS.filter((h) => 
+        let items = HIGHLIGHTS.filter((h) =>
             h.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             h.description.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -152,11 +152,7 @@ function BrandSidebar() {
         <aside className="relative hidden overflow-hidden bg-[var(--st-text)] text-[var(--st-text-inverted)] lg:flex lg:flex-col lg:justify-between lg:p-12">
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-20"
-                style={{
-                    backgroundImage:
-                        'radial-gradient(circle at 20% 30%, white 0, transparent 40%), radial-gradient(circle at 80% 70%, white 0, transparent 40%)',
-                }}
+                className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_30%,white_0,transparent_40%),radial-gradient(circle_at_80%_70%,white_0,transparent_40%)]"
             />
             <div className="relative flex items-center gap-3">
                 <Link href="/" className="flex items-center gap-2 transition-transform hover:scale-105">
@@ -176,36 +172,35 @@ function BrandSidebar() {
                         campaigns, customers, and automations.
                     </p>
                 </div>
-                
+
                 {/* Robust filtering and sorting */}
-                <div className="flex max-w-md items-center gap-2 rounded-lg bg-black/20 p-2 backdrop-blur-md">
-                    <Search className="ml-2 h-4 w-4 text-[var(--st-text-inverted)]/70" />
-                    <input
-                        type="text"
-                        placeholder="Filter tools..."
-                        className="flex-1 bg-transparent px-2 py-1 text-sm text-white placeholder-[var(--st-text-inverted)]/60 outline-none"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                <div className="flex max-w-md items-end gap-2">
+                    <Field label="Filter tools" className="flex-1">
+                        <Input
+                            type="text"
+                            placeholder="Search WhatsApp, CRM, SEO."
+                            iconLeft={Search}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </Field>
+                    <IconButton
+                        variant="ghost"
+                        icon={sortAsc ? ArrowDownAZ : ArrowUpZA}
+                        label={sortAsc ? 'Sort descending' : 'Sort ascending'}
+                        onClick={() => setSortAsc(!sortAsc)}
                     />
-                    <button 
-                        onClick={() => setSortAsc(!sortAsc)} 
-                        className="rounded-md p-1.5 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-                        title={sortAsc ? "Sort Z-A" : "Sort A-Z"}
-                        aria-label={sortAsc ? "Sort descending" : "Sort ascending"}
-                    >
-                        {sortAsc ? <ArrowDownAZ className="h-4 w-4" /> : <ArrowUpZA className="h-4 w-4" />}
-                    </button>
                 </div>
 
-                <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 max-h-[40vh] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
-                    {filteredHighlights.length > 0 ? (
-                        filteredHighlights.map(
+                {filteredHighlights.length > 0 ? (
+                    <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 max-h-[40vh] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
+                        {filteredHighlights.map(
                             ({ title, description, icon: Icon }) => (
                                 <li
                                     key={title}
-                                    className="rounded-xl bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20 hover:scale-[1.02]"
+                                    className="rounded-[var(--st-radius)] bg-white/10 p-4 backdrop-blur-sm transition-all hover:bg-white/20 hover:scale-[1.02]"
                                 >
-                                    <Icon className="mb-2 h-5 w-5" />
+                                    <Icon className="mb-2 h-5 w-5" aria-hidden="true" />
                                     <h3 className="text-sm font-semibold">
                                         {title}
                                     </h3>
@@ -214,18 +209,21 @@ function BrandSidebar() {
                                     </p>
                                 </li>
                             )
-                        )
-                    ) : (
-                        <li className="col-span-full py-4 text-sm text-[var(--st-text-inverted)]/70">
-                            No tools matched your search.
-                        </li>
-                    )}
-                </ul>
+                        )}
+                    </ul>
+                ) : (
+                    <EmptyState
+                        icon={Search}
+                        title="No tools matched"
+                        description="No tools matched your search. Try a different keyword."
+                        size="sm"
+                    />
+                )}
             </div>
 
             <div className="relative text-xs text-[var(--st-text-inverted)]/70 flex justify-between items-center">
                 <span>
-                    © <CurrentYear /> SabNode — all rights reserved.
+                    © <CurrentYear /> SabNode, all rights reserved.
                 </span>
                 <LiveStatus />
             </div>
@@ -264,7 +262,7 @@ function LoginMain() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen w-full bg-[var(--st-bg)]">
+        <div className="ui20 min-h-screen w-full bg-[var(--st-bg)]">
             <div className="grid min-h-screen lg:grid-cols-2">
                 <BrandSidebar />
                 <LoginMain />

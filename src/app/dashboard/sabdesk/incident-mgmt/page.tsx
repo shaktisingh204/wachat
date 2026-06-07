@@ -1,18 +1,52 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
-  AlertTriangle, Activity, Video, MessageSquare, FileText, CheckCircle, Clock,
-  BarChart, Settings, Shield, Users, Layout, Plus, Search, Filter, MoreVertical,
-  ChevronRight, ArrowRight, Edit2, Trash2, Eye, Link as LinkIcon, Server, Database,
-  Globe, Terminal, Cpu, HardDrive, Cloud, Zap, Play, Pause, RefreshCw, Download,
-  Upload, Save, X, Maximize2, Minimize2, Send, Paperclip, Smile, Hash, Phone,
-  Mic, MicOff, VideoOff, PhoneOff, Share2, AlertCircle, AlertOctagon, Info,
-  ChevronDown, ChevronUp, AlignLeft, Bold, Italic, Underline, List, ListOrdered,
-  Link2, Image as ImageIcon, Code, Lock, Unlock, Mail, Bell, Calendar, HelpCircle,
-  TrendingUp, TrendingDown, Command, Key, LifeBuoy, CheckSquare, GitPullRequest,
-  Github, Slack, Trello, Layers
+  AlertTriangle, Activity, MessageSquare, FileText, CheckCircle, Clock,
+  BarChart, Settings, Shield, Users, Layout, Plus, Search, Filter,
+  ChevronRight, ArrowRight, Edit2, Server, Database,
+  Globe, Terminal, Upload, Save, Send, Paperclip, Smile, Hash, Phone,
+  AlertCircle, ChevronDown,
+  AlignLeft, Bold, Italic, Underline, List, ListOrdered,
+  Link2, Image as ImageIcon, Code, Lock, Bell, MoreVertical,
+  TrendingDown, Eye, type LucideIcon,
 } from 'lucide-react';
+
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  StatCard,
+  Badge,
+  Dot,
+  Field,
+  Input,
+  Textarea,
+  Checkbox,
+  SegmentedControl,
+  Avatar,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 // ============================================================================
 // MOCK DATA
@@ -35,7 +69,7 @@ const generateIncidents = (count: number) => {
     title: [
       'Database replication lag across US-East regions',
       'Payment gateway timeout for Stripe integration',
-      'High latency in API responses > 500ms',
+      'High latency in API responses over 500ms',
       'Rate Limiting Issues on public endpoints',
       'Frontend rendering error on checkout page',
       'Search cluster desync causing empty results',
@@ -46,7 +80,7 @@ const generateIncidents = (count: number) => {
     status: STATUSES[i % 5],
     impactedServices: SERVICES.slice(0, (i % 4) + 1),
     assignee: USERS[i % USERS.length],
-    createdAt: new Date(Date.now() - (i * 3600000 + Math.random() * 1000000)).toISOString(),
+    createdAt: new Date(Date.now() - (i * 3600000 + (i % 7) * 90000)).toISOString(),
     updatedAt: new Date(Date.now() - (i * 1800000)).toISOString(),
     description: 'We are seeing an elevated error rate on the main endpoints. The issue started approximately 15 minutes ago. Initial investigation suggests a possible database connection pool exhaustion or network bottleneck. On-call has been paged.',
     tags: ['database', 'latency', 'customer-impacting'].slice(0, (i % 3) + 1),
@@ -56,11 +90,11 @@ const generateIncidents = (count: number) => {
 const MOCK_INCIDENTS = generateIncidents(25);
 
 const MOCK_MESSAGES = [
-  { id: 'm1', user: USERS[0], text: 'I am opening the war room now. Let\'s get everyone in here.', timestamp: '10:00 AM' },
+  { id: 'm1', user: USERS[0], text: 'I am opening the war room now. Let us get everyone in here.', timestamp: '10:00 AM' },
   { id: 'm2', user: USERS[1], text: 'Looking at the Datadog dashboard. DB CPU is at 99%.', timestamp: '10:02 AM' },
   { id: 'm3', user: USERS[2], text: 'Should I update the public status page to "Degraded"?', timestamp: '10:03 AM' },
   { id: 'm4', user: USERS[0], text: 'Yes, go ahead. Mark API and Payments as degraded.', timestamp: '10:04 AM' },
-  { id: 'm5', user: USERS[3], text: 'I\'m running a query analyzer. Give me a minute.', timestamp: '10:05 AM' },
+  { id: 'm5', user: USERS[3], text: 'I am running a query analyzer. Give me a minute.', timestamp: '10:05 AM' },
   { id: 'm6', user: USERS[1], text: 'It looks like the new index rollout caused a regression on the transactions table.', timestamp: '10:08 AM' },
   { id: 'm7', user: USERS[0], text: 'Can we rollback the migration safely?', timestamp: '10:10 AM' },
 ];
@@ -74,95 +108,41 @@ const MOCK_TIMELINE = [
   { id: 't6', type: 'status', title: 'Status changed to Monitoring', time: '10:30 AM', user: 'Alice Smith' },
 ];
 
-const MOCK_RCAS = [
-  { id: 'RCA-001', incidentId: 'INC-1024', title: 'Database Outage - Oct 12', lead: USERS[0].name, status: 'Draft', publishedDate: null },
-  { id: 'RCA-002', incidentId: 'INC-0992', title: 'Stripe API Failures', lead: USERS[1].name, status: 'Review', publishedDate: null },
-  { id: 'RCA-003', incidentId: 'INC-0950', title: 'Frontend CSS Regression', lead: USERS[2].name, status: 'Published', publishedDate: '2026-05-20' },
-];
-
 // ============================================================================
-// UTILITY COMPONENTS
+// UTILITY HELPERS
 // ============================================================================
 
-const Badge = ({ children, color = 'blue', className = '' }: any) => {
-  const colors: Record<string, string> = {
-    blue: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    red: 'bg-red-500/10 text-red-400 border-red-500/20',
-    yellow: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
-    green: 'bg-green-500/10 text-green-400 border-green-500/20',
-    purple: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    gray: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
-    orange: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-  };
-  return (
-    <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${colors[color]} ${className}`}>
-      {children}
-    </span>
-  );
-};
+type Tone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
 
-const getSeverityColor = (sev: string) => {
+const getSeverityTone = (sev: string): Tone => {
   switch (sev) {
-    case 'SEV-1': return 'red';
-    case 'SEV-2': return 'orange';
-    case 'SEV-3': return 'yellow';
-    case 'SEV-4': return 'blue';
-    default: return 'gray';
+    case 'SEV-1': return 'danger';
+    case 'SEV-2': return 'warning';
+    case 'SEV-3': return 'warning';
+    case 'SEV-4': return 'info';
+    default: return 'neutral';
   }
 };
 
-const getStatusColor = (status: string) => {
+const getStatusTone = (status: string): Tone => {
   switch (status) {
-    case 'Investigating': return 'red';
-    case 'Identified': return 'yellow';
-    case 'Monitoring': return 'blue';
-    case 'Resolved': return 'green';
-    case 'Closed': return 'gray';
-    default: return 'gray';
+    case 'Investigating': return 'danger';
+    case 'Identified': return 'warning';
+    case 'Monitoring': return 'info';
+    case 'Resolved': return 'success';
+    case 'Closed': return 'neutral';
+    default: return 'neutral';
   }
 };
 
-const Button = ({ children, variant = 'primary', size = 'md', className = '', icon, ...props }: any) => {
-  const base = 'inline-flex items-center justify-center font-medium transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950 focus:ring-indigo-500';
-  const variants: Record<string, string> = {
-    primary: 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm',
-    secondary: 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700',
-    danger: 'bg-red-600 hover:bg-red-700 text-white shadow-sm',
-    ghost: 'hover:bg-slate-800 text-slate-400 hover:text-slate-200',
-    outline: 'border border-slate-600 hover:bg-slate-800 text-slate-300',
-  };
-  const sizes: Record<string, string> = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-6 py-3 text-base',
-    icon: 'p-2',
-  };
-  return (
-    <button className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
-      {icon && <span className={children ? 'mr-2' : ''}>{icon}</span>}
-      {children}
-    </button>
-  );
-};
-
-const Card = ({ children, className = '', noPadding = false }: any) => (
-  <div className={`bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm ${className}`}>
-    {!noPadding ? <div className="p-5">{children}</div> : children}
-  </div>
-);
-
-const Input = ({ icon, className = '', ...props }: any) => (
-  <div className={`relative ${className}`}>
-    {icon && (
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-        {icon}
-      </div>
-    )}
-    <input
-      className={`block w-full bg-slate-950 border border-slate-800 rounded-lg text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all ${icon ? 'pl-10' : 'pl-3'} pr-3 py-2`}
-      {...props}
-    />
-  </div>
+// A small avatar chip drawn from initials (token-styled).
+const InitialsChip = ({ initials, className = '' }: { initials: string; className?: string }) => (
+  <span
+    className={`inline-flex items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium ${className}`}
+    aria-hidden="true"
+  >
+    {initials}
+  </span>
 );
 
 // ============================================================================
@@ -171,185 +151,177 @@ const Input = ({ icon, className = '', ...props }: any) => (
 
 // --- 1. OVERVIEW DASHBOARD ---
 const OverviewDashboard = () => {
+  const [chartGranularity, setChartGranularity] = useState('daily');
+  const barHeights = React.useMemo(
+    () => Array.from({ length: 30 }, (_, i) => 12 + ((i * 37) % 88)),
+    [],
+  );
+  const serviceBars = [
+    { name: 'API Gateway', val: 45 },
+    { name: 'Payment Processor', val: 30 },
+    { name: 'User Database', val: 15 },
+    { name: 'Worker Nodes', val: 10 },
+  ];
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Incident Overview</h2>
-          <p className="text-sm text-slate-400 mt-1">Real-time metrics and active incidents across your infrastructure.</p>
-        </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" icon={<Download size={16} />}>Export Report</Button>
-          <Button variant="primary" icon={<Plus size={16} />}>Declare Incident</Button>
-        </div>
-      </div>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Incident Overview</PageTitle>
+          <PageDescription>Real-time metrics and active incidents across your infrastructure.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={FileText}>Export Report</Button>
+          <Button variant="primary" iconLeft={Plus}>Declare Incident</Button>
+        </PageActions>
+      </PageHeader>
 
       {/* METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Active Incidents', value: '3', trend: '+1 from yesterday', color: 'text-red-400', bg: 'bg-red-500/10', icon: <AlertTriangle /> },
-          { label: 'MTTA (7d)', value: '4m 12s', trend: '-12% improvement', color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: <Clock /> },
-          { label: 'MTTR (7d)', value: '42m 30s', trend: '+5% regression', color: 'text-orange-400', bg: 'bg-orange-500/10', icon: <Activity /> },
-          { label: 'Uptime (30d)', value: '99.98%', trend: 'On track for SLA', color: 'text-blue-400', bg: 'bg-blue-500/10', icon: <Shield /> },
-        ].map((metric, i) => (
-          <Card key={i} className="relative overflow-hidden group">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-slate-400">{metric.label}</p>
-                <p className="text-3xl font-bold text-white mt-2 tracking-tight">{metric.value}</p>
-              </div>
-              <div className={`p-3 rounded-xl ${metric.bg} ${metric.color}`}>
-                {metric.icon}
-              </div>
-            </div>
-            <div className="mt-4 flex items-center text-xs text-slate-500">
-              <TrendingDown size={14} className="mr-1" />
-              {metric.trend}
-            </div>
-            <div className="absolute bottom-0 left-0 h-1 w-full bg-slate-800">
-              <div className={`h-full ${metric.bg.replace('/10', '')} w-2/3 group-hover:w-full transition-all duration-500`} />
-            </div>
-          </Card>
-        ))}
+        <StatCard label="Active Incidents" value="3" icon={AlertTriangle} delta={{ value: '+1 from yesterday', tone: 'up' }} accent="var(--st-danger)" />
+        <StatCard label="MTTA (7d)" value="4m 12s" icon={Clock} delta={{ value: '-12% improvement', tone: 'down' }} accent="var(--st-status-ok)" />
+        <StatCard label="MTTR (7d)" value="42m 30s" icon={Activity} delta={{ value: '+5% regression', tone: 'up' }} accent="var(--st-warn)" />
+        <StatCard label="Uptime (30d)" value="99.98%" icon={Shield} delta={{ value: 'On track for SLA', tone: 'neutral' }} accent="var(--st-accent)" />
       </div>
 
       {/* CHARTS AREA */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-2 lg:col-span-2 min-h-[300px] flex flex-col">
+        <Card className="lg:col-span-2 min-h-[300px] flex flex-col" padding="lg">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-base font-semibold text-white">Incident Volume (30 Days)</h3>
-            <select className="bg-slate-950 border border-slate-800 text-slate-300 text-sm rounded-lg p-1.5 focus:ring-indigo-500">
-              <option>Daily</option>
-              <option>Weekly</option>
-            </select>
+            <h3 className="text-base font-semibold text-[var(--st-text)]">Incident Volume (30 Days)</h3>
+            <div className="w-32">
+              <Select value={chartGranularity} onValueChange={setChartGranularity}>
+                <SelectTrigger aria-label="Chart granularity">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex-1 w-full bg-slate-950/50 rounded-lg border border-slate-800/50 flex items-end p-4 space-x-2 relative">
-            {/* FAKE BAR CHART */}
-            {Array.from({ length: 30 }).map((_, i) => (
+          <div className="flex-1 w-full bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] border border-[var(--st-border)] flex items-end p-4 gap-2 relative">
+            {/* Bar chart (runtime-computed heights) */}
+            {barHeights.map((h, i) => (
               <div key={i} className="flex-1 flex flex-col justify-end group">
                 <div className="relative w-full">
                   <div
-                    className="w-full bg-indigo-500/80 hover:bg-indigo-400 rounded-t-sm transition-all"
-                    style={{ height: `${Math.max(10, Math.random() * 100)}px` }}
+                    className="w-full bg-[var(--st-accent)] hover:bg-[var(--st-accent-hover)] rounded-t-sm transition-all"
+                    style={{ height: `${h}px` }}
                   />
-                  {/* Tooltip on hover */}
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                    Day {i + 1}: {Math.floor(Math.random() * 5)} incidents
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--st-bg-muted)] text-xs text-[var(--st-text)] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 border border-[var(--st-border)]">
+                    Day {i + 1}: {(i % 5)} incidents
                   </div>
                 </div>
               </div>
             ))}
-            {/* Grid lines */}
-            <div className="absolute inset-0 pointer-events-none border-t border-slate-800 top-[25%]" />
-            <div className="absolute inset-0 pointer-events-none border-t border-slate-800 top-[50%]" />
-            <div className="absolute inset-0 pointer-events-none border-t border-slate-800 top-[75%]" />
+            <div className="absolute inset-0 pointer-events-none border-t border-[var(--st-border)] top-1/4" />
+            <div className="absolute inset-0 pointer-events-none border-t border-[var(--st-border)] top-1/2" />
+            <div className="absolute inset-0 pointer-events-none border-t border-[var(--st-border)] top-3/4" />
           </div>
         </Card>
 
-        <Card className="col-span-1 min-h-[300px]">
-          <h3 className="text-base font-semibold text-white mb-6">Incidents by Service</h3>
+        <Card className="min-h-[300px]" padding="lg">
+          <h3 className="text-base font-semibold text-[var(--st-text)] mb-6">Incidents by Service</h3>
           <div className="space-y-4">
-            {[
-              { name: 'API Gateway', val: 45, color: 'bg-indigo-500' },
-              { name: 'Payment Processor', val: 30, color: 'bg-blue-500' },
-              { name: 'User Database', val: 15, color: 'bg-emerald-500' },
-              { name: 'Worker Nodes', val: 10, color: 'bg-slate-500' },
-            ].map((s, i) => (
+            {serviceBars.map((s, i) => (
               <div key={i}>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-300">{s.name}</span>
-                  <span className="text-slate-400 font-mono">{s.val}%</span>
+                  <span className="text-[var(--st-text)]">{s.name}</span>
+                  <span className="text-[var(--st-text-secondary)] font-mono">{s.val}%</span>
                 </div>
-                <div className="w-full bg-slate-950 rounded-full h-2">
-                  <div className={`${s.color} h-2 rounded-full`} style={{ w: `${s.val}%`, width: `${s.val}%` }}></div>
+                <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-2">
+                  <div className="bg-[var(--st-accent)] h-2 rounded-full" style={{ width: `${s.val}%` }} />
                 </div>
               </div>
             ))}
           </div>
-          
-          <div className="mt-8 pt-6 border-t border-slate-800">
-            <h3 className="text-sm font-semibold text-slate-300 mb-4">On-Call Right Now</h3>
+
+          <div className="mt-8 pt-6 border-t border-[var(--st-border)]">
+            <h3 className="text-sm font-semibold text-[var(--st-text)] mb-4">On-Call Right Now</h3>
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
-                  AS
-                </div>
+              <div className="flex items-center gap-3">
+                <Avatar name="Alice Smith" />
                 <div>
-                  <p className="text-sm font-medium text-white">Alice Smith</p>
-                  <p className="text-xs text-slate-400">Primary • Tier 1</p>
+                  <p className="text-sm font-medium text-[var(--st-text)]">Alice Smith</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">Primary - Tier 1</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" icon={<Phone size={16} />} />
+              <IconButton label="Call Alice Smith" icon={Phone} />
             </div>
           </div>
         </Card>
       </div>
 
       {/* RECENT INCIDENTS TABLE */}
-      <Card noPadding className="flex flex-col">
-        <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-          <h3 className="text-base font-semibold text-white">Active & Recent Incidents</h3>
-          <div className="flex items-center space-x-2">
-            <Input icon={<Search size={16} />} placeholder="Search incidents..." className="w-64" />
-            <Button variant="outline" icon={<Filter size={16} />}>Filter</Button>
+      <Card padding="none" className="flex flex-col">
+        <CardHeader className="flex flex-wrap justify-between items-center gap-3">
+          <CardTitle>Active &amp; Recent Incidents</CardTitle>
+          <div className="flex items-center gap-2">
+            <div className="w-64">
+              <Field label="" className="!gap-0">
+                <Input iconLeft={Search} placeholder="Search incidents..." aria-label="Search incidents" />
+              </Field>
+            </div>
+            <Button variant="outline" iconLeft={Filter}>Filter</Button>
           </div>
-        </div>
+        </CardHeader>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-950/50 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
-                <th className="p-4 font-medium">Incident ID</th>
-                <th className="p-4 font-medium">Title</th>
-                <th className="p-4 font-medium">Severity</th>
-                <th className="p-4 font-medium">Status</th>
-                <th className="p-4 font-medium">Assignee</th>
-                <th className="p-4 font-medium">Created</th>
-                <th className="p-4 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
+          <Table hover>
+            <THead>
+              <Tr>
+                <Th>Incident ID</Th>
+                <Th>Title</Th>
+                <Th>Severity</Th>
+                <Th>Status</Th>
+                <Th>Assignee</Th>
+                <Th>Created</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {MOCK_INCIDENTS.slice(0, 10).map((inc) => (
-                <tr key={inc.id} className="hover:bg-slate-800/20 transition-colors group">
-                  <td className="p-4 font-mono text-sm text-indigo-400 group-hover:text-indigo-300 cursor-pointer">{inc.id}</td>
-                  <td className="p-4">
-                    <p className="text-sm font-medium text-white">{inc.title}</p>
-                    <div className="flex gap-1 mt-1">
-                      {inc.impactedServices.map(s => (
-                        <span key={s} className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">{s}</span>
+                <Tr key={inc.id}>
+                  <Td>
+                    <span className="font-mono text-sm text-[var(--st-accent)]">{inc.id}</span>
+                  </Td>
+                  <Td>
+                    <p className="text-sm font-medium text-[var(--st-text)]">{inc.title}</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {inc.impactedServices.map((s) => (
+                        <span key={s} className="text-[10px] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] px-1.5 py-0.5 rounded">{s}</span>
                       ))}
                     </div>
-                  </td>
-                  <td className="p-4">
-                    <Badge color={getSeverityColor(inc.severity)}>{inc.severity}</Badge>
-                  </td>
-                  <td className="p-4">
-                    <Badge color={getStatusColor(inc.status)} className="flex w-fit items-center gap-1.5">
-                      <span className={`w-1.5 h-1.5 rounded-full bg-current ${inc.status === 'Investigating' ? 'animate-pulse' : ''}`} />
-                      {inc.status}
-                    </Badge>
-                  </td>
-                  <td className="p-4">
+                  </Td>
+                  <Td>
+                    <Badge tone={getSeverityTone(inc.severity)}>{inc.severity}</Badge>
+                  </Td>
+                  <Td>
+                    <Badge tone={getStatusTone(inc.status)} dot>{inc.status}</Badge>
+                  </Td>
+                  <Td>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white font-medium">
-                        {inc.assignee.avatar}
-                      </div>
-                      <span className="text-sm text-slate-300">{inc.assignee.name}</span>
+                      <InitialsChip initials={inc.assignee.avatar} className="w-6 h-6 text-[10px]" />
+                      <span className="text-sm text-[var(--st-text)]">{inc.assignee.name}</span>
                     </div>
-                  </td>
-                  <td className="p-4 text-sm text-slate-400 whitespace-nowrap">
-                    {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </td>
-                  <td className="p-4 text-right">
-                    <Button variant="ghost" size="icon" icon={<ChevronRight size={18} />} />
-                  </td>
-                </tr>
+                  </Td>
+                  <Td>
+                    <span className="text-sm text-[var(--st-text-secondary)] whitespace-nowrap">
+                      {new Date(inc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </Td>
+                  <Td align="right">
+                    <IconButton label={`Open incident ${inc.id}`} icon={ChevronRight} />
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-center">
-          <Button variant="ghost" className="text-sm">View All Incidents</Button>
-        </div>
+        <CardFooter className="justify-center">
+          <Button variant="ghost">View All Incidents</Button>
+        </CardFooter>
       </Card>
     </div>
   );
@@ -359,160 +331,148 @@ const OverviewDashboard = () => {
 const WarRoom = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [message, setMessage] = useState('');
-  
+
   return (
-    <div className="flex h-[calc(100vh-140px)] bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-      
+    <div className="flex h-[calc(100vh-140px)] bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden shadow-lg animate-in fade-in zoom-in-95 duration-300">
+
       {/* LEFT PANEL: Channels & Incidents */}
-      <div className="w-64 border-r border-slate-800 flex flex-col bg-slate-900/80">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-white font-semibold">
+      <div className="w-64 border-r border-[var(--st-border)] flex flex-col bg-[var(--st-bg-secondary)]">
+        <div className="p-4 border-b border-[var(--st-border)] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[var(--st-text)] font-semibold">
             <RadioWaveIcon /> Active War Rooms
           </div>
-          <Button variant="ghost" size="icon" icon={<Plus size={16} />} />
+          <IconButton label="New war room" icon={Plus} size="sm" />
         </div>
-        
+
         <div className="flex-1 overflow-y-auto py-2">
-          <div className="px-3 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">SEV-1 & SEV-2</div>
+          <div className="px-3 mb-2 text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider">SEV-1 &amp; SEV-2</div>
           <div className="space-y-0.5 px-2">
-            <button className="w-full flex items-center gap-2 px-3 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg group">
-              <Hash size={16} className="opacity-70 group-hover:opacity-100" />
-              <span className="text-sm font-medium truncate">inc-1024-db-outage</span>
-              <span className="ml-auto w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            </button>
-            <button className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-lg group transition-colors">
-              <Hash size={16} className="opacity-70 group-hover:opacity-100" />
-              <span className="text-sm font-medium truncate">inc-1025-stripe-fail</span>
-            </button>
+            <Button variant="ghost" block className="!justify-start bg-[var(--st-accent-soft)] text-[var(--st-accent)]" iconLeft={Hash}>
+              <span className="flex-1 truncate text-left">inc-1024-db-outage</span>
+              <Dot tone="danger" pulse className="ml-auto" />
+            </Button>
+            <Button variant="ghost" block className="!justify-start" iconLeft={Hash}>
+              <span className="flex-1 truncate text-left">inc-1025-stripe-fail</span>
+            </Button>
           </div>
-          
-          <div className="px-3 mt-6 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Investigating</div>
+
+          <div className="px-3 mt-6 mb-2 text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider">Investigating</div>
           <div className="space-y-0.5 px-2">
-            <button className="w-full flex items-center gap-2 px-3 py-2 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-lg transition-colors">
-              <Hash size={16} className="opacity-70" />
-              <span className="text-sm font-medium truncate">inc-1027-latency</span>
-            </button>
+            <Button variant="ghost" block className="!justify-start" iconLeft={Hash}>
+              <span className="flex-1 truncate text-left">inc-1027-latency</span>
+            </Button>
           </div>
         </div>
-        
-        <div className="p-4 border-t border-slate-800 bg-slate-900">
+
+        <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg)]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">ME</div>
+            <InitialsChip initials="ME" className="w-8 h-8 text-xs bg-[var(--st-accent-soft)] text-[var(--st-accent)]" />
             <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium text-white truncate">You (Commander)</p>
-              <p className="text-xs text-emerald-400">Online</p>
+              <p className="text-sm font-medium text-[var(--st-text)] truncate">You (Commander)</p>
+              <p className="text-xs text-[var(--st-status-ok)]">Online</p>
             </div>
-            <Button variant="ghost" size="icon" icon={<Settings size={16} />} />
+            <IconButton label="War room settings" icon={Settings} size="sm" />
           </div>
         </div>
       </div>
 
       {/* MIDDLE PANEL: Chat / Timeline */}
-      <div className="flex-1 flex flex-col bg-slate-950 relative">
-        <div className="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/50 backdrop-blur-sm z-10">
+      <div className="flex-1 flex flex-col bg-[var(--st-bg)] relative">
+        <div className="h-16 border-b border-[var(--st-border)] flex items-center justify-between px-6 bg-[var(--st-bg-secondary)] z-10">
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Hash size={20} className="text-indigo-400" />
+            <h2 className="text-lg font-bold text-[var(--st-text)] flex items-center gap-2">
+              <Hash size={20} className="text-[var(--st-accent)]" aria-hidden="true" />
               inc-1024-db-outage
-              <Badge color="red" className="ml-2">SEV-1</Badge>
+              <Badge tone="danger" className="ml-2">SEV-1</Badge>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5">Database replication lag across US-East regions</p>
+            <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">Database replication lag across US-East regions</p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" icon={<Users size={14} />}>12 Participants</Button>
-            <div className="h-6 w-px bg-slate-700 mx-2"></div>
-            <Button variant="primary" size="sm" icon={<Phone size={14} />}>Join Bridge</Button>
+            <Button variant="outline" size="sm" iconLeft={Users}>12 Participants</Button>
+            <div className="h-6 w-px bg-[var(--st-border)] mx-2" />
+            <Button variant="primary" size="sm" iconLeft={Phone}>Join Bridge</Button>
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="text-center">
-            <div className="inline-block bg-slate-800 text-slate-400 text-xs px-3 py-1 rounded-full mb-4">Today</div>
+            <span className="inline-block bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] text-xs px-3 py-1 rounded-full mb-4">Today</span>
           </div>
-          
-          {MOCK_MESSAGES.map((msg, idx) => {
+
+          {MOCK_MESSAGES.map((msg) => {
             const isMe = msg.user.id === 'u1';
             return (
               <div key={msg.id} className={`flex gap-4 max-w-3xl ${isMe ? 'ml-auto flex-row-reverse' : ''}`}>
-                <div className={`w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-bold text-white shadow-sm ${isMe ? 'bg-indigo-600' : 'bg-slate-700'}`}>
-                  {msg.user.avatar}
-                </div>
+                <InitialsChip
+                  initials={msg.user.avatar}
+                  className={`w-10 h-10 text-sm flex-shrink-0 ${isMe ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]' : ''}`}
+                />
                 <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                   <div className="flex items-baseline gap-2 mb-1">
-                    <span className="text-sm font-medium text-slate-200">{msg.user.name}</span>
-                    <span className="text-xs text-slate-500">{msg.timestamp}</span>
+                    <span className="text-sm font-medium text-[var(--st-text)]">{msg.user.name}</span>
+                    <span className="text-xs text-[var(--st-text-tertiary)]">{msg.timestamp}</span>
                   </div>
-                  <div className={`p-3 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'}`}>
+                  <div className={`p-3 rounded-2xl text-sm border ${isMe ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)] border-transparent rounded-tr-none' : 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] border-[var(--st-border)] rounded-tl-none'}`}>
                     {msg.text}
                   </div>
                 </div>
               </div>
             );
           })}
-          
+
           <div className="flex items-center gap-4 max-w-3xl mx-auto my-8">
-            <div className="flex-1 h-px bg-slate-800"></div>
-            <div className="flex items-center gap-2 text-xs font-medium text-slate-500 border border-slate-800 rounded-full px-3 py-1 bg-slate-900">
-              <Activity size={12} className="text-yellow-400" /> Status changed to Investigating
+            <div className="flex-1 h-px bg-[var(--st-border)]" />
+            <div className="flex items-center gap-2 text-xs font-medium text-[var(--st-text-secondary)] border border-[var(--st-border)] rounded-full px-3 py-1 bg-[var(--st-bg-secondary)]">
+              <Activity size={12} className="text-[var(--st-warn)]" aria-hidden="true" /> Status changed to Investigating
             </div>
-            <div className="flex-1 h-px bg-slate-800"></div>
+            <div className="flex-1 h-px bg-[var(--st-border)]" />
           </div>
         </div>
 
-        <div className="p-4 bg-slate-900 border-t border-slate-800">
-          <div className="flex items-end gap-2 bg-slate-950 border border-slate-700 rounded-xl p-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
-            <div className="flex flex-col justify-end gap-1 pb-1 pl-1">
-              <button className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
-                <Paperclip size={18} />
-              </button>
-            </div>
-            <textarea
-              className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 resize-none outline-none max-h-32 min-h-[40px] py-2 px-2"
+        <div className="p-4 bg-[var(--st-bg-secondary)] border-t border-[var(--st-border)]">
+          <div className="flex items-end gap-2 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] p-2 focus-within:ring-2 focus-within:ring-[var(--st-accent)] transition-all">
+            <IconButton label="Attach file" icon={Paperclip} variant="ghost" />
+            <Textarea
+              className="flex-1 !border-0 !bg-transparent resize-none max-h-32 min-h-[40px]"
               placeholder="Message #inc-1024-db-outage..."
+              aria-label="War room message"
               rows={1}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
-            <div className="flex flex-col justify-end gap-1 pb-1 pr-1">
-              <button className="p-1.5 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors">
-                <Smile size={18} />
-              </button>
-            </div>
-            <Button variant="primary" size="icon" className="rounded-lg h-10 w-10 flex-shrink-0" icon={<Send size={16} className="ml-1" />} />
+            <IconButton label="Add emoji" icon={Smile} variant="ghost" />
+            <IconButton label="Send message" icon={Send} variant="primary" />
           </div>
         </div>
       </div>
 
       {/* RIGHT PANEL: Incident Metadata & Actions */}
-      <div className="w-80 border-l border-slate-800 bg-slate-900 flex flex-col hidden lg:flex">
-        <div className="flex border-b border-slate-800">
-          <button
-            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'details' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}
-            onClick={() => setActiveTab('details')}
-          >
-            Details
-          </button>
-          <button
-            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'actions' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-slate-400 hover:text-slate-300'}`}
-            onClick={() => setActiveTab('actions')}
-          >
-            Actions
-          </button>
-        </div>
-        
+      <div className="w-80 border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex-col hidden lg:flex">
+        <SegmentedControl
+          aria-label="War room side panel"
+          fullWidth
+          className="m-3"
+          value={activeTab === 'actions' ? 'actions' : 'details'}
+          onChange={(v) => setActiveTab(v)}
+          items={[
+            { value: 'details', label: 'Details' },
+            { value: 'actions', label: 'Actions' },
+          ]}
+        />
+
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
-          {activeTab === 'details' ? (
+          {activeTab !== 'actions' ? (
             <>
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Impacted Services</h4>
+                <h4 className="text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider mb-3">Impacted Services</h4>
                 <div className="flex flex-wrap gap-2">
-                  <Badge color="blue" className="px-3 py-1 text-sm bg-slate-800 border-slate-700"><Database size={12} className="inline mr-1" /> Primary DB</Badge>
-                  <Badge color="blue" className="px-3 py-1 text-sm bg-slate-800 border-slate-700"><Server size={12} className="inline mr-1" /> API Gateway</Badge>
+                  <Badge tone="info" className="gap-1"><Database size={12} aria-hidden="true" /> Primary DB</Badge>
+                  <Badge tone="info" className="gap-1"><Server size={12} aria-hidden="true" /> API Gateway</Badge>
                 </div>
               </div>
-              
+
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Key Roles</h4>
+                <h4 className="text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider mb-3">Key Roles</h4>
                 <div className="space-y-3">
                   {[
                     { role: 'Commander', user: USERS[0] },
@@ -521,47 +481,43 @@ const WarRoom = () => {
                   ].map((r, i) => (
                     <div key={i} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] text-white">
-                          {r.user.avatar}
-                        </div>
-                        <span className="text-sm text-slate-300">{r.user.name}</span>
+                        <InitialsChip initials={r.user.avatar} className="w-6 h-6 text-[10px]" />
+                        <span className="text-sm text-[var(--st-text)]">{r.user.name}</span>
                       </div>
-                      <Badge color="gray">{r.role}</Badge>
+                      <Badge tone="neutral">{r.role}</Badge>
                     </div>
                   ))}
-                  <Button variant="outline" size="sm" className="w-full mt-2" icon={<Plus size={14} />}>Assign Role</Button>
+                  <Button variant="outline" size="sm" block className="mt-2" iconLeft={Plus}>Assign Role</Button>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Linked Resources</h4>
+                <h4 className="text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider mb-3">Linked Resources</h4>
                 <div className="space-y-2">
-                  <a href="#" className="flex items-center justify-between p-2 rounded-lg border border-slate-800 bg-slate-950 hover:bg-slate-800 transition-colors group">
-                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                      <BarChart size={14} className="text-blue-400" />
+                  <Button variant="outline" block className="!justify-between" iconRight={ArrowRight}>
+                    <span className="flex items-center gap-2">
+                      <BarChart size={14} className="text-[var(--st-accent)]" aria-hidden="true" />
                       Datadog: DB Metrics
-                    </div>
-                    <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400" />
-                  </a>
-                  <a href="#" className="flex items-center justify-between p-2 rounded-lg border border-slate-800 bg-slate-950 hover:bg-slate-800 transition-colors group">
-                    <div className="flex items-center gap-2 text-sm text-slate-300">
-                      <Terminal size={14} className="text-green-400" />
+                    </span>
+                  </Button>
+                  <Button variant="outline" block className="!justify-between" iconRight={ArrowRight}>
+                    <span className="flex items-center gap-2">
+                      <Terminal size={14} className="text-[var(--st-status-ok)]" aria-hidden="true" />
                       Runbook: DB Failover
-                    </div>
-                    <ArrowRight size={14} className="text-slate-600 group-hover:text-slate-400" />
-                  </a>
+                    </span>
+                  </Button>
                 </div>
               </div>
             </>
           ) : (
             <div className="space-y-4">
-              <Button variant="secondary" className="w-full justify-start" icon={<Activity size={16} className="text-yellow-400" />}>Update Status</Button>
-              <Button variant="secondary" className="w-full justify-start" icon={<AlertTriangle size={16} className="text-red-400" />}>Escalate Severity</Button>
-              <Button variant="secondary" className="w-full justify-start" icon={<Globe size={16} className="text-blue-400" />}>Update Public Status Page</Button>
-              <Button variant="secondary" className="w-full justify-start" icon={<FileText size={16} className="text-emerald-400" />}>Generate Summary Draft</Button>
-              
-              <div className="pt-6 mt-6 border-t border-slate-800">
-                <Button variant="danger" className="w-full" icon={<CheckCircle size={16} />}>Resolve Incident</Button>
+              <Button variant="secondary" block className="!justify-start" iconLeft={Activity}>Update Status</Button>
+              <Button variant="secondary" block className="!justify-start" iconLeft={AlertTriangle}>Escalate Severity</Button>
+              <Button variant="secondary" block className="!justify-start" iconLeft={Globe}>Update Public Status Page</Button>
+              <Button variant="secondary" block className="!justify-start" iconLeft={FileText}>Generate Summary Draft</Button>
+
+              <div className="pt-6 mt-6 border-t border-[var(--st-border)]">
+                <Button variant="danger" block iconLeft={CheckCircle}>Resolve Incident</Button>
               </div>
             </div>
           )}
@@ -573,39 +529,43 @@ const WarRoom = () => {
 
 // --- 3. STATUS PAGE BUILDER ---
 const StatusPageBuilder = () => {
+  const [device, setDevice] = useState('desktop');
+  const statusBarHeights = React.useMemo(
+    () => Array.from({ length: 40 }, (_, i) => 22 + ((i * 17) % (i > 30 ? 60 : 30))),
+    [],
+  );
+
   return (
     <div className="flex h-[calc(100vh-140px)] gap-6 animate-in fade-in zoom-in-95 duration-300">
       {/* Configuration Sidebar */}
       <div className="w-80 flex flex-col gap-4">
-        <Card noPadding className="flex-1 flex flex-col">
-          <div className="p-4 border-b border-slate-800 bg-slate-900/50">
-            <h3 className="font-semibold text-white">Status Page Settings</h3>
-          </div>
+        <Card padding="none" className="flex-1 flex flex-col">
+          <CardHeader>
+            <CardTitle>Status Page Settings</CardTitle>
+          </CardHeader>
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Page Title</label>
+            <Field label="Page Title">
               <Input defaultValue="SabDesk System Status" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Company Logo URL</label>
+            </Field>
+            <Field label="Company Logo">
               <div className="flex gap-2">
-                <Input defaultValue="https://cdn.sabdesk.com/logo.png" className="flex-1" />
-                <Button variant="outline" size="icon" icon={<Upload size={16} />} />
+                <Input defaultValue="brand/logo.png" className="flex-1" aria-label="Company logo path" />
+                <IconButton label="Upload logo" icon={Upload} variant="outline" />
               </div>
-            </div>
-            <div className="pt-4 border-t border-slate-800">
-              <h4 className="text-sm font-medium text-white mb-3">Service Components</h4>
+            </Field>
+            <div className="pt-4 border-t border-[var(--st-border)]">
+              <h4 className="text-sm font-medium text-[var(--st-text)] mb-3">Service Components</h4>
               <div className="space-y-2">
-                {SERVICES.map(s => (
-                  <div key={s} className="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded-lg cursor-grab hover:border-slate-600 transition-colors">
+                {SERVICES.map((s) => (
+                  <div key={s} className="flex items-center justify-between p-2 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] cursor-grab hover:border-[var(--st-border-strong)] transition-colors">
                     <div className="flex items-center gap-2">
-                      <ListOrdered size={14} className="text-slate-600" />
-                      <span className="text-sm text-slate-300">{s}</span>
+                      <ListOrdered size={14} className="text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                      <span className="text-sm text-[var(--st-text)]">{s}</span>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" icon={<Settings size={12} />} />
+                    <IconButton label={`Configure ${s}`} icon={Settings} size="sm" />
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full border-dashed mt-2" icon={<Plus size={14} />}>Add Component</Button>
+                <Button variant="outline" size="sm" block className="border-dashed mt-2" iconLeft={Plus}>Add Component</Button>
               </div>
             </div>
           </div>
@@ -615,62 +575,67 @@ const StatusPageBuilder = () => {
       {/* Preview Area */}
       <div className="flex-1 flex flex-col">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex bg-slate-900 border border-slate-800 rounded-lg p-1">
-            <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-slate-800 text-white shadow-sm">Desktop</button>
-            <button className="px-3 py-1.5 text-sm font-medium rounded-md text-slate-400 hover:text-slate-200 transition-colors">Mobile</button>
-          </div>
+          <SegmentedControl
+            aria-label="Preview device"
+            value={device}
+            onChange={setDevice}
+            items={[
+              { value: 'desktop', label: 'Desktop' },
+              { value: 'mobile', label: 'Mobile' },
+            ]}
+          />
           <div className="flex gap-2">
-            <Button variant="outline" icon={<Eye size={16} />}>Preview</Button>
-            <Button variant="primary" icon={<Globe size={16} />}>Publish Changes</Button>
+            <Button variant="outline" iconLeft={Eye}>Preview</Button>
+            <Button variant="primary" iconLeft={Globe}>Publish Changes</Button>
           </div>
         </div>
 
-        <Card noPadding className="flex-1 flex flex-col bg-slate-50 relative overflow-hidden border-4 border-slate-800 rounded-2xl">
-          {/* FAKE BROWSER CHROME */}
-          <div className="h-10 bg-slate-200 border-b border-slate-300 flex items-center px-4 gap-2">
+        <Card padding="none" className="flex-1 flex flex-col relative overflow-hidden">
+          {/* Browser chrome */}
+          <div className="h-10 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)] flex items-center px-4 gap-2">
             <div className="flex gap-1.5">
-              <div className="w-3 h-3 rounded-full bg-red-400"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-              <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              <Dot tone="danger" />
+              <Dot tone="warning" />
+              <Dot tone="success" />
             </div>
-            <div className="mx-auto bg-white px-32 py-1 text-xs text-slate-500 rounded-md shadow-sm border border-slate-200 flex items-center gap-2">
-              <Lock size={10} /> status.sabdesk.com
+            <div className="mx-auto bg-[var(--st-bg)] px-32 py-1 text-xs text-[var(--st-text-secondary)] rounded-[var(--st-radius)] border border-[var(--st-border)] flex items-center gap-2">
+              <Lock size={10} aria-hidden="true" /> status.sabdesk.com
             </div>
           </div>
-          
-          {/* FAKE STATUS PAGE CONTENT */}
-          <div className="flex-1 overflow-y-auto bg-white text-slate-900 p-12">
+
+          {/* Status page content */}
+          <div className="flex-1 overflow-y-auto bg-[var(--st-bg)] text-[var(--st-text)] p-12">
             <div className="max-w-3xl mx-auto space-y-12">
-              
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-indigo-600 rounded-lg shadow-sm"></div>
-                  <h1 className="text-2xl font-bold">SabDesk Status</h1>
+                  <div className="w-10 h-10 bg-[var(--st-accent)] rounded-[var(--st-radius)]" aria-hidden="true" />
+                  <h1 className="text-2xl font-bold text-[var(--st-text)]">SabDesk Status</h1>
                 </div>
-                <button className="text-sm font-medium text-indigo-600 hover:underline">Subscribe to Updates</button>
+                <Button variant="ghost">Subscribe to Updates</Button>
               </div>
 
               {/* Status Banner */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 shadow-sm flex items-start gap-4">
-                <AlertTriangle className="text-yellow-600 mt-1" size={24} />
+              <div className="bg-[var(--st-warn)]/10 border border-[var(--st-warn)]/30 rounded-[var(--st-radius-lg)] p-6 flex items-start gap-4">
+                <AlertTriangle className="text-[var(--st-warn)] mt-1" size={24} aria-hidden="true" />
                 <div>
-                  <h2 className="text-lg font-bold text-yellow-900">Partial System Outage</h2>
-                  <p className="text-yellow-800 mt-1">We are currently investigating reports of elevated error rates on our main Database cluster. Some users may experience latency or timeouts.</p>
-                  <p className="text-xs text-yellow-600 mt-4 font-medium uppercase tracking-wider">Posted 15 mins ago</p>
+                  <h2 className="text-lg font-bold text-[var(--st-text)]">Partial System Outage</h2>
+                  <p className="text-[var(--st-text-secondary)] mt-1">We are currently investigating reports of elevated error rates on our main Database cluster. Some users may experience latency or timeouts.</p>
+                  <p className="text-xs text-[var(--st-warn)] mt-4 font-medium uppercase tracking-wider">Posted 15 mins ago</p>
                 </div>
               </div>
 
-              {/* Metrics (Simulated) */}
+              {/* Metrics */}
               <div>
-                <h3 className="text-lg font-bold mb-4">System Metrics</h3>
-                <div className="h-48 border border-slate-200 rounded-xl bg-slate-50 p-4 flex flex-col">
+                <h3 className="text-lg font-bold mb-4 text-[var(--st-text)]">System Metrics</h3>
+                <div className="h-48 border border-[var(--st-border)] rounded-[var(--st-radius-lg)] bg-[var(--st-bg-secondary)] p-4 flex flex-col">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-slate-600">API Response Time</span>
-                    <span className="text-sm font-bold text-emerald-600">45ms</span>
+                    <span className="text-sm font-medium text-[var(--st-text-secondary)]">API Response Time</span>
+                    <span className="text-sm font-bold text-[var(--st-status-ok)]">45ms</span>
                   </div>
                   <div className="flex-1 flex items-end gap-1">
-                    {Array.from({ length: 40 }).map((_, i) => (
-                      <div key={i} className="flex-1 bg-indigo-200 hover:bg-indigo-300 rounded-t-sm" style={{ height: `${20 + Math.random() * (i > 30 ? 60 : 30)}%` }}></div>
+                    {statusBarHeights.map((h, i) => (
+                      <div key={i} className="flex-1 bg-[var(--st-accent)]/40 hover:bg-[var(--st-accent)]/60 rounded-t-sm" style={{ height: `${h}%` }} />
                     ))}
                   </div>
                 </div>
@@ -678,21 +643,19 @@ const StatusPageBuilder = () => {
 
               {/* Component Status */}
               <div>
-                <h3 className="text-lg font-bold mb-4">Core Services</h3>
-                <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-200">
+                <h3 className="text-lg font-bold mb-4 text-[var(--st-text)]">Core Services</h3>
+                <div className="border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden divide-y divide-[var(--st-border)]">
                   {SERVICES.slice(0, 5).map((s, i) => {
                     const isDegraded = i === 2;
                     return (
-                      <div key={s} className="p-4 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors">
-                        <span className="font-medium text-slate-700">{s}</span>
+                      <div key={s} className="p-4 flex items-center justify-between bg-[var(--st-bg)] hover:bg-[var(--st-bg-secondary)] transition-colors">
+                        <span className="font-medium text-[var(--st-text)]">{s}</span>
                         {isDegraded ? (
-                          <div className="flex items-center gap-2 text-yellow-600 bg-yellow-50 px-3 py-1 rounded-full text-sm font-medium border border-yellow-200">
-                            <AlertCircle size={16} /> Degraded Performance
-                          </div>
+                          <Badge tone="warning"><AlertCircle size={14} aria-hidden="true" className="mr-1 inline" /> Degraded Performance</Badge>
                         ) : (
-                          <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium">
-                            <CheckCircle size={16} /> Operational
-                          </div>
+                          <span className="flex items-center gap-2 text-[var(--st-status-ok)] text-sm font-medium">
+                            <CheckCircle size={16} aria-hidden="true" /> Operational
+                          </span>
                         )}
                       </div>
                     );
@@ -702,9 +665,6 @@ const StatusPageBuilder = () => {
 
             </div>
           </div>
-          
-          {/* Builder Overlay (Simulates dragging/hovering) */}
-          <div className="absolute inset-0 pointer-events-none border-4 border-indigo-500/0 hover:border-indigo-500/20 transition-all z-20"></div>
         </Card>
       </div>
     </div>
@@ -713,90 +673,95 @@ const StatusPageBuilder = () => {
 
 // --- 4. RCA POST-MORTEM EDITOR ---
 const RCAPostMortemEditor = () => {
+  const toolbarIcons: Array<{ icon: LucideIcon; label: string } | 'sep'> = [
+    { icon: AlignLeft, label: 'Align left' },
+    { icon: Bold, label: 'Bold' },
+    { icon: Italic, label: 'Italic' },
+    { icon: Underline, label: 'Underline' },
+    'sep',
+    { icon: List, label: 'Bulleted list' },
+    { icon: ListOrdered, label: 'Numbered list' },
+    'sep',
+    { icon: Link2, label: 'Insert link' },
+    { icon: ImageIcon, label: 'Insert image' },
+    { icon: Code, label: 'Insert code' },
+  ];
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
-        <div>
+      <PageHeader>
+        <PageHeaderHeading>
           <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-white tracking-tight">RCA: Database Outage - Oct 12</h2>
-            <Badge color="yellow">Draft</Badge>
+            <PageTitle>RCA: Database Outage - Oct 12</PageTitle>
+            <Badge tone="warning">Draft</Badge>
           </div>
-          <p className="text-sm text-slate-400 mt-1">Incident: <a href="#" className="text-indigo-400 hover:underline">INC-1024</a> • Lead: Alice Smith</p>
-        </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" icon={<Save size={16} />}>Save Draft</Button>
-          <Button variant="primary" icon={<Send size={16} />}>Submit for Review</Button>
-        </div>
-      </div>
+          <PageDescription>Incident: INC-1024. Lead: Alice Smith.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={Save}>Save Draft</Button>
+          <Button variant="primary" iconLeft={Send}>Submit for Review</Button>
+        </PageActions>
+      </PageHeader>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 space-y-6">
-          
-          <Card noPadding className="flex flex-col h-[500px]">
-            <div className="p-3 border-b border-slate-800 bg-slate-900/50 flex flex-wrap gap-1">
-              {/* FAKE RICH TEXT TOOLBAR */}
-              {[
-                <AlignLeft size={16}/>, <Bold size={16}/>, <Italic size={16}/>, <Underline size={16}/>, 
-                <span className="w-px h-4 bg-slate-700 mx-1"></span>,
-                <List size={16}/>, <ListOrdered size={16}/>,
-                <span className="w-px h-4 bg-slate-700 mx-1"></span>,
-                <Link2 size={16}/>, <ImageIcon size={16}/>, <Code size={16}/>
-              ].map((icon, i) => (
-                <button key={i} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded transition-colors flex items-center justify-center">
-                  {icon}
-                </button>
-              ))}
-              <div className="ml-auto flex items-center gap-2">
-                <span className="text-xs text-slate-500">Last saved 2 mins ago</span>
-              </div>
+
+          <Card padding="none" className="flex flex-col h-[500px]">
+            <div className="p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex flex-wrap items-center gap-1">
+              {toolbarIcons.map((entry, i) =>
+                entry === 'sep' ? (
+                  <span key={i} className="w-px h-4 bg-[var(--st-border)] mx-1" />
+                ) : (
+                  <IconButton key={i} label={entry.label} icon={entry.icon} size="sm" />
+                ),
+              )}
+              <span className="ml-auto text-xs text-[var(--st-text-tertiary)]">Last saved 2 mins ago</span>
             </div>
-            <div className="flex-1 p-6 overflow-y-auto bg-slate-950 prose prose-invert max-w-none prose-p:text-slate-300 prose-headings:text-white">
-              <h3>Executive Summary</h3>
-              <p>On October 12, 2026, a configuration change to the primary database cluster in US-East caused severe replication lag across read replicas. This resulted in stale data being served to frontend clients and timeout errors on the Payment Gateway integration.</p>
-              
-              <h3>Impact</h3>
-              <ul>
-                <li><strong>Duration:</strong> 42 minutes</li>
-                <li><strong>Affected Users:</strong> Approximately 15% of active sessions in US region.</li>
-                <li><strong>Revenue Impact:</strong> Estimated $4,500 in dropped transactions.</li>
+            <div className="flex-1 p-6 overflow-y-auto bg-[var(--st-bg)] space-y-4">
+              <h3 className="text-base font-semibold text-[var(--st-text)]">Executive Summary</h3>
+              <p className="text-sm text-[var(--st-text-secondary)]">On October 12, 2026, a configuration change to the primary database cluster in US-East caused severe replication lag across read replicas. This resulted in stale data being served to frontend clients and timeout errors on the Payment Gateway integration.</p>
+
+              <h3 className="text-base font-semibold text-[var(--st-text)]">Impact</h3>
+              <ul className="list-disc pl-5 text-sm text-[var(--st-text-secondary)] space-y-1">
+                <li><strong className="text-[var(--st-text)]">Duration:</strong> 42 minutes</li>
+                <li><strong className="text-[var(--st-text)]">Affected Users:</strong> Approximately 15% of active sessions in US region.</li>
+                <li><strong className="text-[var(--st-text)]">Revenue Impact:</strong> Estimated $4,500 in dropped transactions.</li>
               </ul>
-              
-              <h3>Root Cause</h3>
-              <p>The root cause was identified as a missing composite index on the <code>transactions</code> table, which was dropped during a routine migration script execution. As a result, subsequent queries performed full table scans, locking rows and halting replication threads.</p>
-              
-              <div className="p-4 my-4 border border-slate-800 bg-slate-900 rounded-lg font-mono text-sm text-emerald-400">
-                // Mitigation applied: <br/>
+
+              <h3 className="text-base font-semibold text-[var(--st-text)]">Root Cause</h3>
+              <p className="text-sm text-[var(--st-text-secondary)]">The root cause was identified as a missing composite index on the <code className="text-[var(--st-accent)]">transactions</code> table, which was dropped during a routine migration script execution. As a result, subsequent queries performed full table scans, locking rows and halting replication threads.</p>
+
+              <div className="p-4 my-4 border border-[var(--st-border)] bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] font-mono text-sm text-[var(--st-status-ok)]">
+                {'// Mitigation applied:'}<br />
                 CREATE INDEX idx_tx_status_date ON transactions(status, created_at);
               </div>
-              
-              <p>Following the creation of the index, replication lag recovered at a rate of 100MB/s, fully catching up within 15 minutes.</p>
+
+              <p className="text-sm text-[var(--st-text-secondary)]">Following the creation of the index, replication lag recovered at a rate of 100MB/s, fully catching up within 15 minutes.</p>
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-lg font-bold text-white mb-4">The "5 Whys"</h3>
+            <h3 className="text-lg font-bold text-[var(--st-text)] mb-4">The "5 Whys"</h3>
             <div className="space-y-4">
               {[
-                "Why did the database replication lag? Because queries on the primary node were extremely slow, causing a backlog in the replication log.",
-                "Why were the queries slow? Because a critical composite index was missing on the transactions table, forcing full table scans.",
-                "Why was the index missing? Because the database migration script V124_drop_old_tables.sql accidentally included a DROP INDEX command for an active index.",
-                "Why was this script approved and merged? Because it bypassed the staging environment tests which normally catch performance regressions.",
-                "Why did it bypass staging? Because it was marked as a 'hotfix' by a developer, which currently bypasses the automated staging pipeline."
+                'Why did the database replication lag? Because queries on the primary node were extremely slow, causing a backlog in the replication log.',
+                'Why were the queries slow? Because a critical composite index was missing on the transactions table, forcing full table scans.',
+                'Why was the index missing? Because the database migration script V124_drop_old_tables.sql accidentally included a DROP INDEX command for an active index.',
+                'Why was this script approved and merged? Because it bypassed the staging environment tests which normally catch performance regressions.',
+                "Why did it bypass staging? Because it was marked as a 'hotfix' by a developer, which currently bypasses the automated staging pipeline.",
               ].map((text, i) => (
                 <div key={i} className="flex gap-4 items-start group">
-                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 font-bold flex-shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  <span className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-text-secondary)] font-bold flex-shrink-0" aria-hidden="true">
                     {i + 1}
-                  </div>
+                  </span>
                   <div className="flex-1">
-                    <textarea 
-                      className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
-                      rows={2}
-                      defaultValue={text}
-                    />
+                    <Field label={`Why number ${i + 1}`} className="!gap-1">
+                      <Textarea rows={2} defaultValue={text} aria-label={`Why number ${i + 1}`} />
+                    </Field>
                   </div>
                 </div>
               ))}
-              <Button variant="outline" className="w-full border-dashed" icon={<Plus size={16} />}>Add Another Why</Button>
+              <Button variant="outline" block className="border-dashed" iconLeft={Plus}>Add Another Why</Button>
             </div>
           </Card>
 
@@ -804,45 +769,41 @@ const RCAPostMortemEditor = () => {
 
         <div className="space-y-6">
           <Card>
-            <h3 className="text-lg font-bold text-white mb-4">Action Items</h3>
+            <h3 className="text-lg font-bold text-[var(--st-text)] mb-4">Action Items</h3>
             <div className="space-y-3">
               {[
                 { title: 'Update CI/CD pipeline to disallow hotfixes bypassing DB tests', owner: 'DevOps', status: 'In Progress' },
                 { title: 'Add Datadog monitor for missing critical indexes', owner: 'DBA Team', status: 'To Do' },
                 { title: 'Conduct training on migration best practices', owner: 'Alice S.', status: 'To Do' },
               ].map((item, i) => (
-                <div key={i} className="p-3 border border-slate-800 rounded-lg bg-slate-950 hover:border-slate-700 transition-colors">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="text-sm font-medium text-slate-200">{item.title}</p>
-                    <button className="text-slate-500 hover:text-slate-300"><MoreVertical size={14} /></button>
+                <div key={i} className="p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] hover:border-[var(--st-border-strong)] transition-colors">
+                  <div className="flex justify-between items-start mb-2 gap-2">
+                    <p className="text-sm font-medium text-[var(--st-text)]">{item.title}</p>
+                    <IconButton label={`Action options for ${item.title}`} icon={MoreVertical} size="sm" />
                   </div>
                   <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                      <Users size={12} /> {item.owner}
+                    <div className="flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                      <Users size={12} aria-hidden="true" /> {item.owner}
                     </div>
-                    <Badge color={item.status === 'In Progress' ? 'blue' : 'gray'}>{item.status}</Badge>
+                    <Badge tone={item.status === 'In Progress' ? 'info' : 'neutral'}>{item.status}</Badge>
                   </div>
                 </div>
               ))}
-              <Button variant="secondary" className="w-full" icon={<Plus size={14} />}>Add Action Item</Button>
+              <Button variant="secondary" block iconLeft={Plus}>Add Action Item</Button>
             </div>
           </Card>
 
           <Card>
-            <h3 className="text-lg font-bold text-white mb-4">Timeline Selection</h3>
-            <p className="text-xs text-slate-400 mb-4">Select events from the incident timeline to include in the final RCA report.</p>
-            
-            <div className="space-y-0 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-800 before:to-transparent">
+            <h3 className="text-lg font-bold text-[var(--st-text)] mb-4">Timeline Selection</h3>
+            <p className="text-xs text-[var(--st-text-secondary)] mb-4">Select events from the incident timeline to include in the final RCA report.</p>
+
+            <div className="space-y-3">
               {MOCK_TIMELINE.map((event, i) => (
-                <div key={event.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active py-2">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-full border border-slate-800 bg-slate-900 text-slate-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow z-10">
-                    <input type="checkbox" className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950" defaultChecked={i % 2 === 0} />
-                  </div>
-                  <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-3 rounded-lg border border-slate-800 bg-slate-900/50 shadow-sm">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-xs font-bold text-indigo-400">{event.time}</div>
-                    </div>
-                    <div className="text-sm font-medium text-slate-200">{event.title}</div>
+                <div key={event.id} className="flex items-start gap-3 p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                  <Checkbox defaultChecked={i % 2 === 0} aria-label={`Include ${event.title}`} className="mt-0.5" />
+                  <div className="flex-1">
+                    <div className="text-xs font-bold text-[var(--st-accent)] mb-1">{event.time}</div>
+                    <div className="text-sm font-medium text-[var(--st-text)]">{event.title}</div>
                   </div>
                 </div>
               ))}
@@ -856,94 +817,100 @@ const RCAPostMortemEditor = () => {
 
 // --- 5. DETAILED TIMELINE ---
 const IncidentTimeline = () => {
+  const [timeRange, setTimeRange] = useState('all');
+
   return (
     <div className="flex h-[calc(100vh-140px)] gap-6 animate-in fade-in zoom-in-95 duration-300">
       <div className="w-64 flex flex-col gap-4">
         <Card>
-          <h3 className="font-semibold text-white mb-4">Filters</h3>
+          <h3 className="font-semibold text-[var(--st-text)] mb-4">Filters</h3>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Event Type</label>
+              <span className="text-xs font-bold text-[var(--st-text-tertiary)] uppercase tracking-wider mb-2 block">Event Type</span>
               <div className="space-y-2">
-                {['Alerts', 'Status Changes', 'Chat Messages', 'Commits/Deployments', 'Manual Entries'].map(f => (
-                  <label key={f} className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" defaultChecked className="rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-950 cursor-pointer" />
-                    <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{f}</span>
-                  </label>
+                {['Alerts', 'Status Changes', 'Chat Messages', 'Commits/Deployments', 'Manual Entries'].map((f) => (
+                  <Checkbox key={f} defaultChecked label={f} />
                 ))}
               </div>
             </div>
-            <div className="pt-4 border-t border-slate-800">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">Time Range</label>
-              <select className="w-full bg-slate-950 border border-slate-800 rounded-lg text-slate-200 text-sm p-2 focus:ring-indigo-500">
-                <option>All Time</option>
-                <option>Last Hour</option>
-                <option>Last 24 Hours</option>
-                <option>Custom Range...</option>
-              </select>
+            <div className="pt-4 border-t border-[var(--st-border)]">
+              <Field label="Time Range">
+                <Select value={timeRange} onValueChange={setTimeRange}>
+                  <SelectTrigger aria-label="Time range">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="hour">Last Hour</SelectItem>
+                    <SelectItem value="day">Last 24 Hours</SelectItem>
+                    <SelectItem value="custom">Custom Range...</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
             </div>
-            <div className="pt-4 border-t border-slate-800">
-              <Button variant="outline" className="w-full" icon={<Search size={14} />}>Search Logs</Button>
+            <div className="pt-4 border-t border-[var(--st-border)]">
+              <Button variant="outline" block iconLeft={Search}>Search Logs</Button>
             </div>
           </div>
         </Card>
       </div>
 
-      <Card className="flex-1 overflow-y-auto relative p-8">
-        <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800 sticky top-0 bg-slate-900 z-20">
-          <h2 className="text-xl font-bold text-white">Incident Timeline</h2>
-          <Button variant="primary" icon={<Plus size={16} />}>Add Manual Event</Button>
+      <Card className="flex-1 overflow-y-auto relative" padding="lg">
+        <div className="flex justify-between items-center mb-8 pb-4 border-b border-[var(--st-border)] sticky top-0 bg-[var(--st-bg)] z-20">
+          <h2 className="text-xl font-bold text-[var(--st-text)]">Incident Timeline</h2>
+          <Button variant="primary" iconLeft={Plus}>Add Manual Event</Button>
         </div>
 
         <div className="relative pl-8 sm:pl-32 py-6 group">
           {/* Vertical Line */}
-          <div className="absolute top-0 bottom-0 left-8 sm:left-32 w-px bg-slate-800 transform -translate-x-1/2"></div>
-          
+          <div className="absolute top-0 bottom-0 left-8 sm:left-32 w-px bg-[var(--st-border)] -translate-x-1/2" />
+
           <div className="space-y-12">
             {[...MOCK_TIMELINE, ...MOCK_TIMELINE].map((event, i) => {
-              
-              let Icon = Activity;
-              let color = 'bg-blue-500';
-              if (event.type === 'alert') { Icon = AlertTriangle; color = 'bg-red-500'; }
-              if (event.type === 'chat') { Icon = MessageSquare; color = 'bg-purple-500'; }
-              if (event.type === 'commit') { Icon = Code; color = 'bg-emerald-500'; }
-              
+              let Icon: LucideIcon = Activity;
+              let nodeTone = 'var(--st-accent)';
+              if (event.type === 'alert') { Icon = AlertTriangle; nodeTone = 'var(--st-danger)'; }
+              if (event.type === 'chat') { Icon = MessageSquare; nodeTone = 'var(--st-accent)'; }
+              if (event.type === 'commit') { Icon = Code; nodeTone = 'var(--st-status-ok)'; }
+
               return (
                 <div key={i} className="relative group/item">
                   {/* Timestamp */}
-                  <div className="absolute left-0 sm:-left-24 top-1 text-sm font-mono text-slate-500 sm:text-right w-20 hidden sm:block">
+                  <div className="absolute left-0 sm:-left-24 top-1 text-sm font-mono text-[var(--st-text-tertiary)] sm:text-right w-20 hidden sm:block">
                     {event.time}
                   </div>
-                  
-                  {/* Node */}
-                  <div className={`absolute left-0 sm:left-0 top-1 w-8 h-8 rounded-full border-4 border-slate-900 ${color} flex items-center justify-center transform -translate-x-1/2 shadow-lg z-10 group-hover/item:scale-110 transition-transform`}>
-                    <Icon size={12} className="text-white" />
+
+                  {/* Node (runtime tone color) */}
+                  <div
+                    className="absolute left-0 sm:left-0 top-1 w-8 h-8 rounded-full border-4 border-[var(--st-bg)] flex items-center justify-center -translate-x-1/2 z-10 group-hover/item:scale-110 transition-transform"
+                    style={{ background: nodeTone }}
+                  >
+                    <Icon size={12} className="text-[var(--st-text-inverted)]" aria-hidden="true" />
                   </div>
-                  
+
                   {/* Content Card */}
                   <div className="pl-6 sm:pl-10">
-                    <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl shadow-sm hover:border-slate-700 transition-colors">
+                    <div className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] p-4 rounded-[var(--st-radius-lg)] hover:border-[var(--st-border-strong)] transition-colors">
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="text-base font-bold text-white">{event.title}</h4>
-                        <button className="text-slate-500 hover:text-slate-300 opacity-0 group-hover/item:opacity-100 transition-opacity"><Edit2 size={14} /></button>
+                        <h4 className="text-base font-bold text-[var(--st-text)]">{event.title}</h4>
+                        <IconButton label={`Edit ${event.title}`} icon={Edit2} size="sm" className="opacity-0 group-hover/item:opacity-100 transition-opacity" />
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-400">
-                        <span className="flex items-center gap-1.5"><Users size={14} /> {event.user}</span>
-                        <span>•</span>
+                      <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                        <span className="flex items-center gap-1.5"><Users size={14} aria-hidden="true" /> {event.user}</span>
+                        <span>-</span>
                         <span className="capitalize">{event.type} Source</span>
                       </div>
-                      
-                      {/* Conditional Extra Content based on type */}
+
                       {event.type === 'commit' && (
-                        <div className="mt-3 bg-slate-900 p-3 rounded-lg border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto">
-                          $ git revert HEAD~1 <br/>
-                          [main 4f8b9d] Revert "Add composite index to tx table"<br/>
+                        <div className="mt-3 bg-[var(--st-bg)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] font-mono text-xs text-[var(--st-text)] overflow-x-auto">
+                          $ git revert HEAD~1 <br />
+                          [main 4f8b9d] Revert "Add composite index to tx table"<br />
                           1 file changed, 1 insertion(+), 15 deletions(-)
                         </div>
                       )}
                       {event.type === 'alert' && (
-                        <div className="mt-3 bg-red-950/30 p-3 rounded-lg border border-red-900/50 text-xs text-red-200">
-                          <strong>Trigger:</strong> avg(last_5m):system.cpu.system{'{host:db-primary-east}'} {'>'} 95<br/>
+                        <div className="mt-3 bg-[var(--st-danger-soft)] p-3 rounded-[var(--st-radius)] border border-[var(--st-danger)]/30 text-xs text-[var(--st-danger)]">
+                          <strong>Trigger:</strong> avg(last_5m):system.cpu.system{'{host:db-primary-east}'} {'>'} 95<br />
                           <strong>Value:</strong> 99.4%
                         </div>
                       )}
@@ -953,8 +920,8 @@ const IncidentTimeline = () => {
               );
             })}
           </div>
-          
-          <div className="absolute bottom-0 left-8 sm:left-32 w-4 h-4 rounded-full border-2 border-slate-800 bg-slate-900 transform -translate-x-1/2 translate-y-1/2"></div>
+
+          <div className="absolute bottom-0 left-8 sm:left-32 w-4 h-4 rounded-full border-2 border-[var(--st-border)] bg-[var(--st-bg)] -translate-x-1/2 translate-y-1/2" />
         </div>
       </Card>
     </div>
@@ -967,89 +934,88 @@ const IncidentTimeline = () => {
 // ============================================================================
 
 const RadioWaveIcon = () => (
-  <div className="relative flex h-3 w-3 mr-2">
-    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-  </div>
+  <span className="relative flex h-3 w-3 mr-2" aria-hidden="true">
+    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-danger)] opacity-75" />
+    <span className="relative inline-flex rounded-full h-3 w-3 bg-[var(--st-danger)]" />
+  </span>
 );
 
 export default function IncidentManagementPage() {
   const [activeView, setActiveView] = useState('overview');
 
-  const navItems = [
-    { id: 'overview', label: 'Overview Dashboard', icon: <Layout size={18} /> },
-    { id: 'warroom', label: 'Active War Rooms', icon: <RadioWaveIcon /> },
-    { id: 'statuspage', label: 'Status Pages', icon: <Globe size={18} /> },
-    { id: 'rca', label: 'RCA & Post-Mortems', icon: <FileText size={18} /> },
-    { id: 'timeline', label: 'Global Timeline', icon: <Clock size={18} /> },
-    { id: 'settings', label: 'Settings & Routing', icon: <Settings size={18} /> },
+  const navItems: Array<{ id: string; label: string; icon: LucideIcon | 'wave' }> = [
+    { id: 'overview', label: 'Overview Dashboard', icon: Layout },
+    { id: 'warroom', label: 'Active War Rooms', icon: 'wave' },
+    { id: 'statuspage', label: 'Status Pages', icon: Globe },
+    { id: 'rca', label: 'RCA & Post-Mortems', icon: FileText },
+    { id: 'timeline', label: 'Global Timeline', icon: Clock },
+    { id: 'settings', label: 'Settings & Routing', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500/30 flex flex-col font-sans">
-      
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+
       {/* TOPBAR */}
-      <header className="h-16 border-b border-slate-800 bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-50">
+      <header className="h-16 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between px-6 sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Shield size={18} className="text-white" />
-          </div>
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SabDesk Incident Mgmt</h1>
+          <span className="w-8 h-8 bg-[var(--st-accent)] rounded-[var(--st-radius)] flex items-center justify-center" aria-hidden="true">
+            <Shield size={18} className="text-[var(--st-text-inverted)]" />
+          </span>
+          <h1 className="text-xl font-bold text-[var(--st-text)]">SabDesk Incident Mgmt</h1>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
-            <input 
-              type="text" 
-              placeholder="Search incidents, logs (⌘K)" 
-              className="pl-9 pr-4 py-1.5 bg-slate-900 border border-slate-800 rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-slate-200 placeholder-slate-500"
-            />
+          <div className="hidden md:block w-64">
+            <Field label="" className="!gap-0">
+              <Input iconLeft={Search} placeholder="Search incidents, logs" aria-label="Search incidents and logs" />
+            </Field>
           </div>
-          <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
-            <Bell size={20} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-slate-950"></span>
-          </button>
-          <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-bold text-indigo-400 cursor-pointer overflow-hidden">
-             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-full h-full object-cover" />
-          </div>
+          <IconButton label="Notifications" icon={Bell} variant="ghost" />
+          <Avatar name="Felix" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" />
         </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden">
         {/* SIDEBAR NAVIGATION */}
-        <aside className="w-64 border-r border-slate-800 bg-slate-950/50 hidden md:flex flex-col py-6">
+        <aside className="w-64 border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] hidden md:flex flex-col py-6">
           <nav className="flex-1 space-y-1 px-3">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveView(item.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeView === item.id 
-                    ? 'bg-indigo-600/10 text-indigo-400' 
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                }`}
-              >
-                <div className={`${activeView === item.id ? 'text-indigo-400' : 'text-slate-500'}`}>
-                  {item.icon}
-                </div>
-                {item.label}
-              </button>
-            ))}
+            {navItems.map((item) => {
+              const isActive = activeView === item.id;
+              return (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  block
+                  onClick={() => setActiveView(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`!justify-start ${
+                    isActive
+                      ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
+                      : 'text-[var(--st-text-secondary)]'
+                  }`}
+                >
+                  {item.icon === 'wave' ? (
+                    <RadioWaveIcon />
+                  ) : (
+                    <item.icon size={18} className={isActive ? 'text-[var(--st-accent)]' : 'text-[var(--st-text-tertiary)]'} aria-hidden="true" />
+                  )}
+                  {item.label}
+                </Button>
+              );
+            })}
           </nav>
-          
+
           <div className="px-6 mt-auto">
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-indigo-500/20 to-transparent rounded-bl-full pointer-events-none"></div>
-              <h4 className="text-sm font-bold text-white mb-1">On-Call Engineer</h4>
-              <p className="text-xs text-slate-400 mb-3">Alice Smith (Tier 1)</p>
-              <Button variant="primary" size="sm" className="w-full" icon={<Phone size={14} />}>Page Now</Button>
+            <div className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] p-4 relative overflow-hidden">
+              <h4 className="text-sm font-bold text-[var(--st-text)] mb-1">On-Call Engineer</h4>
+              <p className="text-xs text-[var(--st-text-secondary)] mb-3">Alice Smith (Tier 1)</p>
+              <Button variant="primary" size="sm" block iconLeft={Phone}>Page Now</Button>
             </div>
           </div>
         </aside>
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto p-6 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-slate-950">
+        <main className="flex-1 overflow-y-auto p-6 bg-[var(--st-bg)]">
           <div className="max-w-[1600px] mx-auto">
             {activeView === 'overview' && <OverviewDashboard />}
             {activeView === 'warroom' && <WarRoom />}
@@ -1057,10 +1023,12 @@ export default function IncidentManagementPage() {
             {activeView === 'rca' && <RCAPostMortemEditor />}
             {activeView === 'timeline' && <IncidentTimeline />}
             {activeView === 'settings' && (
-              <div className="flex items-center justify-center h-full text-slate-500 flex-col animate-in fade-in">
-                <Settings size={48} className="mb-4 opacity-50" />
-                <h2 className="text-xl font-semibold text-slate-300">Settings Module</h2>
-                <p>Advanced routing and integration configurations loading...</p>
+              <div className="flex items-center justify-center h-full animate-in fade-in">
+                <EmptyState
+                  icon={Settings}
+                  title="Settings Module"
+                  description="Advanced routing and integration configurations loading..."
+                />
               </div>
             )}
           </div>

@@ -1,23 +1,37 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, Input, Label, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  Check,
-  Copy,
-  Download,
-  Eye,
-  ExternalLink,
-  FileAudio,
-  File as FileIcon,
-  FileImage,
-  FileText,
-  FileVideo,
-  Info,
-  KeyRound,
-  Link2,
-  Lock,
-  ShieldCheck,
-  } from 'lucide-react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Field,
+    Input,
+    PageActions,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    Check,
+    Copy,
+    Download,
+    Eye,
+    ExternalLink,
+    FileAudio,
+    File as FileIcon,
+    FileImage,
+    FileText,
+    FileVideo,
+    Info,
+    KeyRound,
+    Link2,
+    Lock,
+    ShieldCheck,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -32,12 +46,15 @@ import {
 } from '@/lib/sabfiles/share-ui';
 
 function previewIcon(mime?: string, className = 'h-14 w-14'): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className={cn(className, 'text-violet-500')} />;
-    if (mime?.startsWith('video/')) return <FileVideo className={cn(className, 'text-rose-500')} />;
-    if (mime?.startsWith('audio/')) return <FileAudio className={cn(className, 'text-emerald-500')} />;
+    if (mime?.startsWith('image/'))
+        return <FileImage className={cn(className, 'text-violet-500')} aria-hidden="true" />;
+    if (mime?.startsWith('video/'))
+        return <FileVideo className={cn(className, 'text-rose-500')} aria-hidden="true" />;
+    if (mime?.startsWith('audio/'))
+        return <FileAudio className={cn(className, 'text-emerald-500')} aria-hidden="true" />;
     if (mime?.includes('text') || mime?.includes('pdf'))
-        return <FileText className={cn(className, 'text-sky-500')} />;
-    return <FileIcon className={cn(className, 'text-[var(--st-text-secondary)]')} />;
+        return <FileText className={cn(className, 'text-sky-500')} aria-hidden="true" />;
+    return <FileIcon className={cn(className, 'text-[var(--st-text-secondary)]')} aria-hidden="true" />;
 }
 
 function typeLabel(view: PublicShareView): string {
@@ -122,12 +139,12 @@ export function ShareLanding({
         try {
             const res = await fetchPublicDownloadUrl(token, password);
             if ('error' in res) {
-                toast({ title: 'Could not download', description: res.error, variant: 'destructive' });
+                toast({ title: 'Could not download', description: res.error, tone: 'danger' });
                 return;
             }
             window.location.href = res.url;
         } catch (error) {
-            toast({ title: 'Could not download', variant: 'destructive' });
+            toast.error('Could not download');
         } finally {
             setBusy(false);
         }
@@ -138,17 +155,17 @@ export function ShareLanding({
             typeof window !== 'undefined' ? window.location.href : `/share/${token}`;
 
         if (!navigator.clipboard) {
-            toast({ title: 'Copy failed', variant: 'destructive' });
+            toast.error('Copy failed');
             return;
         }
 
         navigator.clipboard.writeText(currentShareUrl).then(
             () => {
                 setCopied(true);
-                toast({ title: 'Share link copied' });
+                toast.success('Share link copied');
                 window.setTimeout(() => setCopied(false), 1600);
             },
-            () => toast({ title: 'Copy failed', variant: 'destructive' }),
+            () => toast.error('Copy failed'),
         );
     };
 
@@ -156,46 +173,58 @@ export function ShareLanding({
         if (event.key === 'Enter') void onDownload();
     };
 
+    const openInNewTab = (url: string) => {
+        if (typeof window !== 'undefined') {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    };
+
     return (
-        <main className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <main className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 pb-4">
-                    <div className="min-w-0 flex-1">
+                <PageHeader className="flex flex-wrap items-end justify-between gap-3">
+                    <PageHeaderHeading className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                             <span className="font-semibold text-[var(--st-text)]">SabFiles</span>
                             <Badge variant={view.password_protected ? 'warning' : 'success'}>
-                                {view.password_protected ? <KeyRound /> : <ShieldCheck />}
+                                {view.password_protected ? (
+                                    <KeyRound size={12} aria-hidden="true" />
+                                ) : (
+                                    <ShieldCheck size={12} aria-hidden="true" />
+                                )}
                                 {view.password_protected ? 'Password protected' : 'Ready to view'}
                             </Badge>
-                            <Badge variant={view.download_enabled ? 'info' : 'ghost'}>
-                                {view.download_enabled ? <Download /> : <Eye />}
+                            <Badge variant={view.download_enabled ? 'info' : 'secondary'}>
+                                {view.download_enabled ? (
+                                    <Download size={12} aria-hidden="true" />
+                                ) : (
+                                    <Eye size={12} aria-hidden="true" />
+                                )}
                                 {view.download_enabled ? 'Download enabled' : 'View only'}
                             </Badge>
                         </div>
-                        <h1 className="mt-2 break-words text-2xl font-semibold tracking-normal text-[var(--st-text)] sm:text-3xl">
-                            {view.name}
-                        </h1>
-                        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                        <PageTitle className="mt-2 break-words">{view.name}</PageTitle>
+                        <PageDescription className="mt-2 flex flex-wrap items-center gap-2">
                             <span>{typeLabel(view)}</span>
                             <span aria-hidden="true">/</span>
                             <span>{fileSize}</span>
                             <span aria-hidden="true">/</span>
                             <span>{accessLabel}</span>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
+                        </PageDescription>
+                    </PageHeaderHeading>
+                    <PageActions>
                         <Button variant="outline" onClick={onCopy}>
                             {copied ? <Check /> : <Copy />}
                             {copied ? 'Copied' : 'Copy link'}
                         </Button>
                         {view.download_enabled && view.type === 'file' && (
-                            <Button onClick={onDownload} disabled={busy}>
+                            <Button variant="primary" onClick={onDownload} disabled={busy} loading={busy}>
                                 <Download />
                                 {busy ? 'Preparing...' : 'Download'}
                             </Button>
                         )}
-                    </div>
-                </header>
+                    </PageActions>
+                </PageHeader>
 
                 <section className="grid flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
                     <section className="min-w-0 overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]">
@@ -216,15 +245,19 @@ export function ShareLanding({
                             <div className="flex items-center gap-2">
                                 <Badge variant="secondary">{previewKind}</Badge>
                                 {previewUrl && (
-                                    <Button variant="ghost" size="sm" asChild>
-                                        <a
-                                            href={previewKind === 'office' ? officePreviewUrl(previewUrl) : previewUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            <ExternalLink />
-                                            Open
-                                        </a>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                            openInNewTab(
+                                                previewKind === 'office'
+                                                    ? officePreviewUrl(previewUrl)
+                                                    : previewUrl,
+                                            )
+                                        }
+                                    >
+                                        <ExternalLink />
+                                        Open
                                     </Button>
                                 )}
                             </div>
@@ -275,7 +308,8 @@ export function ShareLanding({
                                         <p className="mt-1 text-sm leading-6 text-[var(--st-text-secondary)]">
                                             {view.password_protected && !password
                                                 ? 'Enter the share password to show the preview.'
-                                                : previewError || 'This file type does not have an inline preview. Use the action panel to download it when downloads are allowed.'}
+                                                : previewError ||
+                                                  'This file type does not have an inline preview. Use the action panel to download it when downloads are allowed.'}
                                         </p>
                                     </div>
                                 </div>
@@ -289,7 +323,7 @@ export function ShareLanding({
                     </section>
 
                     <aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
-                        <Card className="p-0">
+                        <Card padding="none">
                             <CardBody className="flex flex-col gap-4 p-4">
                                 <div>
                                     <div className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
@@ -301,11 +335,15 @@ export function ShareLanding({
                                 </div>
 
                                 {view.password_protected && (
-                                    <div className="grid gap-2">
-                                        <Label>
-                                            <Lock className="mr-1 inline h-3.5 w-3.5" />
-                                            Password required
-                                        </Label>
+                                    <Field
+                                        label={
+                                            <span className="inline-flex items-center gap-1">
+                                                <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+                                                Password required
+                                            </span>
+                                        }
+                                        help="Enter the owner-provided password before previewing or downloading."
+                                    >
                                         <Input
                                             type="password"
                                             value={password}
@@ -313,15 +351,14 @@ export function ShareLanding({
                                             onKeyDown={onPasswordKeyDown}
                                             placeholder="Enter password"
                                         />
-                                        <p className="text-xs leading-5 text-[var(--st-text-secondary)]">
-                                            Enter the owner-provided password before previewing or downloading.
-                                        </p>
-                                    </div>
+                                    </Field>
                                 )}
 
                                 <Button
+                                    variant="primary"
                                     onClick={onDownload}
                                     disabled={busy || !view.download_enabled || view.type !== 'file'}
+                                    loading={busy}
                                     block
                                 >
                                     <Download />
@@ -332,21 +369,25 @@ export function ShareLanding({
                                     {copied ? 'Copied' : 'Copy share link'}
                                 </Button>
                                 {previewUrl && (
-                                    <Button variant="ghost" asChild block>
-                                        <a
-                                            href={previewKind === 'office' ? officePreviewUrl(previewUrl) : previewUrl}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            <ExternalLink />
-                                            Open preview
-                                        </a>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() =>
+                                            openInNewTab(
+                                                previewKind === 'office'
+                                                    ? officePreviewUrl(previewUrl)
+                                                    : previewUrl,
+                                            )
+                                        }
+                                        block
+                                    >
+                                        <ExternalLink />
+                                        Open preview
                                     </Button>
                                 )}
                             </CardBody>
                         </Card>
 
-                        <Card className="p-0">
+                        <Card padding="none">
                             <CardBody className="p-4">
                                 <div className="mb-3 text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
                                     File details
@@ -370,7 +411,7 @@ export function ShareLanding({
                             )}
                         >
                             <div className="mb-1 flex items-center gap-2 font-medium text-[var(--st-text)]">
-                                <Info className="h-4 w-4" />
+                                <Info className="h-4 w-4" aria-hidden="true" />
                                 Secure share note
                             </div>
                             Only people with this link can view this page. Password protected links

@@ -1,26 +1,57 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button, Checkbox, ColorPicker, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, IconPicker, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Checkbox,
+  ColorPicker,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  IconButton,
+  IconPicker,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Switch,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Textarea,
+  cn,
+  useToast,
+  type BadgeTone,
+} from "@/components/sabcrm/20ui";
 import { EntityFormField } from "@/components/crm/entity-form-field";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import {
-  Download,
-  Edit,
-  LifeBuoy,
-  LoaderCircle,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { Download, Edit, LoaderCircle, Plus, Trash2, X } from "lucide-react";
 
 /**
- * Ticket Groups — settings-style list (mirrors the Account Groups page).
+ * Ticket Groups - settings-style list (mirrors the Account Groups page).
  *
  * Inline-create / edit dialog with parent-group selector (populated from
- * the same list), default-assignee + default-SLA ObjectId text inputs
- * (no embedded picker — see "Gaps" in the implementation report), color
- * + icon, description, and active toggle. Search + status filter on top.
+ * the same list), default-assignee + default-SLA pickers, color + icon,
+ * description, and active toggle. Search + status filter on top.
  *
  * Reads/writes route through `crm-ticket-groups.actions.ts`, which is a
  * thin shim over the Rust BFF at `/v1/crm/ticket-groups`.
@@ -29,7 +60,6 @@ import {
 import * as React from "react";
 
 import { EntityListShell } from "@/components/crm/entity-list-shell";
-import { StatusPill, type StatusTone } from "@/components/crm/status-pill";
 
 import {
   deleteTicketGroup,
@@ -46,16 +76,15 @@ type StatusFilter = "all" | CrmTicketGroupStatus;
 
 const saveInitialState: SaveTicketGroupState = {};
 
-const STATUS_TONE: Record<CrmTicketGroupStatus, StatusTone> = {
-  active: "green",
+const STATUS_TONE: Record<CrmTicketGroupStatus, BadgeTone> = {
+  active: "success",
   archived: "neutral",
 };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <Button type="submit" variant="primary" loading={pending} disabled={pending}>
       {isEditing ? "Save changes" : "Create group"}
     </Button>
   );
@@ -111,16 +140,12 @@ function TicketGroupDialog({
 
   React.useEffect(() => {
     if (state.message) {
-      toast({ title: "Success", description: state.message });
+      toast({ title: "Success", description: state.message, tone: "success" });
       onSave();
       onOpenChange(false);
     }
     if (state.error) {
-      toast({
-        title: "Error",
-        description: state.error,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: state.error, tone: "danger" });
     }
     // We only want to react to a fresh server-action result.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,7 +165,7 @@ function TicketGroupDialog({
           {isEditing ? (
             <input type="hidden" name="_id" value={String(initialData!._id)} />
           ) : null}
-          {/* Switch doesn't post a value — mirror it into a hidden input */}
+          {/* Switch doesn't post a value - mirror it into a hidden input */}
           <input
             type="hidden"
             name="isActive"
@@ -165,30 +190,26 @@ function TicketGroupDialog({
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+          <div className="flex flex-col gap-4 py-4">
+            <Field label="Name" required>
               <Input
-                id="name"
                 name="name"
                 placeholder="e.g. Billing Issues"
                 required
                 defaultValue={initialData?.name}
               />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+            <Field label="Description">
               <Textarea
-                id="description"
                 name="description"
                 placeholder="What kinds of tickets land in this group?"
                 rows={2}
                 defaultValue={initialData?.description ?? ""}
               />
-            </div>
+            </Field>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="parentGroupId">Parent group</Label>
               <Select
                 value={parentGroupId || "__none__"}
@@ -200,9 +221,7 @@ function TicketGroupDialog({
                   <SelectValue placeholder="No parent" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">
-                    — No parent —
-                  </SelectItem>
+                  <SelectItem value="__none__">No parent</SelectItem>
                   {filteredParentOptions.map((g) => (
                     <SelectItem key={g._id} value={g._id}>
                       {g.name}
@@ -213,40 +232,40 @@ function TicketGroupDialog({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 <Label>Default assignee</Label>
                 <EntityFormField
                   entity="user"
                   name="__defaultAssigneeId_picker"
                   initialId={defaultAssigneeId || null}
                   onChange={(id) => setDefaultAssigneeId(id ?? "")}
-                  placeholder="Pick a user…"
+                  placeholder="Pick a user"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 <Label>Default SLA</Label>
                 <EntityFormField
                   entity="sla"
                   name="__defaultSlaId_picker"
                   initialId={defaultSlaId || null}
                   onChange={(id) => setDefaultSlaId(id ?? "")}
-                  placeholder="Pick an SLA…"
+                  placeholder="Pick an SLA"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 <Label>Color</Label>
                 <ColorPicker value={color} onChange={setColor} />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 <Label>Icon</Label>
                 <IconPicker value={icon} onChange={setIcon} color={color} />
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2">
+            <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2">
               <div className="flex flex-col">
                 <Label htmlFor="isActiveToggle">Active</Label>
                 <span className="text-xs text-[var(--st-text-secondary)]">
@@ -257,11 +276,12 @@ function TicketGroupDialog({
                 id="isActiveToggle"
                 checked={isActive}
                 onCheckedChange={setIsActive}
+                aria-label="Active"
               />
             </div>
 
             {isEditing ? (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="statusSelect">Status</Label>
                 <Select
                   value={status}
@@ -297,14 +317,15 @@ function TicketGroupDialog({
 
 function ColorSwatch({ color }: { color?: string }) {
   if (!color) {
-    return <span className="text-xs text-[var(--st-text-secondary)]">—</span>;
+    return <span className="text-xs text-[var(--st-text-secondary)]">-</span>;
   }
   return (
     <span className="inline-flex items-center gap-2">
       <span
         className="inline-block h-4 w-4 rounded-full border border-[var(--st-border)]"
+        // Runtime, user-picked color value.
         style={{ backgroundColor: color }}
-        aria-hidden
+        aria-hidden="true"
       />
       <span className="font-mono text-xs text-[var(--st-text)]">{color}</span>
     </span>
@@ -348,7 +369,7 @@ export default function TicketGroupsPage() {
       toast({
         title: "Failed to load",
         description: res.error,
-        variant: "destructive",
+        tone: "danger",
       });
     }
     setGroups(res.groups);
@@ -359,7 +380,7 @@ export default function TicketGroupsPage() {
     void refresh();
   }, [refresh]);
 
-  // Map id → group for quick parent-name lookups in the table.
+  // Map id -> group for quick parent-name lookups in the table.
   const byId = React.useMemo(() => {
     const map = new Map<string, CrmTicketGroupDoc>();
     for (const g of groups) map.set(String(g._id), g);
@@ -387,7 +408,7 @@ export default function TicketGroupsPage() {
     startDeleteTransition(async () => {
       const result = await deleteTicketGroup(id);
       if (result.success) {
-        toast({ title: "Group deleted" });
+        toast({ title: "Group deleted", tone: "success" });
         setPendingDelete(null);
         setSelected((prev) => {
           const next = new Set(prev);
@@ -399,7 +420,7 @@ export default function TicketGroupsPage() {
         toast({
           title: "Error",
           description: result.error,
-          variant: "destructive",
+          tone: "danger",
         });
       }
     });
@@ -420,7 +441,7 @@ export default function TicketGroupsPage() {
       toast({
         title: "Bulk delete",
         description: `${ok} removed${failed ? `, ${failed} failed` : ""}.`,
-        variant: failed > 0 ? "destructive" : undefined,
+        tone: failed > 0 ? "danger" : "neutral",
       });
       await refresh();
     });
@@ -432,7 +453,7 @@ export default function TicketGroupsPage() {
         ? filtered.filter((g) => selected.has(String(g._id)))
         : filtered;
     if (!src.length) {
-      toast({ title: "Nothing to export" });
+      toast({ title: "Nothing to export", tone: "neutral" });
       return;
     }
     const csv = buildGroupsCsv(src);
@@ -460,6 +481,11 @@ export default function TicketGroupsPage() {
     [groups],
   );
 
+  const allSelected =
+    filtered.length > 0 &&
+    filtered.every((g) => selected.has(String(g._id)));
+  const someSelected = filtered.some((g) => selected.has(String(g._id)));
+
   return (
     <>
       <TicketGroupDialog
@@ -477,21 +503,21 @@ export default function TicketGroupsPage() {
           title="Ticket Groups"
           subtitle="Organize support tickets by team, product, or domain."
           primaryAction={
-            <Button onClick={() => handleOpenDialog(null)}>
-              <Plus className="mr-1.5 h-3.5 w-3.5" /> New Group
+            <Button variant="primary" iconLeft={Plus} onClick={() => handleOpenDialog(null)}>
+              New Group
             </Button>
           }
           search={{
             value: search,
             onChange: setSearch,
-            placeholder: "Search groups…",
+            placeholder: "Search groups",
           }}
           filters={
             <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as StatusFilter)}
             >
-              <SelectTrigger className="h-9 w-[160px]">
+              <SelectTrigger className="h-9 w-[160px]" aria-label="Status filter">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -511,23 +537,27 @@ export default function TicketGroupsPage() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  iconLeft={Trash2}
                   disabled={bulkDeleting}
                   onClick={handleBulkDelete}
                 >
-                  <Trash2 className="h-3.5 w-3.5 text-[var(--st-danger)]" />
                   Delete
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleExportCsv}>
-                  <Download className="h-3.5 w-3.5" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Download}
+                  onClick={handleExportCsv}
+                >
                   Export CSV
                 </Button>
                 <span className="ml-auto" />
                 <Button
                   variant="ghost"
                   size="sm"
+                  iconLeft={X}
                   onClick={() => setSelected(new Set())}
                 >
-                  <X className="h-3.5 w-3.5" />
                   Clear
                 </Button>
               </div>
@@ -538,34 +568,44 @@ export default function TicketGroupsPage() {
           <div className="flex flex-col gap-4">
             {/* KPI strip */}
             <div className="grid grid-cols-3 gap-3">
-              <button
-                type="button"
-                className="text-left"
+              <StatCard
+                label="Total groups"
+                value={kpis.total.toLocaleString()}
+                role="button"
+                tabIndex={0}
+                aria-pressed={statusFilter === "all"}
                 onClick={() => setStatusFilter("all")}
-              >
-                <StatCard
-                  label="Total groups"
-                  value={kpis.total.toLocaleString()}
-                  className={cn(
-                    statusFilter === "all" &&
-                      "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
-                  )}
-                />
-              </button>
-              <button
-                type="button"
-                className="text-left"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setStatusFilter("all");
+                  }
+                }}
+                className={cn(
+                  "cursor-pointer text-left",
+                  statusFilter === "all" &&
+                    "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
+                )}
+              />
+              <StatCard
+                label="Active"
+                value={kpis.active.toLocaleString()}
+                role="button"
+                tabIndex={0}
+                aria-pressed={statusFilter === "active"}
                 onClick={() => setStatusFilter("active")}
-              >
-                <StatCard
-                  label="Active"
-                  value={kpis.active.toLocaleString()}
-                  className={cn(
-                    statusFilter === "active" &&
-                      "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
-                  )}
-                />
-              </button>
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setStatusFilter("active");
+                  }
+                }}
+                className={cn(
+                  "cursor-pointer text-left",
+                  statusFilter === "active" &&
+                    "ring-1 ring-[var(--st-text)] rounded-[var(--st-radius-lg)]",
+                )}
+              />
               <StatCard
                 label="Avg tickets / group"
                 value={kpis.avgTickets.toLocaleString()}
@@ -578,32 +618,26 @@ export default function TicketGroupsPage() {
                 <Button
                   variant="outline"
                   size="sm"
+                  iconLeft={Download}
                   onClick={handleExportCsv}
                   disabled={filtered.length === 0}
                 >
-                  <Download className="mr-1 h-3.5 w-3.5" />
                   Export CSV
                 </Button>
               </div>
             ) : null}
 
-            <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+            <div className="overflow-x-auto rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
               <Table>
                 <THead>
-                  <Tr className="border-[var(--st-border)] hover:bg-transparent">
+                  <Tr>
                     <Th className="w-10">
                       <Checkbox
-                        checked={
-                          filtered.length > 0 &&
-                          filtered.every((g) => selected.has(String(g._id)))
-                            ? true
-                            : filtered.some((g) => selected.has(String(g._id)))
-                              ? "indeterminate"
-                              : false
-                        }
-                        onCheckedChange={(v) =>
+                        checked={allSelected}
+                        indeterminate={someSelected && !allSelected}
+                        onChange={(e) =>
                           setSelected(
-                            v === true
+                            e.target.checked
                               ? new Set(filtered.map((g) => String(g._id)))
                               : new Set(),
                           )
@@ -611,44 +645,32 @@ export default function TicketGroupsPage() {
                         aria-label="Select all"
                       />
                     </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Name
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Parent Group
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Default Assignee
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Default SLA
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Color
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)] text-right">
-                      Tickets
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)]">
-                      Status
-                    </Th>
-                    <Th className="text-[var(--st-text-secondary)] text-right">
-                      Actions
-                    </Th>
+                    <Th>Name</Th>
+                    <Th>Parent Group</Th>
+                    <Th>Default Assignee</Th>
+                    <Th>Default SLA</Th>
+                    <Th>Color</Th>
+                    <Th align="right">Tickets</Th>
+                    <Th>Status</Th>
+                    <Th align="right">Actions</Th>
                   </Tr>
                 </THead>
                 <TBody>
                   {isLoading ? (
-                    <Tr className="border-[var(--st-border)]">
-                      <Td colSpan={9} className="h-24 text-center">
-                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" />
+                    <Tr>
+                      <Td colSpan={9} align="center" className="h-24">
+                        <LoaderCircle
+                          className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]"
+                          aria-hidden="true"
+                        />
                       </Td>
                     </Tr>
                   ) : filtered.length === 0 ? (
-                    <Tr className="border-[var(--st-border)]">
+                    <Tr>
                       <Td
                         colSpan={9}
-                        className="h-24 text-center text-[var(--st-text-secondary)]"
+                        align="center"
+                        className="h-24 text-[var(--st-text-secondary)]"
                       >
                         No ticket groups match this filter.
                       </Td>
@@ -658,21 +680,15 @@ export default function TicketGroupsPage() {
                       const parent = g.parentGroupId
                         ? byId.get(g.parentGroupId)
                         : null;
+                      const id = String(g._id);
                       return (
-                        <Tr
-                          key={String(g._id)}
-                          className={cn(
-                            "border-[var(--st-border)]",
-                            selected.has(String(g._id)) && "bg-[var(--st-bg-secondary)]",
-                          )}
-                        >
+                        <Tr key={id} selected={selected.has(id)}>
                           <Td>
                             <Checkbox
-                              checked={selected.has(String(g._id))}
-                              onCheckedChange={() =>
+                              checked={selected.has(id)}
+                              onChange={() =>
                                 setSelected((prev) => {
                                   const next = new Set(prev);
-                                  const id = String(g._id);
                                   if (next.has(id)) next.delete(id);
                                   else next.add(id);
                                   return next;
@@ -699,10 +715,12 @@ export default function TicketGroupsPage() {
                                 className="font-mono text-xs text-[var(--st-text-secondary)]"
                                 title={g.parentGroupId}
                               >
-                                {g.parentGroupId.slice(0, 8)}…
+                                {g.parentGroupId.slice(0, 8)}
                               </span>
                             ) : (
-                              <span className="text-[var(--st-text-secondary)]">—</span>
+                              <span className="text-[var(--st-text-secondary)]">
+                                -
+                              </span>
                             )}
                           </Td>
                           <Td>
@@ -711,10 +729,12 @@ export default function TicketGroupsPage() {
                                 className="font-mono text-xs text-[var(--st-text)]"
                                 title={g.defaultAssigneeId}
                               >
-                                {g.defaultAssigneeId.slice(0, 8)}…
+                                {g.defaultAssigneeId.slice(0, 8)}
                               </span>
                             ) : (
-                              <span className="text-[var(--st-text-secondary)]">—</span>
+                              <span className="text-[var(--st-text-secondary)]">
+                                -
+                              </span>
                             )}
                           </Td>
                           <Td>
@@ -723,41 +743,38 @@ export default function TicketGroupsPage() {
                                 className="font-mono text-xs text-[var(--st-text)]"
                                 title={g.defaultSlaId}
                               >
-                                {g.defaultSlaId.slice(0, 8)}…
+                                {g.defaultSlaId.slice(0, 8)}
                               </span>
                             ) : (
-                              <span className="text-[var(--st-text-secondary)]">—</span>
+                              <span className="text-[var(--st-text-secondary)]">
+                                -
+                              </span>
                             )}
                           </Td>
                           <Td>
                             <ColorSwatch color={g.color} />
                           </Td>
-                          <Td className="text-right font-mono text-[var(--st-text)]">
+                          <Td align="right" className="font-mono text-[var(--st-text)]">
                             {g.ticketsCount ?? 0}
                           </Td>
                           <Td>
-                            <StatusPill
-                              label={g.status}
-                              tone={STATUS_TONE[g.status] ?? "neutral"}
-                            />
+                            <Badge tone={STATUS_TONE[g.status] ?? "neutral"}>
+                              {g.status}
+                            </Badge>
                           </Td>
-                          <Td className="text-right">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenDialog(g)}
-                              aria-label="Edit group"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setPendingDelete(g)}
-                              aria-label="Delete group"
-                            >
-                              <Trash2 className="h-4 w-4 text-[var(--st-text)]" />
-                            </Button>
+                          <Td align="right">
+                            <div className="flex items-center justify-end gap-1">
+                              <IconButton
+                                label="Edit group"
+                                icon={Edit}
+                                onClick={() => handleOpenDialog(g)}
+                              />
+                              <IconButton
+                                label="Delete group"
+                                icon={Trash2}
+                                onClick={() => setPendingDelete(g)}
+                              />
+                            </div>
                           </Td>
                         </Tr>
                       );
@@ -778,17 +795,14 @@ export default function TicketGroupsPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete ticket group?</AlertDialogTitle>
             <AlertDialogDescription>
-              Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect{" "}
+              Deleting &quot;{pendingDelete?.name}&quot; will affect{" "}
               {pendingDelete?.ticketsCount ?? 0} ticket(s) currently in this
               group. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              disabled={deletePending}
-            >
+            <AlertDialogAction onClick={handleDelete} disabled={deletePending}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

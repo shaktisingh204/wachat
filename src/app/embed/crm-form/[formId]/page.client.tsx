@@ -1,11 +1,11 @@
 'use client';
 
-import { Skeleton } from '@/components/sabcrm/20ui';
+import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { EmbeddedForm } from '@/components/zoruui-domain/embedded-form';
 import { getCrmFormById } from '@/app/actions/crm-forms.actions';
 import { useEffect, useState, use, useCallback } from 'react';
 import type { WithId, CrmForm } from '@/lib/definitions';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 
 function FormSkeleton() {
     return (
@@ -29,17 +29,17 @@ function FormSkeleton() {
 function FormError({ message, onRetry }: { message: string; onRetry: () => void }) {
     return (
         <div className="p-4 w-full max-w-lg mx-auto mt-10">
-            <div className="p-6 border-2 border-destructive/20 bg-[var(--st-text)]/10 text-[var(--st-text)] rounded-lg text-center space-y-4">
-                <AlertCircle className="mx-auto h-10 w-10" />
-                <h3 className="font-semibold text-lg">Failed to load form</h3>
-                <p className="text-sm">{message}</p>
-                <button 
-                    onClick={onRetry}
-                    className="mt-4 px-4 py-2 bg-[var(--st-text)] text-white rounded-md hover:bg-[var(--st-text)]/90 transition-colors"
-                >
-                    Retry
-                </button>
-            </div>
+            <EmptyState
+                icon={AlertCircle}
+                tone="danger"
+                title="Failed to load form"
+                description={message}
+                action={
+                    <Button variant="danger" iconLeft={RotateCcw} onClick={onRetry}>
+                        Retry
+                    </Button>
+                }
+            />
         </div>
     );
 }
@@ -72,7 +72,7 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
 
     useEffect(() => {
         fetchForm();
-        
+
         // Polling for real-time updates every 60 seconds
         const intervalId = setInterval(() => {
             fetchForm(false);
@@ -83,7 +83,7 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
 
     if (isLoading) {
         return (
-            <main className="min-h-screen bg-transparent p-0">
+            <main className="ui20 min-h-screen bg-transparent p-0">
                 <FormSkeleton />
             </main>
         );
@@ -91,14 +91,14 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
 
     if (error || !form) {
         return (
-            <main className="min-h-screen bg-transparent p-0">
+            <main className="ui20 min-h-screen bg-transparent p-0">
                 <FormError message={error || 'Form not found.'} onRetry={() => fetchForm(true)} />
             </main>
         );
     }
 
     return (
-        <main className="min-h-screen bg-transparent p-0">
+        <main className="ui20 min-h-screen bg-transparent p-0">
             <EmbeddedForm form={form} />
         </main>
     );

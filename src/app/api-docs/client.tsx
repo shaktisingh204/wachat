@@ -1,13 +1,28 @@
 'use client';
 
 import { m } from 'motion/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowRight, Code, Shield, Webhook, Zap, BookOpen } from 'lucide-react';
 import { MarketingShell, PageHero, SectionWrap } from '@/components/landing-v2/marketing-shell';
+import {
+    Badge,
+    Button,
+    Card,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    SegmentedControl,
+} from '@/components/sabcrm/20ui';
 
 const LANGS = ['curl', 'node', 'python', 'go'] as const;
 type Lang = (typeof LANGS)[number];
+
+const LANG_ITEMS = LANGS.map((value) => ({ value, label: value }));
 
 const SAMPLES: Record<Lang, string> = {
     curl: `curl https://api.sabnode.in/v1/contacts \\
@@ -49,7 +64,9 @@ _, err := client.Contacts.Create(ctx, &sabnode.ContactInput{
 })`,
 };
 
-const ENDPOINTS = [
+type HttpMethod = 'GET' | 'POST';
+
+const ENDPOINTS: Array<{ method: HttpMethod; path: string; desc: string }> = [
     { method: 'POST', path: '/v1/contacts', desc: 'Create or upsert a contact' },
     { method: 'GET', path: '/v1/contacts/{id}', desc: 'Fetch a single contact' },
     { method: 'POST', path: '/v1/messages', desc: 'Send a message on any channel' },
@@ -62,62 +79,95 @@ const ENDPOINTS = [
 ];
 
 const FEATURES = [
-    { icon: Shield, t: 'Signed everything', d: 'Bearer tokens + HMAC on webhooks. Every payload tamper-evident.' },
+    { icon: Shield, t: 'Signed everything', d: 'Bearer tokens plus HMAC on webhooks. Every payload tamper-evident.' },
     { icon: Zap, t: 'Idempotent by default', d: 'Pass an Idempotency-Key on every write. Safe to retry.' },
-    { icon: Webhook, t: 'Webhooks with replay', d: 'Timestamps + signing + replay protection. Subscribe per event.' },
+    { icon: Webhook, t: 'Webhooks with replay', d: 'Timestamps, signing, and replay protection. Subscribe per event.' },
     { icon: Code, t: 'Typed SDKs', d: 'First-class libraries for Node, Python, Go, Bun, Deno.' },
 ];
 
+const RELATED = [
+    { icon: BookOpen, t: 'Full reference', d: 'Every endpoint, parameter, error code.', href: '#' },
+    { icon: Webhook, t: 'Webhook guide', d: 'Signing, replay, delivery guarantees.', href: '#' },
+    { icon: Code, t: 'SDKs on GitHub', d: 'Node, Python, Go, Bun, Deno.', href: '#' },
+];
+
 export function ApiDocsClient({ session }: { session?: { user?: unknown } | null }) {
+    const router = useRouter();
     const [lang, setLang] = useState<Lang>('curl');
+    const apiKeyHref = session?.user ? '/dashboard/api-keys' : '/login?signup=1';
 
     return (
         <MarketingShell session={session}>
             <PageHero
-                kicker="API reference · v1"
-                title={<>A clean REST API for <span className="bg-gradient-to-r from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] bg-clip-text text-transparent">every module.</span></>}
-                subtitle="Signed, idempotent, versioned. Hit /v1 from anywhere — your CRM, your dashboards, your bots."
+                kicker="API reference, v1"
+                title="A clean REST API for every module."
+                subtitle="Signed, idempotent, versioned. Hit /v1 from anywhere, your CRM, your dashboards, your bots."
                 extra={
-                    <Link href={session?.user ? '/dashboard/api-keys' : '/login?signup=1'} className="inline-flex items-center gap-2 rounded-full bg-[var(--st-text)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--st-text)]">
-                        Get your API key <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
+                    <span className="ui20 inline-flex">
+                        <Button
+                            variant="primary"
+                            iconRight={ArrowRight}
+                            onClick={() => router.push(apiKeyHref)}
+                        >
+                            Get your API key
+                        </Button>
+                    </span>
                 }
             />
 
             {/* Code sample with language tabs */}
             <SectionWrap>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text)]">Hello, SabNode</p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-[var(--st-text)] md:text-5xl">
-                    Make your first API call in 30 seconds.
-                </h2>
+                <div className="ui20">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text-secondary)]">
+                        Hello, SabNode
+                    </p>
+                    <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-[var(--st-text)] md:text-5xl">
+                        Make your first API call in 30 seconds.
+                    </h2>
 
-                <m.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                    className="mt-10 overflow-hidden rounded-3xl border border-[var(--st-border)]">
-                    <div className="flex items-center gap-1 border-b border-[var(--st-border)] bg-white px-3 py-2">
-                        {LANGS.map((l) => (
-                            <button key={l} onClick={() => setLang(l)} className="relative rounded-full px-3 py-1 text-[12px] font-semibold transition">
-                                {lang === l && <m.span layoutId="lang-tab" className="absolute inset-0 rounded-full bg-[var(--st-text)]" transition={{ type: 'spring', stiffness: 380, damping: 30 }} />}
-                                <span className={`relative z-10 ${lang === l ? 'text-white' : 'text-[var(--st-text)]'}`}>{l}</span>
-                            </button>
-                        ))}
-                        <span className="ml-auto rounded-md bg-[var(--st-bg-muted)] px-2 py-0.5 text-[10px] font-bold text-[var(--st-text)]">200 OK</span>
-                    </div>
-                    <pre className="overflow-x-auto bg-[var(--st-text)] px-6 py-5 font-mono text-[12.5px] leading-relaxed text-white">{SAMPLES[lang]}</pre>
-                </m.div>
+                    <m.div
+                        initial={{ opacity: 0, y: 10 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="mt-10 overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]"
+                    >
+                        <div className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2">
+                            <SegmentedControl
+                                items={LANG_ITEMS}
+                                value={lang}
+                                onChange={(value) => setLang(value as Lang)}
+                                size="sm"
+                                aria-label="Code sample language"
+                            />
+                            <Badge tone="success" kind="soft" className="ml-auto">
+                                200 OK
+                            </Badge>
+                        </div>
+                        <pre className="overflow-x-auto bg-[var(--st-text)] px-6 py-5 font-mono text-[12.5px] leading-relaxed text-[var(--st-text-inverted)]">
+                            {SAMPLES[lang]}
+                        </pre>
+                    </m.div>
+                </div>
             </SectionWrap>
 
             {/* Features */}
             <SectionWrap bg="white">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="ui20 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {FEATURES.map((f, i) => {
                         const Icon = f.icon;
                         return (
-                            <m.div key={f.t} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                            <m.div
+                                key={f.t}
+                                initial={{ opacity: 0, y: 8 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
                                 transition={{ delay: i * 0.04 }}
-                                className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-5">
-                                <Icon className="h-5 w-5 text-[var(--st-text)]" />
-                                <p className="mt-3 text-base font-semibold text-[var(--st-text)]">{f.t}</p>
-                                <p className="mt-1 text-[13px] leading-relaxed text-[var(--st-text)]">{f.d}</p>
+                            >
+                                <Card variant="outlined" padding="md" className="h-full">
+                                    <Icon className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
+                                    <p className="mt-3 text-base font-semibold text-[var(--st-text)]">{f.t}</p>
+                                    <p className="mt-1 text-[13px] leading-relaxed text-[var(--st-text-secondary)]">{f.d}</p>
+                                </Card>
                             </m.div>
                         );
                     })}
@@ -126,42 +176,71 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
 
             {/* Endpoint list */}
             <SectionWrap>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text)]">Common endpoints</p>
-                <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-[var(--st-text)] md:text-5xl">
-                    The most-used REST endpoints.
-                </h2>
-                <div className="mt-10 overflow-hidden rounded-2xl border border-[var(--st-border)] bg-white">
-                    {ENDPOINTS.map((e, i) => (
-                        <m.div key={e.path} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-                            transition={{ delay: i * 0.03 }}
-                            className="grid grid-cols-12 items-center gap-3 border-b border-[var(--st-border)] px-5 py-3 last:border-0 hover:bg-[var(--st-bg-muted)]">
-                            <span className={`col-span-2 rounded-md px-2 py-0.5 text-center text-[10px] font-bold ${
-                                e.method === 'GET' ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                            }`}>{e.method}</span>
-                            <span className="col-span-5 font-mono text-[12.5px] text-[var(--st-text)]">{e.path}</span>
-                            <span className="col-span-5 text-[13px] text-[var(--st-text)]">{e.desc}</span>
-                        </m.div>
-                    ))}
+                <div className="ui20">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text-secondary)]">
+                        Common endpoints
+                    </p>
+                    <h2 className="mt-3 max-w-3xl text-balance text-4xl font-semibold tracking-tight text-[var(--st-text)] md:text-5xl">
+                        The most-used REST endpoints.
+                    </h2>
+                    <m.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        className="mt-10 overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]"
+                    >
+                        <Table hover>
+                            <THead>
+                                <Tr>
+                                    <Th width={120}>Method</Th>
+                                    <Th>Path</Th>
+                                    <Th>Description</Th>
+                                </Tr>
+                            </THead>
+                            <TBody>
+                                {ENDPOINTS.map((e) => (
+                                    <Tr key={`${e.method} ${e.path}`}>
+                                        <Td>
+                                            <Badge tone={e.method === 'GET' ? 'info' : 'accent'} kind="soft">
+                                                {e.method}
+                                            </Badge>
+                                        </Td>
+                                        <Td>
+                                            <span className="font-mono text-[12.5px] text-[var(--st-text)]">{e.path}</span>
+                                        </Td>
+                                        <Td>
+                                            <span className="text-[13px] text-[var(--st-text-secondary)]">{e.desc}</span>
+                                        </Td>
+                                    </Tr>
+                                ))}
+                            </TBody>
+                        </Table>
+                    </m.div>
+                    <p className="mt-6 text-sm text-[var(--st-text-secondary)]">
+                        All endpoints versioned under /v1. Breaking changes ship as /v2 with at least 6 months overlap.
+                    </p>
                 </div>
-                <p className="mt-6 text-sm text-[var(--st-text)]">All endpoints versioned under /v1 — breaking changes ship as /v2 with at least 6 months overlap.</p>
             </SectionWrap>
 
             {/* Related */}
             <SectionWrap bg="white">
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                    {[
-                        { icon: BookOpen, t: 'Full reference', d: 'Every endpoint, parameter, error code.', href: '#' },
-                        { icon: Webhook, t: 'Webhook guide', d: 'Signing, replay, delivery guarantees.', href: '#' },
-                        { icon: Code, t: 'SDKs on GitHub', d: 'Node, Python, Go, Bun, Deno.', href: '#' },
-                    ].map((c, i) => {
+                <div className="ui20 grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {RELATED.map((c, i) => {
                         const Icon = c.icon;
                         return (
-                            <m.div key={c.t} initial={{ opacity: 0, y: 8 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-                                transition={{ delay: i * 0.05 }}>
-                                <Link href={c.href} className="block rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6 transition hover:-translate-y-1 hover:border-[var(--st-border)]">
-                                    <Icon className="h-5 w-5 text-[var(--st-text)]" />
-                                    <p className="mt-3 text-lg font-semibold text-[var(--st-text)]">{c.t}</p>
-                                    <p className="mt-1 text-[13px] text-[var(--st-text)]">{c.d}</p>
+                            <m.div
+                                key={c.t}
+                                initial={{ opacity: 0, y: 8 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: i * 0.05 }}
+                            >
+                                <Link href={c.href} className="block h-full">
+                                    <Card variant="interactive" padding="lg" className="h-full">
+                                        <Icon className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
+                                        <p className="mt-3 text-lg font-semibold text-[var(--st-text)]">{c.t}</p>
+                                        <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">{c.d}</p>
+                                    </Card>
                                 </Link>
                             </m.div>
                         );

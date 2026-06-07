@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
-import { Button, Textarea, Alert, SegmentedControl } from '@/components/sabcrm/20ui';
+import { useState, useMemo } from 'react';
+import { Button, Textarea, Field, Alert, SegmentedControl } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { JsonTreeView } from '@/components/sabflow/inspector/JsonTreeView';
 import { Upload, Download, Code, FileJson, ListTree } from 'lucide-react';
@@ -85,8 +86,6 @@ export default function JsonFormatterPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('raw');
   const [parsedData, setParsedData] = useState<unknown>(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const processJson = (action: 'format' | 'minify' | 'validate' = 'validate', currentText = text) => {
     setError(null);
     try {
@@ -107,9 +106,7 @@ export default function JsonFormatterPage() {
   const format = () => processJson('format');
   const minify = () => processJson('minify');
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handlePickFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
@@ -119,7 +116,6 @@ export default function JsonFormatterPage() {
       }
     };
     reader.readAsText(file);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDownload = () => {
@@ -150,16 +146,14 @@ export default function JsonFormatterPage() {
         />
 
         <div className="flex gap-2">
-          <input
-            type="file"
-            accept=".json,application/json"
-            className="hidden"
-            ref={fileInputRef}
-            onChange={handleUpload}
-          />
-          <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => fileInputRef.current?.click()}>
+          <SabFileToFileButton
+            accept="document"
+            variant="outline"
+            onPickFile={handlePickFile}
+          >
+            <Upload size={14} aria-hidden="true" />
             Upload
-          </Button>
+          </SabFileToFileButton>
           <Button variant="outline" size="sm" iconLeft={Download} onClick={handleDownload} disabled={!text}>
             Download
           </Button>
@@ -168,16 +162,17 @@ export default function JsonFormatterPage() {
 
       <div className="mb-4">
         {viewMode === 'raw' && (
-          <Textarea
-            value={text}
-            onChange={(e) => {
-               setText(e.target.value);
-               if (error) setError(null);
-            }}
-            className="min-h-[300px] font-mono text-xs"
-            placeholder='{"hello": "world"}'
-            aria-label="JSON input"
-          />
+          <Field label="JSON input">
+            <Textarea
+              value={text}
+              onChange={(e) => {
+                setText(e.target.value);
+                if (error) setError(null);
+              }}
+              className="min-h-[300px] font-mono text-xs"
+              placeholder='{"hello": "world"}'
+            />
+          </Field>
         )}
         {viewMode === 'highlighted' && (
           <JsonHighlighter jsonString={text} />

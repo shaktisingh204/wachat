@@ -1,4 +1,15 @@
-import { Input, Label, Select } from '@/components/sabcrm/20ui';
+'use client';
+
+import {
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import type { LeadFormField } from '../types';
 
 export function FieldInput({
@@ -13,47 +24,45 @@ export function FieldInput({
   disabled?: boolean;
 }) {
   const labelText = labelize(field.field_name);
-  const label = (
-    <Label htmlFor={field._id} className="text-[12px] font-mono uppercase tracking-tight text-[var(--st-text-secondary)]">
-      {labelText}
-      {field.is_required ? (
-        <span className="text-danger"> *</span>
-      ) : null}
-    </Label>
-  );
 
   if (field.field_type === 'textarea') {
     return (
-      <div className="flex flex-col gap-1.5">
-        {label}
-        <textarea
-          id={field._id}
+      <Field label={labelText} required={field.is_required} id={field._id}>
+        <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className="flex min-h-[100px] w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] font-mono shadow-inner ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           rows={4}
+          className="font-mono text-[12.5px]"
         />
-      </div>
+      </Field>
     );
   }
 
   if (field.field_type === 'select' && field.field_values?.length) {
     return (
-      <div className="flex flex-col gap-1.5">
-        {label}
+      <Field label={labelText} required={field.is_required} id={field._id}>
         <Select
-          id={field._id}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onValueChange={onChange}
           disabled={disabled}
-          options={[
-            { value: '', label: 'Select option...' },
-            ...field.field_values.map((v) => ({ value: v, label: v })),
-          ]}
-          className="font-mono text-[12.5px]"
-        />
-      </div>
+        >
+          <SelectTrigger
+            id={field._id}
+            aria-label={labelText}
+            className="font-mono text-[12.5px]"
+          >
+            <SelectValue placeholder="Select option..." />
+          </SelectTrigger>
+          <SelectContent>
+            {field.field_values.map((v) => (
+              <SelectItem key={v} value={v} className="font-mono text-[12.5px]">
+                {v}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
     );
   }
 
@@ -67,17 +76,15 @@ export function FieldInput({
           : 'text';
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {label}
+    <Field label={labelText} required={field.is_required} id={field._id}>
       <Input
-        id={field._id}
         type={inputType}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className="font-mono text-[12.5px]"
       />
-    </div>
+    </Field>
   );
 }
 

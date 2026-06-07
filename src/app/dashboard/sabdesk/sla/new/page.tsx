@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Input,
+  Label,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { Save, LoaderCircle } from "lucide-react";
@@ -19,11 +27,11 @@ const initialState: { message?: string; error?: string; id?: string } = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" variant="primary" disabled={pending}>
       {pending ? (
-        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
       ) : (
-        <Save className="mr-2 h-4 w-4" />
+        <Save className="mr-2 h-4 w-4" aria-hidden="true" />
       )}
       Save SLA
     </Button>
@@ -37,14 +45,14 @@ export default function NewSlaPage() {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: "Created", description: state.message });
+      toast({ title: "Created", description: state.message, tone: "success" });
       router.push("/dashboard/sabdesk/sla");
     }
     if (state.error) {
       toast({
         title: "Error",
         description: state.error,
-        variant: "destructive",
+        tone: "danger",
       });
     }
   }, [state, toast, router]);
@@ -108,17 +116,13 @@ export default function NewSlaPage() {
           </div>
 
           {/* Row 3: Business Hours Only (checkbox) */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
+          <div>
+            <Checkbox
               id="businessHoursOnly"
               name="businessHoursOnly"
               defaultChecked
-              className="h-4 w-4 rounded border-[var(--st-border)] accent-[var(--st-text)]"
+              label="Business Hours Only"
             />
-            <Label htmlFor="businessHoursOnly" className="cursor-pointer">
-              Business Hours Only
-            </Label>
           </div>
 
           {/* Row 4: Escalate After + Escalate To */}

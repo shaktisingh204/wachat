@@ -1,6 +1,28 @@
-import { Button } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { redirect } from "next/navigation";
-import type { WithId } from "mongodb";
 
 import {
   // Core icons
@@ -52,12 +74,12 @@ import {
   Store,
   ShoppingBag,
   Globe,
+  ArrowRight,
 } from "lucide-react";
 
 import {
   getProjectsForAdmin,
   getAdminDashboardStats,
-  type AdminStats,
 } from "@/app/actions/admin.actions";
 import { getAdminSession } from "@/lib/admin-session";
 import { getPlans } from "@/app/actions/plan.actions";
@@ -91,45 +113,6 @@ const fmt = (n: number) => n.toLocaleString("en-IN");
 /*                       Reusable stat blocks                         */
 /* ---------------------------------------------------------------- */
 
-function HeroStat({
-  title,
-  value,
-  icon: Icon,
-  sub,
-  accent = false,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ElementType;
-  sub?: string;
-  accent?: boolean;
-}) {
-  return (
-    <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-5 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
-          {title}
-        </span>
-        <div
-          className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? "bg-[var(--st-bg-muted)] border border-[var(--st-border)]" : "bg-[var(--st-bg-secondary)]"}`}
-        >
-          <Icon
-            className={`h-4 w-4 ${accent ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}
-          />
-        </div>
-      </div>
-      <div>
-        <div
-          className={`text-3xl font-bold tracking-tight ${accent ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}`}
-        >
-          {value}
-        </div>
-        {sub && <p className="text-xs text-[var(--st-text-secondary)] mt-1">{sub}</p>}
-      </div>
-    </div>
-  );
-}
-
 function MiniStat({
   label,
   value,
@@ -140,9 +123,9 @@ function MiniStat({
   icon: React.ElementType;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg)] p-4 flex items-center gap-3 hover:border-[var(--st-border)] hover:bg-[var(--st-bg)] transition-all">
-      <div className="h-9 w-9 rounded-xl bg-[var(--st-bg-secondary)] border border-[var(--st-border)] flex items-center justify-center shrink-0">
-        <Icon className="h-4 w-4 text-[var(--st-text)]" />
+    <Card padding="sm" className="flex items-center gap-3">
+      <div className="h-9 w-9 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] flex items-center justify-center shrink-0">
+        <Icon className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-lg font-bold text-[var(--st-text)] tabular-nums truncate">
@@ -150,7 +133,7 @@ function MiniStat({
         </div>
         <div className="text-[11px] text-[var(--st-text-secondary)] truncate">{label}</div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -158,56 +141,18 @@ function StatSection({
   title,
   description,
   icon: Icon,
-  accent,
   items,
 }: {
   title: string;
   description?: string;
   icon: React.ElementType;
-  accent: string; // tailwind color like 'emerald' | 'sky' | 'violet'
   items: Array<{ label: string; value: number; icon: React.ElementType }>;
 }) {
-  // Map accent to concrete class strings (Tailwind JIT-safe)
-  const accentClasses: Record<
-    string,
-    { bg: string; text: string; border: string }
-  > = {
-    emerald: {
-      bg: "bg-[var(--st-bg-muted)]",
-      text: "text-[var(--st-text)]",
-      border: "border-[var(--st-border)]",
-    },
-    sky: { bg: "bg-[var(--st-bg-muted)]", text: "text-[var(--st-text)]", border: "border-[var(--st-border)]" },
-    violet: {
-      bg: "bg-[var(--st-bg-muted)]",
-      text: "text-[var(--st-text)]",
-      border: "border-[var(--st-border)]",
-    },
-    rose: {
-      bg: "bg-[var(--st-bg-muted)]",
-      text: "text-[var(--st-text)]",
-      border: "border-[var(--st-border)]",
-    },
-    amber: {
-      bg: "bg-[var(--st-bg-muted)]",
-      text: "text-[var(--st-text)]",
-      border: "border-[var(--st-border)]",
-    },
-    cyan: {
-      bg: "bg-[var(--st-bg-muted)]",
-      text: "text-[var(--st-text)]",
-      border: "border-[var(--st-border)]",
-    },
-  };
-  const c = accentClasses[accent] ?? accentClasses.emerald;
-
   return (
     <section>
       <div className="flex items-center gap-3 mb-3">
-        <div
-          className={`h-9 w-9 rounded-xl flex items-center justify-center ${c.bg} border ${c.border}`}
-        >
-          <Icon className={`h-4 w-4 ${c.text}`} />
+        <div className="h-9 w-9 rounded-[var(--st-radius)] flex items-center justify-center bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
+          <Icon className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
         </div>
         <div>
           <h2 className="text-sm font-semibold text-[var(--st-text)]">{title}</h2>
@@ -234,11 +179,11 @@ function StatSection({
 /*                              Page                                  */
 /* ---------------------------------------------------------------- */
 
-const statusVariant: Record<string, string> = {
-  Completed: "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-  Queued: "bg-[var(--st-bg-secondary)] text-[var(--st-text)] border-[var(--st-border)]",
-  Processing: "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-  Failed: "bg-[var(--st-text)]/15 text-[var(--st-text)] border-[var(--st-border)]/30",
+const statusTone: Record<string, BadgeTone> = {
+  Completed: "success",
+  Queued: "neutral",
+  Processing: "info",
+  Failed: "danger",
 };
 
 import { cache, Suspense } from "react";
@@ -248,9 +193,9 @@ const getCachedStats = cache(getAdminDashboardStats);
 
 function StatsFallback({ title }: { title: string }) {
   return (
-    <div className="h-32 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
+    <Card padding="none" className="h-32 flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
       Loading {title}...
-    </div>
+    </Card>
   );
 }
 
@@ -258,30 +203,29 @@ async function OverviewStatsWrapper() {
   const stats = await getCachedStats();
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <HeroStat
-        title="Total Users"
+      <StatCard
+        label="Total Users"
         value={fmt(stats.core.totalUsers)}
         icon={Users}
-        sub={`${fmt(stats.core.approvedUsers)} approved · ${fmt(stats.core.pendingUsers)} pending`}
+        delta={{ value: `${fmt(stats.core.approvedUsers)} approved, ${fmt(stats.core.pendingUsers)} pending`, tone: "neutral" }}
       />
-      <HeroStat
-        title="Total Projects"
+      <StatCard
+        label="Total Projects"
         value={fmt(stats.core.totalProjects)}
         icon={Briefcase}
-        sub="All project types"
+        delta={{ value: "All project types", tone: "neutral" }}
       />
-      <HeroStat
-        title="Active WABAs"
+      <StatCard
+        label="Active WABAs"
         value={fmt(stats.core.totalWabas)}
         icon={Wifi}
-        sub="Connected WhatsApp accounts"
+        delta={{ value: "Connected WhatsApp accounts", tone: "neutral" }}
       />
-      <HeroStat
-        title="System Uptime"
+      <StatCard
+        label="System Uptime"
         value="99.98%"
         icon={Activity}
-        sub="Last 30 days"
-        accent
+        delta={{ value: "Last 30 days", tone: "up" }}
       />
     </div>
   );
@@ -294,7 +238,6 @@ async function CoreStatsWrapper() {
       title="Core Platform"
       description="Users, projects and monetization"
       icon={Activity}
-      accent="amber"
       items={[
         { label: "Users", value: stats.core.totalUsers, icon: Users },
         { label: "Approved", value: stats.core.approvedUsers, icon: Users },
@@ -319,7 +262,6 @@ async function WachatStatsWrapper() {
       title="WhatsApp (Wachat)"
       description="Messaging, broadcasts, templates and flows"
       icon={MessageSquare}
-      accent="emerald"
       items={[
         { label: "Broadcasts", value: stats.wachat.broadcasts, icon: Send },
         {
@@ -367,7 +309,6 @@ async function CrmStatsWrapper() {
       title="CRM Suite"
       description="Sales, accounting, inventory and HR"
       icon={UserSquare}
-      accent="sky"
       items={[
         { label: "Contacts", value: stats.crm.contacts, icon: UserSquare },
         { label: "Leads", value: stats.crm.leads, icon: Target },
@@ -413,7 +354,6 @@ async function AdsStatsWrapper() {
       title="Ad Manager & Social"
       description="Facebook, Instagram and Meta Ads"
       icon={Megaphone}
-      accent="violet"
       items={[
         {
           label: "Ad Campaigns",
@@ -444,7 +384,6 @@ async function MarketingStatsWrapper() {
       title="Email & SMS Marketing"
       description="Outbound marketing channels"
       icon={Mail}
-      accent="rose"
       items={[
         {
           label: "Email Campaigns",
@@ -483,7 +422,6 @@ async function PlatformStatsWrapper() {
       title="Platform Modules"
       description="SEO suite, SabFlow, SabChat and notifications"
       icon={Workflow}
-      accent="cyan"
       items={[
         {
           label: "SEO Projects",
@@ -543,7 +481,6 @@ async function ToolsStatsWrapper() {
       title="Tools & Builder"
       description="URL shortener, QR codes and e-commerce"
       icon={Link2}
-      accent="emerald"
       items={[
         { label: "Short URLs", value: stats.tools.shortUrls, icon: Link2 },
         { label: "QR Codes", value: stats.tools.qrCodes, icon: QrCode },
@@ -584,131 +521,119 @@ async function ProjectsTableWrapper({
   ]);
   const { projects, total: totalProjects } = projectData;
   const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
+  const prevDisabled = currentPage <= 1;
+  const nextDisabled = currentPage >= totalPages;
+  const prevHref = `/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ""}`;
+  const nextHref = `/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ""}`;
 
   return (
-    <div className="lg:col-span-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-      <div className="px-6 py-4 border-b border-[var(--st-border)] flex items-center justify-between gap-4">
+    <Card padding="none" className="lg:col-span-3 overflow-hidden">
+      <CardHeader className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="font-semibold text-[var(--st-text)]">All Projects</h2>
-          <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
-            {fmt(totalProjects)} total
-          </p>
+          <CardTitle>All Projects</CardTitle>
+          <CardDescription>{fmt(totalProjects)} total</CardDescription>
         </div>
         <div className="w-56">
-          <ProjectSearch placeholder="Search projects…" />
+          <ProjectSearch placeholder="Search projects..." />
         </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-[var(--st-border)]">
-              <th className="text-left px-6 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
-                Project
-              </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
-                Plan
-              </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
-                Credits
-              </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">
-                MPS
-              </th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--st-border)]">
-            {projects.length > 0 ? (
-              projects.map((project: ProjectWithPlan) => (
-                <tr
-                  key={project._id.toString()}
-                  className="hover:bg-[var(--st-bg-secondary)] transition-colors"
-                >
-                  <td className="px-6 py-3 font-medium text-[var(--st-text)]">
-                    {project.name}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
-                      {project.plan?.name || "N/A"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--st-text)] tabular-nums">
-                    {project.credits?.toLocaleString() ?? 0}
-                  </td>
-                  <td className="px-4 py-3 text-[var(--st-text)] tabular-nums">
-                    {project.messagesPerSecond ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <AdminUpdateCreditsButton
-                        projectId={project._id.toString()}
-                        currentCredits={project.credits || 0}
-                      />
-                      <AdminUpdateMpsButton
-                        projectId={project._id.toString()}
-                        currentMps={project.messagesPerSecond || 80}
-                      />
-                      <AdminAssignPlanDialog
-                        projectId={project._id.toString()}
-                        projectName={project.name}
-                        currentPlanId={project.planId?.toString()}
-                        allPlans={allPlans}
-                      />
-                      <AdminDeleteProjectButton
-                        projectId={project._id.toString()}
-                        projectName={project.name}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-12 text-center text-[var(--st-text-secondary)]"
-                >
-                  No projects found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="px-6 py-3 border-t border-[var(--st-border)] flex items-center justify-between">
+      </CardHeader>
+      <CardBody className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Project</Th>
+                <Th>Plan</Th>
+                <Th>Credits</Th>
+                <Th>MPS</Th>
+                <Th align="right" aria-label="Actions" />
+              </Tr>
+            </THead>
+            <TBody>
+              {projects.length > 0 ? (
+                projects.map((project: ProjectWithPlan) => (
+                  <Tr key={project._id.toString()}>
+                    <Td className="font-medium text-[var(--st-text)]">
+                      {project.name}
+                    </Td>
+                    <Td>
+                      <Badge tone="neutral">{project.plan?.name || "N/A"}</Badge>
+                    </Td>
+                    <Td className="tabular-nums">
+                      {project.credits?.toLocaleString() ?? 0}
+                    </Td>
+                    <Td className="tabular-nums">
+                      {project.messagesPerSecond ?? "-"}
+                    </Td>
+                    <Td align="right">
+                      <div className="flex items-center justify-end gap-1">
+                        <AdminUpdateCreditsButton
+                          projectId={project._id.toString()}
+                          currentCredits={project.credits || 0}
+                        />
+                        <AdminUpdateMpsButton
+                          projectId={project._id.toString()}
+                          currentMps={project.messagesPerSecond || 80}
+                        />
+                        <AdminAssignPlanDialog
+                          projectId={project._id.toString()}
+                          projectName={project.name}
+                          currentPlanId={project.planId?.toString()}
+                          allPlans={allPlans}
+                        />
+                        <AdminDeleteProjectButton
+                          projectId={project._id.toString()}
+                          projectName={project.name}
+                        />
+                      </div>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={5} className="py-12">
+                    <EmptyState
+                      icon={Briefcase}
+                      title="No projects found"
+                      description="No projects match the current filters. New projects will appear here."
+                    />
+                  </Td>
+                </Tr>
+              )}
+            </TBody>
+          </Table>
+        </div>
+      </CardBody>
+      <CardFooter className="flex items-center justify-between">
         <span className="text-xs text-[var(--st-text-secondary)]">
           Page {currentPage} of {totalPages > 0 ? totalPages : 1}
         </span>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            disabled={currentPage <= 1}
-            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40"
-          >
-            <Link
-              href={`/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ""}`}
-            >
+          {prevDisabled ? (
+            <Button variant="outline" size="sm" disabled>
               Previous
+            </Button>
+          ) : (
+            <Link href={prevHref}>
+              <Button variant="outline" size="sm">
+                Previous
+              </Button>
             </Link>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            disabled={currentPage >= totalPages}
-            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40"
-          >
-            <Link
-              href={`/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ""}`}
-            >
+          )}
+          {nextDisabled ? (
+            <Button variant="outline" size="sm" disabled>
               Next
+            </Button>
+          ) : (
+            <Link href={nextHref}>
+              <Button variant="outline" size="sm">
+                Next
+              </Button>
             </Link>
-          </Button>
+          )}
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -719,18 +644,15 @@ async function RecentBroadcastsWrapper() {
   const recentBroadcasts = broadcastData.broadcasts;
 
   return (
-    <div className="lg:col-span-2 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-      <div className="px-6 py-4 border-b border-[var(--st-border)]">
-        <h2 className="font-semibold text-[var(--st-text)]">Recent Broadcasts</h2>
-        <p className="text-xs text-[var(--st-text-secondary)] mt-0.5">
-          Latest campaigns across the platform
-        </p>
-      </div>
-      <div className="divide-y divide-[var(--st-border)]">
+    <Card padding="none" className="lg:col-span-2 overflow-hidden">
+      <CardHeader>
+        <CardTitle>Recent Broadcasts</CardTitle>
+        <CardDescription>Latest campaigns across the platform</CardDescription>
+      </CardHeader>
+      <CardBody className="p-0 divide-y divide-[var(--st-border)]">
         {recentBroadcasts.length > 0 ? (
           recentBroadcasts.map((b: any) => {
-            const statusClass =
-              statusVariant[b.status] ?? statusVariant["Queued"];
+            const tone = statusTone[b.status] ?? statusTone["Queued"];
             return (
               <div
                 key={b._id.toString()}
@@ -744,29 +666,32 @@ async function RecentBroadcastsWrapper() {
                     {new Date(b.createdAt).toLocaleString()}
                   </p>
                 </div>
-                <span
-                  className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${statusClass}`}
-                >
+                <Badge tone={tone} dot className="shrink-0 capitalize">
                   {b.status?.toLowerCase() || "unknown"}
-                </span>
+                </Badge>
               </div>
             );
           })
         ) : (
-          <div className="px-6 py-12 text-center text-[var(--st-text-secondary)] text-sm">
-            No broadcasts yet.
+          <div className="px-6 py-12">
+            <EmptyState
+              icon={Send}
+              title="No broadcasts yet"
+              description="Campaigns sent across the platform will show up here."
+            />
           </div>
         )}
-      </div>
-      <div className="px-6 py-3 border-t border-[var(--st-border)]">
+      </CardBody>
+      <CardFooter>
         <Link
           href="/admin/dashboard/broadcast-log"
-          className="text-xs text-[var(--st-text)] hover:text-[var(--st-text-secondary)] font-medium transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-[var(--st-text)] hover:text-[var(--st-text-secondary)] font-medium transition-colors"
         >
-          View all broadcasts →
+          View all broadcasts
+          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
         </Link>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -784,19 +709,18 @@ export default async function AdminDashboardPage({
 
   return (
     <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--st-text)]">Dashboard</h1>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-            Platform-wide overview — all users, all modules.
-          </p>
-        </div>
-        <div className="text-right hidden sm:block">
-          <div className="text-xs text-[var(--st-text-secondary)]">Total data points</div>
-          <div className="text-sm font-semibold text-[var(--st-text)]">Live</div>
-        </div>
-      </div>
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Dashboard</PageTitle>
+          <PageDescription>
+            Platform-wide overview. All users, all modules.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions className="hidden sm:flex flex-col items-end gap-0.5">
+          <span className="text-xs text-[var(--st-text-secondary)]">Total data points</span>
+          <span className="text-sm font-semibold text-[var(--st-text)]">Live</span>
+        </PageActions>
+      </PageHeader>
 
       <Suspense fallback={<StatsFallback title="Overview" />}>
         <OverviewStatsWrapper />
@@ -839,9 +763,9 @@ export default async function AdminDashboardPage({
 
       <Suspense
         fallback={
-          <div className="h-96 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
+          <Card padding="none" className="h-96 flex items-center justify-center animate-pulse text-sm text-[var(--st-text-secondary)]">
             Loading projects...
-          </div>
+          </Card>
         }
       >
         <ProjectsTableWrapper currentPage={currentPage} query={query} />

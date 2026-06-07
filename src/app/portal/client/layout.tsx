@@ -1,25 +1,24 @@
 /**
- * /portal/client layout — Client Portal shell.
+ * /portal/client layout - Client Portal shell.
  *
  * Server Component. Authentication boundary:
  *   - If no session, redirect to `/login?return=/portal/client`.
  *   - If session.user.role !== 'client', redirect to `/login?return=/portal/client`
- *     (so admins and other roles can't reach this surface — they bounce to
+ *     (so admins and other roles can't reach this surface. They bounce to
  *     login and can sign in as a client).
  *
- * Renders a minimal layout — distinct from the dashboard's ZoruHomeShell:
+ * Renders a minimal layout, distinct from the dashboard's app shell:
  *   - Slim top bar with the tenant `companies` brand logo + user dropdown
  *   - Lean left sidebar with only client-facing routes
  *   - Padded scrolling <main>
  *
- * Intentionally lightweight — no app rail, no command palette, no
+ * Intentionally lightweight. No app rail, no command palette, no
  * RBAC guard. The portal is its own surface, not part of the dashboard.
  */
 
 export const dynamic = 'force-dynamic';
 
 import 'server-only';
-import '@/components/sabcrm/20ui/zoru-legacy.css';
 
 import type { ReactNode } from 'react';
 import { redirect } from 'next/navigation';
@@ -43,7 +42,7 @@ export default async function ClientPortalLayout({
     const brand = await getClientPortalBrand();
 
     return (
-        <div className="zoruui flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="ui20 flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
             <ClientPortalSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col">
                 <ClientPortalTopbar

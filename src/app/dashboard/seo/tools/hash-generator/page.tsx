@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Button,
   IconButton,
@@ -13,6 +13,7 @@ import {
   SegmentedControl,
   useToast,
 } from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { FileText, File as FileIcon, Copy, UploadCloud, X } from 'lucide-react';
 import md5 from 'md5';
@@ -89,32 +90,13 @@ export default function HashGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setHashResult('');
-    }
+  const handlePickFile = (picked: File) => {
+    setFile(picked);
+    setHashResult('');
   };
-
-  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFile(e.dataTransfer.files[0]);
-      setHashResult('');
-    }
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  }, []);
 
   const clearFile = () => {
     setFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
     setHashResult('');
   };
 
@@ -211,31 +193,17 @@ export default function HashGeneratorPage() {
               ) : (
                 <Field label="Select File">
                   {!file ? (
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      onDrop={handleDrop}
-                      onDragOver={handleDragOver}
-                      onClick={() => fileInputRef.current?.click()}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          fileInputRef.current?.click();
-                        }
-                      }}
-                      className="border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-10 flex flex-col items-center justify-center text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] transition-colors cursor-pointer"
-                    >
+                    <div className="border-2 border-dashed border-[var(--st-border)] rounded-[var(--st-radius)] p-10 flex flex-col items-center justify-center text-center text-[var(--st-text-secondary)]">
                       <UploadCloud className="w-10 h-10 mb-4 opacity-50" aria-hidden="true" />
-                      <p className="font-medium mb-1 text-[var(--st-text)]">Click or drag file to this area to upload</p>
-                      <p className="text-sm text-[var(--st-text-tertiary)]">All file processing is done locally in your browser.</p>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="hidden"
-                        tabIndex={-1}
-                        aria-hidden="true"
-                      />
+                      <p className="font-medium mb-1 text-[var(--st-text)]">Pick a file from SabFiles to hash</p>
+                      <p className="text-sm text-[var(--st-text-tertiary)] mb-4">All hashing runs locally in your browser.</p>
+                      <SabFileToFileButton
+                        variant="outline"
+                        onPickFile={handlePickFile}
+                        onError={(err) => toast.error(err.message)}
+                      >
+                        Choose file
+                      </SabFileToFileButton>
                     </div>
                   ) : (
                     <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] p-4 flex items-center justify-between bg-[var(--st-bg-secondary)]">

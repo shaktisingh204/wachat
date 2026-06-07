@@ -1,46 +1,31 @@
 'use client';
 
-import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Drawer, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import { Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, IconButton, Input, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Spinner, Switch, Table, TBody, Td, Th, THead, Tr, useToast } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
-  useMemo,
-  useRef,
   useState,
   useTransition,
   } from 'react';
 import {
   AppWindow,
   Copy,
-  ExternalLink,
   LayoutGrid,
-  MoreHorizontal,
   Plus,
   Search,
-  Send,
-  ShieldCheck,
   Trash2,
-  Pencil,
-  Power,
-  Smartphone,
-  Monitor,
-  Link as LinkIcon,
-  Loader2,
-  X as XIcon,
   } from 'lucide-react';
 
 /**
- * Telegram Mini Apps — per-project registry of Web Apps.
+ * Telegram Mini Apps - per-project registry of Web Apps.
  *
  * The page is multi-tenant: every read/write goes through the active
  * project from {@link useProject}. When there's no active project we
  * render the empty-state. All file inputs (the optional photo on a
- * mini-app's branding card) come from SabFiles via `<SabFileUrlInput>`
- * — there is no free-text URL paste anywhere on this page (project
+ * mini-app's branding card) come from SabFiles via `<SabFileUrlInput>`,
+ * there is no free-text URL paste anywhere on this page (project
  * policy).
  */
-
-import { SabFileUrlInput } from '@/components/sabfiles';
 
 import { StatusPill } from './_components/status-pill';
 import { KpiCard } from './_components/kpi-card';
@@ -54,55 +39,24 @@ import { useProject } from '@/context/project-context';
 import { TelegramProjectGate } from '@/app/dashboard/telegram/_components/telegram-project-gate';
 import {
   listTelegramMiniAppsPagedAction,
-  createTelegramMiniAppAction,
   updateTelegramMiniAppAction,
   deleteTelegramMiniAppAction,
-  sendTelegramMiniAppAction,
   setTelegramMiniAppMenuButtonAction,
-  validateTelegramMiniAppInitDataAction,
-  listTelegramMiniAppSessionsAction,
   getTelegramMiniAppAnalyticsAction,
 } from '@/app/actions/telegram-extra.actions';
 import { listTelegramBots } from '@/app/actions/telegram.actions';
 import type {
   MiniAppRow,
   UpsertBody,
-  SessionRow,
-  AnalyticsResp,
-  ThemeParams,
 } from '@/lib/rust-client/telegram-mini-apps';
-
-const ACCENT = '#229ED9';
 
 // ---------------------------------------------------------------------------
 //  Helpers
 // ---------------------------------------------------------------------------
 
-const SLUG_RE = /^[a-z0-9_]+$/;
-const HEX_RE = /^#[0-9a-fA-F]{6}$/;
-
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9_]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .slice(0, 32);
-}
-
 function truncate(s: string, n: number): string {
   if (!s) return '';
-  return s.length > n ? `${s.slice(0, n - 1)}…` : s;
-}
-
-function emptyTheme(): ThemeParams {
-  return {
-    bg_color: '#0e1621',
-    text_color: '#ffffff',
-    hint_color: '#7c8a9c',
-    link_color: '#229ED9',
-    button_color: '#229ED9',
-    button_text_color: '#ffffff',
-  };
+  return s.length > n ? `${s.slice(0, n - 1)}...` : s;
 }
 
 function directLink(botUsername: string | undefined, slug: string): string {
@@ -223,7 +177,7 @@ export default function MiniAppsPage() {
     let opens = 0;
     let uniqueUsers = 0;
     const perApp: Record<string, number> = {};
-    // Fan out — page list will be small enough in practice.
+    // Fan out, page list will be small enough in practice.
     await Promise.all(
       rows.map(async (r) => {
         try {
@@ -391,8 +345,7 @@ export default function MiniAppsPage() {
           <PageTitle>
             <span className="inline-flex items-center gap-2">
               <LayoutGrid
-                className="h-5 w-5"
-                style={{ color: ACCENT }}
+                className="h-5 w-5 text-[var(--st-accent)]"
                 aria-hidden
               />
               Telegram Mini Apps
@@ -403,18 +356,19 @@ export default function MiniAppsPage() {
             them as the bot's menu button, and validate incoming initData.
           </PageDescription>
         </PageHeading>
-        <div className="flex items-center gap-2">
+        <PageActions>
           <Button
+            variant="primary"
+            iconLeft={Plus}
             onClick={() => {
               setEditing(null);
               setFormMode('create');
               setFormOpen(true);
             }}
-            style={{ backgroundColor: ACCENT }}
           >
-            <Plus className="mr-1.5 h-3.5 w-3.5" /> New mini app
+            New mini app
           </Button>
-        </div>
+        </PageActions>
       </PageHeader>
 
       {/* KPIs */}
@@ -426,18 +380,22 @@ export default function MiniAppsPage() {
       </div>
 
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
+      <div className="flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+          <Search
+            className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]"
+            aria-hidden
+          />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search name, slug or URL…"
+            placeholder="Search name, slug or URL"
+            aria-label="Search mini apps"
             className="pl-7"
           />
         </div>
         <Select value={botFilter} onValueChange={setBotFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px]" aria-label="Filter by bot">
             <SelectValue placeholder="Bot" />
           </SelectTrigger>
           <SelectContent>
@@ -450,7 +408,7 @@ export default function MiniAppsPage() {
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-[140px]" aria-label="Filter by status">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -465,30 +423,27 @@ export default function MiniAppsPage() {
       <Card className="overflow-hidden p-0">
         {loading && rows.length === 0 ? (
           <div className="p-4">
-            <Skeleton className="h-40 w-full" />
+            <Skeleton height={160} />
           </div>
         ) : rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 p-10 text-center">
-            <AppWindow
-              className="h-8 w-8 text-[var(--st-text-secondary)]"
-              aria-hidden
-            />
-            <div className="text-[14px] text-[var(--st-text)]">No mini apps yet</div>
-            <div className="text-[12px] text-[var(--st-text-secondary)]">
-              Register your first Web App URL to share it from a chat or set
-              it as the bot's menu button.
-            </div>
-            <Button
-              onClick={() => {
-                setEditing(null);
-                setFormMode('create');
-                setFormOpen(true);
-              }}
-              style={{ backgroundColor: ACCENT }}
-            >
-              <Plus className="mr-1.5 h-3.5 w-3.5" /> New mini app
-            </Button>
-          </div>
+          <EmptyState
+            icon={AppWindow}
+            title="No mini apps yet"
+            description="Register your first Web App URL to share it from a chat or set it as the bot's menu button."
+            action={
+              <Button
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => {
+                  setEditing(null);
+                  setFormMode('create');
+                  setFormOpen(true);
+                }}
+              >
+                New mini app
+              </Button>
+            }
+          />
         ) : (
           <Table>
             <THead>
@@ -506,19 +461,20 @@ export default function MiniAppsPage() {
               {rows.map((r) => (
                 <Tr key={r._id}>
                   <Td>
-                    <button
-                      type="button"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-0"
                       onClick={() => {
                         setDetailApp(r);
                         setDetailOpen(true);
                       }}
-                      className="text-left text-[var(--st-text)] hover:underline"
                     >
                       {r.name}
-                    </button>
+                    </Button>
                   </Td>
                   <Td>
-                    @{r.botUsername || '—'}
+                    @{r.botUsername || '-'}
                   </Td>
                   <Td className="font-mono text-[11px]">
                     {r.slug}
@@ -531,14 +487,12 @@ export default function MiniAppsPage() {
                       >
                         {truncate(r.webAppUrl, 36)}
                       </span>
-                      <button
-                        type="button"
-                        aria-label="Copy URL"
+                      <IconButton
+                        label="Copy URL"
+                        icon={Copy}
+                        size="sm"
                         onClick={() => copy(r.webAppUrl, 'URL copied')}
-                        className="rounded p-1 text-[var(--st-text-secondary)] hover:bg-zoru-bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                      >
-                        <Copy className="h-3 w-3" />
-                      </button>
+                      />
                     </div>
                   </Td>
                   <Td>
@@ -625,10 +579,9 @@ export default function MiniAppsPage() {
       {menuButtonApp && settingMenu && (
         <div
           role="status"
-          className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12px] shadow"
+          className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-[12px] text-[var(--st-text)] shadow"
         >
-          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating menu
-          button…
+          <Spinner size="sm" /> Updating menu button
         </div>
       )}
 
@@ -642,7 +595,7 @@ export default function MiniAppsPage() {
             <DialogTitle>Delete mini app?</DialogTitle>
             <DialogDescription>
               {deleteApp
-                ? `“${deleteApp.name}” will be removed from the registry. Existing menu-button bindings on Telegram are not removed automatically.`
+                ? `"${deleteApp.name}" will be removed from the registry. Existing menu-button bindings on Telegram are not removed automatically.`
                 : ''}
             </DialogDescription>
           </DialogHeader>
@@ -652,14 +605,10 @@ export default function MiniAppsPage() {
             </Button>
             <Button
               variant="destructive"
+              iconLeft={Trash2}
+              loading={deleting}
               onClick={onConfirmDelete}
-              disabled={deleting}
             >
-              {deleting ? (
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-              )}
               Delete
             </Button>
           </DialogFooter>

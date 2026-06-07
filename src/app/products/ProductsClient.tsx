@@ -1,9 +1,26 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Box, Activity, Users, Zap, ShoppingCart, BarChart, ChevronRight, Filter, Play } from 'lucide-react';
+import { Box, Activity, Users, Zap, ShoppingCart, BarChart, ChevronRight, Filter, Play, Copy } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
+import {
+  Button,
+  IconButton,
+  Field,
+  Input,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Badge,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 gsap.registerPlugin(useGSAP);
 
@@ -122,8 +139,10 @@ const products = [
 
 const categories = ['All', 'API', 'Tools', 'Data'];
 
+type Product = (typeof products)[number];
+
 // Sub-component for interactive demo / video placeholder
-function ProductDemo({ product }: { product: any }) {
+function ProductDemo({ product }: { product: Product }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -132,11 +151,11 @@ function ProductDemo({ product }: { product: any }) {
   const playDemo = contextSafe(() => {
     if (isPlaying) return;
     setIsPlaying(true);
-    
+
     const tl = gsap.timeline({
       onComplete: () => setIsPlaying(false)
     });
-    
+
     if (product.id === 'conversations') {
       tl.fromTo('.msg-1', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 })
         .fromTo('.msg-2', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4 }, "+=0.3")
@@ -158,14 +177,14 @@ function ProductDemo({ product }: { product: any }) {
         .fromTo('.cart-total', { opacity: 0 }, { opacity: 1, duration: 0.4 })
         .fromTo('.cart-stamp', { opacity: 0, scale: 1.5, rotation: 0 }, { opacity: 1, scale: 1, rotation: -5, duration: 0.4, ease: 'back.out(2)' }, "+=0.2");
     } else if (product.id === 'analytics') {
-      tl.fromTo('.chart-bar', 
+      tl.fromTo('.chart-bar',
         { opacity: 0, height: 0 },
-        { 
-          opacity: 1, 
-          height: (i, el) => el.getAttribute('data-h') || '0%', 
-          duration: 0.6, 
-          stagger: 0.1, 
-          ease: 'power2.out' 
+        {
+          opacity: 1,
+          height: (i, el) => el.getAttribute('data-h') || '0%',
+          duration: 0.6,
+          stagger: 0.1,
+          ease: 'power2.out'
         }
       );
     }
@@ -176,39 +195,39 @@ function ProductDemo({ product }: { product: any }) {
       case 'conversations':
         return (
           <div className="flex flex-col space-y-2 p-4 h-full justify-center w-full">
-            <div className="demo-element msg-1 self-start bg-gray-800 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Hi, I need support.</div>
-            <div className="demo-element msg-2 self-end bg-blue-600 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">Sure, what seems to be the issue?</div>
-            <div className="demo-element msg-3 self-start bg-gray-800 text-white px-3 py-2 rounded-lg max-w-[80%] text-xs opacity-0 translate-y-4">My order hasn't arrived yet.</div>
+            <div className="demo-element msg-1 self-start bg-[var(--st-bg-secondary)] text-[var(--st-text)] px-3 py-2 rounded-[var(--st-radius)] max-w-[80%] text-xs opacity-0 translate-y-4">Hi, I need support.</div>
+            <div className="demo-element msg-2 self-end bg-[var(--st-accent)] text-[var(--st-text-inverted)] px-3 py-2 rounded-[var(--st-radius)] max-w-[80%] text-xs opacity-0 translate-y-4">Sure, what seems to be the issue?</div>
+            <div className="demo-element msg-3 self-start bg-[var(--st-bg-secondary)] text-[var(--st-text)] px-3 py-2 rounded-[var(--st-radius)] max-w-[80%] text-xs opacity-0 translate-y-4">My order has not arrived yet.</div>
           </div>
         );
       case 'automation':
         return (
           <div className="flex items-center justify-center h-full space-x-2 p-4 w-full">
-            <div className="demo-element node-1 w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Trigger</div>
-            <div className="demo-element line-1 w-8 h-1 bg-gray-600 opacity-0 origin-left -ml-3 -mr-3"></div>
-            <div className="demo-element node-2 w-12 h-12 rounded bg-green-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Action</div>
-            <div className="demo-element line-2 w-8 h-1 bg-gray-600 opacity-0 origin-left -ml-3 -mr-3"></div>
-            <div className="demo-element node-3 w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">End</div>
+            <div className="demo-element node-1 w-12 h-12 rounded-full bg-[var(--st-accent)] text-[var(--st-text-inverted)] flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Trigger</div>
+            <div className="demo-element line-1 w-8 h-1 bg-[var(--st-border)] opacity-0 origin-left -ml-3 -mr-3"></div>
+            <div className="demo-element node-2 w-12 h-12 rounded-[var(--st-radius)] bg-[var(--st-status-ok)] text-[var(--st-text-inverted)] flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">Action</div>
+            <div className="demo-element line-2 w-8 h-1 bg-[var(--st-border)] opacity-0 origin-left -ml-3 -mr-3"></div>
+            <div className="demo-element node-3 w-12 h-12 rounded-full bg-[var(--st-text)] text-[var(--st-bg)] flex items-center justify-center text-xs font-bold opacity-0 scale-50 z-10">End</div>
           </div>
         );
       case 'crm':
         return (
           <div className="flex flex-col p-4 h-full justify-center space-y-4 w-full max-w-sm mx-auto">
             <div className="demo-element crm-header flex items-center space-x-3 opacity-0 -translate-x-5">
-               <div className="w-12 h-12 rounded-full bg-indigo-600 border-2 border-white flex items-center justify-center font-bold text-lg">JD</div>
+               <div className="w-12 h-12 rounded-full bg-[var(--st-accent)] text-[var(--st-text-inverted)] flex items-center justify-center font-bold text-lg">JD</div>
                <div>
-                 <div className="text-sm font-bold text-white mb-1">Jane Doe</div>
-                 <div className="text-xs text-gray-400">jane@example.com</div>
+                 <div className="text-sm font-bold text-[var(--st-text)] mb-1">Jane Doe</div>
+                 <div className="text-xs text-[var(--st-text-secondary)]">jane@example.com</div>
                </div>
             </div>
-            <div className="space-y-3 bg-gray-900 p-3 rounded border border-gray-700">
+            <div className="space-y-3 bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <div className="demo-element crm-field flex justify-between opacity-0">
-                 <span className="text-xs text-gray-400">Lifecycle</span>
-                 <span className="text-xs text-green-400 font-bold bg-green-900 px-2 py-0.5 rounded">Lead</span>
+                 <span className="text-xs text-[var(--st-text-secondary)]">Lifecycle</span>
+                 <Badge tone="success" kind="soft">Lead</Badge>
               </div>
               <div className="demo-element crm-field flex justify-between opacity-0">
-                 <span className="text-xs text-gray-400">Tags</span>
-                 <span className="text-xs text-blue-400 bg-blue-900 px-2 py-0.5 rounded">Enterprise</span>
+                 <span className="text-xs text-[var(--st-text-secondary)]">Tags</span>
+                 <Badge tone="info" kind="soft">Enterprise</Badge>
               </div>
             </div>
           </div>
@@ -216,17 +235,17 @@ function ProductDemo({ product }: { product: any }) {
       case 'campaigns':
         return (
           <div className="flex flex-col p-4 h-full justify-center space-y-4 w-full max-w-sm mx-auto">
-            <div className="demo-element camp-card bg-gray-900 p-4 rounded border border-gray-700 opacity-0 scale-95">
+            <div className="demo-element camp-card bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] opacity-0 scale-95">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm font-bold">Black Friday Promo</span>
-                  <span className="text-xs bg-blue-600 px-2 py-1 rounded">Sending</span>
+                  <span className="text-sm font-bold text-[var(--st-text)]">Black Friday Promo</span>
+                  <Badge tone="accent" kind="soft">Sending</Badge>
                 </div>
-                <div className="flex justify-between text-xs text-gray-400 mb-2">
+                <div className="flex justify-between text-xs text-[var(--st-text-secondary)] mb-2">
                   <span>12,450 / 15,000 sent</span>
                   <span>83%</span>
                 </div>
-                <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
-                  <div className="demo-element camp-bar h-full bg-blue-500 w-0"></div>
+                <div className="w-full h-2 bg-[var(--st-bg)] rounded-full overflow-hidden border border-[var(--st-border)]">
+                  <div className="demo-element camp-bar h-full bg-[var(--st-accent)] w-0"></div>
                 </div>
             </div>
           </div>
@@ -234,18 +253,18 @@ function ProductDemo({ product }: { product: any }) {
       case 'commerce':
         return (
           <div className="flex flex-col p-4 h-full justify-center space-y-2 w-full max-w-sm mx-auto">
-            <div className="bg-white text-black p-4 rounded font-sans relative overflow-hidden">
-                <div className="text-center font-bold mb-4 border-b pb-2">RECEIPT</div>
+            <div className="bg-[var(--st-bg)] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] relative overflow-hidden">
+                <div className="text-center font-bold mb-4 border-b border-[var(--st-border)] pb-2">Receipt</div>
                 <div className="demo-element cart-item flex justify-between text-sm opacity-0 translate-y-2 mb-2">
                   <span>SAB-PRO (x1)</span><span>$99.00</span>
                 </div>
                 <div className="demo-element cart-item flex justify-between text-sm opacity-0 translate-y-2 mb-2">
                   <span>API-Overage</span><span>$10.00</span>
                 </div>
-                <div className="demo-element cart-total flex justify-between text-sm font-bold opacity-0 pt-2 border-t mt-2">
-                  <span>TOTAL PAID</span><span>$109.00</span>
+                <div className="demo-element cart-total flex justify-between text-sm font-bold opacity-0 pt-2 border-t border-[var(--st-border)] mt-2">
+                  <span>Total Paid</span><span>$109.00</span>
                 </div>
-                <div className="demo-element cart-stamp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 text-green-600 font-black text-2xl tracking-widest border-4 border-green-600 py-1 px-3 rotate-[-15deg] pointer-events-none bg-white/80">
+                <div className="demo-element cart-stamp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 text-[var(--st-status-ok)] font-black text-2xl tracking-widest border-4 border-[var(--st-status-ok)] py-1 px-3 rotate-[-15deg] pointer-events-none">
                   PAID
                 </div>
             </div>
@@ -254,46 +273,49 @@ function ProductDemo({ product }: { product: any }) {
       case 'analytics':
         return (
           <div className="flex flex-col items-center justify-end p-4 h-full w-full max-w-sm mx-auto">
-             <div className="flex items-end justify-between w-full h-32 border-b-2 border-l-2 border-gray-500 p-2 space-x-2">
-                <div className="demo-element chart-bar w-full bg-blue-500 opacity-0 h-0" data-h="40%"></div>
-                <div className="demo-element chart-bar w-full bg-indigo-500 opacity-0 h-0" data-h="75%"></div>
-                <div className="demo-element chart-bar w-full bg-purple-500 opacity-0 h-0" data-h="55%"></div>
-                <div className="demo-element chart-bar w-full bg-pink-500 opacity-0 h-0" data-h="90%"></div>
-                <div className="demo-element chart-bar w-full bg-red-500 opacity-0 h-0" data-h="65%"></div>
+             <div className="flex items-end justify-between w-full h-32 border-b-2 border-l-2 border-[var(--st-border)] p-2 space-x-2">
+                <div className="demo-element chart-bar w-full bg-[var(--st-accent)] opacity-0 h-0" data-h="40%"></div>
+                <div className="demo-element chart-bar w-full bg-[var(--st-accent)] opacity-0 h-0" data-h="75%"></div>
+                <div className="demo-element chart-bar w-full bg-[var(--st-accent)] opacity-0 h-0" data-h="55%"></div>
+                <div className="demo-element chart-bar w-full bg-[var(--st-accent)] opacity-0 h-0" data-h="90%"></div>
+                <div className="demo-element chart-bar w-full bg-[var(--st-accent)] opacity-0 h-0" data-h="65%"></div>
              </div>
           </div>
         );
       default:
         return (
-           <div className="text-gray-500">Interactive demo not available.</div>
+           <div className="text-[var(--st-text-tertiary)]">Interactive demo not available.</div>
         );
     }
   };
 
   return (
-    <div ref={containerRef} className="mt-8 border-2 border-black p-1 bg-black text-white rounded-none relative overflow-hidden group h-64 flex flex-col">
-      <div className="flex items-center justify-between border-b border-white pb-2 mb-2 px-2 pt-2 z-20">
+    <div ref={containerRef} className="mt-8 border border-[var(--st-border)] p-1 bg-[var(--st-bg-secondary)] text-[var(--st-text)] rounded-[var(--st-radius)] relative overflow-hidden group h-64 flex flex-col">
+      <div className="flex items-center justify-between border-b border-[var(--st-border)] pb-2 mb-2 px-2 pt-2 z-20">
         <div className="flex space-x-2">
-           <div className="w-3 h-3 bg-white rounded-full"></div>
-           <div className="w-3 h-3 bg-white rounded-full"></div>
-           <div className="w-3 h-3 bg-white rounded-full"></div>
+           <div className="w-3 h-3 bg-[var(--st-text-tertiary)] rounded-full"></div>
+           <div className="w-3 h-3 bg-[var(--st-text-tertiary)] rounded-full"></div>
+           <div className="w-3 h-3 bg-[var(--st-text-tertiary)] rounded-full"></div>
         </div>
-        <div className="text-xs font-bold tracking-widest uppercase">Interactive Demo</div>
+        <div className="text-xs font-bold tracking-widest uppercase text-[var(--st-text-secondary)]">Interactive Demo</div>
       </div>
-      
+
       <div className="flex-1 relative font-mono text-sm overflow-hidden flex items-center justify-center">
-        
+
         {renderVisual()}
 
         {/* Play button overlay */}
         {!isPlaying && (
-          <button 
-            onClick={playDemo}
-            className="absolute inset-0 m-auto w-16 h-16 bg-white text-black flex items-center justify-center hover:scale-110 transition-transform cursor-pointer border-2 border-black z-20"
-            aria-label="Play Demo"
-          >
-            <Play className="w-8 h-8 ml-1" />
-          </button>
+          <div className="absolute inset-0 m-auto w-16 h-16 z-20">
+            <IconButton
+              label="Play demo"
+              icon={Play}
+              variant="primary"
+              size="lg"
+              onClick={playDemo}
+              className="w-16 h-16 rounded-full"
+            />
+          </div>
         )}
       </div>
     </div>
@@ -303,111 +325,137 @@ function ProductDemo({ product }: { product: any }) {
 export default function ProductsClient() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const { toast } = useToast();
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const filteredProducts = products.filter(p => {
     const matchesCategory = activeCategory === 'All' || p.category === activeCategory;
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   useGSAP(() => {
-    gsap.fromTo('.product-card', 
+    gsap.fromTo('.product-card',
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, stagger: 0.1, duration: 0.4, ease: 'power2.out', clearProps: "all" }
     );
   }, { scope: containerRef, dependencies: [activeCategory, searchQuery] });
 
+  const copyResponse = (product: Product) => {
+    void navigator.clipboard
+      .writeText(product.response)
+      .then(() => toast.success(`Copied ${product.name} response`))
+      .catch(() => toast.error('Could not copy to clipboard'));
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-81px)]" ref={containerRef}>
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-81px)] bg-[var(--st-bg)]" ref={containerRef}>
       {/* Navigation Sidebar */}
-      <aside className="w-full lg:w-64 border-r border-black p-6 bg-white flex-shrink-0 lg:sticky top-[81px] lg:h-[calc(100vh-81px)] overflow-y-auto">
+      <aside className="w-full lg:w-72 border-r border-[var(--st-border)] p-6 bg-[var(--st-bg)] flex-shrink-0 lg:sticky top-[81px] lg:h-[calc(100vh-81px)] overflow-y-auto">
         <div className="mb-8">
-          <h2 className="text-sm font-bold uppercase mb-4 tracking-widest border-b border-black pb-2 flex items-center">
-            <Filter className="w-4 h-4 mr-2" />
+          <h2 className="text-sm font-bold uppercase mb-4 tracking-widest border-b border-[var(--st-border)] pb-2 flex items-center text-[var(--st-text)]">
+            <Filter className="w-4 h-4 mr-2" aria-hidden="true" />
             Filters
           </h2>
-          
-          <input 
-            type="text" 
-            placeholder="Search products..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full border-2 border-black p-2 mb-6 text-sm font-bold outline-none focus:bg-black focus:text-white transition-colors"
-          />
 
-          <h3 className="text-xs font-bold uppercase mb-3 text-gray-500 tracking-widest">Categories</h3>
+          <div className="mb-6">
+            <Field label="Search products">
+              <Input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </Field>
+          </div>
+
+          <h3 className="text-xs font-bold uppercase mb-3 text-[var(--st-text-secondary)] tracking-widest">Categories</h3>
           <div className="space-y-2">
             {categories.map(category => (
-              <button
+              <Button
                 key={category}
                 onClick={() => setActiveCategory(category)}
-                className={`w-full text-left px-3 py-2 text-sm font-bold border-2 transition-colors uppercase tracking-wide ${activeCategory === category ? 'bg-black text-white border-black' : 'bg-white text-black border-transparent hover:border-black'}`}
+                variant={activeCategory === category ? 'primary' : 'ghost'}
+                size="sm"
+                block
+                className="justify-start"
+                aria-pressed={activeCategory === category}
               >
                 {category}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
-        <h2 className="text-sm font-bold uppercase mb-4 tracking-widest border-b border-black pb-2">Endpoints</h2>
+        <h2 className="text-sm font-bold uppercase mb-4 tracking-widest border-b border-[var(--st-border)] pb-2 text-[var(--st-text)]">Endpoints</h2>
         <nav className="space-y-1">
           {filteredProducts.map((p) => (
-            <a key={p.id} href={`#${p.id}`} className="flex items-center justify-between text-sm hover:bg-black hover:text-white px-2 py-2 transition-colors border border-transparent hover:border-black group">
-              <span className="font-bold">{p.name}</span>
-              <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100" />
+            <a
+              key={p.id}
+              href={`#${p.id}`}
+              className="flex items-center justify-between text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] px-2 py-2 transition-colors rounded-[var(--st-radius)] border border-transparent hover:border-[var(--st-border)] group"
+            >
+              <span className="font-semibold">{p.name}</span>
+              <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100" aria-hidden="true" />
             </a>
           ))}
           {filteredProducts.length === 0 && (
-            <div className="text-sm text-gray-500 py-2">No endpoints found.</div>
+            <div className="text-sm text-[var(--st-text-tertiary)] py-2">No endpoints found.</div>
           )}
         </nav>
       </aside>
 
       {/* Content Area */}
-      <div className="flex-1 bg-white">
+      <div className="flex-1 bg-[var(--st-bg)]">
         {filteredProducts.length === 0 ? (
-          <div className="p-12 text-center flex flex-col items-center justify-center h-full min-h-[500px]">
-             <Box className="w-16 h-16 mb-4 opacity-20" />
-             <h2 className="text-2xl font-bold uppercase tracking-widest">No Products Found</h2>
-             <p className="mt-2 text-gray-500">Try adjusting your filters or search query.</p>
-             <button 
-               onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
-               className="mt-6 border-2 border-black px-6 py-2 font-bold uppercase hover:bg-black hover:text-white transition-colors"
-             >
-               Clear Filters
-             </button>
+          <div className="p-12 flex items-center justify-center h-full min-h-[500px]">
+            <EmptyState
+              icon={Box}
+              title="No products found"
+              description="Try adjusting your filters or search query."
+              action={
+                <Button
+                  variant="primary"
+                  onClick={() => { setActiveCategory('All'); setSearchQuery(''); }}
+                >
+                  Clear filters
+                </Button>
+              }
+            />
           </div>
         ) : (
           filteredProducts.map((product, idx) => (
-            <div key={product.id} id={product.id} className={`product-card grid grid-cols-1 xl:grid-cols-2 ${idx !== 0 ? 'border-t border-black' : ''}`}>
-              
-              {/* Documentation Column (Left) */}
-              <div className="p-8 xl:p-12 xl:border-r border-black bg-white flex flex-col justify-center">
-                <div className="mb-6 flex items-center space-x-4">
-                  <div className="p-3 border-2 border-black bg-white">
-                    <product.icon className="w-6 h-6 text-black" />
-                  </div>
-                  <h2 className="text-3xl font-bold tracking-tight uppercase">{product.name}</h2>
-                </div>
-                
-                <div className="mb-4 inline-block bg-gray-100 px-3 py-1 text-xs font-bold uppercase tracking-widest border border-black self-start">
-                  Category: {product.category}
-                </div>
+            <div key={product.id} id={product.id} className={`product-card grid grid-cols-1 xl:grid-cols-2 ${idx !== 0 ? 'border-t border-[var(--st-border)]' : ''}`}>
 
-                <p className="text-black mb-10 text-lg leading-relaxed border-l-4 border-black pl-4">
-                  {product.description}
-                </p>
+              {/* Documentation Column (Left) */}
+              <div className="p-8 xl:p-12 xl:border-r border-[var(--st-border)] bg-[var(--st-bg)] flex flex-col justify-center">
+                <PageHeader bordered={false} className="mb-6">
+                  <PageHeaderHeading>
+                    <div className="flex items-center gap-4">
+                      <span className="p-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] inline-flex">
+                        <product.icon className="w-6 h-6 text-[var(--st-text)]" aria-hidden="true" />
+                      </span>
+                      <PageTitle className="!mb-0">{product.name}</PageTitle>
+                    </div>
+                    <PageDescription className="mt-4 text-[var(--st-text-secondary)]">
+                      {product.description}
+                    </PageDescription>
+                  </PageHeaderHeading>
+                </PageHeader>
+
+                <div className="mb-8">
+                  <Badge tone="neutral" kind="outline">Category: {product.category}</Badge>
+                </div>
 
                 <div className="mt-auto">
-                  <h3 className="text-xs font-bold uppercase tracking-widest border-b border-black pb-2 mb-4">HTTP Request</h3>
-                  <div className="flex items-center text-sm border-2 border-black">
-                    <div className="bg-black text-white px-4 py-3 font-bold border-r-2 border-black uppercase w-24 text-center shrink-0">
+                  <h3 className="text-xs font-bold uppercase tracking-widest border-b border-[var(--st-border)] pb-2 mb-4 text-[var(--st-text)]">HTTP Request</h3>
+                  <div className="flex items-stretch text-sm border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">
+                    <div className="bg-[var(--st-accent)] text-[var(--st-text-inverted)] px-4 py-3 font-bold uppercase w-24 text-center shrink-0">
                       {product.method}
                     </div>
-                    <div className="px-4 py-3 text-black font-bold break-all w-full bg-white">
+                    <div className="px-4 py-3 text-[var(--st-text)] font-semibold break-all w-full bg-[var(--st-bg-secondary)]">
                       https://api.sabnode.com{product.endpoint}
                     </div>
                   </div>
@@ -419,16 +467,25 @@ export default function ProductsClient() {
               </div>
 
               {/* Code Snippet Column (Right) */}
-              <div className="p-8 xl:p-12 bg-black text-white flex flex-col justify-center">
-                <h3 className="text-xs font-bold uppercase tracking-widest border-b border-white pb-2 mb-4 text-white">Example Response</h3>
-                <div className="bg-black border-2 border-white p-6 overflow-x-auto relative group">
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="text-xs font-bold border border-white px-3 py-1 uppercase hover:bg-white hover:text-black transition-colors focus:outline-none">COPY</button>
-                  </div>
-                  <pre className="text-sm font-mono text-white whitespace-pre">
-                    <code>{product.response}</code>
-                  </pre>
-                </div>
+              <div className="p-8 xl:p-12 bg-[var(--st-bg-secondary)] flex flex-col justify-center">
+                <Card variant="outlined" padding="none" className="overflow-hidden">
+                  <CardHeader className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-xs font-bold uppercase tracking-widest">Example Response</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={Copy}
+                      onClick={() => copyResponse(product)}
+                    >
+                      Copy
+                    </Button>
+                  </CardHeader>
+                  <CardBody className="overflow-x-auto">
+                    <pre className="text-sm font-mono text-[var(--st-text)] whitespace-pre">
+                      <code>{product.response}</code>
+                    </pre>
+                  </CardBody>
+                </Card>
               </div>
 
             </div>

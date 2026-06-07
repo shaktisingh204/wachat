@@ -1,10 +1,9 @@
-import "@/components/sabcrm/20ui/zoru-legacy.css";
-
 import Link from 'next/link';
 import { Clock, ShieldAlert, Activity, ArrowRight, ExternalLink } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ShortUrl } from '@/lib/definitions';
-import { Card, Button } from '@/components/sabcrm/20ui';
+import { Card, Button, EmptyState } from '@/components/sabcrm/20ui';
 import { format } from 'date-fns';
 
 import { Metadata } from 'next';
@@ -43,59 +42,59 @@ export default async function ExpiredLinkPage({ searchParams }: PageProps) {
     const isClickLimitReached = shortUrl?.clickLimit && shortUrl.clickCount >= shortUrl.clickLimit;
     const isDateExpired = shortUrl?.expiresAt && new Date(shortUrl.expiresAt) < new Date();
 
-    let reasonText = "It may have reached its expiry date or click limit.";
-    let icon = <Clock className="h-8 w-8 text-[var(--st-text-secondary)]" />;
+    let reasonText = 'It may have reached its expiry date or click limit.';
+    let ReasonIcon: LucideIcon = Clock;
 
     if (shortUrl) {
         if (shortUrl.status === 'inactive') {
-            reasonText = "This link has been deactivated by its creator.";
-            icon = <ShieldAlert className="h-8 w-8 text-[var(--st-text-secondary)]" />;
+            reasonText = 'This link has been deactivated by its creator.';
+            ReasonIcon = ShieldAlert;
         } else if (isClickLimitReached) {
             reasonText = `This link has reached its maximum allowed clicks (${shortUrl.clickLimit}).`;
-            icon = <Activity className="h-8 w-8 text-[var(--st-text-secondary)]" />;
+            ReasonIcon = Activity;
         } else if (isDateExpired) {
             reasonText = `This link expired on ${format(new Date(shortUrl.expiresAt!), 'MMM d, yyyy')}.`;
-            icon = <Clock className="h-8 w-8 text-[var(--st-text-secondary)]" />;
+            ReasonIcon = Clock;
         }
     }
 
     return (
-        <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
-            <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4 text-center">
-                <Card className="max-w-md w-full p-8 flex flex-col items-center bg-[var(--st-bg-secondary)] border border-[var(--st-border)] shadow-2xl">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--st-bg-secondary)] mb-6 shadow-inner">
-                        {icon}
-                    </div>
+        <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+            <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
+                <Card variant="elevated" padding="lg" className="w-full max-w-md">
+                    <EmptyState
+                        icon={ReasonIcon}
+                        title="This link has expired"
+                        description={`The link you followed is no longer active. ${reasonText}`}
+                        action={
+                            <div className="flex w-full flex-col gap-6">
+                                {originalDomain && (
+                                    <div className="flex w-full flex-col items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
+                                            Destination
+                                        </span>
+                                        <div className="flex items-center gap-2 text-[var(--st-text)]">
+                                            <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                                            <span className="font-medium">{originalDomain}</span>
+                                        </div>
+                                    </div>
+                                )}
 
-                    <h1 className="text-2xl font-semibold text-[var(--st-text)] mb-2 tracking-tight">This link has expired</h1>
-
-                    <p className="text-sm text-[var(--st-text-secondary)] max-w-sm mb-6 leading-relaxed">
-                        The link you followed is no longer active. {reasonText}
-                    </p>
-
-                    {originalDomain && (
-                        <div className="w-full bg-[var(--st-bg)] rounded-lg p-4 mb-6 border border-[var(--st-border)] flex flex-col gap-1 items-center">
-                            <span className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wider font-semibold">Destination</span>
-                            <div className="flex items-center gap-2 text-[var(--st-text)]">
-                                <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                                <span className="font-medium">{originalDomain}</span>
+                                <div className="w-full border-t border-[var(--st-border)] pt-6">
+                                    <Link href="/" className="block w-full">
+                                        <Button variant="outline" block iconRight={ArrowRight}>
+                                            Go to Homepage
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
-                        </div>
-                    )}
-
-                    <div className="w-full pt-4 border-t border-[var(--st-border)]">
-                        <Link href="/" className="w-full block">
-                            <Button variant="outline" className="w-full">
-                                Go to Homepage
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        </Link>
-                    </div>
+                        }
+                    />
                 </Card>
 
                 <Link
                     href="/"
-                    className="mt-8 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors flex items-center gap-1.5"
+                    className="mt-8 flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
                 >
                     <span>Powered by</span>
                     <span className="font-semibold">SabNode</span>

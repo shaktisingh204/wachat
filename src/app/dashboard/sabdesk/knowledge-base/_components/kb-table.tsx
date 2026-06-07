@@ -1,10 +1,27 @@
 "use client";
 
-import { Badge, Checkbox, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  type BadgeProps,
+  Checkbox,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
 import { formatDistanceToNow } from "date-fns";
 import {
   BookOpen,
-  ChevronDown,
+  ChevronRight,
   Edit,
   Eye,
   MoreHorizontal,
@@ -12,10 +29,10 @@ import {
 } from "lucide-react";
 
 /**
- * <KbTable> — 10-column dense table for the KB list (§1D.1).
+ * <KbTable> - 10-column dense table for the KB list (section 1D.1).
  *
- * select · Title (chip) · Category · Status · Visibility · Tags ·
- * Views · Helpful % · Updated · Actions.
+ * select, Title (chip), Category, Status, Visibility, Tags,
+ * Views, Helpful %, Updated, Actions.
  */
 
 import * as React from "react";
@@ -25,14 +42,14 @@ import { EntityPickerChip } from "@/components/crm/entity-picker";
 import { EntityRowLink } from "@/components/crm/entity-row-link";
 import { StatusPill, statusToTone } from "@/components/crm/status-pill";
 import type { KbArticleDoc } from "@/app/actions/crm-knowledge-base.actions.types";
-const VISIBILITY_VARIANTS: Record<
-  string,
-  React.ComponentProps<typeof ZoruBadge>["variant"]
-> = {
+
+const VISIBILITY_VARIANTS: Record<string, BadgeProps["variant"]> = {
   public: "success",
   portal: "warning",
-  internal: "ghost",
+  internal: "outline",
 };
+
+const EMPTY = "-";
 
 interface KbTableProps {
   articles: KbArticleDoc[];
@@ -47,7 +64,7 @@ function helpfulPct(a: KbArticleDoc): string {
   const yes = a.helpfulYes ?? 0;
   const no = a.helpfulNo ?? 0;
   const total = yes + no;
-  if (total === 0) return "—";
+  if (total === 0) return EMPTY;
   return `${Math.round((yes / total) * 100)}%`;
 }
 
@@ -66,17 +83,16 @@ export function KbTable({
     !allSelected && articles.some((a) => selectedIds.has(String(a._id)));
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-[var(--st-border)]">
+    <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
         <THead>
           <Tr className="border-[var(--st-border)] hover:bg-transparent">
             <Th className="w-[36px]">
               <Checkbox
                 aria-label="Select all articles"
-                checked={
-                  allSelected ? true : someSelected ? "indeterminate" : false
-                }
-                onCheckedChange={(c) => onToggleAll(c === true)}
+                checked={allSelected}
+                indeterminate={someSelected}
+                onChange={(e) => onToggleAll(e.target.checked)}
               />
             </Th>
             <Th>Title</Th>
@@ -84,10 +100,10 @@ export function KbTable({
             <Th>Status</Th>
             <Th>Visibility</Th>
             <Th>Tags</Th>
-            <Th className="text-right">Views</Th>
-            <Th className="text-right">Helpful %</Th>
+            <Th align="right">Views</Th>
+            <Th align="right">Helpful %</Th>
             <Th>Updated</Th>
-            <Th className="text-right">Actions</Th>
+            <Th align="right">Actions</Th>
           </Tr>
         </THead>
         <TBody>
@@ -117,22 +133,20 @@ export function KbTable({
               return (
                 <Tr
                   key={id}
-                  className={[
-                    "border-[var(--st-border)] transition-colors",
-                    isSel ? "bg-[var(--st-bg-muted)]/70" : "",
-                  ].join(" ")}
+                  selected={isSel}
+                  className="border-[var(--st-border)] transition-colors"
                 >
                   <Td>
                     <Checkbox
                       aria-label={`Select article ${a.title || id}`}
                       checked={isSel}
-                      onCheckedChange={() => onToggleOne(id)}
+                      onChange={() => onToggleOne(id)}
                     />
                   </Td>
                   <Td>
                     <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                        <BookOpen className="h-3.5 w-3.5" />
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+                        <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />
                       </span>
                       <EntityRowLink
                         href={`/dashboard/sabdesk/knowledge-base/${id}`}
@@ -159,7 +173,7 @@ export function KbTable({
                         fallback={a.category}
                       />
                     ) : (
-                      "—"
+                      EMPTY
                     )}
                   </Td>
                   <Td>
@@ -169,27 +183,33 @@ export function KbTable({
                         tone={statusToTone(a.status)}
                       />
                     ) : (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     )}
                   </Td>
                   <Td>
                     {visibility ? (
                       <Badge
-                        variant={VISIBILITY_VARIANTS[visibility] ?? "ghost"}
+                        variant={VISIBILITY_VARIANTS[visibility] ?? "secondary"}
                       >
                         {visibility}
                       </Badge>
                     ) : (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     )}
                   </Td>
                   <Td>
                     {tags.length === 0 ? (
-                      <span className="text-[12px] text-[var(--st-text-secondary)]">—</span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {EMPTY}
+                      </span>
                     ) : (
                       <div className="flex flex-wrap gap-1">
                         {tags.slice(0, 3).map((t) => (
-                          <Badge key={t} variant="ghost">
+                          <Badge key={t} variant="secondary">
                             {t}
                           </Badge>
                         ))}
@@ -201,13 +221,19 @@ export function KbTable({
                       </div>
                     )}
                   </Td>
-                  <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                  <Td
+                    align="right"
+                    className="text-[12.5px] text-[var(--st-text-secondary)]"
+                  >
                     <span className="inline-flex items-center gap-1">
-                      <Eye className="h-3 w-3" />
+                      <Eye className="h-3 w-3" aria-hidden="true" />
                       {a.viewCount ?? 0}
                     </span>
                   </Td>
-                  <Td className="text-right text-[12.5px] text-[var(--st-text-secondary)]">
+                  <Td
+                    align="right"
+                    className="text-[12.5px] text-[var(--st-text-secondary)]"
+                  >
                     {helpfulPct(a)}
                   </Td>
                   <Td
@@ -220,25 +246,27 @@ export function KbTable({
                       ? formatDistanceToNow(new Date(a.updatedAt), {
                           addSuffix: true,
                         })
-                      : "—"}
+                      : EMPTY}
                   </Td>
-                  <Td className="text-right">
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          aria-label={`Actions for ${a.title || id}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
+                        <IconButton
+                          label={`Actions for ${a.title || id}`}
+                          icon={MoreHorizontal}
+                          variant="ghost"
+                          size="sm"
+                        />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
                           <Link
                             href={`/dashboard/sabdesk/knowledge-base/${id}`}
                           >
-                            <ChevronDown className="mr-1.5 h-3.5 w-3.5 rotate-[-90deg]" />
+                            <ChevronRight
+                              className="u-dropdown__item-icon"
+                              aria-hidden="true"
+                            />
                             View
                           </Link>
                         </DropdownMenuItem>
@@ -246,16 +274,19 @@ export function KbTable({
                           <Link
                             href={`/dashboard/sabdesk/knowledge-base/${id}/edit`}
                           >
-                            <Edit className="mr-1.5 h-3.5 w-3.5" />
+                            <Edit
+                              className="u-dropdown__item-icon"
+                              aria-hidden="true"
+                            />
                             Edit
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
+                          variant="danger"
+                          iconLeft={Trash2}
                           onClick={() => onDelete(id)}
-                          className="text-[var(--st-danger)]"
                         >
-                          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

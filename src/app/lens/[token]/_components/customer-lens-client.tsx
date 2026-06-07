@@ -37,8 +37,8 @@ export function CustomerLensClient({ token, session }: Props) {
     setPermissionState('requesting');
     try {
       // Real flow: getUserMedia + publish over WebRTC peer connection.
-      // The MockTransport doesn't actually shuttle the video — the
-      // technician sees synthetic frames — but we still ask the browser
+      // The MockTransport does not actually shuttle the video. The
+      // technician sees synthetic frames, but we still ask the browser
       // for permission so the UX is honest.
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
@@ -76,13 +76,15 @@ export function CustomerLensClient({ token, session }: Props) {
   const isLive = permissionState === 'granted';
 
   return (
-    <div className="zoruui flex min-h-screen flex-col bg-black text-white">
-      <header className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+    <div className="ui20 dark flex min-h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+      <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold">SabLens</span>
-          <Badge variant={isLive ? 'default' : 'secondary'}>{status}</Badge>
+          <span className="text-sm font-semibold text-[var(--st-text)]">SabLens</span>
+          <Badge tone={isLive ? 'success' : 'neutral'} dot={isLive}>
+            {status}
+          </Badge>
         </div>
-        <span className="text-xs text-white/60">
+        <span className="text-xs text-[var(--st-text-secondary)]">
           {session.customerName ? `Hi, ${session.customerName}` : 'Customer'}
         </span>
       </header>
@@ -93,19 +95,23 @@ export function CustomerLensClient({ token, session }: Props) {
             <CardHeader>
               <CardTitle>Start your remote support session</CardTitle>
               <CardDescription>
-                We'll ask for camera access so your technician can see what
+                We will ask for camera access so your technician can see what
                 you see and draw helpful marks on top.
               </CardDescription>
             </CardHeader>
             <CardBody className="flex flex-col gap-3">
               {permissionState === 'denied' && (
-                <p className="text-sm text-[var(--st-text)]">
+                <p className="text-sm text-[var(--st-danger)]">
                   Camera permission denied. Update your browser settings and
                   try again.
                 </p>
               )}
-              <Button onClick={handleStart} disabled={permissionState === 'requesting'}>
-                {permissionState === 'requesting' ? 'Requesting camera…' : 'Start session'}
+              <Button
+                variant="primary"
+                onClick={handleStart}
+                loading={permissionState === 'requesting'}
+              >
+                {permissionState === 'requesting' ? 'Requesting camera' : 'Start session'}
               </Button>
             </CardBody>
           </Card>
@@ -120,8 +126,8 @@ export function CustomerLensClient({ token, session }: Props) {
           />
           <CustomerAnnotationLayer annotations={annotations} />
           {isPending && (
-            <div className="absolute right-3 top-3 rounded bg-black/60 px-2 py-1 text-xs">
-              Joining…
+            <div className="absolute right-3 top-3 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
+              Joining
             </div>
           )}
         </main>

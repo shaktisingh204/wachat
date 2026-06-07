@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * <KbWorkspaceClient> — three-pane Knowledge Base management view.
+ * <KbWorkspaceClient> - three-pane Knowledge Base management view.
  *
  *   - LEFT: category tree (nested via `parentId`) + "New category" button.
  *   - CENTER: article list filtered by selected category, with a markdown
@@ -12,12 +12,12 @@
  */
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Eye,
   EyeOff,
+  FileText,
   Folder,
   FolderPlus,
   Globe2,
@@ -26,8 +26,34 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/sabcrm/20ui";
 
 import {
   saveKbArticle,
@@ -76,19 +102,19 @@ function buildTree(rows: KbCategoryRow[]): TreeNode[] {
 function visibilityBadge(v?: string): React.ReactNode {
   if (v === "public")
     return (
-      <Badge variant="success" className="gap-1">
-        <Globe2 className="h-3 w-3" /> Public
+      <Badge tone="success" className="gap-1">
+        <Globe2 className="h-3 w-3" aria-hidden="true" /> Public
       </Badge>
     );
   if (v === "portal")
     return (
-      <Badge variant="info" className="gap-1">
-        <Eye className="h-3 w-3" /> Portal
+      <Badge tone="info" className="gap-1">
+        <Eye className="h-3 w-3" aria-hidden="true" /> Portal
       </Badge>
     );
   return (
-    <Badge variant="ghost" className="gap-1">
-      <EyeOff className="h-3 w-3" /> Internal
+    <Badge tone="neutral" className="gap-1">
+      <EyeOff className="h-3 w-3" aria-hidden="true" /> Internal
     </Badge>
   );
 }
@@ -173,11 +199,11 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
   const handleSave = () => {
     if (!draft.title.trim()) {
-      toast({ title: "Title is required", variant: "destructive" });
+      toast.error("Title is required");
       return;
     }
     if (!draft.body.trim()) {
-      toast({ title: "Body is required", variant: "destructive" });
+      toast.error("Body is required");
       return;
     }
     startTransition(async () => {
@@ -192,10 +218,10 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
       const res = await saveKbArticle(null, fd);
       if (res.error) {
-        toast({ title: res.error, variant: "destructive" });
+        toast.error(res.error);
         return;
       }
-      toast({ title: draft._id ? "Article updated" : "Article created" });
+      toast.success(draft._id ? "Article updated" : "Article created");
       router.refresh();
     });
   };
@@ -205,15 +231,12 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await deleteKbArticle(draft._id!);
       if ((res as { error?: string }).error) {
-        toast({
-          title: (res as { error?: string }).error ?? "Failed",
-          variant: "destructive",
-        });
+        toast.error((res as { error?: string }).error ?? "Failed");
         return;
       }
       setArticles((rows) => rows.filter((r) => r._id !== draft._id));
       setSelectedArticleId(null);
-      toast({ title: "Article archived" });
+      toast.success("Article archived");
       router.refresh();
     });
   };
@@ -232,7 +255,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
   const handleCreateCategory = () => {
     if (!newCategoryName.trim()) {
-      toast({ title: "Category name is required", variant: "destructive" });
+      toast.error("Category name is required");
       return;
     }
     startTransition(async () => {
@@ -242,12 +265,12 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       fd.set("visibility", newCategoryVisibility);
       const res = await saveKbCategory(null, fd);
       if (res.success) {
-        toast({ title: "Category created" });
+        toast.success("Category created");
         setShowNewCategory(false);
         setNewCategoryName("");
         router.refresh();
       } else {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
       }
     });
   };
@@ -258,10 +281,10 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       if (res.success) {
         setCategories((rows) => rows.filter((r) => r._id !== id));
         if (activeCategory === id) setActiveCategory("all");
-        toast({ title: "Category archived" });
+        toast.success("Category archived");
         router.refresh();
       } else {
-        toast({ title: res.error ?? "Failed", variant: "destructive" });
+        toast.error(res.error ?? "Failed");
       }
     });
   };
@@ -270,34 +293,38 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
   const renderTreeNode = (node: TreeNode, depth = 0): React.ReactNode => (
     <div key={node._id}>
-      <button
-        type="button"
-        onClick={() => setActiveCategory(node._id)}
-        className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ${
-          activeCategory === node._id ? "bg-[var(--st-bg-muted)] font-medium" : ""
-        }`}
-        style={{ paddingLeft: `${8 + depth * 14}px` }}
-      >
-        <span className="flex items-center gap-1.5 truncate text-[var(--st-text)]">
-          <Folder className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
-          {node.name}
-        </span>
-        <span className="flex items-center gap-1">
-          <Badge variant="ghost">{node.articleCount ?? 0}</Badge>
-          <button
-            type="button"
-            aria-label={`Delete ${node.name}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (confirm(`Archive category "${node.name}"?`))
-                handleDeleteCategory(node._id);
-            }}
-            className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-          >
-            <Trash2 className="h-3 w-3" />
-          </button>
-        </span>
-      </button>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setActiveCategory(node._id)}
+          className={`min-w-0 flex-1 justify-between !px-2 text-left text-[13px] ${
+            activeCategory === node._id
+              ? "bg-[var(--st-bg-muted)] font-medium"
+              : ""
+          }`}
+          style={{ paddingLeft: `${8 + depth * 14}px` }}
+        >
+          <span className="flex min-w-0 items-center gap-1.5 truncate text-[var(--st-text)]">
+            <Folder
+              className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            />
+            <span className="truncate">{node.name}</span>
+          </span>
+          <Badge tone="neutral">{node.articleCount ?? 0}</Badge>
+        </Button>
+        <IconButton
+          label={`Delete ${node.name}`}
+          icon={Trash2}
+          size="sm"
+          variant="ghost"
+          onClick={() => {
+            if (confirm(`Archive category "${node.name}"?`))
+              handleDeleteCategory(node._id);
+          }}
+        />
+      </div>
       {node.children.length > 0 ? (
         <div>{node.children.map((c) => renderTreeNode(c, depth + 1))}</div>
       ) : null}
@@ -305,7 +332,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
   );
 
   return (
-    <div className="zoruui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
+    <div className="ui20 flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
       {/* LEFT: categories */}
       <aside className="flex h-full w-[280px] min-w-[240px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-3">
@@ -315,26 +342,30 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
           <Button
             size="sm"
             variant="outline"
+            iconLeft={FolderPlus}
             onClick={() => setShowNewCategory(true)}
           >
-            <FolderPlus className="mr-1 h-3 w-3" /> New
+            New
           </Button>
         </div>
         <ScrollArea className="flex-1">
           <div className="space-y-0.5 p-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setActiveCategory("all")}
-              className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[13px] hover:bg-[var(--st-bg-muted)] ${
-                activeCategory === "all" ? "bg-[var(--st-bg-muted)] font-medium" : ""
+              className={`w-full justify-between !px-2 text-left text-[13px] ${
+                activeCategory === "all"
+                  ? "bg-[var(--st-bg-muted)] font-medium"
+                  : ""
               }`}
             >
               <span className="flex items-center gap-1.5 text-[var(--st-text)]">
-                <ChevronRight className="h-3.5 w-3.5" />
+                <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
                 All articles
               </span>
-              <Badge variant="ghost">{articles.length}</Badge>
-            </button>
+              <Badge tone="neutral">{articles.length}</Badge>
+            </Button>
             {tree.length === 0 ? (
               <p className="px-2 py-3 text-[12px] text-[var(--st-text-secondary)]">
                 No categories yet.
@@ -363,6 +394,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Plus}
               onClick={() => {
                 setSelectedArticleId(null);
                 setDraft({
@@ -375,12 +407,16 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                 });
               }}
             >
-              <Plus className="mr-1 h-3 w-3" /> New article
+              New article
             </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/dashboard/sabdesk/knowledge-base">
-                Open full list
-              </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                router.push("/dashboard/sabdesk/knowledge-base")
+              }
+            >
+              Open full list
             </Button>
           </div>
         </header>
@@ -393,36 +429,40 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                 {props.initialError}
               </div>
             ) : filteredArticles.length === 0 ? (
-              <div className="p-4 text-[13px] text-[var(--st-text-secondary)]">
-                No articles here yet.
-              </div>
+              <EmptyState
+                icon={FileText}
+                size="sm"
+                title="No articles here yet"
+                description="Create your first article to populate this list."
+                className="m-4"
+              />
             ) : (
               <ul className="divide-y divide-[var(--st-border)]">
                 {filteredArticles.map((a) => {
                   const active = selectedArticleId === a._id;
                   return (
                     <li key={a._id}>
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
                         onClick={() => setSelectedArticleId(a._id)}
-                        className={`flex w-full flex-col gap-1 px-3 py-3 text-left hover:bg-[var(--st-bg-muted)] ${
+                        className={`flex w-full flex-col items-start gap-1 !px-3 !py-3 text-left ${
                           active ? "bg-[var(--st-bg-muted)]" : ""
                         }`}
                       >
                         <span className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)]">
                           {a.title ?? "Untitled"}
                         </span>
-                        <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="flex flex-wrap items-center gap-1.5">
                           {visibilityBadge(a.visibility)}
                           <Badge
-                            variant={
-                              a.status === "published" ? "success" : "ghost"
+                            tone={
+                              a.status === "published" ? "success" : "neutral"
                             }
                           >
                             {a.status ?? "draft"}
                           </Badge>
-                        </div>
-                      </button>
+                        </span>
+                      </Button>
                     </li>
                   );
                 })}
@@ -434,32 +474,27 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
           <ScrollArea className="min-w-0 flex-1">
             <Card className="m-5">
               <CardBody className="space-y-4 p-5">
-                <div>
-                  <Label>Title</Label>
+                <Field label="Title">
                   <Input
                     value={draft.title}
                     onChange={(e) =>
                       setDraft((d) => ({ ...d, title: e.target.value }))
                     }
                     placeholder="e.g. How to reset your password"
-                    className="mt-1"
                   />
-                </div>
+                </Field>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div>
-                    <Label>Slug</Label>
+                  <Field label="Slug">
                     <Input
                       value={draft.slug}
                       onChange={(e) =>
                         setDraft((d) => ({ ...d, slug: e.target.value }))
                       }
                       placeholder="auto from title"
-                      className="mt-1"
                     />
-                  </div>
-                  <div>
-                    <Label>Category</Label>
+                  </Field>
+                  <Field label="Category">
                     <Select
                       value={draft.category || "none"}
                       onValueChange={(v) =>
@@ -469,7 +504,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         }))
                       }
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger aria-label="Category">
                         <SelectValue placeholder="None" />
                       </SelectTrigger>
                       <SelectContent>
@@ -481,9 +516,8 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div>
-                    <Label>Visibility</Label>
+                  </Field>
+                  <Field label="Visibility">
                     <Select
                       value={draft.visibility}
                       onValueChange={(v) =>
@@ -493,7 +527,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         }))
                       }
                     >
-                      <SelectTrigger className="mt-1">
+                      <SelectTrigger aria-label="Visibility">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -503,24 +537,23 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         <SelectItem value="portal">
                           Portal (customers)
                         </SelectItem>
-                        <SelectItem value="public">
-                          Public (web)
-                        </SelectItem>
+                        <SelectItem value="public">Public (web)</SelectItem>
                       </SelectContent>
                     </Select>
-                  </div>
+                  </Field>
                 </div>
 
                 <Separator />
 
                 <div>
                   <div className="mb-1 flex items-center justify-between">
-                    <Label>Body (Markdown)</Label>
+                    <Label htmlFor="kb-article-body">Body (Markdown)</Label>
                     <span className="text-[11px] text-[var(--st-text-secondary)]">
                       Markdown is rendered in the customer portal.
                     </span>
                   </div>
                   <Textarea
+                    id="kb-article-body"
                     value={draft.body}
                     onChange={(e) =>
                       setDraft((d) => ({ ...d, body: e.target.value }))
@@ -534,8 +567,8 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={
-                        draft.status === "published" ? "success" : "ghost"
+                      tone={
+                        draft.status === "published" ? "success" : "neutral"
                       }
                     >
                       {draft.status}
@@ -556,17 +589,21 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   <div className="flex gap-2">
                     {draft._id ? (
                       <Button
-                        variant="outline"
+                        variant="danger"
                         size="sm"
-                        className="text-[var(--st-danger)]"
+                        iconLeft={Trash2}
                         onClick={handleDelete}
                         disabled={isPending}
                       >
-                        <Trash2 className="mr-1 h-3 w-3" /> Archive
+                        Archive
                       </Button>
                     ) : null}
-                    <Button onClick={handleSave} disabled={isPending}>
-                      <Save className="mr-1 h-3 w-3" />
+                    <Button
+                      variant="primary"
+                      iconLeft={Save}
+                      onClick={handleSave}
+                      disabled={isPending}
+                    >
                       {draft._id ? "Save changes" : "Create article"}
                     </Button>
                   </div>
@@ -587,26 +624,23 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div>
-              <Label>Name</Label>
+            <Field label="Name">
               <Input
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="e.g. Billing"
-                className="mt-1"
               />
-            </div>
-            <div>
-              <Label>Parent</Label>
+            </Field>
+            <Field label="Parent">
               <Select
                 value={newCategoryParent}
                 onValueChange={setNewCategoryParent}
               >
-                <SelectTrigger className="mt-1">
+                <SelectTrigger aria-label="Parent category">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="root">— Top level —</SelectItem>
+                  <SelectItem value="root">Top level</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c._id} value={c._id}>
                       {c.name}
@@ -614,9 +648,8 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>Visibility</Label>
+            </Field>
+            <Field label="Visibility">
               <Select
                 value={newCategoryVisibility}
                 onValueChange={(v) =>
@@ -625,7 +658,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   )
                 }
               >
-                <SelectTrigger className="mt-1">
+                <SelectTrigger aria-label="Visibility">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -634,13 +667,17 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   <SelectItem value="public">Public</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNewCategory(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateCategory} disabled={isPending}>
+            <Button
+              variant="primary"
+              onClick={handleCreateCategory}
+              disabled={isPending}
+            >
               Create
             </Button>
           </DialogFooter>

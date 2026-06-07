@@ -6,6 +6,16 @@ import {
   registerForSabwebinar,
   type SabwebinarLandingTheme,
 } from '@/app/actions/sabwebinar.actions';
+import {
+  Button,
+  Field,
+  Input,
+  Alert,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 
 interface Props {
   slug: string;
@@ -54,60 +64,54 @@ export function RegisterForm({ slug, title, theme }: Props) {
   };
 
   return (
-    <main style={{ background: bg, color: fg, minHeight: '100vh' }}>
+    <main className="ui20" style={{ background: bg, color: fg, minHeight: '100vh' }}>
       <div className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
-        <header className="flex flex-col gap-2">
-          <p className="text-sm uppercase tracking-widest opacity-70">Register</p>
-          <h1 className="text-3xl font-bold">{title}</h1>
-        </header>
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageEyebrow>Register</PageEyebrow>
+            <PageTitle>{title}</PageTitle>
+          </PageHeaderHeading>
+        </PageHeader>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="opacity-80">Name</span>
-            <input
-              required
-              className="rounded-md border border-white/20 bg-transparent px-3 py-2"
+          <Field label="Name" required>
+            <Input
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
             />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="opacity-80">Work email</span>
-            <input
-              required
+          </Field>
+          <Field label="Work email" required>
+            <Input
               type="email"
-              className="rounded-md border border-white/20 bg-transparent px-3 py-2"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="opacity-80">Phone (optional)</span>
-            <input
-              className="rounded-md border border-white/20 bg-transparent px-3 py-2"
+          </Field>
+          <Field label="Phone (optional)">
+            <Input
+              type="tel"
               value={form.phone}
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="opacity-80">Company (optional)</span>
-            <input
-              className="rounded-md border border-white/20 bg-transparent px-3 py-2"
+          </Field>
+          <Field label="Company (optional)">
+            <Input
               value={form.company}
               onChange={(e) => setForm({ ...form, company: e.target.value })}
             />
-          </label>
+          </Field>
 
-          {error ? <p className="text-sm" style={{ color: '#ff6b6b' }}>{error}</p> : null}
+          {error ? <Alert tone="danger">{error}</Alert> : null}
 
-          <button
+          <Button
             type="submit"
-            disabled={pending}
-            className="rounded-md px-6 py-3 font-medium disabled:opacity-60"
-            style={{ background: accent, color: '#ffffff' }}
+            variant="primary"
+            block
+            loading={pending}
+            style={{ background: accent, color: '#ffffff', borderColor: accent }}
           >
-            {pending ? 'Registering…' : (theme?.ctaLabel ?? 'Register')}
-          </button>
+            {pending ? 'Registering...' : (theme?.ctaLabel ?? 'Register')}
+          </Button>
         </form>
       </div>
     </main>

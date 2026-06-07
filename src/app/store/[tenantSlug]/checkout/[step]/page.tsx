@@ -2,23 +2,52 @@
 
 import * as React from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 import {
     updateCheckout,
     placeOrder,
 } from '@/app/actions/storefront.actions';
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    PageDescription,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    Radio,
+    RadioGroup,
+} from '@/components/sabcrm/20ui';
 
 type Step = 'address' | 'shipping' | 'payment' | 'review' | 'confirm';
 
 const ORDER: Step[] = ['address', 'shipping', 'payment', 'review', 'confirm'];
 
+const ADDRESS_FIELDS = [
+    { key: 'name', label: 'Full name', placeholder: 'Priya Sharma' },
+    { key: 'email', label: 'Email', placeholder: 'priya@example.com', type: 'email' },
+    { key: 'phone', label: 'Phone', placeholder: '+91 98765 43210', type: 'tel' },
+    { key: 'line1', label: 'Address line', placeholder: '12 MG Road, Indiranagar' },
+    { key: 'city', label: 'City', placeholder: 'Bengaluru' },
+    { key: 'state', label: 'State', placeholder: 'Karnataka' },
+    { key: 'postalCode', label: 'Postal code', placeholder: '560038' },
+    { key: 'country', label: 'Country', placeholder: 'IN' },
+] as const;
+
 function StepIndicator({ active }: { active: Step }) {
     return (
-        <div className="storefront-steps">
+        <div className="mb-5 flex flex-wrap items-center gap-2">
             {ORDER.map((s) => (
-                <span key={s} className={`step ${s === active ? 'active' : ''}`}>
+                <Badge key={s} tone={s === active ? 'accent' : 'neutral'} kind={s === active ? 'solid' : 'soft'}>
                     {s.charAt(0).toUpperCase() + s.slice(1)}
-                </span>
+                </Badge>
             ))}
         </div>
     );
@@ -89,79 +118,141 @@ export default function CheckoutStepPage(): React.JSX.Element {
     }, [step, search]);
 
     return (
-        <div className="max-w-2xl">
-            <h1 className="mb-3 text-2xl font-semibold">Checkout</h1>
+        <div className="ui20 mx-auto max-w-2xl">
+            <PageHeader bordered={false}>
+                <PageHeaderHeading>
+                    <PageTitle>Checkout</PageTitle>
+                    <PageDescription>Complete each step to place your order.</PageDescription>
+                </PageHeaderHeading>
+            </PageHeader>
+
             <StepIndicator active={step} />
 
-            {error && <p className="mb-3 text-sm text-[var(--st-text)]">{error}</p>}
+            {error ? (
+                <Alert tone="danger" className="mb-4" onClose={() => setError(null)}>
+                    {error}
+                </Alert>
+            ) : null}
 
-            {step === 'address' && (
-                <div className="space-y-3">
-                    {(['name', 'email', 'phone', 'line1', 'city', 'state', 'postalCode', 'country'] as const).map((k) => (
-                        <input
-                            key={k}
-                            className="storefront-input"
-                            placeholder={k}
-                            value={addr[k]}
-                            onChange={(e) => setAddr({ ...addr, [k]: e.target.value })}
-                        />
-                    ))}
-                    <button onClick={saveAddress} disabled={busy} className="storefront-button">
-                        {busy ? 'Saving…' : 'Continue to shipping →'}
-                    </button>
-                </div>
-            )}
+            {step === 'address' ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Shipping address</CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="space-y-3">
+                            {ADDRESS_FIELDS.map((f) => (
+                                <Field key={f.key} label={f.label}>
+                                    <Input
+                                        type={'type' in f ? f.type : 'text'}
+                                        placeholder={f.placeholder}
+                                        value={addr[f.key]}
+                                        onChange={(e) => setAddr({ ...addr, [f.key]: e.target.value })}
+                                    />
+                                </Field>
+                            ))}
+                            <Button
+                                variant="primary"
+                                onClick={saveAddress}
+                                loading={busy}
+                                iconRight={ArrowRight}
+                            >
+                                Continue to shipping
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            ) : null}
 
-            {step === 'shipping' && (
-                <div className="space-y-3">
-                    <label className="flex items-center gap-2">
-                        <input type="radio" name="ship" value="standard" checked={shipping === 'standard'} onChange={() => setShipping('standard')} />
-                        Standard
-                    </label>
-                    <label className="flex items-center gap-2">
-                        <input type="radio" name="ship" value="express" checked={shipping === 'express'} onChange={() => setShipping('express')} />
-                        Express
-                    </label>
-                    <button onClick={saveShipping} disabled={busy} className="storefront-button">
-                        {busy ? 'Saving…' : 'Continue to payment →'}
-                    </button>
-                </div>
-            )}
+            {step === 'shipping' ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Shipping method</CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="space-y-4">
+                            <RadioGroup value={shipping} onValueChange={setShipping} aria-label="Shipping method">
+                                <Radio value="standard" label="Standard" />
+                                <Radio value="express" label="Express" />
+                            </RadioGroup>
+                            <Button
+                                variant="primary"
+                                onClick={saveShipping}
+                                loading={busy}
+                                iconRight={ArrowRight}
+                            >
+                                Continue to payment
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            ) : null}
 
-            {step === 'payment' && (
-                <div className="space-y-3">
-                    <label className="flex items-center gap-2">
-                        <input type="radio" name="pay" value="mock" checked={payment === 'mock'} onChange={() => setPayment('mock')} />
-                        Pay later (mock gateway — dev)
-                    </label>
-                    <p className="text-xs opacity-70">
-                        TODO: render concrete payment options once a real IPaymentGateway is configured.
-                    </p>
-                    <button onClick={savePayment} disabled={busy} className="storefront-button">
-                        {busy ? 'Saving…' : 'Continue to review →'}
-                    </button>
-                </div>
-            )}
+            {step === 'payment' ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Payment</CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="space-y-4">
+                            <RadioGroup value={payment} onValueChange={setPayment} aria-label="Payment method">
+                                <Radio value="mock" label="Pay later (mock gateway, dev)" />
+                            </RadioGroup>
+                            <p className="text-xs text-[var(--st-text-tertiary)]">
+                                Concrete payment options appear once a real payment gateway is configured.
+                            </p>
+                            <Button
+                                variant="primary"
+                                onClick={savePayment}
+                                loading={busy}
+                                iconRight={ArrowRight}
+                            >
+                                Continue to review
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            ) : null}
 
-            {step === 'review' && (
-                <div className="space-y-3">
-                    <p>Please review your order before placing it.</p>
-                    <button onClick={confirm} disabled={busy} className="storefront-button">
-                        {busy ? 'Placing…' : 'Place order'}
-                    </button>
-                </div>
-            )}
+            {step === 'review' ? (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Review</CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="space-y-4">
+                            <p className="text-sm text-[var(--st-text-secondary)]">
+                                Please review your order before placing it.
+                            </p>
+                            <Button variant="primary" onClick={confirm} loading={busy}>
+                                Place order
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            ) : null}
 
-            {step === 'confirm' && (
-                <div className="space-y-3">
-                    <h2 className="text-xl font-semibold">Thank you!</h2>
-                    <p>Your order has been placed.</p>
-                    {orderCode && (
-                        <p>Order code: <strong>{orderCode}</strong></p>
-                    )}
-                    <a className="storefront-button secondary" href={`/store/${tenantSlug}`}>Back to shop</a>
-                </div>
-            )}
+            {step === 'confirm' ? (
+                <Card>
+                    <CardBody>
+                        <div className="flex flex-col items-center gap-3 py-6 text-center">
+                            <span className="text-[var(--st-status-ok)]">
+                                <CheckCircle2 size={40} aria-hidden="true" />
+                            </span>
+                            <h2 className="text-xl font-semibold text-[var(--st-text)]">Thank you</h2>
+                            <p className="text-sm text-[var(--st-text-secondary)]">Your order has been placed.</p>
+                            {orderCode ? (
+                                <p className="text-sm text-[var(--st-text)]">
+                                    Order code: <strong>{orderCode}</strong>
+                                </p>
+                            ) : null}
+                            <Button variant="secondary" onClick={() => router.push(`/store/${tenantSlug}`)}>
+                                Back to shop
+                            </Button>
+                        </div>
+                    </CardBody>
+                </Card>
+            ) : null}
         </div>
     );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { MessageSquare, BarChart3, HelpCircle, Send } from 'lucide-react';
 import {
   type SabwebinarLandingTheme,
   type SabwebinarPoll,
@@ -14,6 +15,19 @@ import {
   voteSabwebinarPoll,
 } from '@/app/actions/sabwebinar.actions';
 import { webinarTransport, type WebinarPresence } from '@/lib/sabwebinar/transport';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageActions,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
 
 interface Props {
   webinarId: string;
@@ -27,6 +41,12 @@ interface Props {
 }
 
 type TabKey = 'chat' | 'polls' | 'qna';
+
+const TAB_ITEMS = [
+  { value: 'chat' as const, label: 'Chat', icon: MessageSquare },
+  { value: 'polls' as const, label: 'Polls', icon: BarChart3 },
+  { value: 'qna' as const, label: 'Q&A', icon: HelpCircle },
+];
 
 export function LiveAttendeeView({
   webinarId,
@@ -86,9 +106,10 @@ export function LiveAttendeeView({
     };
   }, [webinarId]);
 
+  // Per-webinar branding is genuinely runtime-computed (chosen by the host), so
+  // these page-frame colours stay as runtime style values.
   const bg = theme?.backgroundColor ?? '#0b0d12';
   const fg = theme?.textColor ?? '#ffffff';
-  const accent = theme?.accentColor ?? '#2563eb';
 
   const onSendChat = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,16 +133,21 @@ export function LiveAttendeeView({
   };
 
   return (
-    <main style={{ background: bg, color: fg, minHeight: '100vh' }}>
+    <main className="ui20" style={{ background: bg, color: fg, minHeight: '100vh' }}>
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 lg:grid lg:grid-cols-[1fr_360px]">
         <section className="flex flex-col gap-3">
-          <header className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">{title}</h1>
-            <span className="text-sm opacity-70">
-              {presence.current} watching · peak {presence.peak}
-            </span>
-          </header>
-          <div className="aspect-video w-full overflow-hidden rounded-md bg-black">
+          <PageHeader bordered={false} compact>
+            <PageHeaderHeading>
+              <PageTitle>{title}</PageTitle>
+            </PageHeaderHeading>
+            <PageActions>
+              <Badge tone="accent" dot>
+                {presence.current} watching
+              </Badge>
+              <Badge tone="neutral">peak {presence.peak}</Badge>
+            </PageActions>
+          </PageHeader>
+          <div className="aspect-video w-full overflow-hidden rounded-[var(--st-radius)] bg-black">
             {streamUrl && status === 'live' ? (
               <video
                 src={streamUrl}
@@ -131,68 +157,61 @@ export function LiveAttendeeView({
                 className="h-full w-full"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-sm opacity-60">
-                {status === 'live' ? 'Connecting…' : `Webinar is ${status}`}
+              <div className="flex h-full items-center justify-center text-sm text-[var(--st-text-secondary)]">
+                {status === 'live' ? 'Connecting.' : `Webinar is ${status}`}
               </div>
             )}
           </div>
-          <p className="text-xs opacity-50">/webinar/{slug}/live</p>
+          <p className="text-xs text-[var(--st-text-tertiary)]">/webinar/{slug}/live</p>
         </section>
 
-        <aside className="flex flex-col gap-3 rounded-md border border-white/10 p-3">
-          <div className="flex gap-1 text-sm">
-            {(['chat', 'polls', 'qna'] as TabKey[]).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className="rounded-md px-3 py-1"
-                style={{
-                  background: tab === t ? accent : 'transparent',
-                  color: '#fff',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                }}
-              >
-                {t === 'chat' ? 'Chat' : t === 'polls' ? 'Polls' : 'Q&A'}
-              </button>
-            ))}
-          </div>
+        <Card variant="outlined" padding="sm" className="flex flex-col gap-3">
+          <SegmentedControl
+            items={TAB_ITEMS}
+            value={tab}
+            onChange={setTab}
+            fullWidth
+            aria-label="Live panel"
+          />
 
-          <label className="flex flex-col gap-1 text-xs">
-            <span className="opacity-70">Display name</span>
-            <input
-              className="rounded-md border border-white/20 bg-transparent px-2 py-1 text-sm"
+          <Field label="Display name">
+            <Input
+              inputSize="sm"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </label>
+          </Field>
 
           {tab === 'chat' ? (
             <div className="flex h-[55vh] flex-col gap-2">
-              <div className="flex-1 overflow-auto rounded-md border border-white/10 p-2 text-sm">
+              <div className="flex-1 overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-sm">
                 {chat.length === 0 ? (
-                  <p className="opacity-50">No messages yet.</p>
+                  <EmptyState
+                    size="sm"
+                    icon={MessageSquare}
+                    title="No messages yet"
+                    description="Be the first to say hello."
+                  />
                 ) : (
                   chat.map((m) => (
-                    <p key={m._id} className="py-0.5">
+                    <p key={m._id} className="py-0.5 text-[var(--st-text)]">
                       <strong>{m.senderName}:</strong> {m.body}
                     </p>
                   ))
                 )}
               </div>
-              <form onSubmit={onSendChat} className="flex gap-2">
-                <input
-                  className="flex-1 rounded-md border border-white/20 bg-transparent px-2 py-1 text-sm"
-                  placeholder="Say hi"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                />
-                <button
-                  type="submit"
-                  className="rounded-md px-3 py-1 text-sm font-medium"
-                  style={{ background: accent, color: '#fff' }}
-                >
+              <form onSubmit={onSendChat} className="flex items-end gap-2">
+                <Field label="Message" className="flex-1">
+                  <Input
+                    inputSize="sm"
+                    placeholder="Say hi"
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                  />
+                </Field>
+                <Button type="submit" variant="primary" iconLeft={Send}>
                   Send
-                </button>
+                </Button>
               </form>
             </div>
           ) : null}
@@ -200,36 +219,43 @@ export function LiveAttendeeView({
           {tab === 'polls' ? (
             <div className="flex flex-col gap-3 text-sm">
               {polls.length === 0 ? (
-                <p className="opacity-50">No polls.</p>
+                <EmptyState
+                  size="sm"
+                  icon={BarChart3}
+                  title="No polls"
+                  description="Polls from the host will appear here."
+                />
               ) : (
                 polls.map((p) => (
-                  <div
-                    key={p._id}
-                    className="rounded-md border border-white/10 p-2"
-                  >
-                    <p className="font-medium">{p.question}</p>
-                    <p className="text-xs opacity-60">{p.status}</p>
-                    <div className="mt-1 flex flex-col gap-1">
+                  <Card key={p._id} variant="outlined" padding="sm" className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-[var(--st-text)]">{p.question}</p>
+                      <Badge tone={p.status === 'open' ? 'success' : 'neutral'}>{p.status}</Badge>
+                    </div>
+                    <div className="flex flex-col gap-1">
                       {p.options.map((o) => (
-                        <button
+                        <Button
                           key={o.id}
+                          block
+                          variant="outline"
                           disabled={p.status !== 'open'}
                           onClick={() => onVote(p._id, o.id)}
-                          className="flex justify-between rounded-md border border-white/15 px-2 py-1 text-left disabled:opacity-50"
                         >
-                          <span>{o.label}</span>
-                          <span className="opacity-70">{o.voteCount}</span>
-                        </button>
+                          <span className="flex w-full items-center justify-between gap-2">
+                            <span>{o.label}</span>
+                            <Badge tone="neutral">{o.voteCount}</Badge>
+                          </span>
+                        </Button>
                       ))}
                     </div>
-                  </div>
+                  </Card>
                 ))
               )}
             </div>
           ) : null}
 
           {tab === 'qna' ? <QnaPanel items={qna} onAsk={onAsk} /> : null}
-        </aside>
+        </Card>
       </div>
     </main>
   );
@@ -251,36 +277,42 @@ function QnaPanel({
           onAsk(q);
           setQ('');
         }}
-        className="flex gap-2"
+        className="flex items-end gap-2"
       >
-        <input
-          className="flex-1 rounded-md border border-white/20 bg-transparent px-2 py-1"
-          placeholder="Ask a question"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="rounded-md border border-white/20 px-3 py-1"
-        >
+        <Field label="Your question" className="flex-1">
+          <Input
+            inputSize="sm"
+            placeholder="Ask a question"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </Field>
+        <Button type="submit" variant="primary" iconLeft={HelpCircle}>
           Ask
-        </button>
+        </Button>
       </form>
       <div className="flex flex-col gap-2">
         {items.length === 0 ? (
-          <p className="opacity-50">No questions yet.</p>
+          <EmptyState
+            size="sm"
+            icon={HelpCircle}
+            title="No questions yet"
+            description="Ask the host anything during the session."
+          />
         ) : (
           items.map((it) => (
-            <div key={it._id} className="rounded-md border border-white/10 p-2">
-              <p className="font-medium">{it.question}</p>
+            <Card key={it._id} variant="outlined" padding="sm" className="flex flex-col gap-1">
+              <p className="font-medium text-[var(--st-text)]">{it.question}</p>
               {it.answered ? (
-                <p className="mt-1 opacity-80">
+                <p className="text-[var(--st-text-secondary)]">
                   <strong>A:</strong> {it.answer}
                 </p>
               ) : (
-                <p className="opacity-50 text-xs">Awaiting answer · {it.upvotes} upvotes</p>
+                <p className="text-xs text-[var(--st-text-tertiary)]">
+                  Awaiting answer. {it.upvotes} upvotes
+                </p>
               )}
-            </div>
+            </Card>
           ))
         )}
       </div>

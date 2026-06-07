@@ -1,10 +1,7 @@
-import "@/components/sabcrm/20ui/zoru-legacy.css";
-
 import Link from 'next/link';
-import { LuArrowRight, LuMailX } from 'react-icons/lu';
+import { ArrowRight, MailX } from 'lucide-react';
 
-import { Badge, Button, Card } from '@/components/sabcrm/20ui';
-import { SabNodeLogo } from '@/components/zoruui-domain/logo';
+import { Button, Card, EmptyState } from '@/components/sabcrm/20ui';
 import { getInvitationByToken } from '@/app/actions/team.actions';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -24,36 +21,27 @@ export default async function InvitePage({
     // NOTE: We must NOT stash the pending-invite cookie here. Writing cookies
     // during a Server Component render throws ("Cookies can only be modified in
     // a Server Action or Route Handler"), which crashed this page for every
-    // valid pending invite. The token is stashed client-side instead — see
-    // InviteClient.onCarryToken (rememberPendingInviteToken) — and is also
+    // valid pending invite. The token is stashed client-side instead -- see
+    // InviteClient.onCarryToken (rememberPendingInviteToken) -- and is also
     // carried forward as a `?invite=` query param to /login and /onboarding.
 
     if (!invitation) {
         return (
             <InviteShell>
-                <Card className="w-full max-w-[420px] p-7">
-                    <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-danger)]/10 text-[var(--st-danger)]">
-                            <LuMailX className="h-5 w-5" strokeWidth={2} />
-                        </span>
-                        <Badge tone="red">
-                            Invitation not found
-                        </Badge>
-                        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--st-text)]">
-                            This invite link isn't valid
-                        </h1>
-                        <p className="text-[13px] text-[var(--st-text-secondary)]">
-                            The link may have been mistyped or the invitation was revoked.
-                            Ask the sender to send a fresh invitation.
-                        </p>
-                        <Link href="/">
-                            {/* TODO(zoru): port ClayButton 'obsidian' variant; using default Button for now */}
-                            <Button>
-                                Back to SabNode
-                                <LuArrowRight className="ml-2 h-3.5 w-3.5" />
-                            </Button>
-                        </Link>
-                    </div>
+                <Card padding="lg" className="w-full max-w-[420px]">
+                    <EmptyState
+                        icon={MailX}
+                        tone="danger"
+                        title="This invite link isn't valid"
+                        description="The link may have been mistyped or the invitation was revoked. Ask the sender to send a fresh invitation."
+                        action={
+                            <Link href="/">
+                                <Button variant="primary" iconRight={ArrowRight}>
+                                    Back to SabNode
+                                </Button>
+                            </Link>
+                        }
+                    />
                 </Card>
             </InviteShell>
         );
@@ -84,19 +72,39 @@ export default async function InvitePage({
     );
 }
 
+function SabNodeWordmark({ className }: { className?: string }) {
+    return (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 200 50"
+            className={className}
+            role="img"
+            aria-label="SabNode"
+        >
+            <text
+                x="50%"
+                y="50%"
+                dy=".35em"
+                textAnchor="middle"
+                fontSize="30"
+                fontWeight="bold"
+                fill="currentColor"
+            >
+                SabNode
+            </text>
+        </svg>
+    );
+}
+
 function InviteShell({ children }: { children: React.ReactNode }) {
     return (
-        <div
-            className="zoruui relative flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] text-[var(--st-text)] px-4 py-10"
-            style={{ fontFamily: 'var(--font-sab-sans), system-ui, sans-serif' }}
-        >
+        <div className="ui20 relative flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4 py-10 text-[var(--st-text)]">
             <div className="flex w-full flex-col items-center gap-8">
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 text-[var(--st-text)] hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-2 text-[var(--st-text)] transition-opacity hover:opacity-80"
                 >
-                    <SabNodeLogo className="h-8 w-8" />
-                    <span className="text-[14px] font-semibold tracking-[-0.01em]">SabNode</span>
+                    <SabNodeWordmark className="h-8 w-auto" />
                 </Link>
                 {children}
                 <p className="text-[11px] text-[var(--st-text-secondary)]">

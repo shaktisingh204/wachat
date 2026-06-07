@@ -1,7 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardBody, CardHeader, CardTitle, Button, Input, Textarea, Label } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Textarea,
+  Field,
+  Badge,
+  Skeleton,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { Terminal, CheckCircle, AlertTriangle } from 'lucide-react';
 import { InquiryRecord, EnterpriseResponse } from '../types';
 
@@ -16,7 +32,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
     volume: '100k-500k',
     useCase: '',
   });
-  
+
   const [responseState, setResponseState] = React.useState<'idle' | 'executing' | 'success' | 'error'>('idle');
   const [responsePayload, setResponsePayload] = React.useState<EnterpriseResponse | null>(null);
 
@@ -33,7 +49,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
       });
       return;
     }
-    
+
     // Simulate API error if email doesn't look corporate (simple check)
     const isPersonalEmail = /@(gmail\\.com|yahoo\\.com|hotmail\\.com)$/i.test(formData.email);
     if (isPersonalEmail) {
@@ -45,7 +61,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
         timestamp: new Date().toISOString(),
         error: 'Personal emails are rejected by policy. Please use a corporate email.',
       });
-      
+
       onNewRequest({
         id: 'tx_err_' + Math.random().toString(36).substr(2, 9),
         organization: formData.organization,
@@ -55,29 +71,29 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
         status: 'error',
         createdAt: new Date().toISOString(),
       });
-      
+
       return;
     }
 
     setResponseState('executing');
     setTimeout(() => {
       setResponseState('success');
-      const txId = "tx_ent_" + Math.random().toString(36).substr(2, 9);
+      const txId = 'tx_ent_' + Math.random().toString(36).substr(2, 9);
       const createdAt = new Date().toISOString();
-      
+
       setResponsePayload({
         status: 201,
-        status_text: "Created",
+        status_text: 'Created',
         transaction_id: txId,
         timestamp: createdAt,
         payload: {
           organization: formData.organization,
           email: formData.email,
           volume: formData.volume,
-          message: "Handshake initiated. A SabNode solutions engineer will contact you in < 2 hours."
-        }
+          message: 'Handshake initiated. A SabNode solutions engineer will contact you in < 2 hours.',
+        },
       });
-      
+
       onNewRequest({
         id: txId,
         organization: formData.organization,
@@ -91,11 +107,11 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
   };
 
   return (
-    <div className="w-full lg:w-[450px] xl:w-[550px] bg-zinc-950 border-l border-white/20 p-6 flex flex-col md:h-screen md:overflow-y-auto">
+    <div className="ui20 w-full lg:w-[450px] xl:w-[550px] bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-6 flex flex-col md:h-screen md:overflow-y-auto">
       <div className="mb-8">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-3">Example Request</h3>
-        <div className="bg-black border border-white/20 p-4 text-xs font-mono text-white/80 overflow-x-auto">
-<pre>{`curl -X POST https://api.sabnode.in/v1/enterprise/inquire \\
+        <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--st-text-tertiary)] mb-3">Example Request</h3>
+        <div className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-4 text-xs font-mono text-[var(--st-text-secondary)] overflow-x-auto">
+          <pre>{`curl -X POST https://api.sabnode.in/v1/enterprise/inquire \\
   -H "Content-Type: application/json" \\
   -d '{
     "organization": "${formData.organization || 'Acme Corp'}",
@@ -107,121 +123,121 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
       </div>
 
       <div className="flex-grow">
-        <Card className="bg-black border-white/20 text-white rounded-none shadow-none mb-6">
-          <CardHeader className="border-b border-white/20 pb-4">
-            <CardTitle className="text-lg font-bold">Try it out</CardTitle>
+        <Card variant="outlined" padding="none" className="mb-6">
+          <CardHeader>
+            <CardTitle>Try it out</CardTitle>
           </CardHeader>
-          <CardBody className="pt-6 space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="org" className="text-white">organization <span className="text-white/50">*</span></Label>
-              <Input 
-                id="org" 
+          <CardBody className="space-y-5">
+            <Field label="organization" required>
+              <Input
                 value={formData.organization}
                 onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                placeholder="string" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
+                placeholder="string"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">email <span className="text-white/50">*</span></Label>
-              <Input 
-                id="email" 
-                type="email" 
+            </Field>
+            <Field label="email">
+              <Input
+                type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="string ($email)" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none focus-visible:ring-1 focus-visible:ring-white" 
+                placeholder="string ($email)"
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="volume" className="text-white">volume</Label>
-              <select 
-                id="volume" 
+            </Field>
+            <Field label="volume">
+              <Select
                 value={formData.volume}
-                onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
-                className="w-full h-9 bg-zinc-900 border border-white/20 text-white px-3 text-sm rounded-none focus-visible:outline-none focus-visible:border-white"
+                onValueChange={(value) => setFormData({ ...formData, volume: value })}
               >
-                <option value="<100k">&lt; 100k</option>
-                <option value="100k-500k">100k - 500k</option>
-                <option value="500k-2m">500k - 2m</option>
-                <option value="2m+">2m+</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="use_case" className="text-white">use_case</Label>
-              <Textarea 
-                id="use_case" 
+                <SelectTrigger aria-label="volume">
+                  <SelectValue placeholder="Select volume" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="<100k">&lt; 100k</SelectItem>
+                  <SelectItem value="100k-500k">100k - 500k</SelectItem>
+                  <SelectItem value="500k-2m">500k - 2m</SelectItem>
+                  <SelectItem value="2m+">2m+</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field label="use_case">
+              <Textarea
                 value={formData.useCase}
                 onChange={(e) => setFormData({ ...formData, useCase: e.target.value })}
-                placeholder="string" 
-                className="bg-zinc-900 border-white/20 text-white placeholder:text-white/30 rounded-none min-h-[100px] focus-visible:ring-1 focus-visible:ring-white" 
+                placeholder="string"
+                rows={4}
               />
-            </div>
-            <Button 
+            </Field>
+            <Button
+              type="submit"
+              variant="primary"
+              block
               onClick={handleExecute}
-              className="w-full bg-white text-black hover:bg-zinc-200 rounded-none font-bold uppercase tracking-widest mt-4 flex items-center justify-center gap-2"
-              disabled={responseState === 'executing'}
+              loading={responseState === 'executing'}
+              className="uppercase tracking-widest font-bold mt-4"
             >
-              {responseState === 'executing' ? (
-                <>
-                  <span className="h-4 w-4 animate-spin border-2 border-black border-t-transparent rounded-full" />
-                  Executing...
-                </>
-              ) : 'Execute'}
+              {responseState === 'executing' ? 'Executing...' : 'Execute'}
             </Button>
           </CardBody>
         </Card>
 
         {/* Response Box */}
         {responseState !== 'idle' && (
-          <div className={`border p-4 bg-black ${responseState === 'error' ? 'border-red-500/50' : 'border-white/20'}`}>
-            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${responseState === 'error' ? 'text-red-400' : 'text-white/50'}`}>
+          <Card
+            variant="outlined"
+            padding="md"
+            className={responseState === 'error' ? 'border-[var(--st-danger)]' : undefined}
+          >
+            <h4
+              className={`text-xs font-bold uppercase tracking-wider mb-3 flex items-center gap-2 ${
+                responseState === 'error' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-tertiary)]'
+              }`}
+            >
               {responseState === 'success' ? (
                 <>
-                  <CheckCircle className="h-4 w-4 text-white" />
+                  <CheckCircle className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
                   Response Received
                 </>
               ) : responseState === 'error' ? (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-red-400" />
+                  <AlertTriangle className="h-4 w-4 text-[var(--st-danger)]" aria-hidden="true" />
                   Request Failed
                 </>
               ) : (
                 <>
-                  <Terminal className="h-4 w-4 animate-pulse" />
+                  <Terminal className="h-4 w-4 animate-pulse" aria-hidden="true" />
                   Waiting for Server Response...
                 </>
               )}
             </h4>
-            
+
             {(responseState === 'success' || responseState === 'error') && responsePayload ? (
               <div className="space-y-3">
-                <div className="flex gap-4 text-xs font-bold">
-                  <span className={`px-2 py-0.5 ${responseState === 'error' ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white'}`}>
+                <div className="flex items-center gap-4 text-xs font-bold">
+                  <Badge tone={responseState === 'error' ? 'danger' : 'neutral'} kind="soft">
                     HTTP {responsePayload.status}
-                  </span>
-                  <span className={responseState === 'error' ? 'text-red-400/80' : 'text-white/60'}>
+                  </Badge>
+                  <span className={responseState === 'error' ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}>
                     {responsePayload.status_text}
                   </span>
                 </div>
-                {responseState === 'executing' ? (
-                  <div className="space-y-2 animate-pulse">
-                    <div className="h-4 bg-white/10 rounded w-full"></div>
-                    <div className="h-4 bg-white/10 rounded w-3/4"></div>
-                    <div className="h-4 bg-white/10 rounded w-1/2"></div>
-                  </div>
-                ) : (
-                  <pre className={`text-xs font-mono p-3 overflow-x-auto max-h-[220px] ${responseState === 'error' ? 'bg-red-500/5 text-red-300' : 'bg-white/5 text-white/80'}`}>
-                    <code>{JSON.stringify(responsePayload, null, 2)}</code>
-                  </pre>
-                )}
+                <pre
+                  className={`text-xs font-mono p-3 rounded-[var(--st-radius)] overflow-x-auto max-h-[220px] ${
+                    responseState === 'error'
+                      ? 'bg-[var(--st-danger)]/5 text-[var(--st-danger)]'
+                      : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]'
+                  }`}
+                >
+                  <code>{JSON.stringify(responsePayload, null, 2)}</code>
+                </pre>
               </div>
             ) : (
-              <div className="h-20 flex items-center justify-center border border-dashed border-white/20 text-xs text-white/40">
-                Negotiating WebSocket connection...
+              <div className="space-y-2">
+                <Skeleton height={16} width="100%" />
+                <Skeleton height={16} width="75%" />
+                <Skeleton height={16} width="50%" />
               </div>
             )}
-          </div>
+          </Card>
         )}
       </div>
     </div>

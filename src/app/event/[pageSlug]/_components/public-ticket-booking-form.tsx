@@ -1,17 +1,21 @@
 'use client';
 
 /**
- * Public ticket booking form — quantity steppers per ticket type and a
+ * Public ticket booking form. Quantity steppers per ticket type and a
  * "Book tickets" CTA that redirects to `/event/[slug]/checkout` with
  * the chosen quantities encoded in the query string.
  *
- * Kept dependency-free (no ZoruUI) so the public surface stays light
- * and theme-able via the page's `accent` color.
+ * Built on the 20ui design system. The page's runtime `accent` color is
+ * applied to the primary CTA via an inline style (genuinely user-picked).
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { Minus, Plus, Ticket } from 'lucide-react';
 
+import { Button, IconButton } from '@/components/sabcrm/20ui/button';
+import { Card } from '@/components/sabcrm/20ui/card';
+import { EmptyState } from '@/components/sabcrm/20ui/feedback';
 import type { SabbackstageTicketTypeDoc } from '@/lib/rust-client/sabbackstage-ticket-types';
 
 interface Props {
@@ -69,67 +73,82 @@ export function PublicTicketBookingForm({
     );
   }
 
+  if (ticketTypes.length === 0) {
+    return (
+      <div className="mt-4">
+        <EmptyState
+          icon={Ticket}
+          title="No tickets available"
+          description="Tickets for this event have not been published yet. Check back soon."
+        />
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="mt-4 space-y-3">
       {ticketTypes.map((t) => {
         const remaining =
           t.capacity > 0 ? Math.max(0, t.capacity - t.soldCount) : null;
+        const count = qty[t._id] || 0;
         return (
-          <div
-            key={t._id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/15 bg-white/5 p-4"
-          >
-            <div className="min-w-0">
-              <div className="text-base font-medium">{t.name}</div>
-              {t.description ? (
-                <div className="text-xs opacity-70">{t.description}</div>
-              ) : null}
-              <div className="mt-1 text-sm opacity-80">
-                {formatMoney(t.priceMinor, t.currency)}
-                {remaining != null ? (
-                  <span className="ml-2 opacity-60">
-                    · {remaining} left
-                  </span>
+          <Card key={t._id} padding="md">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="text-base font-medium text-[var(--st-text)]">
+                  {t.name}
+                </div>
+                {t.description ? (
+                  <div className="text-xs text-[var(--st-text-tertiary)]">
+                    {t.description}
+                  </div>
                 ) : null}
+                <div className="mt-1 text-sm text-[var(--st-text-secondary)]">
+                  {formatMoney(t.priceMinor, t.currency)}
+                  {remaining != null ? (
+                    <span className="ml-2 text-[var(--st-text-tertiary)]">
+                      , {remaining} left
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <IconButton
+                  variant="outline"
+                  size="sm"
+                  icon={Minus}
+                  label={`Decrease ${t.name}`}
+                  disabled={count === 0}
+                  onClick={() => bump(t._id, -1)}
+                />
+                <span className="w-6 text-center text-sm text-[var(--st-text)]">
+                  {count}
+                </span>
+                <IconButton
+                  variant="outline"
+                  size="sm"
+                  icon={Plus}
+                  label={`Increase ${t.name}`}
+                  onClick={() => bump(t._id, 1)}
+                />
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                className="h-8 w-8 rounded-md border border-white/30"
-                aria-label={`Decrease ${t.name}`}
-                onClick={() => bump(t._id, -1)}
-              >
-                −
-              </button>
-              <span className="w-6 text-center text-sm">
-                {qty[t._id] || 0}
-              </span>
-              <button
-                type="button"
-                className="h-8 w-8 rounded-md border border-white/30"
-                aria-label={`Increase ${t.name}`}
-                onClick={() => bump(t._id, 1)}
-              >
-                +
-              </button>
-            </div>
-          </div>
+          </Card>
         );
       })}
 
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-        <div className="text-sm opacity-80">
-          {totalSeats} seats · {formatMoney(totalMinor, currency)}
+        <div className="text-sm text-[var(--st-text-secondary)]">
+          {totalSeats} seats, {formatMoney(totalMinor, currency)}
         </div>
-        <button
+        <Button
           type="submit"
+          variant="primary"
           disabled={totalSeats === 0}
-          className="rounded-md px-5 py-2 text-sm font-medium text-black disabled:opacity-40"
-          style={{ backgroundColor: accent, color: 'var(--st-text-inverted)' }}
+          style={{ backgroundColor: accent, borderColor: accent }}
         >
           Book tickets
-        </button>
+        </Button>
       </div>
     </form>
   );

@@ -1,14 +1,47 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  AlertCircle, CheckCircle, Clock, Activity, Database, Server,
-  HardDrive, Users, Settings, Search, Filter, MoreVertical, Plus,
-  ChevronDown, Calendar, Paperclip, Shield, Zap, TrendingUp, BarChart,
+  AlertCircle, Clock, Activity, Database, Server,
+  Users, Settings, Search, Filter, MoreVertical, Plus,
+  Calendar, Shield, Zap, TrendingUp, BarChart,
   GitBranch, GitCommit, Network, FileText, Layers, LifeBuoy,
-  MessageSquare, Cpu, ArrowRight, X, Play, RefreshCw, Smartphone,
-  Monitor, Wifi, Lock, Box, Briefcase, Mail
+  ArrowRight, Smartphone,
+  Monitor, Lock, Box, Mail
 } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardTitle,
+  StatCard,
+  Badge,
+  Dot,
+  Field,
+  Input,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Progress,
+  Pagination,
+  Avatar,
+  EmptyState,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  Slider,
+  Checkbox,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 // --- TYPES ---
 type Priority = 'Critical' | 'High' | 'Medium' | 'Low';
@@ -55,23 +88,26 @@ interface ServiceItem {
 }
 
 // --- MOCK DATA ---
+const INCIDENT_TITLES = [
+  'Database connection timeout in production',
+  'Email server rejecting attachments',
+  'Cannot access VPN from branch office',
+  'Application crashes on startup',
+  'UI rendering issue in dashboard',
+  'Payment gateway latency spike',
+  'User unable to reset password',
+  'High CPU usage on Node 4',
+];
+
 const MOCK_INCIDENTS: Incident[] = Array.from({ length: 45 }).map((_, i) => ({
   id: `INC-${1000 + i}`,
-  title: [
-    'Database connection timeout in production',
-    'Email server rejecting attachments',
-    'Cannot access VPN from branch office',
-    'Application crashes on startup',
-    'UI rendering issue in dashboard',
-    'Payment gateway latency spike',
-    'User unable to reset password',
-    'High CPU usage on Node 4',
-  ][i % 8] + ` (Report ${i + 1})`,
+  title: `${INCIDENT_TITLES[i % 8]} (Report ${i + 1})`,
   priority: ['Critical', 'High', 'Medium', 'Low'][i % 4] as Priority,
   status: ['New', 'In Progress', 'Resolved', 'Closed'][i % 4] as Status,
   assignee: ['Alex Mercer', 'Sarah Chen', 'John Doe', 'Emma Watson', 'Unassigned'][i % 5],
-  created: new Date(Date.now() - Math.random() * 10000000000).toISOString().split('T')[0],
-  sla: Math.floor(Math.random() * 100),
+  // Deterministic dates so the page renders identically across hydration passes.
+  created: new Date(Date.UTC(2026, 5, 7) - i * 86400000).toISOString().split('T')[0],
+  sla: (i * 17) % 100,
   category: ['Network', 'Software', 'Hardware', 'Access'][i % 4],
 }));
 
@@ -79,7 +115,7 @@ const MOCK_ASSETS: Asset[] = Array.from({ length: 30 }).map((_, i) => ({
   id: `AST-${5000 + i}`,
   name: `prod-server-0${i + 1}`,
   type: ['Virtual Machine', 'Physical Server', 'Router', 'Switch', 'Database'][i % 5],
-  status: ['Operational', 'Operational', 'Operational', 'Degraded', 'Down', 'Maintenance'][i % 6] as any,
+  status: ['Operational', 'Operational', 'Operational', 'Degraded', 'Down', 'Maintenance'][i % 6] as Asset['status'],
   ip: `192.168.1.${10 + i}`,
   location: ['US-East-1', 'EU-West-2', 'AP-South-1'][i % 3],
   owner: ['Infrastructure Team', 'DBA Team', 'Network Team'][i % 3],
@@ -104,146 +140,160 @@ const MOCK_SERVICES: ServiceItem[] = [
   { id: 'SRV-8', title: 'Distribution List Update', description: 'Create or modify email distribution lists.', category: 'Software', sla: '1 Hour', icon: Mail },
 ];
 
-// --- UTILS ---
-const getPriorityColor = (priority: string) => {
+// --- TONE MAPPERS (colour only ever carries meaning) ---
+type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
+
+const priorityTone = (priority: string): BadgeTone => {
   switch (priority) {
-    case 'Critical': return 'text-red-400 bg-red-400/10 border-red-400/20';
-    case 'High': return 'text-orange-400 bg-orange-400/10 border-orange-400/20';
-    case 'Medium': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-    case 'Low': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+    case 'Critical': return 'danger';
+    case 'High': return 'warning';
+    case 'Medium': return 'warning';
+    case 'Low': return 'success';
+    default: return 'neutral';
   }
 };
 
-const getStatusColor = (status: string) => {
+const statusTone = (status: string): BadgeTone => {
   switch (status) {
-    case 'New': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
-    case 'In Progress': return 'text-purple-400 bg-purple-400/10 border-purple-400/20';
-    case 'Pending CAB': return 'text-orange-400 bg-orange-400/10 border-orange-400/20';
-    case 'Approved': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    case 'Resolved': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    case 'Closed': return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
-    case 'Operational': return 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
-    case 'Degraded': return 'text-yellow-400 bg-yellow-400/10 border-yellow-400/20';
-    case 'Down': return 'text-red-400 bg-red-400/10 border-red-400/20';
-    case 'Maintenance': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
-    default: return 'text-slate-400 bg-slate-400/10 border-slate-400/20';
+    case 'New': return 'info';
+    case 'In Progress': return 'accent';
+    case 'Pending CAB': return 'warning';
+    case 'Approved': return 'success';
+    case 'Resolved': return 'success';
+    case 'Operational': return 'success';
+    case 'Degraded': return 'warning';
+    case 'Down': return 'danger';
+    case 'Maintenance': return 'info';
+    case 'Closed': return 'neutral';
+    default: return 'neutral';
   }
 };
+
+const slaTone = (sla: number): 'danger' | 'warning' | 'success' =>
+  sla > 90 ? 'danger' : sla > 75 ? 'warning' : 'success';
 
 // --- COMPONENTS ---
 
 // 1. Dashboard Tab
 const DashboardOverview = () => {
+  const stats = [
+    { label: 'Active Incidents', value: '142', delta: { value: '+12%', tone: 'up' as const }, icon: AlertCircle, accent: 'var(--st-danger)' },
+    { label: 'SLA Breach Risk', value: '18', delta: { value: '-5%', tone: 'down' as const }, icon: Clock, accent: 'var(--st-warn)' },
+    { label: 'Pending CAB', value: '7', delta: { value: '+2', tone: 'up' as const }, icon: Shield, accent: 'var(--st-accent)' },
+    { label: 'System Uptime', value: '99.98%', delta: { value: 'Stable', tone: 'neutral' as const }, icon: Activity, accent: 'var(--st-status-ok)' },
+  ];
+
+  const alerts = [
+    'Core DB Replication Lag',
+    'Payment API Gateway 502s',
+    'High memory on k8s-node-03',
+    'Authentication Service Timeout',
+    'BGP Route Flap detected',
+  ];
+
+  // Deterministic bar heights so the chart is stable across renders.
+  const bars = Array.from({ length: 14 }).map((_, i) => ({
+    resolved: 30 + ((i * 13) % 55),
+    fresh: 12 + ((i * 7) % 35),
+  }));
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6">
       {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Active Incidents', value: '142', trend: '+12%', icon: AlertCircle, color: 'text-rose-400' },
-          { label: 'SLA Breach Risk', value: '18', trend: '-5%', icon: Clock, color: 'text-amber-400' },
-          { label: 'Pending CAB', value: '7', trend: '+2', icon: Shield, color: 'text-purple-400' },
-          { label: 'System Uptime', value: '99.98%', trend: 'Stable', icon: Activity, color: 'text-emerald-400' },
-        ].map((stat, idx) => (
-          <div key={idx} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 backdrop-blur-xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="flex justify-between items-start mb-4">
-              <div className={`p-3 rounded-xl bg-white/[0.03] border border-white/5 ${stat.color}`}>
-                <stat.icon className="w-6 h-6" />
-              </div>
-              <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/[0.03] text-slate-400 border border-white/5">
-                {stat.trend}
-              </span>
-            </div>
-            <h3 className="text-3xl font-light text-white mb-1">{stat.value}</h3>
-            <p className="text-sm text-slate-400 font-medium">{stat.label}</p>
-          </div>
+        {stats.map((stat) => (
+          <StatCard
+            key={stat.label}
+            label={stat.label}
+            value={stat.value}
+            icon={stat.icon}
+            accent={stat.accent}
+            delta={stat.delta}
+          />
         ))}
       </div>
 
       {/* Complex Layout Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Activity Chart Mock */}
-        <div className="lg:col-span-2 bg-white/[0.02] border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
+        {/* Activity Chart */}
+        <Card variant="outlined" padding="lg" className="lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-medium text-white flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-400" />
+            <CardTitle className="flex items-center gap-2 text-[var(--st-text)]">
+              <TrendingUp className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
               Incident Volume Trends
-            </h3>
-            <select className="bg-black/50 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-blue-500">
-              <option>Last 7 Days</option>
-              <option>Last 30 Days</option>
-              <option>This Quarter</option>
-            </select>
+            </CardTitle>
+            <div className="w-40">
+              <Select defaultValue="7d">
+                <SelectTrigger aria-label="Trend range">
+                  <SelectValue placeholder="Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7d">Last 7 Days</SelectItem>
+                  <SelectItem value="30d">Last 30 Days</SelectItem>
+                  <SelectItem value="quarter">This Quarter</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="h-64 flex items-end justify-between gap-2">
-            {Array.from({ length: 14 }).map((_, i) => {
-              const height1 = 20 + Math.random() * 60;
-              const height2 = 10 + Math.random() * 40;
-              return (
-                <div key={i} className="flex-1 flex flex-col justify-end gap-1 group relative">
-                  <div 
-                    className="w-full bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 rounded-t-sm transition-all"
-                    style={{ height: `${height1}%` }}
-                  />
-                  <div 
-                    className="w-full bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/30 rounded-t-sm transition-all"
-                    style={{ height: `${height2}%` }}
-                  />
-                  {/* Tooltip mock */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black border border-white/10 px-3 py-1.5 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-xl">
-                    Total: {Math.floor(height1 + height2)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex justify-center gap-6 mt-6 pt-6 border-t border-white/5">
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <div className="w-3 h-3 rounded-full bg-blue-500/50 border border-blue-500" /> Resolved
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <div className="w-3 h-3 rounded-full bg-rose-500/50 border border-rose-500" /> New
-            </div>
-          </div>
-        </div>
-
-        {/* Critical Alerts */}
-        <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-medium text-white flex items-center gap-2">
-              <Zap className="w-5 h-5 text-amber-400" />
-              Critical Alerts
-            </h3>
-            <span className="bg-rose-500/10 text-rose-400 text-xs px-2 py-1 rounded-full border border-rose-500/20">
-              3 Action Required
-            </span>
-          </div>
-          <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-            {[1, 2, 3, 4, 5].map((_, i) => (
-              <div key={i} className="p-4 rounded-xl bg-black/40 border border-white/5 hover:border-white/10 transition-colors cursor-pointer group">
-                <div className="flex items-start justify-between mb-2">
-                  <span className="text-xs font-mono text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded">CRIT-{100+i}</span>
-                  <span className="text-xs text-slate-500 flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {10 + i * 5}m ago
-                  </span>
-                </div>
-                <p className="text-sm text-slate-200 font-medium group-hover:text-blue-400 transition-colors">
-                  {['Core DB Replication Lag', 'Payment API Gateway 502s', 'High memory on k8s-node-03', 'Authentication Service Timeout', 'BGP Route Flap detected'][i]}
-                </p>
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 border border-black" />
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 border border-black" />
-                  </div>
-                  <button className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
-                    Investigate <ArrowRight className="w-3 h-3" />
-                  </button>
+            {bars.map((bar, i) => (
+              <div key={i} className="flex-1 flex flex-col justify-end gap-1 group relative">
+                <div
+                  className="w-full rounded-t-sm bg-[var(--st-accent-soft)] border border-[var(--st-accent)] transition-all"
+                  style={{ height: `${bar.resolved}%` }}
+                />
+                <div
+                  className="w-full rounded-t-sm bg-[var(--st-danger-soft)] border border-[var(--st-danger)] transition-all"
+                  style={{ height: `${bar.fresh}%` }}
+                />
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[var(--st-bg)] border border-[var(--st-border)] px-3 py-1.5 rounded-[var(--st-radius)] text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-[var(--st-shadow-lg)] text-[var(--st-text)]">
+                  Total: {Math.round(bar.resolved + bar.fresh)}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+          <div className="flex justify-center gap-6 mt-6 pt-6 border-t border-[var(--st-border)]">
+            <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+              <Dot tone="accent" aria-hidden="true" /> Resolved
+            </span>
+            <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+              <Dot tone="danger" aria-hidden="true" /> New
+            </span>
+          </div>
+        </Card>
+
+        {/* Critical Alerts */}
+        <Card variant="outlined" padding="lg" className="flex flex-col">
+          <div className="flex items-center justify-between mb-6">
+            <CardTitle className="flex items-center gap-2 text-[var(--st-text)]">
+              <Zap className="w-5 h-5 text-[var(--st-warn)]" aria-hidden="true" />
+              Critical Alerts
+            </CardTitle>
+            <Badge tone="danger">3 Action Required</Badge>
+          </div>
+          <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+            {alerts.map((alert, i) => (
+              <Card key={alert} variant="interactive" padding="sm" className="cursor-pointer group">
+                <div className="flex items-start justify-between mb-2">
+                  <Badge tone="danger" kind="soft" className="font-mono">CRIT-{100 + i}</Badge>
+                  <span className="text-xs text-[var(--st-text-tertiary)] flex items-center gap-1">
+                    <Clock className="w-3 h-3" aria-hidden="true" /> {10 + i * 5}m ago
+                  </span>
+                </div>
+                <p className="text-sm text-[var(--st-text)] font-medium">
+                  {alert}
+                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex -space-x-2">
+                    <Avatar name="On Call" size="xs" />
+                    <Avatar name="SRE Team" size="xs" />
+                  </div>
+                  <Button variant="ghost" size="sm" iconRight={ArrowRight}>Investigate</Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -252,285 +302,314 @@ const DashboardOverview = () => {
 // 2. Incident Management Tab
 const IncidentManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [page, setPage] = useState(1);
+  const { toast } = useToast();
+
+  const filtered = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return MOCK_INCIDENTS;
+    return MOCK_INCIDENTS.filter(
+      (inc) =>
+        inc.title.toLowerCase().includes(q) ||
+        inc.id.toLowerCase().includes(q) ||
+        inc.assignee.toLowerCase().includes(q),
+    );
+  }, [searchTerm]);
+
+  const pageSize = 15;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const start = (page - 1) * pageSize;
+  const visible = filtered.slice(start, start + pageSize);
+
   return (
-    <div className="bg-white/[0.02] border border-white/5 rounded-2xl backdrop-blur-xl overflow-hidden flex flex-col h-[calc(100vh-160px)] animate-in fade-in duration-500">
+    <Card variant="outlined" padding="none" className="flex flex-col h-[calc(100vh-220px)] overflow-hidden">
       {/* Toolbar */}
-      <div className="p-4 border-b border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-black/20">
+      <div className="p-4 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--st-bg-secondary)]">
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search incidents, CIs, or users..." 
+          <div className="w-full sm:w-72">
+            <Input
+              aria-label="Search incidents"
+              iconLeft={Search}
+              placeholder="Search incidents, CIs, or users..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-black/50 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
-          <button className="p-2 bg-white/[0.03] border border-white/10 rounded-lg hover:bg-white/[0.08] transition-colors text-slate-400 hover:text-white">
-            <Filter className="w-4 h-4" />
-          </button>
+          <IconButton label="Filter incidents" icon={Filter} variant="outline" />
         </div>
-        
+
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button className="px-4 py-2 bg-white/[0.03] border border-white/10 rounded-lg hover:bg-white/[0.08] transition-colors text-sm font-medium text-slate-200">
+          <Button variant="outline" onClick={() => toast.success('Exporting incidents to CSV')}>
             Export CSV
-          </button>
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 border border-blue-400/50 rounded-lg transition-colors text-sm font-medium text-white flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)]">
-            <Plus className="w-4 h-4" /> New Incident
-          </button>
+          </Button>
+          <Button variant="primary" iconLeft={Plus} onClick={() => toast({ title: 'New incident', tone: 'info' })}>
+            New Incident
+          </Button>
         </div>
       </div>
 
       {/* Table Content */}
-      <div className="flex-1 overflow-auto custom-scrollbar">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-black/40 sticky top-0 z-10 backdrop-blur-md border-b border-white/5">
-            <tr>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">ID</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider w-1/3">Title & Category</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Priority</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Status</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Assignee</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">SLA</th>
-              <th className="p-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {MOCK_INCIDENTS.map((inc) => (
-              <tr key={inc.id} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
-                <td className="p-4 text-sm font-mono text-slate-300">{inc.id}</td>
-                <td className="p-4">
-                  <p className="text-sm font-medium text-slate-200 group-hover:text-blue-400 transition-colors line-clamp-1">{inc.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                    <Layers className="w-3 h-3" /> {inc.category} • {inc.created}
-                  </p>
-                </td>
-                <td className="p-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getPriorityColor(inc.priority)}`}>
-                    {inc.priority}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center w-max gap-1.5 ${getStatusColor(inc.status)}`}>
-                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                    {inc.status}
-                  </span>
-                </td>
-                <td className="p-4 text-sm text-slate-300 flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-white/10 flex items-center justify-center text-[10px] font-bold">
-                    {inc.assignee !== 'Unassigned' ? inc.assignee.split(' ').map(n => n[0]).join('') : '?'}
-                  </div>
-                  {inc.assignee}
-                </td>
-                <td className="p-4">
-                  <div className="w-full max-w-[120px]">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className={inc.sla > 90 ? 'text-rose-400' : 'text-slate-400'}>{inc.sla}% consumed</span>
+      <div className="flex-1 overflow-auto">
+        {visible.length === 0 ? (
+          <div className="p-12">
+            <EmptyState
+              icon={Search}
+              title="No incidents found"
+              description="Try a different search term or clear the filter to see all incidents."
+              action={<Button variant="outline" onClick={() => setSearchTerm('')}>Clear search</Button>}
+            />
+          </div>
+        ) : (
+          <Table density="comfortable" hover stickyHeader>
+            <THead>
+              <Tr>
+                <Th>ID</Th>
+                <Th width="33%">Title &amp; Category</Th>
+                <Th>Priority</Th>
+                <Th>Status</Th>
+                <Th>Assignee</Th>
+                <Th>SLA</Th>
+                <Th align="right">Actions</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {visible.map((inc) => (
+                <Tr key={inc.id} className="group cursor-pointer">
+                  <Td className="font-mono text-[var(--st-text-secondary)]">{inc.id}</Td>
+                  <Td>
+                    <p className="text-sm font-medium text-[var(--st-text)] line-clamp-1">{inc.title}</p>
+                    <p className="text-xs text-[var(--st-text-tertiary)] mt-0.5 flex items-center gap-1">
+                      <Layers className="w-3 h-3" aria-hidden="true" /> {inc.category} . {inc.created}
+                    </p>
+                  </Td>
+                  <Td>
+                    <Badge tone={priorityTone(inc.priority)}>{inc.priority}</Badge>
+                  </Td>
+                  <Td>
+                    <Badge tone={statusTone(inc.status)} dot>{inc.status}</Badge>
+                  </Td>
+                  <Td>
+                    <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                      <Avatar name={inc.assignee !== 'Unassigned' ? inc.assignee : '?'} size="xs" />
+                      {inc.assignee}
+                    </span>
+                  </Td>
+                  <Td>
+                    <div className="w-full max-w-[120px]">
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className={inc.sla > 90 ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}>
+                          {inc.sla}% consumed
+                        </span>
+                      </div>
+                      <Progress value={inc.sla} tone={slaTone(inc.sla)} size="sm" aria-label={`SLA consumed ${inc.sla}%`} />
                     </div>
-                    <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
-                      <div 
-                        className={`h-full rounded-full ${inc.sla > 90 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : inc.sla > 75 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                        style={{ width: `${inc.sla}%` }}
-                      />
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4 text-right">
-                  <button className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors opacity-0 group-hover:opacity-100">
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                  </Td>
+                  <Td align="right">
+                    <IconButton
+                      label={`Actions for ${inc.id}`}
+                      icon={MoreVertical}
+                      variant="ghost"
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100"
+                    />
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        )}
       </div>
-      
+
       {/* Pagination Footer */}
-      <div className="p-4 border-t border-white/5 bg-black/20 flex items-center justify-between">
-        <span className="text-sm text-slate-500">Showing 1 to 15 of 45 entries</span>
-        <div className="flex items-center gap-1">
-          <button className="px-3 py-1 bg-white/[0.03] border border-white/10 rounded-md hover:bg-white/[0.08] text-sm text-slate-400 disabled:opacity-50">Prev</button>
-          <button className="px-3 py-1 bg-blue-600 border border-blue-500 rounded-md text-sm text-white">1</button>
-          <button className="px-3 py-1 bg-white/[0.03] border border-white/10 rounded-md hover:bg-white/[0.08] text-sm text-slate-400">2</button>
-          <button className="px-3 py-1 bg-white/[0.03] border border-white/10 rounded-md hover:bg-white/[0.08] text-sm text-slate-400">3</button>
-          <button className="px-3 py-1 bg-white/[0.03] border border-white/10 rounded-md hover:bg-white/[0.08] text-sm text-slate-400">Next</button>
-        </div>
+      <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between">
+        <span className="text-sm text-[var(--st-text-tertiary)]">
+          Showing {filtered.length === 0 ? 0 : start + 1} to {Math.min(start + pageSize, filtered.length)} of {filtered.length} entries
+        </span>
+        <Pagination page={page} pageCount={pageCount} onPageChange={setPage} />
       </div>
-    </div>
+    </Card>
   );
 };
 
 // 3. CAB Approval Board (Kanban)
 const CABBoard = () => {
   const columns = ['Planning', 'Awaiting Approval', 'Approved', 'Implemented'];
-  
+  const { toast } = useToast();
+
   return (
-    <div className="h-[calc(100vh-160px)] flex flex-col animate-in fade-in duration-500">
+    <div className="h-[calc(100vh-220px)] flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-medium text-white mb-1">Change Advisory Board (CAB)</h2>
-          <p className="text-sm text-slate-400">Manage, review, and approve infrastructure and software changes.</p>
+          <h2 className="text-xl font-medium text-[var(--st-text)] mb-1">Change Advisory Board (CAB)</h2>
+          <p className="text-sm text-[var(--st-text-secondary)]">Manage, review, and approve infrastructure and software changes.</p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 border border-blue-400/50 rounded-lg transition-colors text-sm font-medium text-white flex items-center gap-2">
-          <GitCommit className="w-4 h-4" /> Request Change
-        </button>
+        <Button variant="primary" iconLeft={GitCommit} onClick={() => toast({ title: 'Request a change', tone: 'info' })}>
+          Request Change
+        </Button>
       </div>
 
-      <div className="flex-1 flex gap-6 overflow-x-auto pb-4 custom-scrollbar">
-        {columns.map((col) => (
-          <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-white/[0.01] border border-white/5 rounded-2xl p-4 backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-4 px-2">
-              <h3 className="font-medium text-slate-200">{col}</h3>
-              <span className="text-xs font-mono bg-white/[0.05] px-2 py-1 rounded-md text-slate-400 border border-white/10">
-                {MOCK_CAB.filter(c => c.status === col).length}
-              </span>
-            </div>
-            
-            <div className="flex-1 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
-              {MOCK_CAB.filter(c => c.status === col).map(request => (
-                <div key={request.id} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-blue-500/50 transition-all cursor-grab active:cursor-grabbing hover:shadow-[0_0_15px_rgba(37,99,235,0.1)] group">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-mono text-blue-400">{request.id}</span>
-                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${getPriorityColor(request.risk)}`}>
-                      {request.risk} RISK
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-medium text-slate-200 mb-2 leading-snug group-hover:text-blue-300 transition-colors">{request.title}</h4>
-                  
-                  <div className="space-y-2 mt-4 text-xs text-slate-400">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>{request.date}</span>
+      <div className="flex-1 flex gap-6 overflow-x-auto pb-4">
+        {columns.map((col) => {
+          const cards = MOCK_CAB.filter((c) => c.status === col);
+          return (
+            <div key={col} className="min-w-[320px] w-[320px] flex flex-col bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] p-4">
+              <div className="flex items-center justify-between mb-4 px-2">
+                <h3 className="font-medium text-[var(--st-text)]">{col}</h3>
+                <Badge tone="neutral" className="font-mono">{cards.length}</Badge>
+              </div>
+
+              <div className="flex-1 flex flex-col gap-4 overflow-y-auto pr-1">
+                {cards.map((request) => (
+                  <Card key={request.id} variant="interactive" padding="sm" className="cursor-grab active:cursor-grabbing">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-mono text-[var(--st-accent)]">{request.id}</span>
+                      <Badge tone={priorityTone(request.risk)} className="uppercase tracking-wider">
+                        {request.risk} Risk
+                      </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>{request.requester}</span>
+                    <h4 className="text-sm font-medium text-[var(--st-text)] mb-2 leading-snug">{request.title}</h4>
+
+                    <div className="space-y-2 mt-4 text-xs text-[var(--st-text-secondary)]">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>{request.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>{request.requester}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-3.5 h-3.5 mt-0.5" aria-hidden="true" />
+                        <span className="line-clamp-2">{request.impact}</span>
+                      </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <AlertCircle className="w-3.5 h-3.5 mt-0.5" />
-                      <span className="line-clamp-2">{request.impact}</span>
-                    </div>
-                  </div>
-                  
-                  {col === 'Awaiting Approval' && (
-                    <div className="mt-4 flex gap-2 pt-4 border-t border-white/5">
-                      <button className="flex-1 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-medium rounded border border-emerald-500/20 transition-colors">Approve</button>
-                      <button className="flex-1 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-medium rounded border border-rose-500/20 transition-colors">Reject</button>
-                    </div>
-                  )}
+
+                    {col === 'Awaiting Approval' && (
+                      <div className="mt-4 flex gap-2 pt-4 border-t border-[var(--st-border)]">
+                        <Button variant="primary" size="sm" block onClick={() => toast.success(`${request.id} approved`)}>
+                          Approve
+                        </Button>
+                        <Button variant="danger" size="sm" block onClick={() => toast.error(`${request.id} rejected`)}>
+                          Reject
+                        </Button>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+
+                {/* Drop Zone Indicator */}
+                <div className="h-24 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-subtle)] flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                  <span className="text-xs text-[var(--st-text-tertiary)]">Drop here</span>
                 </div>
-              ))}
-              
-              {/* Drop Zone Indicator */}
-              <div className="h-24 rounded-xl border-2 border-dashed border-white/5 bg-white/[0.01] flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                <span className="text-xs text-slate-500">Drop here</span>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 };
 
-// 4. CMDB / Asset Graph View (Mock)
+// 4. CMDB / Asset Graph View
 const CMDBGraph = () => {
+  const [depth, setDepth] = useState<number>(3);
+
   return (
-    <div className="h-[calc(100vh-160px)] flex flex-col animate-in fade-in duration-500">
+    <div className="h-[calc(100vh-220px)] flex flex-col">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-medium text-white mb-1">Configuration Management (CMDB)</h2>
-          <p className="text-sm text-slate-400">Visualize relationships between services, servers, and applications.</p>
+          <h2 className="text-xl font-medium text-[var(--st-text)] mb-1">Configuration Management (CMDB)</h2>
+          <p className="text-sm text-[var(--st-text-secondary)]">Visualize relationships between services, servers, and applications.</p>
         </div>
-        <div className="flex bg-white/[0.03] p-1 rounded-lg border border-white/10">
-          <button className="px-3 py-1.5 bg-white/10 rounded-md text-sm text-white shadow">Graph View</button>
-          <button className="px-3 py-1.5 text-sm text-slate-400 hover:text-white transition-colors">List View</button>
+        <div className="flex bg-[var(--st-bg-secondary)] p-1 rounded-[var(--st-radius)] border border-[var(--st-border)]">
+          <Button variant="secondary" size="sm">Graph View</Button>
+          <Button variant="ghost" size="sm">List View</Button>
         </div>
       </div>
 
-      <div className="flex-1 bg-black/40 border border-white/5 rounded-2xl relative overflow-hidden flex items-center justify-center bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[length:24px_24px]">
-        {/* Pseudo Graph UI */}
-        
+      <div className="flex-1 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius-lg)] relative overflow-hidden flex items-center justify-center bg-[radial-gradient(circle_at_center,var(--st-border)_1px,transparent_1px)] bg-[length:24px_24px]">
         {/* Core Router */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-900 border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center relative cursor-pointer hover:border-blue-400 transition-colors group">
-            <Network className="w-8 h-8 text-blue-400" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
-            
+          <div className="w-16 h-16 rounded-[var(--st-radius-lg)] bg-[var(--st-bg)] border border-[var(--st-border-strong)] shadow-[var(--st-shadow-lg)] flex items-center justify-center relative cursor-pointer hover:border-[var(--st-accent)] transition-colors group">
+            <Network className="w-8 h-8 text-[var(--st-accent)]" aria-hidden="true" />
+            <Dot tone="success" pulse className="absolute -top-1 -right-1" aria-label="Operational" />
             {/* Tooltip */}
-            <div className="absolute bottom-full mb-4 w-48 bg-slate-900 border border-white/10 rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-left shadow-xl">
-              <h4 className="text-sm font-medium text-white">Core-Router-US1</h4>
-              <p className="text-xs text-slate-400 mt-1">Status: Operational<br/>IP: 10.0.0.1</p>
+            <div className="absolute bottom-full mb-4 w-48 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none text-left shadow-[var(--st-shadow-lg)]">
+              <h4 className="text-sm font-medium text-[var(--st-text)]">Core-Router-US1</h4>
+              <p className="text-xs text-[var(--st-text-secondary)] mt-1">Status: Operational<br />IP: 10.0.0.1</p>
             </div>
           </div>
-          <span className="text-xs font-medium text-slate-300 bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm border border-white/5">Core Network</span>
+          <span className="text-xs font-medium text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] px-2 py-0.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]">Core Network</span>
         </div>
 
         {/* Load Balancer */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-900 border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center relative cursor-pointer hover:border-amber-400 transition-colors group">
-            <Layers className="w-7 h-7 text-amber-400" />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border-2 border-slate-900 shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
+          <div className="w-14 h-14 rounded-[var(--st-radius-lg)] bg-[var(--st-bg)] border border-[var(--st-border-strong)] shadow-[var(--st-shadow-lg)] flex items-center justify-center relative cursor-pointer hover:border-[var(--st-warn)] transition-colors">
+            <Layers className="w-7 h-7 text-[var(--st-warn)]" aria-hidden="true" />
+            <Dot tone="warning" className="absolute -top-1 -right-1" aria-label="Degraded" />
           </div>
-          <span className="text-xs font-medium text-slate-300 bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm border border-white/5">Prod-LB-01</span>
+          <span className="text-xs font-medium text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] px-2 py-0.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]">Prod-LB-01</span>
         </div>
 
         {/* App Servers */}
         {[-1, 0, 1].map((offset, idx) => (
-          <div key={idx} className="absolute top-[70%] left-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10" style={{ transform: `translate(calc(-50% + ${offset * 150}px), -50%)` }}>
-            <div className={`w-12 h-12 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center relative cursor-pointer transition-colors group hover:border-${offset === 0 ? 'rose' : 'blue'}-400`}>
-              <Server className={`w-6 h-6 text-${offset === 0 ? 'rose' : 'slate'}-400`} />
-              <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-900 ${offset === 0 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)]' : 'bg-emerald-400'}`} />
+          <div
+            key={idx}
+            className="absolute top-[70%] left-1/2 flex flex-col items-center gap-2 z-10"
+            style={{ transform: `translate(calc(-50% + ${offset * 150}px), -50%)` }}
+          >
+            <div className={`w-12 h-12 rounded-[var(--st-radius)] bg-[var(--st-bg)] border shadow-[var(--st-shadow-lg)] flex items-center justify-center relative cursor-pointer transition-colors ${offset === 0 ? 'border-[var(--st-danger)]' : 'border-[var(--st-border-strong)]'}`}>
+              <Server className={`w-6 h-6 ${offset === 0 ? 'text-[var(--st-danger)]' : 'text-[var(--st-text-secondary)]'}`} aria-hidden="true" />
+              <Dot tone={offset === 0 ? 'danger' : 'success'} className="absolute -top-1 -right-1" aria-label={offset === 0 ? 'Down' : 'Operational'} />
             </div>
-            <span className="text-xs font-medium text-slate-300 bg-black/50 px-2 py-0.5 rounded backdrop-blur-sm border border-white/5">App-Node-0{idx+1}</span>
+            <span className="text-xs font-medium text-[var(--st-text-secondary)] bg-[var(--st-bg-secondary)] px-2 py-0.5 rounded-[var(--st-radius-sm)] border border-[var(--st-border)]">App-Node-0{idx + 1}</span>
             {offset === 0 && (
-              <div className="absolute top-full mt-2 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] px-2 py-1 rounded-md whitespace-nowrap">
-                INC-1004 Active
+              <div className="absolute top-full mt-2">
+                <Badge tone="danger" kind="soft">INC-1004 Active</Badge>
               </div>
             )}
           </div>
         ))}
 
         {/* SVG Connecting Lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30">
-          <path d="M 50% 25% L 50% 50%" stroke="currentColor" className="text-blue-500" strokeWidth="2" strokeDasharray="4 4" />
-          <path d="M 50% 50% L 35% 70%" stroke="currentColor" className="text-slate-400" strokeWidth="2" />
-          <path d="M 50% 50% L 50% 70%" stroke="currentColor" className="text-rose-500" strokeWidth="2" />
-          <path d="M 50% 50% L 65% 70%" stroke="currentColor" className="text-slate-400" strokeWidth="2" />
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30" aria-hidden="true">
+          <path d="M 50% 25% L 50% 50%" stroke="currentColor" className="text-[var(--st-accent)]" strokeWidth="2" strokeDasharray="4 4" />
+          <path d="M 50% 50% L 35% 70%" stroke="currentColor" className="text-[var(--st-text-tertiary)]" strokeWidth="2" />
+          <path d="M 50% 50% L 50% 70%" stroke="currentColor" className="text-[var(--st-danger)]" strokeWidth="2" />
+          <path d="M 50% 50% L 65% 70%" stroke="currentColor" className="text-[var(--st-text-tertiary)]" strokeWidth="2" />
         </svg>
-        
+
         {/* Floating details panel */}
-        <div className="absolute right-6 top-6 w-80 bg-slate-900/80 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl">
-          <h3 className="text-sm font-medium text-white mb-4 flex items-center gap-2">
-            <Settings className="w-4 h-4 text-slate-400" /> View Controls
+        <Card variant="elevated" padding="md" className="absolute right-6 top-6 w-80">
+          <h3 className="text-sm font-medium text-[var(--st-text)] mb-4 flex items-center gap-2">
+            <Settings className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> View Controls
           </h3>
           <div className="space-y-4">
-            <div>
-              <label className="text-xs text-slate-400 mb-1.5 block">Depth Level</label>
-              <input type="range" className="w-full accent-blue-500" min="1" max="5" defaultValue="3" />
-            </div>
-            <div>
-              <label className="text-xs text-slate-400 mb-1.5 block">Filter CIs</label>
-              <select className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
-                <option>All Types</option>
-                <option>Hardware</option>
-                <option>Software</option>
-                <option>Network</option>
-              </select>
-            </div>
-            <div className="pt-4 border-t border-white/5 space-y-2">
-              <label className="flex items-center gap-2 text-sm text-slate-300">
-                <input type="checkbox" defaultChecked className="rounded border-white/20 bg-black/50 accent-blue-500" /> Show Incidents
-              </label>
-              <label className="flex items-center gap-2 text-sm text-slate-300">
-                <input type="checkbox" className="rounded border-white/20 bg-black/50 accent-blue-500" /> Show Changes
-              </label>
+            <Field label="Depth Level">
+              <Slider value={depth} min={1} max={5} step={1} onValueChange={(v) => setDepth(Array.isArray(v) ? v[0] : v)} ariaLabel="Depth level" showValue />
+            </Field>
+            <Field label="Filter CIs">
+              <Select defaultValue="all">
+                <SelectTrigger aria-label="Filter configuration items">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="hardware">Hardware</SelectItem>
+                  <SelectItem value="software">Software</SelectItem>
+                  <SelectItem value="network">Network</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <div className="pt-4 border-t border-[var(--st-border)] space-y-2">
+              <Checkbox defaultChecked label="Show Incidents" />
+              <Checkbox label="Show Changes" />
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
@@ -538,83 +617,84 @@ const CMDBGraph = () => {
 
 // 5. Service Catalog Tab
 const ServiceCatalog = () => {
+  const { toast } = useToast();
+  const categories = ['All Services', 'Hardware', 'Software', 'Network & Access', 'HR & Admin', 'Infrastructure'];
+
   return (
-    <div className="animate-in fade-in duration-500">
+    <div className="space-y-8">
       {/* Header Search */}
-      <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-white/5 rounded-2xl p-8 mb-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-white/[0.02] backdrop-blur-3xl" />
-        <div className="relative z-10 max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-light text-white mb-4">How can we help you today?</h2>
-          <div className="relative">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Search for services, software, or access..." 
-              className="w-full bg-black/60 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-white text-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-xl"
-            />
-          </div>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <span className="text-sm text-slate-400">Popular:</span>
-            {['VPN Access', 'New Laptop', 'Adobe CC', 'Password Reset'].map(tag => (
-              <button key={tag} className="text-sm text-blue-400 hover:text-blue-300 transition-colors bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
-                {tag}
-              </button>
-            ))}
-          </div>
+      <Card variant="outlined" padding="lg" className="text-center">
+        <h2 className="text-3xl font-light text-[var(--st-text)] mb-4">How can we help you today?</h2>
+        <div className="max-w-2xl mx-auto">
+          <Input aria-label="Search the service catalog" inputSize="lg" iconLeft={Search} placeholder="Search for services, software, or access..." />
         </div>
-      </div>
+        <div className="mt-4 flex flex-wrap justify-center gap-2 items-center">
+          <span className="text-sm text-[var(--st-text-secondary)]">Popular:</span>
+          {['VPN Access', 'New Laptop', 'Adobe CC', 'Password Reset'].map((tag) => (
+            <Button key={tag} variant="ghost" size="sm" onClick={() => toast({ title: `Searching: ${tag}`, tone: 'info' })}>
+              {tag}
+            </Button>
+          ))}
+        </div>
+      </Card>
 
       {/* Catalog Categories */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">Categories</h3>
-          {['All Services', 'Hardware', 'Software', 'Network & Access', 'HR & Admin', 'Infrastructure'].map((cat, i) => (
-            <button key={cat} className={`w-full text-left px-4 py-2.5 rounded-lg text-sm transition-colors ${i === 0 ? 'bg-blue-600 text-white font-medium' : 'text-slate-300 hover:bg-white/[0.05]'}`}>
+          <h3 className="text-sm font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider mb-4 px-2">Categories</h3>
+          {categories.map((cat, i) => (
+            <Button key={cat} variant={i === 0 ? 'primary' : 'ghost'} block className="justify-start">
               {cat}
-            </button>
+            </Button>
           ))}
-          
-          <div className="mt-8 pt-6 border-t border-white/5">
-            <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl p-4">
-              <LifeBuoy className="w-6 h-6 text-indigo-400 mb-2" />
-              <h4 className="text-sm font-medium text-white mb-1">Need something else?</h4>
-              <p className="text-xs text-slate-400 mb-3">If you can't find what you're looking for, submit a general request.</p>
-              <button className="w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-medium rounded-lg transition-colors shadow-lg shadow-indigo-500/20">
+
+          <div className="mt-8 pt-6 border-t border-[var(--st-border)]">
+            <Card variant="outlined" padding="md">
+              <LifeBuoy className="w-6 h-6 text-[var(--st-accent)] mb-2" aria-hidden="true" />
+              <h4 className="text-sm font-medium text-[var(--st-text)] mb-1">Need something else?</h4>
+              <p className="text-xs text-[var(--st-text-secondary)] mb-3">If you can&apos;t find what you&apos;re looking for, submit a general request.</p>
+              <Button variant="primary" block onClick={() => toast({ title: 'New generic ticket', tone: 'info' })}>
                 Submit Generic Ticket
-              </button>
-            </div>
+              </Button>
+            </Card>
           </div>
         </div>
 
         {/* Grid */}
         <div className="md:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {MOCK_SERVICES.map((service) => (
-            <div key={service.id} className="bg-white/[0.02] border border-white/5 hover:border-blue-500/30 rounded-2xl p-5 transition-all group cursor-pointer hover:bg-white/[0.04]">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 rounded-xl text-blue-400 group-hover:scale-110 transition-transform shadow-lg">
-                  <service.icon className="w-6 h-6" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-base font-medium text-slate-200 group-hover:text-blue-400 transition-colors mb-1">{service.title}</h4>
-                  <p className="text-sm text-slate-400 mb-3 line-clamp-2">{service.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-500 bg-black/40 px-2 py-1 rounded border border-white/5">
-                      SLA: {service.sla}
-                    </span>
-                    <button className="text-sm text-blue-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                      Request <ArrowRight className="w-4 h-4" />
-                    </button>
+          {MOCK_SERVICES.map((service) => {
+            const Icon = service.icon;
+            return (
+              <Card key={service.id} variant="interactive" padding="md" className="cursor-pointer group">
+                <div className="flex items-start gap-4">
+                  <span className="p-3 bg-[var(--st-accent-soft)] border border-[var(--st-border)] rounded-[var(--st-radius)] text-[var(--st-accent)] shrink-0" aria-hidden="true">
+                    <Icon className="w-6 h-6" />
+                  </span>
+                  <div className="flex-1">
+                    <h4 className="text-base font-medium text-[var(--st-text)] mb-1">{service.title}</h4>
+                    <p className="text-sm text-[var(--st-text-secondary)] mb-3 line-clamp-2">{service.description}</p>
+                    <div className="flex items-center justify-between">
+                      <Badge tone="neutral">SLA: {service.sla}</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconRight={ArrowRight}
+                        className="opacity-0 group-hover:opacity-100"
+                        onClick={() => toast.success(`Requested: ${service.title}`)}
+                      >
+                        Request
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
-
 
 // --- MAIN PAGE COMPONENT ---
 export default function SabDeskITSM() {
@@ -629,85 +709,53 @@ export default function SabDeskITSM() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-slate-200 font-sans selection:bg-blue-500/30 overflow-x-hidden">
-      {/* Top Navbar / Header area */}
-      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-2xl border-b border-white/5 px-6 py-4 flex items-center justify-between">
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+      {/* Top header */}
+      <header className="sticky top-0 z-40 bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)]">
-            <Shield className="w-5 h-5 text-white" />
-          </div>
+          <span className="w-10 h-10 rounded-[var(--st-radius)] bg-[var(--st-accent)] flex items-center justify-center shadow-[var(--st-shadow-md)]" aria-hidden="true">
+            <Shield className="w-5 h-5 text-[var(--st-text-inverted)]" />
+          </span>
           <div>
-            <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">SabDesk ITSM</h1>
-            <p className="text-xs text-slate-500 font-medium tracking-wide">ENTERPRISE SERVICE MANAGEMENT</p>
+            <h1 className="text-xl font-bold text-[var(--st-text)]">SabDesk ITSM</h1>
+            <p className="text-xs text-[var(--st-text-tertiary)] font-medium tracking-wide">ENTERPRISE SERVICE MANAGEMENT</p>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center bg-black/50 border border-white/10 rounded-full px-4 py-1.5 gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-            <span className="text-xs font-medium text-slate-300">System Normal</span>
+          <div className="hidden md:flex items-center bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius-pill)] px-4 py-1.5 gap-2">
+            <Dot tone="success" pulse aria-label="System status" />
+            <span className="text-xs font-medium text-[var(--st-text-secondary)]">System Normal</span>
           </div>
-          <button className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors relative">
-            <AlertCircle className="w-5 h-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-rose-500 rounded-full" />
-          </button>
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 border border-white/20 flex items-center justify-center font-bold text-sm text-white cursor-pointer hover:border-blue-500 transition-colors">
-            JS
-          </div>
+          <IconButton label="View notifications" icon={AlertCircle} variant="ghost" />
+          <Avatar name="John Smith" size="sm" />
         </div>
       </header>
 
       {/* Main Content Layout */}
       <main className="max-w-[1600px] mx-auto p-6 flex flex-col gap-6">
-        
-        {/* Navigation Tabs */}
-        <nav className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar border-b border-white/5">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-t-xl text-sm font-medium transition-all whitespace-nowrap relative ${
-                activeTab === tab.id 
-                  ? 'text-blue-400 bg-blue-500/10' 
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.02]'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 shadow-[0_-2px_10px_rgba(59,130,246,0.5)]" />
-              )}
-            </button>
-          ))}
-        </nav>
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+          <TabsList>
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <TabsTrigger key={tab.id} value={tab.id}>
+                  <span className="flex items-center gap-2">
+                    <Icon className="w-4 h-4" aria-hidden="true" />
+                    {tab.label}
+                  </span>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
 
-        {/* Tab Content Render */}
-        <div className="relative">
-          {activeTab === 'dashboard' && <DashboardOverview />}
-          {activeTab === 'incidents' && <IncidentManagement />}
-          {activeTab === 'cab' && <CABBoard />}
-          {activeTab === 'cmdb' && <CMDBGraph />}
-          {activeTab === 'catalog' && <ServiceCatalog />}
-        </div>
+          <TabsContent value="dashboard"><DashboardOverview /></TabsContent>
+          <TabsContent value="incidents"><IncidentManagement /></TabsContent>
+          <TabsContent value="cab"><CABBoard /></TabsContent>
+          <TabsContent value="cmdb"><CMDBGraph /></TabsContent>
+          <TabsContent value="catalog"><ServiceCatalog /></TabsContent>
+        </Tabs>
       </main>
-
-      {/* Global Styles for Scrollbar */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      `}} />
     </div>
   );
 }

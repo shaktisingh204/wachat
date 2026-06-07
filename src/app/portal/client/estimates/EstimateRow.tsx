@@ -1,15 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Td, Tr } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Td,
+    Tr,
+    Table,
+    THead,
+    TBody,
+    Th,
+    Field,
+    Textarea,
+    Card,
+    Alert,
+    EmptyState,
+    Spinner,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { getEstimateItems, requestEstimateRevision, type EstimateItem } from './actions';
-import { Loader2, MessageSquare, ChevronDown, ChevronRight, Check } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronRight, FileText } from 'lucide-react';
 import type { ClientEstimate } from '@/lib/client-portal/types';
 
 function fmtDate(iso: string | null): string {
-    if (!iso) return '—';
+    if (!iso) return '-';
     return new Date(iso).toLocaleDateString();
 }
 
@@ -21,25 +35,25 @@ function fmtCurrency(n: number, ccy: string): string {
     }
 }
 
-function getStatusColor(status: string) {
+function getStatusTone(status: string): BadgeTone {
     const s = status.toLowerCase();
-    if (s === 'waiting' || s === 'sent') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
-    if (s === 'accepted') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
-    if (s === 'declined') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
-    if (s === 'revision-requested') return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
-    return 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]';
+    if (s === 'accepted') return 'success';
+    if (s === 'declined') return 'danger';
+    if (s === 'revision-requested') return 'warning';
+    if (s === 'waiting' || s === 'sent') return 'info';
+    return 'neutral';
 }
 
 export function EstimateRow({ est }: { est: ClientEstimate }) {
     const [expanded, setExpanded] = useState(false);
     const [items, setItems] = useState<EstimateItem[] | null>(null);
     const [loading, setLoading] = useState(false);
-    
+
     // Revision state
     const [itemComments, setItemComments] = useState<Record<string, string>>({});
     const [generalComment, setGeneralComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
+    const [, setSubmitted] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const waiting = ['waiting', 'sent', 'Sent'].includes(est.status);
@@ -74,108 +88,155 @@ export function EstimateRow({ est }: { est: ClientEstimate }) {
         }
     }
 
+    const revisionDisabled =
+        submitting ||
+        (generalComment.trim() === '' &&
+            Object.keys(itemComments).filter((k) => itemComments[k].trim() !== '').length === 0);
+
     return (
         <>
-            <Tr className="cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={toggleExpand}>
+            <Tr className="cursor-pointer" onClick={toggleExpand}>
                 <Td className="w-10">
-                    {expanded ? <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" /> : <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />}
+                    {expanded ? (
+                        <ChevronDown className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    ) : (
+                        <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    )}
                 </Td>
                 <Td className="font-medium text-[var(--st-text)]">{est.number}</Td>
                 <Td>{fmtDate(est.validTill)}</Td>
                 <Td>{fmtCurrency(est.total, est.currency)}</Td>
                 <Td>
-                    <Badge variant="outline" className={getStatusColor(est.status)}>{est.status}</Badge>
+                    <Badge tone={getStatusTone(est.status)}>{est.status}</Badge>
                 </Td>
-                <Td className="text-right" onClick={e => e.stopPropagation()}>
+                <Td align="right" onClick={(e) => e.stopPropagation()}>
                     {waiting && est.publicHash ? (
                         <div className="flex justify-end gap-2">
-                            <Button asChild size="sm">
-                                <a href={`/share/estimate/${est.publicHash}`}>Review & Accept</a>
+                            <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() => {
+                                    window.location.href = `/share/estimate/${est.publicHash}`;
+                                }}
+                            >
+                                Review &amp; Accept
                             </Button>
                         </div>
                     ) : (
-                        <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+                        <span className="text-xs text-[var(--st-text-secondary)]">-</span>
                     )}
                 </Td>
             </Tr>
             {expanded && (
                 <Tr>
-                    <Td colSpan={6} className="bg-[var(--st-bg-muted)] p-0 border-b">
+                    <Td colSpan={6} className="bg-[var(--st-bg-secondary)] p-0">
                         <div className="p-6">
-                            <h3 className="font-semibold text-lg mb-4">Line Items</h3>
+                            <h3 className="font-semibold text-lg mb-4 text-[var(--st-text)]">Line Items</h3>
                             {loading ? (
                                 <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                                    <Loader2 className="h-4 w-4 animate-spin" /> Loading items...
+                                    <Spinner size="sm" label="Loading items" /> Loading items...
                                 </div>
                             ) : items && items.length > 0 ? (
                                 <div className="space-y-6">
-                                    <div className="border rounded-md overflow-hidden bg-white">
-                                        <table className="w-full text-sm text-left">
-                                            <thead className="bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium">
-                                                <tr>
-                                                    <th className="px-4 py-2 border-b">Description</th>
-                                                    <th className="px-4 py-2 border-b text-right">Qty</th>
-                                                    <th className="px-4 py-2 border-b text-right">Rate</th>
-                                                    <th className="px-4 py-2 border-b text-right">Total</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                    <Card variant="outlined" padding="none" className="overflow-hidden">
+                                        <Table>
+                                            <THead>
+                                                <Tr>
+                                                    <Th>Description</Th>
+                                                    <Th align="right">Qty</Th>
+                                                    <Th align="right">Rate</Th>
+                                                    <Th align="right">Total</Th>
+                                                </Tr>
+                                            </THead>
+                                            <TBody>
                                                 {items.map((item, i) => {
                                                     const itemId = item._id || String(i);
                                                     return (
-                                                        <tr key={itemId} className="border-b last:border-0 group">
-                                                            <td className="px-4 py-3 align-top">
+                                                        <Tr key={itemId}>
+                                                            <Td className="align-top">
                                                                 <div>{item.description}</div>
                                                                 {waiting && (
-                                                                    <div className="mt-2 text-xs">
-                                                                        <div className="flex items-center gap-1 text-[var(--st-text)] mb-1">
-                                                                            <MessageSquare className="h-3 w-3" /> Comment on this item
-                                                                        </div>
-                                                                        <textarea
-                                                                            value={itemComments[itemId] || ''}
-                                                                            onChange={e => setItemComments(prev => ({ ...prev, [itemId]: e.target.value }))}
-                                                                            placeholder="Any issues with this line item?"
-                                                                            className="w-full border rounded p-2 text-sm"
-                                                                            rows={2}
-                                                                        />
+                                                                    <div className="mt-2">
+                                                                        <Field
+                                                                            label={
+                                                                                <span className="flex items-center gap-1 text-[var(--st-text-secondary)]">
+                                                                                    <MessageSquare
+                                                                                        className="h-3 w-3"
+                                                                                        aria-hidden="true"
+                                                                                    />
+                                                                                    Comment on this item
+                                                                                </span>
+                                                                            }
+                                                                        >
+                                                                            <Textarea
+                                                                                value={itemComments[itemId] || ''}
+                                                                                onChange={(e) =>
+                                                                                    setItemComments((prev) => ({
+                                                                                        ...prev,
+                                                                                        [itemId]: e.target.value,
+                                                                                    }))
+                                                                                }
+                                                                                placeholder="Any issues with this line item?"
+                                                                                rows={2}
+                                                                            />
+                                                                        </Field>
                                                                     </div>
                                                                 )}
-                                                            </td>
-                                                            <td className="px-4 py-3 align-top text-right">{item.quantity}</td>
-                                                            <td className="px-4 py-3 align-top text-right">{fmtCurrency(item.rate, est.currency)}</td>
-                                                            <td className="px-4 py-3 align-top text-right font-medium">{fmtCurrency(item.total, est.currency)}</td>
-                                                        </tr>
+                                                            </Td>
+                                                            <Td align="right" className="align-top">
+                                                                {item.quantity}
+                                                            </Td>
+                                                            <Td align="right" className="align-top">
+                                                                {fmtCurrency(item.rate, est.currency)}
+                                                            </Td>
+                                                            <Td align="right" className="align-top font-medium">
+                                                                {fmtCurrency(item.total, est.currency)}
+                                                            </Td>
+                                                        </Tr>
                                                     );
                                                 })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    
+                                            </TBody>
+                                        </Table>
+                                    </Card>
+
                                     {waiting && (
-                                        <div className="bg-white p-4 border rounded-md">
-                                            <h4 className="font-medium mb-2">Request Revision</h4>
-                                            <p className="text-sm text-[var(--st-text)] mb-3">
-                                                If you need changes to this estimate before accepting, leave your comments above and provide a general note below.
+                                        <Card variant="outlined" padding="md">
+                                            <h4 className="font-medium mb-2 text-[var(--st-text)]">Request Revision</h4>
+                                            <p className="text-sm text-[var(--st-text-secondary)] mb-3">
+                                                If you need changes to this estimate before accepting, leave your
+                                                comments above and provide a general note below.
                                             </p>
-                                            <textarea
-                                                value={generalComment}
-                                                onChange={e => setGeneralComment(e.target.value)}
-                                                placeholder="General revision request notes..."
-                                                className="w-full border rounded p-2 text-sm mb-3"
-                                                rows={3}
-                                            />
-                                            {error && <div className="text-[var(--st-text)] text-sm mb-3">{error}</div>}
-                                            <Button 
-                                                onClick={handleRequestRevision} 
-                                                disabled={submitting || (generalComment.trim() === '' && Object.keys(itemComments).filter(k => itemComments[k].trim() !== '').length === 0)}
+                                            <Field className="mb-3">
+                                                <Textarea
+                                                    value={generalComment}
+                                                    onChange={(e) => setGeneralComment(e.target.value)}
+                                                    placeholder="General revision request notes..."
+                                                    rows={3}
+                                                />
+                                            </Field>
+                                            {error && (
+                                                <Alert tone="danger" className="mb-3">
+                                                    {error}
+                                                </Alert>
+                                            )}
+                                            <Button
+                                                variant="primary"
+                                                onClick={handleRequestRevision}
+                                                loading={submitting}
+                                                disabled={revisionDisabled}
                                             >
-                                                {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting...</> : 'Submit Revision Request'}
+                                                {submitting ? 'Submitting...' : 'Submit Revision Request'}
                                             </Button>
-                                        </div>
+                                        </Card>
                                     )}
                                 </div>
                             ) : (
-                                <div className="text-sm text-[var(--st-text)] italic">No line items found.</div>
+                                <EmptyState
+                                    icon={FileText}
+                                    title="No line items found"
+                                    description="This estimate has no line items yet."
+                                    size="sm"
+                                />
                             )}
                         </div>
                     </Td>

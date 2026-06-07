@@ -3,6 +3,15 @@
 import React from 'react';
 import { Search } from 'lucide-react';
 import { FEATURE_CATEGORIES } from '@/lib/features/types';
+import {
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 interface FilterBarProps {
   query: string;
@@ -15,39 +24,46 @@ interface FilterBarProps {
 
 export function FilterBar({ query, setQuery, category, setCategory, sort, setSort }: FilterBarProps) {
   return (
-    <div className="flex flex-col gap-4 p-4 border border-black bg-gray-50">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
+    <div className="flex flex-col gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        <Field label="Search" className="flex-1">
+          <Input
             type="text"
-            placeholder="Search features (try 'error' to simulate failure)..."
+            placeholder="Search features (try 'error' to simulate failure)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full border border-black pl-10 pr-4 py-2 text-sm uppercase font-mono tracking-wider focus:outline-none focus:ring-1 focus:ring-black bg-white"
+            iconLeft={Search}
           />
-        </div>
-        
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border border-black px-4 py-2 text-sm uppercase font-mono tracking-wider focus:outline-none focus:ring-1 focus:ring-black bg-white"
-        >
-          <option value="all">ALL CATEGORIES</option>
-          {FEATURE_CATEGORIES.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.label}</option>
-          ))}
-        </select>
-        
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="border border-black px-4 py-2 text-sm uppercase font-mono tracking-wider focus:outline-none focus:ring-1 focus:ring-black bg-white"
-        >
-          <option value="default">SORT: DEFAULT</option>
-          <option value="name-asc">SORT: A-Z</option>
-          <option value="name-desc">SORT: Z-A</option>
-        </select>
+        </Field>
+
+        <Field label="Category">
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger aria-label="Filter by category">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {FEATURE_CATEGORIES.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label="Sort">
+          <Select value={sort} onValueChange={setSort}>
+            <SelectTrigger aria-label="Sort features">
+              <SelectValue placeholder="Default" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default order</SelectItem>
+              <SelectItem value="name-asc">Name, A to Z</SelectItem>
+              <SelectItem value="name-desc">Name, Z to A</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
       </div>
     </div>
   );

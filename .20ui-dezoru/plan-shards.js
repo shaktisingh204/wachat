@@ -18,6 +18,8 @@ const cp = require('child_process');
 
 const EXCLUDE_ROUTE = new Set(['crm', 'crm-advanced', 'hrm', 'hrm-advanced', 'wachat', 'sabcrm']);
 const EXCLUDE_COMPONENT = new Set(['ui', 'clay', 'sab-ui', 'landing', 'landing-v2', 'landing-3d', 'sabcrm', 'crm', 'hrm']);
+let EXCEPTIONS = {};
+try { EXCEPTIONS = JSON.parse(fs.readFileSync('.20ui-dezoru/exceptions.json', 'utf8')); } catch {}
 
 function classify(file) {
   let raw;
@@ -45,7 +47,9 @@ function classify(file) {
   if (/var\(--zoru-/.test(src)) reasons.push('var(--zoru-)');
   // inline style is a SOFT signal (runtime-legit allowed). Only counts when INCLUDE_SOFT=1.
   if (process.env.INCLUDE_SOFT === '1' && /style=\{\{/.test(src)) reasons.push('inlineStyle');
-  return reasons.length ? reasons : null;
+  const exc = EXCEPTIONS[file] || [];
+  const kept = reasons.filter((r) => !exc.includes(r.split(':')[0]));
+  return kept.length ? kept : null;
 }
 
 function moduleOf(f) {

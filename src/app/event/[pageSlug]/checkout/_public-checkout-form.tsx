@@ -8,7 +8,7 @@
  * Payment redirect TODO: when a real gateway is wired through
  * `ICheckoutGateway`, swap the immediate redirect for the gateway's
  * `redirectUrl` (mirror the SabCheckout flow). For now the `success`
- * page calls `confirmPublicTicketOrder` directly — fine against the
+ * page calls `confirmPublicTicketOrder` directly - fine against the
  * default `MockGateway`.
  */
 
@@ -17,6 +17,15 @@ import { useRouter } from 'next/navigation';
 
 import { createPublicTicketOrder } from '@/app/actions/sabbackstage-public.actions';
 import type { SabbackstageTicketTypeDoc } from '@/lib/rust-client/sabbackstage-ticket-types';
+import {
+  Alert,
+  Button,
+  Card,
+  CardBody,
+  CardTitle,
+  Field,
+  Input,
+} from '@/components/sabcrm/20ui';
 
 interface CartLine {
   typeId: string;
@@ -95,75 +104,70 @@ export function PublicCheckoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-      <section className="rounded-xl border border-white/15 bg-white/5 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider opacity-70">
+      <Card variant="outlined" padding="md">
+        <CardTitle className="text-sm font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
           Order summary
-        </h2>
-        <ul className="mt-2 space-y-1 text-sm">
-          {cart.map((c) => {
-            const t = typeById.get(c.typeId);
-            if (!t) return null;
-            return (
-              <li key={c.typeId} className="flex justify-between">
-                <span>
-                  {t.name} × {c.qty}
-                </span>
-                <span>{formatMoney(t.priceMinor * c.qty, t.currency)}</span>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="mt-3 flex justify-between border-t border-white/15 pt-2 text-base font-semibold">
-          <span>Total</span>
-          <span>{formatMoney(subtotal, currency)}</span>
-        </div>
-      </section>
+        </CardTitle>
+        <CardBody className="space-y-1 text-sm">
+          <ul className="space-y-1">
+            {cart.map((c) => {
+              const t = typeById.get(c.typeId);
+              if (!t) return null;
+              return (
+                <li key={c.typeId} className="flex justify-between">
+                  <span>
+                    {t.name} x {c.qty}
+                  </span>
+                  <span>{formatMoney(t.priceMinor * c.qty, t.currency)}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-3 flex justify-between border-t border-[var(--st-border)] pt-2 text-base font-semibold">
+            <span>Total</span>
+            <span>{formatMoney(subtotal, currency)}</span>
+          </div>
+        </CardBody>
+      </Card>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider opacity-70">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
           Buyer details
         </h2>
-        <label className="block text-sm">
-          Full name
-          <input
-            required
+        <Field label="Full name" required>
+          <Input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 text-sm"
           />
-        </label>
-        <label className="block text-sm">
-          Email
-          <input
-            required
+        </Field>
+        <Field label="Email" required>
+          <Input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 text-sm"
           />
-        </label>
-        <label className="block text-sm">
-          Phone (optional)
-          <input
+        </Field>
+        <Field label="Phone (optional)">
+          <Input
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-white/20 bg-black/30 px-3 py-2 text-sm"
           />
-        </label>
+        </Field>
       </section>
 
-      {error ? <p className="text-sm text-red-300">{error}</p> : null}
+      {error ? <Alert tone="danger">{error}</Alert> : null}
 
-      <button
+      <Button
         type="submit"
-        disabled={busy}
-        className="w-full rounded-md px-5 py-3 text-sm font-medium disabled:opacity-50"
+        variant="primary"
+        block
+        loading={busy}
         style={{ backgroundColor: accent, color: 'var(--st-text-inverted)' }}
       >
-        {busy ? 'Processing…' : 'Pay and reserve tickets'}
-      </button>
+        {busy ? 'Processing...' : 'Pay and reserve tickets'}
+      </Button>
     </form>
   );
 }

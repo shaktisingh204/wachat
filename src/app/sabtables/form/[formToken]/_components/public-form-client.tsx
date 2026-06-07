@@ -1,8 +1,22 @@
 'use client';
 
 import { useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 
-import { Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Card,
+  Checkbox,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import type { SabtablesTableDoc } from '@/lib/rust-client/sabtables-tables';
 import type { SabtablesViewDoc } from '@/lib/rust-client/sabtables-views';
 
@@ -14,7 +28,7 @@ interface Props {
 /**
  * Renders a public form for a SabTables `form` view. Submits through a
  * Next.js API route (`/api/sabtables/forms/[formToken]`) that the
- * server-side wiring will need to provide — see TODO at the bottom of
+ * server-side wiring will need to provide. See TODO at the bottom of
  * `src/app/actions/sabtables.actions.ts`.
  */
 export function PublicFormClient({ view, table }: Props) {
@@ -44,41 +58,43 @@ export function PublicFormClient({ view, table }: Props) {
 
   if (submitted) {
     return (
-      <div className="zoruui min-h-screen flex items-center justify-center p-6">
-        <Card className="p-8 max-w-md text-center">
-          <h1 className="text-xl font-semibold mb-2">Thanks!</h1>
-          <p className="text-[var(--st-text-secondary)]">Your response has been recorded.</p>
+      <div className="ui20 min-h-screen flex items-center justify-center p-6">
+        <Card className="w-full max-w-md" padding="lg">
+          <EmptyState
+            icon={CheckCircle2}
+            tone="success"
+            title="Thanks!"
+            description="Your response has been recorded."
+          />
         </Card>
       </div>
     );
   }
 
   return (
-    <div className="zoruui min-h-screen flex items-center justify-center p-6">
-      <Card className="p-8 w-full max-w-xl">
-        <h1 className="text-2xl font-semibold">{view.name || table.name}</h1>
-        <p className="text-sm text-[var(--st-text-secondary)] mb-6">{table.description}</p>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="ui20 min-h-screen flex items-center justify-center p-6">
+      <Card className="w-full max-w-xl" padding="lg">
+        <PageHeader bordered={false} compact>
+          <PageHeaderHeading>
+            <PageTitle>{view.name || table.name}</PageTitle>
+            {table.description ? (
+              <PageDescription>{table.description}</PageDescription>
+            ) : null}
+          </PageHeaderHeading>
+        </PageHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           {table.fields.map((f) => (
-            <div key={f.id}>
-              <Label htmlFor={`fld-${f.id}`}>
-                {f.name}
-                {f.isRequired ? <span className="text-[var(--st-text)] ml-1">*</span> : null}
-              </Label>
+            <Field key={f.id} label={f.name} required={f.isRequired}>
               {f.fieldType === 'long_text' ? (
                 <Textarea
-                  id={`fld-${f.id}`}
                   value={(values[f.id] as string | undefined) ?? ''}
                   onChange={(e) =>
                     setValues((prev) => ({ ...prev, [f.id]: e.target.value }))
                   }
-                  required={f.isRequired}
                   rows={4}
                 />
               ) : f.fieldType === 'checkbox' ? (
-                <input
-                  id={`fld-${f.id}`}
-                  type="checkbox"
+                <Checkbox
                   checked={Boolean(values[f.id])}
                   onChange={(e) =>
                     setValues((prev) => ({ ...prev, [f.id]: e.target.checked }))
@@ -86,7 +102,6 @@ export function PublicFormClient({ view, table }: Props) {
                 />
               ) : (
                 <Input
-                  id={`fld-${f.id}`}
                   type={
                     f.fieldType === 'email'
                       ? 'email'
@@ -107,16 +122,17 @@ export function PublicFormClient({ view, table }: Props) {
                   onChange={(e) =>
                     setValues((prev) => ({ ...prev, [f.id]: e.target.value }))
                   }
-                  required={f.isRequired}
                 />
               )}
-            </div>
+            </Field>
           ))}
           {error ? (
-            <div className="text-sm text-[var(--st-text)]">{error}</div>
+            <Alert tone="danger" title="Submission failed">
+              {error}
+            </Alert>
           ) : null}
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Submitting…' : 'Submit'}
+          <Button type="submit" variant="primary" loading={submitting}>
+            {submitting ? 'Submitting' : 'Submit'}
           </Button>
         </form>
       </Card>

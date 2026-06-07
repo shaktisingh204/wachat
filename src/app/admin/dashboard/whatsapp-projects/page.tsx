@@ -1,232 +1,283 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui';
 import {
-  getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Badge,
+  EmptyState,
+  Spinner,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
+import { getWhatsAppProjectsForAdmin } from '@/app/actions/user.actions';
 import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
 import { AdminUserFilter } from '@/components/zoruui-domain/admin-user-filter';
-import { useEffect,
+import {
+  useEffect,
   useState,
   useTransition,
   useCallback,
-  Suspense } from 'react';
+  Suspense,
+} from 'react';
 import type { WithId } from 'mongodb';
-import type { Project,
-  User } from '@/lib/definitions';
-import { usePathname,
-  useRouter,
-  useSearchParams } from 'next/navigation';
+import type { Project, User } from '@/lib/definitions';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-
-import { MessageSquare, LoaderCircle, Archive } from 'lucide-react';
+import { MessageSquare, Archive } from 'lucide-react';
 import { AdminArchiveProjectButton } from '@/components/zoruui-domain/admin-archive-project-button';
 
 const PROJECTS_PER_PAGE = 20;
 
-const STATUS_STYLES: Record<string, string> = {
-    approved: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    verified: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    pending: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    failed: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    rejected: 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    'partial failure': 'bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]',
-    unknown: 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] border-[var(--st-border)]',
-};
-
-function statusStyle(status?: string) {
-    if (!status) return STATUS_STYLES.unknown;
-    const key = status.toLowerCase();
-    
-    if (STATUS_STYLES[key]) return STATUS_STYLES[key];
-    if (key.includes('partial failure') || key.includes('partial')) return STATUS_STYLES['partial failure'];
-    if (key.includes('fail') || key.includes('reject')) return STATUS_STYLES.failed;
-    if (key.includes('pend') || key.includes('review')) return STATUS_STYLES.pending;
-    if (key.includes('approv') || key.includes('verif')) return STATUS_STYLES.approved;
-    
-    return STATUS_STYLES.unknown;
+/** Map a review status to a Badge tone so colour carries meaning. */
+function statusTone(status?: string): BadgeTone {
+  if (!status) return 'neutral';
+  const key = status.toLowerCase();
+  if (key.includes('partial')) return 'warning';
+  if (key.includes('fail') || key.includes('reject')) return 'danger';
+  if (key.includes('pend') || key.includes('review')) return 'warning';
+  if (key.includes('approv') || key.includes('verif')) return 'success';
+  return 'neutral';
 }
 
 function WhatsAppProjectsContent() {
-    const searchParams = useSearchParams();
-    const pathname = usePathname();
-    const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
-    const [projects, setProjects] = useState<WithId<Project & { owner: { name: string; email: string }; isArchived?: boolean }>[]>([]);
-    const [users, setUsers] = useState<WithId<User>[]>([]);
-    const [totalProjects, setTotalProjects] = useState(0);
-    const [isLoading, startTransition] = useTransition();
+  const [projects, setProjects] = useState<
+    WithId<Project & { owner: { name: string; email: string }; isArchived?: boolean }>[]
+  >([]);
+  const [users, setUsers] = useState<WithId<User>[]>([]);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [isLoading, startTransition] = useTransition();
 
-    const query = searchParams.get('query') || '';
-    const userId = searchParams.get('userId');
-    const statusParam = searchParams.get('status') || 'all';
-    const currentPage = Number(searchParams.get('page')) || 1;
-    const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
+  const query = searchParams.get('query') || '';
+  const userId = searchParams.get('userId');
+  const statusParam = searchParams.get('status') || 'all';
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const data = await getWhatsAppProjectsForAdmin(
-                currentPage, 
-                PROJECTS_PER_PAGE, 
-                query, 
-                userId || undefined, 
-                statusParam === 'all' ? undefined : statusParam
-            );
-            setProjects(data.projects);
-            setTotalProjects(data.total);
-            setUsers(data.users);
-        });
-    }, [currentPage, query, userId, statusParam]);
+  const fetchData = useCallback(() => {
+    startTransition(async () => {
+      const data = await getWhatsAppProjectsForAdmin(
+        currentPage,
+        PROJECTS_PER_PAGE,
+        query,
+        userId || undefined,
+        statusParam === 'all' ? undefined : statusParam,
+      );
+      setProjects(data.projects);
+      setTotalProjects(data.total);
+      setUsers(data.users);
+    });
+  }, [currentPage, query, userId, statusParam]);
 
-    useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-    const createPageURL = (page: number) => {
-        const params = new URLSearchParams(searchParams);
-        params.set('page', String(page));
-        return `${pathname}?${params}`;
-    };
+  const createPageURL = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', String(page));
+    return `${pathname}?${params}`;
+  };
 
-    return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-[var(--st-text)]">WhatsApp Projects</h1>
-                <p className="text-sm text-[var(--st-text-secondary)] mt-1">All connected WhatsApp Business Accounts across the platform.</p>
-            </div>
+  const goToPage = (page: number) => {
+    router.push(createPageURL(page));
+  };
 
-            {/* Table card */}
-            <div className="rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] overflow-hidden">
-                <div className="px-6 py-4 border-b border-[var(--st-border)] flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                        <span className="font-medium text-[var(--st-text)] text-sm">
-                            Connected Accounts
-                            <span className="ml-2 text-[var(--st-text-secondary)] font-normal">({totalProjects})</span>
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Select
-                            value={statusParam}
-                            onValueChange={(val) => {
-                                const params = new URLSearchParams(searchParams);
-                                if (val && val !== 'all') {
-                                    params.set('status', val);
-                                } else {
-                                    params.delete('status');
-                                }
-                                params.set('page', '1');
-                                router.push(`${pathname}?${params.toString()}`);
-                            }}
+  return (
+    <div className="space-y-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>WhatsApp Projects</PageTitle>
+          <PageDescription>
+            All connected WhatsApp Business Accounts across the platform.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
+
+      <Card padding="none">
+        <CardHeader className="px-6 py-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)]">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <MessageSquare className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            <span className="font-medium text-[var(--st-text)]">
+              Connected Accounts
+              <span className="ml-2 font-normal text-[var(--st-text-secondary)]">
+                ({totalProjects})
+              </span>
+            </span>
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Select
+              value={statusParam}
+              onValueChange={(val) => {
+                const params = new URLSearchParams(searchParams);
+                if (val && val !== 'all') {
+                  params.set('status', val);
+                } else {
+                  params.delete('status');
+                }
+                params.set('page', '1');
+                router.push(`${pathname}?${params.toString()}`);
+              }}
+            >
+              <SelectTrigger className="w-[150px]" aria-label="Filter by status">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="verified">Verified</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="partial_failure">Partial Failure</SelectItem>
+              </SelectContent>
+            </Select>
+            <AdminUserSearch placeholder="Search by project name..." />
+            <AdminUserFilter users={users} />
+          </div>
+        </CardHeader>
+
+        <div className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Project</Th>
+                <Th>Owner</Th>
+                <Th>WABA ID</Th>
+                <Th>Status</Th>
+                <Th align="right">
+                  <span className="sr-only">Actions</span>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {isLoading ? (
+                <Tr>
+                  <Td colSpan={5} align="center" className="py-12">
+                    <Spinner size="md" label="Loading projects" className="mx-auto" />
+                  </Td>
+                </Tr>
+              ) : projects.length > 0 ? (
+                projects.map((project) => (
+                  <Tr
+                    key={project._id.toString()}
+                    className={project.isArchived ? 'opacity-60' : undefined}
+                  >
+                    <Td className="font-medium text-[var(--st-text)]">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/wachat?projectId=${project._id}`}
+                          className="font-medium text-[var(--st-text)] hover:underline"
                         >
-                            <SelectTrigger className="w-[150px] h-9">
-                                <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Statuses</SelectItem>
-                                <SelectItem value="approved">Approved</SelectItem>
-                                <SelectItem value="verified">Verified</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="rejected">Rejected</SelectItem>
-                                <SelectItem value="failed">Failed</SelectItem>
-                                <SelectItem value="partial_failure">Partial Failure</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <AdminUserSearch placeholder="Search by project name…" />
-                        <AdminUserFilter users={users} />
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-[var(--st-border)]">
-                                {['Project', 'Owner', 'WABA ID', 'Status', ''].map((h, i) => (
-                                    <th key={i} className={`px-6 py-3 text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider ${i === 4 ? 'text-right' : 'text-left'}`}>
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[color:var(--st-border)]">
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center">
-                                        <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
-                                    </td>
-                                </tr>
-                            ) : projects.length > 0 ? (
-                                projects.map(project => (
-                                    <tr key={project._id.toString()} className={`hover:bg-[var(--st-bg-secondary)] transition-colors ${project.isArchived ? 'opacity-60' : ''}`}>
-                                        <td className="px-6 py-3.5 font-medium text-[var(--st-text)]">
-                                            <div className="flex items-center gap-2">
-                                                <Link
-                                                    href={`/wachat?projectId=${project._id}`}
-                                                    className="hover:underline text-[var(--st-text)] font-medium"
-                                                >
-                                                    {project.name}
-                                                </Link>
-                                                {project.isArchived && (
-                                                    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)]">
-                                                        <Archive className="h-3 w-3" />
-                                                        Archived
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-3.5">
-                                            <p className="font-medium text-[var(--st-text)]">{project.owner?.name || '—'}</p>
-                                            <p className="text-xs text-[var(--st-text-secondary)]">{project.owner?.email || '—'}</p>
-                                        </td>
-                                        <td className="px-6 py-3.5 font-mono text-xs text-[var(--st-text-secondary)]">{project.wabaId || '—'}</td>
-                                        <td className="px-6 py-3.5">
-                                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium capitalize ${statusStyle(project.reviewStatus)}`}>
-                                                {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-3.5 text-right">
-                                            <AdminArchiveProjectButton
-                                                projectId={project._id.toString()}
-                                                projectName={project.name}
-                                                isArchived={project.isArchived}
-                                            />
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="px-6 py-16 text-center text-[var(--st-text-secondary)]">
-                                        No WhatsApp projects found.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Pagination */}
-                <div className="px-6 py-3 border-t border-[var(--st-border)] flex items-center justify-between">
-                    <span className="text-xs text-[var(--st-text-secondary)]">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40">
-                            <Link href={createPageURL(currentPage - 1)}>Previous</Link>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                            className="border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] disabled:opacity-40">
-                            <Link href={createPageURL(currentPage + 1)}>Next</Link>
-                        </Button>
-                    </div>
-                </div>
-            </div>
+                          {project.name}
+                        </Link>
+                        {project.isArchived && (
+                          <Badge tone="neutral">
+                            <Archive className="h-3 w-3" aria-hidden="true" />
+                            Archived
+                          </Badge>
+                        )}
+                      </div>
+                    </Td>
+                    <Td>
+                      <p className="font-medium text-[var(--st-text)]">
+                        {project.owner?.name || '-'}
+                      </p>
+                      <p className="text-xs text-[var(--st-text-secondary)]">
+                        {project.owner?.email || '-'}
+                      </p>
+                    </Td>
+                    <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
+                      {project.wabaId || '-'}
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(project.reviewStatus)} className="capitalize">
+                        {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
+                      </Badge>
+                    </Td>
+                    <Td align="right">
+                      <AdminArchiveProjectButton
+                        projectId={project._id.toString()}
+                        projectName={project.name}
+                        isArchived={project.isArchived}
+                      />
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={5} className="py-16">
+                    <EmptyState
+                      icon={MessageSquare}
+                      title="No WhatsApp projects found"
+                      description="Connected WhatsApp Business Accounts will appear here once users onboard."
+                    />
+                  </Td>
+                </Tr>
+              )}
+            </TBody>
+          </Table>
         </div>
-    );
+
+        <CardFooter className="px-6 py-3 flex items-center justify-between border-t border-[var(--st-border)]">
+          <span className="text-xs text-[var(--st-text-secondary)]">
+            Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => goToPage(currentPage - 1)}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => goToPage(currentPage + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }
 
 export default function WhatsAppProjectsPage() {
-    return (
-        <Suspense fallback={<div className="p-8 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-[var(--st-text-secondary)]" /></div>}>
-            <WhatsAppProjectsContent />
-        </Suspense>
-    );
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center">
+          <Spinner size="lg" label="Loading WhatsApp projects" className="mx-auto" />
+        </div>
+      }
+    >
+      <WhatsAppProjectsContent />
+    </Suspense>
+  );
 }

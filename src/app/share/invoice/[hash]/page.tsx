@@ -1,11 +1,25 @@
 import * as React from 'react';
 import { notFound } from 'next/navigation';
+import { Download } from 'lucide-react';
 import {
   capturePayPalPayment,
   getPublicInvoice,
   markInvoiceViewed,
 } from '@/app/actions/public-invoice.actions';
-import { Badge, Card, CardBody, CardHeader, CardTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 import { fmtDate, fmtINR } from '@/lib/utils';
 
@@ -24,12 +38,12 @@ function pickParam(
   return Array.isArray(v) ? v[0] : v;
 }
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  Paid: 'default',
-  Unpaid: 'destructive',
-  Partial: 'secondary',
-  'Pending-Confirmation': 'outline',
-  Draft: 'outline',
+const STATUS_TONE: Record<string, BadgeTone> = {
+  Paid: 'success',
+  Unpaid: 'danger',
+  Partial: 'warning',
+  'Pending-Confirmation': 'info',
+  Draft: 'neutral',
 };
 
 async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string; searchParamsMap: Record<string, string | string[] | undefined> }) {
@@ -76,18 +90,19 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle>Invoice {invoice.invoiceNumber}</CardTitle>
-            <p className="mt-1 text-sm text-[var(--st-text)]">
+            <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
               Issued {fmtDate(invoice.invoiceDate)} &middot; Due {fmtDate(invoice.dueDate)}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={STATUS_VARIANT[invoice.status] || 'outline'}>{invoice.status}</Badge>
+          <div className="flex items-center gap-3">
+            <Badge tone={STATUS_TONE[invoice.status] || 'neutral'}>{invoice.status}</Badge>
             <a
               href={`/share/invoice/${hash}/download`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] shadow-sm hover:bg-[var(--st-bg-muted)]"
+              className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text)] underline-offset-2 hover:underline"
             >
+              <Download size={14} aria-hidden="true" />
               Download PDF
             </a>
           </div>
@@ -95,89 +110,85 @@ async function PublicInvoiceContainer({ hash, searchParamsMap }: { hash: string;
         <CardBody className="space-y-6">
           {invoice.billTo.name || invoice.billTo.email || invoice.billTo.address ? (
             <section>
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Bill to
               </h3>
               <div className="text-sm">
                 {invoice.billTo.name ? (
-                  <div className="font-medium">{invoice.billTo.name}</div>
+                  <div className="font-medium text-[var(--st-text)]">{invoice.billTo.name}</div>
                 ) : null}
                 {invoice.billTo.email ? (
-                  <div className="text-[var(--st-text)]">{invoice.billTo.email}</div>
+                  <div className="text-[var(--st-text-secondary)]">{invoice.billTo.email}</div>
                 ) : null}
                 {invoice.billTo.address ? (
-                  <div className="text-[var(--st-text)]">{invoice.billTo.address}</div>
+                  <div className="text-[var(--st-text-secondary)]">{invoice.billTo.address}</div>
                 ) : null}
               </div>
             </section>
           ) : null}
 
           <section>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Line items
             </h3>
-            <div className="overflow-x-auto rounded-md border border-[var(--st-border)]">
-              <table className="min-w-full divide-y divide-[var(--st-border)] text-sm">
-                <thead className="bg-[var(--st-bg-muted)] text-left text-xs uppercase text-[var(--st-text)]">
-                  <tr>
-                    <th className="px-3 py-2">Description</th>
-                    <th className="px-3 py-2 text-right">Qty</th>
-                    <th className="px-3 py-2 text-right">Rate</th>
-                    <th className="px-3 py-2 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--st-border)] bg-white">
+            <div className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Table density="compact">
+                <THead>
+                  <Tr>
+                    <Th>Description</Th>
+                    <Th align="right">Qty</Th>
+                    <Th align="right">Rate</Th>
+                    <Th align="right">Amount</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {invoice.lineItems.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-3 py-4 text-center text-[var(--st-text-secondary)]">
+                    <Tr>
+                      <Td colSpan={4} align="center" className="text-[var(--st-text-secondary)]">
                         No line items.
-                      </td>
-                    </tr>
+                      </Td>
+                    </Tr>
                   ) : (
                     invoice.lineItems.map((li, idx) => (
-                      <tr key={idx}>
-                        <td className="px-3 py-2">{li.description || li.name || '—'}</td>
-                        <td className="px-3 py-2 text-right">{li.quantity}</td>
-                        <td className="px-3 py-2 text-right">
-                          {fmtINR(li.rate)}
-                        </td>
-                        <td className="px-3 py-2 text-right">
-                          {fmtINR(li.total)}
-                        </td>
-                      </tr>
+                      <Tr key={idx}>
+                        <Td>{li.description || li.name || '-'}</Td>
+                        <Td align="right">{li.quantity}</Td>
+                        <Td align="right">{fmtINR(li.rate)}</Td>
+                        <Td align="right">{fmtINR(li.total)}</Td>
+                      </Tr>
                     ))
                   )}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
           </section>
 
           <section className="flex flex-col items-end gap-1 text-sm">
-            <div className="flex w-full max-w-xs justify-between text-[var(--st-text)]">
+            <div className="flex w-full max-w-xs justify-between text-[var(--st-text-secondary)]">
               <span>Subtotal</span>
               <span>{fmtINR(invoice.subtotal)}</span>
             </div>
             {typeof invoice.tax === 'number' ? (
-              <div className="flex w-full max-w-xs justify-between text-[var(--st-text)]">
+              <div className="flex w-full max-w-xs justify-between text-[var(--st-text-secondary)]">
                 <span>Tax</span>
                 <span>{fmtINR(invoice.tax)}</span>
               </div>
             ) : null}
             {typeof invoice.discount === 'number' ? (
-              <div className="flex w-full max-w-xs justify-between text-[var(--st-text)]">
+              <div className="flex w-full max-w-xs justify-between text-[var(--st-text-secondary)]">
                 <span>Discount</span>
                 <span>-{fmtINR(invoice.discount)}</span>
               </div>
             ) : null}
-            <div className="flex w-full max-w-xs justify-between border-t border-[var(--st-border)] pt-1 text-base font-semibold">
+            <div className="flex w-full max-w-xs justify-between border-t border-[var(--st-border)] pt-1 text-base font-semibold text-[var(--st-text)]">
               <span>Total</span>
               <span>{fmtINR(invoice.total)}</span>
             </div>
           </section>
 
           {invoice.notes ? (
-            <section className="rounded-md bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
-              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+            <section className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text-secondary)]">
+              <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Notes
               </h3>
               <p className="whitespace-pre-line">{invoice.notes}</p>
@@ -209,7 +220,7 @@ export default async function PublicInvoicePage({
   const sp = await searchParams;
 
   return (
-    <React.Suspense fallback={<div>Loading invoice...</div>}>
+    <React.Suspense fallback={<div className="text-sm text-[var(--st-text-secondary)]">Loading invoice...</div>}>
       <PublicInvoiceContainer hash={hash} searchParamsMap={sp} />
     </React.Suspense>
   );

@@ -1,137 +1,210 @@
 'use client';
-import React, { useState } from 'react';
-import { 
-    BarChart, Activity, Users, Settings, Filter, Search, Download, 
-    Share2, Plus, RefreshCw, ChevronDown, Bell, Zap, ShieldCheck, 
-    Clock, Calendar, FileText, Layers, Target
+
+import React from 'react';
+import {
+  Activity, Users, Search, Download, Plus, RefreshCw, Bell,
+  Zap, ShieldCheck, Clock, Filter,
 } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  SegmentedControl,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
+
+type RangeValue = 'today' | '7d' | '30d' | 'quarter' | 'custom';
+
+const RANGE_ITEMS = [
+  { value: 'today' as const, label: 'Today' },
+  { value: '7d' as const, label: '7 Days' },
+  { value: '30d' as const, label: '30 Days' },
+  { value: 'quarter' as const, label: 'This Quarter' },
+  { value: 'custom' as const, label: 'Custom' },
+];
+
+const KPIS = [
+  { label: 'Total Volume', value: '124,592', delta: { value: '+14%', tone: 'up' as const }, icon: Activity, accent: '#2563eb' },
+  { label: 'Active Users', value: '8,432', delta: { value: '+5%', tone: 'up' as const }, icon: Users, accent: '#10b981' },
+  { label: 'System Health', value: '99.9%', delta: { value: 'Stable', tone: 'neutral' as const }, icon: ShieldCheck, accent: '#a855f7' },
+  { label: 'Avg Resolution', value: '1.2 hrs', delta: { value: '-12%', tone: 'down' as const }, icon: Clock, accent: '#f43f5e' },
+];
+
+type FeedRow = {
+  id: string;
+  name: string;
+  status: { label: string; tone: 'success' | 'warning' | 'neutral' };
+  priority: { label: string; tone: 'danger' | 'warning' | 'info' };
+};
+
+const STATUS_CYCLE: FeedRow['status'][] = [
+  { label: 'Active', tone: 'success' },
+  { label: 'Pending', tone: 'warning' },
+  { label: 'Idle', tone: 'neutral' },
+];
+const PRIORITY_CYCLE: FeedRow['priority'][] = [
+  { label: 'High', tone: 'danger' },
+  { label: 'Medium', tone: 'warning' },
+  { label: 'Low', tone: 'info' },
+];
+const SHIFT_NAMES = [
+  'Morning shift coverage', 'Late-night dispatch desk', 'Weekend on-call rotation',
+  'Holiday surge staffing', 'Cross-team handoff window', 'Overtime approval queue',
+  'Regional escalation pool', 'New-hire onboarding block', 'Floating relief roster',
+  'Quarterly capacity review', 'Break-schedule rebalancing', 'Inbound queue triage',
+  'Field-team route planning', 'Compliance audit window', 'Peak-hour staffing model',
+];
+
+const FEED_ROWS: FeedRow[] = SHIFT_NAMES.map((name, i) => ({
+  id: `WOR-${1000 + i}`,
+  name,
+  status: STATUS_CYCLE[i % STATUS_CYCLE.length],
+  priority: PRIORITY_CYCLE[i % PRIORITY_CYCLE.length],
+}));
+
+const INSIGHTS = [
+  { title: 'Optimization required', tag: 'Action', body: 'Tuesday afternoons are over-staffed by three agents while inbound volume drops 22 percent.' },
+  { title: 'Coverage gap', tag: 'Risk', body: 'The 02:00 to 04:00 window has no senior responder assigned for the next two nights.' },
+  { title: 'Overtime trend', tag: 'Watch', body: 'Overtime hours rose 9 percent week over week, concentrated in the dispatch team.' },
+  { title: 'Forecast ready', tag: 'Info', body: 'Next week demand is projected 6 percent higher. Suggested roster is ready to review.' },
+  { title: 'Approval pending', tag: 'Action', body: 'Four shift-swap requests are waiting on a manager decision before the weekend lock.' },
+];
 
 export default function WorkforceSchedulingPage() {
-    const [searchTerm, setSearchTerm] = useState('');
-    
-    return (
-        <div className="flex flex-col w-full h-full min-h-screen bg-neutral-950 text-neutral-200">
-            {/* Header */}
-            <header className="flex items-center justify-between px-8 py-6 border-b border-white/10 bg-neutral-900/50 backdrop-blur-md">
-                <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Workforce Scheduling Dashboard</h1>
-                    <p className="text-neutral-400 mt-1">Manage and optimize your workforce scheduling workflows and metrics.</p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Search className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="p-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg transition-colors border border-white/5">
-                        <Bell className="w-5 h-5 text-neutral-400" />
-                    </button>
-                    <button className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all">
-                        <Plus className="w-4 h-4" />
-                        Create New
-                    </button>
-                </div>
-            </header>
+  const { toast } = useToast();
+  const [range, setRange] = React.useState<RangeValue>('7d');
 
-            {/* Toolbar */}
-            <div className="flex items-center justify-between px-8 py-4 border-b border-white/5 bg-neutral-900/20">
-                <div className="flex gap-2">
-                    {['Today', '7 Days', '30 Days', 'This Quarter', 'Custom'].map(t => (
-                        <button key={t} className="px-4 py-1.5 text-sm font-medium bg-neutral-800/50 hover:bg-neutral-700 rounded-full border border-white/5 transition-all">
-                            {t}
-                        </button>
-                    ))}
-                </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Filter className="w-4 h-4" /> Filter
-                    </button>
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-sm bg-neutral-800 hover:bg-neutral-700 rounded-md border border-white/5">
-                        <Download className="w-4 h-4" /> Export
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="ui20 dark flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Workforce Scheduling Dashboard</PageTitle>
+          <PageDescription>
+            Manage and optimize your workforce scheduling workflows and metrics.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <IconButton label="Search" icon={Search} variant="secondary" />
+          <IconButton label="Notifications" icon={Bell} variant="secondary" />
+          <Button variant="primary" iconLeft={Plus}>Create New</Button>
+        </PageActions>
+      </PageHeader>
 
-            {/* Main Content Grid */}
-            <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
-                {/* KPI Cards */}
-                <div className="col-span-12 grid grid-cols-4 gap-6">
-                    {[
-                        { label: 'Total Volume', value: '124,592', change: '+14%', icon: Activity, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                        { label: 'Active Users', value: '8,432', change: '+5%', icon: Users, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                        { label: 'System Health', value: '99.9%', change: 'Stable', icon: ShieldCheck, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-                        { label: 'Avg Resolution', value: '1.2 hrs', change: '-12%', icon: Clock, color: 'text-rose-400', bg: 'bg-rose-500/10' }
-                    ].map((kpi, i) => (
-                        <div key={i} className="p-6 bg-neutral-900 border border-white/10 rounded-2xl relative overflow-hidden group hover:border-white/20 transition-all">
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <kpi.icon className="w-24 h-24" />
-                            </div>
-                            <div className={`w-12 h-12 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
-                                <kpi.icon className={`w-6 h-6 ${kpi.color}`} />
-                            </div>
-                            <h3 className="text-neutral-400 font-medium mb-1">{kpi.label}</h3>
-                            <div className="flex items-end gap-3">
-                                <span className="text-4xl font-bold text-white">{kpi.value}</span>
-                                <span className="text-sm text-emerald-400 font-medium mb-1">{kpi.change}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Main Data View */}
-                <div className="col-span-8 bg-neutral-900 border border-white/10 rounded-2xl flex flex-col h-[600px]">
-                    <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-white">Live Data Feed</h2>
-                        <button className="p-2 hover:bg-neutral-800 rounded-lg transition-colors"><RefreshCw className="w-5 h-5 text-neutral-400" /></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-2">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-white/5">
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">ID</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Name</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Status</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Priority</th>
-                                    <th className="p-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Array.from({ length: 15 }).map((_, i) => (
-                                    <tr key={i} className="border-b border-white/5 hover:bg-neutral-800/50 transition-colors cursor-pointer">
-                                        <td className="p-4 text-sm text-neutral-300 font-mono">#WOR-{1000 + i}</td>
-                                        <td className="p-4 text-sm text-white font-medium">Workforce Scheduling Item {i + 1}</td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">Active</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="px-2.5 py-1 text-xs font-medium bg-rose-500/10 text-rose-400 rounded-full border border-rose-500/20">High</span>
-                                        </td>
-                                        <td className="p-4">
-                                            <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Side Panel */}
-                <div className="col-span-4 flex flex-col gap-6 h-[600px]">
-                    <div className="flex-1 bg-neutral-900 border border-white/10 rounded-2xl p-6">
-                        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Zap className="text-amber-400" /> AI Insights</h2>
-                        <div className="space-y-4">
-                            {[1,2,3,4,5].map(i => (
-                                <div key={i} className="p-4 bg-neutral-800/50 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h4 className="font-medium text-neutral-200">Optimization Required</h4>
-                                        <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Action</span>
-                                    </div>
-                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for workforce scheduling.</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </main>
+      {/* Toolbar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap px-8 py-4 border-b border-[var(--st-border)]">
+        <SegmentedControl
+          aria-label="Date range"
+          items={RANGE_ITEMS}
+          value={range}
+          onChange={setRange}
+          size="sm"
+        />
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" size="sm" iconLeft={Filter}>Filter</Button>
+          <Button variant="secondary" size="sm" iconLeft={Download}>Export</Button>
         </div>
-    );
+      </div>
+
+      {/* Main content */}
+      <main className="flex-1 p-8 grid grid-cols-12 gap-6 overflow-y-auto">
+        {/* KPI cards */}
+        <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {KPIS.map((kpi) => (
+            <StatCard
+              key={kpi.label}
+              label={kpi.label}
+              value={kpi.value}
+              icon={kpi.icon}
+              delta={kpi.delta}
+              accent={kpi.accent}
+            />
+          ))}
+        </div>
+
+        {/* Live data feed */}
+        <Card padding="none" className="col-span-12 lg:col-span-8 flex flex-col h-[600px]">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Live Data Feed</CardTitle>
+            <IconButton label="Refresh feed" icon={RefreshCw} variant="ghost" />
+          </CardHeader>
+          <CardBody className="flex-1 overflow-y-auto p-2">
+            <Table density="compact" hover>
+              <THead>
+                <Tr>
+                  <Th>ID</Th>
+                  <Th>Name</Th>
+                  <Th>Status</Th>
+                  <Th>Priority</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {FEED_ROWS.map((row) => (
+                  <Tr key={row.id}>
+                    <Td className="font-mono text-[var(--st-text-secondary)]">#{row.id}</Td>
+                    <Td className="font-medium text-[var(--st-text)]">{row.name}</Td>
+                    <Td>
+                      <Badge tone={row.status.tone} dot>{row.status.label}</Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone={row.priority.tone}>{row.priority.label}</Badge>
+                    </Td>
+                    <Td align="right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          toast.success(`Opening ${row.name} (#${row.id})`)
+                        }
+                      >
+                        View Details
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </CardBody>
+        </Card>
+
+        {/* AI insights */}
+        <Card className="col-span-12 lg:col-span-4 flex flex-col h-[600px]">
+          <CardHeader className="flex items-center gap-2">
+            <Zap size={18} className="text-[var(--st-warn)]" aria-hidden="true" />
+            <CardTitle>AI Insights</CardTitle>
+          </CardHeader>
+          <CardBody className="flex-1 overflow-y-auto flex flex-col gap-4">
+            {INSIGHTS.map((insight) => (
+              <div
+                key={insight.title}
+                className="p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+              >
+                <div className="flex justify-between items-start gap-2 mb-2">
+                  <h4 className="font-medium text-[var(--st-text)]">{insight.title}</h4>
+                  <Badge tone="warning">{insight.tag}</Badge>
+                </div>
+                <p className="text-sm text-[var(--st-text-secondary)]">{insight.body}</p>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      </main>
+    </div>
+  );
 }

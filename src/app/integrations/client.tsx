@@ -3,8 +3,18 @@
 import { m } from 'motion/react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ArrowRight, Check, Search, Webhook, Zap, Code, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Check, Search, Webhook, Zap, Code } from 'lucide-react';
 import { MarketingShell, PageHero, SectionWrap } from '@/components/landing-v2/marketing-shell';
+import {
+    Badge,
+    Card,
+    CardBody,
+    EmptyState,
+    Field,
+    Input,
+    SegmentedControl,
+    type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 
 interface Integration {
     name: string;
@@ -95,6 +105,19 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
         return out;
     }, [tab, q]);
 
+    const tabItems: SegmentedItem[] = CATEGORIES.map((c) => {
+        const count = c === 'All' ? INTEGRATIONS.length : INTEGRATIONS.filter((i) => i.cat === c).length;
+        return {
+            value: c,
+            label: (
+                <span className="inline-flex items-center gap-1.5">
+                    {c}
+                    <span className="text-[10px] text-[var(--st-text-tertiary)]">{count}</span>
+                </span>
+            ),
+        };
+    });
+
     return (
         <MarketingShell session={session}>
             <PageHero
@@ -102,72 +125,71 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                 title={<>Connect SabNode to <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">everything else.</span></>}
                 subtitle="Native connectors for the apps your team already uses. Webhooks and a clean REST API for everything else."
                 extra={
-                    <div className="mx-auto flex max-w-md items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 shadow-sm">
-                        <Search className="h-4 w-4 text-zinc-400" />
-                        <input
-                            value={q}
-                            onChange={(e) => setQ(e.target.value)}
-                            placeholder="Search integrations…"
-                            className="w-full bg-transparent text-sm focus:outline-none"
-                        />
+                    <div className="ui20 mx-auto w-full max-w-md">
+                        <Field label={<span className="sr-only">Search integrations</span>}>
+                            <Input
+                                value={q}
+                                onChange={(e) => setQ(e.target.value)}
+                                placeholder="Search integrations..."
+                                iconLeft={Search}
+                                aria-label="Search integrations"
+                            />
+                        </Field>
                     </div>
                 }
             />
 
             {/* Category tabs */}
             <SectionWrap>
-                <div className="flex flex-wrap justify-center gap-1.5">
-                    {CATEGORIES.map((c) => (
-                        <button
-                            key={c}
-                            onClick={() => setTab(c)}
-                            className="relative rounded-full px-3.5 py-1.5 text-[12px] font-medium transition"
-                        >
-                            {tab === c && (
-                                <m.span
-                                    layoutId="int-tab"
-                                    className="absolute inset-0 rounded-full bg-zinc-900"
-                                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                                />
-                            )}
-                            <span className={`relative z-10 ${tab === c ? 'text-white' : 'text-zinc-600 hover:text-zinc-900'}`}>
-                                {c}
-                                <span className={`ml-1.5 text-[10px] ${tab === c ? 'text-white/60' : 'text-zinc-400'}`}>
-                                    {c === 'All' ? INTEGRATIONS.length : INTEGRATIONS.filter((i) => i.cat === c).length}
-                                </span>
-                            </span>
-                        </button>
-                    ))}
+                <div className="ui20 flex justify-center">
+                    <SegmentedControl
+                        items={tabItems}
+                        value={tab}
+                        onChange={setTab}
+                        size="sm"
+                        aria-label="Filter integrations by category"
+                    />
                 </div>
 
-                <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    {visible.map((it, i) => (
-                        <m.div
-                            key={it.name}
-                            initial={{ opacity: 0, y: 6 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                            className="group rounded-2xl border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-zinc-900"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-200 text-sm font-bold text-zinc-900">
-                                    {it.name[0]}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-1.5">
-                                        <span className="truncate text-sm font-semibold text-zinc-950">{it.name}</span>
-                                        <Check className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                                    </div>
-                                    <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] font-semibold text-zinc-600">
-                                        {it.cat}
-                                    </span>
-                                </div>
-                            </div>
-                            <p className="mt-3 text-[13px] leading-relaxed text-zinc-600">{it.blurb}</p>
-                        </m.div>
-                    ))}
-                </div>
+                {visible.length === 0 ? (
+                    <div className="ui20 mt-10">
+                        <EmptyState
+                            icon={Search}
+                            title="No integrations match your search"
+                            description="Try a different keyword or pick another category."
+                        />
+                    </div>
+                ) : (
+                    <div className="ui20 mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                        {visible.map((it, i) => (
+                            <m.div
+                                key={it.name}
+                                initial={{ opacity: 0, y: 6 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                            >
+                                <Card variant="interactive" padding="none">
+                                    <CardBody className="p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-sm font-bold text-[var(--st-text)]">
+                                                {it.name[0]}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-1.5">
+                                                    <span className="truncate text-sm font-semibold text-[var(--st-text)]">{it.name}</span>
+                                                    <Check className="h-3.5 w-3.5 shrink-0 text-[var(--st-status-ok)]" aria-hidden="true" />
+                                                </div>
+                                                <Badge tone="neutral" kind="soft" className="mt-0.5">{it.cat}</Badge>
+                                            </div>
+                                        </div>
+                                        <p className="mt-3 text-[13px] leading-relaxed text-[var(--st-text-secondary)]">{it.blurb}</p>
+                                    </CardBody>
+                                </Card>
+                            </m.div>
+                        ))}
+                    </div>
+                )}
             </SectionWrap>
 
             {/* Build your own */}
@@ -191,14 +213,14 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                                 const Icon = p.icon;
                                 return (
                                     <div key={p.t} className="flex items-center gap-2 text-[14px] text-zinc-700">
-                                        <Icon className="h-4 w-4 text-amber-600" />
+                                        <Icon className="h-4 w-4 text-amber-600" aria-hidden="true" />
                                         {p.t}
                                     </div>
                                 );
                             })}
                         </div>
                         <Link href="/api-docs" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-700">
-                            Read the API reference <ArrowRight className="h-3.5 w-3.5" />
+                            Read the API reference <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                         </Link>
                     </div>
                     <div className="overflow-hidden rounded-3xl border border-zinc-200 bg-zinc-950 font-mono text-[12px] leading-relaxed text-zinc-100">

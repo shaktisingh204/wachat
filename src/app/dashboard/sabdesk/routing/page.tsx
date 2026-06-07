@@ -10,9 +10,6 @@ import {
   Route,
   Users,
   Zap,
-  Shield,
-  ChevronRight,
-  ChevronDown,
   CheckCircle,
   Clock,
   Trash2,
@@ -20,29 +17,49 @@ import {
   Save,
   Activity,
   Network,
-  ArrowRight,
   Play,
-  Server,
   Cpu,
   Sliders,
   GripVertical,
   AlertTriangle,
-  RefreshCw,
   ToggleLeft,
   ToggleRight,
-  Info,
   PlusCircle,
-  CheckSquare,
   XSquare,
   GitBranch,
-  Link,
   Maximize2,
-  Share2,
   MousePointer2,
   Move,
-  GitCommit,
   GitMerge,
 } from "lucide-react";
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  Field,
+  Input,
+  Badge,
+  Dot,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/sabcrm/20ui";
 
 const mockQueues = [
   {
@@ -181,12 +198,35 @@ const flowNodes = [
   },
 ];
 
-const flowEdges = [
-  { from: "start", to: "cond1", label: "" },
-  { from: "cond1", to: "act1", label: "Yes" },
-  { from: "cond1", to: "cond2", label: "No" },
-  { from: "cond2", to: "act2", label: "Yes" },
-  { from: "cond2", to: "act3", label: "No" },
+const queueStats = [
+  { label: "Total Queues", value: "12", icon: Route, accent: "var(--st-accent)" },
+  { label: "Active Agents", value: "84", icon: Users, accent: "var(--st-status-ok)" },
+  { label: "Avg Queue Time", value: "4m 20s", icon: Clock, accent: "var(--st-warn)" },
+  { label: "Routing Errors", value: "0.02%", icon: AlertTriangle, accent: "var(--st-danger)" },
+];
+
+const componentGroups = [
+  {
+    title: "Triggers",
+    icon: Play,
+    items: ["Ticket Created", "Ticket Updated", "Email Received", "API Event"],
+  },
+  {
+    title: "Conditions",
+    icon: GitBranch,
+    items: ["Property Check", "Time Based", "Agent Online", "Sentiment Score"],
+  },
+  {
+    title: "Actions",
+    icon: Zap,
+    items: [
+      "Assign to Queue",
+      "Assign to Agent",
+      "Add Tags",
+      "Trigger Webhook",
+      "Send Auto-reply",
+    ],
+  },
 ];
 
 export default function RoutingPage() {
@@ -194,579 +234,487 @@ export default function RoutingPage() {
   const [selectedQueue, setSelectedQueue] = useState<string | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-gray-200 p-6 font-sans">
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-900/50 p-6 rounded-2xl border border-gray-800/50 backdrop-blur-xl">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-3">
-              <Network className="w-8 h-8 text-blue-400" />
-              Routing & Assignment
-            </h1>
-            <p className="text-gray-400 mt-2">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle className="flex items-center gap-3">
+              <Network className="w-7 h-7 text-[var(--st-accent)]" aria-hidden="true" />
+              Routing and Assignment
+            </PageTitle>
+            <PageDescription>
               Manage queues, skill-based routing, and visual workflows.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg transition-colors border border-gray-700">
-              <Activity className="w-4 h-4" /> Routing Logs
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-lg shadow-blue-900/20">
-              <Plus className="w-4 h-4" /> Create Route
-            </button>
-          </div>
-        </div>
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="secondary" iconLeft={Activity}>
+              Routing Logs
+            </Button>
+            <Button variant="primary" iconLeft={Plus}>
+              Create Route
+            </Button>
+          </PageActions>
+        </PageHeader>
 
         {/* Tabs */}
-        <div className="flex space-x-1 bg-gray-900/40 p-1 rounded-xl border border-gray-800 w-fit">
-          {[
-            { id: "flow", label: "Flow Builder", icon: GitMerge },
-            { id: "queues", label: "Queues & Pools", icon: Users },
-            { id: "rules", label: "Routing Rules", icon: Sliders },
-            { id: "settings", label: "Global Settings", icon: Settings },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                activeTab === tab.id
-                  ? "bg-gray-800 text-white shadow-md border border-gray-700/50"
-                  : "text-gray-400 hover:text-gray-200 hover:bg-gray-800/50"
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="flow">
+              <GitMerge className="w-4 h-4" aria-hidden="true" />
+              Flow Builder
+            </TabsTrigger>
+            <TabsTrigger value="queues">
+              <Users className="w-4 h-4" aria-hidden="true" />
+              Queues and Pools
+            </TabsTrigger>
+            <TabsTrigger value="rules">
+              <Sliders className="w-4 h-4" aria-hidden="true" />
+              Routing Rules
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              <Settings className="w-4 h-4" aria-hidden="true" />
+              Global Settings
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Flow Builder Tab */}
-        {activeTab === "flow" && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[800px]">
-            {/* Sidebar Tools */}
-            <div className="col-span-1 bg-gray-900/50 rounded-2xl border border-gray-800/50 flex flex-col backdrop-blur-md overflow-hidden">
-              <div className="p-4 border-b border-gray-800 bg-gray-900/80">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <PlusCircle className="w-5 h-5 text-indigo-400" />
-                  Components
-                </h3>
-              </div>
-              <div className="p-4 space-y-6 overflow-y-auto flex-1">
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Triggers
-                  </h4>
-                  <div className="space-y-2">
-                    {[
-                      "Ticket Created",
-                      "Ticket Updated",
-                      "Email Received",
-                      "API Event",
-                    ].map((t) => (
-                      <div
-                        key={t}
-                        className="p-3 bg-gray-800/40 border border-gray-700/50 rounded-lg flex items-center gap-3 cursor-grab hover:bg-gray-700/50 transition-colors"
-                      >
-                        <GripVertical className="w-4 h-4 text-gray-500" />
-                        <Play className="w-4 h-4 text-emerald-400" />
-                        <span className="text-sm">{t}</span>
+          {/* Flow Builder Tab */}
+          <TabsContent value="flow">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[800px]">
+              {/* Sidebar Tools */}
+              <Card padding="none" className="col-span-1 flex flex-col overflow-hidden">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PlusCircle className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+                    Components
+                  </CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-6 overflow-y-auto flex-1">
+                  {componentGroups.map((group) => (
+                    <div key={group.title}>
+                      <h4 className="text-xs font-semibold text-[var(--st-text-tertiary)] uppercase tracking-wider mb-3">
+                        {group.title}
+                      </h4>
+                      <div className="space-y-2">
+                        {group.items.map((item) => (
+                          <div
+                            key={item}
+                            className="p-3 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] flex items-center gap-3 cursor-grab hover:bg-[var(--st-bg-muted)] transition-colors"
+                          >
+                            <GripVertical
+                              className="w-4 h-4 text-[var(--st-text-tertiary)]"
+                              aria-hidden="true"
+                            />
+                            <group.icon
+                              className="w-4 h-4 text-[var(--st-accent)]"
+                              aria-hidden="true"
+                            />
+                            <span className="text-sm">{item}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Conditions
-                  </h4>
-                  <div className="space-y-2">
-                    {[
-                      "Property Check",
-                      "Time Based",
-                      "Agent Online",
-                      "Sentiment Score",
-                    ].map((t) => (
-                      <div
-                        key={t}
-                        className="p-3 bg-gray-800/40 border border-gray-700/50 rounded-lg flex items-center gap-3 cursor-grab hover:bg-gray-700/50 transition-colors"
-                      >
-                        <GripVertical className="w-4 h-4 text-gray-500" />
-                        <GitBranch className="w-4 h-4 text-amber-400" />
-                        <span className="text-sm">{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Actions
-                  </h4>
-                  <div className="space-y-2">
-                    {[
-                      "Assign to Queue",
-                      "Assign to Agent",
-                      "Add Tags",
-                      "Trigger Webhook",
-                      "Send Auto-reply",
-                    ].map((t) => (
-                      <div
-                        key={t}
-                        className="p-3 bg-gray-800/40 border border-gray-700/50 rounded-lg flex items-center gap-3 cursor-grab hover:bg-gray-700/50 transition-colors"
-                      >
-                        <GripVertical className="w-4 h-4 text-gray-500" />
-                        <Zap className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm">{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </div>
+                  ))}
+                </CardBody>
+              </Card>
 
-            {/* Canvas */}
-            <div className="col-span-1 lg:col-span-3 bg-[#0f1115] rounded-2xl border border-gray-800/50 relative overflow-hidden flex flex-col">
-              <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10 pointer-events-none">
-                <div className="bg-gray-900/80 backdrop-blur-md px-4 py-2 rounded-lg border border-gray-700 pointer-events-auto flex items-center gap-3">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
-                  <span className="text-sm font-medium">
-                    Main Routing Flow v2.4
-                  </span>
-                </div>
-                <div className="flex gap-2 pointer-events-auto">
-                  <button className="p-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors text-gray-400 hover:text-white">
-                    <MousePointer2 className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors text-gray-400 hover:text-white">
-                    <Move className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 bg-gray-800/80 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors text-gray-400 hover:text-white">
-                    <Maximize2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Mock Canvas Area */}
-              <div
-                className="flex-1 w-full h-full relative"
-                style={{
-                  backgroundSize: "40px 40px",
-                  backgroundImage:
-                    "radial-gradient(circle, #1f2937 1px, transparent 1px)",
-                }}
+              {/* Canvas */}
+              <Card
+                padding="none"
+                className="col-span-1 lg:col-span-3 relative overflow-hidden flex flex-col bg-[var(--st-bg-secondary)]"
               >
-                {/* Lines */}
-                <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                  {/* start to cond1 */}
-                  <path
-                    d="M 230 180 L 300 180"
-                    stroke="#374151"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrow)"
-                  />
-                  {/* cond1 to act1 */}
-                  <path
-                    d="M 500 180 C 550 180, 550 80, 600 80"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrow-green)"
-                  />
-                  <text
-                    x="530"
-                    y="120"
-                    fill="#10B981"
-                    fontSize="12"
-                    className="font-medium"
-                  >
-                    Yes
-                  </text>
-                  {/* cond1 to cond2 */}
-                  <path
-                    d="M 500 180 C 550 180, 550 280, 600 280"
-                    stroke="#EF4444"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrow-red)"
-                  />
-                  <text
-                    x="530"
-                    y="240"
-                    fill="#EF4444"
-                    fontSize="12"
-                    className="font-medium"
-                  >
-                    No
-                  </text>
-                  {/* cond2 to act2 */}
-                  <path
-                    d="M 800 280 C 850 280, 850 180, 900 180"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrow-green)"
-                  />
-                  {/* cond2 to act3 */}
-                  <path
-                    d="M 800 280 C 850 280, 850 380, 900 380"
-                    stroke="#EF4444"
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrow-red)"
-                  />
-
-                  <defs>
-                    <marker
-                      id="arrow"
-                      viewBox="0 0 10 10"
-                      refX="9"
-                      refY="5"
-                      markerWidth="6"
-                      markerHeight="6"
-                      orient="auto-start-reverse"
-                    >
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#374151" />
-                    </marker>
-                    <marker
-                      id="arrow-green"
-                      viewBox="0 0 10 10"
-                      refX="9"
-                      refY="5"
-                      markerWidth="6"
-                      markerHeight="6"
-                      orient="auto-start-reverse"
-                    >
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10B981" />
-                    </marker>
-                    <marker
-                      id="arrow-red"
-                      viewBox="0 0 10 10"
-                      refX="9"
-                      refY="5"
-                      markerWidth="6"
-                      markerHeight="6"
-                      orient="auto-start-reverse"
-                    >
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#EF4444" />
-                    </marker>
-                  </defs>
-                </svg>
-
-                {/* Nodes */}
-                {flowNodes.map((node) => (
-                  <div
-                    key={node.id}
-                    className={`absolute p-4 rounded-xl border w-[200px] shadow-xl backdrop-blur-md transition-transform hover:scale-105 cursor-pointer flex flex-col gap-3
-                      ${
-                        node.type === "trigger"
-                          ? "bg-emerald-900/20 border-emerald-500/50"
-                          : node.type === "condition"
-                            ? "bg-amber-900/20 border-amber-500/50"
-                            : "bg-blue-900/20 border-blue-500/50"
-                      }`}
-                    style={{ left: node.x, top: node.y }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-lg 
-                        ${
-                          node.type === "trigger"
-                            ? "bg-emerald-500/20 text-emerald-400"
-                            : node.type === "condition"
-                              ? "bg-amber-500/20 text-amber-400"
-                              : "bg-blue-500/20 text-blue-400"
-                        }`}
-                      >
-                        <node.icon className="w-5 h-5" />
-                      </div>
-                      <span className="font-semibold text-sm">
-                        {node.title}
-                      </span>
-                    </div>
-                    {node.type === "condition" && (
-                      <div className="flex justify-between text-xs font-medium px-1">
-                        <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded">
-                          Yes
-                        </span>
-                        <span className="text-red-400 bg-red-400/10 px-2 py-0.5 rounded">
-                          No
-                        </span>
-                      </div>
-                    )}
+                <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10 pointer-events-none">
+                  <div className="bg-[var(--st-bg)] px-4 py-2 rounded-[var(--st-radius)] border border-[var(--st-border)] pointer-events-auto flex items-center gap-3">
+                    <Dot tone="success" pulse aria-label="Flow is live" />
+                    <span className="text-sm font-medium">Main Routing Flow v2.4</span>
                   </div>
-                ))}
-              </div>
-
-              {/* Bottom Bar */}
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10 pointer-events-none">
-                <div className="bg-gray-900/80 backdrop-blur-md px-4 py-2 rounded-lg border border-gray-700 pointer-events-auto text-xs text-gray-400">
-                  Auto-saved 2 mins ago
+                  <div className="flex gap-2 pointer-events-auto">
+                    <IconButton label="Select tool" icon={MousePointer2} variant="secondary" />
+                    <IconButton label="Pan tool" icon={Move} variant="secondary" />
+                    <IconButton label="Fit to screen" icon={Maximize2} variant="secondary" />
+                  </div>
                 </div>
-                <div className="flex gap-3 pointer-events-auto">
-                  <button className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg border border-gray-700 transition-colors font-medium">
-                    Discard Changes
-                  </button>
-                  <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium shadow-lg shadow-blue-900/20 flex items-center gap-2">
-                    <Save className="w-4 h-4" /> Publish Flow
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Queues Tab */}
-        {activeTab === "queues" && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {[
-                {
-                  label: "Total Queues",
-                  value: "12",
-                  icon: Route,
-                  color: "text-blue-400",
-                },
-                {
-                  label: "Active Agents",
-                  value: "84",
-                  icon: Users,
-                  color: "text-emerald-400",
-                },
-                {
-                  label: "Avg Queue Time",
-                  value: "4m 20s",
-                  icon: Clock,
-                  color: "text-amber-400",
-                },
-                {
-                  label: "Routing Errors",
-                  value: "0.02%",
-                  icon: AlertTriangle,
-                  color: "text-red-400",
-                },
-              ].map((stat, i) => (
+                {/* Mock Canvas Area */}
                 <div
-                  key={i}
-                  className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800/50 backdrop-blur-md flex items-center gap-4"
+                  className="flex-1 w-full h-full relative"
+                  style={{
+                    backgroundSize: "40px 40px",
+                    backgroundImage:
+                      "radial-gradient(circle, var(--st-border) 1px, transparent 1px)",
+                  }}
                 >
-                  <div
-                    className={`p-4 rounded-xl bg-gray-800/50 ${stat.color}`}
-                  >
-                    <stat.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-gray-400 text-sm font-medium">
-                      {stat.label}
-                    </p>
-                    <p className="text-2xl font-bold text-white mt-1">
-                      {stat.value}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  {/* Lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <path
+                      d="M 230 180 L 300 180"
+                      stroke="var(--st-border-strong)"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrow)"
+                    />
+                    <path
+                      d="M 500 180 C 550 180, 550 80, 600 80"
+                      stroke="var(--st-status-ok)"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrow-green)"
+                    />
+                    <text
+                      x="530"
+                      y="120"
+                      fill="var(--st-status-ok)"
+                      fontSize="12"
+                      className="font-medium"
+                    >
+                      Yes
+                    </text>
+                    <path
+                      d="M 500 180 C 550 180, 550 280, 600 280"
+                      stroke="var(--st-danger)"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrow-red)"
+                    />
+                    <text
+                      x="530"
+                      y="240"
+                      fill="var(--st-danger)"
+                      fontSize="12"
+                      className="font-medium"
+                    >
+                      No
+                    </text>
+                    <path
+                      d="M 800 280 C 850 280, 850 180, 900 180"
+                      stroke="var(--st-status-ok)"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrow-green)"
+                    />
+                    <path
+                      d="M 800 280 C 850 280, 850 380, 900 380"
+                      stroke="var(--st-danger)"
+                      strokeWidth="2"
+                      fill="none"
+                      markerEnd="url(#arrow-red)"
+                    />
 
-            <div className="bg-gray-900/50 rounded-2xl border border-gray-800/50 backdrop-blur-md overflow-hidden">
-              <div className="p-6 border-b border-gray-800 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="relative w-full sm:w-96">
-                  <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Search queues..."
-                    className="w-full bg-gray-800/50 border border-gray-700 text-gray-200 rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-shadow"
-                  />
-                </div>
-                <div className="flex gap-3 w-full sm:w-auto">
-                  <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg transition-colors border border-gray-700">
-                    <Filter className="w-4 h-4" /> Filter
-                  </button>
-                  <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
-                    <Plus className="w-4 h-4" /> New Queue
-                  </button>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-gray-800/30 text-gray-400 text-sm border-b border-gray-800">
-                      <th className="px-6 py-4 font-semibold">Queue Name</th>
-                      <th className="px-6 py-4 font-semibold">Status</th>
-                      <th className="px-6 py-4 font-semibold">
-                        Assigned Agents
-                      </th>
-                      <th className="px-6 py-4 font-semibold">
-                        Routing Strategy
-                      </th>
-                      <th className="px-6 py-4 font-semibold">Avg Wait Time</th>
-                      <th className="px-6 py-4 text-right font-semibold">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-800/50">
-                    {mockQueues.map((queue) => (
-                      <tr
-                        key={queue.id}
-                        className="hover:bg-gray-800/20 transition-colors group cursor-pointer"
-                        onClick={() => setSelectedQueue(queue.id)}
+                    <defs>
+                      <marker
+                        id="arrow"
+                        viewBox="0 0 10 10"
+                        refX="9"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-blue-400 font-bold border border-gray-700">
-                              {queue.name.charAt(0)}
-                            </div>
-                            <span className="font-medium text-gray-200">
-                              {queue.name}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                              queue.active
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                : "bg-gray-500/10 text-gray-400 border border-gray-500/20"
-                            }`}
-                          >
-                            {queue.active ? (
-                              <CheckCircle className="w-3 h-3" />
-                            ) : (
-                              <XSquare className="w-3 h-3" />
-                            )}
-                            {queue.active ? "Active" : "Inactive"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-gray-500" />
-                            <span>{queue.agents} agents</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-2.5 py-1 rounded-md bg-gray-800/80 text-gray-300 text-xs font-medium border border-gray-700">
-                            {queue.strategy}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-gray-400 font-medium">
-                          {queue.avgWait}
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors">
-                              <Edit className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                            <button className="p-2 text-gray-400 hover:text-gray-200 hover:bg-gray-700 rounded-lg transition-colors">
-                              <MoreVertical className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--st-border-strong)" />
+                      </marker>
+                      <marker
+                        id="arrow-green"
+                        viewBox="0 0 10 10"
+                        refX="9"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
+                      >
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--st-status-ok)" />
+                      </marker>
+                      <marker
+                        id="arrow-red"
+                        viewBox="0 0 10 10"
+                        refX="9"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
+                      >
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--st-danger)" />
+                      </marker>
+                    </defs>
+                  </svg>
 
-        {/* Rules Tab */}
-        {activeTab === "rules" && (
-          <div className="space-y-6">
-            <div className="bg-gray-900/50 rounded-2xl border border-gray-800/50 backdrop-blur-md overflow-hidden">
-              <div className="p-6 border-b border-gray-800 flex justify-between items-center">
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Sliders className="w-5 h-5 text-indigo-400" /> Pre-Routing
-                  Rules
-                </h2>
-                <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
-                  <Plus className="w-4 h-4" /> Add Rule
-                </button>
-              </div>
-
-              <div className="p-0">
-                {mockRules.map((rule, index) => (
-                  <div
-                    key={rule.id}
-                    className="p-6 border-b border-gray-800/50 hover:bg-gray-800/20 transition-colors flex flex-col md:flex-row gap-6 items-start md:items-center"
-                  >
-                    <div className="flex items-center gap-4 w-12 justify-center">
-                      <GripVertical className="w-5 h-5 text-gray-600 cursor-grab" />
-                      <span className="text-gray-500 font-mono text-sm">
-                        #{index + 1}
-                      </span>
-                    </div>
-
-                    <div className="flex-1 space-y-3">
+                  {/* Nodes */}
+                  {flowNodes.map((node) => (
+                    <div
+                      key={node.id}
+                      className="absolute p-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] w-[200px] bg-[var(--st-bg)] shadow-sm transition-transform hover:scale-105 cursor-pointer flex flex-col gap-3"
+                      style={{ left: node.x, top: node.y }}
+                    >
                       <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-lg text-gray-200">
-                          {rule.name}
-                        </h3>
-                        {rule.status === "active" ? (
-                          <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">
-                            Active
-                          </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded bg-gray-500/10 text-gray-400 text-xs font-medium border border-gray-500/20">
-                            Inactive
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-3 text-sm">
-                        <span className="text-gray-500">IF</span>
-                        <div className="px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 font-mono">
-                          {rule.condition}
+                        <div className="p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+                          <node.icon className="w-5 h-5" aria-hidden="true" />
                         </div>
-                        <span className="text-gray-500">THEN</span>
-                        <div className="px-3 py-1.5 rounded-lg bg-indigo-900/30 border border-indigo-700/50 text-indigo-300 font-mono flex items-center gap-2">
-                          <Zap className="w-3.5 h-3.5" />
-                          {rule.action}
+                        <span className="font-semibold text-sm">{node.title}</span>
+                      </div>
+                      {node.type === "condition" && (
+                        <div className="flex justify-between px-1">
+                          <Badge tone="success">Yes</Badge>
+                          <Badge tone="danger">No</Badge>
                         </div>
-                      </div>
+                      )}
                     </div>
+                  ))}
+                </div>
 
-                    <div className="flex flex-col md:flex-row items-end md:items-center gap-6">
-                      <div className="text-right">
-                        <p className="text-2xl font-light text-gray-300">
-                          {rule.matches.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider">
-                          Executions
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {rule.status === "active" ? (
-                          <button
-                            className="p-2 text-gray-400 hover:text-amber-400 hover:bg-amber-400/10 rounded-lg transition-colors"
-                            title="Deactivate"
-                          >
-                            <ToggleRight className="w-5 h-5 text-emerald-400" />
-                          </button>
-                        ) : (
-                          <button
-                            className="p-2 text-gray-400 hover:text-emerald-400 hover:bg-emerald-400/10 rounded-lg transition-colors"
-                            title="Activate"
-                          >
-                            <ToggleLeft className="w-5 h-5 text-gray-600" />
-                          </button>
-                        )}
-                        <button className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
+                {/* Bottom Bar */}
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10 pointer-events-none">
+                  <div className="bg-[var(--st-bg)] px-4 py-2 rounded-[var(--st-radius)] border border-[var(--st-border)] pointer-events-auto text-xs text-[var(--st-text-secondary)]">
+                    Auto-saved 2 mins ago
                   </div>
+                  <div className="flex gap-3 pointer-events-auto">
+                    <Button variant="secondary">Discard Changes</Button>
+                    <Button variant="primary" iconLeft={Save}>
+                      Publish Flow
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Queues Tab */}
+          <TabsContent value="queues">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {queueStats.map((stat) => (
+                  <StatCard
+                    key={stat.label}
+                    label={stat.label}
+                    value={stat.value}
+                    icon={stat.icon}
+                    accent={stat.accent}
+                  />
                 ))}
               </div>
+
+              <Card padding="none" className="overflow-hidden">
+                <div className="p-6 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <div className="w-full sm:w-96">
+                    <Field label="Search queues">
+                      <Input
+                        type="text"
+                        placeholder="Search queues..."
+                        iconLeft={Search}
+                      />
+                    </Field>
+                  </div>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    <Button variant="secondary" iconLeft={Filter} className="flex-1 sm:flex-none">
+                      Filter
+                    </Button>
+                    <Button variant="primary" iconLeft={Plus} className="flex-1 sm:flex-none">
+                      New Queue
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <Table>
+                    <THead>
+                      <Tr>
+                        <Th>Queue Name</Th>
+                        <Th>Status</Th>
+                        <Th>Assigned Agents</Th>
+                        <Th>Routing Strategy</Th>
+                        <Th>Avg Wait Time</Th>
+                        <Th align="right">Actions</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
+                      {mockQueues.map((queue) => (
+                        <Tr
+                          key={queue.id}
+                          selected={selectedQueue === queue.id}
+                          className="group cursor-pointer"
+                          onClick={() => setSelectedQueue(queue.id)}
+                        >
+                          <Td>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] flex items-center justify-center text-[var(--st-accent)] font-bold border border-[var(--st-border)]">
+                                {queue.name.charAt(0)}
+                              </div>
+                              <span className="font-medium">{queue.name}</span>
+                            </div>
+                          </Td>
+                          <Td>
+                            {queue.active ? (
+                              <Badge tone="success">
+                                <CheckCircle className="w-3 h-3" aria-hidden="true" />
+                                Active
+                              </Badge>
+                            ) : (
+                              <Badge tone="neutral">
+                                <XSquare className="w-3 h-3" aria-hidden="true" />
+                                Inactive
+                              </Badge>
+                            )}
+                          </Td>
+                          <Td>
+                            <div className="flex items-center gap-2">
+                              <Users
+                                className="w-4 h-4 text-[var(--st-text-tertiary)]"
+                                aria-hidden="true"
+                              />
+                              <span>{queue.agents} agents</span>
+                            </div>
+                          </Td>
+                          <Td>
+                            <Badge tone="neutral" kind="outline">
+                              {queue.strategy}
+                            </Badge>
+                          </Td>
+                          <Td className="text-[var(--st-text-secondary)] font-medium">
+                            {queue.avgWait}
+                          </Td>
+                          <Td align="right">
+                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <IconButton
+                                label={`Edit ${queue.name}`}
+                                icon={Edit}
+                                size="sm"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <IconButton
+                                label={`Delete ${queue.name}`}
+                                icon={Trash2}
+                                size="sm"
+                                variant="danger"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <IconButton
+                                label={`More options for ${queue.name}`}
+                                icon={MoreVertical}
+                                size="sm"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </TBody>
+                  </Table>
+                </div>
+              </Card>
             </div>
-          </div>
-        )}
+          </TabsContent>
+
+          {/* Rules Tab */}
+          <TabsContent value="rules">
+            <div className="space-y-6">
+              <Card padding="none" className="overflow-hidden">
+                <div className="p-6 border-b border-[var(--st-border)] flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Sliders className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+                    Pre-Routing Rules
+                  </CardTitle>
+                  <Button variant="primary" size="sm" iconLeft={Plus}>
+                    Add Rule
+                  </Button>
+                </div>
+
+                <div>
+                  {mockRules.map((rule, index) => (
+                    <div
+                      key={rule.id}
+                      className="p-6 border-b border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)] transition-colors flex flex-col md:flex-row gap-6 items-start md:items-center"
+                    >
+                      <div className="flex items-center gap-4 w-12 justify-center">
+                        <GripVertical
+                          className="w-5 h-5 text-[var(--st-text-tertiary)] cursor-grab"
+                          aria-hidden="true"
+                        />
+                        <span className="text-[var(--st-text-tertiary)] font-mono text-sm">
+                          #{index + 1}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-lg">{rule.name}</h3>
+                          {rule.status === "active" ? (
+                            <Badge tone="success">Active</Badge>
+                          ) : (
+                            <Badge tone="neutral">Inactive</Badge>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                          <span className="text-[var(--st-text-secondary)]">IF</span>
+                          <div className="px-3 py-1.5 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)] text-[var(--st-text)] font-mono">
+                            {rule.condition}
+                          </div>
+                          <span className="text-[var(--st-text-secondary)]">THEN</span>
+                          <div className="px-3 py-1.5 rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] border border-[var(--st-border)] text-[var(--st-accent)] font-mono flex items-center gap-2">
+                            <Zap className="w-3.5 h-3.5" aria-hidden="true" />
+                            {rule.action}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col md:flex-row items-end md:items-center gap-6">
+                        <div className="text-right">
+                          <p className="text-2xl font-light text-[var(--st-text)]">
+                            {rule.matches.toLocaleString()}
+                          </p>
+                          <p className="text-xs text-[var(--st-text-tertiary)] uppercase tracking-wider">
+                            Executions
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {rule.status === "active" ? (
+                            <IconButton
+                              label={`Deactivate ${rule.name}`}
+                              icon={ToggleRight}
+                              variant="ghost"
+                            />
+                          ) : (
+                            <IconButton
+                              label={`Activate ${rule.name}`}
+                              icon={ToggleLeft}
+                              variant="ghost"
+                            />
+                          )}
+                          <IconButton
+                            label={`Edit ${rule.name}`}
+                            icon={Edit}
+                            size="sm"
+                          />
+                          <IconButton
+                            label={`Delete ${rule.name}`}
+                            icon={Trash2}
+                            size="sm"
+                            variant="danger"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Global Settings Tab */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+                  Global Settings
+                </CardTitle>
+              </CardHeader>
+              <CardBody>
+                <p className="text-[var(--st-text-secondary)]">
+                  Global routing settings will appear here.
+                </p>
+              </CardBody>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

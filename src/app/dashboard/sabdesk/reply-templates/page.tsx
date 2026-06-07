@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * Ticket Reply Templates — full list page with KPI strip, filters,
+ * Ticket Reply Templates. Full list page with KPI strip, filters,
  * bulk actions, and CSV export.
  *
  * RBAC: crm_reply_template (view / edit / delete).
  */
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MessageSquareText,
   Plus,
@@ -18,7 +18,30 @@ import {
   Download,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
 
 import { EntityListShell } from "@/components/crm/entity-list-shell";
 import { EntityRowLink } from "@/components/crm/entity-row-link";
@@ -34,7 +57,7 @@ import {
 } from "@/app/actions/crm-reply-templates.actions";
 import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";
 
-/* ─── Constants ──────────────────────────────────────────────────── */
+/* --- Constants --------------------------------------------------------- */
 
 const BASE = "/dashboard/sabdesk/reply-templates";
 
@@ -52,7 +75,7 @@ const STATUS_OPTIONS = [
   { value: "inactive", label: "Inactive" },
 ];
 
-/* ─── KPI strip ──────────────────────────────────────────────────── */
+/* --- KPI strip --------------------------------------------------------- */
 
 interface KpiStripProps {
   kpis: ReplyTemplateKpis;
@@ -63,46 +86,52 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
   const categoryCount = Object.keys(kpis.byCategory).length;
 
   const tiles = [
-    { label: "Total templates", value: kpis.total },
-    { label: "Active", value: kpis.active },
-    { label: "Categories", value: categoryCount },
+    { label: "Total templates", value: kpis.total, wide: false },
+    { label: "Active", value: kpis.active, wide: false },
+    { label: "Categories", value: categoryCount, wide: false },
     {
       label: "Most used",
       value: kpis.mostUsedName
-        ? `${kpis.mostUsedName} (${kpis.mostUsedCount}×)`
-        : "—",
+        ? `${kpis.mostUsedName} (${kpis.mostUsedCount}x)`
+        : "None yet",
       wide: true,
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {tiles.map((t) => (
+          <Card key={t.label} className={t.wide ? "col-span-2 sm:col-span-1" : ""}>
+            <CardHeader className="pb-1 pt-4">
+              <CardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
+                {t.label}
+              </CardTitle>
+            </CardHeader>
+            <CardBody className="pb-4">
+              <Skeleton className="h-6 w-16" />
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {tiles.map((t) => (
-        <Card
+        <StatCard
           key={t.label}
+          label={t.label}
+          value={t.value}
           className={t.wide ? "col-span-2 sm:col-span-1" : ""}
-        >
-          <CardHeader className="pb-1 pt-4">
-            <CardTitle className="text-[12px] font-medium text-[var(--st-text-secondary)]">
-              {t.label}
-            </CardTitle>
-          </CardHeader>
-          <CardBody className="pb-4">
-            {loading ? (
-              <div className="h-6 w-16 animate-pulse rounded bg-[var(--st-bg-muted)]" />
-            ) : (
-              <p className="truncate text-xl font-semibold text-[var(--st-text)]">
-                {t.value}
-              </p>
-            )}
-          </CardBody>
-        </Card>
+        />
       ))}
     </div>
   );
 }
 
-/* ─── Bulk bar ───────────────────────────────────────────────────── */
+/* --- Bulk bar ---------------------------------------------------------- */
 
 interface BulkBarProps {
   selectedIds: string[];
@@ -122,9 +151,16 @@ function BulkBar({
   const n = selectedIds.length;
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-[var(--st-text)]">{n} selected</span>
-      <Button variant="outline" size="sm" onClick={onActivate} disabled={busy}>
-        <ToggleRight className="mr-1.5 h-3.5 w-3.5" />
+      <span className="text-sm font-medium text-[var(--st-text)]">
+        {n} selected
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onActivate}
+        disabled={busy}
+        iconLeft={ToggleRight}
+      >
         Activate
       </Button>
       <Button
@@ -132,26 +168,28 @@ function BulkBar({
         size="sm"
         onClick={onDeactivate}
         disabled={busy}
+        iconLeft={ToggleLeft}
       >
-        <ToggleLeft className="mr-1.5 h-3.5 w-3.5" />
         Deactivate
       </Button>
       <Button
-        variant="destructive"
+        variant="danger"
         size="sm"
         onClick={onDelete}
         disabled={busy}
+        iconLeft={Trash2}
       >
-        <Trash2 className="mr-1.5 h-3.5 w-3.5" />
         Delete
       </Button>
     </div>
   );
 }
 
-/* ─── Page ───────────────────────────────────────────────────────── */
+/* --- Page -------------------------------------------------------------- */
 
 export default function TicketReplyTemplatesPage() {
+  const router = useRouter();
+
   const [templates, setTemplates] = React.useState<CrmReplyTemplateDoc[]>([]);
   const [kpis, setKpis] = React.useState<ReplyTemplateKpis>({
     total: 0,
@@ -328,15 +366,20 @@ export default function TicketReplyTemplatesPage() {
       subtitle="Canned responses agents can paste into ticket replies."
       primaryAction={
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-1.5 h-3.5 w-3.5" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            iconLeft={Download}
+          >
             Export CSV
           </Button>
-          <Button asChild>
-            <Link href={`${BASE}/new`}>
-              <Plus className="mr-1.5 h-4 w-4" strokeWidth={1.75} />
-              New template
-            </Link>
+          <Button
+            variant="primary"
+            onClick={() => router.push(`${BASE}/new`)}
+            iconLeft={Plus}
+          >
+            New template
           </Button>
         </div>
       }
@@ -344,13 +387,14 @@ export default function TicketReplyTemplatesPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Input
             type="search"
-            placeholder="Search by name or content…"
+            placeholder="Search by name or content..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search reply templates"
             className="w-56"
           />
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44" aria-label="Filter by category">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -362,7 +406,7 @@ export default function TicketReplyTemplatesPage() {
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36" aria-label="Filter by status">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -392,134 +436,129 @@ export default function TicketReplyTemplatesPage() {
 
       {/* Confirm delete prompt */}
       {confirmDelete ? (
-        <div className="rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-3 text-sm text-[var(--st-text)] dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/30 dark:text-[var(--st-text-secondary)]">
-          <span className="font-medium">Confirm delete:</span> This will
-          permanently delete {selectedIds.length} template
-          {selectedIds.length !== 1 ? "s" : ""}. Click Delete again to confirm
-          or{" "}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => setConfirmDelete(false)}
-          >
-            cancel
-          </button>
-          .
-        </div>
+        <Alert
+          tone="danger"
+          title="Confirm delete"
+          className="mt-3"
+          onClose={() => setConfirmDelete(false)}
+          closeLabel="Cancel delete"
+        >
+          This will permanently delete {selectedIds.length} template
+          {selectedIds.length !== 1 ? "s" : ""}. Click Delete again to confirm,
+          or dismiss this notice to cancel.
+        </Alert>
       ) : null}
 
       {/* Table */}
-      <Card>
-        <div className="overflow-x-auto">
-          <Table>
-            <THead>
-              <Tr className="border-[var(--st-border)] hover:bg-transparent">
-                <Th className="w-10">
-                  <Checkbox
-                    checked={
-                      allChecked || (someChecked ? "indeterminate" : false)
-                    }
-                    onCheckedChange={toggleAll}
-                    aria-label="Select all visible"
-                  />
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Name
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Category
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Preview
-                </Th>
-                <Th className="text-[var(--st-text-secondary)] text-right">
-                  Used
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Status
-                </Th>
-                <Th className="text-[var(--st-text-secondary)]">
-                  Actions
-                </Th>
+      <Card padding="none" className="mt-3 overflow-x-auto">
+        <Table>
+          <THead>
+            <Tr>
+              <Th className="w-10">
+                <Checkbox
+                  checked={allChecked}
+                  indeterminate={someChecked}
+                  onChange={toggleAll}
+                  aria-label="Select all visible"
+                />
+              </Th>
+              <Th>Name</Th>
+              <Th>Category</Th>
+              <Th>Preview</Th>
+              <Th align="right">Used</Th>
+              <Th>Status</Th>
+              <Th>Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            {loading ? (
+              <Tr>
+                <Td
+                  colSpan={7}
+                  align="center"
+                  className="h-24 text-[13px] text-[var(--st-text-secondary)]"
+                >
+                  Loading templates...
+                </Td>
               </Tr>
-            </THead>
-            <TBody>
-              {loading ? (
-                <Tr className="border-[var(--st-border)]">
+            ) : loadError ? (
+              <Tr>
+                <Td
+                  colSpan={7}
+                  align="center"
+                  className="h-24 text-[13px] text-[var(--st-danger)]"
+                >
+                  {loadError}
+                </Td>
+              </Tr>
+            ) : filtered.length === 0 ? (
+              <Tr>
+                <Td
+                  colSpan={7}
+                  align="center"
+                  className="h-24 text-[13px] text-[var(--st-text-secondary)]"
+                >
+                  <MessageSquareText
+                    className="mx-auto mb-2 h-6 w-6 text-[var(--st-text-tertiary)]"
+                    aria-hidden="true"
+                  />
+                  No templates match your filters.
+                </Td>
+              </Tr>
+            ) : (
+              filtered.map((t) => (
+                <Tr key={t._id}>
+                  <Td>
+                    <Checkbox
+                      checked={selected.has(t._id)}
+                      onChange={() => toggleOne(t._id)}
+                      aria-label={`Select ${t.name}`}
+                    />
+                  </Td>
+                  <Td>
+                    <EntityRowLink
+                      href={`${BASE}/${t._id}`}
+                      label={t.name}
+                      subtitle={t.shortcut ? t.shortcut : undefined}
+                    />
+                  </Td>
+                  <Td>
+                    {t.category ? (
+                      <Badge variant="secondary">{t.category}</Badge>
+                    ) : (
+                      <span className="text-[var(--st-text-secondary)]">--</span>
+                    )}
+                  </Td>
                   <Td
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
+                    truncate
+                    className="max-w-[280px] text-[12.5px] text-[var(--st-text-secondary)]"
                   >
-                    Loading templates…
+                    {(t.body ?? "").slice(0, 50)}
+                    {(t.body ?? "").length > 50 ? "..." : ""}
+                  </Td>
+                  <Td align="right" className="tabular-nums text-[var(--st-text)]">
+                    {t.usageCount}
+                  </Td>
+                  <Td>
+                    <StatusPill
+                      label={t.isActive ? "Active" : "Inactive"}
+                      tone={t.isActive ? "green" : "neutral"}
+                    />
+                  </Td>
+                  <Td>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => router.push(`${BASE}/${t._id}/edit`)}
+                    >
+                      Edit
+                    </Button>
                   </Td>
                 </Tr>
-              ) : loadError ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-[var(--st-text)]"
-                  >
-                    {loadError}
-                  </Td>
-                </Tr>
-              ) : filtered.length === 0 ? (
-                <Tr className="border-[var(--st-border)]">
-                  <Td
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-[var(--st-text-secondary)]"
-                  >
-                    <MessageSquareText className="mx-auto mb-2 h-6 w-6 text-[var(--st-text-secondary)]/50" />
-                    No templates match your filters.
-                  </Td>
-                </Tr>
-              ) : (
-                filtered.map((t) => (
-                  <Tr key={t._id} className="border-[var(--st-border)]">
-                    <Td>
-                      <Checkbox
-                        checked={selected.has(t._id)}
-                        onCheckedChange={() => toggleOne(t._id)}
-                        aria-label={`Select ${t.name}`}
-                      />
-                    </Td>
-                    <Td>
-                      <EntityRowLink
-                        href={`${BASE}/${t._id}`}
-                        label={t.name}
-                        subtitle={t.shortcut ? t.shortcut : undefined}
-                      />
-                    </Td>
-                    <Td>
-                      {t.category ? (
-                        <Badge variant="secondary">{t.category}</Badge>
-                      ) : (
-                        <span className="text-[var(--st-text-secondary)]">—</span>
-                      )}
-                    </Td>
-                    <Td className="max-w-[280px] truncate text-[12.5px] text-[var(--st-text-secondary)]">
-                      {(t.body ?? "").slice(0, 50)}
-                      {(t.body ?? "").length > 50 ? "…" : ""}
-                    </Td>
-                    <Td className="text-right tabular-nums text-[var(--st-text)]">
-                      {t.usageCount}
-                    </Td>
-                    <Td>
-                      <StatusPill
-                        label={t.isActive ? "Active" : "Inactive"}
-                        tone={t.isActive ? "green" : "neutral"}
-                      />
-                    </Td>
-                    <Td>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`${BASE}/${t._id}/edit`}>Edit</Link>
-                      </Button>
-                    </Td>
-                  </Tr>
-                ))
-              )}
-            </TBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TBody>
+        </Table>
       </Card>
     </EntityListShell>
   );

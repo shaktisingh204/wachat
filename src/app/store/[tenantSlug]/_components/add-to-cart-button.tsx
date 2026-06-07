@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getOrCreateCart, updateCartItems } from '@/app/actions/storefront.actions';
+import { Button, Field, Input } from '@/components/sabcrm/20ui';
 
 interface CartShape {
     _id: string;
@@ -82,17 +83,18 @@ export function AddToCartButton(props: {
     }
 
     return (
-        <div className="flex items-center gap-2">
-            <input
-                type="number"
-                min={1}
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                className="storefront-input w-20"
-            />
-            <button type="button" onClick={onAdd} disabled={busy} className="storefront-button">
-                {busy ? 'Adding…' : 'Add to cart'}
-            </button>
+        <div className="flex items-end gap-2">
+            <Field label="Qty" className="w-20">
+                <Input
+                    type="number"
+                    min={1}
+                    value={quantity}
+                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                />
+            </Field>
+            <Button variant="primary" onClick={onAdd} loading={busy} disabled={busy}>
+                {busy ? 'Adding' : 'Add to cart'}
+            </Button>
         </div>
     );
 }

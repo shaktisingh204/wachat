@@ -2,8 +2,20 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClayButton, ClayCard } from '@/components/zoruui-domain';
-import { Check, LoaderCircle, Search } from 'lucide-react';
+import { Check, Search } from 'lucide-react';
+import {
+  Card,
+  Button,
+  Checkbox,
+  Input,
+  Field,
+  Alert,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { grantPublicConsent } from '@/app/actions/worksuite/public.actions';
 
 export interface ConsentPurpose {
@@ -18,7 +30,7 @@ export function ConsentItem({
   purpose,
   granted,
   onChange,
-  disabled
+  disabled,
 }: {
   purpose: ConsentPurpose;
   granted: boolean;
@@ -27,18 +39,17 @@ export function ConsentItem({
 }) {
   return (
     <label className="flex items-start gap-3 py-3 first:pt-0 last:pb-0 cursor-pointer">
-      <input
-        type="checkbox"
+      <Checkbox
+        className="mt-1"
         checked={granted}
         onChange={(e) => onChange(e.target.checked)}
         disabled={disabled || purpose.is_required}
-        className="mt-1 h-4 w-4 rounded border-[var(--st-border)] accent-primary disabled:opacity-50"
       />
       <div>
         <p className="text-[13px] font-medium text-[var(--st-text)]">
           {purpose.title}
           {purpose.is_required ? (
-            <span className="ml-1 text-[11.5px] text-[var(--st-text)]">
+            <span className="ml-1 text-[11.5px] text-[var(--st-text-secondary)]">
               (required)
             </span>
           ) : null}
@@ -61,14 +72,14 @@ export function ConsentForm({
   purposes: ConsentPurpose[];
 }) {
   const router = useRouter();
-  
+
   // Set required ones to true by default to ensure they are granted
   const [granted, setGranted] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(purposes.map((p) => [p._id, p.is_required ? true : !!p.granted])),
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'default' | 'name' | 'required-first'>('default');
 
@@ -78,7 +89,7 @@ export function ConsentForm({
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
-        p => p.title.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q)
+        (p) => p.title.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q),
       );
     }
 
@@ -104,7 +115,7 @@ export function ConsentForm({
     }
     const ids = Object.keys(granted).filter((k) => granted[k]);
     setBusy(true);
-    
+
     try {
       const res = await grantPublicConsent(leadEmail, ids);
       if (!res.success) {
@@ -124,28 +135,33 @@ export function ConsentForm({
   };
 
   return (
-    <ClayCard>
+    <Card>
       {purposes.length > 0 && (
         <div className="mb-4 flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2 h-4 w-4 text-[var(--st-text-secondary)]" />
-            <input
+          <Field className="flex-1">
+            <Input
+              inputSize="sm"
               type="text"
               placeholder="Search purposes..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 w-full rounded-md border border-[var(--st-border)] bg-transparent pl-9 pr-3 text-sm shadow-sm transition-colors placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+              iconLeft={Search}
+              aria-label="Search purposes"
             />
-          </div>
-          <select
+          </Field>
+          <Select
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as any)}
-            className="h-8 rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 text-[13px]"
+            onValueChange={(v) => setSortOrder(v as 'default' | 'name' | 'required-first')}
           >
-            <option value="default">Default Order</option>
-            <option value="name">Alphabetical</option>
-            <option value="required-first">Required First</option>
-          </select>
+            <SelectTrigger aria-label="Sort order" className="sm:w-48">
+              <SelectValue placeholder="Default Order" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Default Order</SelectItem>
+              <SelectItem value="name">Alphabetical</SelectItem>
+              <SelectItem value="required-first">Required First</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
@@ -170,27 +186,24 @@ export function ConsentForm({
           ))}
         </div>
       )}
-      
+
       {error ? (
-        <p className="mt-4 text-[12.5px] text-[var(--st-text)] font-medium bg-[var(--st-bg-muted)]/10 p-2 rounded">{error}</p>
+        <Alert tone="danger" className="mt-4">
+          {error}
+        </Alert>
       ) : null}
-      
+
       <div className="mt-4 flex justify-end">
-        <ClayButton
-          variant="obsidian"
+        <Button
+          variant="primary"
           onClick={submit}
           disabled={busy || purposes.length === 0}
-          leading={
-            busy ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Check className="h-4 w-4" />
-            )
-          }
+          loading={busy}
+          iconLeft={Check}
         >
           {busy ? 'Saving...' : 'Save preferences'}
-        </ClayButton>
+        </Button>
       </div>
-    </ClayCard>
+    </Card>
   );
 }

@@ -1,21 +1,38 @@
 'use client';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Switch, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  useEffect,
-  useState,
-  useTransition } from 'react';
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    PageHeader,
+    PageDescription,
+    PageEyebrow,
+    PageTitle,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Skeleton,
+    Switch,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { useEffect, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { useRouter,
-  useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getPlanById, savePlan, getPlans } from '@/app/actions/plan.actions';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 import {
     ChevronLeft,
-    LoaderCircle,
     Save,
     Sparkles,
     CreditCard,
@@ -28,7 +45,6 @@ import {
 import { PlanPermissionSelector } from '@/components/zoruui-domain/plan-permission-selector';
 import { PlanFeaturesSelector } from '@/components/zoruui-domain/plan-features-selector';
 
-
 const initialState = { message: null, error: null };
 
 function SubmitButton() {
@@ -36,15 +52,12 @@ function SubmitButton() {
     return (
         <Button
             type="submit"
-            disabled={pending}
+            variant="primary"
             size="lg"
-            className="rounded-xl gap-2 shadow-lg shadow-primary/20"
+            loading={pending}
+            iconLeft={Save}
+            disabled={pending}
         >
-            {pending ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-                <Save className="h-4 w-4" />
-            )}
             Save Plan
         </Button>
     );
@@ -55,115 +68,43 @@ function SectionCard({
     description,
     icon: Icon,
     premium,
-    accent,
     children,
 }: {
     title: string;
     description?: string;
     icon?: React.ComponentType<{ className?: string }>;
     premium?: boolean;
-    accent?: 'primary' | 'amber' | 'violet' | 'emerald' | 'sky' | 'rose';
     children: React.ReactNode;
 }) {
-    const accentMap: Record<string, { tile: string; icon: string; glow: string }> = {
-        primary: {
-            tile: 'bg-[var(--st-text)]/10 border-primary/30',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-primary/10',
-        },
-        amber: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        violet: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        emerald: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        sky: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-        rose: {
-            tile: 'bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-            icon: 'text-[var(--st-text)]',
-            glow: 'from-[var(--st-text)]/10',
-        },
-    };
-    const styles = accentMap[accent || 'primary'];
     return (
-        <Card
-            className={cn(
-                'rounded-2xl border-[var(--st-border)] bg-[var(--st-bg)] backdrop-blur-xl shadow-sm overflow-hidden',
-                premium && 'ring-1 ring-[var(--st-border)]/40 shadow-[var(--st-border)]/10',
-            )}
-        >
-            <CardHeader
-                className={cn(
-                    'border-b border-[var(--st-border)] bg-gradient-to-r to-transparent',
-                    styles.glow,
-                )}
-            >
+        <Card variant="outlined" padding="none" className="overflow-hidden">
+            <CardHeader className="border-b border-[var(--st-border)]">
                 <div className="flex items-start gap-3">
                     {Icon && (
-                        <div
-                            className={cn(
-                                'h-9 w-9 rounded-xl border flex items-center justify-center shrink-0',
-                                styles.tile,
-                            )}
-                        >
-                            <Icon className={cn('h-4 w-4', styles.icon)} />
+                        <div className="h-9 w-9 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-center shrink-0">
+                            <Icon className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
                         </div>
                     )}
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                             <CardTitle className="text-base">{title}</CardTitle>
                             {premium && (
-                                <Badge className="rounded-full text-[9px] h-5 px-2 gap-1 bg-gradient-to-r from-[var(--st-text)]/80 to-[var(--st-bg-muted)]/80 text-[var(--st-text)] border-0 font-bold uppercase tracking-wider">
-                                    <Crown className="h-2.5 w-2.5" />
+                                <Badge tone="warning" kind="solid">
+                                    <Crown className="h-2.5 w-2.5" aria-hidden="true" />
                                     Premium
                                 </Badge>
                             )}
                         </div>
                         {description && (
-                            <CardDescription className="text-xs mt-0.5">
-                                {description}
-                            </CardDescription>
+                            <CardDescription className="mt-0.5">{description}</CardDescription>
                         )}
                     </div>
                 </div>
             </CardHeader>
-            <CardBody className="pt-5">{children}</CardBody>
+            <CardBody>{children}</CardBody>
         </Card>
     );
 }
-
-function Field({
-    label,
-    hint,
-    children,
-}: {
-    label: string;
-    hint?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="space-y-1.5">
-            <Label className="text-xs font-medium text-[var(--st-text-secondary)]">{label}</Label>
-            {children}
-            {hint && <p className="text-[10px] text-[var(--st-text-secondary)]/70">{hint}</p>}
-        </div>
-    );
-}
-
-const inputClass = 'rounded-xl bg-[var(--st-bg)] border-[var(--st-border)] backdrop-blur focus-visible:ring-primary/40';
 
 export function PlanEditor({ planId }: { planId: string }) {
     const router = useRouter();
@@ -182,6 +123,12 @@ export function PlanEditor({ planId }: { planId: string }) {
 
     const isNew = planId === 'new';
 
+    // The 20ui Switch is a button[role=switch] and does not post a form value,
+    // so we mirror each toggle into local state and a hidden input carrying the
+    // legacy "on" / "" value savePlan() expects.
+    const [isPublic, setIsPublic] = useState(false);
+    const [isDefault, setIsDefault] = useState(false);
+
     const formAction = (formData: FormData) => {
         startTransition(async () => {
             const result = await savePlan(null, formData);
@@ -194,6 +141,8 @@ export function PlanEditor({ planId }: { planId: string }) {
             getPlanById(planId)
                 .then((data) => {
                     setPlan(data);
+                    setIsPublic(data?.isPublic ?? false);
+                    setIsDefault(data?.isDefault ?? false);
                     setLoading(false);
                 })
                 .catch((error) => {
@@ -201,111 +150,116 @@ export function PlanEditor({ planId }: { planId: string }) {
                     toast({
                         title: 'Error',
                         description: 'Could not load plan details.',
-                        variant: 'destructive',
+                        tone: 'danger',
                     });
                     setLoading(false);
                 });
         } else {
-            getPlans().then((data) => {
-                setAllPlans(data);
-                setLoading(false);
-            }).catch(() => setLoading(false));
+            getPlans()
+                .then((data) => {
+                    setAllPlans(data);
+                    setLoading(false);
+                })
+                .catch(() => setLoading(false));
         }
     }, [planId, isNew, toast]);
 
     useEffect(() => {
         if (state.message) {
-            toast({ title: 'Success', description: state.message });
+            toast({ title: 'Success', description: state.message, tone: 'success' });
             router.push('/admin/dashboard/plans');
         }
         if (state.error) {
-            toast({
-                title: 'Error',
-                description: state.error,
-                variant: 'destructive',
-            });
+            toast({ title: 'Error', description: state.error, tone: 'danger' });
         }
     }, [state, toast, router]);
 
     if (loading) {
         return (
             <div className="space-y-4">
-                <Skeleton className="h-10 w-48" />
-                <Skeleton className="h-32 w-full rounded-2xl" />
-                <Skeleton className="h-96 w-full rounded-2xl" />
+                <Skeleton height={40} width={192} />
+                <Skeleton height={128} className="w-full rounded-[var(--st-radius)]" />
+                <Skeleton height={384} className="w-full rounded-[var(--st-radius)]" />
             </div>
         );
     }
 
+    const inputClass = '';
+
     return (
         <form action={formAction} className="space-y-6 pb-24">
             <input type="hidden" name="planId" value={plan?._id?.toString() || 'new'} />
+            <input type="hidden" name="isPublic" value={isPublic ? 'on' : ''} />
+            <input type="hidden" name="isDefault" value={isDefault ? 'on' : ''} />
 
             {/* Header */}
-            <div className="relative overflow-hidden rounded-2xl border border-[var(--st-border)] bg-gradient-to-br from-primary/5 via-[var(--st-bg)] to-[var(--st-bg-muted)] p-6">
-                <div className="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-[var(--st-text)]/20 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[var(--st-bg-muted)] blur-3xl pointer-events-none" />
-                <div className="relative">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        asChild
-                        size="sm"
-                        className="-ml-2 mb-2 hover:bg-[var(--st-bg-secondary)] rounded-lg"
-                    >
-                        <Link href="/admin/dashboard/plans">
-                            <ChevronLeft className="mr-1 h-4 w-4" />
-                            Back to Plans
-                        </Link>
-                    </Button>
-                    <div className="inline-flex items-center gap-2 text-xs font-medium text-[var(--st-text)] mb-1">
-                        <Sparkles className="h-3.5 w-3.5" />
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-6">
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    iconLeft={ChevronLeft}
+                    onClick={() => router.push('/admin/dashboard/plans')}
+                    className="-ml-2 mb-2"
+                >
+                    Back to Plans
+                </Button>
+                <PageHeader bordered={false} compact className="block">
+                    <PageEyebrow className="flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                         {isNew ? 'New Plan' : 'Editing Plan'}
-                    </div>
-                    <h1 className="text-2xl md:text-3xl text-[var(--st-text)]">
-                        {isNew ? 'Create a new plan' : plan?.name}
-                    </h1>
-                    <p className="text-sm text-[var(--st-text-secondary)] mt-1 max-w-2xl">
+                    </PageEyebrow>
+                    <PageTitle>{isNew ? 'Create a new plan' : plan?.name}</PageTitle>
+                    <PageDescription>
                         Configure pricing, usage limits, and the master permission ceiling for
                         every module in the app.
-                    </p>
+                    </PageDescription>
+                </PageHeader>
 
-                    {isNew && allPlans.length > 0 && (
-                        <div className="mt-6 flex items-center gap-3">
-                            <Label htmlFor="clonePlan" className="text-sm font-medium text-[var(--st-text)] whitespace-nowrap">
-                                Clone from:
-                            </Label>
-                            <Select
-                                value={cloneSourceId}
-                                onValueChange={(val) => {
-                                    setCloneSourceId(val);
-                                    if (val === 'blank') {
-                                        setPlan(null);
-                                    } else {
-                                        const source = allPlans.find((p) => p._id.toString() === val);
-                                        if (source) {
-                                            // Make a copy without the _id
-                                            const { _id, ...rest } = source;
-                                            setPlan({ ...rest, name: `${rest.name} (Copy)`, isPublic: false, isDefault: false } as any);
-                                        }
+                {isNew && allPlans.length > 0 && (
+                    <Field label="Clone from" className="mt-6 max-w-[320px]">
+                        <Select
+                            name="clonePlan"
+                            value={cloneSourceId}
+                            onValueChange={(val) => {
+                                setCloneSourceId(val);
+                                if (val === 'blank') {
+                                    setPlan(null);
+                                    setIsPublic(false);
+                                    setIsDefault(false);
+                                } else {
+                                    const source = allPlans.find(
+                                        (p) => p._id.toString() === val,
+                                    );
+                                    if (source) {
+                                        // Make a copy without the _id
+                                        const { _id, ...rest } = source;
+                                        setPlan({
+                                            ...rest,
+                                            name: `${rest.name} (Copy)`,
+                                            isPublic: false,
+                                            isDefault: false,
+                                        } as any);
+                                        setIsPublic(false);
+                                        setIsDefault(false);
                                     }
-                                }}
-                            >
-                                <SelectTrigger id="clonePlan" className="w-[280px] bg-[var(--st-bg)]">
-                                    <SelectValue placeholder="Start from blank plan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="blank">Start from blank plan</SelectItem>
-                                    {allPlans.map((p) => (
-                                        <SelectItem key={p._id.toString()} value={p._id.toString()}>
-                                            {p.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    )}
-                </div>
+                                }
+                            }}
+                        >
+                            <SelectTrigger id="clonePlan">
+                                <SelectValue placeholder="Start from blank plan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="blank">Start from blank plan</SelectItem>
+                                {allPlans.map((p) => (
+                                    <SelectItem key={p._id.toString()} value={p._id.toString()}>
+                                        {p.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                )}
             </div>
 
             {/* We use a key on the segmented tab strip / form content so that changing the cloned plan re-mounts the uncontrolled inputs */}
@@ -321,20 +275,17 @@ export function PlanEditor({ planId }: { planId: string }) {
                             { key: 'permissions', icon: ShieldCheck, label: 'Permissions' },
                         ] as const
                     ).map(({ key, icon: Icon, label }) => (
-                        <button
+                        <Button
                             key={key}
                             type="button"
+                            variant={activeTab === key ? 'primary' : 'ghost'}
+                            size="sm"
+                            iconLeft={Icon}
+                            aria-pressed={activeTab === key}
                             onClick={() => setActiveTab(key)}
-                            className={cn(
-                                'flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors',
-                                activeTab === key
-                                    ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
-                                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-                            )}
                         >
-                            <Icon className="h-4 w-4" />
                             {label}
-                        </button>
+                        </Button>
                     ))}
                 </div>
 
@@ -358,7 +309,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                             <Field label="Category">
                                 <Select name="appCategory" defaultValue={plan?.appCategory}>
                                     <SelectTrigger className={inputClass}>
-                                        <SelectValue placeholder="Select category…" />
+                                        <SelectValue placeholder="Select category" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="All-In-One">All-In-One</SelectItem>
@@ -396,7 +347,11 @@ export function PlanEditor({ planId }: { planId: string }) {
                                 />
                             </Field>
                             <Field label="Currency">
-                                <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
+                                <Select
+                                    name="currency"
+                                    defaultValue={plan?.currency || 'INR'}
+                                    required
+                                >
                                     <SelectTrigger className={inputClass}>
                                         <SelectValue />
                                     </SelectTrigger>
@@ -410,25 +365,21 @@ export function PlanEditor({ planId }: { planId: string }) {
                         </div>
 
                         <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-[var(--st-border)]">
-                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isPublic"
-                                    name="isPublic"
-                                    defaultChecked={plan?.isPublic ?? false}
+                                    checked={isPublic}
+                                    onCheckedChange={setIsPublic}
+                                    label="Publicly visible"
                                 />
-                                <Label htmlFor="isPublic" className="text-sm">
-                                    Publicly visible
-                                </Label>
                             </div>
-                            <div className="flex items-center gap-2 rounded-xl bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
+                            <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg)] border border-[var(--st-border)] px-4 py-2">
                                 <Switch
                                     id="isDefault"
-                                    name="isDefault"
-                                    defaultChecked={plan?.isDefault ?? false}
+                                    checked={isDefault}
+                                    onCheckedChange={setIsDefault}
+                                    label="Default for new signups"
                                 />
-                                <Label htmlFor="isDefault" className="text-sm">
-                                    Default for new signups
-                                </Label>
                             </div>
                         </div>
                     </SectionCard>
@@ -736,7 +687,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                         title="WaChat"
                         description="Limits for WhatsApp Business tooling."
                         icon={Boxes}
-                        accent="emerald"
                     >
                         <div className="grid gap-4 md:grid-cols-4">
                             <Field label="Templates">
@@ -778,11 +728,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                         </div>
                     </SectionCard>
 
-                    <SectionCard
-                        title="CRM"
-                        description="Resource limits for the CRM module."
-                        accent="sky"
-                    >
+                    <SectionCard title="CRM" description="Resource limits for the CRM module.">
                         <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
                             <Field label="Products">
                                 <Input
@@ -835,7 +781,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard
                         title="Facebook"
                         description="Facebook Pages, posts, automation rules, and shops."
-                        accent="sky"
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field label="Pages">
@@ -884,7 +829,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard
                         title="Instagram"
                         description="Instagram business accounts, scheduled content, and hashtag research."
-                        accent="rose"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Connected accounts">
@@ -919,15 +863,14 @@ export function PlanEditor({ planId }: { planId: string }) {
 
                     <SectionCard
                         title="Ad Manager"
-                        description="Meta Ads Manager — manage ad accounts, campaigns, and audiences."
+                        description="Meta Ads Manager. Manage ad accounts, campaigns, and audiences."
                         icon={Crown}
                         premium
-                        accent="amber"
                     >
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                             <Field
                                 label="Ad accounts"
-                                hint="Max Meta Ad Accounts linkable to projects."
+                                help="Max Meta Ad Accounts linkable to projects."
                             >
                                 <Input
                                     name="limit_ads_accounts"
@@ -961,7 +904,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                             </Field>
                             <Field
                                 label="Monthly ad spend cap"
-                                hint="0 = uncapped. Enforced before placing ads."
+                                help="0 = uncapped. Enforced before placing ads."
                             >
                                 <Input
                                     name="limit_ads_spend_cap"
@@ -974,11 +917,7 @@ export function PlanEditor({ planId }: { planId: string }) {
                         </div>
                     </SectionCard>
 
-                    <SectionCard
-                        title="Email"
-                        description="Email channel throughput."
-                        accent="violet"
-                    >
+                    <SectionCard title="Email" description="Email channel throughput.">
                         <div className="grid gap-4 md:grid-cols-2">
                             <Field label="Connected accounts">
                                 <Input
@@ -1004,7 +943,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard
                         title="SabChat"
                         description="Live chat widgets, visitors, and canned replies."
-                        accent="emerald"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Widgets">
@@ -1040,7 +978,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard
                         title="SEO"
                         description="SEO projects, brand radars, and tracked keywords."
-                        accent="sky"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Projects">
@@ -1076,7 +1013,6 @@ export function PlanEditor({ planId }: { planId: string }) {
                     <SectionCard
                         title="Website Builder"
                         description="Portfolio and website builder resources."
-                        accent="violet"
                     >
                         <div className="grid gap-4 md:grid-cols-3">
                             <Field label="Sites">
@@ -1165,12 +1101,8 @@ export function PlanEditor({ planId }: { planId: string }) {
             </div>
 
             {/* Sticky save bar */}
-            <div
-                className={cn(
-                    'fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4',
-                )}
-            >
-                <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)]/90 backdrop-blur-xl shadow-2xl shadow-[var(--st-text)]/10 px-4 py-3">
+            <div className="fixed bottom-6 inset-x-0 z-20 flex justify-center pointer-events-none px-4">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-lg px-4 py-3">
                     <span className="text-xs text-[var(--st-text-secondary)] hidden sm:inline">
                         Changes take effect immediately after saving.
                     </span>

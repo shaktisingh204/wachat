@@ -19,6 +19,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import dagre from 'dagre';
+import { Button } from '@/components/sabcrm/20ui';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -113,7 +114,7 @@ function LayoutFlow() {
   );
 
   return (
-    <div className="w-full h-screen bg-[var(--st-bg-muted)] text-black">
+    <div className="w-full h-screen bg-[var(--st-bg-muted)] text-[var(--st-text)]">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -123,18 +124,12 @@ function LayoutFlow() {
         fitView
       >
         <Panel position="top-right" className="flex gap-2">
-          <button
-            onClick={() => onLayout('TB')}
-            className="px-3 py-2 bg-white text-sm font-medium border border-[var(--st-border)] rounded-md shadow-sm hover:bg-[var(--st-bg-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
-          >
+          <Button variant="secondary" size="sm" onClick={() => onLayout('TB')}>
             Vertical Layout
-          </button>
-          <button
-            onClick={() => onLayout('LR')}
-            className="px-3 py-2 bg-white text-sm font-medium border border-[var(--st-border)] rounded-md shadow-sm hover:bg-[var(--st-bg-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
-          >
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => onLayout('LR')}>
             Horizontal Layout
-          </button>
+          </Button>
         </Panel>
         <Background />
         <Controls />

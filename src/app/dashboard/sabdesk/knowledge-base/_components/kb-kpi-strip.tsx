@@ -1,16 +1,24 @@
 "use client";
 
-import { StatCard } from '@/components/sabcrm/20ui';
-import { BookOpen, CheckCircle2, Eye, FileText, ThumbsUp } from "lucide-react";
-
 /**
- * KPI strip for the Knowledge Base list (§1D.1).
+ * KPI strip for the Knowledge Base list (1D.1).
  *
- * 5 cards: Total · Published · Drafts · Most-viewed (top count) ·
- * Helpful % (`helpfulYes / (helpfulYes + helpfulNo)`).
+ * 5 cards: Total, Published, Drafts, Most-viewed (top count), and
+ * Helpful % (`helpfulYes / (helpfulYes + helpfulNo)`). Each card is a
+ * pressable filter toggle built on the 20ui Button + StatCard primitives.
  */
 
 import * as React from "react";
+import {
+  BookOpen,
+  CheckCircle2,
+  Eye,
+  FileText,
+  ThumbsUp,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+import { Button, StatCard } from "@/components/sabcrm/20ui";
 import type { KbArticleDoc } from "@/app/actions/crm-knowledge-base.actions.types";
 
 export interface KbKpiCounts {
@@ -69,37 +77,37 @@ export function KbKpiStrip({ counts, active, onPick }: KbKpiStripProps) {
       <KpiCard
         label="Total"
         value={counts.total.toLocaleString()}
-        icon={<BookOpen className="h-4 w-4" />}
+        icon={BookOpen}
         active={active === "all"}
         onClick={() => onPick("all")}
       />
       <KpiCard
         label="Published"
         value={counts.published.toLocaleString()}
-        icon={<CheckCircle2 className="h-4 w-4" />}
+        icon={CheckCircle2}
         active={active === "published"}
         onClick={() => onPick(active === "published" ? "all" : "published")}
       />
       <KpiCard
         label="Drafts"
         value={counts.drafts.toLocaleString()}
-        icon={<FileText className="h-4 w-4" />}
+        icon={FileText}
         active={active === "drafts"}
         onClick={() => onPick(active === "drafts" ? "all" : "drafts")}
       />
       <KpiCard
         label="Most-viewed"
         value={counts.mostViewed.toLocaleString()}
-        icon={<Eye className="h-4 w-4" />}
+        icon={Eye}
         active={active === "mostViewed"}
         onClick={() => onPick(active === "mostViewed" ? "all" : "mostViewed")}
       />
       <KpiCard
         label="Helpful %"
         value={
-          counts.helpfulPct != null ? `${counts.helpfulPct.toFixed(0)}%` : "—"
+          counts.helpfulPct != null ? `${counts.helpfulPct.toFixed(0)}%` : "n/a"
         }
-        icon={<ThumbsUp className="h-4 w-4" />}
+        icon={ThumbsUp}
         active={active === "helpful"}
         onClick={() => onPick(active === "helpful" ? "all" : "helpful")}
         period={
@@ -120,24 +128,29 @@ function KpiCard({
 }: {
   label: string;
   value: React.ReactNode;
-  icon: React.ReactNode;
+  icon: LucideIcon;
   active: boolean;
   onClick: () => void;
   period?: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onClick={onClick}
+      aria-pressed={active}
       className={[
-        "text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]",
-        active
-          ? "rounded-[var(--st-radius-lg)] ring-1 ring-[var(--st-text)]"
-          : "",
+        "block h-auto w-full !p-0 text-left rounded-[var(--st-radius-lg)] transition",
+        "[&_.u-btn__label]:block [&_.u-btn__label]:w-full [&_.u-btn__label]:overflow-visible",
+        active ? "ring-1 ring-[var(--st-accent)]" : "",
       ].join(" ")}
     >
-      <StatCard label={label} value={value} icon={icon} period={period} />
-    </button>
+      <StatCard label={label} value={value} icon={icon} />
+      {period != null ? (
+        <span className="mt-1 block px-3 pb-2 text-xs text-[var(--st-text-secondary)]">
+          {period}
+        </span>
+      ) : null}
+    </Button>
   );
 }
 

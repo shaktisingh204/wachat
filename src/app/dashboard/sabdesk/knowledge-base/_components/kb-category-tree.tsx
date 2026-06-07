@@ -1,9 +1,5 @@
 "use client";
 
-import { Badge, Card } from '@/components/sabcrm/20ui';
-import { formatDistanceToNow } from "date-fns";
-import { BookOpen, FolderOpen } from "lucide-react";
-
 /**
  * <KbCategoryTree> — alternate view of the KB list grouped by category
  * (§1D.1 view switcher).
@@ -16,11 +12,33 @@ import { BookOpen, FolderOpen } from "lucide-react";
 
 import * as React from "react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { BookOpen, FolderOpen } from "lucide-react";
 
-import { StatusPill, statusToTone } from "@/components/crm/status-pill";
+import { Badge, Button, Card, EmptyState } from "@/components/sabcrm/20ui";
+import type { BadgeTone } from "@/components/sabcrm/20ui";
 import type { KbArticleDoc } from "@/app/actions/crm-knowledge-base.actions.types";
+
 interface KbCategoryTreeProps {
   articles: KbArticleDoc[];
+}
+
+/** Map a raw KB article status string to a 20ui Badge tone. */
+function statusTone(status: string | undefined): BadgeTone {
+  const s = (status ?? "").toLowerCase();
+  if (["active", "published", "approved", "open", "resolved"].includes(s)) {
+    return "success";
+  }
+  if (["pending", "draft", "in_progress", "submitted", "review"].includes(s)) {
+    return "warning";
+  }
+  if (["archived", "rejected", "deleted", "closed"].includes(s)) {
+    return "danger";
+  }
+  if (["new"].includes(s)) {
+    return "info";
+  }
+  return "neutral";
 }
 
 export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
@@ -54,37 +72,38 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
 
   if (grouped.length === 0) {
     return (
-      <Card className="p-6 text-center text-[13px] text-[var(--st-text-secondary)]">
-        No articles match the current filters.
+      <Card padding="lg">
+        <EmptyState
+          icon={BookOpen}
+          title="No articles found"
+          description="No articles match the current filters."
+        />
       </Card>
     );
   }
 
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-[220px_1fr]">
-      <Card className="p-2">
-        <ul className="flex flex-col">
+      <Card padding="sm">
+        <ul className="flex flex-col gap-0.5">
           {grouped.map(([key, arr]) => {
             const label = key === "__uncategorised__" ? "Uncategorised" : key;
             const isActive = key === active;
             return (
               <li key={key}>
-                <button
-                  type="button"
+                <Button
+                  variant={isActive ? "secondary" : "ghost"}
+                  block
                   onClick={() => setActive(key)}
-                  className={[
-                    "flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-[13px]",
-                    isActive
-                      ? "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                      : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]/60 hover:text-[var(--st-text)]",
-                  ].join(" ")}
+                  aria-pressed={isActive}
+                  className="justify-between"
                 >
                   <span className="inline-flex min-w-0 items-center gap-1.5 truncate">
-                    <FolderOpen className="h-3.5 w-3.5 shrink-0" />
+                    <FolderOpen className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <span className="truncate">{label}</span>
                   </span>
-                  <Badge variant="ghost">{arr.length}</Badge>
-                </button>
+                  <Badge tone="neutral">{arr.length}</Badge>
+                </Button>
               </li>
             );
           })}
@@ -93,30 +112,34 @@ export function KbCategoryTree({ articles }: KbCategoryTreeProps) {
 
       <div className="flex flex-col gap-2">
         {items.length === 0 ? (
-          <Card className="p-4 text-center text-[13px] text-[var(--st-text-secondary)]">
-            No articles in this category.
+          <Card padding="md">
+            <EmptyState
+              icon={BookOpen}
+              size="sm"
+              title="No articles in this category"
+            />
           </Card>
         ) : (
           items.map((a) => {
             const id = String(a._id);
             return (
-              <Card key={id} className="p-3">
+              <Card key={id} variant="interactive" padding="sm">
                 <Link
                   href={`/dashboard/sabdesk/knowledge-base/${id}`}
                   className="flex flex-col gap-1"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <span className="inline-flex items-center gap-2">
-                      <BookOpen className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                      <BookOpen
+                        className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                      />
                       <span className="text-[14px] font-medium text-[var(--st-text)] hover:underline">
                         {a.title || "Untitled"}
                       </span>
                     </span>
                     {a.status ? (
-                      <StatusPill
-                        label={a.status}
-                        tone={statusToTone(a.status)}
-                      />
+                      <Badge tone={statusTone(a.status)}>{a.status}</Badge>
                     ) : null}
                   </div>
                   {a.body ? (

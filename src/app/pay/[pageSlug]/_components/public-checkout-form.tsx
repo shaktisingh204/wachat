@@ -2,20 +2,30 @@
 
 /**
  * Public-facing checkout form. Renders:
- *   • Hero (logo + headline + description).
- *   • Items selector — radio-list of one-off amounts/plans with optional
+ *   - Hero (logo + headline + description).
+ *   - Items selector. Checkbox-list of one-off amounts/plans with optional
  *     quantity steppers.
- *   • Payer fields — name/email/phone + any custom fields declared on
- *     the page.
- *   • Submit "Pay" button — calls `createSabcheckoutSession` then redirects
- *     to the gateway-provided URL.
+ *   - Payer fields. Name/email/phone + any custom fields declared on the page.
+ *   - Submit "Pay" button. Calls `createSabcheckoutSession` then redirects to
+ *     the gateway-provided URL.
  *
- * Uses minimal primitives + theme tokens; ZoruUI is intentionally NOT
- * used here (it's admin-only).
+ * Built entirely on the 20ui design system. The only inline styles are the
+ * page's runtime-computed accent color (user-picked theme), used to tint the
+ * selected-item border and the checkbox accent.
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+
+import {
+  Card,
+  CardBody,
+  Button,
+  Field,
+  Input,
+  Checkbox,
+  Alert,
+} from '@/components/sabcrm/20ui';
 
 import { createSabcheckoutSession } from '@/app/actions/sabcheckout-public.actions';
 import type {
@@ -153,9 +163,7 @@ export function PublicCheckoutForm({
   }
 
   return (
-    <main
-      className="min-h-screen w-full bg-gradient-to-b from-[#fafafa] to-[#f4f4f5] px-4 py-10"
-    >
+    <main className="ui20 min-h-screen w-full bg-[var(--st-bg-secondary)] px-4 py-10">
       <div className="mx-auto max-w-xl space-y-6">
         <header className="space-y-3 text-center">
           {page.logoFileId ? (
@@ -168,161 +176,176 @@ export function PublicCheckoutForm({
               className="mx-auto h-12 w-auto"
             />
           ) : null}
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
             {page.displayName}
           </h1>
           {page.headline ? (
             <p className="text-base text-[var(--st-text)]">{page.headline}</p>
           ) : null}
           {page.description ? (
-            <p className="text-sm text-[var(--st-text)]">{page.description}</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">
+              {page.description}
+            </p>
           ) : null}
         </header>
 
-        <form
-          onSubmit={onSubmit}
-          className="space-y-6 rounded-xl border border-[var(--st-border)] bg-white p-6 shadow-sm"
-        >
-          {/* Items */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium">Choose what to pay</legend>
-            {(page.items ?? []).map((it, i) => {
-              const unit = unitAmountFor(it);
-              return (
-                <label
-                  key={i}
-                  className="flex items-center gap-3 rounded-lg border border-[var(--st-border)] p-3 transition-colors"
-                  style={{
-                    borderColor: rows[i]?.selected ? accent : undefined,
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={!!rows[i]?.selected}
-                    onChange={(e) => setRow(i, { selected: e.target.checked })}
-                    style={{ accentColor: accent }}
-                  />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{it.label}</div>
-                    <div className="text-xs text-[var(--st-text)]">
-                      {it.type === 'amount'
-                        ? `${page.currency} ${(unit / 100).toFixed(2)}`
-                        : 'Subscription plan'}
-                    </div>
-                  </div>
-                  {it.allowQuantity && rows[i]?.selected ? (
-                    <input
-                      type="number"
-                      min={1}
-                      value={rows[i]?.quantity ?? 1}
-                      onChange={(e) =>
-                        setRow(i, {
-                          quantity: Math.max(1, Number(e.target.value)),
-                        })
-                      }
-                      className="w-16 rounded-md border border-[var(--st-border)] px-2 py-1 text-sm"
-                    />
-                  ) : null}
-                </label>
-              );
-            })}
-          </fieldset>
+        <Card variant="outlined" padding="none">
+          <CardBody>
+            <form onSubmit={onSubmit} className="space-y-6">
+              {/* Items */}
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--st-text)]">
+                  Choose what to pay
+                </legend>
+                {(page.items ?? []).map((it, i) => {
+                  const unit = unitAmountFor(it);
+                  const selected = !!rows[i]?.selected;
+                  return (
+                    <label
+                      key={i}
+                      className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 transition-colors"
+                      style={selected ? { borderColor: accent } : undefined}
+                    >
+                      <Checkbox
+                        checked={selected}
+                        onChange={(e) =>
+                          setRow(i, { selected: e.target.checked })
+                        }
+                        style={{ accentColor: accent }}
+                      />
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-[var(--st-text)]">
+                          {it.label}
+                        </div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">
+                          {it.type === 'amount'
+                            ? `${page.currency} ${(unit / 100).toFixed(2)}`
+                            : 'Subscription plan'}
+                        </div>
+                      </div>
+                      {it.allowQuantity && selected ? (
+                        <Input
+                          type="number"
+                          min={1}
+                          aria-label={`Quantity for ${it.label}`}
+                          value={rows[i]?.quantity ?? 1}
+                          onChange={(e) =>
+                            setRow(i, {
+                              quantity: Math.max(1, Number(e.target.value)),
+                            })
+                          }
+                          className="w-16"
+                        />
+                      ) : null}
+                    </label>
+                  );
+                })}
+              </fieldset>
 
-          {/* Payer fields */}
-          <fieldset className="space-y-3">
-            <legend className="text-sm font-medium">Your details</legend>
-            {(page.requireFields ?? []).map((f) => {
-              if (f.custom) {
-                return (
-                  <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
-                    <input
-                      value={customValues[f.name] ?? ''}
-                      onChange={(e) =>
-                        setCustomValues((cv) => ({
-                          ...cv,
-                          [f.name]: e.target.value,
-                        }))
-                      }
+              {/* Payer fields */}
+              <fieldset className="space-y-3">
+                <legend className="text-sm font-medium text-[var(--st-text)]">
+                  Your details
+                </legend>
+                {(page.requireFields ?? []).map((f) => {
+                  if (f.custom) {
+                    return (
+                      <Field
+                        key={f.name}
+                        label={f.label}
+                        required={!!f.required}
+                      >
+                        <Input
+                          value={customValues[f.name] ?? ''}
+                          onChange={(e) =>
+                            setCustomValues((cv) => ({
+                              ...cv,
+                              [f.name]: e.target.value,
+                            }))
+                          }
+                        />
+                      </Field>
+                    );
+                  }
+                  if (f.name === 'email') {
+                    return (
+                      <Field
+                        key={f.name}
+                        label={f.label}
+                        required={!!f.required}
+                      >
+                        <Input
+                          type="email"
+                          value={payer.email}
+                          onChange={(e) =>
+                            setPayer({ ...payer, email: e.target.value })
+                          }
+                        />
+                      </Field>
+                    );
+                  }
+                  if (f.name === 'phone') {
+                    return (
+                      <Field
+                        key={f.name}
+                        label={f.label}
+                        required={!!f.required}
+                      >
+                        <Input
+                          type="tel"
+                          value={payer.phone}
+                          onChange={(e) =>
+                            setPayer({ ...payer, phone: e.target.value })
+                          }
+                        />
+                      </Field>
+                    );
+                  }
+                  return (
+                    <Field
+                      key={f.name}
+                      label={f.label}
                       required={!!f.required}
-                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-                    />
-                  </label>
-                );
-              }
-              if (f.name === 'email') {
-                return (
-                  <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
-                    <input
-                      type="email"
-                      value={payer.email}
-                      onChange={(e) =>
-                        setPayer({ ...payer, email: e.target.value })
-                      }
-                      required={!!f.required}
-                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-                    />
-                  </label>
-                );
-              }
-              if (f.name === 'phone') {
-                return (
-                  <label key={f.name} className="block space-y-1">
-                    <span className="text-xs text-[var(--st-text)]">{f.label}</span>
-                    <input
-                      type="tel"
-                      value={payer.phone}
-                      onChange={(e) =>
-                        setPayer({ ...payer, phone: e.target.value })
-                      }
-                      required={!!f.required}
-                      className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-                    />
-                  </label>
-                );
-              }
-              return (
-                <label key={f.name} className="block space-y-1">
-                  <span className="text-xs text-[var(--st-text)]">{f.label}</span>
-                  <input
-                    value={payer.name}
-                    onChange={(e) =>
-                      setPayer({ ...payer, name: e.target.value })
-                    }
-                    required={!!f.required}
-                    className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-                  />
-                </label>
-              );
-            })}
-          </fieldset>
+                    >
+                      <Input
+                        value={payer.name}
+                        onChange={(e) =>
+                          setPayer({ ...payer, name: e.target.value })
+                        }
+                      />
+                    </Field>
+                  );
+                })}
+              </fieldset>
 
-          {/* Total + submit */}
-          <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4">
-            <span className="text-sm text-[var(--st-text)]">Total</span>
-            <span className="text-lg font-semibold tabular-nums">
-              {page.currency} {(subtotal / 100).toFixed(2)}
-            </span>
-          </div>
+              {/* Total + submit */}
+              <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+                <span className="text-sm text-[var(--st-text-secondary)]">
+                  Total
+                </span>
+                <span className="text-lg font-semibold tabular-nums text-[var(--st-text)]">
+                  {page.currency} {(subtotal / 100).toFixed(2)}
+                </span>
+              </div>
 
-          {error ? (
-            <p className="text-sm text-[var(--st-text)]" role="alert">
-              {error}
-            </p>
-          ) : null}
+              {error ? (
+                <Alert tone="danger">{error}</Alert>
+              ) : null}
 
-          <button
-            type="submit"
-            disabled={busy || subtotal <= 0}
-            className="w-full rounded-md px-4 py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-            style={{ backgroundColor: accent }}
-          >
-            {busy ? 'Processing…' : 'Pay'}
-          </button>
-        </form>
+              <Button
+                type="submit"
+                variant="primary"
+                block
+                loading={busy}
+                disabled={subtotal <= 0}
+              >
+                {busy ? 'Processing' : 'Pay'}
+              </Button>
+            </form>
+          </CardBody>
+        </Card>
 
-        <p className="text-center text-xs text-[var(--st-text-secondary)]">
+        <p className="text-center text-xs text-[var(--st-text-tertiary)]">
           Powered by SabCheckout
         </p>
       </div>

@@ -2,17 +2,36 @@
 
 import React, { useState } from 'react';
 import { Calculator } from 'lucide-react';
-import { Slider } from '@/components/ui/slider';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Label,
+  Slider,
+  SegmentedControl,
+  StatCard,
+} from '@/components/sabcrm/20ui';
+
+type PlanKey = 'startup' | 'pro' | 'enterprise';
+
+const plans: Record<PlanKey, { name: string; price: number; commissionRate: number }> = {
+  startup: { name: 'Startup', price: 99, commissionRate: 0.2 },
+  pro: { name: 'Pro', price: 299, commissionRate: 0.25 },
+  enterprise: { name: 'Enterprise', price: 999, commissionRate: 0.3 },
+};
+
+const planItems = (Object.keys(plans) as PlanKey[]).map((key) => ({
+  value: key,
+  label: plans[key].name,
+}));
+
+const money = (n: number) =>
+  `$${n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
 export function CommissionCalculator() {
   const [referrals, setReferrals] = useState(10);
-  const [plan, setPlan] = useState<'startup' | 'pro' | 'enterprise'>('pro');
-
-  const plans = {
-    startup: { name: 'Startup', price: 99, commissionRate: 0.20 },
-    pro: { name: 'Pro', price: 299, commissionRate: 0.25 },
-    enterprise: { name: 'Enterprise', price: 999, commissionRate: 0.30 }
-  };
+  const [plan, setPlan] = useState<PlanKey>('pro');
 
   const selectedPlan = plans[plan];
   const monthlyRevenue = referrals * selectedPlan.price;
@@ -20,58 +39,53 @@ export function CommissionCalculator() {
   const annualCommission = monthlyCommission * 12;
 
   return (
-    <div className="bg-[#050505] border border-white/10 rounded-lg p-6 space-y-8 mt-12">
-      <div className="flex items-center gap-3 mb-6">
-        <Calculator className="w-5 h-5 text-white/70" />
-        <h3 className="font-bold text-lg">Live Commission Calculator</h3>
-      </div>
+    <div className="ui20 dark mt-12">
+      <Card variant="outlined" padding="lg" className="space-y-8">
+        <CardHeader className="flex items-center gap-3">
+          <Calculator className="w-5 h-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          <CardTitle>Live Commission Calculator</CardTitle>
+        </CardHeader>
 
-      <div className="space-y-6">
-        <div>
-          <div className="flex justify-between mb-4">
-            <label className="text-sm text-white/70 font-sans">Monthly Referrals</label>
-            <span className="text-sm font-bold">{referrals} accounts</span>
+        <CardBody className="space-y-6">
+          <div>
+            <div className="flex justify-between mb-4">
+              <Label htmlFor="commission-referrals">Monthly Referrals</Label>
+              <span className="text-sm font-bold text-[var(--st-text)]">
+                {referrals} accounts
+              </span>
+            </div>
+            <Slider
+              id="commission-referrals"
+              value={referrals}
+              min={1}
+              max={100}
+              step={1}
+              ariaLabel="Monthly referrals"
+              onValueChange={(val) => setReferrals(Array.isArray(val) ? val[0] : val)}
+            />
           </div>
-          <Slider
-            defaultValue={[referrals]}
-            max={100}
-            min={1}
-            step={1}
-            onValueChange={(vals) => setReferrals(vals[0])}
-            className="w-full"
+
+          <div>
+            <Label className="block mb-4">Average Plan Size</Label>
+            <SegmentedControl<PlanKey>
+              items={planItems}
+              value={plan}
+              onChange={setPlan}
+              fullWidth
+              aria-label="Average plan size"
+            />
+          </div>
+        </CardBody>
+
+        <div className="pt-6 border-t border-[var(--st-border)] grid grid-cols-2 gap-6">
+          <StatCard label="Monthly Earn" value={money(monthlyCommission)} />
+          <StatCard
+            label="Annual Earn"
+            value={money(annualCommission)}
+            delta={{ value: 'per year', tone: 'up' }}
           />
         </div>
-
-        <div>
-          <label className="text-sm text-white/70 font-sans block mb-4">Average Plan Size</label>
-          <div className="grid grid-cols-3 gap-3">
-            {(Object.keys(plans) as Array<keyof typeof plans>).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPlan(p)}
-                className={`py-2 px-3 text-sm rounded border transition-colors ${
-                  plan === p 
-                    ? 'border-white bg-white/10 text-white' 
-                    : 'border-white/10 text-white/50 hover:border-white/30'
-                }`}
-              >
-                {plans[p].name}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-6 border-t border-white/10 grid grid-cols-2 gap-6">
-        <div>
-          <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Monthly Earn</p>
-          <p className="text-3xl font-bold">${monthlyCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-        </div>
-        <div>
-          <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Annual Earn</p>
-          <p className="text-3xl font-bold text-green-400">${annualCommission.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 }

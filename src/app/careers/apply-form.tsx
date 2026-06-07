@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, KeyboardEvent } from "react";
-import { toast } from "sonner";
+import { X } from "lucide-react";
+
+import { Button, IconButton, Input, toast } from "@/components/sabcrm/20ui";
 
 export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,13 +31,13 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      
+
       const currentStepKey = steps[step].key;
       formData.current[currentStepKey] = currentInput;
-      
+
       setHistory([...history, { prompt: steps[step].prompt, answer: currentInput }]);
       setCurrentInput("");
-      
+
       if (step < steps.length - 1) {
         setStep(step + 1);
       } else {
@@ -44,9 +46,16 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
     }
   };
 
+  const resetForm = () => {
+    setIsOpen(false);
+    setStep(0);
+    setHistory([]);
+    formData.current = {};
+  };
+
   const submitForm = () => {
     setIsSubmitting(true);
-    
+
     // Construct mailto link
     const subject = encodeURIComponent(`Application: ${jobTitle} (${jobId})`);
     const body = encodeURIComponent(
@@ -55,16 +64,17 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
       `Portfolio/GitHub: ${formData.current.portfolio}\n` +
       `Cover Letter:\n${formData.current.coverLetter}\n`
     );
-    
+
     setTimeout(() => {
       window.location.href = `mailto:careers@sabnode.in?subject=${subject}&body=${body}`;
-      
+
       setIsSubmitting(false);
       setIsOpen(false);
-      toast.success("Application successfully compiled [200 OK]", {
-        description: `Mail client opened for ${jobTitle}`
+      toast.success({
+        title: "Application successfully compiled [200 OK]",
+        description: `Mail client opened for ${jobTitle}`,
       });
-      
+
       // Reset form
       setStep(0);
       setHistory([]);
@@ -74,64 +84,64 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
 
   if (!isOpen) {
     return (
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="w-full sm:w-auto bg-white text-black hover:bg-black hover:text-white hover:border-white border border-transparent transition-colors px-6 py-2 text-sm font-bold uppercase tracking-wider"
-      >
-        Execute / Apply
-      </button>
+      <div className="ui20">
+        <Button
+          variant="primary"
+          onClick={() => setIsOpen(true)}
+          className="w-full uppercase tracking-wider sm:w-auto"
+        >
+          Execute / Apply
+        </Button>
+      </div>
     );
   }
 
   return (
-    <div 
-      className="border-t border-white pt-6 mt-6 animate-in fade-in slide-in-from-top-2"
-    >
-      <div 
-        className="border border-white p-4 bg-black text-white font-mono text-sm cursor-text min-h-[250px]"
+    <div className="ui20 mt-6 animate-in fade-in slide-in-from-top-2 border-t border-[var(--st-border)] pt-6">
+      <div
+        className="min-h-[250px] cursor-text rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 font-mono text-sm text-[var(--st-text)]"
         onClick={() => inputRef.current?.focus()}
       >
-        <div className="flex justify-between items-center border-b border-white/50 pb-2 mb-4">
-          <span className="uppercase tracking-widest font-bold text-xs">Terminal - SabNode Careers</span>
-          <button 
+        <div className="mb-4 flex items-center justify-between border-b border-[var(--st-border)] pb-2">
+          <span className="text-xs font-bold uppercase tracking-widest text-[var(--st-text-secondary)]">Terminal - SabNode Careers</span>
+          <IconButton
+            label="Abort application"
+            icon={X}
+            variant="ghost"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              setIsOpen(false);
-              setStep(0);
-              setHistory([]);
-              formData.current = {};
+              resetForm();
             }}
-            className="text-xs hover:bg-white hover:text-black border border-transparent hover:border-white px-2 py-0.5 transition-colors"
-          >
-            [X] ABORT
-          </button>
+          />
         </div>
 
-        <div className="space-y-2 mb-2">
-          <div className="text-white/50">$ ./apply.sh --job {jobId}</div>
-          <div className="text-white/50">Initializing application process...</div>
-          <div className="text-white/50">Follow the prompts to construct the payload.</div>
+        <div className="mb-2 space-y-2">
+          <div className="text-[var(--st-text-tertiary)]">$ ./apply.sh --job {jobId}</div>
+          <div className="text-[var(--st-text-tertiary)]">Initializing application process...</div>
+          <div className="text-[var(--st-text-tertiary)]">Follow the prompts to construct the payload.</div>
           <br/>
-          
+
           {history.map((h, i) => (
             <div key={i} className="mb-2">
-              <div className="text-white/70">{h.prompt}</div>
-              <div className="text-white">{h.answer}</div>
+              <div className="text-[var(--st-text-secondary)]">{h.prompt}</div>
+              <div className="text-[var(--st-text)]">{h.answer}</div>
             </div>
           ))}
 
           {step < steps.length && !isSubmitting && (
             <div className="animate-in fade-in">
-              <div className="text-white/70">{steps[step].prompt}</div>
+              <div className="text-[var(--st-text-secondary)]">{steps[step].prompt}</div>
               <div className="flex items-center gap-2">
-                <span className="text-white/50">{"~"}</span>
-                <input
+                <span className="text-[var(--st-text-tertiary)]" aria-hidden="true">{"~"}</span>
+                <Input
                   ref={inputRef}
                   type="text"
+                  aria-label={steps[step].prompt}
                   value={currentInput}
                   onChange={(e) => setCurrentInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="bg-transparent border-none outline-none flex-1 text-white placeholder:text-white/20"
+                  className="!h-auto flex-1 !border-none !bg-transparent !px-0 !shadow-none focus:!shadow-none"
                   placeholder="Type and press Enter..."
                   autoComplete="off"
                 />
@@ -140,7 +150,7 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
           )}
 
           {isSubmitting && (
-            <div className="text-white animate-pulse mt-4">
+            <div className="mt-4 animate-pulse text-[var(--st-text)]">
               Compiling payload and transferring control to local mail client...
             </div>
           )}

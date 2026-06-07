@@ -3,29 +3,75 @@
 import React, { useState } from "react";
 import {
   Settings,
-  User,
   Shield,
   Bell,
-  Key,
-  CreditCard,
   Palette,
-  Globe,
-  Zap,
   Database,
-  Smartphone,
   Webhook,
   Save,
-  ChevronRight,
-  ToggleRight,
-  ToggleLeft,
   AlertTriangle,
-  Lock,
-  HardDrive,
-  RefreshCw,
+  Copy,
+  UploadCloud,
+  type LucideIcon,
 } from "lucide-react";
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Switch,
+  Alert,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import { SabFilePickerButton } from "@/components/sabfiles";
+
+type SettingsField = {
+  id: string;
+  type:
+    | "text"
+    | "number"
+    | "select"
+    | "textarea"
+    | "toggle"
+    | "readonly"
+    | "file";
+  label: string;
+  value?: string | boolean;
+  disabled?: boolean;
+  options?: string[];
+};
+
+type SettingsSection = {
+  title: string;
+  description: string;
+  fields: SettingsField[];
+};
+
+type SettingsCategory = {
+  id: string;
+  title: string;
+  icon: LucideIcon;
+  sections: SettingsSection[];
+};
 
 // Massive Configuration Data Structure
-const settingsStructure = [
+const settingsStructure: SettingsCategory[] = [
   {
     id: "general",
     title: "General Settings",
@@ -344,6 +390,7 @@ const settingsStructure = [
 ];
 
 export default function SettingsPage() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("general");
   const [formState, setFormState] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -361,271 +408,328 @@ export default function SettingsPage() {
     setFormState(initialState);
   }, []);
 
+  const setValue = (id: string, value: any) =>
+    setFormState((prev) => ({ ...prev, [id]: value }));
+
   const handleSave = () => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      // In a real app, show a toast here
+      toast.success("Settings saved");
     }, 1000);
+  };
+
+  const handleCopy = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(`${label} copied to clipboard`);
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
   };
 
   const activeCategory = settingsStructure.find((t) => t.id === activeTab);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-neutral-200 font-sans p-6 md:p-8">
+    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
-              Workspace Settings
-            </h1>
-            <p className="text-neutral-400">
+        <PageHeader>
+          <PageHeaderHeading>
+            <PageTitle>Workspace Settings</PageTitle>
+            <PageDescription>
               Manage your account, security, preferences, and integrations.
-            </p>
-          </div>
-          <button
-            onClick={handleSave}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all ${isSaving ? "bg-neutral-800 text-neutral-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20"}`}
-          >
-            {isSaving ? (
-              <RefreshCw className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}
-            {isSaving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="primary"
+              iconLeft={Save}
+              loading={isSaving}
+              onClick={handleSave}
+            >
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          </PageActions>
+        </PageHeader>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8 mt-8">
           {/* Navigation Sidebar */}
           <aside className="w-full lg:w-64 flex-none space-y-1">
             {settingsStructure.map((tab) => (
-              <button
+              <Button
                 key={tab.id}
+                variant={activeTab === tab.id ? "primary" : "ghost"}
+                block
+                iconLeft={tab.icon}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeTab === tab.id ? "bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]" : "text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200 border border-transparent"}`}
+                className="justify-start"
               >
-                <tab.icon
-                  className={`w-5 h-5 ${activeTab === tab.id ? "text-blue-400" : "text-neutral-500"}`}
-                />
                 {tab.title}
-              </button>
+              </Button>
             ))}
 
-            <div className="mt-8 pt-6 border-t border-neutral-800 px-4">
-              <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4">
-                <AlertTriangle className="w-5 h-5 text-amber-500 mb-2" />
-                <h4 className="text-sm font-medium text-amber-500 mb-1">
-                  Enterprise Plan
-                </h4>
-                <p className="text-xs text-amber-500/70 mb-3">
-                  You are using 85% of your API quota.
-                </p>
-                <button className="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-1.5 rounded-lg transition-colors w-full font-medium">
+            <div className="mt-8 pt-6 border-t border-[var(--st-border)]">
+              <Alert
+                tone="warning"
+                icon={AlertTriangle}
+                title="Enterprise Plan"
+              >
+                <p className="mb-3">You are using 85% of your API quota.</p>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  block
+                  onClick={() => toast.info("Opening upgrade options")}
+                >
                   Upgrade Plan
-                </button>
-              </div>
+                </Button>
+              </Alert>
             </div>
           </aside>
 
           {/* Main Settings Area */}
           <main className="flex-1 min-w-0">
             {activeCategory && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                    <activeCategory.icon className="w-6 h-6 text-neutral-500" />{" "}
+              <div className="space-y-8">
+                <div className="flex items-center gap-2">
+                  <activeCategory.icon
+                    className="w-6 h-6 text-[var(--st-text-secondary)]"
+                    aria-hidden="true"
+                  />
+                  <h2 className="text-2xl font-bold text-[var(--st-text)]">
                     {activeCategory.title}
                   </h2>
                 </div>
 
                 <div className="space-y-6">
                   {activeCategory.sections.map((section, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-neutral-900/50 border border-neutral-800 rounded-2xl overflow-hidden shadow-xl"
-                    >
-                      <div className="px-6 py-5 border-b border-neutral-800 bg-neutral-900/80">
-                        <h3 className="text-lg font-semibold text-neutral-200">
-                          {section.title}
-                        </h3>
-                        <p className="text-sm text-neutral-500 mt-1">
-                          {section.description}
-                        </p>
-                      </div>
+                    <Card key={idx} variant="outlined" padding="none">
+                      <CardHeader>
+                        <CardTitle>{section.title}</CardTitle>
+                        <CardDescription>{section.description}</CardDescription>
+                      </CardHeader>
 
-                      <div className="p-6 space-y-6">
-                        {section.fields.map((field) => (
-                          <div
-                            key={field.id}
-                            className={`${field.type === "toggle" ? "flex items-center justify-between" : "space-y-2"}`}
-                          >
-                            {field.type !== "toggle" && (
-                              <label className="block text-sm font-medium text-neutral-300">
-                                {field.label}
-                              </label>
-                            )}
-
-                            {field.type === "text" && (
-                              <input
-                                type="text"
-                                value={formState[field.id] || ""}
-                                onChange={(e) =>
-                                  setFormState({
-                                    ...formState,
-                                    [field.id]: e.target.value,
-                                  })
-                                }
-                                disabled={field.disabled}
-                                className="w-full max-w-xl bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                              />
-                            )}
-
-                            {field.type === "number" && (
-                              <input
-                                type="number"
-                                value={formState[field.id] || ""}
-                                onChange={(e) =>
-                                  setFormState({
-                                    ...formState,
-                                    [field.id]: e.target.value,
-                                  })
-                                }
-                                className="w-full max-w-xs bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                              />
-                            )}
-
-                            {field.type === "select" && (
-                              <div className="relative max-w-md">
-                                <select
-                                  value={formState[field.id] || ""}
-                                  onChange={(e) =>
-                                    setFormState({
-                                      ...formState,
-                                      [field.id]: e.target.value,
-                                    })
+                      <CardBody className="space-y-6">
+                        {section.fields.map((field) => {
+                          if (field.type === "toggle") {
+                            return (
+                              <div
+                                key={field.id}
+                                className="flex items-center justify-between gap-4"
+                              >
+                                <span className="text-sm font-medium text-[var(--st-text)]">
+                                  {field.label}
+                                </span>
+                                <Switch
+                                  checked={Boolean(formState[field.id])}
+                                  onCheckedChange={(next) =>
+                                    setValue(field.id, next)
                                   }
-                                  className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 appearance-none transition-all"
-                                >
-                                  {field.options?.map((opt) => (
-                                    <option key={opt} value={opt}>
-                                      {opt}
-                                    </option>
-                                  ))}
-                                </select>
-                                <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 rotate-90" />
-                              </div>
-                            )}
-
-                            {field.type === "textarea" && (
-                              <textarea
-                                value={formState[field.id] || ""}
-                                onChange={(e) =>
-                                  setFormState({
-                                    ...formState,
-                                    [field.id]: e.target.value,
-                                  })
-                                }
-                                rows={4}
-                                className="w-full max-w-xl bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono transition-all"
-                              />
-                            )}
-
-                            {field.type === "toggle" && (
-                              <>
-                                <div>
-                                  <h4 className="text-sm font-medium text-neutral-200">
-                                    {field.label}
-                                  </h4>
-                                </div>
-                                <button
-                                  onClick={() =>
-                                    setFormState({
-                                      ...formState,
-                                      [field.id]: !formState[field.id],
-                                    })
-                                  }
-                                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors focus:outline-none ${formState[field.id] ? "bg-blue-600" : "bg-neutral-700"}`}
-                                >
-                                  <span
-                                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${formState[field.id] ? "translate-x-2.5" : "-translate-x-2.5"}`}
-                                  />
-                                </button>
-                              </>
-                            )}
-
-                            {field.type === "readonly" && (
-                              <div className="flex items-center gap-2 max-w-xl">
-                                <input
-                                  type="text"
-                                  value={formState[field.id] || ""}
-                                  readOnly
-                                  className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2.5 text-sm text-neutral-400 font-mono"
+                                  aria-label={field.label}
                                 />
-                                <button className="p-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-lg text-neutral-300 transition-colors">
-                                  Copy
-                                </button>
                               </div>
-                            )}
+                            );
+                          }
 
-                            {field.type === "file" && (
-                              <div className="max-w-xl border-2 border-dashed border-neutral-800 bg-neutral-950/50 rounded-lg p-6 flex flex-col items-center justify-center text-neutral-500 hover:border-neutral-600 transition-colors cursor-pointer">
-                                <Palette className="w-8 h-8 mb-2 text-neutral-600" />
-                                <span className="text-sm font-medium text-neutral-300">
-                                  Click to upload logo
-                                </span>
-                                <span className="text-xs mt-1">
-                                  SVG, PNG, JPG (max 2MB)
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                          if (field.type === "text") {
+                            return (
+                              <Field
+                                key={field.id}
+                                label={field.label}
+                                className="max-w-xl"
+                              >
+                                <Input
+                                  type="text"
+                                  value={formState[field.id] ?? ""}
+                                  disabled={field.disabled}
+                                  onChange={(e) =>
+                                    setValue(field.id, e.target.value)
+                                  }
+                                />
+                              </Field>
+                            );
+                          }
+
+                          if (field.type === "number") {
+                            return (
+                              <Field
+                                key={field.id}
+                                label={field.label}
+                                className="max-w-xs"
+                              >
+                                <Input
+                                  type="number"
+                                  value={formState[field.id] ?? ""}
+                                  onChange={(e) =>
+                                    setValue(field.id, e.target.value)
+                                  }
+                                />
+                              </Field>
+                            );
+                          }
+
+                          if (field.type === "select") {
+                            return (
+                              <Field
+                                key={field.id}
+                                label={field.label}
+                                className="max-w-md"
+                              >
+                                <Select
+                                  value={formState[field.id] ?? ""}
+                                  onValueChange={(next) =>
+                                    setValue(field.id, next)
+                                  }
+                                >
+                                  <SelectTrigger aria-label={field.label}>
+                                    <SelectValue placeholder="Select an option" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {field.options?.map((opt) => (
+                                      <SelectItem key={opt} value={opt}>
+                                        {opt}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </Field>
+                            );
+                          }
+
+                          if (field.type === "textarea") {
+                            return (
+                              <Field
+                                key={field.id}
+                                label={field.label}
+                                className="max-w-xl"
+                              >
+                                <Textarea
+                                  value={formState[field.id] ?? ""}
+                                  rows={4}
+                                  className="font-mono"
+                                  onChange={(e) =>
+                                    setValue(field.id, e.target.value)
+                                  }
+                                />
+                              </Field>
+                            );
+                          }
+
+                          if (field.type === "readonly") {
+                            return (
+                              <Field
+                                key={field.id}
+                                label={field.label}
+                                className="max-w-xl"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="text"
+                                    value={formState[field.id] ?? ""}
+                                    readOnly
+                                    className="flex-1 font-mono"
+                                  />
+                                  <IconButton
+                                    icon={Copy}
+                                    label={`Copy ${field.label}`}
+                                    variant="outline"
+                                    onClick={() =>
+                                      handleCopy(
+                                        String(formState[field.id] ?? ""),
+                                        field.label,
+                                      )
+                                    }
+                                  />
+                                </div>
+                              </Field>
+                            );
+                          }
+
+                          if (field.type === "file") {
+                            return (
+                              <Field key={field.id} label={field.label}>
+                                <div className="flex flex-col gap-2">
+                                  <SabFilePickerButton
+                                    accept="image"
+                                    variant="outline"
+                                    onPick={(pick) => {
+                                      setValue(field.id, pick.url);
+                                      toast.success("Logo updated");
+                                    }}
+                                  >
+                                    <UploadCloud aria-hidden="true" />
+                                    {formState[field.id]
+                                      ? "Replace logo"
+                                      : "Upload logo"}
+                                  </SabFilePickerButton>
+                                  <span className="text-xs text-[var(--st-text-tertiary)]">
+                                    SVG, PNG, JPG (max 2MB)
+                                  </span>
+                                </div>
+                              </Field>
+                            );
+                          }
+
+                          return null;
+                        })}
+                      </CardBody>
+                    </Card>
                   ))}
 
                   {/* Danger Zone specific to Data tab */}
                   {activeTab === "data" && (
-                    <div className="bg-red-950/20 border border-red-900/50 rounded-2xl p-6 mt-8">
-                      <h3 className="text-lg font-semibold text-red-500 mb-2">
+                    <Card
+                      variant="outlined"
+                      padding="lg"
+                      className="border-[var(--st-danger)] bg-[var(--st-danger-soft,transparent)]"
+                    >
+                      <h3 className="text-lg font-semibold text-[var(--st-danger)] mb-2">
                         Danger Zone
                       </h3>
-                      <p className="text-sm text-red-400/70 mb-6">
+                      <p className="text-sm text-[var(--st-text-secondary)] mb-6">
                         Irreversible destructive actions for your workspace.
                       </p>
 
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-neutral-950/50 border border-red-900/30 rounded-xl">
+                        <div className="flex items-center justify-between gap-4 p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
                           <div>
-                            <h4 className="font-medium text-neutral-200">
+                            <h4 className="font-medium text-[var(--st-text)]">
                               Purge All Historical Data
                             </h4>
-                            <p className="text-xs text-neutral-500 mt-1">
+                            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                               Permanently delete tickets older than 3 years.
                             </p>
                           </div>
-                          <button className="px-4 py-2 bg-neutral-900 text-red-500 border border-red-900/50 hover:bg-red-900/20 rounded-lg text-sm font-medium transition-colors">
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              toast.warning("Confirm before purging data")
+                            }
+                          >
                             Purge Data
-                          </button>
+                          </Button>
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-neutral-950/50 border border-red-900/30 rounded-xl">
+                        <div className="flex items-center justify-between gap-4 p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
                           <div>
-                            <h4 className="font-medium text-neutral-200">
+                            <h4 className="font-medium text-[var(--st-text)]">
                               Delete Workspace
                             </h4>
-                            <p className="text-xs text-neutral-500 mt-1">
+                            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
                               Permanently delete this workspace and all
                               associated data.
                             </p>
                           </div>
-                          <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
+                          <Button
+                            variant="danger"
+                            onClick={() =>
+                              toast.error("Workspace deletion requires confirmation")
+                            }
+                          >
                             Delete Workspace
-                          </button>
+                          </Button>
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   )}
                 </div>
               </div>

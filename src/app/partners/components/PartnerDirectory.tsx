@@ -1,9 +1,22 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Search, ExternalLink, MapPin } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Search, ExternalLink, MapPin, Building2 } from 'lucide-react';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Input,
+  SegmentedControl,
+  type SegmentedItem,
+  Card,
+  CardBody,
+  CardFooter,
+  Badge,
+  Button,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 
 const partnersData = [
   { id: 1, name: 'Acme Digital', type: 'Agency', region: 'North America', description: 'Full-service digital transformation agency specializing in SabNode integrations.', url: '#' },
@@ -14,74 +27,89 @@ const partnersData = [
   { id: 6, name: 'Growth Partners', type: 'Referral', region: 'North America', description: 'Strategic advisors for high-growth SaaS startups.', url: '#' }
 ];
 
+type PartnerFilter = 'all' | 'Agency' | 'Technology' | 'Referral';
+
+const FILTER_ITEMS: ReadonlyArray<SegmentedItem<PartnerFilter>> = [
+  { value: 'all', label: 'All' },
+  { value: 'Agency', label: 'Agency' },
+  { value: 'Technology', label: 'Technology' },
+  { value: 'Referral', label: 'Referral' },
+];
+
 export function PartnerDirectory() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<PartnerFilter>('all');
 
   const filteredPartners = partnersData.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType ? p.type === filterType : true;
+    const matchesType = filterType === 'all' ? true : p.type === filterType;
     return matchesSearch && matchesType;
   });
 
   return (
-    <div className="mt-16 space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">Partner Directory</h2>
-      </div>
-      
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
-          <Input 
-            placeholder="Search partners..." 
-            className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30"
+    <div className="ui20 mt-16 space-y-6">
+      <PageHeader bordered={false} compact>
+        <PageHeaderHeading>
+          <PageTitle>Partner Directory</PageTitle>
+          <PageDescription>
+            Browse agencies, technology partners, and referral specialists working with SabNode.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="flex-1">
+          <Input
+            iconLeft={Search}
+            placeholder="Search partners..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search partners"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 hide-scrollbar">
-          {['Agency', 'Technology', 'Referral'].map(type => (
-            <button
-              key={type}
-              onClick={() => setFilterType(filterType === type ? null : type)}
-              className={`px-3 py-1.5 text-xs rounded-full border whitespace-nowrap transition-colors ${
-                filterType === type 
-                  ? 'border-white bg-white text-black font-medium' 
-                  : 'border-white/20 text-white/70 hover:bg-white/10'
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<PartnerFilter>
+          items={FILTER_ITEMS}
+          value={filterType}
+          onChange={setFilterType}
+          size="sm"
+          aria-label="Filter partners by type"
+        />
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
-        {filteredPartners.length > 0 ? filteredPartners.map(partner => (
-          <div key={partner.id} className="p-5 border border-white/10 rounded-lg bg-[#050505] hover:bg-white/5 transition-colors group flex flex-col h-full">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="font-bold text-base text-white">{partner.name}</h4>
-              <Badge variant="outline" className="border-white/20 text-white/70 text-[10px] font-normal uppercase tracking-wider">
-                {partner.type}
-              </Badge>
-            </div>
-            <p className="text-sm text-white/50 font-sans leading-relaxed flex-1">{partner.description}</p>
-            <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
-              <span className="text-xs text-white/40 flex items-center gap-1">
-                <MapPin className="w-3 h-3" /> {partner.region}
-              </span>
-              <a href={partner.url} className="text-white/60 hover:text-white transition-colors flex items-center gap-1 text-xs">
-                View Profile <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-        )) : (
-          <div className="col-span-full py-12 text-center border border-dashed border-white/10 rounded-lg text-white/50">
-            No partners found matching your criteria.
-          </div>
-        )}
-      </div>
+      {filteredPartners.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {filteredPartners.map(partner => (
+            <Card key={partner.id} variant="interactive" className="flex h-full flex-col">
+              <CardBody className="flex-1">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <h3 className="text-base font-semibold text-[var(--st-text)]">{partner.name}</h3>
+                  <Badge tone="neutral" kind="outline">{partner.type}</Badge>
+                </div>
+                <p className="text-sm leading-relaxed text-[var(--st-text-secondary)]">{partner.description}</p>
+              </CardBody>
+              <CardFooter className="flex items-center justify-between">
+                <span className="flex items-center gap-1 text-xs text-[var(--st-text-tertiary)]">
+                  <MapPin className="h-3 w-3" aria-hidden="true" /> {partner.region}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconRight={ExternalLink}
+                  onClick={() => { if (partner.url && partner.url !== '#') window.open(partner.url, '_blank', 'noopener,noreferrer'); }}
+                >
+                  View Profile
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={Building2}
+          title="No partners found"
+          description="No partners match your search or selected type. Try a different keyword or filter."
+        />
+      )}
     </div>
   );
 }

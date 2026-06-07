@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, RotateCcw } from "lucide-react";
+import { Button, Card, EmptyState } from "@/components/sabcrm/20ui";
 
 export default function Error({
   error,
@@ -16,15 +16,26 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-background rounded-lg border border-border mt-4">
-      <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-      <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-      <p className="text-muted-foreground mb-6 max-w-md">
-        An error occurred while loading this page. Please try again or contact support if the issue persists.
-      </p>
-      <Button onClick={() => reset()} variant="default">
-        Try again
-      </Button>
+    <div className="ui20 mt-4">
+      <Card variant="outlined" padding="lg">
+        <div className="flex min-h-[400px] items-center justify-center">
+          <EmptyState
+            tone="danger"
+            icon={AlertTriangle}
+            title="Something went wrong"
+            description="An error occurred while loading this page. Please try again or contact support if the issue persists."
+            action={
+              <Button
+                variant="primary"
+                iconLeft={RotateCcw}
+                onClick={() => reset()}
+              >
+                Try again
+              </Button>
+            }
+          />
+        </div>
+      </Card>
     </div>
   );
 }

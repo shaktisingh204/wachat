@@ -1,14 +1,24 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Plus, Trash, Download, Eye, FileText, Send } from "lucide-react";
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Textarea } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Card } from '@/components/sabcrm/20ui';
-import { Separator } from '@/components/sabcrm/20ui';
-import { toast } from '@/components/sabcrm/20ui';
+import { Plus, Trash, Download, Eye, FileText } from "lucide-react";
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Separator,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  toast,
+} from "@/components/sabcrm/20ui";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
@@ -84,31 +94,31 @@ export function InvoiceGenerator() {
 
   const generatePDF = async () => {
     if (!previewRef.current) return;
-    
+
     try {
       setIsGenerating(true);
       toast.info("Generating PDF...");
-      
+
       const element = previewRef.current;
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
         useCORS: true,
       });
-      
+
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
-      
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
+
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       pdf.save(`Invoice_${invoiceData.invoiceNumber}.pdf`);
-      
+
       toast.success("PDF generated successfully!");
     } catch (error) {
       console.error(error);
@@ -122,200 +132,198 @@ export function InvoiceGenerator() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Editor Section */}
       <div className="flex flex-col gap-6">
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-[var(--st-text)] mb-4 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[var(--st-accent)]" />
-            Invoice Details
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Invoice Number</Label>
-              <Input
-                value={invoiceData.invoiceNumber}
-                onChange={(e) => handleDataChange("invoiceNumber", e.target.value)}
-                placeholder="INV-001"
-              />
+        <Card padding="lg">
+          <CardBody>
+            <h2 className="text-lg font-semibold text-[var(--st-text)] mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
+              Invoice Details
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Invoice Number">
+                <Input
+                  value={invoiceData.invoiceNumber}
+                  onChange={(e) => handleDataChange("invoiceNumber", e.target.value)}
+                  placeholder="INV-001"
+                />
+              </Field>
+              <Field label="Currency">
+                <Input
+                  value={invoiceData.currency}
+                  onChange={(e) => handleDataChange("currency", e.target.value)}
+                  placeholder="USD"
+                />
+              </Field>
+              <Field label="Date">
+                <Input
+                  type="date"
+                  value={invoiceData.date}
+                  onChange={(e) => handleDataChange("date", e.target.value)}
+                />
+              </Field>
+              <Field label="Due Date">
+                <Input
+                  type="date"
+                  value={invoiceData.dueDate}
+                  onChange={(e) => handleDataChange("dueDate", e.target.value)}
+                />
+              </Field>
             </div>
-            <div className="space-y-2">
-              <Label>Currency</Label>
-              <Input
-                value={invoiceData.currency}
-                onChange={(e) => handleDataChange("currency", e.target.value)}
-                placeholder="USD"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Date</Label>
-              <Input
-                type="date"
-                value={invoiceData.date}
-                onChange={(e) => handleDataChange("date", e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Due Date</Label>
-              <Input
-                type="date"
-                value={invoiceData.dueDate}
-                onChange={(e) => handleDataChange("dueDate", e.target.value)}
-              />
-            </div>
-          </div>
+          </CardBody>
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6 space-y-4">
-            <h3 className="font-medium text-[var(--st-text)]">From (Sender)</h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label>Name / Company</Label>
-                <Input
-                  value={invoiceData.sender.name}
-                  onChange={(e) => handleDataChange("name", e.target.value, "sender")}
-                />
+          <Card padding="lg">
+            <CardBody>
+              <h3 className="font-medium text-[var(--st-text)] mb-4">From (Sender)</h3>
+              <div className="flex flex-col gap-3">
+                <Field label="Name / Company">
+                  <Input
+                    value={invoiceData.sender.name}
+                    onChange={(e) => handleDataChange("name", e.target.value, "sender")}
+                  />
+                </Field>
+                <Field label="Email">
+                  <Input
+                    type="email"
+                    value={invoiceData.sender.email}
+                    onChange={(e) => handleDataChange("email", e.target.value, "sender")}
+                  />
+                </Field>
+                <Field label="Address">
+                  <Textarea
+                    value={invoiceData.sender.address}
+                    onChange={(e) => handleDataChange("address", e.target.value, "sender")}
+                    rows={3}
+                  />
+                </Field>
               </div>
-              <div className="space-y-1">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={invoiceData.sender.email}
-                  onChange={(e) => handleDataChange("email", e.target.value, "sender")}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Address</Label>
-                <Textarea
-                  value={invoiceData.sender.address}
-                  onChange={(e) => handleDataChange("address", e.target.value, "sender")}
-                  rows={3}
-                />
-              </div>
-            </div>
+            </CardBody>
           </Card>
 
-          <Card className="p-6 space-y-4">
-            <h3 className="font-medium text-[var(--st-text)]">To (Client)</h3>
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label>Name / Company</Label>
-                <Input
-                  value={invoiceData.receiver.name}
-                  onChange={(e) => handleDataChange("name", e.target.value, "receiver")}
-                  placeholder="Client Name"
-                />
+          <Card padding="lg">
+            <CardBody>
+              <h3 className="font-medium text-[var(--st-text)] mb-4">To (Client)</h3>
+              <div className="flex flex-col gap-3">
+                <Field label="Name / Company">
+                  <Input
+                    value={invoiceData.receiver.name}
+                    onChange={(e) => handleDataChange("name", e.target.value, "receiver")}
+                    placeholder="Client Name"
+                  />
+                </Field>
+                <Field label="Email">
+                  <Input
+                    type="email"
+                    value={invoiceData.receiver.email}
+                    onChange={(e) => handleDataChange("email", e.target.value, "receiver")}
+                    placeholder="client@example.com"
+                  />
+                </Field>
+                <Field label="Address">
+                  <Textarea
+                    value={invoiceData.receiver.address}
+                    onChange={(e) => handleDataChange("address", e.target.value, "receiver")}
+                    placeholder="Client Address"
+                    rows={3}
+                  />
+                </Field>
               </div>
-              <div className="space-y-1">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={invoiceData.receiver.email}
-                  onChange={(e) => handleDataChange("email", e.target.value, "receiver")}
-                  placeholder="client@example.com"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label>Address</Label>
-                <Textarea
-                  value={invoiceData.receiver.address}
-                  onChange={(e) => handleDataChange("address", e.target.value, "receiver")}
-                  placeholder="Client Address"
-                  rows={3}
-                />
-              </div>
-            </div>
+            </CardBody>
           </Card>
         </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-[var(--st-text)]">Line Items</h3>
-            <Button variant="outline" size="sm" onClick={addItem}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Item
-            </Button>
-          </div>
-          
-          <div className="space-y-4">
-            {items.map((item, index) => (
-              <div key={item.id} className="flex gap-4 items-start bg-[var(--st-bg-muted)] p-3 rounded-md">
-                <div className="flex-1 space-y-2">
-                  <Label className="text-xs">Description</Label>
-                  <Input
-                    value={item.description}
-                    onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
-                    placeholder="Item description"
-                  />
+        <Card padding="lg">
+          <CardBody>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium text-[var(--st-text)]">Line Items</h3>
+              <Button variant="outline" size="sm" onClick={addItem} iconLeft={Plus}>
+                Add Item
+              </Button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-4 items-start bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)]"
+                >
+                  <div className="flex-1">
+                    <Field label="Description">
+                      <Input
+                        value={item.description}
+                        onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
+                        placeholder="Item description"
+                      />
+                    </Field>
+                  </div>
+                  <div className="w-24">
+                    <Field label="Qty">
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
+                      />
+                    </Field>
+                  </div>
+                  <div className="w-32">
+                    <Field label="Rate">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.rate}
+                        onChange={(e) => handleItemChange(item.id, "rate", Number(e.target.value))}
+                      />
+                    </Field>
+                  </div>
+                  <div className="pt-8">
+                    <IconButton
+                      label="Remove item"
+                      icon={Trash}
+                      variant="danger"
+                      onClick={() => removeItem(item.id)}
+                      disabled={items.length === 1}
+                    />
+                  </div>
                 </div>
-                <div className="w-24 space-y-2">
-                  <Label className="text-xs">Qty</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
-                  />
-                </div>
-                <div className="w-32 space-y-2">
-                  <Label className="text-xs">Rate</Label>
+              ))}
+            </div>
+
+            <Separator className="my-6" />
+
+            <div className="flex justify-end gap-6">
+              <div className="w-48 flex flex-col gap-4">
+                <Field label="Discount (%)">
                   <Input
                     type="number"
                     min="0"
-                    value={item.rate}
-                    onChange={(e) => handleItemChange(item.id, "rate", Number(e.target.value))}
+                    max="100"
+                    value={invoiceData.discountRate}
+                    onChange={(e) => handleDataChange("discountRate", Number(e.target.value))}
                   />
-                </div>
-                <div className="pt-8">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-[var(--st-danger)] hover:text-[var(--st-danger)] hover:bg-[var(--st-danger)]/10"
-                    onClick={() => removeItem(item.id)}
-                    disabled={items.length === 1}
-                  >
-                    <Trash className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <Separator className="my-6" />
-
-          <div className="flex justify-end gap-6">
-            <div className="w-48 space-y-4">
-              <div className="space-y-2">
-                <Label>Discount (%)</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={invoiceData.discountRate}
-                  onChange={(e) => handleDataChange("discountRate", Number(e.target.value))}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Tax (%)</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={invoiceData.taxRate}
-                  onChange={(e) => handleDataChange("taxRate", Number(e.target.value))}
-                />
+                </Field>
+                <Field label="Tax (%)">
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={invoiceData.taxRate}
+                    onChange={(e) => handleDataChange("taxRate", Number(e.target.value))}
+                  />
+                </Field>
               </div>
             </div>
-          </div>
-          
-          <Separator className="my-6" />
-          
-          <div className="space-y-2">
-            <Label>Notes / Terms</Label>
-            <Textarea
-              value={invoiceData.notes}
-              onChange={(e) => handleDataChange("notes", e.target.value)}
-              rows={2}
-            />
-          </div>
+
+            <Separator className="my-6" />
+
+            <Field label="Notes / Terms">
+              <Textarea
+                value={invoiceData.notes}
+                onChange={(e) => handleDataChange("notes", e.target.value)}
+                rows={2}
+              />
+            </Field>
+          </CardBody>
         </Card>
       </div>
 
@@ -323,111 +331,117 @@ export function InvoiceGenerator() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[var(--st-text)] flex items-center gap-2">
-            <Eye className="w-5 h-5" />
+            <Eye className="w-5 h-5" aria-hidden="true" />
             Live Preview
           </h2>
           <div className="flex gap-2">
-            <Button onClick={generatePDF} disabled={isGenerating}>
-              <Download className="w-4 h-4 mr-2" />
+            <Button
+              variant="primary"
+              onClick={generatePDF}
+              loading={isGenerating}
+              iconLeft={Download}
+            >
               Download PDF
             </Button>
           </div>
         </div>
 
-        <div className="bg-[var(--st-bg-muted)] p-4 md:p-8 rounded-lg overflow-x-auto border border-[var(--st-border)]">
-          {/* Invoice A4 Container */}
-          <div 
+        <div className="bg-[var(--st-bg-secondary)] p-4 md:p-8 rounded-[var(--st-radius)] overflow-x-auto border border-[var(--st-border)]">
+          {/* Invoice A4 Container. A fixed white paper artifact (html2canvas
+              captures it for the PDF), so it uses static neutral ink colours,
+              not the app theme tokens, to stay legible on white in any mode. */}
+          <div
             ref={previewRef}
-            className="bg-white mx-auto p-10 min-w-[700px] shadow-sm text-black"
-            style={{ 
-              width: "210mm", 
-              minHeight: "297mm", 
-              fontFamily: "'Inter', sans-serif" 
+            className="bg-white mx-auto p-10 min-w-[700px] shadow-sm text-neutral-900"
+            style={{
+              width: "210mm",
+              minHeight: "297mm",
+              fontFamily: "'Inter', sans-serif",
             }}
           >
             {/* Header */}
-            <div className="flex justify-between items-start border-b border-[var(--st-border)] pb-8 mb-8">
+            <div className="flex justify-between items-start border-b border-neutral-200 pb-8 mb-8">
               <div>
-                <h1 className="text-4xl font-bold text-[var(--st-text)] mb-2">INVOICE</h1>
-                <p className="text-[var(--st-text)] font-medium">{invoiceData.invoiceNumber}</p>
+                <h1 className="text-4xl font-bold text-neutral-900 mb-2">INVOICE</h1>
+                <p className="text-neutral-900 font-medium">{invoiceData.invoiceNumber}</p>
               </div>
               <div className="text-right">
-                <h2 className="text-xl font-bold text-[var(--st-text)]">{invoiceData.sender.name}</h2>
-                <p className="text-[var(--st-text)] whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
-                <p className="text-[var(--st-text)] text-sm">{invoiceData.sender.email}</p>
+                <h2 className="text-xl font-bold text-neutral-900">{invoiceData.sender.name}</h2>
+                <p className="text-neutral-600 whitespace-pre-line text-sm mt-1">{invoiceData.sender.address}</p>
+                <p className="text-neutral-600 text-sm">{invoiceData.sender.email}</p>
               </div>
             </div>
 
             {/* Meta Info */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">Billed To</h3>
+                <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">Billed To</h3>
                 {invoiceData.receiver.name ? (
                   <>
-                    <p className="font-bold text-[var(--st-text)]">{invoiceData.receiver.name}</p>
-                    <p className="text-[var(--st-text)] whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
-                    <p className="text-[var(--st-text)] text-sm">{invoiceData.receiver.email}</p>
+                    <p className="font-bold text-neutral-900">{invoiceData.receiver.name}</p>
+                    <p className="text-neutral-600 whitespace-pre-line text-sm mt-1">{invoiceData.receiver.address}</p>
+                    <p className="text-neutral-600 text-sm">{invoiceData.receiver.email}</p>
                   </>
                 ) : (
-                  <p className="text-[var(--st-text-secondary)] italic text-sm">Client details not provided</p>
+                  <p className="text-neutral-400 italic text-sm">Client details not provided</p>
                 )}
               </div>
               <div className="text-right">
                 <div className="mb-4">
-                  <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-1">Invoice Date</h3>
-                  <p className="text-[var(--st-text)] font-medium">{invoiceData.date || "-"}</p>
+                  <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Invoice Date</h3>
+                  <p className="text-neutral-900 font-medium">{invoiceData.date || "-"}</p>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-1">Due Date</h3>
-                  <p className="text-[var(--st-text)] font-medium">{invoiceData.dueDate || "-"}</p>
+                  <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-1">Due Date</h3>
+                  <p className="text-neutral-900 font-medium">{invoiceData.dueDate || "-"}</p>
                 </div>
               </div>
             </div>
 
             {/* Table */}
-            <table className="w-full mb-8">
-              <thead>
-                <tr className="border-b-2 border-[var(--st-border)] text-left">
-                  <th className="py-3 text-sm font-bold text-[var(--st-text)]">Description</th>
-                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-center w-24">Qty</th>
-                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-right w-32">Rate</th>
-                  <th className="py-3 text-sm font-bold text-[var(--st-text)] text-right w-32">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index} className="border-b border-[var(--st-border)]">
-                    <td className="py-4 text-sm text-[var(--st-text)]">{item.description || "-"}</td>
-                    <td className="py-4 text-sm text-[var(--st-text)] text-center">{item.quantity}</td>
-                    <td className="py-4 text-sm text-[var(--st-text)] text-right">{formatCurrency(item.rate)}</td>
-                    <td className="py-4 text-sm text-[var(--st-text)] text-right font-medium">
+            <Table hover={false} className="mb-8">
+              <THead>
+                <Tr>
+                  <Th>Description</Th>
+                  <Th align="center" width={96}>Qty</Th>
+                  <Th align="right" width={128}>Rate</Th>
+                  <Th align="right" width={128}>Amount</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {items.map((item) => (
+                  <Tr key={item.id}>
+                    <Td>{item.description || "-"}</Td>
+                    <Td align="center">{item.quantity}</Td>
+                    <Td align="right">{formatCurrency(item.rate)}</Td>
+                    <Td align="right" className="font-medium">
                       {formatCurrency(item.quantity * item.rate)}
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
 
             {/* Totals */}
             <div className="flex justify-end mb-12">
-              <div className="w-72 space-y-3">
-                <div className="flex justify-between text-sm text-[var(--st-text)]">
+              <div className="w-72 flex flex-col gap-3">
+                <div className="flex justify-between text-sm text-neutral-700">
                   <span>Subtotal</span>
                   <span>{formatCurrency(subtotal)}</span>
                 </div>
                 {invoiceData.discountRate > 0 && (
-                  <div className="flex justify-between text-sm text-[var(--st-text)]">
+                  <div className="flex justify-between text-sm text-neutral-700">
                     <span>Discount ({invoiceData.discountRate}%)</span>
-                    <span className="text-[var(--st-text)]">-{formatCurrency(discount)}</span>
+                    <span>-{formatCurrency(discount)}</span>
                   </div>
                 )}
                 {invoiceData.taxRate > 0 && (
-                  <div className="flex justify-between text-sm text-[var(--st-text)]">
+                  <div className="flex justify-between text-sm text-neutral-700">
                     <span>Tax ({invoiceData.taxRate}%)</span>
                     <span>{formatCurrency(tax)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-lg font-bold text-[var(--st-text)] border-t border-[var(--st-border)] pt-3">
+                <div className="flex justify-between text-lg font-bold text-neutral-900 border-t border-neutral-200 pt-3">
                   <span>Total</span>
                   <span>{formatCurrency(total)}</span>
                 </div>
@@ -436,9 +450,9 @@ export function InvoiceGenerator() {
 
             {/* Notes */}
             {invoiceData.notes && (
-              <div className="border-t border-[var(--st-border)] pt-8">
-                <h3 className="text-xs font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">Notes</h3>
-                <p className="text-sm text-[var(--st-text)] whitespace-pre-line">{invoiceData.notes}</p>
+              <div className="border-t border-neutral-200 pt-8">
+                <h3 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2">Notes</h3>
+                <p className="text-sm text-neutral-700 whitespace-pre-line">{invoiceData.notes}</p>
               </div>
             )}
           </div>
