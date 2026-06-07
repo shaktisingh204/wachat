@@ -42,7 +42,7 @@ export {
 export { Slider } from "@/components/ui/slider";
 // Form / Chart / Sidebar — re-exports from legacy `@/components/ui` while
 // the SabUI-native primitives are still in design. Consumers should
-// import from `@/components/zoruui` so the migration path stays one-way.
+// import from `@/components/sabcrm/20ui` so the migration path stays one-way.
 export {
   useFormField,
   Form,

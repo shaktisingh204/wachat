@@ -163,7 +163,7 @@ export function SabAppSidebar({
             aria-label={placeholder}
             role="combobox"
             aria-expanded={showSuggestions}
-            aria-controls="zoru-sidebar-suggestions"
+            aria-controls="sab-sidebar-suggestions"
             aria-autocomplete="list"
             leadingSlot={<Search />}
             trailingSlot={
@@ -186,7 +186,7 @@ export function SabAppSidebar({
           />
           {showSuggestions && (
             <div
-              id="zoru-sidebar-suggestions"
+              id="sab-sidebar-suggestions"
               role="listbox"
               className="absolute left-3 right-3 top-[calc(100%-0.25rem)] z-30 max-h-80 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)]"
             >
@@ -222,7 +222,7 @@ export function SabAppSidebar({
   );
 }
 
-const suggestionId = (leafId: string) => `zoru-sb-sug-${leafId}`;
+const suggestionId = (leafId: string) => `sab-sb-sug-${leafId}`;
 
 function SuggestionRow({
   hit,

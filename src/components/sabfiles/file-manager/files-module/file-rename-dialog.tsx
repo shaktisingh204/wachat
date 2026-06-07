@@ -58,9 +58,9 @@ export function SabFileRenameDialog({
               </SabDialogDescription>
             </SabDialogHeader>
             <div className="space-y-1.5">
-              <Label htmlFor="zoru-file-rename">File name</Label>
+              <Label htmlFor="sab-file-rename">File name</Label>
               <Input
-                id="zoru-file-rename"
+                id="sab-file-rename"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus

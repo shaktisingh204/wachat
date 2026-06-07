@@ -8,7 +8,7 @@ import { cn } from "./lib/cn";
 /**
  * Neutral palette used by SabChart. Pure greyscale only — for visual
  * separation between series, use stroke pattern or shape variation
- * rather than hue. Charts in zoru are deliberately quiet; reach for
+ * rather than hue. Charts in this system are deliberately quiet; reach for
  * a dedicated viz component if you need rainbow categorical colours.
  */
 export const SAB_CHART_PALETTE = [

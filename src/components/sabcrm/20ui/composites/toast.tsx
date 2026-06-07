@@ -39,13 +39,13 @@ const toastVariants = cva(
       variant: {
         default: "border-[var(--st-border)] text-[var(--st-text)]",
         destructive:
-          "border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 text-[var(--st-danger)] [&_[data-zoru-toast-title]]:text-[var(--st-danger)]",
+          "border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 text-[var(--st-danger)] [&_[data-sab-toast-title]]:text-[var(--st-danger)]",
         success:
-          "border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5 text-[var(--st-text)] [&_[data-zoru-toast-title]]:text-[var(--st-status-ok)]",
+          "border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5 text-[var(--st-text)] [&_[data-sab-toast-title]]:text-[var(--st-status-ok)]",
         warning:
           "border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5 text-[var(--st-text)]",
         info:
-          "border-[var(--st-accent)]/40 bg-[var(--st-accent)]/5 text-[var(--st-text)] [&_[data-zoru-toast-title]]:text-[var(--st-accent)]",
+          "border-[var(--st-accent)]/40 bg-[var(--st-accent)]/5 text-[var(--st-text)] [&_[data-sab-toast-title]]:text-[var(--st-accent)]",
       },
     },
     defaultVariants: { variant: "default" },
@@ -108,7 +108,7 @@ export const SabToastTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitive.Title
     ref={ref}
-    data-zoru-toast-title=""
+    data-sab-toast-title=""
     className={cn("text-sm font-medium text-[var(--st-text)]", className)}
     {...props}
   />

@@ -5,7 +5,7 @@
  *
  * The setting is stored as a class on the document root (`<html class="dark">`
  * / `"light"`), which drives BOTH design systems at once:
- *   - SabUI flips its `--zoru-*` tokens under `html.dark .zoruui` (zoruui.css).
+ *   - SabUI flips its `--sab-*` tokens under `html.dark .sabui` (sabui.css).
  *   - 20ui chrome (the app rail + header) reads the resolved value via
  *     `useHtmlDark()` and renders inside a `.ui20 light|dark` scope.
  *

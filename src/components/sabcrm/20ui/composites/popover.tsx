@@ -20,7 +20,7 @@ export const SabPopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui-surface-sheen z-50 w-72 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
+        "z-50 w-72 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
         "outline-none",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",

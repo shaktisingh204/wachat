@@ -63,10 +63,10 @@ export function SabFileShareDialog({
 
             <div className="space-y-3">
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="zoru-share-email">Invite by email</Label>
+                <Label htmlFor="sab-share-email">Invite by email</Label>
                 <div className="flex gap-2">
                   <Input
-                    id="zoru-share-email"
+                    id="sab-share-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
