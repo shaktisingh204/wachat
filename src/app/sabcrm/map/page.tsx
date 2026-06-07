@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
  * SVG "region" header (`.map-hero`) standing in for the canvas. The view is
  * rendered entirely in Twenty's visual language: the shared `.st-*` vocabulary
  * from `src/styles/sabcrm-twenty.css` (NOT edited) plus the sibling `./map.css`
- * extras and the `@/components/sabcrm/twenty` kit. No ZoruUI / Tailwind / clay.
+ * extras and the `@/components/sabcrm/twenty` kit. No Ui20 / Tailwind / clay.
  *
  * Controls:
  *   - Object selector — only objects that declare at least one location field

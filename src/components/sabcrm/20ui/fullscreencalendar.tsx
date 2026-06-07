@@ -3,7 +3,7 @@
 /**
  * 20ui — FullscreenCalendar.
  *
- * A full-page month grid with events, mirroring ZoruUI's fullscreen-calendar
+ * A full-page month grid with events, mirroring Ui20's fullscreen-calendar
  * but reimplemented in the 20ui token system (no import). The header
  * carries a month label, a "Month" view label, and prev / today / next
  * IconButtons; the body is a 7-column grid with a weekday header row and day

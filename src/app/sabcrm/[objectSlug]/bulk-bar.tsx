@@ -17,7 +17,7 @@
  * "busy" flags, and confirm toggle, but the actual mutations live in the parent
  * page (which holds the optimistic record list and persists through the gated
  * `bulkUpdateRecordsTw` / `bulkDeleteRecordsTw` actions). All `.st-*` look, no
- * ZoruUI.
+ * Ui20.
  */
 
 import * as React from 'react';

@@ -36,11 +36,11 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/notifications — full notification history.
  *
- * Linked from the global header `ZoruNotificationPopover` via its
+ * Linked from the global header `Ui20NotificationPopover` via its
  * "View all notifications →" footer. Same server actions
  * (`getAllNotifications`, `markNotificationAsRead`,
  * `markAllNotificationsAsRead`) and pagination contract as before.
- * Visual layer fully Zoru: no clay, no `@/components/ui/*`,
+ * Visual layer fully Ui20: no clay, no `@/components/ui/*`,
  * no `@/hooks/use-toast`, no tab UI, neutral palette only.
  */
 

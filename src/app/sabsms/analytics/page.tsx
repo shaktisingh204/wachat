@@ -452,7 +452,7 @@ async function SabsmsAnalyticsPageContent({
         />
       }
     >
-      {/* KPI strip — 6 ZoruStatCards. */}
+      {/* KPI strip — 6 Ui20StatCards. */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {kpiTiles.map((k) => (
           <KpiTile

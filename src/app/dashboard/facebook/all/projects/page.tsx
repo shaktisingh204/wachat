@@ -24,9 +24,9 @@ import type { Project,
 /**
  * /dashboard/facebook/all/projects — Project ↔ Facebook connection list.
  *
- * Rebuilt on ZoruUI primitives. Same `getProjects` server action and the
+ * Rebuilt on Ui20 primitives. Same `getProjects` server action and the
  * same OAuth entrypoint (`/api/auth/meta-suite/login`) as
- * `/dashboard/facebook/all-projects` — visual layer is pure zoru, neutral
+ * `/dashboard/facebook/all-projects` — visual layer is pure ui20, neutral
  * palette, no rainbow accents.
  */
 

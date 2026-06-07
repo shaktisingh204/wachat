@@ -7,7 +7,7 @@ import { Search } from 'lucide-react';
  * <EntityListShell /> — reusable list-page chrome for every CRM / HRM list
  * (per Phase 1A of the CRM frontend rebuild).
  *
- * Composes existing zoru primitives only — no new design tokens.
+ * Composes existing ui20 primitives only — no new design tokens.
  *
  * Layout:
  *   ┌───────────────────────────────────────────────────────────────┐

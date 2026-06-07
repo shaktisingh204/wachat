@@ -4,7 +4,7 @@
  * Styles the expandable comment affordance that hangs under each Activity-tab
  * timeline item (rendered by `<CommentThread>` in record-detail-tw.tsx). All
  * tokens are the shared Twenty `--st-*` variables so it sits flush with the
- * timeline kit — NO ZoruUI, Tailwind, or clay here. New `.sc-*` namespace only;
+ * timeline kit — NO Ui20, Tailwind, or clay here. New `.sc-*` namespace only;
  * the shared `twenty-activity.css` is never touched.
  */
 

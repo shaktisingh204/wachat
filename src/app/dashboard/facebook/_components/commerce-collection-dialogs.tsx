@@ -18,13 +18,13 @@ import {
   } from "@/app/actions/catalog.actions";
 
 /**
- * Commerce › Collection dialogs (zoru-only).
+ * Commerce › Collection dialogs (ui20-only).
  *
  * Wraps the existing server actions:
  *   - createProductSet (`createProductSet`)
  *   - deleteProductSet (`deleteProductSet`)
  *
- * Pure ZoruUI primitives.
+ * Pure Ui20 primitives.
  */
 
 import * as React from "react";

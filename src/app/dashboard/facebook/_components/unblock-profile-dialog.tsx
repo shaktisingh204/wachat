@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { unblockProfile } from "@/app/actions/facebook.actions";
 
 /**
- * UnblockProfileDialog (Meta Suite local, zoru-only).
+ * UnblockProfileDialog (Meta Suite local, ui20-only).
  *
  * Confirmation dialog for `unblockProfile` server action.
  */

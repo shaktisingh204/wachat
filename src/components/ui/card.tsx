@@ -128,9 +128,9 @@ CardFooter.displayName = "CardFooter"
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 export {
-  CardHeader as ZoruCardHeader,
-  CardFooter as ZoruCardFooter,
-  CardTitle as ZoruCardTitle,
-  CardDescription as ZoruCardDescription,
-  CardContent as ZoruCardContent,
+  CardHeader as Ui20CardHeader,
+  CardFooter as Ui20CardFooter,
+  CardTitle as Ui20CardTitle,
+  CardDescription as Ui20CardDescription,
+  CardContent as Ui20CardContent,
 }

@@ -17,7 +17,7 @@ import type { EcommShop } from "@/lib/definitions";
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/20ui-domain/persistent-menu-form`.
+ * Ui20-only replacement for `@/components/20ui-domain/persistent-menu-form`.
  * Same external props (`shop`) and same `savePersistentMenu` server action.
  */
 

@@ -670,7 +670,7 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
   );
 }
 
-function ZoruAvatar({ avatarUrl, fallback }: { avatarUrl?: string; fallback: string }) {
+function Ui20Avatar({ avatarUrl, fallback }: { avatarUrl?: string; fallback: string }) {
   if (avatarUrl) {
     return (
       // Plain <img> on purpose: the palette is a transient overlay, the

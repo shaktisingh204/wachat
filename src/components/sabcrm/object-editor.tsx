@@ -16,7 +16,7 @@
  * {@link ObjectMetadata} returned by each action and re-renders in place.
  * On failure the previous state is restored and an inline error is shown.
  *
- * Pure ZoruUI (black-and-white). Standard / system fields are visually
+ * Pure Ui20 (black-and-white). Standard / system fields are visually
  * distinguished and their remove/edit controls are disabled. File inputs
  * in record forms use SabFiles; there are no free-text URL inputs here.
  *

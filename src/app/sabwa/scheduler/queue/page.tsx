@@ -28,7 +28,7 @@ import {
  * When the engine returns nothing (no scheduled messages yet), we show
  * an empty state — no fake sample rows.
  *
- * Rebuilt on ZoruUI primitives.
+ * Rebuilt on Ui20 primitives.
  */
 
 import * as React from "react";

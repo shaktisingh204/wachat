@@ -32,7 +32,7 @@ import {
 import { useProject } from "@/context/project-context";
 
 /**
- * /dashboard/facebook/reels — Meta Suite Reels manager, ZoruUI rebuild.
+ * /dashboard/facebook/reels — Meta Suite Reels manager, Ui20 rebuild.
  *
  * Visual layer: PageHeader + Breadcrumb, neutral elevated cards
  * for the grid tiles, Dialog (built on FileUploadCard) for upload.

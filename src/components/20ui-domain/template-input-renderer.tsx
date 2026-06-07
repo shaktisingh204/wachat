@@ -274,7 +274,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                             {interactiveButtons.map((btn: any) => (
                                 <div key={`btn-${btn.index}`} className="space-y-1">
                                     <Label htmlFor={`variable_button_${btn.index}`} className="text-xs text-[var(--st-text-secondary)]">
-                                        {btn.type === 'COPY_CODE' ? `Coupon Code (ZoruButton: ${btn.text})` : `URL Suffix (ZoruButton: ${btn.text})`}
+                                        {btn.type === 'COPY_CODE' ? `Coupon Code (Ui20Button: ${btn.text})` : `URL Suffix (Ui20Button: ${btn.text})`}
                                     </Label>
                                     <SmartVariableInput
                                         id={`variable_button_${btn.index}`}

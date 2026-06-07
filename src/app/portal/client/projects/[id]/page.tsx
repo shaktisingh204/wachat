@@ -3,7 +3,7 @@ import { fmtINR } from "@/lib/utils";
 /**
  * /portal/client/projects/[id] — Read-only project detail.
  *
- * Tabs rendered with a button group (NOT ZoruTabs), per spec:
+ * Tabs rendered with a button group (NOT Ui20Tabs), per spec:
  *   Overview · Tasks · Milestones · Files · Invoices · Submit Rating
  *
  * Tab state is driven by `?tab=...` so deep-linking works on a server
@@ -104,7 +104,7 @@ async function ClientProjectDetailPageContent({
                 </CardBody>
             </Card>
 
-            {/* Button-group tabs (NOT ZoruTabs) */}
+            {/* Button-group tabs (NOT Ui20Tabs) */}
             <div className="flex flex-wrap gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                 {TABS.map((t) => {
                     const active = t.key === tab;

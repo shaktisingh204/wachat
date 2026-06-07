@@ -55,7 +55,7 @@ import type {
 /**
  * /dashboard/facebook/kanban - 20ui rebuild of `FacebookKanbanBoard`.
  *
- * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx`:
+ * Mirrors `src/app/wachat/_components/ui20-kanban-board.tsx`:
  *   - Conversations grouped by status into columns.
  *   - Each column is a Card, each conversation is a row card.
  *   - No drag-and-drop. Status changes happen via per-row dropdown.
@@ -155,7 +155,7 @@ interface KanbanCardProps {
   onMove: (subscriberId: string, toColumn: string) => void;
 }
 
-function ZoruFacebookKanbanCard({
+function Ui20FacebookKanbanCard({
   subscriber,
   allColumns,
   currentColumn,
@@ -249,7 +249,7 @@ interface KanbanColumnProps {
   children: React.ReactNode;
 }
 
-function ZoruFacebookKanbanColumn({ title, count, children }: KanbanColumnProps) {
+function Ui20FacebookKanbanColumn({ title, count, children }: KanbanColumnProps) {
   return (
     <Card
       className={cn(
@@ -276,7 +276,7 @@ function ZoruFacebookKanbanColumn({ title, count, children }: KanbanColumnProps)
 
 /* main */
 
-export function ZoruFacebookKanbanBoard() {
+export function Ui20FacebookKanbanBoard() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [boardData, setBoardData] = useState<FacebookKanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
@@ -397,7 +397,7 @@ export function ZoruFacebookKanbanBoard() {
       <ScrollArea className="h-full w-full">
         <div className="flex h-full w-max gap-4 p-4">
           {boardData.map((column) => (
-            <ZoruFacebookKanbanColumn
+            <Ui20FacebookKanbanColumn
               key={column.name}
               title={column.name}
               count={column.conversations.length}
@@ -411,7 +411,7 @@ export function ZoruFacebookKanbanBoard() {
                 />
               ) : (
                 column.conversations.map((subscriber) => (
-                  <ZoruFacebookKanbanCard
+                  <Ui20FacebookKanbanCard
                     key={subscriber._id.toString()}
                     subscriber={subscriber}
                     allColumns={allColumnNames}
@@ -420,7 +420,7 @@ export function ZoruFacebookKanbanBoard() {
                   />
                 ))
               )}
-            </ZoruFacebookKanbanColumn>
+            </Ui20FacebookKanbanColumn>
           ))}
           <AddListInline onAddList={handleAddList} />
         </div>

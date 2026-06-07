@@ -32,7 +32,7 @@
  * re-pulls server data after a successful write so sibling surfaces (timeline,
  * board columns) stay in sync.
  *
- * UI is ZoruUI-only (black-&-white `--zoru-*` tokens); no raw Tailwind accents
+ * UI is Ui20-only (black-&-white `--ui20-*` tokens); no raw Tailwind accents
  * or legacy primitives. This control has no FILE inputs, so SabFiles is N/A.
  */
 

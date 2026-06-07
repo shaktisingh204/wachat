@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
  *
  * A standalone screen over the standard `notes` object, rendered in Twenty's
  * visual language (`.st-*` classes + the `@/components/sabcrm/twenty` kit + the
- * sibling `../tasks-notes.css` — NO ZoruUI / Tailwind / clay).
+ * sibling `../tasks-notes.css` — NO Ui20 / Tailwind / clay).
  *
  * Layout parity with Twenty's `NoteList` / `NoteTile`:
  *   - A responsive GRID of fixed-height note tiles (title + body preview),

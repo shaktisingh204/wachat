@@ -34,10 +34,10 @@ import type { FacebookBroadcast } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 
 /**
- * /dashboard/facebook/broadcasts — Messenger broadcasts (ZoruUI).
+ * /dashboard/facebook/broadcasts — Messenger broadcasts (Ui20).
  *
  * Composer is a 3-step numbered stepper (Audience › Compose › Review),
- * NOT tabs. The history view is a `ZoruDataTable`. Same data + handlers
+ * NOT tabs. The history view is a `Ui20DataTable`. Same data + handlers
  * as the original wabasimplify version (handleSendFacebookBroadcast,
  * getFacebookBroadcasts, useProject).
  */

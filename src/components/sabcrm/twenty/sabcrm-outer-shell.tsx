@@ -6,12 +6,12 @@
  * SabCRM is a first-class SabNode module, so it shares the SAME outer
  * navigation as every other app: the left **app rail** (the `SAB_APPS`
  * switcher) and the top **header** (brand + universal search + notifications +
- * user menu) — exactly what `ZoruHomeShell` renders. The difference is the
- * inner column: instead of the Zoru grouped sidebar we render the Twenty
+ * user menu) — exactly what `Ui20HomeShell` renders. The difference is the
+ * inner column: instead of the Ui20 grouped sidebar we render the Twenty
  * `.sabcrm-twenty` frame (its object sidebar + main), so the CRM keeps its
  * Twenty-faithful look while living inside the SabNode shell.
  *
- * Mirrors `ZoruHomeShell`'s rail/header composition (same components, same
+ * Mirrors `Ui20HomeShell`'s rail/header composition (same components, same
  * providers) so behaviour stays consistent across the workspace.
  */
 
@@ -42,7 +42,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
   const pathname = usePathname();
 
   // The app rail's items come from the central app registry — identical to
-  // ZoruHomeShell, so the active app (SabCRM, under /sabcrm) highlights and
+  // Ui20HomeShell, so the active app (SabCRM, under /sabcrm) highlights and
   // every other SabNode app is one click away. Now rendered by the 20ui AppRail.
   const railItems: AppRailItem[] = React.useMemo(
     () =>
@@ -57,7 +57,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
   );
 
   // The 20ui rail + header follow the APP theme (the outer shell is the SabNode
-  // chrome). Shared with ZoruHomeShell via useHtmlDark() so the whole workspace
+  // chrome). Shared with Ui20HomeShell via useHtmlDark() so the whole workspace
   // flips light/dark together (the rail is never out of sync).
   const appDark = useHtmlDark();
 
@@ -71,7 +71,7 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col">
-          {/* Header — 20ui AppHeader, theme-synced (mirrors ZoruHomeShell). */}
+          {/* Header — 20ui AppHeader, theme-synced (mirrors Ui20HomeShell). */}
           <div className={`ui20 ${appDark ? 'dark' : 'light'}`}>
             <AppHeader
               sticky={false}

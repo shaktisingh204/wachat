@@ -10,7 +10,7 @@ import { Loader2,
 import { blockProfile } from "@/app/actions/facebook.actions";
 
 /**
- * BlockProfileDialog (Meta Suite local, zoru-only).
+ * BlockProfileDialog (Meta Suite local, ui20-only).
  *
  * Wraps `blockProfile` server action — same business logic as the legacy
  * inline input. Operator confirms, the profile ID is sent to Meta.

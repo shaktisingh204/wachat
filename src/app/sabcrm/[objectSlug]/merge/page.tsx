@@ -24,7 +24,7 @@
  *   3. "Merge" → confirm dialog (warns the secondary is permanently deleted) →
  *      `mergeSabcrmRecordsTw` → `router.push('/sabcrm/{object}/{primaryId}')`.
  *
- * NO ZoruUI / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
+ * NO Ui20 / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
  * sibling `merge.css` / `merge-preview.css`). Every data call is a gated server action returning an
  * `ActionResult`; the engine may be DOWN, so each branch degrades to an inline
  * banner / empty state and the page never crashes.

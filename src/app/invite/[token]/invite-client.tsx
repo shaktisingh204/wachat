@@ -131,7 +131,7 @@ export function InviteClient({
     };
 
     return (
-        // TODO(zoru): port ClayCard floating variant accent header to Zoru
+        // TODO(ui20): port ClayCard floating variant accent header to Ui20
         <Card className="w-full max-w-[480px] overflow-hidden p-0">
             {/* Rose accent header */}
             <div className="relative h-[6px] w-full bg-[var(--st-text)]" />

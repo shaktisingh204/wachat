@@ -26,7 +26,7 @@
  * handler. Every action is `ActionResult`-typed and surfaced inline via the
  * shared toast, so RBAC-denied / plan-locked / validation errors never throw.
  *
- * Pure ZoruUI, black-and-white. Filter values that point at FILE fields are not
+ * Pure Ui20, black-and-white. Filter values that point at FILE fields are not
  * offered (file inputs are handled elsewhere through SabFiles).
  *
  * Accessibility guarantees

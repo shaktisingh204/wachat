@@ -2,7 +2,7 @@
    SabCRM — Twenty record FIELD PANEL styles.
 
    Scoped to the `.st-rfp*` prefix used by `record-field-panel.tsx`. Plain CSS,
-   Twenty look only — no ZoruUI / Tailwind / clay. Reuses the shared
+   Twenty look only — no Ui20 / Tailwind / clay. Reuses the shared
    `.st-field-row*` / `.st-cell-*` classes from `sabcrm-twenty.css` and the
    `--st-*` design tokens (do NOT redeclare those here).
    ========================================================================= */

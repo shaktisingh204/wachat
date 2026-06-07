@@ -24,8 +24,8 @@ import { useSabwaSession } from '@/lib/sabwa/session-context';
  * returns an empty payload, every chart renders an <EmptyState> instead of
  * a "Phase 1" error, so the page is usable end-to-end today.
  *
- * Visual layer migrated to ZoruUI. The range picker is rendered as a
- * segmented Button group (no tab UI per ZoruUI design rules).
+ * Visual layer migrated to Ui20. The range picker is rendered as a
+ * segmented Button group (no tab UI per Ui20 design rules).
  */
 
 import * as React from 'react';

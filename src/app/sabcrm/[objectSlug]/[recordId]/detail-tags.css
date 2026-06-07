@@ -11,7 +11,7 @@
  *      affordances are hidden and the record fields print cleanly.
  *
  * Twenty look only — uses the existing `--st-*` design tokens, scoped under the
- * `.stg-*` (tags) class family. No ZoruUI.
+ * `.stg-*` (tags) class family. No Ui20.
  */
 
 /* =========================================================================

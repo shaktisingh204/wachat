@@ -48,7 +48,7 @@ export const metadata = {
  * each linking to an existing `/dashboard/settings/crm/*` route.
  *
  * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope); all
- * visuals come from the `.st-*` Twenty design system. No ZoruUI / Tailwind.
+ * visuals come from the `.st-*` Twenty design system. No Ui20 / Tailwind.
  *
  * Auth / onboarding / RBAC / project context are enforced by `../layout.tsx`;
  * each linked route independently re-runs its own gate.

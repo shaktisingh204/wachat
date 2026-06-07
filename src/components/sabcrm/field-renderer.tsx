@@ -97,7 +97,7 @@ function optionFor(
 }
 
 /**
- * Maps an option color (a `--zoru-*` token name or a hex value) onto a
+ * Maps an option color (a `--ui20-*` token name or a hex value) onto a
  * style object. Hex values are applied inline; token names are passed
  * through as a CSS custom-property reference so the palette stays the
  * single source of truth.

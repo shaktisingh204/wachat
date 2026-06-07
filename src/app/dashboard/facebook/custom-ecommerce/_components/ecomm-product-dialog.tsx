@@ -22,11 +22,11 @@ import type {
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/20ui-domain/ecomm-product-dialog`.
+ * Ui20-only replacement for `@/components/20ui-domain/ecomm-product-dialog`.
  *
  * Same external props (`isOpen`, `onOpenChange`, `shop`, `product`,
  * `onSuccess`) and the same `saveEcommProduct` server action — only the
- * visual layer is rebuilt with zoru atoms.
+ * visual layer is rebuilt with ui20 atoms.
  */
 
 import * as React from "react";

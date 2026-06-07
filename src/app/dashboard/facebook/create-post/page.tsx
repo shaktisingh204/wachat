@@ -30,7 +30,7 @@ import type { FacebookPageDetails } from "@/lib/definitions";
 import { SabFilePickerButton } from "@/components/sabfiles";
 
 /**
- * /dashboard/facebook/create-post — Composer, ZoruUI rebuild.
+ * /dashboard/facebook/create-post — Composer, Ui20 rebuild.
  *
  * Two-pane layout:
  *  - Left  : multi-section Card form (page identity, message, media,

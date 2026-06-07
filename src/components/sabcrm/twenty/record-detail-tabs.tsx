@@ -27,7 +27,7 @@
  * the page that mounts it, and uses ONLY the `.sabcrm-twenty` design system
  * (`st-rdt-*` classes in the co-located stylesheet + the shared Twenty kit:
  * `TwentyFieldValue`, `TwentyChip`, `TwentyAvatar`, `TwentyTimeline`). NO
- * ZoruUI / Tailwind / clay.
+ * Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';

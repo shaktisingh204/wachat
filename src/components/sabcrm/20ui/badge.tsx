@@ -22,7 +22,7 @@ export type BadgeTone =
   | 'info';
 export type BadgeStyleKind = 'soft' | 'solid' | 'outline';
 
-/** Back-compat (shadcn/legacy ZoruUI) variant names, mapped to tone + kind. */
+/** Back-compat (shadcn/legacy Ui20) variant names, mapped to tone + kind. */
 export type BadgeVariant =
   | 'default'
   | 'secondary'

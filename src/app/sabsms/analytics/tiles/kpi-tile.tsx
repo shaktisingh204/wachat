@@ -5,7 +5,7 @@ import { Button, StatCard } from '@/components/sabcrm/20ui';
 import { TileActions } from "./tile-actions";
 
 /**
- * KPI tile — renders one `ZoruStatCard` with optional delta vs the
+ * KPI tile — renders one `Ui20StatCard` with optional delta vs the
  * compare-to window plus a "Open in logs" drill-down and an "AI explain"
  * action surfaced through `TileActions`.
  */

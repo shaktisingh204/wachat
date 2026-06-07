@@ -25,10 +25,10 @@ import { getFacebookSubscribers } from '@/app/actions/facebook.actions';
 import type { FacebookSubscriber } from '@/lib/definitions';
 
 /**
- * /dashboard/facebook/subscribers — Messenger subscriber list (ZoruUI).
+ * /dashboard/facebook/subscribers — Messenger subscriber list (Ui20).
  *
  * Loads all PSIDs that have ever messaged the connected Facebook Page and
- * surfaces them in a Zoru data table with bulk-action menu, search filter,
+ * surfaces them in a Ui20 data table with bulk-action menu, search filter,
  * and an add-subscriber dialog. Same data + same handlers as the original
  * wabasimplify version.
  */

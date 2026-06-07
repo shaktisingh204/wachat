@@ -36,7 +36,7 @@ const RELEASES = [
         v: 'v2.17.0',
         tag: 'Feature',
         tone: 'amber',
-        title: 'SabWa shell + 30+ pages on ZoruUI',
+        title: 'SabWa shell + 30+ pages on Ui20',
         items: [
             'Brand-fresh design system — same brand across all surfaces',
             'New /sabwa/connect 5-step pairing stepper',

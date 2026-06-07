@@ -3,7 +3,7 @@
 /**
  * SabCRM — CSV/XLSX import dialog.
  *
- * A four-step wizard rendered inside a ZoruUI dialog:
+ * A four-step wizard rendered inside a Ui20 dialog:
  *
  *   Step 1 – Upload
  *     The user picks a CSV or XLSX file exclusively through
@@ -26,7 +26,7 @@
  *     batch result so the host can refresh its table.
  *
  * Design constraints:
- *   - ZoruUI only (Dialog, Button, Select, Badge, Progress, Label, …).
+ *   - Ui20 only (Dialog, Button, Select, Badge, Progress, Label, …).
  *   - File inputs via `<SabFileToFileButton>` — never `<input type="file">`.
  *   - All server calls through gated actions in `sabcrm.actions.ts`.
  *   - No `any`. Strict TS throughout.

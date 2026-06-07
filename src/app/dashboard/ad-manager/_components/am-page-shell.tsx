@@ -9,7 +9,7 @@
  * - <AmErrorAlert> is the canonical error notice.
  *
  * All migrated ad-manager pages import from here so headers stay consistent.
- * Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
+ * Mirrors src/app/dashboard/facebook/_components/ui20-fb-page-shell.tsx.
  */
 
 import * as React from "react";

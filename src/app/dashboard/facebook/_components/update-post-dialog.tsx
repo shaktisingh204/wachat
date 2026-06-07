@@ -9,7 +9,7 @@ import { handleUpdatePost } from "@/app/actions/facebook.actions";
 import type { FacebookPost } from "@/lib/definitions";
 
 /**
- * Local zoru replacement for `@/components/20ui-domain/update-post-dialog`.
+ * Local ui20 replacement for `@/components/20ui-domain/update-post-dialog`.
  *
  * Same server action (`handleUpdatePost`); same hidden-form contract.
  */

@@ -1,7 +1,7 @@
 'use client';
 
 import { Input, Label, Switch, Button, Badge, Card } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
+import { cn as _ui20Cn, useMemo, useState } from 'react';
 import { Save, Trash2, History } from 'lucide-react';
 import { diffChars } from 'diff';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
@@ -120,7 +120,7 @@ export default function UrlRewriterPage() {
                 {diffResult.map((part, i) => (
                   <span
                     key={i}
-                    className={_zoruCn(
+                    className={_ui20Cn(
                       part.added && "bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white px-0.5 rounded",
                       part.removed && "bg-[var(--st-text)]/30 text-[var(--st-text)] dark:text-white line-through px-0.5 rounded opacity-70",
                       !part.added && !part.removed && "opacity-80"

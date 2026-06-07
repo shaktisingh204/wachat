@@ -11,7 +11,7 @@
  * plus an optional grip dot, with the correct treatment for both horizontal and
  * vertical groups.
  *
- * v4 API mapping (the names below mirror the older ZoruUI/shadcn surface so call
+ * v4 API mapping (the names below mirror the older Ui20/shadcn surface so call
  * sites read the same, but they wrap the v4 primitives):
  *   - ResizablePanelGroup  ->  Group      (sets `orientation`; renders `data-group`)
  *   - ResizablePanel       ->  Panel

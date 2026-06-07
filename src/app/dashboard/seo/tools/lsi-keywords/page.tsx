@@ -124,17 +124,17 @@ export default function LsiKeywordsPage() {
         <Card className="mt-8 border-[var(--st-border)] shadow-sm overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-[var(--st-bg-muted)]/20 px-4 py-3 gap-3">
-              <ZoruTabsList className="bg-transparent h-auto p-0 gap-2">
-                <ZoruTabsTrigger value="all" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+              <Ui20TabsList className="bg-transparent h-auto p-0 gap-2">
+                <Ui20TabsTrigger value="all" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   All LSI ({allKeywords.length})
-                </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="triggers" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                </Ui20TabsTrigger>
+                <Ui20TabsTrigger value="triggers" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Co-occurring ({triggers.length})
-                </ZoruTabsTrigger>
-                <ZoruTabsTrigger value="related" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
+                </Ui20TabsTrigger>
+                <Ui20TabsTrigger value="related" className="data-[state=active]:bg-[var(--st-bg-secondary)] data-[state=active]:shadow-sm rounded-md px-3 py-1.5 h-auto">
                   Semantics ({related.length})
-                </ZoruTabsTrigger>
-              </ZoruTabsList>
+                </Ui20TabsTrigger>
+              </Ui20TabsList>
               
               <Button 
                 variant="outline" 
@@ -148,18 +148,18 @@ export default function LsiKeywordsPage() {
             </div>
 
             <CardBody className="p-5">
-              <ZoruTabsContent value="all" className="mt-0 outline-none">
+              <Ui20TabsContent value="all" className="mt-0 outline-none">
                 <div className="text-sm text-[var(--st-text-secondary)] mb-4">A complete deduplicated list of all LSI and semantically related keywords, sorted by relevance.</div>
                 {renderBadgeList(allKeywords)}
-              </ZoruTabsContent>
-              <ZoruTabsContent value="triggers" className="mt-0 outline-none">
+              </Ui20TabsContent>
+              <Ui20TabsContent value="triggers" className="mt-0 outline-none">
                 <div className="text-sm text-[var(--st-text-secondary)] mb-4">Words that statistically co-occur and are frequently triggered by your seed keyword in the same piece of text (True LSI).</div>
                 {renderBadgeList(triggers)}
-              </ZoruTabsContent>
-              <ZoruTabsContent value="related" className="mt-0 outline-none">
+              </Ui20TabsContent>
+              <Ui20TabsContent value="related" className="mt-0 outline-none">
                 <div className="text-sm text-[var(--st-text-secondary)] mb-4">Words with related meanings, synonyms, and strongly connected semantic concepts.</div>
                 {renderBadgeList(related)}
-              </ZoruTabsContent>
+              </Ui20TabsContent>
             </CardBody>
           </Tabs>
         </Card>

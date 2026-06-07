@@ -40,7 +40,7 @@ import {
  * Drives the per-section nav inside the SabWa shell (mirrors the
  * wachat pattern). All hrefs live under `/sabwa/*`. Returned shape
  * matches `SidebarGroup` so the SabWa layout can pass it straight
- * to `<ZoruHomeShell sidebarGroups={…} />`.
+ * to `<Ui20HomeShell sidebarGroups={…} />`.
  */
 import * as React from "react";
 

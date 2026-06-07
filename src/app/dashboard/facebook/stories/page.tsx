@@ -30,7 +30,7 @@ import { RadioGroup, RadioCard } from '@/components/sabcrm/20ui';
 import { useProject } from "@/context/project-context";
 
 /**
- * /dashboard/facebook/stories — Meta Suite Stories manager, ZoruUI rebuild.
+ * /dashboard/facebook/stories — Meta Suite Stories manager, Ui20 rebuild.
  *
  * Same handlers + server actions as before (getPageStories, publishPhotoStory).
  * Visual layer: PageHeader + Breadcrumb, neutral elevated tiles,

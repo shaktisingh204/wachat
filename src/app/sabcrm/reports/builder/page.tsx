@@ -5,7 +5,7 @@
  *
  * A self-written Twenty-faithful rebuild of the report builder using the shared
  * `.st-*` kit (`src/styles/sabcrm-twenty.css`) plus the page-local extras in
- * `../reports-twenty.css`. No ZoruUI / Tailwind / clay in the page chrome.
+ * `../reports-twenty.css`. No Ui20 / Tailwind / clay in the page chrome.
  *
  * Two-pane canvas:
  *   - Left: the definition form — object, metric, metric field (sum/avg/min/max),

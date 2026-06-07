@@ -27,7 +27,7 @@
  *
  * This page is intentionally engine-free: it is pure client UI over existing
  * routes plus localStorage, with graceful empty and unavailable states
- * throughout. Pure 20ui: no ZoruUI, no Twenty, no raw control elements.
+ * throughout. Pure 20ui: no Ui20, no Twenty, no raw control elements.
  */
 
 import * as React from 'react';

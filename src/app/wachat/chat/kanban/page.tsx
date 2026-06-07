@@ -5,12 +5,12 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/sabcrm/20ui';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
-import { ZoruKanbanBoard } from '../../_components/zoru-kanban-board';
+import { Ui20KanbanBoard } from '../../_components/ui20-kanban-board';
 
 /**
  * /wachat/chat/kanban — Conversations as a kanban board.
  *
- * The board itself lives in `ZoruKanbanBoard`. This page is a thin full-bleed
+ * The board itself lives in `Ui20KanbanBoard`. This page is a thin full-bleed
  * frame (`WachatPage variant="app"`) that wraps the board with a 20ui skeleton
  * fallback while data loads.
  */
@@ -36,7 +36,7 @@ export default function KanbanPage() {
     <WachatPage variant="app">
       <div className="flex h-full flex-col">
         <Suspense fallback={<KanbanPageSkeleton />}>
-          <ZoruKanbanBoard />
+          <Ui20KanbanBoard />
         </Suspense>
       </div>
     </WachatPage>

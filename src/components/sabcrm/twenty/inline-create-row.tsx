@@ -18,7 +18,7 @@
  *
  * This is pure presentation + local draft state — all persistence + optimism
  * lives in the page so it can roll back gracefully when the Rust engine is DOWN.
- * Uses ONLY the `.st-*` / `.stx-*` design language (NO ZoruUI).
+ * Uses ONLY the `.st-*` / `.stx-*` design language (NO Ui20).
  */
 
 import * as React from 'react';

@@ -14,7 +14,7 @@ import {
   PageTitle,
   Skeleton,
 } from "@/components/sabcrm/20ui";
-import { ZoruSabChatWidgetGenerator } from "../_components/zoru-sabchat-widget-generator";
+import { Ui20SabChatWidgetGenerator } from "../_components/ui20-sabchat-widget-generator";
 import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 
@@ -25,7 +25,7 @@ import type { WithId, User } from "@/lib/definitions";
  * /dashboard/sabchat/widget — widget configuration and embed code.
  *
  * Same `getSession` flow. Visual layer is pure 20ui. Delegates to the local
- * `ZoruSabChatWidgetGenerator` feature component for the configuration surface.
+ * `Ui20SabChatWidgetGenerator` feature component for the configuration surface.
  */
 
 function WidgetSkeleton() {
@@ -79,7 +79,7 @@ export default function SabChatWidgetPage() {
           You must be logged in to configure the chat widget.
         </Alert>
       ) : (
-        <ZoruSabChatWidgetGenerator user={user} />
+        <Ui20SabChatWidgetGenerator user={user} />
       )}
     </div>
   );

@@ -23,7 +23,7 @@ import {
   } from "@/app/actions/facebook.actions";
 
 /**
- * /dashboard/facebook/calendar — Post calendar, ZoruUI rebuild.
+ * /dashboard/facebook/calendar — Post calendar, Ui20 rebuild.
  *
  * Same handlers + server actions (`getFacebookPosts`, `getScheduledPosts`).
  * Visual layer: PageHeader + Breadcrumb, FullscreenCalendar

@@ -1,7 +1,7 @@
 /**
  * /dashboard/facebook/custom-ecommerce/layout.tsx
  *
- * ZoruUI scope wrap for the Custom E-commerce module. Inherits the global
+ * Ui20 scope wrap for the Custom E-commerce module. Inherits the global
  * shell from /dashboard/layout.tsx — no bespoke chrome here, only neutral
  * tokens and a max-width container.
  */

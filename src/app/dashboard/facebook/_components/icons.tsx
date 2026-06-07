@@ -1,8 +1,8 @@
 /**
- * Local Meta Suite icons (zoru-only).
+ * Local Meta Suite icons (ui20-only).
  *
  * Replaces visual imports from `@/components/20ui-domain/custom-sidebar-components`.
- * All icons render with `currentColor` so they inherit the zoru ink token.
+ * All icons render with `currentColor` so they inherit the ui20 ink token.
  */
 
 import * as React from "react";

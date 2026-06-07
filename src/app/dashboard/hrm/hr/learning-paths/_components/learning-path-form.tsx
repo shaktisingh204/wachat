@@ -18,8 +18,8 @@ import {
   } from 'lucide-react';
 
 // §1E status:
-// - status ZoruSelect:   TODO §1E: add enumName for learningPathStatus (CrmLearningPathStatus not in CRM_ENUMS catalogue yet)
-// - audience ZoruSelect: TODO §1E: add enumName for learningPathAudience (CrmLearningPathAudience not in CRM_ENUMS catalogue yet)
+// - status Ui20Select:   TODO §1E: add enumName for learningPathStatus (CrmLearningPathStatus not in CRM_ENUMS catalogue yet)
+// - audience Ui20Select: TODO §1E: add enumName for learningPathAudience (CrmLearningPathAudience not in CRM_ENUMS catalogue yet)
 
 /**
  * <LearningPathForm /> — create + edit form for HR Learning paths.

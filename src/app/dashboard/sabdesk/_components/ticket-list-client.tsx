@@ -33,7 +33,7 @@ interface TicketListClientProps {
   error?: string;
 }
 
-type BadgeVariant = React.ComponentProps<typeof ZoruBadge>["variant"];
+type BadgeVariant = React.ComponentProps<typeof Ui20Badge>["variant"];
 
 const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   open: "warning",

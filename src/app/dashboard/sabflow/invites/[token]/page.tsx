@@ -14,7 +14,7 @@ import {
  * Lets a logged-in user accept or decline a workspace invite. On accept the
  * user is redirected to the workspace's settings page.
  *
- * ZoruUI rewrite — chrome only. Auth/data flow unchanged.
+ * Ui20 rewrite — chrome only. Auth/data flow unchanged.
  */
 
 import { CircleAlert, Hourglass, MailX } from "lucide-react";

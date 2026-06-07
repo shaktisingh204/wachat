@@ -37,7 +37,7 @@ import type { SabwaWebhookEvent } from '@/lib/sabwa/types';
  * signing secret is displayed in a copy-able card. Clicking a row opens
  * a Sheet drawer with recent deliveries (resend + test actions).
  *
- * Visual layer migrated to ZoruUI.
+ * Visual layer migrated to Ui20.
  */
 
 import * as React from 'react';

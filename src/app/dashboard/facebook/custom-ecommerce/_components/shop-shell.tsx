@@ -2,12 +2,12 @@
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, PageActions, PageDescription, PageEyebrow, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
 /**
- * Shared zoru-only chrome for the Custom E-commerce manage scope.
+ * Shared ui20-only chrome for the Custom E-commerce manage scope.
  *
  * - `ShopPage`: max-width container with neutral surface tokens.
  * - `ShopBreadcrumb`: SabNode › Meta Suite › Custom Shops › <shop> › <leaf>.
  * - `ShopHeader`: page-header with eyebrow + title + description + actions.
- * - `ShopSubNav`: route-driven sub-page nav using outline/default ZoruButtons
+ * - `ShopSubNav`: route-driven sub-page nav using outline/default Ui20Buttons
  *   (NOT tabs — per the design directive).
  */
 

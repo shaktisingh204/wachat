@@ -6,7 +6,7 @@
  * Page chrome: the calm, consistent header at the top of every page/section.
  * A flex header with an optional eyebrow (small uppercase kicker), a single h1
  * heading, a description, and a right-aligned actions slot. Composable and
- * token-styled. Mirrors ZoruUI's page-header API but reimplemented in 20ui
+ * token-styled. Mirrors Ui20's page-header API but reimplemented in 20ui
  * style (u- classes, --st-/--u- tokens, no import).
  *
  * Taste: one heading level (h1 — never skip levels), one accent, one radius.
@@ -143,7 +143,7 @@ export function PageActions({
   );
 }
 
-/* Aliases — keep the ZoruUI-compatible names available. */
+/* Aliases — keep the Ui20-compatible names available. */
 export {
   PageHeaderHeading as PageHeading,
   PageDescription as PageHeaderDescription,

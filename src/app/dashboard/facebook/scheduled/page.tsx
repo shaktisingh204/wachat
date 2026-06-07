@@ -34,7 +34,7 @@ import type { FacebookPost } from "@/lib/definitions";
 import { useProject } from "@/context/project-context";
 
 /**
- * /dashboard/facebook/scheduled — Scheduled posts queue, ZoruUI rebuild.
+ * /dashboard/facebook/scheduled — Scheduled posts queue, Ui20 rebuild.
  *
  * Same handlers + server actions as before (`getScheduledPosts`,
  * `publishScheduledPost`, `handleUpdatePost`, `handleDeletePost`).

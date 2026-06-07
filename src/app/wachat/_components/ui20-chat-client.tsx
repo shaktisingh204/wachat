@@ -69,8 +69,8 @@ import { useProject } from "@/context/project-context";
 import { countryCodes } from "@/lib/country-codes";
 
 // Black-box children — preserve their server-action wiring untouched.
-import { ChatWindow } from "./chat/zoru-chat-window";
-import { ContactInfoPanel } from "./chat/zoru-contact-info-panel";
+import { ChatWindow } from "./chat/ui20-chat-window";
+import { ContactInfoPanel } from "./chat/ui20-contact-info-panel";
 
 /**
  * /wachat/chat — 20ui rebuild of `ChatClient`.
@@ -137,7 +137,7 @@ interface NewChatDialogProps {
   onStartChat: (waId: string) => Promise<void>;
 }
 
-function ZoruNewChatDialog({
+function Ui20NewChatDialog({
   open,
   onOpenChange,
   onStartChat,
@@ -291,7 +291,7 @@ interface ContactListProps {
   onPhoneNumberChange: (phoneId: string) => void;
 }
 
-function ZoruContactListPane({
+function Ui20ContactListPane({
   sessionUser,
   project,
   contacts,
@@ -513,7 +513,7 @@ function ZoruContactListPane({
 
 /* ── main ─────────────────────────────────────────────────────────── */
 
-export function ZoruChatClient() {
+export function Ui20ChatClient() {
   const searchParams = useSearchParams();
   const { activeProject, activeProjectId, sessionUser } = useProject();
 
@@ -812,7 +812,7 @@ export function ZoruChatClient() {
   /* ── render ── */
   return (
     <>
-      <ZoruNewChatDialog
+      <Ui20NewChatDialog
         open={isNewChatDialogOpen}
         onOpenChange={setIsNewChatDialogOpen}
         onStartChat={handleNewChat}
@@ -826,7 +826,7 @@ export function ZoruChatClient() {
               selectedContact ? "hidden md:flex" : "flex",
             )}
           >
-            <ZoruContactListPane
+            <Ui20ContactListPane
               sessionUser={sessionUser}
               project={activeProject}
               contacts={contacts}

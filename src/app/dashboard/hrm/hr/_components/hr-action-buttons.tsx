@@ -8,7 +8,7 @@ import {
  * <HrActionButtons /> — shared client island for HR detail-page header
  * actions (§1D.2 of the CRM rebuild contract).
  *
- * Renders the supplied list of action descriptors as ZoruButtons and
+ * Renders the supplied list of action descriptors as Ui20Buttons and
  * wires each one to its server action via `useTransition` + toast. Three
  * shapes are supported:
  *

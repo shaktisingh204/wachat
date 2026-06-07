@@ -358,7 +358,7 @@ export function MessageBubble({
       )}
     >
       <DropdownMenu open={open} onOpenChange={setOpen}>
-        <ZoruDropdownMenuTrigger asChild>
+        <Ui20DropdownMenuTrigger asChild>
           <div
             role="button"
             tabIndex={0}
@@ -408,40 +408,40 @@ export function MessageBubble({
               {fromMe ? <StatusTicks status={message.status} /> : null}
             </div>
           </div>
-        </ZoruDropdownMenuTrigger>
+        </Ui20DropdownMenuTrigger>
 
-        <ZoruDropdownMenuContent align={fromMe ? "end" : "start"}>
-          <ZoruDropdownMenuItem onSelect={() => fire("reply")}>
+        <Ui20DropdownMenuContent align={fromMe ? "end" : "start"}>
+          <Ui20DropdownMenuItem onSelect={() => fire("reply")}>
             <CornerUpLeft className="mr-2 h-4 w-4" /> Reply
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => fire("react")}>
+          </Ui20DropdownMenuItem>
+          <Ui20DropdownMenuItem onSelect={() => fire("react")}>
             <SmilePlus className="mr-2 h-4 w-4" /> React
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => fire("star")}>
+          </Ui20DropdownMenuItem>
+          <Ui20DropdownMenuItem onSelect={() => fire("star")}>
             <Star className="mr-2 h-4 w-4" /> Star
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => fire("copy")}>
+          </Ui20DropdownMenuItem>
+          <Ui20DropdownMenuItem onSelect={() => fire("copy")}>
             <Copy className="mr-2 h-4 w-4" /> Copy
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuItem onSelect={() => fire("forward")}>
+          </Ui20DropdownMenuItem>
+          <Ui20DropdownMenuItem onSelect={() => fire("forward")}>
             <Forward className="mr-2 h-4 w-4" /> Forward
-          </ZoruDropdownMenuItem>
-          <ZoruDropdownMenuSeparator />
+          </Ui20DropdownMenuItem>
+          <Ui20DropdownMenuSeparator />
           {fromMe ? (
-            <ZoruDropdownMenuItem onSelect={() => fire("delete_me")}>
+            <Ui20DropdownMenuItem onSelect={() => fire("delete_me")}>
               <Trash2 className="mr-2 h-4 w-4" /> Delete for me
-            </ZoruDropdownMenuItem>
+            </Ui20DropdownMenuItem>
           ) : null}
           {canDeleteForEveryone ? (
-            <ZoruDropdownMenuItem
+            <Ui20DropdownMenuItem
               onSelect={() => fire("delete_all")}
               className="text-[var(--st-danger)]"
             >
               <Trash2 className="mr-2 h-4 w-4" /> Delete for everyone
-            </ZoruDropdownMenuItem>
+            </Ui20DropdownMenuItem>
           ) : null}
           {fromMe && message.editedAt ? null : null}
-        </ZoruDropdownMenuContent>
+        </Ui20DropdownMenuContent>
       </DropdownMenu>
     </div>
   );

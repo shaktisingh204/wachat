@@ -35,7 +35,7 @@ function fmtDate(v: unknown): string {
 
 const VISIBILITY_VARIANTS: Record<
   string,
-  React.ComponentProps<typeof ZoruBadge>["variant"]
+  React.ComponentProps<typeof Ui20Badge>["variant"]
 > = {
   public: "success",
   portal: "warning",
@@ -103,7 +103,7 @@ export default async function KbArticleDetailPage({
               Content
             </h2>
             {article.body ? (
-              <div className="prose-zoru whitespace-pre-wrap rounded-lg bg-[var(--st-bg-muted)] p-4 text-[14px] leading-relaxed text-[var(--st-text)]">
+              <div className="prose-ui20 whitespace-pre-wrap rounded-lg bg-[var(--st-bg-muted)] p-4 text-[14px] leading-relaxed text-[var(--st-text)]">
                 {article.body}
               </div>
             ) : (

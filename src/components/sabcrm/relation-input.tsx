@@ -20,7 +20,7 @@
  *                              resolver is supplied each chip links through to
  *                              the related record's detail route.
  *
- * This component is purposely self-contained (built on confirmed ZoruUI
+ * This component is purposely self-contained (built on confirmed Ui20
  * primitives + a local search box) so the field renderer can delegate the
  * whole RELATION case to it without growing further.
  */

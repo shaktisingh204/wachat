@@ -36,7 +36,7 @@
  * local lists persist to `localStorage` and never throw on storage failure.
  *
  * Design system: 20ui (`@/components/sabcrm/20ui`) only - primitives + the
- * `--st-*` token palette. No ZoruUI / Twenty / clay / raw controls.
+ * `--st-*` token palette. No Ui20 / Twenty / clay / raw controls.
  */
 
 import * as React from 'react';

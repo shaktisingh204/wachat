@@ -11,7 +11,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
  *     {children}
  *   </CommercePage>
  *
- * Pure ZoruUI primitives + neutral tokens — no clay, no @/components/ui.
+ * Pure Ui20 primitives + neutral tokens — no clay, no @/components/ui.
  */
 
 import * as React from "react";

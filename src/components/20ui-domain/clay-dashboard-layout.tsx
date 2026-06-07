@@ -2800,7 +2800,7 @@ export function ClayDashboardLayout({
   const activeKey = useActiveKey(context);
   const fullBleed = isFullBleed(pathname);
 
-  /* ── ZoruCommand palette state (Cmd+K / Ctrl+K) ── */
+  /* ── Ui20Command palette state (Cmd+K / Ctrl+K) ── */
   const [searchOpen, setSearchOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -3054,7 +3054,7 @@ export function ClayDashboardLayout({
         }
       />
 
-      {/* ZoruCommand palette - jump to any module from anywhere */}
+      {/* Ui20Command palette - jump to any module from anywhere */}
       <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
         <CommandInput placeholder="Jump to...  broadcasts, CRM, flows, SMS, SEO" />
         <CommandList>

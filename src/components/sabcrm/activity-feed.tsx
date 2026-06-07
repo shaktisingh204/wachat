@@ -21,7 +21,7 @@
  * (for traditional pagination). The component exposes both modes via the
  * `spec` prop.
  *
- * Styling is ZoruUI-only, black-and-white, using the namespaced `--zoru-*`
+ * Styling is Ui20-only, black-and-white, using the namespaced `--ui20-*`
  * tokens via the barrel primitives.
  */
 

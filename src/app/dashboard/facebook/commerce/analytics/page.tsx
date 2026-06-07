@@ -32,7 +32,7 @@ import type { FacebookOrder } from "@/lib/definitions";
  * a 30-day order/revenue trend, status mix and a top-buyers breakdown
  * client-side — no separate analytics endpoint.
  *
- * Pure ZoruUI primitives. Charts use CHART_PALETTE and series are
+ * Pure Ui20 primitives. Charts use CHART_PALETTE and series are
  * differentiated by stroke-dasharray (no hue).
  */
 

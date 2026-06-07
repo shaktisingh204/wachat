@@ -6,9 +6,9 @@ import { usePathname } from 'next/navigation';
 /**
  * SettingsTabs — segmented navigation between settings sub-routes.
  *
- * Despite the legacy name, this is NOT a tab UI — per the ZoruUI
+ * Despite the legacy name, this is NOT a tab UI — per the Ui20
  * no-tabs directive, each entry is a distinct sub-route. The component
- * renders a segmented ZoruButton-style group of Links so users can move
+ * renders a segmented Ui20Button-style group of Links so users can move
  * between Profile / Devices / Privacy / Rate limits / Notifications.
  */
 

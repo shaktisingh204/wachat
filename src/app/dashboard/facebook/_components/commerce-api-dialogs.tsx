@@ -7,7 +7,7 @@ import { Loader2,
   RotateCw } from "lucide-react";
 
 /**
- * Commerce › API dialogs (zoru-only).
+ * Commerce › API dialogs (ui20-only).
  *
  * RotateApiKeyConfirmDialog — surfaces a destructive confirmation flow
  * for rotating the Commerce API key. The actual rotation endpoint is

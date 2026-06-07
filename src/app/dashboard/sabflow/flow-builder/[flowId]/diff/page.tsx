@@ -28,7 +28,7 @@ import {
  * right" actions which call the existing
  * `/api/sabflow/[flowId]/versions/[versionId]/restore` route.
  *
- * ZoruUI rewrite — chrome only. The `FlowDiffView` composite is opaque.
+ * Ui20 rewrite — chrome only. The `FlowDiffView` composite is opaque.
  */
 
 import type { SabFlowDoc } from "@/lib/sabflow/types";

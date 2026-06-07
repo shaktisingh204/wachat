@@ -2,7 +2,7 @@
 
 /**
  * 20ui — Label. A standalone form label (Radix Label) for cases where a control
- * is not wrapped in <Field>. Token-styled; matches the ZoruUI Label API
+ * is not wrapped in <Field>. Token-styled; matches the Ui20 Label API
  * (ComponentPropsWithoutRef<LabelPrimitive.Root> + `required`) so it is a
  * drop-in replacement.
  */

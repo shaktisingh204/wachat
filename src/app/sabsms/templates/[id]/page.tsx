@@ -93,7 +93,7 @@ export default async function TemplateEditorPage({ params }: PageProps) {
             for conditionals.
           </li>
           <li>
-            Locale switcher uses segmented buttons — ZoruUI has no tab
+            Locale switcher uses segmented buttons — Ui20 has no tab
             primitive.
           </li>
           <li>

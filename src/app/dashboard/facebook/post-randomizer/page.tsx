@@ -29,7 +29,7 @@ import type {
 import { useProject } from "@/context/project-context";
 
 /**
- * /dashboard/facebook/post-randomizer — Auto-rotate post pool, ZoruUI rebuild.
+ * /dashboard/facebook/post-randomizer — Auto-rotate post pool, Ui20 rebuild.
  *
  * Same handlers + server actions (`saveRandomizerSettings`,
  * `getRandomizerPosts`, `addRandomizerPost`, `deleteRandomizerPost`).

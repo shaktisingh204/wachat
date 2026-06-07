@@ -12,9 +12,9 @@ import { Loader2,
 import { createFacebookAgent } from "@/app/actions/facebook.actions";
 
 /**
- * AgentFormDialog (Meta Suite local, zoru-only).
+ * AgentFormDialog (Meta Suite local, ui20-only).
  *
- * Wraps `createFacebookAgent` server action in a zoru dialog. Same fields
+ * Wraps `createFacebookAgent` server action in a ui20 dialog. Same fields
  * as the legacy inline card — name, personality, welcome / fallback
  * messages, active toggle.
  */

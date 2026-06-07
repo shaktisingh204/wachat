@@ -45,7 +45,7 @@ import {
   Field,
   Input,
   Progress,
-  type ZoruProgressTone,
+  type Ui20ProgressTone,
   Table,
   THead,
   TBody,
@@ -105,7 +105,7 @@ const PLAYBOOKS = [
 // --- HELPERS ---
 
 /** Map a health score to a 20ui progress tone. */
-function healthTone(score: number): ZoruProgressTone {
+function healthTone(score: number): Ui20ProgressTone {
   if (score < 40) return "danger";
   if (score < 70) return "warning";
   return "success";

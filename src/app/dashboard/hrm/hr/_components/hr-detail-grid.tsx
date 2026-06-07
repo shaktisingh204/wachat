@@ -2,7 +2,7 @@ import { Card } from '@/components/sabcrm/20ui';
 /**
  * <HrDetailGrid /> — 2-column grid for HR detail pages (per §1D.2 of
  * the CRM rebuild contract). Renders `<HrDetailRow />` items inside a
- * `ZoruCard`. Designed to be used inside `<EntityDetailShell>`.
+ * `Ui20Card`. Designed to be used inside `<EntityDetailShell>`.
  *
  * @example
  * ```tsx

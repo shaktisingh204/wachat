@@ -31,7 +31,7 @@ import './getting-started.css';
  *
  * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope), so
  * all visuals come from the `.st-*` Twenty design system + the page-local
- * `.st-gs-*` classes in `getting-started.css`. No ZoruUI / Tailwind.
+ * `.st-gs-*` classes in `getting-started.css`. No Ui20 / Tailwind.
  */
 
 type ChecklistStep = {

@@ -15,7 +15,7 @@ import { saveCannedMessageAction } from '@/app/actions/project.actions';
 import type { CannedMessage } from '@/lib/definitions';
 
 /**
- * CannedMessageFormDialog — ZoruUI create/edit canned message.
+ * CannedMessageFormDialog — Ui20 create/edit canned message.
  */
 
 import * as React from 'react';

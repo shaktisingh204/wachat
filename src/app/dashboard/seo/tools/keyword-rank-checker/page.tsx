@@ -1,11 +1,11 @@
 'use client';
 
 import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { checkKeywordRankAction } from './action';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

@@ -43,7 +43,7 @@ import {
   DropdownMenuTrigger,
   StatCard,
   Progress,
-  type ZoruProgressTone,
+  type Ui20ProgressTone,
 } from "@/components/sabcrm/20ui";
 
 interface InventoryLocation {
@@ -122,7 +122,7 @@ const STATUS_KIND: Record<InventoryLocation["status"], BadgeStyleKind> = {
   Warning: "soft",
 };
 
-function utilizationTone(percent: number): ZoruProgressTone {
+function utilizationTone(percent: number): Ui20ProgressTone {
   if (percent >= 90) return "danger";
   if (percent >= 75) return "warning";
   return "accent";

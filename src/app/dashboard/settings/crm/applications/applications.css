@@ -8,7 +8,7 @@
    live here.
 
    Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
-   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   frame layout) so it never leaks into the rest of SabNode. No Ui20 /
    Tailwind / clay — Twenty look only.
    ========================================================================= */
 

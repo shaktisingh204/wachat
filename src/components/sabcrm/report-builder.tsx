@@ -24,7 +24,7 @@
  * ## Invariants
  * - No raw file URL inputs (SabFiles policy is not relevant to analytics, but
  *   we still respect no raw URL inputs for any fields).
- * - All UI uses ZoruUI primitives exclusively.
+ * - All UI uses Ui20 primitives exclusively.
  * - No `any` (except the Recharts `ResponsiveContainer` children cast already
  *   present in the ChartContainer upstream).
  * - Named export only.

@@ -28,7 +28,7 @@ import {
 /**
  * SabWa Group Manager — single-group admin console (SABWA_PLAN.md §6 page 8).
  *
- * Sections (segmented Button — no tab UI, per ZoruUI directive):
+ * Sections (segmented Button — no tab UI, per Ui20 directive):
  *   1. Members      — table with promote / demote / remove, add by phone,
  *                     bulk-select for "Bulk DM" wizard.
  *   2. Info         — subject / description / icon (SabFilePickerButton).
@@ -40,7 +40,7 @@ import {
  * Confirm dialogs for destructive actions: remove member, revoke link,
  * demote super-admin.
  *
- * ZoruUI migration — visual swap only; data flow, server actions and
+ * Ui20 migration — visual swap only; data flow, server actions and
  * prop shapes are unchanged.
  */
 
@@ -638,7 +638,7 @@ function InfoTab({ group, sessionId, refresh }: InfoTabProps) {
           {/*
             SabFilePickerButton sources files from SabFiles per the
             project-wide SabFiles policy. It still routes through the
-            shadcn Button variants internally; visual parity with ZoruUI
+            shadcn Button variants internally; visual parity with Ui20
             is acceptable here since the component is consumed as-is.
           */}
           <SabFilePickerButton
@@ -1240,8 +1240,8 @@ export function GroupManagerClient({ groupJid }: { groupJid: string }) {
           </div>
 
           {/*
-            Segmented section nav. ZoruUI intentionally omits a tab
-            primitive — we render a flat row of ZoruButtons with the
+            Segmented section nav. Ui20 intentionally omits a tab
+            primitive — we render a flat row of Ui20Buttons with the
             active variant set to `default` and inactive to `outline`.
           */}
           <div

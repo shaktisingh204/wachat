@@ -14,7 +14,7 @@ import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
  * Configurator (left): scope, format, include-media, "Run export".
  * History (right): status, format, size, created, download link, expires.
  *
- * Visual layer migrated to ZoruUI. Scope picker uses a segmented
+ * Visual layer migrated to Ui20. Scope picker uses a segmented
  * Button group (no tab UI).
  */
 

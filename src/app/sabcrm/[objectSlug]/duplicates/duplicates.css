@@ -2,7 +2,7 @@
  * SabCRM — "Find duplicates" screen styles (Twenty look only).
  *
  * Scoped to the duplicates page; consumes the shared `--st-*` design tokens so
- * it re-themes for free in light / dark. NO ZoruUI / Tailwind / clay here —
+ * it re-themes for free in light / dark. NO Ui20 / Tailwind / clay here —
  * only `.st-dup-*` classes, alongside the reusable `.st-page / .st-input /
  * .st-select / .st-btn / .st-banner / .st-empty / .st-skeleton / .st-field`
  * primitives already shipped with the Twenty kit. NEW classes only — the shared

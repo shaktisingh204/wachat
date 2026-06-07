@@ -28,7 +28,7 @@ import {
   } from "@/app/actions/catalog.actions";
 
 /**
- * Commerce › Product dialogs (zoru-only).
+ * Commerce › Product dialogs (ui20-only).
  *
  * Local replacements for the legacy clay/wabasimplify dialogs:
  *   - CreateProductDialog        (addProductToCatalog)
@@ -37,7 +37,7 @@ import {
  *   - ViewTaggedMediaDialog      (getTaggedMediaForProduct)
  *   - BulkUploadProductsDialog   (bulkAddProductsToCatalog)
  *
- * Pure ZoruUI primitives, useToast, lucide-react.
+ * Pure Ui20 primitives, useToast, lucide-react.
  */
 
 import * as React from "react";

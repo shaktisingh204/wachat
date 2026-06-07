@@ -3,7 +3,7 @@
 /**
  * SabCRM — Twenty-faithful record DETAIL (client runtime).
  *
- * Renders one record in Twenty's record-page layout (NO ZoruUI; `.st-*` /
+ * Renders one record in Twenty's record-page layout (NO Ui20; `.st-*` /
  * `.rt-*` classes + the twenty kit only):
  *   - a header with the object icon + the record's label value + favorite star,
  *   - a back link to the index,

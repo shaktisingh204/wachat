@@ -4,7 +4,7 @@
    Page-local classes layered on top of the shared `.st-*` kit
    (`src/styles/sabcrm-twenty.css`). Everything here is scoped under
    `.sabcrm-twenty` (the Twenty frame applies that class to the app shell) and
-   uses only the `--st-*` design tokens — no ZoruUI / Tailwind / clay.
+   uses only the `--st-*` design tokens — no Ui20 / Tailwind / clay.
 
    Two-pane Data Model layout:
      [ object list ]  |  [ selected object's field table ]

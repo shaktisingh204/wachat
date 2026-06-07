@@ -1,12 +1,12 @@
 'use client';
 
 import { Button, Input, Card, CardBody, Badge, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 import { Download, Copy, AlertCircle } from 'lucide-react';
 
-void _zoruCn;
+void _ui20Cn;
 
 function hash(str: string): number {
   let h = 0;

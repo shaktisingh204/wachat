@@ -17,11 +17,11 @@
  *       {@link listApiKeysAction}   — gate('edit')
  *       {@link revokeApiKeyAction}  — gate('edit')
  *   • All mutations are optimistic at the list level; errors restore state and
- *     surface via the shared ZoruUI toast.
+ *     surface via the shared Ui20 toast.
  *   • No raw secrets are stored in component state beyond the single
  *     post-creation "show once" dialog that is dismissed by the user.
  *
- * Pure ZoruUI (black-and-white). No free-text URL inputs; no SabFiles needed
+ * Pure Ui20 (black-and-white). No free-text URL inputs; no SabFiles needed
  * here (API keys are not file objects).
  *
  * Usage:

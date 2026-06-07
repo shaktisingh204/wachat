@@ -1,8 +1,8 @@
 /**
  * SabCRM — Twenty-faithful record DETAIL tab strip + relation sections.
  *
- * Local stylesheet for `record-detail-tw.tsx` ONLY. Twenty look (no ZoruUI /
- * Tailwind / clay): reuses the shared `--zoru-*`-free Twenty tokens already in
+ * Local stylesheet for `record-detail-tw.tsx` ONLY. Twenty look (no Ui20 /
+ * Tailwind / clay): reuses the shared `--ui20-*`-free Twenty tokens already in
  * scope from `sabcrm-twenty.css` (`--st-*`-equivalent vars are resolved there);
  * here we add the tab bar, the tasks list, the note list and the related-record
  * relation sections in the same visual register as the `.st-*` primitives.

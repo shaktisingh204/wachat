@@ -4,7 +4,7 @@
  * SabCRM Dashboard — client-side chart panels.
  *
  * Receives pre-fetched analytics data from the parent RSC and renders it with
- * the ZoruUI chart primitives (Recharts under the hood). Because Recharts uses
+ * the Ui20 chart primitives (Recharts under the hood). Because Recharts uses
  * browser APIs, this module MUST be a client component.
  *
  * Three panels are rendered in order:

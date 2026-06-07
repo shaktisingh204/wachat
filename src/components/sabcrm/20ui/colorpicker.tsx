@@ -10,7 +10,7 @@
  *   - a native input[type=color] eyedropper, skinned to a square chip;
  *   - a validated hex text field that only commits a well-formed value.
  *
- * Mirrors ZoruUI's ColorPicker API (value / onChange / swatches / disabled),
+ * Mirrors Ui20's ColorPicker API (value / onChange / swatches / disabled),
  * reimplemented in 20ui style on top of the 20ui Popover. Deliberately avoids
  * react-color: the whole picker is a few native elements skinned with --st-* /
  * --u-* tokens, so it stays light, themable, and fully accessible.

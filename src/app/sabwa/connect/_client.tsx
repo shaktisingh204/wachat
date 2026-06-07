@@ -23,8 +23,8 @@ import {
  * first-time Terms-of-Service acknowledgement gate, status pill,
  * 5-step indicator, and a collapsible FAQ.
  *
- * Rebuilt on ZoruUI primitives. The QR/Phone mode picker is rendered
- * as a segmented Button group (no tab UI per the ZoruUI design
+ * Rebuilt on Ui20 primitives. The QR/Phone mode picker is rendered
+ * as a segmented Button group (no tab UI per the Ui20 design
  * rules).
  */
 

@@ -74,7 +74,7 @@ const TIME_RANGE_LABELS: Record<TimeRange, string> = {
 
 const TIME_RANGES: TimeRange[] = ['7d', '30d', '90d'];
 
-/** Map legacy zoru badge variants onto 20ui Badge tones. */
+/** Map legacy ui20 badge variants onto 20ui Badge tones. */
 type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
 function badgeTone(variant?: string): BadgeTone {
   switch (variant) {

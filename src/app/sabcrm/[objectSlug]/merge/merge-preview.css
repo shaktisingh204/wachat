@@ -4,7 +4,7 @@
  * Companion to `merge.css`. Holds ONLY the classes introduced by the
  * Fields / Preview tab strip, the "Conflicts only" toggle, and the read-only
  * survivor preview. Consumes the shared `--st-*` design tokens so it
- * re-themes for free in light / dark. NO ZoruUI / Tailwind / clay — only
+ * re-themes for free in light / dark. NO Ui20 / Tailwind / clay — only
  * `.st-merge-tabs*`, `.st-merge-toggle*` and `.st-merge-preview*` classes
  * alongside the reusable kit primitives.
  */

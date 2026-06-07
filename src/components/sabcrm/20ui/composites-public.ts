@@ -1,7 +1,7 @@
 /**
  * 20ui — public, clean-named surface for the relocated composites.
  *
- * The app shell + bespoke widgets live in `./composites` (pure-20ui, no zoru
+ * The app shell + bespoke widgets live in `./composites` (pure-20ui, no ui20
  * tokens). The file-manager has moved to `@/components/sabfiles` (SabFiles owns
  * all file UX). Everything is re-exported here under clean 20ui names so the
  * rest of the app never sees a `Sab*` name.

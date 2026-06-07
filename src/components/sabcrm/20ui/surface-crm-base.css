@@ -1,6 +1,6 @@
 /* =========================================================================
    SabCRM — Twenty-faithful design system (light theme)
-   Self-contained, plain CSS. NO Tailwind, NO ZoruUI. Scoped under .sabcrm-twenty.
+   Self-contained, plain CSS. NO Tailwind, NO Ui20. Scoped under .sabcrm-twenty.
    Replicates twentyhq/twenty's visual language: Inter, 13px base, 4px radius,
    subtle 1px borders, near-black text, Twenty blue accent, compact density.
    ========================================================================= */
@@ -238,7 +238,7 @@
 /* =========================================================================
    App rail — the SabCRM module switcher.
    A slim 52px vertical icon strip at the far left of the shell, before the
-   sidebar. Lists every SabNode app (from ZORU_APPS); each item has a
+   sidebar. Lists every SabNode app (from UI20_APPS); each item has a
    CSS-only hover/focus tooltip and an active-tile state.
    ========================================================================= */
 .st-rail {

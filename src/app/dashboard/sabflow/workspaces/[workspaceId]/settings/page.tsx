@@ -17,7 +17,7 @@ import { WorkspaceSettingsPage } from "@/components/sabflow/workspaces/Workspace
  * Server page that loads the workspace and the viewer's role, then mounts
  * the client `WorkspaceSettingsPage` (shared composite — kept opaque).
  * Unauthenticated users are redirected to sign-in. Non-members get a 403
- * stub rendered with ZoruUI primitives.
+ * stub rendered with Ui20 primitives.
  */
 
 import React, { Suspense } from 'react';

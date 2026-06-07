@@ -5,7 +5,7 @@
  *
  * One metadata-driven screen renders every object in Twenty's visual language
  * (the `.st-*` utility classes + the `@/components/sabcrm/twenty` kit — NO
- * ZoruUI here on purpose). It resolves the object's metadata, then exposes:
+ * Ui20 here on purpose). It resolves the object's metadata, then exposes:
  *
  *   - TABLE view — every `inTable` field is a column; the `isLabel` field links
  *     to the record detail; SELECT cells render as TwentyChips; text/number/
@@ -275,7 +275,7 @@ function recordAvatar(
 function chipColor(color?: string): string | undefined {
   if (!color) return undefined;
   if (color.startsWith('#') || color.startsWith('rgb')) return color;
-  // `--zoru-*` token → CSS var reference; falls back gracefully if undefined.
+  // `--ui20-*` token → CSS var reference; falls back gracefully if undefined.
   if (color.startsWith('--')) return `var(${color})`;
   return undefined;
 }

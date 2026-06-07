@@ -3,7 +3,7 @@
  *
  * SabCRM SELECT/MULTI_SELECT field options and tags store a colour as one of:
  *   - a bare Twenty palette name (`'turquoise'`, `'sky'`, …) — the schema form,
- *   - a `--zoru-*` CSS custom-property token — the settings-UI form,
+ *   - a `--ui20-*` CSS custom-property token — the settings-UI form,
  *   - a literal `#hex` / `rgb(...)` value.
  *
  * `resolveTwentyColor` maps any of these to a paintable CSS colour so chips and

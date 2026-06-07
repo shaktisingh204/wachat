@@ -4,7 +4,7 @@
  * 20ui Tooltip (compound, Radix-driven).
  *
  * A full, token-skinned wrapper around `@radix-ui/react-tooltip` that mirrors the
- * shadcn / ZoruUI compound surface exactly (`Tooltip`, `TooltipProvider`,
+ * shadcn / Ui20 compound surface exactly (`Tooltip`, `TooltipProvider`,
  * `TooltipTrigger`, `TooltipContent`) so call-sites become a pure import-path
  * swap. Radix owns the hard parts: hover/focus intent with grace timers, the
  * shared open delay across a `TooltipProvider`, `role="tooltip"` +

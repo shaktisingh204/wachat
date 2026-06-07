@@ -23,7 +23,7 @@ import { LoaderCircle,
  *     for files; entity pickers handle the linking).
  *   - Bank account is picked via `<EntityFormField entity="bankAccount">`
  *     to mirror the Payouts module.
- *   - ZoruUI components only — no shadcn directly.
+ *   - Ui20 components only — no shadcn directly.
  */
 
 import * as React from 'react';

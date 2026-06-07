@@ -1,11 +1,11 @@
 'use client';
 
 import { Button, Card, CardBody, Input, Label, Switch, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState, useRef } from 'react';
+import { cn as _ui20Cn, useState, useRef } from 'react';
 import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

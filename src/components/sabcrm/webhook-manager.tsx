@@ -16,7 +16,7 @@
  * The `secret` is surfaced only at create/rotate time; the component clears
  * it the moment the user dismisses the reveal dialog.
  *
- * Pure ZoruUI (black-and-white). No free-text URL inputs for files; this
+ * Pure Ui20 (black-and-white). No free-text URL inputs for files; this
  * component deals only with HTTP endpoints (not file sources), so no SabFiles
  * integration is needed here.
  *

@@ -8,11 +8,11 @@ import type { Project,
   WithId } from "@/lib/definitions";
 
 /**
- * PermissionErrorDialog (Meta Suite local, zoru-only).
+ * PermissionErrorDialog (Meta Suite local, ui20-only).
  *
  * Visual swap of `@/components/20ui-domain/permission-error-dialog`.
  * Same trigger surface — surfaces a Meta permission error and lets the
- * operator re-authorize. Pure zoru tokens, neutral palette.
+ * operator re-authorize. Pure ui20 tokens, neutral palette.
  */
 
 import * as React from "react";

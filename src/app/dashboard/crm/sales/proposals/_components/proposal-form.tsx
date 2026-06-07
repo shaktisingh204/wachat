@@ -242,16 +242,16 @@ export function ProposalForm({ initialData }: ProposalFormProps) {
                     <div className="space-y-1.5">
                         <Label htmlFor={`${reactId}-currency`}>Currency</Label>
                         <Select value={currency} onValueChange={setCurrency}>
-                            <ZoruSelectTrigger id={`${reactId}-currency`}>
-                                <ZoruSelectValue placeholder="Currency" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
+                            <Ui20SelectTrigger id={`${reactId}-currency`}>
+                                <Ui20SelectValue placeholder="Currency" />
+                            </Ui20SelectTrigger>
+                            <Ui20SelectContent>
                                 {['INR', 'USD', 'EUR', 'GBP', 'AED', 'AUD'].map((c) => (
-                                    <ZoruSelectItem key={c} value={c}>
+                                    <Ui20SelectItem key={c} value={c}>
                                         {c}
-                                    </ZoruSelectItem>
+                                    </Ui20SelectItem>
                                 ))}
-                            </ZoruSelectContent>
+                            </Ui20SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-1.5">

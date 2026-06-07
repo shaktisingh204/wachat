@@ -6,7 +6,7 @@ import { Pencil } from "lucide-react";
 /**
  * /dashboard/facebook layout — Meta Suite chrome.
  *
- * Inherits the parent /dashboard ZoruHomeShell (sidebar + dock + header).
+ * Inherits the parent /dashboard Ui20HomeShell (sidebar + dock + header).
  * This layout adds only the floating "Create Post" FAB. No bespoke
  * sidebar — Meta Suite navigation lives inside each page header.
  */

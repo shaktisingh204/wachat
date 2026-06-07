@@ -21,9 +21,9 @@ import {
 /**
  * /dashboard/facebook/page-roles — page-roles + blocked profiles.
  *
- * Rebuilt on ZoruUI primitives. Same `getPageRoles`, `getBlockedProfiles`,
+ * Rebuilt on Ui20 primitives. Same `getPageRoles`, `getBlockedProfiles`,
  * `blockProfile`, `unblockProfile` server actions — no behavioral changes.
- * Pure zoru tokens, neutral palette.
+ * Pure ui20 tokens, neutral palette.
  */
 
 import * as React from "react";

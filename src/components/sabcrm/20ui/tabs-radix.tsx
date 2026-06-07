@@ -15,7 +15,7 @@
  * the `[data-state=active]` trigger and transitions on transform + opacity),
  * so there is no JS animation library and no layout observer. Pass `noPill` to
  * a trigger to render the bare active state without the underline (kept for
- * call-site API parity with the ZoruUI Tabs it replaces).
+ * call-site API parity with the Ui20 Tabs it replaces).
  *
  *   <Tabs defaultValue="overview">
  *     <TabsList>

@@ -14,8 +14,8 @@ import {
   } from 'lucide-react';
 
 // §1E status:
-// - event_type ZoruSelect: TODO §1E: add enumName for eventType (CrmEventType not in CRM_ENUMS catalogue yet)
-// - status ZoruSelect:     TODO §1E: add enumName for eventStatus (CrmEventStatus not in CRM_ENUMS catalogue yet)
+// - event_type Ui20Select: TODO §1E: add enumName for eventType (CrmEventType not in CRM_ENUMS catalogue yet)
+// - status Ui20Select:     TODO §1E: add enumName for eventStatus (CrmEventStatus not in CRM_ENUMS catalogue yet)
 // - organizer/department:  TODO §1E: swap to <EntityFormField entity="employee"> once organizer is an entity ref
 
 /**

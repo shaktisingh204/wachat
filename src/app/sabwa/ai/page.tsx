@@ -37,7 +37,7 @@ import {
  * plan string would come from `useProject().activeProject.plan` once
  * wired through — for Phase 1 we fall back to 'free'.
  *
- * Rebuilt on ZoruUI primitives. No tab UI — the four per-chat tools live
+ * Rebuilt on Ui20 primitives. No tab UI — the four per-chat tools live
  * in a segmented Button switcher.
  */
 

@@ -3,7 +3,7 @@
 /**
  * Client Portal sidebar — lean nav for `/portal/client/*`.
  *
- * Distinct from the dashboard's `ZoruAppSidebar` because we don't want
+ * Distinct from the dashboard's `Ui20AppSidebar` because we don't want
  * the app rail, the plan footer, or the heading caption — this is a
  * tenant-end-customer surface, not the multi-app admin shell.
  */

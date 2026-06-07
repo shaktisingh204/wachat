@@ -20,7 +20,7 @@ import { ArrowLeft,
 /**
  * <AssetForm /> — create + edit form for HR assets.
  *
- * Binds to the `saveAsset` server action via `useActionState`. ZoruUI
+ * Binds to the `saveAsset` server action via `useActionState`. Ui20
  * throughout. No file picker here (the asset record has no document
  * field); attachments live on asset assignments / repair tickets.
  */

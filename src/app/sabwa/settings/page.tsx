@@ -15,9 +15,9 @@ import {
 /**
  * /sabwa/settings — Profile sub-page (default route).
  *
- * Visual layer migrated to ZoruUI. Sub-section navigation rendered via
- * `<SettingsTabs>` which is now a segmented ZoruButton-style nav (no
- * tab UI per ZoruUI rules) linking to each settings sub-route.
+ * Visual layer migrated to Ui20. Sub-section navigation rendered via
+ * `<SettingsTabs>` which is now a segmented Ui20Button-style nav (no
+ * tab UI per Ui20 rules) linking to each settings sub-route.
  */
 
 import * as React from 'react';

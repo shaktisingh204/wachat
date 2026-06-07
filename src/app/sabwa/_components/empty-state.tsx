@@ -1,7 +1,7 @@
 /**
  * EmptyState — centred "nothing here yet" pattern used by SabWa lists.
  *
- * Distinct from `@/components/zoruui` EmptyState which depends on
+ * Distinct from `@/components/ui20` EmptyState which depends on
  * `motion/react`. This is a lighter, dependency-free variant designed
  * for use inside SabWa panes (inbox empty pane, chat with no
  * messages, etc.).

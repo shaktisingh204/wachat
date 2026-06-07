@@ -32,7 +32,7 @@ export function CrmSettingsForm({ settings }: { settings: WithId<CrmSettings> })
     const [state, formAction] = useActionState(saveCrmSettings, initialState);
     const { toast } = useToast();
 
-    // Controlled states for ZoruSelect/ZoruSwitch inputs to ensure sync with hidden inputs
+    // Controlled states for Ui20Select/Ui20Switch inputs to ensure sync with hidden inputs
     const [currency, setCurrency] = useState(settings.currency);
     const [dateFormat, setDateFormat] = useState(settings.dateFormat);
     const [timezone, setTimezone] = useState(settings.timezone);

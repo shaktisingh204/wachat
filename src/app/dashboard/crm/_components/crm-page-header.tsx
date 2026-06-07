@@ -38,7 +38,7 @@ export interface CrmPageHeaderProps {
 }
 
 /**
- * CrmPageHeader — Zoru-styled page header used across every CRM
+ * CrmPageHeader — Ui20-styled page header used across every CRM
  * landing page. Icon chip + title/subtitle + trailing actions, plus
  * optional breadcrumb rail and secondary toolbar.
  */

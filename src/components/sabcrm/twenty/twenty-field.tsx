@@ -17,7 +17,7 @@
  * (display) state of a cell / field row; their click-to-edit behaviour is
  * unaffected because this component only paints the resting value.
  *
- * NO ZoruUI / Tailwind / clay here — Twenty look only (`.st-field*` classes in
+ * NO Ui20 / Tailwind / clay here — Twenty look only (`.st-field*` classes in
  * the sibling `twenty-field.css`, plus the shared `TwentyChip`).
  */
 

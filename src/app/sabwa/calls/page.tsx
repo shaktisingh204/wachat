@@ -23,7 +23,7 @@ import {
  * calls captured from the active WhatsApp session. No outbound dial UI
  * — calls happen on the phone, this view is for audit and visibility.
  *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports.
+ * Rendered with Ui20 primitives — no shadcn `/ui/*` imports.
  */
 
 import * as React from "react";

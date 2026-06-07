@@ -48,7 +48,7 @@ export type FieldType =
 export interface FieldOption {
   value: string;
   label: string;
-  /** Token name from `--zoru-*` palette or a hex color. */
+  /** Token name from `--ui20-*` palette or a hex color. */
   color?: string;
 }
 
@@ -68,7 +68,7 @@ export interface FieldMetadata {
   key: string;
   label: string;
   type: FieldType;
-  /** Lucide / ZORU_ICONS icon name shown in column headers + detail rows. */
+  /** Lucide / UI20_ICONS icon name shown in column headers + detail rows. */
   icon?: string;
   description?: string;
   required?: boolean;
@@ -100,7 +100,7 @@ export interface ObjectMetadata {
   labelSingular: string;
   /** Plural human label, e.g. `Opportunities`. */
   labelPlural: string;
-  /** ZORU_ICONS / lucide icon name for nav + headers. */
+  /** UI20_ICONS / lucide icon name for nav + headers. */
   icon: string;
   description?: string;
   fields: FieldMetadata[];

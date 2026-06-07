@@ -172,7 +172,7 @@ export default async function JobDetailPage({
                     Description
                 </div>
                 {job.description ? (
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
+                    <div className="prose prose-sm prose-ui20 max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.description }} 
                     />
                 ) : (
@@ -188,7 +188,7 @@ export default async function JobDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Responsibilities
                     </div>
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
+                    <div className="prose prose-sm prose-ui20 max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.responsibilities }} 
                     />
                 </Card>
@@ -200,7 +200,7 @@ export default async function JobDetailPage({
                     <div className="mb-3 text-[15px] font-medium text-[var(--st-text)]">
                         Requirements
                     </div>
-                    <div className="prose prose-sm prose-zoru max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
+                    <div className="prose prose-sm prose-ui20 max-w-none text-[13px] text-[var(--st-text)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]" 
                          dangerouslySetInnerHTML={{ __html: job.requirements }} 
                     />
                 </Card>

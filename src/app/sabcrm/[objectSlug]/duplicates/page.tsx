@@ -12,7 +12,7 @@
  * link that deep-links the existing merge screen with the group's first two
  * records preselected (`?primary=ID&secondary=ID`).
  *
- * NO ZoruUI / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
+ * NO Ui20 / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
  * sibling `duplicates.css`, which holds only NEW `.st-dup-*` classes; the shared
  * `sabcrm-twenty.css` is never edited). Every data call is a gated server action
  * returning an `ActionResult`; the Rust engine may be DOWN, so every branch

@@ -54,7 +54,7 @@ import { handleUpdateContactStatus } from '@/app/actions/contact.actions';
  *
  * Drag-moving a card between columns now PERSISTS via the existing
  * `handleUpdateContactStatus` server action (→ rustClient.wachatContacts.updateStatus),
- * the same path the Zoru kanban boards already use. The column id is the
+ * the same path the Ui20 kanban boards already use. The column id is the
  * canonical conversation status string. Updates are optimistic and revert on
  * error.
  */

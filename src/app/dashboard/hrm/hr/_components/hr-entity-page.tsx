@@ -76,7 +76,7 @@ export interface HrColumn<T> {
 /**
  * ClayBadge — legacy compat shim. Maps the old `tone` API onto
  * Badge variants so existing HR pages keep rendering during the
- * migration. Prefer `ZoruBadge` directly in new code.
+ * migration. Prefer `Ui20Badge` directly in new code.
  */
 type LegacyTone =
   | 'neutral'

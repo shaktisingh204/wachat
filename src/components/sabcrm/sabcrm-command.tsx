@@ -15,8 +15,8 @@
  *      {@link searchRecordsForPickerAction}, fanned out per object slug and
  *      merged into one "Records" group. Hits route to the record detail page.
  *
- * Built on the ZoruUI cmdk primitives (`CommandDialog` and friends) so it
- * inherits the black-&-white ZoruUI design tokens and the shared dialog/overlay
+ * Built on the Ui20 cmdk primitives (`CommandDialog` and friends) so it
+ * inherits the black-&-white Ui20 design tokens and the shared dialog/overlay
  * behaviour. cmdk owns filtering for the static (jump/create) entries; the async
  * record results are appended verbatim (cmdk `shouldFilter={false}` would hide
  * them, so each record item carries an explicit `value` that always matches the

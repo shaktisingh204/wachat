@@ -7,7 +7,7 @@
  * composer's title + body with the (variable-substituted) template.
  *
  * Styling mirrors the existing `.sa-attach-btn` / `.re-picker` Twenty kit:
- * subtle bordered trigger, a floating panel with a search-less list. NO ZoruUI;
+ * subtle bordered trigger, a floating panel with a search-less list. NO Ui20;
  * only theme-aware `--st-*` tokens (these were stray `--t-*` refs
  * that the kit never defined, so they broke dark mode — now fixed). These classes are NEW (the shared
  * `sabcrm-twenty.css` is not edited) and are prefixed `.ct-` so they never

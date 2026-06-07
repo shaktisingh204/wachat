@@ -9,10 +9,10 @@ import { ArrowLeft,
   ChevronRight } from 'lucide-react';
 
 /**
- * /dashboard/facebook/flow-builder/docs — inline reference (ZoruUI).
+ * /dashboard/facebook/flow-builder/docs — inline reference (Ui20).
  *
  * Replaces the @/components/ui/* version. Same content (block reference
- * + variables guide), now rendered in the neutral Zoru palette using
+ * + variables guide), now rendered in the neutral Ui20 palette using
  * Accordion. No tab UI.
  */
 

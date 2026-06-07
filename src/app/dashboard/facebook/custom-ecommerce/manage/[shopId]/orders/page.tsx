@@ -27,7 +27,7 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/orders
  *
- * Per-shop orders table built on `ZoruDataTable` with a per-order detail
+ * Per-shop orders table built on `Ui20DataTable` with a per-order detail
  * sheet. Same data fetchers as before — only the visual layer changes.
  */
 

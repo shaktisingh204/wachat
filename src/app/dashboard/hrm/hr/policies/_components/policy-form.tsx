@@ -92,7 +92,7 @@ export function PolicyForm({ initialData }: PolicyFormProps) {
     });
 
     // Drive the controlled `<Select>`s. Form submission still reads
-    // the bound `<select>` hidden under the hood (ZoruSelect renders a
+    // the bound `<select>` hidden under the hood (Ui20Select renders a
     // native element internally), but mirroring state keeps the labels
     // in sync after the user changes them.
     const [category, setCategory] = useState<string>(

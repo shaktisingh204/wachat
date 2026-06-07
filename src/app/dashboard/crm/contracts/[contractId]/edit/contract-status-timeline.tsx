@@ -56,7 +56,7 @@ export function ContractStatusTimeline({ status }: { status: ContractStatus }) {
     
     gsap.to('.progress-fill', {
       width: isTerminal ? '100%' : `${progressPercent}%`,
-      backgroundColor: isTerminal ? '#ef4444' : '#3b82f6', // zoru-danger vs zoru-primary roughly
+      backgroundColor: isTerminal ? '#ef4444' : '#3b82f6', // ui20-danger vs ui20-primary roughly
       duration: 0.6,
       ease: 'power2.out',
     });
@@ -79,9 +79,9 @@ export function ContractStatusTimeline({ status }: { status: ContractStatus }) {
         });
       } else {
         gsap.to(node, {
-          borderColor: '#e5e7eb', // zoru-line roughly
+          borderColor: '#e5e7eb', // ui20-line roughly
           backgroundColor: '#ffffff',
-          color: '#9ca3af', // zoru-ink-muted
+          color: '#9ca3af', // ui20-ink-muted
           scale: 1,
           duration: 0.4,
         });

@@ -1,6 +1,6 @@
 /* =========================================================================
    SabCRM — Getting Started (/sabcrm/getting-started)
-   Twenty-faithful, plain CSS. NO Tailwind / NO ZoruUI. Scoped under
+   Twenty-faithful, plain CSS. NO Tailwind / NO Ui20. Scoped under
    .sabcrm-twenty (provided by the /sabcrm layout's TwentyAppFrame).
    Reuses the --st-* design tokens declared in sabcrm-twenty.css.
    New classes are namespaced .st-gs-* so they never collide with the

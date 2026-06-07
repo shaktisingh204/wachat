@@ -909,7 +909,7 @@ function NoteDrawerBody({
         </div>
       ) : null}
       <div 
-        className="prose prose-sm prose-zoru max-w-none text-[13px] leading-6 text-[var(--st-text)]"
+        className="prose prose-sm prose-ui20 max-w-none text-[13px] leading-6 text-[var(--st-text)]"
         dangerouslySetInnerHTML={{
           __html: note.details ? marked.parse(note.details) as string : '<span class="text-[var(--st-text-secondary)]">No details.</span>'
         }}

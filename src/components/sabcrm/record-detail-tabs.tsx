@@ -14,7 +14,7 @@
  *   3. **Activity** — a named placeholder slot (`activitySlot`) that P3 fills
  *      with the timeline; rendered as an empty-state until then.
  *
- * The tab strip uses ZoruUI's `Tabs` primitives (Radix-backed, hence this
+ * The tab strip uses Ui20's `Tabs` primitives (Radix-backed, hence this
  * client boundary). The page (`/sabcrm/[objectSlug]/[recordId]`) stays a server
  * component: it runs the auth/RBAC/plan-gated actions, resolves the object +
  * record + related map, and hands them here for rendering.

@@ -1,14 +1,14 @@
 "use client";
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui';
-import { ZoruFacebookKanbanBoard } from '../_components/zoru-facebook-kanban-board';
+import { Ui20FacebookKanbanBoard } from '../_components/ui20-facebook-kanban-board';
 import {
   Suspense } from "react";
 
 /**
- * /dashboard/facebook/kanban — Workflow kanban board (ZoruUI).
+ * /dashboard/facebook/kanban — Workflow kanban board (Ui20).
  *
- * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx` —
+ * Mirrors `src/app/wachat/_components/ui20-kanban-board.tsx` —
  * conversations grouped by status, status moves via per-row dropdown
  * (no drag-and-drop yet). Same server-action wiring as the legacy
  * `FacebookKanbanBoard`. Page chrome is a Breadcrumb +
@@ -53,7 +53,7 @@ export default function FacebookKanbanPage() {
 
       <div className="min-h-0 flex-1">
         <Suspense fallback={<Skeleton className="h-full w-full" />}>
-          <ZoruFacebookKanbanBoard />
+          <Ui20FacebookKanbanBoard />
         </Suspense>
       </div>
     </div>

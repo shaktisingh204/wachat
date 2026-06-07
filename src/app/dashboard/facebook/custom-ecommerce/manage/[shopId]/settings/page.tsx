@@ -17,9 +17,9 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/settings
  *
- * Per-shop settings — three stacked zoru cards (basic settings + payment +
+ * Per-shop settings — three stacked ui20 cards (basic settings + payment +
  * abandoned cart, persistent menu, custom domain). All form components
- * are local zoru replacements with the same server actions wired in.
+ * are local ui20 replacements with the same server actions wired in.
  */
 
 import * as React from "react";

@@ -24,7 +24,7 @@ import {
  * A search input filters across every starred body. Empty state hints at
  * how to star messages from the Inbox.
  *
- * UI is rendered with ZoruUI primitives — no shadcn `/ui/*` imports here.
+ * UI is rendered with Ui20 primitives — no shadcn `/ui/*` imports here.
  */
 
 import * as React from "react";

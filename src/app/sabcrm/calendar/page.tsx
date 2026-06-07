@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
  * chosen DATE / DATE_TIME field — e.g. Tasks by due date, Opportunities by
  * close date. Rendered purely in Twenty's visual language: the shared `.st-*`
  * vocabulary from `src/styles/sabcrm-twenty.css` (NOT edited) plus the sibling
- * `./calendar.css` extras and the `@/components/sabcrm/twenty` kit. No ZoruUI /
+ * `./calendar.css` extras and the `@/components/sabcrm/twenty` kit. No Ui20 /
  * Tailwind / clay; native `Date` only.
  *
  * Controls:

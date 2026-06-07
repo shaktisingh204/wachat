@@ -30,12 +30,12 @@ const cx = (...parts: Array<string | false | null | undefined>): string =>
   parts.filter(Boolean).join(' ');
 
 /** Tone of the filled bar. Maps to a single status/accent token. */
-export type ZoruProgressTone = 'accent' | 'success' | 'warning' | 'danger';
+export type Ui20ProgressTone = 'accent' | 'success' | 'warning' | 'danger';
 
 /** Track height. `sm` is the compact inline rail; `md` is the default. */
-export type ZoruProgressSize = 'sm' | 'md';
+export type Ui20ProgressSize = 'sm' | 'md';
 
-export interface ZoruProgressProps
+export interface Ui20ProgressProps
   extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   /** Extra classes for the inner filled indicator. */
   indicatorClassName?: string;
@@ -46,9 +46,9 @@ export interface ZoruProgressProps
    */
   indeterminate?: boolean;
   /** Fill colour. Defaults to the one brand accent. */
-  tone?: ZoruProgressTone;
+  tone?: Ui20ProgressTone;
   /** Track thickness. Defaults to `md`. */
-  size?: ZoruProgressSize;
+  size?: Ui20ProgressSize;
 }
 
 /**
@@ -58,7 +58,7 @@ export interface ZoruProgressProps
  */
 export const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
-  ZoruProgressProps
+  Ui20ProgressProps
 >(function Progress(
   {
     className,

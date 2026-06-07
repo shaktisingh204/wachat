@@ -3,7 +3,7 @@
 
    Scoped to the `.st-field*` / `.st-timeline*` prefixes used by
    `twenty-field.tsx` and `twenty-timeline.tsx`. Plain CSS, Twenty look only —
-   no ZoruUI / Tailwind / clay. Relies on the `--st-*` design tokens declared
+   no Ui20 / Tailwind / clay. Relies on the `--st-*` design tokens declared
    in `sabcrm-twenty.css` (do NOT edit that file here).
    ========================================================================= */
 

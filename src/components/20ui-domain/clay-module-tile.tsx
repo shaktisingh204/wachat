@@ -59,7 +59,7 @@ const statusClasses = {
 
 /**
  * ClayModuleTile — compact, clickable tile surfacing one module's
- * primary metric. Wraps the shadcn `ZoruCard` primitive in a `next/link`
+ * primary metric. Wraps the shadcn `Ui20Card` primitive in a `next/link`
  * so the whole tile is navigable.
  */
 export function ClayModuleTile({

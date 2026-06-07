@@ -345,7 +345,7 @@ export interface FieldEditorDialogProps {
 // Dialog component
 // ---------------------------------------------------------------------------
 
-/** Add / edit a SabCRM field within a ZoruUI dialog. */
+/** Add / edit a SabCRM field within a Ui20 dialog. */
 export function FieldEditorDialog({
   object,
   allObjects,

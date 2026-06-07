@@ -9,7 +9,7 @@ const JOBS = [
     id: "REQ-2026-001",
     method: "POST",
     path: "/careers/engineering/frontend",
-    title: "Frontend Engineer (Zoru UI)",
+    title: "Frontend Engineer (Ui20 UI)",
     description: "Implement strictly monochrome aesthetics and cutting edge interfaces.",
     requirements: ["React", "TypeScript", "Tailwind CSS", "Attention to Detail"],
     status: "OPEN"

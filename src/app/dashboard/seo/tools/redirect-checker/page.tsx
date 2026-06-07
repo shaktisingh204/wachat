@@ -1,11 +1,11 @@
 'use client';
 
 import { Button, Input, Card, CardBody, Badge, cn, Alert, AlertTitle, AlertDescription } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { AlertCircle, MoveDown, Info } from 'lucide-react';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { apiFetchUrl, type FetchUrlResult } from '@/lib/seo-tools/api-client';
 

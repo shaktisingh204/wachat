@@ -18,8 +18,8 @@ import type { Contact,
   AnyMessage,
   Project,
   Template } from '@/lib/definitions';
-import { ChatMessage } from './zoru-chat-message';
-import { ChatMessageInput } from './zoru-chat-message-input';
+import { ChatMessage } from './ui20-chat-message';
+import { ChatMessageInput } from './ui20-chat-message-input';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
 import { useProject } from '@/context/project-context';
 

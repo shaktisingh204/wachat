@@ -22,7 +22,7 @@ import {
 import { bulkCreatePosts } from '@/app/actions/facebook.actions';
 
 /**
- * /dashboard/facebook/bulk-create — Bulk Facebook post creator (ZoruUI).
+ * /dashboard/facebook/bulk-create — Bulk Facebook post creator (Ui20).
  *
  * `FileUploadCard` for CSV upload, editable preview table, and a
  * confirm-send `AlertDialog` before dispatching `bulkCreatePosts`.

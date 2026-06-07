@@ -9,7 +9,7 @@ import { ChevronLeft } from "lucide-react";
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/docs
  *
  * Inline reference for the flow builder. All sections live inside a
- * `ZoruAccordion` (per the directive). Visuals are rebuilt on top of zoru
+ * `Ui20Accordion` (per the directive). Visuals are rebuilt on top of ui20
  * primitives — no clay, no @/components/ui/*, no wabasimplify visuals.
  */
 

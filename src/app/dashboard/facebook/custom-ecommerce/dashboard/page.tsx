@@ -11,7 +11,7 @@ import { LoaderCircle } from "lucide-react";
  *
  * Legacy entry point — preserved as a redirect to the canonical shop list
  * (the new account-level overview lives at the parent route). Restyled
- * with neutral zoru tokens.
+ * with neutral ui20 tokens.
  */
 
 export default function CustomEcommerceDashboardRedirect() {

@@ -1,15 +1,15 @@
 "use client";
 
 import { Skeleton } from '@/components/sabcrm/20ui';
-import { ZoruFacebookChatClient } from '../_components/zoru-fb-chat-client';
+import { Ui20FacebookChatClient } from '../_components/ui20-fb-chat-client';
 import { Suspense } from "react";
 
 /**
  * /dashboard/facebook/messages — Messenger inbox.
  *
- * ZoruUI three-pane workspace (list / thread / contact info).
+ * Ui20 three-pane workspace (list / thread / contact info).
  * Same data, same handlers as the legacy FacebookChatClient — only the
- * visual layer changed. See zoru-fb-chat-client.tsx for details.
+ * visual layer changed. See ui20-fb-chat-client.tsx for details.
  */
 
 function ChatPageFallback() {
@@ -26,7 +26,7 @@ export default function FacebookMessagesPage() {
   return (
     <div className="flex h-full flex-col">
       <Suspense fallback={<ChatPageFallback />}>
-        <ZoruFacebookChatClient />
+        <Ui20FacebookChatClient />
       </Suspense>
     </div>
   );

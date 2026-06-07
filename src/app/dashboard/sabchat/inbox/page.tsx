@@ -1,7 +1,7 @@
 "use client";
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton } from '@/components/sabcrm/20ui';
-import { ZoruSabChatClient } from '../_components/zoru-sabchat-client';
+import { Ui20SabChatClient } from '../_components/ui20-sabchat-client';
 import {
   Suspense } from "react";
 import { Inbox } from "lucide-react";
@@ -9,8 +9,8 @@ import { Inbox } from "lucide-react";
 /**
  * /dashboard/sabchat/inbox — live chat inbox.
  *
- * Visual layer fully Zoru. Same server actions as before — we delegate
- * to the local ZoruSabChatClient which preserves
+ * Visual layer fully Ui20. Same server actions as before — we delegate
+ * to the local Ui20SabChatClient which preserves
  * `getChatSessionsForUser`, `getFullChatSession`, and
  * `postChatMessageAction` end-to-end.
  */
@@ -56,7 +56,7 @@ export default function SabChatInboxPage() {
 
       <div className="min-h-0 flex-1">
         <Suspense fallback={<InboxSkeleton />}>
-          <ZoruSabChatClient />
+          <Ui20SabChatClient />
         </Suspense>
       </div>
     </div>

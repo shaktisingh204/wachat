@@ -5,9 +5,9 @@
  *
  * A self-written Twenty-faithful rebuild of the saved-reports surface using the
  * shared `.st-*` kit (`src/styles/sabcrm-twenty.css`) plus the page-local extras
- * in `./reports-twenty.css`. No ZoruUI / Tailwind / clay in the page chrome.
+ * in `./reports-twenty.css`. No Ui20 / Tailwind / clay in the page chrome.
  *
- * Behaviour parity with the previous ZoruUI version:
+ * Behaviour parity with the previous Ui20 version:
  *   - Lists saved reports for the active project (`listReportsAction`) — newest
  *     first, each with name, object chip and metric label.
  *   - "Run" executes a report inline (`runReportAction`) and renders the

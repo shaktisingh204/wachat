@@ -14,7 +14,7 @@
  *   3. Open source record — a link to `/sabcrm/<object>/<id>`.
  *
  * Design system: ONLY the `.sabcrm-twenty` kit (`.st-*` / `.stn-*` classes +
- * the co-located `../tasks-notes.css`) — NO ZoruUI / Tailwind / clay. There are
+ * the co-located `../tasks-notes.css`) — NO Ui20 / Tailwind / clay. There are
  * no file inputs on this surface, so no SabFiles picker is needed.
  *
  * NOTE: this is a reusable board component (exported as {@link MyTasksBoard});

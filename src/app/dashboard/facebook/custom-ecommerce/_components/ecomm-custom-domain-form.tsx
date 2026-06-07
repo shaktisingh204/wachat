@@ -27,7 +27,7 @@ import type { WithId } from "mongodb";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 /**
- * Zoru-only replacement for
+ * Ui20-only replacement for
  * `@/components/20ui-domain/ecomm-custom-domain-form`. Same server actions,
  * same data flow — only the visual layer changes.
  */

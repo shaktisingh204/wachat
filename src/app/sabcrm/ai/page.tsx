@@ -4,7 +4,7 @@
  * SabCRM — AI Assistant surface (`/sabcrm/ai`), Twenty-faithful.
  *
  * A chat UI rendered in Twenty's visual language (`.st-*` classes + the
- * `@/components/sabcrm/twenty` kit + the sibling `./ai.css` — NO ZoruUI /
+ * `@/components/sabcrm/twenty` kit + the sibling `./ai.css` — NO Ui20 /
  * Tailwind / clay). It posts the running transcript to `/api/sabcrm/ai` (the
  * existing, gated AI backend route — there is no AI server action in
  * `sabcrm*.actions.ts`, this dedicated route IS the backend) and streams the

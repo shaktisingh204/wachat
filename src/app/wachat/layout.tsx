@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * /wachat layout — phase 0 of the wachat → ZoruUI migration.
+ * /wachat layout — phase 0 of the wachat → Ui20 migration.
  *
- * Reuses `ZoruHomeShell` so every wachat page renders inside the
+ * Reuses `Ui20HomeShell` so every wachat page renders inside the
  * SAME sidebar + dock as `/dashboard`. No bespoke wachat chrome.
  * Sidebar groups (Workspace / Shortcuts) and the bottom-anchored
  * dock are inherited unchanged. The "WaChat" dock entry highlights

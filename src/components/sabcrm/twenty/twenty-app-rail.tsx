@@ -5,9 +5,9 @@
  *
  * A brand-new, Twenty-faithful vertical icon strip that lives at the far
  * left of the SabCRM frame, *before* the `.st-sidebar`. It mirrors the role
- * of the dashboard's `ZoruAppRail` (jump between SabNode apps) but is its
+ * of the dashboard's `Ui20AppRail` (jump between SabNode apps) but is its
  * own component styled entirely with the `.st-rail*` classes scoped under
- * `.sabcrm-twenty` — no ZoruUI, no Tailwind. The apps come from the central
+ * `.sabcrm-twenty` — no Ui20, no Tailwind. The apps come from the central
  * {@link SAB_APPS} registry so this rail always lists exactly what the rest
  * of the workspace exposes.
  *

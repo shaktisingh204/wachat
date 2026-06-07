@@ -120,7 +120,7 @@ interface ConversationListProps {
   isLoading: boolean;
 }
 
-function ZoruConversationListPane({
+function Ui20ConversationListPane({
   conversations,
   selectedConversationId,
   onSelectConversation,
@@ -407,7 +407,7 @@ interface ChatWindowProps {
   onBack: () => void;
 }
 
-function ZoruSabChatWindow({
+function Ui20SabChatWindow({
   session,
   isLoading,
   onMessageSent,
@@ -680,7 +680,7 @@ function ZoruSabChatWindow({
 
 /* main */
 
-export function ZoruSabChatClient() {
+export function Ui20SabChatClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { sessionUser } = useProject();
@@ -766,7 +766,7 @@ export function ZoruSabChatClient() {
             selectedConversation ? "hidden md:flex" : "flex",
           )}
         >
-          <ZoruConversationListPane
+          <Ui20ConversationListPane
             conversations={conversations}
             selectedConversationId={selectedConversation?._id.toString()}
             onSelectConversation={handleSelectConversation}
@@ -782,7 +782,7 @@ export function ZoruSabChatClient() {
           )}
         >
           {selectedConversation ? (
-            <ZoruSabChatWindow
+            <Ui20SabChatWindow
               key={selectedConversation._id.toString()}
               session={selectedConversation}
               isLoading={loadingConversation}

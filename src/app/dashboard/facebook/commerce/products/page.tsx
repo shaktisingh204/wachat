@@ -27,7 +27,7 @@ import { useProject } from "@/context/project-context";
  * /dashboard/facebook/commerce/products — catalog grid for the active
  * Facebook project. Fetches catalogs via getCatalogs, syncs via
  * syncCatalogs, and exposes a per-catalog drill-in to
- * /commerce/products/[catalogId]. Pure ZoruUI primitives — no clay,
+ * /commerce/products/[catalogId]. Pure Ui20 primitives — no clay,
  * no sync-button composite.
  */
 

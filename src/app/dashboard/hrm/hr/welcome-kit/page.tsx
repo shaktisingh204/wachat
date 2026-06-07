@@ -1,8 +1,8 @@
 'use client';
 import { fmtDate } from '@/lib/utils';
 
-import { cn as _zoruCn } from '@/components/sabcrm/20ui';
-void _zoruCn;
+import { cn as _ui20Cn } from '@/components/sabcrm/20ui';
+void _ui20Cn;
 
 import { Heart } from 'lucide-react';
 import { ClayBadge, HrEntityPage } from '../_components/hr-entity-page';

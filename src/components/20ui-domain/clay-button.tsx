@@ -27,7 +27,7 @@ export interface ClayButtonProps
  * back-compat wrapper around Button for the public-facing pages
  * and dashboards that still reference it.
  */
-const variantToZoru: Record<Variant, ButtonProps['variant']> = {
+const variantToUi20: Record<Variant, ButtonProps['variant']> = {
   obsidian: 'default',
   rose: 'default',
   'rose-soft': 'secondary',
@@ -52,7 +52,7 @@ const variantOverride: Record<Variant, string> = {
     'rounded-lg text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]',
 };
 
-const sizeToZoru: Record<Size, ButtonProps['size']> = {
+const sizeToUi20: Record<Size, ButtonProps['size']> = {
   sm: 'sm',
   md: 'md',
   lg: 'lg',
@@ -76,8 +76,8 @@ export const ClayButton = React.forwardRef<HTMLButtonElement, ClayButtonProps>(
     <Button
       ref={ref}
       type={type}
-      variant={variantToZoru[variant]}
-      size={sizeToZoru[size]}
+      variant={variantToUi20[variant]}
+      size={sizeToUi20[size]}
       className={cn('gap-2 font-medium leading-none', variantOverride[variant], className)}
       {...props}
     >

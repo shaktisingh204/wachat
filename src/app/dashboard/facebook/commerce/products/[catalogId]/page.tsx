@@ -43,7 +43,7 @@ import type { ProductSet } from "@/lib/definitions";
  *   - createProductSet (via dialog)
  *   - deleteProductSet (via dialog)
  *
- * Pure ZoruUI primitives + neutral tokens. Two distinct sections —
+ * Pure Ui20 primitives + neutral tokens. Two distinct sections —
  * "Products" and "Collections" — replace the legacy tab UI per the
  * no-tab-ui directive.
  */

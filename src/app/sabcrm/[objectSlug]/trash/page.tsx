@@ -5,7 +5,7 @@
  *
  * Lists the object's soft-deleted records and offers two per-row actions in
  * Twenty's visual language (the `.st-*` kit + the new `.str-*` classes — NO
- * ZoruUI here on purpose, to match the rest of the SabCRM Twenty slice):
+ * Ui20 here on purpose, to match the rest of the SabCRM Twenty slice):
  *
  *   - Restore — un-deletes the record (`restoreSabcrmRecordTw`) and removes it
  *     from the list optimistically.

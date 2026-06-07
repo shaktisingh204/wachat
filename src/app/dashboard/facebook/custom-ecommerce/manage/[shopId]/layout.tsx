@@ -31,7 +31,7 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/layout.tsx
  *
- * Per-shop scope wrap. Loads the active shop, renders a zoru page-header
+ * Per-shop scope wrap. Loads the active shop, renders a ui20 page-header
  * with shop name + apply-default-theme action, and a route-driven sub-page
  * nav using `Button variant="default|outline"` (NOT tabs — per the
  * design directive).

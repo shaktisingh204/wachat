@@ -4,9 +4,9 @@ import { Button } from '@/components/sabcrm/20ui';
 import { Lock } from "lucide-react";
 
 /**
- * Local zoru replacement for `@/components/20ui-domain/feature-lock`.
+ * Local ui20 replacement for `@/components/20ui-domain/feature-lock`.
  *
- * Same FeatureLock + FeatureLockOverlay API, but renders zoru atoms only.
+ * Same FeatureLock + FeatureLockOverlay API, but renders ui20 atoms only.
  */
 
 import * as React from "react";

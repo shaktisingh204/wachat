@@ -4,7 +4,7 @@
  * Styles the `<RichTextEditor>` composer surface (toolbar + contentEditable
  * area) and the `<RichTextView>` read-only renderer used for note / activity
  * bodies in record-detail-tw.tsx. All tokens are the shared Twenty `--st-*`
- * variables so it sits flush with the timeline / composer kit — NO ZoruUI,
+ * variables so it sits flush with the timeline / composer kit — NO Ui20,
  * Tailwind, or clay. New `.rte-*` namespace only; no shared CSS is touched.
  */
 

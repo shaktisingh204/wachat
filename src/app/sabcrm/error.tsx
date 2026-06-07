@@ -7,7 +7,7 @@ import '@/components/sabcrm/20ui/surface-crm-base.css';
 import { TwentyButton } from '@/components/sabcrm/twenty/twenty-primitives';
 
 /**
- * SabCRM root error boundary — Twenty design system (`.st-*`), NOT ZoruUI.
+ * SabCRM root error boundary — Twenty design system (`.st-*`), NOT Ui20.
  */
 export default function SabcrmError({
   error,

@@ -11,7 +11,7 @@ import { ArrowLeft,
   Save } from 'lucide-react';
 
 // §1E.sweep: status Select kept — wire value 'active' differs from surveyStatus enum 'open'; resolve Rust DTO then swap.
-// §1E.sweep: type/audience ZoruSelects kept — no matching catalogue enums (surveyType/surveyAudience not in CRM_ENUMS).
+// §1E.sweep: type/audience Ui20Selects kept — no matching catalogue enums (surveyType/surveyAudience not in CRM_ENUMS).
 
 /**
  * <SurveyForm /> — shared create/edit form for HR Surveys.

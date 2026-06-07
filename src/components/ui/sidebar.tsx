@@ -93,14 +93,14 @@ export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttribu
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
-type SidebarMenuZoruButtonProps = ButtonProps & {
+type SidebarMenuUi20ButtonProps = ButtonProps & {
   isActive?: boolean;
   tooltip?: string;
   asChild?: boolean;
   showTooltip?: boolean;
 };
 
-export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuZoruButtonProps>(
+export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuUi20ButtonProps>(
   ({ isActive, tooltip, asChild, showTooltip, ...props }, ref) => {
     const { isOpen } = useSidebar();
 

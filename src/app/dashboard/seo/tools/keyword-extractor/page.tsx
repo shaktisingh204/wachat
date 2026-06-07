@@ -1,10 +1,10 @@
 'use client';
 
 import { Button, Textarea, Card, CardBody, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-void _zoruCn;
+void _ui20Cn;
 
 const STOPWORDS: Record<string, Set<string>> = {
   en: new Set(['a','an','the','is','are','was','were','be','been','being','of','to','in','on','at','by','for','with','about','as','from','and','or','but','if','then','so','than','it','this','that','these','those','i','you','he','she','we','they','his','her','its','their','our','my','your','do','does','did','have','has','had','will','would','could','should','can','may','might','must','not','no','yes','also','very']),

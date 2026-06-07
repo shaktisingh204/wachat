@@ -27,10 +27,10 @@ import type {
   } from "@/lib/definitions";
 
 /**
- * /dashboard/facebook/auto-reply — ZoruUI rebuild.
+ * /dashboard/facebook/auto-reply — Ui20 rebuild.
  *
  * Two automation surfaces (Comments + Messenger Welcome) live on one page,
- * each gated by a master `ZoruSwitch` and bundled inside `ZoruAccordion`
+ * each gated by a master `Ui20Switch` and bundled inside `Ui20Accordion`
  * sections — replacing the legacy Tabs UI. No clay, no @/components/ui/*,
  * no react-icons, no wabasimplify visual imports.
  *
@@ -49,7 +49,7 @@ import {
   FbBreadcrumb,
   FbHeader,
   FbNoProject,
-} from "../_components/zoru-fb-page-shell";
+} from "../_components/ui20-fb-page-shell";
 
 const initialState: { success: boolean; error?: string } = {
   success: false,

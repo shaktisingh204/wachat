@@ -39,7 +39,7 @@
  * are collected into a muted group pinned to the bottom of the panel, just like
  * Twenty groups its system metadata.
  *
- * NO ZoruUI / Tailwind / clay — Twenty look only: the shared `.st-field-row*` /
+ * NO Ui20 / Tailwind / clay — Twenty look only: the shared `.st-field-row*` /
  * `.st-cell-*` classes plus a co-located `.st-rfp-*` block in
  * `record-field-panel.css`. Relies on the `--st-*` tokens from
  * `sabcrm-twenty.css`.

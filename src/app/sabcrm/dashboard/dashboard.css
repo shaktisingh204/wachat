@@ -1,7 +1,7 @@
 /* =========================================================================
    SabCRM — Dashboard (Twenty-faithful)
    Scoped under .sabcrm-twenty. Plain CSS only. Consumes the --st-* tokens
-   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO ZoruUI.
+   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO Ui20.
    ========================================================================= */
 
 /* Local semantic tokens — the shared kit ships no success/warning/danger

@@ -14,7 +14,7 @@
  * Dialog with a name field and a 10-swatch colour picker. Delete opens an
  * AlertDialog that warns the user that chats keep their tag references.
  *
- * Rendered with the 20ui design system - no shadcn, clay, or zoru imports.
+ * Rendered with the 20ui design system - no shadcn, clay, or ui20 imports.
  */
 
 import * as React from "react";

@@ -646,7 +646,7 @@ function ContactInfoPanelBody({
 
 /* ── main client ──────────────────────────────────────────────────── */
 
-export function ZoruFacebookChatClient() {
+export function Ui20FacebookChatClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const conversationIdFromUrl = searchParams.get("conversationId");

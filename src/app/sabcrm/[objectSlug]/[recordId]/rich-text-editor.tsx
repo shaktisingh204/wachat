@@ -26,7 +26,7 @@
  *   - `isHtmlBody`, `isRichTextEmpty` — body classification helpers.
  *
  * Styling lives in `rich-text.css` (`.rte-*` namespace, shared Twenty `--st-*`
- * tokens) — NO ZoruUI / Tailwind / clay.
+ * tokens) — NO Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';

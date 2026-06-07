@@ -7,7 +7,7 @@
      - src/styles/sabcrm-twenty.css           (do NOT edit)
      - src/app/dashboard/settings/crm/settings-twenty.css
    All selectors are scoped under `.sabcrm-twenty` (applied by TwentyAppFrame).
-   Plain CSS, --st-* tokens only. NO Tailwind, NO ZoruUI.
+   Plain CSS, --st-* tokens only. NO Tailwind, NO Ui20.
 
    The "failed" run chip + failure meta text reuse the shared `--st-danger*`
    semantic tokens from `settings-twenty.css`, which carry `.st-theme-dark`

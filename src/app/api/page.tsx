@@ -236,7 +236,7 @@ curl https://api.sabnode.com/v2/workspaces \{'\n'}
   );
 }
 
-/* Global Styles for Monochrome Zoru UI Theme */
+/* Global Styles for Monochrome Ui20 UI Theme */
 function GlobalMonochromeStyles() {
   return (
     <style>{`

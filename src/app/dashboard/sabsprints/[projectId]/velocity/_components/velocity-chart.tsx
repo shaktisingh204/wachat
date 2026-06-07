@@ -2,7 +2,7 @@
 
 /**
  * Velocity bar chart — planned vs completed points per completed sprint.
- * Uses the Recharts wrapper (Recharts) and the neutral Zoru palette.
+ * Uses the Recharts wrapper (Recharts) and the neutral Ui20 palette.
  */
 import { Card, EmptyState, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
 import type { AgileVelocityDoc } from '@/lib/rust-client/agile-velocity';

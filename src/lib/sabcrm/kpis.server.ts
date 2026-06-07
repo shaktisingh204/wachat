@@ -56,7 +56,7 @@ export interface ObjectRecordCount {
   slug: string;
   /** Human plural label, e.g. `Companies`. */
   labelPlural: string;
-  /** Lucide / ZoruUI icon name. */
+  /** Lucide / Ui20 icon name. */
   icon: string;
   /** Total live records in this project. */
   count: number;

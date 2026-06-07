@@ -12,7 +12,7 @@ export const metadata = {
  * record counts; this server entry only carries route `metadata`.
  *
  * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope), so
- * all visuals come from the `.st-*` Twenty design system. No ZoruUI / Tailwind.
+ * all visuals come from the `.st-*` Twenty design system. No Ui20 / Tailwind.
  */
 export default function SabcrmHomePage(): React.JSX.Element {
   return <SabcrmHomeClient />;

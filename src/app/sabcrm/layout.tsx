@@ -7,11 +7,11 @@ export const dynamic = 'force-dynamic';
  * This layout keeps ALL of the SabNode gating (session/onboarding/RBAC guard)
  * and the React context providers (ProjectProvider + LocaleProvider) so pages
  * can call `useProject()` and the gated server actions resolve a project — but
- * it swaps the visual shell from `ZoruHomeShell` to `TwentyAppFrame` so every
+ * it swaps the visual shell from `Ui20HomeShell` to `TwentyAppFrame` so every
  * `/sabcrm/*` page renders inside Twenty's sidebar + main frame.
  *
  * Mirrors `src/app/dashboard/layout.tsx` for the gating pipeline; only the
- * visual chrome differs (Twenty's `.sabcrm-twenty` scope, not the ZoruUI shell).
+ * visual chrome differs (Twenty's `.sabcrm-twenty` scope, not the Ui20 shell).
  */
 
 import React from 'react';

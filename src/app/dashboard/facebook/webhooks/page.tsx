@@ -10,11 +10,11 @@ import { Cog,
   Webhook } from 'lucide-react';
 
 /**
- * /dashboard/facebook/webhooks — Webhook endpoints (ZoruUI).
+ * /dashboard/facebook/webhooks — Webhook endpoints (Ui20).
  *
  * Replaces the legacy WebhookLogs from @/components/20ui-domain with
  * the local FacebookWebhookLogs (which already wraps create / test /
- * delete dialogs and renders inside ZoruDataTable-like Zoru chrome).
+ * delete dialogs and renders inside Ui20DataTable-like Ui20 chrome).
  *
  * Page chrome:
  *   - Breadcrumb  (SabNode › Meta Suite › Webhooks)

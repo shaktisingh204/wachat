@@ -1,9 +1,9 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * /sabwa layout — ZoruUI migration.
+ * /sabwa layout — Ui20 migration.
  *
- * Reuses `ZoruHomeShell` (via `SabwaShell`) so every `/sabwa/*` page
+ * Reuses `Ui20HomeShell` (via `SabwaShell`) so every `/sabwa/*` page
  * renders inside the SAME sidebar + dock as `/dashboard`. No bespoke
  * SabWa chrome. Auth/project guard mirrors `/wachat/layout.tsx`.
  *

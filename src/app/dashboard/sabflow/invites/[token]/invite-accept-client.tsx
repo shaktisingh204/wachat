@@ -17,7 +17,7 @@ import { Building2,
  * invite's validity and resolved the workspace name, so this only needs
  * to submit the accept / decline action.
  *
- * ZoruUI rewrite — chrome only. Same fetch endpoints & router hop.
+ * Ui20 rewrite — chrome only. Same fetch endpoints & router hop.
  */
 
 import type { WorkspaceRole } from "@/lib/sabflow/workspaces/types";

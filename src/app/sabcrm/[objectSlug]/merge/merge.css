@@ -2,7 +2,7 @@
  * SabCRM — "Merge records" screen styles (Twenty look only).
  *
  * Scoped to the merge page; consumes the shared `--st-*` design tokens so it
- * re-themes for free in light / dark. NO ZoruUI / Tailwind / clay here — only
+ * re-themes for free in light / dark. NO Ui20 / Tailwind / clay here — only
  * `.st-merge-*` classes, alongside the reusable `.st-page / .st-input /
  * .st-btn / .st-banner / .st-empty / .st-field` primitives from the kit.
  *

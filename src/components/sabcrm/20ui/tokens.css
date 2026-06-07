@@ -2,7 +2,7 @@
    20ui — standalone design-system foundation (.ui20 root)
    =========================================================================
 
-   This makes 20ui a TRUE app-wide design system, like ZoruUI: its own neutral
+   This makes 20ui a TRUE app-wide design system, like Ui20: its own neutral
    root class `.ui20` with a fully self-contained token set, so any
    `<div class="ui20">…</div>` anywhere in SabNode renders 20ui correctly,
    independent of the CRM's `.sabcrm-twenty` scope.
@@ -156,7 +156,7 @@
 /* ----- Dark theme (explicit) -----
    `html.dark .ui20` lets the no-FOUC theme bootstrap (which stamps `html.dark`
    before first paint) theme every .ui20 surface immediately — same as the
-   `html.dark .zoruui` hook in zoruui.css. Without it, .ui20 chrome (the app
+   `html.dark .ui20` hook in ui20.css. Without it, .ui20 chrome (the app
    rail + header) would paint light until the React `appDark` className caught
    up post-hydration, flashing white inside an already-dark shell. The app
    theme is authoritative on <html>, so when it is dark every .ui20 is dark. */

@@ -1,10 +1,10 @@
 'use client';
 
 import { Button, Input, Card, CardBody, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { XMLParser } from 'fast-xml-parser';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';

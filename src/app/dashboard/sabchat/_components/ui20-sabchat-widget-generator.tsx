@@ -56,7 +56,7 @@ function SubmitButton() {
   );
 }
 
-export function ZoruSabChatWidgetGenerator({
+export function Ui20SabChatWidgetGenerator({
   user,
 }: {
   user: WithId<User>;

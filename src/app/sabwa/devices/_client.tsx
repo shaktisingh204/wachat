@@ -23,8 +23,8 @@ import type { WithId } from 'mongodb';
  * dialogs; both confirm against the corresponding server action and
  * refresh the list on success.
  *
- * Rebuilt on ZoruUI primitives. The grid/table view-mode picker is a
- * segmented Button group (no tab UI per the ZoruUI design rules).
+ * Rebuilt on Ui20 primitives. The grid/table view-mode picker is a
+ * segmented Button group (no tab UI per the Ui20 design rules).
  */
 
 import * as React from 'react';

@@ -2,11 +2,11 @@
 
 import { Card, CardBody, Input, Label, Table, TBody, Td, Th, THead, Tr, cn } from '@/components/sabcrm/20ui';
 import {
-  cn as _zoruCn,
+  cn as _ui20Cn,
   useMemo,
   useState } from 'react';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

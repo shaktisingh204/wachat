@@ -13,7 +13,7 @@
  *   - A page-size <select> (25 / 50 / 100).
  *   - Prev / Next steppers, disabled at the boundaries (derived from `total`).
  *
- * Twenty look only (`.st-*` + pagination.css) — no ZoruUI / Tailwind / clay.
+ * Twenty look only (`.st-*` + pagination.css) — no Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';

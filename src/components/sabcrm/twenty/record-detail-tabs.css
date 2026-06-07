@@ -3,7 +3,7 @@
  *
  * Scoped to the self-contained `<RecordDetailTabs>` widget. Twenty look only:
  * uses the shared `--st-*` design tokens (defined under `.sabcrm-twenty` in
- * `src/styles/sabcrm-twenty.css`) and `st-rdt-*` classes. No ZoruUI / Tailwind /
+ * `src/styles/sabcrm-twenty.css`) and `st-rdt-*` classes. No Ui20 / Tailwind /
  * clay. Mirrors Twenty's record-show tab strip + panel chrome.
  */
 

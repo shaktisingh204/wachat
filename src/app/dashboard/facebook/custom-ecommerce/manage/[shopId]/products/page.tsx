@@ -21,9 +21,9 @@ import type { WithId } from "mongodb";
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/products
  *
- * Product catalog — `ZoruCard` grid (one card per product) plus the
+ * Product catalog — `Ui20Card` grid (one card per product) plus the
  * create / edit / delete dialogs. Same data fetchers + handlers, only
- * the visual layer is rebuilt with zoru atoms.
+ * the visual layer is rebuilt with ui20 atoms.
  */
 
 import * as React from "react";

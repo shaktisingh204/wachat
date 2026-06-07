@@ -6,7 +6,7 @@
  * classes unchanged. These classes hang the layout's widgets in their saved
  * order inside the existing right-rail panel, plus the two layout-only widget
  * types that have no fixed-tab equivalent (RICH_TEXT note bodies, IFRAME, and a
- * GRAPH placeholder). Mirrors the twenty kit's tokens — NO ZoruUI.
+ * GRAPH placeholder). Mirrors the twenty kit's tokens — NO Ui20.
  */
 
 /* A widget block inside a layout-driven tab panel. Widgets stack with a small

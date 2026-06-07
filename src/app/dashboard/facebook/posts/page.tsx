@@ -31,7 +31,7 @@ import type { FacebookPost } from "@/lib/definitions";
 /**
  * /dashboard/facebook/posts — Master Facebook post list.
  *
- * ZoruUI rebuild: page header + breadcrumb, DataTable with status
+ * Ui20 rebuild: page header + breadcrumb, DataTable with status
  * badges, edit/delete actions per row. Same data (`getFacebookPosts`,
  * `handleLikeObject`) and same handlers as before. Neutral palette only.
  */

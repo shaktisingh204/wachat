@@ -29,13 +29,13 @@ import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
 import type { WebhookLogListItem } from '@/lib/definitions';
 
 /**
- * FacebookWebhookLogs (local, ZoruUI).
+ * FacebookWebhookLogs (local, Ui20).
  *
  * Local replacement for @/components/20ui-domain/webhook-logs scoped to
  * the Meta Suite. Same server actions (getWebhookLogs,
  * handleClearProcessedLogs, handleReprocessWebhook,
  * getWebhookLogPayload), same pagination + reprocess + view-payload
- * behaviour. All visuals come from ZoruUI primitives.
+ * behaviour. All visuals come from Ui20 primitives.
  *
  * Adds three Meta-Suite-flavoured dialogs surfaced from the toolbar:
  *   - create-webhook  (TODO — currently informational; Meta webhook

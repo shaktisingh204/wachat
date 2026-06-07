@@ -1,11 +1,11 @@
 'use client';
 
 import { Button, Card, CardBody, Input, Label, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 

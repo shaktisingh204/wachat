@@ -7,7 +7,7 @@
    floating selection bar that surfaces once one or more rows are picked.
 
    Everything draws on the existing `--st-*` design tokens so the look stays
-   faithful to Twenty. No ZoruUI / Tailwind / clay.
+   faithful to Twenty. No Ui20 / Tailwind / clay.
    ========================================================================= */
 
 /* --- Checkbox column -------------------------------------------------------

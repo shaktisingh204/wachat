@@ -15,7 +15,7 @@ import '@/components/sabcrm/20ui/tokens-global.css';
 import SessionProvider from '@/components/20ui-domain/session-provider';
 import { MotionProvider } from '@/components/motion';
 // 20ui toast system, mounted app-wide so migrated files' useToast() has a
-// provider (coexists with the ZoruUI Toaster during the migration).
+// provider (coexists with the Ui20 Toaster during the migration).
 import { ToastProvider as Ui20ToastProvider, Toaster as Ui20Toaster } from '@/components/sabcrm/20ui';
 
 export const metadata: Metadata = {
@@ -89,7 +89,7 @@ export default function RootLayout({
       <body className="antialiased font-sans min-h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
         {/* Theme bootstrap — resolve the saved light/dark preference and stamp
             an explicit class on <html> BEFORE first paint, so the app rail,
-            header, and every ZoruUI / 20ui surface render in the chosen theme
+            header, and every Ui20 / 20ui surface render in the chosen theme
             with no flash. "system" is resolved to an explicit class so the
             20ui prefers-color-scheme fallback can't override the choice. */}
         <script

@@ -23,7 +23,7 @@
  *         * ONE_TO_MANY: patch the CHILD record's inverse MANY_TO_ONE field to
  *           point at this record's id (attach) or `null` (detach).
  *
- * UI: ZoruUI primitives only (`@/components/zoruui`), black & white. There is no
+ * UI: Ui20 primitives only (`@/components/ui20`), black & white. There is no
  * dedicated Spinner in the barrel, so loading uses lucide `Loader2` (matching
  * the sibling `record-detail.tsx`).
  */

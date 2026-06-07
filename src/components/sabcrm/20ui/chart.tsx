@@ -26,7 +26,7 @@
  * Colours in `config` should be 20ui tokens (e.g. `var(--st-accent)`,
  * `var(--u-brand-orange)`) so charts stay on-system in both light and dark.
  *
- * Mirrors the shadcn/zoru chart API (ChartContainer, ChartTooltip,
+ * Mirrors the shadcn/ui20 chart API (ChartContainer, ChartTooltip,
  * ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle) but is a
  * clean 20ui reimplementation — token-styled, no Tailwind, accessible labels.
  */

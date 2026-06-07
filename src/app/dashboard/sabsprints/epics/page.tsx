@@ -19,7 +19,7 @@ import {
     Progress,
     EmptyState,
     type BadgeTone,
-    type ZoruProgressTone,
+    type Ui20ProgressTone,
 } from "@/components/sabcrm/20ui";
 import { Plus, Layers, CheckCircle2, Loader2, ListTodo } from "lucide-react";
 
@@ -39,7 +39,7 @@ const STATUS_BADGE: Record<EpicStatus, BadgeTone> = {
     Completed: "success",
 };
 
-const PROGRESS_TONE: Record<EpicStatus, ZoruProgressTone> = {
+const PROGRESS_TONE: Record<EpicStatus, Ui20ProgressTone> = {
     "In Progress": "accent",
     Planned: "accent",
     Completed: "success",

@@ -30,7 +30,7 @@ import {
  *   - Quick-create: optional last item that fires `onCreateClick` —
  *     this component never renders a modal itself.
  *
- * Visual: matches the zoru-ui input frame so pickers sit naturally
+ * Visual: matches the ui20-ui input frame so pickers sit naturally
  * alongside `<Input>`/`<Select>` in CRM forms.
  */
 

@@ -41,7 +41,7 @@ export const dynamic = 'force-dynamic';
  * {@link TwentyFieldValue} (synthetic SELECT / DATE fields) for Twenty-faithful
  * presentation.
  *
- * Twenty look only (`.st-*` + `./my-work.css`). NO ZoruUI / Tailwind / clay.
+ * Twenty look only (`.st-*` + `./my-work.css`). NO Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';

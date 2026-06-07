@@ -37,7 +37,7 @@ import type { WsCustomField } from '@/lib/worksuite/meta-types';
  * Employee form (used by `/dashboard/hrm/payroll/employees/new` and
  * `…/[employeeId]/edit`).
  *
- * Rebuilt with the ZoruUI design system into discrete `ZoruCard`
+ * Rebuilt with the Ui20 design system into discrete `Ui20Card`
  * sections — Personal, Job, Extended Personal, Employment, Banking &
  * Tax, Custom Fields — replacing the previous single big accordion.
  *

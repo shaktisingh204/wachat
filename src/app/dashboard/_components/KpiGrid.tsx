@@ -191,11 +191,11 @@ export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
   const [kpis, setKpis] = useState(defaultKpis);
 
   useEffect(() => {
-    const saved = localStorage.getItem("zoru-dashboard-kpis-visible");
+    const saved = localStorage.getItem("ui20-dashboard-kpis-visible");
     if (saved) {
       try { setVisibleKpis(JSON.parse(saved)); } catch (e) {}
     }
-    const savedOrder = localStorage.getItem("zoru-dashboard-kpis-order");
+    const savedOrder = localStorage.getItem("ui20-dashboard-kpis-order");
     if (savedOrder) {
       try {
         const orderIds = JSON.parse(savedOrder);
@@ -216,7 +216,7 @@ export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
   const toggleKpi = (key: string) => {
     const newKpis = { ...visibleKpis, [key]: !visibleKpis[key] };
     setVisibleKpis(newKpis);
-    localStorage.setItem("zoru-dashboard-kpis-visible", JSON.stringify(newKpis));
+    localStorage.setItem("ui20-dashboard-kpis-visible", JSON.stringify(newKpis));
   };
 
   const sensors = useSensors(
@@ -231,7 +231,7 @@ export function KpiGrid({ stats, velocity, derived, currency }: KpiGridProps) {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
         const newArr = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("zoru-dashboard-kpis-order", JSON.stringify(newArr.map(k => k.id)));
+        localStorage.setItem("ui20-dashboard-kpis-order", JSON.stringify(newArr.map(k => k.id)));
         return newArr;
       });
     }

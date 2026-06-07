@@ -20,7 +20,7 @@ import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
  * term length, default-template pointer and active toggle. Mirrors the
  * pattern in `crm/accounting/groups/page.tsx`.
  *
- * RBAC: `crm_contract_type`. ZoruUI throughout.
+ * RBAC: `crm_contract_type`. Ui20 throughout.
  */
 
 import * as React from 'react';

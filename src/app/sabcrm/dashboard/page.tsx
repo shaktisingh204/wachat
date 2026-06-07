@@ -399,7 +399,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
 
       <section className="st-dash-grid" aria-label="Breakdowns">
         {/* Native .sabcrm-twenty charts — inline SVG + --st-* tokens, drawn
-            directly inside the .st-dash-grid (no ZoruUI scope wrapper). */}
+            directly inside the .st-dash-grid (no Ui20 scope wrapper). */}
 
         {/* Records by stage — native bar chart (countByField). */}
         <TwentyBarChart

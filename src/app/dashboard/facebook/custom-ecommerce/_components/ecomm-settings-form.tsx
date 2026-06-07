@@ -21,7 +21,7 @@ import type {
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/20ui-domain/ecomm-settings-form`.
+ * Ui20-only replacement for `@/components/20ui-domain/ecomm-settings-form`.
  *
  * Same `updateEcommShopSettings` server action, same data shape — just new
  * visuals. Mounts inside the per-shop settings page.

@@ -46,7 +46,7 @@ const statusTone: Record<
 
 /**
  * ClayRoundCard — round summary card built on top of the shadcn
- * `ZoruCard` primitive. Adds a meta row (date / candidate count / status),
+ * `Ui20Card` primitive. Adds a meta row (date / candidate count / status),
  * the title block, and a footer that pairs the avatar stack with a
  * dark CTA button.
  */

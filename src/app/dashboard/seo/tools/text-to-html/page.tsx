@@ -1,9 +1,9 @@
 'use client';
 
 import { Textarea, cn } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useMemo, useState } from 'react';
+import { cn as _ui20Cn, useMemo, useState } from 'react';
 
-void _zoruCn;
+void _ui20Cn;
 
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { textToHtml } from '@/lib/seo-tools/text-utils';

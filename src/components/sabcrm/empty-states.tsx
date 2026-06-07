@@ -5,12 +5,12 @@
  *
  * A set of focused, parameterized empty-state renderers for common scenarios
  * across SabCRM: no records, no objects, no search results, no relations,
- * and generic error states. Each component wraps the ZoruUI `EmptyState`
+ * and generic error states. Each component wraps the Ui20 `EmptyState`
  * primitive and is tailored for a specific context (table, board, picker, etc.).
  *
  * All components are compositional and accept an optional `action` node,
  * permitting callers to inject contextual buttons (e.g. "Create New").
- * They are fully compatible with the `.zoruui` CSS scope and inherit
+ * They are fully compatible with the `.ui20` CSS scope and inherit
  * the active dark/light theme.
  */
 
@@ -257,7 +257,7 @@ export function NoPickerResultsEmptyState({
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Generic empty state for custom scenarios. Falls back to the base ZoruUI
+ * Generic empty state for custom scenarios. Falls back to the base Ui20
  * EmptyState when none of the above fit. Useful for errors or domain-specific
  * scenarios (e.g., "Import failed" or "Sync stalled").
  *

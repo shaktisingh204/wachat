@@ -14,7 +14,7 @@ import {
  * Search + status + type filters with inline table. Uses the
  * `crm_contract_templates` Mongo collection through
  * `crm-contract-templates.actions.ts`. RBAC: `crm_contract_template`.
- * ZoruUI throughout.
+ * Ui20 throughout.
  */
 
 import * as React from 'react';

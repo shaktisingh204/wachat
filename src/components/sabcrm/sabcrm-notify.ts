@@ -4,10 +4,10 @@
  * SabCRM — assignment / mention toast helper (client-only).
  *
  * A thin, stateless adapter that turns the *results* of SabCRM assignment and
- * mention actions into ZoruUI toasts. It owns **no** global state of its own:
- * it is a pure mapping from "what just happened" → a ZoruUI toast payload,
- * delegating every side effect to the shared ZoruUI toast queue
- * ({@link toast}, mounted once via `<ZoruToaster />` at the app root).
+ * mention actions into Ui20 toasts. It owns **no** global state of its own:
+ * it is a pure mapping from "what just happened" → a Ui20 toast payload,
+ * delegating every side effect to the shared Ui20 toast queue
+ * ({@link toast}, mounted once via `<Ui20Toaster />` at the app root).
  *
  * Why a dedicated module (vs. calling `toast` inline at each call site):
  *  - One place decides the copy, the variant (success / info / destructive),
@@ -35,7 +35,7 @@
  *     notifyActionResult(res);
  *   }
  *
- * This module is deliberately import-light: it depends only on the ZoruUI
+ * This module is deliberately import-light: it depends only on the Ui20
  * barrel, so it can be dropped into any SabCRM client component without
  * pulling in server-only code.
  */
@@ -85,11 +85,11 @@ export interface NotifiableActionResult {
 
 // ── Internal: single dispatch seam ──────────────────────────────────────────
 // Every notification in this module funnels through `emit()`. Today it only
-// pushes a ZoruUI toast; this is the one function a notification-center would
+// pushes a Ui20 toast; this is the one function a notification-center would
 // extend (see the bottom of the file) so persistence + bell-inbox fan-out stay
 // in lock-step with what the user sees as a toast.
 
-// Variant union mirrors ZoruUI's toast `cva` (zoruui/toast.tsx). Defined
+// Variant union mirrors Ui20's toast `cva` (ui20/toast.tsx). Defined
 // locally rather than via `LegacyToastInput["variant"]` so the helper does not
 // depend on the exact key path of the toast-input type.
 type NotifyVariant = "default" | "destructive" | "success" | "warning" | "info";
@@ -188,8 +188,8 @@ export function notifyActionResult(
  * NOTIFICATION-CENTER INTEGRATION (future hook point)
  * ───────────────────────────────────────────────────────────────────────────
  * This helper is intentionally toast-only and carries no persistence. When a
- * SabCRM notification center (the bell / inbox surfaced by ZoruUI's
- * `ZoruNotificationPopover`) is added, wire it in at the SINGLE `emit()` seam
+ * SabCRM notification center (the bell / inbox surfaced by Ui20's
+ * `Ui20NotificationPopover`) is added, wire it in at the SINGLE `emit()` seam
  * above — do not scatter writes across `notifyAssignment` / `notifyMention`.
  *
  * Recommended shape:
@@ -206,7 +206,7 @@ export function notifyActionResult(
  *        → Mongo → ActionResult<T>.
  *   3. On the client, keep this `emit()` as the live toast, and let the inbox
  *      hydrate from the persisted rows (e.g. a `useSabcrmNotifications()` hook
- *      feeding `ZoruNotificationPopover` in the SabCRM shell header,
+ *      feeding `Ui20NotificationPopover` in the SabCRM shell header,
  *      `src/components/sabcrm/sabcrm-shell.tsx`). If real-time is wanted,
  *      `emit()` is also the right place to optimistically prepend to that
  *      client store before the server confirms.

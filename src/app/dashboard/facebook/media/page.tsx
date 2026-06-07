@@ -21,7 +21,7 @@ import {
   } from '@/app/actions/facebook.actions';
 
 /**
- * /dashboard/facebook/media — Page media library (ZoruUI).
+ * /dashboard/facebook/media — Page media library (Ui20).
  *
  * The Meta API surfaces 4 collections (photos, albums, videos, playlists).
  * Per the no-tab-ui rule we flatten them into a single FilesPage and
@@ -172,7 +172,7 @@ export default function MediaPage() {
 
   const handleUpload = useCallback(
     (uploadList: File[]) => {
-      // TODO(meta-zoru): Meta's Graph API uploads vary per asset class
+      // TODO(meta-ui20): Meta's Graph API uploads vary per asset class
       // (photo: /photos, video: /videos, album: /albums). Wire this up
       // once a unified handleUploadFacebookAsset action lands.
       toast({
@@ -187,7 +187,7 @@ export default function MediaPage() {
 
   const handleRename = useCallback(
     (file: FileEntity, name: string) => {
-      // TODO(meta-zoru): Meta does not allow generic rename; per-class
+      // TODO(meta-ui20): Meta does not allow generic rename; per-class
       // mutation lives in the post / video editors.
       toast({
         title: 'Rename not supported',
@@ -199,7 +199,7 @@ export default function MediaPage() {
 
   const handleDelete = useCallback(
     (toDelete: FileEntity[]) => {
-      // TODO(meta-zoru): wire to handleDeletePost-style action per asset
+      // TODO(meta-ui20): wire to handleDeletePost-style action per asset
       // class once exposed by facebook.actions.
       toast({
         title: 'Delete not wired yet',

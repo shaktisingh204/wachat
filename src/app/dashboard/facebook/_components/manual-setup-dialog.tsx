@@ -13,11 +13,11 @@ import { Loader2,
 import { handleManualFacebookPageSetup } from "@/app/actions/facebook.actions";
 
 /**
- * ManualSetupDialog (Meta Suite local, zoru-only).
+ * ManualSetupDialog (Meta Suite local, ui20-only).
  *
  * Visual swap of `@/components/20ui-domain/manual-facebook-setup-dialog`.
  * Same `handleManualFacebookPageSetup` server action, same form fields,
- * same toast outcomes — only the visual layer is rewritten on Zoru* atoms.
+ * same toast outcomes — only the visual layer is rewritten on Ui20* atoms.
  */
 
 import * as React from "react";

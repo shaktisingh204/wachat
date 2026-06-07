@@ -3,7 +3,7 @@
 /**
  * SabCRM — create / edit record dialog.
  *
- * A metadata-driven form rendered inside a ZoruUI dialog. It builds one
+ * A metadata-driven form rendered inside a Ui20 dialog. It builds one
  * {@link FieldInput} per non-system field, performs client-side required
  * validation, and persists through {@link createRecordAction} /
  * {@link updateRecordAction}. File fields use SabFiles (via the field
@@ -26,7 +26,7 @@
  *     action is in-flight; the submit button shows a spinner + "Saving…"
  *     label and carries `aria-busy="true"`.
  *   - Focus trap and ARIA modal semantics are provided by Radix Dialog
- *     (`DialogPrimitive.Content`), which is already wired inside ZoruUI's
+ *     (`DialogPrimitive.Content`), which is already wired inside Ui20's
  *     `DialogContent`.
  */
 

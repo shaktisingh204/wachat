@@ -2,15 +2,15 @@ import { Suspense } from 'react';
 
 import { Skeleton } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
-import { ZoruChatClient } from '../_components/zoru-chat-client';
+import { Ui20ChatClient } from '../_components/ui20-chat-client';
 
 /**
  * /wachat/chat — Live chat workspace.
  *
- * The 3-pane chat UI lives inside `ZoruChatClient` which manages its
+ * The 3-pane chat UI lives inside `Ui20ChatClient` which manages its
  * own conversations list / thread / contact panel internally. This
  * page is just the route entry — it renders a full-bleed app frame with
- * a Suspense boundary and a 20ui skeleton fallback. `ZoruChatClient`
+ * a Suspense boundary and a 20ui skeleton fallback. `Ui20ChatClient`
  * owns the whole frame, so this page uses `WachatPage variant="app"`.
  */
 
@@ -30,7 +30,7 @@ export default function ChatPage() {
   return (
     <WachatPage variant="app">
       <Suspense fallback={<ChatPageSkeleton />}>
-        <ZoruChatClient />
+        <Ui20ChatClient />
       </Suspense>
     </WachatPage>
   );

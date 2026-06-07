@@ -6,7 +6,7 @@
    multi-value field types ported from Twenty: CURRENCY (with code), FULL_NAME,
    ADDRESS, EMAILS, PHONES, LINKS, MULTI_SELECT, ARRAY, RATING and RAW_JSON.
 
-   Plain CSS, Twenty look only — no ZoruUI / Tailwind / clay. Relies on the
+   Plain CSS, Twenty look only — no Ui20 / Tailwind / clay. Relies on the
    `--st-*` design tokens declared in `sabcrm-twenty.css` (do NOT edit that
    file). `st-fe-*` = "Twenty field editor".
    ========================================================================= */

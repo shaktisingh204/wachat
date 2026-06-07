@@ -12,7 +12,7 @@
  *   - `loading` → a few shimmering skeleton rows.
  *   - empty (no activities) → a muted empty state (`emptyLabel`).
  *
- * NO ZoruUI / Tailwind / clay — Twenty look only (`.st-timeline*` classes in the
+ * NO Ui20 / Tailwind / clay — Twenty look only (`.st-timeline*` classes in the
  * sibling `twenty-field.css`).
  */
 

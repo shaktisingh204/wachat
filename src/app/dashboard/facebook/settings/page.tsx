@@ -25,7 +25,7 @@ import type { Project,
 /**
  * /dashboard/facebook/settings — page-level settings (Meta connection).
  *
- * Rebuilt on ZoruUI primitives. Same `getProjectById` server action — the
+ * Rebuilt on Ui20 primitives. Same `getProjectById` server action — the
  * read-only IDs and reconnect button keep the original data flow.
  */
 

@@ -1,12 +1,12 @@
 'use client';
 
 import { Button, Input, Card, CardBody, Badge, Switch, Label } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState, useTransition } from 'react';
+import { cn as _ui20Cn, useState, useTransition } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { generateKeywords } from './actions';
 import { Loader2 } from 'lucide-react';
 
-void _zoruCn;
+void _ui20Cn;
 
 export default function KeywordGeneratorPage() {
   const [seed, setSeed] = useState('');

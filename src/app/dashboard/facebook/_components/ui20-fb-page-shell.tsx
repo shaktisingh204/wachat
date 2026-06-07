@@ -5,7 +5,7 @@ import {
   CircleAlert } from "lucide-react";
 
 /**
- * Shared chrome for Meta Suite ZoruUI pages.
+ * Shared chrome for Meta Suite Ui20 pages.
  *
  * - <FbBreadcrumb> renders SabNode › Meta Suite › <section>.
  * - <FbHeader> renders PageHeader with eyebrow / title / description /

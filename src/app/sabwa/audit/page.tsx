@@ -24,7 +24,7 @@ import {
  * Click a row to expand the full metadata JSON. Filters: session, date
  * range, action prefix (e.g. `message.*`), free-text search.
  *
- * Visual layer migrated to ZoruUI.
+ * Visual layer migrated to Ui20.
  */
 
 import * as React from 'react';

@@ -21,7 +21,7 @@ import {
 import { getPageRatings } from "@/app/actions/facebook.actions";
 
 /**
- * /dashboard/facebook/reviews — ZoruUI rebuild.
+ * /dashboard/facebook/reviews — Ui20 rebuild.
  *
  * Average rating + review-count stat strip, list of review cards with:
  *   - reply-review dialog (composer)
@@ -42,7 +42,7 @@ import {
   FbErrorAlert,
   FbHeader,
   FbNoProject,
-} from "../_components/zoru-fb-page-shell";
+} from "../_components/ui20-fb-page-shell";
 
 interface Review {
   id?: string;

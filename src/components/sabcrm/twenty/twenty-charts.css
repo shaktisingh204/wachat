@@ -1,7 +1,7 @@
 /* =========================================================================
    SabCRM — Native Twenty chart primitives
    Scoped under .sabcrm-twenty. Plain CSS only. Consumes the --st-* tokens
-   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO ZoruUI, NO Recharts.
+   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO Ui20, NO Recharts.
 
    These styles back the inline-SVG charts in twenty-charts.tsx:
    TwentyBarChart, TwentyLineChart, TwentyDonutChart. Every chart lives inside

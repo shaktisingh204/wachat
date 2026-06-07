@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Generic chart preview. Maps `BiChartRunResponse.rows` onto ZoruUI's
+ * Generic chart preview. Maps `BiChartRunResponse.rows` onto Ui20's
  * recharts wrappers for bar / line / pie. Table renders rows directly;
  * KPI renders the first measure as a big number. map / heatmap show a
  * raw-rows table with a TODO badge.

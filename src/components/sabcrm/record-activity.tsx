@@ -21,7 +21,7 @@
  * full page reload. The host page stays a server component and simply mounts
  * this in `RecordDetailTabs`'s `activitySlot`.
  *
- * All UI is ZoruUI, black-&-white. No `any`.
+ * All UI is Ui20, black-&-white. No `any`.
  */
 
 import * as React from 'react';

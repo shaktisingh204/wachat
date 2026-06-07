@@ -8,7 +8,7 @@
  * action.
  *
  * Theme is applied inline using the page's `themeJson.accent` — does
- * NOT use ZoruUI primitives (per project rules: ZoruUI is admin-only;
+ * NOT use Ui20 primitives (per project rules: Ui20 is admin-only;
  * the public surface uses minimal primitives + theme tokens).
  */
 import { notFound } from 'next/navigation';

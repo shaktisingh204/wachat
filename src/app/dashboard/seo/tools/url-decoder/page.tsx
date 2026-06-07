@@ -1,10 +1,10 @@
 'use client';
 
 import { Button, Textarea, Card, CardBody, Label, cn, Table, THead, TBody, Tr, Th, Td } from '@/components/sabcrm/20ui';
-import { cn as _zoruCn, useState } from 'react';
+import { cn as _ui20Cn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
-void _zoruCn;
+void _ui20Cn;
 
 export default function UrlDecoderPage() {
   const [mode, setMode] = useState<'decode' | 'encode'>('decode');

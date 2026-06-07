@@ -236,7 +236,7 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
   const visibleModuleList = modules.filter(m => visibleModules[m.id] !== false);
 
   useEffect(() => {
-    const savedOrder = localStorage.getItem("zoru-dashboard-modules");
+    const savedOrder = localStorage.getItem("ui20-dashboard-modules");
     if (savedOrder) {
       try {
         const orderIds = JSON.parse(savedOrder);
@@ -275,7 +275,7 @@ export function AppModulesGrid({ data, derived }: { data: any, derived: any }) {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
         const newArr = arrayMove(items, oldIndex, newIndex);
-        localStorage.setItem("zoru-dashboard-modules", JSON.stringify(newArr.map(m => m.id)));
+        localStorage.setItem("ui20-dashboard-modules", JSON.stringify(newArr.map(m => m.id)));
         return newArr;
       });
     }

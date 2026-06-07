@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { ChevronLeft, Eye, EyeOff } from 'lucide-react';
 
-const LoadingZoruSkeleton = () => (
+const LoadingUi20Skeleton = () => (
   <div className="flex flex-col gap-8 w-full animate-in fade-in duration-500">
     <div className="space-y-3">
       <Skeleton className="h-10 w-32" />
@@ -27,7 +27,7 @@ const LoadingZoruSkeleton = () => (
 
 const CreateTemplateForm = dynamic(
   () => import('@/components/20ui-domain/create-template-form').then(mod => mod.CreateTemplateForm),
-  { loading: () => <LoadingZoruSkeleton /> }
+  { loading: () => <LoadingUi20Skeleton /> }
 );
 
 // We can reuse the existing form component but pass a different action to it.
@@ -78,7 +78,7 @@ function AdminCreateLibraryTemplatePage() {
 
 export default function AdminCreateLibraryTemplatePageWrapper() {
     return (
-        <Suspense fallback={<LoadingZoruSkeleton />}>
+        <Suspense fallback={<LoadingUi20Skeleton />}>
             <AdminCreateLibraryTemplatePage />
         </Suspense>
     )

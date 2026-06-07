@@ -3,7 +3,7 @@
 /**
  * SabCRM — KPI stat-card row.
  *
- * A row of ZoruUI StatCards displaying the four CRM dashboard KPI buckets:
+ * A row of Ui20 StatCards displaying the four CRM dashboard KPI buckets:
  *
  *   1. **Record counts** — A scrollable horizontal row of stat cards, one per
  *      object (standard + custom), showing the total record count. Each card
@@ -19,8 +19,8 @@
  *   4. **New this week** — Record count created since Monday 00:00 UTC in the
  *      current week. Shows the date range reference.
  *
- * All cards are ZoruUI StatCard components under the inherited `.zoruui` scope,
- * using black-and-white ZoruUI color tokens (--zoru-*) for consistency.
+ * All cards are Ui20 StatCard components under the inherited `.ui20` scope,
+ * using black-and-white Ui20 color tokens (--ui20-*) for consistency.
  *
  * The component accepts a `CrmDashboardKpis` payload (from the
  * `getKpisAction` server action) and renders it statically with no state or
@@ -59,7 +59,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
   activity: <Activity />,
 };
 
-// Minimal lucide-compatible icon stubs (9x9 SVG squares for consistency with ZoruUI)
+// Minimal lucide-compatible icon stubs (9x9 SVG squares for consistency with Ui20)
 function Building() {
   return (
     <svg

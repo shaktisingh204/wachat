@@ -11,7 +11,7 @@ export interface ClayCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ClayCard — delegates to the shadcn `ZoruCard` primitive.
+ * ClayCard — delegates to the shadcn `Ui20Card` primitive.
  *
  * The shadcn Card is **borderless** by design (shadow-only depth), so the
  * mapping here intentionally adds NO border classes; instead each variant

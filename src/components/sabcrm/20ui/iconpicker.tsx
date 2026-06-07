@@ -7,7 +7,7 @@
  * search field and an accessible grid of lucide icons. Selecting an icon commits
  * its name through `onChange`; typing in the search filters the grid by name.
  *
- * Mirrors ZoruUI's IconPicker API (value / onChange / placeholder / align /
+ * Mirrors Ui20's IconPicker API (value / onChange / placeholder / align /
  * disabled), reimplemented in 20ui style on top of the 20ui Popover + Input.
  *
  * Lucide ships ~1500 icons. Importing them all bloats the bundle and slows the

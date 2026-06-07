@@ -248,7 +248,7 @@ function KpiTile({
     value: number;
     tone?: 'default' | 'success' | 'warning' | 'info';
 }) {
-    const toneBadge: Record<string, React.ComponentProps<typeof ZoruBadge>['variant']> = {
+    const toneBadge: Record<string, React.ComponentProps<typeof Ui20Badge>['variant']> = {
         default: 'ghost',
         success: 'success',
         warning: 'warning',

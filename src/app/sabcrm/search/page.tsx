@@ -47,7 +47,7 @@ export const dynamic = 'force-dynamic';
  * layout guard, and degrades quietly if the engine is down.
  *
  * Twenty look only (`.st-*` + `../my-work/my-work.css` base classes + this
- * page's `./search-global.css`). NO ZoruUI / Tailwind / clay.
+ * page's `./search-global.css`). NO Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';
@@ -126,8 +126,8 @@ const ROUND_AVATAR_OBJECTS = new Set(['people', 'users', 'members']);
 
 /**
  * Lucide icons for the five standard object slugs (the vendored Twenty look
- * hardcodes these; `ObjectMetadata.icon` carries a ZORU/lucide name string that
- * we only consult to confirm the slug, never to load a ZoruUI component here).
+ * hardcodes these; `ObjectMetadata.icon` carries a UI20/lucide name string that
+ * we only consult to confirm the slug, never to load a Ui20 component here).
  */
 const OBJECT_ICON: Record<string, LucideIcon> = {
   companies: Building2,

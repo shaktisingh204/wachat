@@ -33,7 +33,7 @@ export type AvatarShape = TwentyAvatarShape;
 /**
  * Two shapes:
  *  • the original prop-driven form ({@link TwentyAvatarProps}: `name`, `src?`, …)
- *  • the ZoruUI-compatible compound form — `<Avatar><AvatarImage/><AvatarFallback/></Avatar>`
+ *  • the Ui20-compatible compound form — `<Avatar><AvatarImage/><AvatarFallback/></Avatar>`
  *    — where the children supply the image + initials, so `name` is not required.
  *
  * `name` is required only when no `children` are given, which keeps every existing
@@ -56,7 +56,7 @@ function isCompound(
 /**
  * The 20ui avatar. Backward-compatible with the prop-driven {@link TwentyAvatar}
  * (`name`, `src?`, `size`, `shape`, `initials?`, `className`) AND a drop-in for
- * the ZoruUI compound API: when given `children`, it renders a Radix
+ * the Ui20 compound API: when given `children`, it renders a Radix
  * `Avatar.Root` so `<Avatar><AvatarImage/><AvatarFallback>JD</AvatarFallback></Avatar>`
  * works. The compound container is a circle by default — pass `data-shape="square"`
  * to square the corners, matching the prop-driven `shape`.

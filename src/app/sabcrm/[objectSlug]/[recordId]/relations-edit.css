@@ -3,7 +3,7 @@
  *
  * Scoped, additive layer on top of the shared `sabcrm-twenty.css` tokens
  * (`--st-*` vars, with literal fallbacks so it renders even outside that
- * cascade). NO ZoruUI / Tailwind / clay — `.re-*` classes only, matching the
+ * cascade). NO Ui20 / Tailwind / clay — `.re-*` classes only, matching the
  * neighbouring `.st-*` / `.rt-*` kit. Owns:
  *   - the "+ Add" relation-section header button,
  *   - the per-row detach (×) control,

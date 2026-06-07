@@ -5,9 +5,9 @@
  * =================================================
  *
  * Inline-SVG charts drawn entirely with `--st-*` design tokens and the
- * `.st-chart*` classes in `twenty-charts.css`. NO Recharts, NO ZoruUI, NO
- * `--zoru-*` tokens — these are the Twenty-faithful replacements for the
- * Recharts-backed ZoruUI charts (`CrmBarChart` / `DonutChart` /
+ * `.st-chart*` classes in `twenty-charts.css`. NO Recharts, NO Ui20, NO
+ * `--ui20-*` tokens — these are the Twenty-faithful replacements for the
+ * Recharts-backed Ui20 charts (`CrmBarChart` / `DonutChart` /
  * `TimeSeriesLineChart`) on the CRM dashboard.
  *
  * The vendored Twenty (`services/sabcrm`) is reskinned to a black-&-white

@@ -68,7 +68,7 @@ export interface RecruitmentFilter {
   /** Form-state key — matches the parent's filter dict. */
   key: string;
   label: string;
-  /** type: 'select' renders ZoruSelect; type: 'date' renders ZoruInput[type=date] */
+  /** type: 'select' renders Ui20Select; type: 'date' renders Ui20Input[type=date] */
   type: 'select' | 'date' | 'text';
   options?: RecruitmentFilterOption[];
   placeholder?: string;

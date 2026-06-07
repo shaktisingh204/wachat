@@ -15,10 +15,10 @@ import type { Project,
   WithId } from "@/lib/definitions";
 
 /**
- * Local zoru replacement for
+ * Local ui20 replacement for
  * `@/components/20ui-domain/create-randomizer-post-dialog`.
  *
- * Same server action (`addRandomizerPost`); zoru atoms only.
+ * Same server action (`addRandomizerPost`); ui20 atoms only.
  */
 
 import * as React from "react";

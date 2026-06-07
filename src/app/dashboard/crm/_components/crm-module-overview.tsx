@@ -20,7 +20,7 @@ export interface CrmModuleOverviewProps {
 }
 
 /**
- * CrmModuleOverview — Zoru-styled module landing page with a grid of
+ * CrmModuleOverview — Ui20-styled module landing page with a grid of
  * section cards. Used as the entry point for CRM modules (sales,
  * accounting, inventory, banking, purchases, etc.) to give users a
  * visual directory into the module's sub-sections.

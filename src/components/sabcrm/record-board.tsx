@@ -46,7 +46,7 @@
  * of which enforces session → project → RBAC → plan and returns an
  * {@link ActionResult}; the error branch is rendered inline. The drag-and-drop
  * is built on native HTML5 DnD (no external kanban dependency), composed
- * entirely from ZoruUI primitives under the inherited `.zoruui` scope.
+ * entirely from Ui20 primitives under the inherited `.ui20` scope.
  */
 
 import * as React from 'react';
@@ -99,8 +99,8 @@ type ColumnBadgeVariant =
   | 'outline';
 
 /**
- * Map a SELECT option color token (a `--zoru-*` palette name or hex) onto a
- * ZoruUI Badge variant. Kept in lockstep with the index page's
+ * Map a SELECT option color token (a `--ui20-*` palette name or hex) onto a
+ * Ui20 Badge variant. Kept in lockstep with the index page's
  * `badgeVariantForColor` so a stage looks identical in table + board.
  */
 function badgeVariantForColor(color?: string): ColumnBadgeVariant {

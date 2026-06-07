@@ -45,7 +45,7 @@ export interface AbTestRow {
   updatedAt: string;
   startedAt?: string;
   completedAt?: string;
-  /** Optional small inline simulation series (for ZoruChart). */
+  /** Optional small inline simulation series (for Ui20Chart). */
   simulation?: { iter: number; pValue: number }[];
 }
 

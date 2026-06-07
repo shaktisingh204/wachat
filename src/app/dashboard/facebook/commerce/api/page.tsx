@@ -28,11 +28,11 @@ import {
  * Two stacked surfaces:
  *   1. Integration config form — webhook URL, signing secret, key
  *      preview. Read-only by default with an explicit "Rotate key"
- *      destructive action that opens a ZoruAlertDialog.
+ *      destructive action that opens a Ui20AlertDialog.
  *   2. API reference cards — overview of the Meta APIs that power the
  *      Commerce builder. Same content as the legacy page, restyled.
  *
- * Pure ZoruUI primitives. No coloured gradients.
+ * Pure Ui20 primitives. No coloured gradients.
  */
 
 import * as React from "react";

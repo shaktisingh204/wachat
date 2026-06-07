@@ -37,7 +37,7 @@ import {
  * under `/wachat/*`.
  *
  * Returned shape matches `SidebarGroup` so the wachat layout can
- * pass it straight to `<ZoruHomeShell sidebarGroups={…} />`.
+ * pass it straight to `<Ui20HomeShell sidebarGroups={…} />`.
  */
 import * as React from "react";
 

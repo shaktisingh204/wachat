@@ -20,7 +20,7 @@ import { countryCodes } from '@/lib/country-codes';
 import { MultiSelectCombobox } from './multi-select-combobox';
 
 /**
- * AddContactDialog — ZoruUI-styled contact creation modal.
+ * AddContactDialog — Ui20-styled contact creation modal.
  *
  * Uses Dialog, Input, Select, and a Button trigger so it
  * matches the rest of the Wachat contacts toolbar.

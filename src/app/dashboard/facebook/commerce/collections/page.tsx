@@ -27,7 +27,7 @@ import type { ProductSet } from "@/lib/definitions";
  *
  * Aggregates product sets across every catalog on the active Facebook
  * project. Same data sources as the per-catalog detail page
- * (`getCatalogs` + `listProductSets` per catalog). Pure ZoruUI primitives.
+ * (`getCatalogs` + `listProductSets` per catalog). Pure Ui20 primitives.
  */
 
 import * as React from "react";

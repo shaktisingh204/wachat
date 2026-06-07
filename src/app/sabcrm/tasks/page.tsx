@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
  *
  * A standalone screen over the standard `tasks` object, rendered in Twenty's
  * visual language (`.st-*` classes + the `@/components/sabcrm/twenty` kit + the
- * sibling `../tasks-notes.css` — NO ZoruUI / Tailwind / clay). It offers:
+ * sibling `../tasks-notes.css` — NO Ui20 / Tailwind / clay). It offers:
  *
  *   - BOARD view — kanban columns grouped by the `status` SELECT
  *     (TODO / IN_PROGRESS / DONE) via `groupSabcrmRecordsTw('tasks','status')`.

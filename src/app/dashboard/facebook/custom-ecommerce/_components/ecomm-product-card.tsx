@@ -11,7 +11,7 @@ import type { EcommProduct,
 import type { WithId } from "mongodb";
 
 /**
- * Zoru-only replacement for `@/components/20ui-domain/ecomm-product-card`.
+ * Ui20-only replacement for `@/components/20ui-domain/ecomm-product-card`.
  *
  * Same data shape and same `deleteEcommProduct` server action — visuals are
  * rebuilt with Card, Badge, Button, and AlertDialog.

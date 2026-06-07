@@ -4,8 +4,8 @@
  * SabCRM — TwentyFunnelChart
  *
  * A pipeline funnel rendered in the **.sabcrm-twenty** design language (NOT
- * ZoruUI). Unlike the sibling chart primitives (`bar-chart.tsx`,
- * `donut-chart.tsx`, `line-chart.tsx`) which are built on ZoruUI + Recharts,
+ * Ui20). Unlike the sibling chart primitives (`bar-chart.tsx`,
+ * `donut-chart.tsx`, `line-chart.tsx`) which are built on Ui20 + Recharts,
  * the SabCRM dashboard page itself is `.sabcrm-twenty`-only — so this funnel is
  * authored with `--st-*` design tokens and the dashboard's existing `.st-panel`
  * chrome, keeping it visually native to the Twenty-faithful dashboard.

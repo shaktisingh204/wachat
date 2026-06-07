@@ -1,7 +1,7 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/sabcrm/20ui';
-void _zoruCn;
+import { cn as _ui20Cn } from '@/components/sabcrm/20ui';
+void _ui20Cn;
 
 import { Gauge } from 'lucide-react';
 import { HrFormPage } from '../../_components/hr-form-page';

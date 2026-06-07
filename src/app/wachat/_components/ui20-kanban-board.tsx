@@ -164,7 +164,7 @@ interface KanbanCardProps {
   isOverlay?: boolean;
 }
 
-function ZoruKanbanCard({
+function Ui20KanbanCard({
   contact,
   allColumns,
   currentColumn,
@@ -292,7 +292,7 @@ interface KanbanColumnProps {
   children: React.ReactNode;
 }
 
-function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
+function Ui20KanbanColumn({ title, count, children }: KanbanColumnProps) {
   const { setNodeRef } = useSortable({
       id: title,
       data: { type: "Column", title },
@@ -327,7 +327,7 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
 
 /* ── main ─────────────────────────────────────────────────────────── */
 
-export function ZoruKanbanBoard() {
+export function Ui20KanbanBoard() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
@@ -608,7 +608,7 @@ export function ZoruKanbanBoard() {
         >
           <div className="flex h-full w-max gap-4 p-4">
             {boardData.map((column) => (
-              <ZoruKanbanColumn
+              <Ui20KanbanColumn
                 key={column.name}
                 title={column.name}
                 count={column.contacts.length}
@@ -623,7 +623,7 @@ export function ZoruKanbanBoard() {
                     </p>
                   ) : (
                     column.contacts.map((contact) => (
-                      <ZoruKanbanCard
+                      <Ui20KanbanCard
                         key={contact._id.toString()}
                         contact={contact}
                         allColumns={allColumnNames}
@@ -633,7 +633,7 @@ export function ZoruKanbanBoard() {
                     ))
                   )}
                 </SortableContext>
-              </ZoruKanbanColumn>
+              </Ui20KanbanColumn>
             ))}
             <AddListInline onAddList={handleAddList} />
           </div>
@@ -646,7 +646,7 @@ export function ZoruKanbanBoard() {
             }}
           >
             {activeContact ? (
-              <ZoruKanbanCard
+              <Ui20KanbanCard
                 contact={activeContact}
                 allColumns={allColumnNames}
                 currentColumn={activeContact.status || 'new'}

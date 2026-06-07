@@ -36,7 +36,7 @@ export const dynamic = "force-dynamic";
 
 const PRIORITY_VARIANTS: Record<
   string,
-  React.ComponentProps<typeof ZoruBadge>["variant"]
+  React.ComponentProps<typeof Ui20Badge>["variant"]
 > = {
   low: "ghost",
   medium: "success",

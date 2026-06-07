@@ -17,8 +17,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
  *     ↳ back link + sticky toolbar (date range, refresh, export dropdown)
  *     ↳ optional filters row
  *     ↳ optional KPI strip (full width)
- *     ↳ optional chart (wrapped in ZoruCard)
- *     ↳ optional table (wrapped in ZoruCard)
+ *     ↳ optional chart (wrapped in Ui20Card)
+ *     ↳ optional table (wrapped in Ui20Card)
  *     ↳ optional pagination
  *
  * Sibling helper:

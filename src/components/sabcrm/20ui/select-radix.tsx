@@ -6,7 +6,7 @@
  * The token-skinned wrapper around `@radix-ui/react-select`. This is the
  * compound, shadcn-shaped Select: a `Select` root plus composable
  * `SelectTrigger` / `SelectValue` / `SelectContent` / `SelectItem` parts, so a
- * call site that already imports the shadcn / ZoruUI Select becomes a pure
+ * call site that already imports the shadcn / Ui20 Select becomes a pure
  * import-path swap (the props + exported names match exactly).
  *
  * It is distinct from the props-based 20ui `Select` in `./select` (which takes

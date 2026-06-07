@@ -125,7 +125,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 /**
- * The fixed option-colour palette. `token` is what we persist (a `--zoru-*`
+ * The fixed option-colour palette. `token` is what we persist (a `--ui20-*`
  * name, kept to stay consistent with the seeded schema) and `swatch` is the
  * literal hex we paint in the picker.
  */
@@ -153,8 +153,8 @@ const DEFAULT_OPTION_COLOR = OPTION_PALETTE[0].token;
 /** Resolve a stored option colour (token or hex) to a paintable swatch. */
 function swatchFor(color: string | undefined): string {
   if (!color) return OPTION_PALETTE[0].swatch;
-  // Legacy values stored as `--zoru-<name>`; strip the prefix before matching.
-  const key = color.replace(/^--zoru-/, '');
+  // Legacy values stored as `--ui20-<name>`; strip the prefix before matching.
+  const key = color.replace(/^--ui20-/, '');
   const match = OPTION_PALETTE.find((c) => c.token === key);
   if (match) return match.swatch;
   // Already a hex / concrete colour, paint as-is, else fall back.

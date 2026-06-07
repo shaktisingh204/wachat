@@ -30,7 +30,7 @@ import {
  * multi-select. After generate, full key is shown once with copy button
  * and explicit warning.
  *
- * Visual layer migrated to ZoruUI.
+ * Visual layer migrated to Ui20.
  */
 
 import * as React from 'react';

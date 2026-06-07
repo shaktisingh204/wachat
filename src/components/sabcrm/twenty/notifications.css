@@ -1,7 +1,7 @@
 /* ==========================================================================
    SabCRM — Twenty-style notifications bell + dropdown
    Scoped under `.sabcrm-twenty`. Uses the shared `--st-*` tokens defined in
-   src/styles/sabcrm-twenty.css. Do NOT introduce ZoruUI / Tailwind / clay here.
+   src/styles/sabcrm-twenty.css. Do NOT introduce Ui20 / Tailwind / clay here.
    ========================================================================== */
 
 /* ----- Sidebar header row: workspace switcher + bell ----- */

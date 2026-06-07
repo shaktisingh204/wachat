@@ -14,7 +14,7 @@
  * (`runAnalyticsAction` / `listRecordsAction`) so the saved-dashboard layer is a
  * pure presentation/composition shell over proven resolvers.
  *
- * Twenty visual language only (`.st-*` + dashboard.css). No ZoruUI / Tailwind.
+ * Twenty visual language only (`.st-*` + dashboard.css). No Ui20 / Tailwind.
  */
 
 import * as React from 'react';

@@ -28,7 +28,7 @@ import { useProject } from "@/context/project-context";
  * /dashboard/facebook/custom-ecommerce — Custom E-commerce shop list.
  *
  * Lists every connected Facebook page as a manageable shop tile and
- * exposes a create-shop dialog. Pure ZoruUI — no clay-*, no
+ * exposes a create-shop dialog. Pure Ui20 — no clay-*, no
  * @/components/ui/*, no wabasimplify visuals. Same data + handlers.
  */
 

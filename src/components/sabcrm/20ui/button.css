@@ -39,7 +39,7 @@
   transform: none;
 }
 /* Icons passed as button CHILDREN (e.g. `<Button><Icon/> Save</Button>`, the
-   shadcn/Zoru pattern) land inside this label span. Tailwind's preflight forces
+   shadcn/Ui20 pattern) land inside this label span. Tailwind's preflight forces
    `svg { display: block }`, which would stack the icon ABOVE the text and
    collapse the button to the text width. Lay the label out as an inline row so
    an icon + text child stay on one line and the button keeps sizing to content.

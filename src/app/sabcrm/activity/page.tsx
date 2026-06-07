@@ -35,7 +35,7 @@ export const dynamic = 'force-dynamic';
  *
  * Twenty look, on the 20ui design system (`@/components/sabcrm/20ui`, scoped
  * under the CRM frame's `.sabcrm-twenty` class so no wrapper is needed) plus the
- * sibling `./activity.css` for the timeline rail. NO ZoruUI / Tailwind / clay.
+ * sibling `./activity.css` for the timeline rail. NO Ui20 / Tailwind / clay.
  */
 
 import * as React from 'react';

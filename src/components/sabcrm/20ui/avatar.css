@@ -1,6 +1,6 @@
 /* 20ui · Avatar + AvatarGroup
    The prop-driven Avatar is rendered by the shared `.st-avatar` primitive. The
-   `.u-avatar*` rules below cover (a) the ZoruUI-compatible *compound* form
+   `.u-avatar*` rules below cover (a) the Ui20-compatible *compound* form
    (`<Avatar><AvatarImage/><AvatarFallback/></Avatar>`, built on Radix) and (b)
    the overlapping group + its "+N" overflow chip. Rings are a surface-coloured
    outline so overlapping avatars read as distinct chips. */

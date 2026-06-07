@@ -11,7 +11,7 @@
  *     JWT. The PUBLIC client browser never talks to the authenticated
  *     endpoints — it only ever sees the rendered HTML this page emits.
  *   - Custom CSS is injected via a `<style>` tag scoped by the
- *     `.zoruui` ancestor.
+ *     `.ui20` ancestor.
  */
 import { notFound } from 'next/navigation';
 
@@ -50,7 +50,7 @@ export default async function PublicPresentPage({
                 <style
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
-                        __html: `.zoruui.sabshow-public { ${publication.customCss} }`,
+                        __html: `.ui20.sabshow-public { ${publication.customCss} }`,
                     }}
                 />
             ) : null}

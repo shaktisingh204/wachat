@@ -1,7 +1,7 @@
 import '@/components/sabcrm/20ui/surface-crm-base.css';
 
 /**
- * SabCRM root loading skeleton — Twenty design system (`.st-*`), NOT ZoruUI.
+ * SabCRM root loading skeleton — Twenty design system (`.st-*`), NOT Ui20.
  *
  * Matches the overview/index layout: page header + grid of object cards.
  * Each card shows a title line, a body block, and a footer chip/count row.
