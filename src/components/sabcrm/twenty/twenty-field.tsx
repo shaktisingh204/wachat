@@ -53,8 +53,8 @@ function isEmpty(value: unknown): boolean {
 
 /**
  * Resolve a SELECT / MULTI_SELECT option color token into an inline CSS color.
- * `--zoru-*` tokens become `var(--zoru-*)`; hex / rgb pass through; otherwise
- * `undefined` (the chip then renders without a dot).
+ * CSS custom-property names (`--st-*`) become `var(--st-*)`; hex / rgb pass
+ * through; otherwise `undefined` (the chip then renders without a dot).
  */
 function chipColor(color?: string): string | undefined {
   if (!color) return undefined;

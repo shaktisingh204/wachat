@@ -1016,11 +1016,11 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
         required: true,
         inTable: true,
         options: [
-          { value: 'NOTE', label: 'Note', color: '--zoru-blue-50' },
-          { value: 'TASK', label: 'Task', color: '--zoru-purple-50' },
-          { value: 'CALL', label: 'Call', color: '--zoru-green-50' },
-          { value: 'MEETING', label: 'Meeting', color: '--zoru-orange-50' },
-          { value: 'EMAIL', label: 'Email', color: '--zoru-pink-50' },
+          { value: 'NOTE', label: 'Note', color: '#eff6ff' },
+          { value: 'TASK', label: 'Task', color: '#faf5ff' },
+          { value: 'CALL', label: 'Call', color: '#f0fdf4' },
+          { value: 'MEETING', label: 'Meeting', color: '#fff7ed' },
+          { value: 'EMAIL', label: 'Email', color: '#fdf2f8' },
         ],
       },
       {
