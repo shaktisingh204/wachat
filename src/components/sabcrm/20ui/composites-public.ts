@@ -37,10 +37,10 @@ export {
   zoruButtonVariants as buttonVariants,
   SabnodeWaterLoader,
   SabNodeSidebar,
-} from './legacy';
+} from './composites';
 
-export { ZORU_APPS as SAB_APPS } from './legacy/shell/zoru-apps';
-export { applyTheme, useHtmlDark, AppThemeToggle } from './legacy/shell/app-theme';
+export { ZORU_APPS as SAB_APPS } from './composites/shell/zoru-apps';
+export { applyTheme, useHtmlDark, AppThemeToggle } from './composites/shell/app-theme';
 
 export type {
   ZoruFileEntity as FileEntity,
@@ -54,4 +54,4 @@ export type {
   ZoruToastProps as LegacyToastProps,
   ZoruToastActionElement as LegacyToastActionElement,
   ZoruToastInput as LegacyToastInput,
-} from './legacy';
+} from './composites';

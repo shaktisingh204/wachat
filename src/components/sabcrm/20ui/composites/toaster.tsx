@@ -3,7 +3,7 @@
 /* Toast conventions
  * -----------------------------------------------------------------
  * Canonical entry point: `useZoruToast()` from
- *   `@/components/sabcrm/20ui/legacy/use-zoru-toast` (re-exported from
+ *   `@/components/sabcrm/20ui/composites/use-zoru-toast` (re-exported from
  *   `@/components/zoruui`). This file renders any toast queued via
  *   that hook through Radix' Toast primitives.
  *
