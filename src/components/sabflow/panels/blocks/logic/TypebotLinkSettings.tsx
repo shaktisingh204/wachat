@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LuLink } from 'react-icons/lu';
-import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass } from '../shared/primitives';
+import { Link } from 'lucide-react';
 
-/* ── Types ───────────────────────────────────────────────────────────────── */
+import { Field, Input } from '@/components/sabcrm/20ui';
+import type { Block } from '@/lib/sabflow/types';
+
+/* Types */
 
 interface TypebotLinkOptions {
   /** ID or name of the target flow to jump to */
@@ -14,14 +15,14 @@ interface TypebotLinkOptions {
   groupTitle?: string;
 }
 
-/* ── Props ───────────────────────────────────────────────────────────────── */
+/* Props */
 
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
 };
 
-/* ── Main component ──────────────────────────────────────────────────────── */
+/* Main component */
 
 export function TypebotLinkSettings({ block, onBlockChange }: Props) {
   const opts = (block.options ?? {}) as TypebotLinkOptions;
@@ -35,32 +36,37 @@ export function TypebotLinkSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuLink} title="Flow Link" />
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+          <Link size={16} strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+          Flow Link
+        </span>
+      </div>
 
-      <Field label="Flow ID or name">
-        <input
+      <Field
+        label="Flow ID or name"
+        help="Enter the flow ID to jump to. The user's session will continue inside the linked flow."
+      >
+        <Input
           type="text"
           value={opts.flowId ?? ''}
           onChange={(e) => update({ flowId: e.target.value })}
-          placeholder="e.g. 64abc123…"
-          className={inputClass}
+          placeholder="e.g. 64abc123"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Enter the flow ID to jump to. The user's session will continue inside the linked flow.
-        </p>
       </Field>
 
-      <Field label="Start at group (optional)">
-        <input
+      <Field
+        label="Start at group (optional)"
+        help="Leave blank to start at the default Start event of the linked flow."
+      >
+        <Input
           type="text"
           value={opts.groupTitle ?? ''}
           onChange={(e) => update({ groupTitle: e.target.value || undefined })}
           placeholder="Group title in the target flow"
-          className={inputClass}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Leave blank to start at the default Start event of the linked flow.
-        </p>
       </Field>
     </div>
   );

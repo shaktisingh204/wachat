@@ -1,8 +1,20 @@
 'use client';
 
-import { LuEye } from 'react-icons/lu';
+import { useCallback } from 'react';
+import { Eye } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -24,6 +36,21 @@ interface PixelOptions {
   customEventName?: string;
 }
 
+/* ── Event options ─────────────────────────────────────────── */
+
+const EVENT_TYPES: PixelEventType[] = [
+  'PageView',
+  'Lead',
+  'Purchase',
+  'CompleteRegistration',
+  'Contact',
+  'InitiateCheckout',
+  'ViewContent',
+  'AddToCart',
+  'AddToWishlist',
+  'CustomEvent',
+];
+
 /* ── Props ─────────────────────────────────────────────────── */
 
 type Props = {
@@ -38,53 +65,67 @@ export function PixelSettings({ block, onBlockChange }: Props) {
   const eventType: PixelEventType = (opts.eventType as PixelEventType) ?? 'PageView';
   const isCustomEvent = eventType === 'CustomEvent';
 
-  const update = (patch: Partial<PixelOptions>) => {
-    onBlockChange({ ...block, options: { ...opts, ...patch } });
-  };
+  const update = useCallback(
+    (patch: Partial<PixelOptions>) => {
+      onBlockChange({ ...block, options: { ...opts, ...patch } });
+    },
+    [block, opts, onBlockChange],
+  );
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuEye} title="Meta Pixel" />
+      <PageHeader compact bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <Eye
+              size={16}
+              strokeWidth={1.8}
+              className="text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            />
+            Meta Pixel
+          </PageTitle>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <Field label="Pixel ID">
-        <input
+        <Input
           type="text"
           value={opts.pixelId ?? ''}
           onChange={(e) => update({ pixelId: e.target.value })}
           placeholder="123456789012345"
-          className={inputClass}
           spellCheck={false}
+          aria-label="Pixel ID"
         />
       </Field>
 
-      <Field label="Event Type">
-        <select
+      <Field label="Event type">
+        <Select
           value={eventType}
-          onChange={(e) => update({ eventType: e.target.value as PixelEventType })}
-          className={selectClass}
+          onValueChange={(v) => update({ eventType: v as PixelEventType })}
         >
-          <option value="PageView">PageView</option>
-          <option value="Lead">Lead</option>
-          <option value="Purchase">Purchase</option>
-          <option value="CompleteRegistration">CompleteRegistration</option>
-          <option value="Contact">Contact</option>
-          <option value="InitiateCheckout">InitiateCheckout</option>
-          <option value="ViewContent">ViewContent</option>
-          <option value="AddToCart">AddToCart</option>
-          <option value="AddToWishlist">AddToWishlist</option>
-          <option value="CustomEvent">CustomEvent</option>
-        </select>
+          <SelectTrigger aria-label="Event type">
+            <SelectValue placeholder="Select an event" />
+          </SelectTrigger>
+          <SelectContent>
+            {EVENT_TYPES.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       {isCustomEvent && (
-        <Field label="Custom Event Name">
-          <input
+        <Field label="Custom event name">
+          <Input
             type="text"
             value={opts.customEventName ?? ''}
             onChange={(e) => update({ customEventName: e.target.value })}
             placeholder="MyCustomEvent"
-            className={inputClass}
             spellCheck={false}
+            aria-label="Custom event name"
           />
         </Field>
       )}

@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LuActivity, LuPlus, LuTrash2 } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Activity, Plus, Trash2 } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass } from '../shared/primitives';
+import { Field, Input, Button, IconButton } from '@/components/sabcrm/20ui';
+import { PanelHeader } from '../shared/primitives';
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -60,75 +60,66 @@ export function SegmentSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuActivity} title="Segment" />
+      <PanelHeader icon={Activity} title="Segment" />
 
       <Field label="Write Key">
-        <input
+        <Input
           type="text"
           value={opts.writeKey ?? ''}
           onChange={(e) => update({ writeKey: e.target.value })}
           placeholder="your-segment-write-key"
-          className={inputClass}
           spellCheck={false}
+          aria-label="Write key"
         />
       </Field>
 
       <Field label="Event Name">
-        <input
+        <Input
           type="text"
           value={opts.eventName ?? ''}
           onChange={(e) => update({ eventName: e.target.value })}
           placeholder="Button Clicked or {{eventName}}"
-          className={inputClass}
           spellCheck={false}
+          aria-label="Event name"
         />
       </Field>
 
       <Field label="Properties">
         <div className="space-y-2">
           {properties.map((prop) => (
-            <div key={prop.id} className="flex gap-2 items-center">
-              <input
+            <div key={prop.id} className="flex items-center gap-2">
+              <Input
                 type="text"
                 value={prop.key}
                 onChange={(e) => updateProperty(prop.id, 'key', e.target.value)}
                 placeholder="Key"
-                className={cn(inputClass, 'flex-1')}
                 spellCheck={false}
+                aria-label="Property key"
+                className="flex-1"
               />
-              <input
+              <Input
                 type="text"
                 value={prop.value}
                 onChange={(e) => updateProperty(prop.id, 'value', e.target.value)}
                 placeholder="Value or {{var}}"
-                className={cn(inputClass, 'flex-1')}
                 spellCheck={false}
+                aria-label="Property value"
+                className="flex-1"
               />
-              <button
-                type="button"
+              <IconButton
+                label="Remove property"
+                icon={Trash2}
+                variant="ghost"
+                size="sm"
                 onClick={() => removeProperty(prop.id)}
-                className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
-                aria-label="Remove property"
-              >
-                <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-              </button>
+                className="shrink-0"
+              />
             </div>
           ))}
 
-          <button
-            type="button"
-            onClick={addProperty}
-            className={cn(
-              'flex w-full items-center justify-center gap-1.5 rounded-lg',
-              'border border-dashed border-[var(--gray-6)] py-1.5',
-              'text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              'hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)]',
-              'transition-colors',
-            )}
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+          <Button variant="outline" size="sm" block iconLeft={Plus} onClick={addProperty}>
             Add property
-          </button>
+          </Button>
         </div>
       </Field>
     </div>

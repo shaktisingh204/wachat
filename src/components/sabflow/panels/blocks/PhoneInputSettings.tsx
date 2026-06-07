@@ -1,15 +1,28 @@
 'use client';
 
-import { LuPhone } from 'react-icons/lu';
+import { Phone } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
+import {
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { VariableSelect } from './shared/VariableSelect';
-import { Field, PanelHeader, inputClass, selectClass } from './shared/primitives';
 
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
   variables?: Variable[];
 };
+
+// Radix Select reserves the empty string to clear/show the placeholder, so the
+// "International" (no country) choice rides on a sentinel and is translated back
+// to an empty code when stored on the block.
+const INTERNATIONAL = '__intl__';
 
 const COUNTRY_OPTIONS = [
   { label: 'International', value: '' },
@@ -90,46 +103,61 @@ export function PhoneInputSettings({ block, onBlockChange, variables = [] }: Pro
   );
   const variableId = typeof options.variableId === 'string' ? options.variableId : undefined;
 
+  // Map the stored country code to the Select value (empty code -> sentinel).
+  const countryValue = defaultCountryCode || INTERNATIONAL;
+
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuPhone} title="Phone Input" />
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+          <Phone className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+          Phone Input
+        </h3>
+      </div>
 
       <Field label="Default country">
-        <select
-          value={defaultCountryCode}
-          onChange={(e) => {
-            const code = e.target.value || undefined;
-            // Keep both fields in sync: `country` is the canonical
-            // validation key, `defaultCountryCode` is the legacy UI key.
+        <Select
+          value={countryValue}
+          onValueChange={(next) => {
+            const code = next === INTERNATIONAL ? undefined : next;
+            // Keep both fields in sync: `country` is the canonical validation
+            // key, `defaultCountryCode` is the legacy UI key.
             update({ defaultCountryCode: code, country: code });
           }}
-          className={selectClass}
         >
-          {COUNTRY_OPTIONS.map((c) => (
-            <option key={`${c.value}-${c.label}`} value={c.value}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Default country">
+            <SelectValue placeholder="Select a country" />
+          </SelectTrigger>
+          <SelectContent>
+            {COUNTRY_OPTIONS.map((c) => (
+              <SelectItem
+                key={`${c.value}-${c.label}`}
+                value={c.value === '' ? INTERNATIONAL : c.value}
+              >
+                {c.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field label="Placeholder text">
-        <input
+        <Input
           type="text"
           value={placeholder}
           onChange={(e) => update({ placeholder: e.target.value })}
           placeholder="+1 (555) 000-0000"
-          className={inputClass}
         />
       </Field>
 
       <Field label="Retry message">
-        <input
+        <Input
           type="text"
           value={retryMessage}
           onChange={(e) => update({ retryMessage: e.target.value })}
           placeholder="Invalid phone number. Please try again!"
-          className={inputClass}
         />
       </Field>
 

@@ -3,23 +3,17 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { Block } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
-import { LuVideo, LuLink, LuExternalLink, LuUpload } from 'react-icons/lu';
+import { Video, Link as LinkIcon, ExternalLink, Upload } from 'lucide-react';
+import {
+  Badge,
+  Callout,
+  Field,
+  Input,
+  SegmentedControl,
+  type BadgeTone,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 import { FileUploadInput } from './shared/FileUploadInput';
-
-/* ── Shared primitives ──────────────────────────────────────── */
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
 
 /* ── Provider detection ─────────────────────────────────────── */
 type VideoProvider = 'youtube' | 'vimeo' | 'direct' | 'variable' | 'unknown';
@@ -82,26 +76,17 @@ const providerLabels: Record<VideoProvider, string> = {
   unknown: 'Unknown',
 };
 
-const providerColors: Record<VideoProvider, string> = {
-  youtube: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30',
-  vimeo: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30',
-  direct: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/30',
-  variable: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]/30',
-  unknown: 'bg-[var(--gray-3)] text-[var(--gray-8)] border-[var(--gray-5)]',
+const providerTones: Record<VideoProvider, BadgeTone> = {
+  youtube: 'neutral',
+  vimeo: 'neutral',
+  direct: 'neutral',
+  variable: 'accent',
+  unknown: 'neutral',
 };
 
 function ProviderBadge({ provider }: { provider: VideoProvider }) {
   if (provider === 'unknown') return null;
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium',
-        providerColors[provider],
-      )}
-    >
-      {providerLabels[provider]}
-    </span>
-  );
+  return <Badge tone={providerTones[provider]}>{providerLabels[provider]}</Badge>;
 }
 
 /* ── Video preview ──────────────────────────────────────────── */
@@ -109,14 +94,14 @@ function VideoPreview({ parsed }: { parsed: ParsedVideo }) {
   if (!parsed.embedUrl) return null;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]" style={{ paddingBottom: '56.25%' }}>
+    <div className="relative aspect-video w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       {parsed.provider === 'direct' ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
         <video
           key={parsed.embedUrl}
           src={parsed.embedUrl}
           controls
-          className="absolute inset-0 h-full w-full rounded-lg object-cover"
+          className="absolute inset-0 h-full w-full rounded-[var(--st-radius)] object-cover"
         />
       ) : (
         <iframe
@@ -125,8 +110,7 @@ function VideoPreview({ parsed }: { parsed: ParsedVideo }) {
           title="Video preview"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
-          className="absolute inset-0 h-full w-full rounded-lg"
-          style={{ pointerEvents: 'none' }}
+          className="pointer-events-none absolute inset-0 h-full w-full rounded-[var(--st-radius)]"
         />
       )}
     </div>
@@ -136,37 +120,10 @@ function VideoPreview({ parsed }: { parsed: ParsedVideo }) {
 /* ── Tab switcher ───────────────────────────────────────────── */
 type Tab = 'upload' | 'url';
 
-function TabSwitcher({
-  active,
-  onChange,
-}: {
-  active: Tab;
-  onChange: (next: Tab) => void;
-}) {
-  const btn = (tab: Tab, label: string, Icon: typeof LuUpload) => (
-    <button
-      key={tab}
-      type="button"
-      onClick={() => onChange(tab)}
-      className={cn(
-        'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors',
-        active === tab
-          ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-          : 'text-[var(--gray-9)] hover:text-[var(--gray-11)]',
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-      {label}
-    </button>
-  );
-
-  return (
-    <div className="flex items-center gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-      {btn('upload', 'Upload', LuUpload)}
-      {btn('url', 'URL', LuLink)}
-    </div>
-  );
-}
+const TAB_ITEMS: ReadonlyArray<SegmentedItem<Tab>> = [
+  { value: 'upload', label: 'Upload', icon: Upload },
+  { value: 'url', label: 'URL', icon: LinkIcon },
+];
 
 /* ── Main component ─────────────────────────────────────────── */
 type Props = {
@@ -204,10 +161,10 @@ export function VideoBubbleSettings({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]/10">
-          <LuVideo className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)]">
+          <Video className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={1.8} aria-hidden="true" />
         </div>
-        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">
           Video Bubble
         </span>
       </div>
@@ -216,7 +173,15 @@ export function VideoBubbleSettings({
       {tab === 'url' && <VideoPreview parsed={parsed} />}
 
       {/* Tabs */}
-      {workspaceId && <TabSwitcher active={tab} onChange={setTab} />}
+      {workspaceId && (
+        <SegmentedControl
+          items={TAB_ITEMS}
+          value={tab}
+          onChange={setTab}
+          fullWidth
+          aria-label="Video source"
+        />
+      )}
 
       {tab === 'upload' && workspaceId ? (
         <FileUploadInput
@@ -231,26 +196,20 @@ export function VideoBubbleSettings({
         <>
           {/* URL input */}
           <Field label="Video URL">
-            <div className="relative flex items-center">
-              <LuLink
-                className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-                strokeWidth={1.8}
-              />
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => update({ url: e.target.value })}
-                placeholder="YouTube, Vimeo, or direct .mp4 URL"
-                className={cn(inputClass, 'pl-8')}
-              />
-            </div>
+            <Input
+              type="url"
+              value={url}
+              onChange={(e) => update({ url: e.target.value })}
+              placeholder="YouTube, Vimeo, or direct .mp4 URL"
+              iconLeft={LinkIcon}
+            />
 
             {/* Provider badge row */}
             {url && (
               <div className="flex items-center gap-2">
                 <ProviderBadge provider={parsed.provider} />
-                {parsed.provider === 'unknown' && url && (
-                  <span className="text-[11px] text-[var(--gray-8)]">
+                {parsed.provider === 'unknown' && (
+                  <span className="text-[11px] text-[var(--st-text-tertiary)]">
                     Paste a YouTube, Vimeo, or direct video URL
                   </span>
                 )}
@@ -259,19 +218,14 @@ export function VideoBubbleSettings({
           </Field>
 
           {/* Hint */}
-          <div className="rounded-lg border border-dashed border-[var(--gray-6)] p-3 text-[12px] text-[var(--gray-9)] leading-relaxed">
-            <div className="flex items-start gap-2">
-              <LuExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-              <span>
-                Supports <strong>YouTube</strong>, <strong>Vimeo</strong>, direct{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp4</code> URLs,
-                or{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-                  {'{{variable}}'}
-                </code>
-              </span>
-            </div>
-          </div>
+          <Callout icon={ExternalLink} tone="neutral">
+            Supports <strong>YouTube</strong>, <strong>Vimeo</strong>, direct{' '}
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono">.mp4</code> URLs,
+            or{' '}
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-accent)]">
+              {'{{variable}}'}
+            </code>
+          </Callout>
         </>
       )}
     </div>

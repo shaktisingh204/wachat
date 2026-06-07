@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LuCpu } from 'react-icons/lu';
+import { Cpu } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, Divider } from '../shared/primitives';
+import { Field, Input, Textarea, Slider } from '@/components/sabcrm/20ui';
+import { PanelHeader, Divider } from '../shared/primitives';
 import { VariableSelect } from '../shared/VariableSelect';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
@@ -41,49 +42,43 @@ export function TogetherAISettings({ block, onBlockChange, variables = [] }: Pro
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuCpu} title="Together AI" />
+      <PanelHeader icon={Cpu} title="Together AI" />
 
-      <Field label="API Key">
-        <input
+      <Field label="API Key" help="Stored in the flow settings. Never exposed to end-users.">
+        <Input
           type="password"
           value={opts.apiKey ?? ''}
           onChange={(e) => update({ apiKey: e.target.value })}
-          placeholder="together-…"
+          placeholder="together-..."
           autoComplete="off"
-          className={inputClass}
+          aria-label="API key"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Stored in the flow settings. Never exposed to end-users.
-        </p>
       </Field>
 
-      <Field label="Model">
-        <input
+      <Field
+        label="Model"
+        help="Enter the full Together AI model slug, e.g. mistralai/Mixtral-8x7B-Instruct-v0.1."
+      >
+        <Input
           type="text"
           value={opts.model ?? ''}
           onChange={(e) => update({ model: e.target.value })}
           placeholder="meta-llama/Llama-3-70b-chat-hf"
-          className={inputClass}
+          aria-label="Model"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Enter the full Together AI model slug (e.g.{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-            mistralai/Mixtral-8x7B-Instruct-v0.1
-          </code>
-          ).
-        </p>
       </Field>
 
       <Divider />
 
       <Field label="System prompt">
-        <textarea
+        <Textarea
           value={opts.systemPrompt ?? ''}
           onChange={(e) => update({ systemPrompt: e.target.value })}
-          placeholder="You are a helpful assistant…"
+          placeholder="You are a helpful assistant."
           rows={4}
           spellCheck
-          className={`${inputClass} resize-y min-h-[80px]`}
+          aria-label="System prompt"
+          className="resize-y min-h-[80px]"
         />
       </Field>
 
@@ -92,33 +87,28 @@ export function TogetherAISettings({ block, onBlockChange, variables = [] }: Pro
           variables={variables}
           value={opts.responseVariableId}
           onChange={(id) => update({ responseVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
 
       <Divider />
 
-      <Field label={`Temperature — ${temperature.toFixed(1)}`}>
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0">0</span>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.1}
-            value={temperature}
-            onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-            className="flex-1 accent-[var(--st-text)]"
-          />
-          <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">1</span>
-        </div>
-        <p className="text-[10.5px] text-[var(--gray-8)]">
-          Lower = more deterministic; higher = more creative.
-        </p>
+      <Field
+        label={`Temperature: ${temperature.toFixed(1)}`}
+        help="Lower is more deterministic, higher is more creative."
+      >
+        <Slider
+          min={0}
+          max={1}
+          step={0.1}
+          value={temperature}
+          onValueChange={(v) => update({ temperature: Array.isArray(v) ? v[0] : v })}
+          ariaLabel="Temperature"
+        />
       </Field>
 
       <Field label="Max tokens">
-        <input
+        <Input
           type="number"
           min={1}
           max={32768}
@@ -128,7 +118,7 @@ export function TogetherAISettings({ block, onBlockChange, variables = [] }: Pro
             update({ maxTokens: e.target.value === '' ? undefined : Number(e.target.value) })
           }
           placeholder="1024"
-          className={inputClass}
+          aria-label="Max tokens"
         />
       </Field>
     </div>

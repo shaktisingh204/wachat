@@ -1,9 +1,18 @@
 'use client';
 
-import { LuVolume2 } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Volume2 } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader } from '../shared/primitives';
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -37,60 +46,63 @@ export function ElevenLabsSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuVolume2} title="ElevenLabs" />
+      <PanelHeader icon={Volume2} title="ElevenLabs" />
 
-      <Field label="API Key">
-        <input
+      <Field label="API Key" help="Stored in the flow settings. Never exposed to end-users.">
+        <Input
           type="password"
           value={opts.apiKey ?? ''}
           onChange={(e) => update({ apiKey: e.target.value })}
           placeholder="sk_xxxxxxxxxxxxxxxxxxxx"
-          className={inputClass}
           autoComplete="off"
           spellCheck={false}
         />
       </Field>
 
-      <Field label="Voice ID">
-        <input
+      <Field label="Voice ID" help="Find voice IDs in your ElevenLabs voice library.">
+        <Input
           type="text"
           value={opts.voiceId ?? ''}
           onChange={(e) => update({ voiceId: e.target.value })}
           placeholder="21m00Tcm4TlvDq8ikWAM"
-          className={inputClass}
           spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Find voice IDs in your ElevenLabs voice library.
-        </p>
       </Field>
 
       <Field label="Model ID">
-        <select
+        <Select
           value={opts.modelId ?? 'eleven_monolingual_v1'}
-          onChange={(e) => update({ modelId: e.target.value as ElevenLabsModel })}
-          className={selectClass}
+          onValueChange={(v) => update({ modelId: v as ElevenLabsModel })}
         >
-          <option value="eleven_monolingual_v1">Monolingual v1</option>
-          <option value="eleven_multilingual_v2">Multilingual v2</option>
-          <option value="eleven_turbo_v2">Turbo v2</option>
-        </select>
+          <SelectTrigger aria-label="Model ID">
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="eleven_monolingual_v1">Monolingual v1</SelectItem>
+            <SelectItem value="eleven_multilingual_v2">Multilingual v2</SelectItem>
+            <SelectItem value="eleven_turbo_v2">Turbo v2</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
 
-      <Field label="Text to Speak">
-        <textarea
+      <Field
+        label="Text to Speak"
+        help={
+          <>
+            Use{' '}
+            <code className="font-mono text-[var(--st-text)]">{'{{variable}}'}</code>
+            {' '}to inject dynamic values.
+          </>
+        }
+      >
+        <Textarea
           value={opts.textToSpeak ?? ''}
           onChange={(e) => update({ textToSpeak: e.target.value })}
           placeholder="Hello {{name}}, welcome to {{company}}!"
           rows={4}
-          className={cn(inputClass, 'resize-y min-h-[80px]')}
+          className="resize-y min-h-[80px]"
           spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Use{' '}
-          <span className="font-mono text-[var(--st-text)]">{'{{variable}}'}</span>
-          {' '}to inject dynamic values.
-        </p>
       </Field>
     </div>
   );

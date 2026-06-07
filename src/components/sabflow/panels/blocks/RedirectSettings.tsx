@@ -1,9 +1,9 @@
 'use client';
 
-import { LuExternalLink, LuBraces } from 'react-icons/lu';
+import { ExternalLink, Braces } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { Field, inputClass, toggleClass, PanelHeader } from './shared/primitives';
+import { Field, Input, Switch } from '@/components/sabcrm/20ui';
+import { PanelHeader } from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -21,48 +21,40 @@ export function RedirectSettings({ block, onBlockChange, variables: _variables =
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuExternalLink} title="Redirect" />
+      <PanelHeader icon={ExternalLink} title="Redirect" />
 
       {/* URL input */}
-      <Field label="URL">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => update({ url: e.target.value })}
-            placeholder="https://example.com or {{redirectUrl}}"
-            className={cn(inputClass, 'pr-8')}
-          />
-          <LuBraces
-            className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-        </div>
-        <p className="text-[11px] text-[var(--gray-8)] mt-1">
-          Use{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-            {'{{variable}}'}
-          </code>{' '}
-          to insert a dynamic URL.
-        </p>
+      <Field
+        label="URL"
+        help={
+          <>
+            Use{' '}
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-text)]">
+              {'{{variable}}'}
+            </code>{' '}
+            to insert a dynamic URL.
+          </>
+        }
+      >
+        <Input
+          type="text"
+          value={url}
+          onChange={(e) => update({ url: e.target.value })}
+          placeholder="https://example.com or {{redirectUrl}}"
+          iconRight={Braces}
+        />
       </Field>
 
       {/* Open in new tab toggle */}
       <div className="flex items-center justify-between">
-        <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           Open in new tab
-        </label>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={openInNewTab}
-          onClick={() => update({ openInNewTab: !openInNewTab })}
-          className={toggleClass(openInNewTab)}
-        >
-          <span
-            className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${openInNewTab ? 'translate-x-5' : 'translate-x-0.5'}`}
-          />
-        </button>
+        </span>
+        <Switch
+          checked={openInNewTab}
+          onCheckedChange={(next) => update({ openInNewTab: next })}
+          aria-label="Open redirect in a new tab"
+        />
       </div>
     </div>
   );

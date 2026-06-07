@@ -1,9 +1,16 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { LuZap, LuPlay, LuCircleCheckBig, LuCircleAlert } from 'react-icons/lu';
+import { Zap, Play, CheckCircle2, AlertCircle } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, Divider } from './shared/primitives';
+import {
+  Alert,
+  Button,
+  Field,
+  Input,
+  Separator,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -25,6 +32,7 @@ export function MakeComSettings({ block, onBlockChange, variables: _variables = 
   const opts = (block.options ?? {}) as MakeComOptions;
   const webhookUrl = opts.webhookUrl ?? '';
 
+  const { toast } = useToast();
   const [isTesting, setIsTesting] = useState(false);
   const [lastResponse, setLastResponse] = useState<{
     status: number;
@@ -58,88 +66,94 @@ export function MakeComSettings({ block, onBlockChange, variables: _variables = 
         body = text;
       }
       setLastResponse({ status: res.status, body });
+      if (res.status >= 200 && res.status < 300) {
+        toast.success(`Test payload delivered (HTTP ${res.status}).`);
+      } else {
+        toast.error(`Webhook responded with HTTP ${res.status}.`);
+      }
     } catch (err) {
-      setTestError(err instanceof Error ? err.message : String(err));
+      const message = err instanceof Error ? err.message : String(err);
+      setTestError(message);
+      toast.error(`Could not reach the webhook. ${message}`);
     } finally {
       setIsTesting(false);
     }
   };
 
   const isConfigured = webhookUrl.startsWith('https://hook.');
+  const responseOk =
+    lastResponse !== null && lastResponse.status >= 200 && lastResponse.status < 300;
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuZap} title="Make.com" />
+      {/* Panel header */}
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent)] text-white">
+          <Zap size={16} strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
+          Make.com
+        </span>
+      </div>
 
-      {/* Status badge */}
+      {/* Status banner */}
       {isConfigured ? (
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--st-text)]/10 border border-[var(--st-border)]/25 px-3 py-2">
-          <LuCircleCheckBig className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" strokeWidth={1.8} />
-          <span className="text-[12px] text-[var(--st-text-secondary)] font-medium">
-            Scenario webhook is configured.
-          </span>
-        </div>
+        <Alert tone="success" icon={CheckCircle2}>
+          Scenario webhook is configured.
+        </Alert>
       ) : (
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--gray-3)] border border-[var(--gray-5)] px-3 py-2">
-          <LuCircleAlert className="h-4 w-4 text-[var(--gray-9)] shrink-0" strokeWidth={1.8} />
-          <span className="text-[12px] text-[var(--gray-9)]">
-            Paste your Make.com scenario webhook URL below.
-          </span>
-        </div>
+        <Alert tone="warning" icon={AlertCircle}>
+          Paste your Make.com scenario webhook URL below.
+        </Alert>
       )}
 
-      <Field label="Webhook URL">
-        <input
+      <Field
+        label="Webhook URL"
+        help={
+          <>
+            Get this URL from the{' '}
+            <strong className="text-[var(--st-text)]">Webhooks</strong> module in your Make
+            scenario.
+          </>
+        }
+      >
+        <Input
           type="url"
           value={webhookUrl}
           onChange={(e) => update({ webhookUrl: e.target.value })}
           placeholder="https://hook.eu2.make.com/abcdef123456"
-          className={inputClass}
           spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Get this URL from the{' '}
-          <strong className="text-[var(--gray-10)]">Webhooks</strong> module in your Make scenario.
-        </p>
       </Field>
 
-      <Divider />
+      <Separator />
 
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        block
+        iconLeft={Play}
+        loading={isTesting}
+        disabled={!webhookUrl}
         onClick={handleTest}
-        disabled={!webhookUrl || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
       >
-        <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
-        {isTesting ? 'Sending test…' : 'Send test payload'}
-      </button>
+        {isTesting ? 'Sending test...' : 'Send test payload'}
+      </Button>
 
       {testError && (
-        <div className="rounded-lg border border-[var(--st-border)]/25 bg-[var(--st-text)]/10 p-3 space-y-1">
-          <p className="text-[10.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">Error</p>
-          <p className="text-[11px] text-[var(--st-text-secondary)] font-mono break-all">{testError}</p>
-        </div>
+        <Alert tone="danger" title="Error">
+          <span className="font-mono break-all">{testError}</span>
+        </Alert>
       )}
 
       {lastResponse !== null && (
-        <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-1">
-          <p className="text-[10.5px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-            Last response{' '}
-            <span
-              className={
-                lastResponse.status >= 200 && lastResponse.status < 300
-                  ? 'text-[var(--st-text-secondary)]'
-                  : 'text-[var(--st-text-secondary)]'
-              }
-            >
-              {lastResponse.status}
-            </span>
-          </p>
-          <pre className="text-[11px] text-[var(--gray-11)] font-mono whitespace-pre-wrap break-all max-h-[200px] overflow-y-auto">
+        <Alert
+          tone={responseOk ? 'success' : 'warning'}
+          title={`Last response ${lastResponse.status}`}
+        >
+          <pre className="max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--st-text-secondary)]">
             {lastResponse.body || '(empty)'}
           </pre>
-        </div>
+        </Alert>
       )}
     </div>
   );

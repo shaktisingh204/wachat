@@ -1,12 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import {
-  LuCreditCard,
-  LuChevronDown,
-  LuInfo,
-  LuUser,
-} from 'react-icons/lu';
+import { CreditCard, Info, User } from 'lucide-react';
 import type {
   Block,
   Variable,
@@ -15,15 +10,22 @@ import type {
 } from '@/lib/sabflow/types';
 import {
   Field,
-  PanelHeader,
-  inputClass,
-  selectClass,
-  Divider,
-  toggleClass,
-} from '../shared/primitives';
+  Input,
+  Switch,
+  Separator,
+  Callout,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
 import { VariableSelect } from '../shared/VariableSelect';
 
-/* ── Option tables ──────────────────────────────────────────────────────── */
+/* -- Option tables --------------------------------------------------------- */
 
 const PROVIDERS: { value: PaymentProvider; label: string }[] = [
   { value: 'stripe', label: 'Stripe' },
@@ -32,21 +34,21 @@ const PROVIDERS: { value: PaymentProvider; label: string }[] = [
 ];
 
 const CURRENCIES: { value: string; label: string }[] = [
-  { value: 'USD', label: 'USD — US Dollar' },
-  { value: 'EUR', label: 'EUR — Euro' },
-  { value: 'GBP', label: 'GBP — British Pound' },
-  { value: 'INR', label: 'INR — Indian Rupee' },
-  { value: 'CAD', label: 'CAD — Canadian Dollar' },
-  { value: 'AUD', label: 'AUD — Australian Dollar' },
-  { value: 'JPY', label: 'JPY — Japanese Yen' },
-  { value: 'SGD', label: 'SGD — Singapore Dollar' },
-  { value: 'AED', label: 'AED — UAE Dirham' },
-  { value: 'BRL', label: 'BRL — Brazilian Real' },
-  { value: 'CHF', label: 'CHF — Swiss Franc' },
-  { value: 'MXN', label: 'MXN — Mexican Peso' },
+  { value: 'USD', label: 'USD, US Dollar' },
+  { value: 'EUR', label: 'EUR, Euro' },
+  { value: 'GBP', label: 'GBP, British Pound' },
+  { value: 'INR', label: 'INR, Indian Rupee' },
+  { value: 'CAD', label: 'CAD, Canadian Dollar' },
+  { value: 'AUD', label: 'AUD, Australian Dollar' },
+  { value: 'JPY', label: 'JPY, Japanese Yen' },
+  { value: 'SGD', label: 'SGD, Singapore Dollar' },
+  { value: 'AED', label: 'AED, UAE Dirham' },
+  { value: 'BRL', label: 'BRL, Brazilian Real' },
+  { value: 'CHF', label: 'CHF, Swiss Franc' },
+  { value: 'MXN', label: 'MXN, Mexican Peso' },
 ];
 
-/* ── Shape for masked credentials returned by the API ───────────────────── */
+/* -- Shape for masked credentials returned by the API ---------------------- */
 
 interface MaskedCredentialSummary {
   id: string;
@@ -58,7 +60,7 @@ interface CredentialsResponse {
   credentials?: MaskedCredentialSummary[];
 }
 
-/* ── Local UI helpers ───────────────────────────────────────────────────── */
+/* -- Local UI helpers ------------------------------------------------------ */
 
 function ToggleRow({
   label,
@@ -71,33 +73,25 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[12px] text-[var(--gray-11)] select-none">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={toggleClass(checked)}
-      >
-        <span
-          className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-md transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0'
-          }`}
-        />
-      </button>
+      <span className="select-none text-[12px] text-[var(--st-text-secondary)]">{label}</span>
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        aria-label={label}
+      />
     </div>
   );
 }
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <span className="text-[11px] font-semibold text-[var(--gray-9)] uppercase tracking-wider">
+    <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)]">
       {children}
     </span>
   );
 }
 
-/* ── Props ──────────────────────────────────────────────────────────────── */
+/* -- Props ----------------------------------------------------------------- */
 
 type Props = {
   block: Block;
@@ -105,7 +99,7 @@ type Props = {
   variables?: Variable[];
 };
 
-/* ── Main component ─────────────────────────────────────────────────────── */
+/* -- Main component -------------------------------------------------------- */
 
 export function PaymentInputSettings({ block, onBlockChange, variables = [] }: Props) {
   const opts = (block.options ?? {}) as PaymentInputOptions;
@@ -120,15 +114,13 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
   const info = opts.additionalInformation ?? {};
   const addr = info.address ?? {};
 
-  /* ── State ───────────────────────────────────────────────────────────── */
+  /* -- State ------------------------------------------------------------- */
   const [credentials, setCredentials] = useState<MaskedCredentialSummary[]>([]);
   const [credsLoading, setCredsLoading] = useState(false);
   const [credsError, setCredsError] = useState<string | null>(null);
-  const [customerOpen, setCustomerOpen] = useState(false);
-  const [addressOpen, setAddressOpen] = useState(false);
   const [secretFallback, setSecretFallback] = useState(false);
 
-  /* ── Update helper ───────────────────────────────────────────────────── */
+  /* -- Update helper ----------------------------------------------------- */
   const update = useCallback(
     (patch: Partial<PaymentInputOptions>) => {
       onBlockChange({ ...block, options: { ...opts, ...patch } });
@@ -157,7 +149,7 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
     [addr, updateInfo],
   );
 
-  /* ── Load credentials when provider changes ──────────────────────────── */
+  /* -- Load credentials when provider changes ---------------------------- */
   useEffect(() => {
     let cancelled = false;
     async function fetchCreds() {
@@ -168,7 +160,7 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
           cache: 'no-store',
         });
         if (!res.ok) {
-          // Probably no session / CredentialSelect not available — fall back.
+          // Probably no session / CredentialSelect not available, fall back.
           setSecretFallback(true);
           setCredentials([]);
           return;
@@ -195,137 +187,143 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
 
   const isStripe = provider === 'stripe';
 
-  /* ── Render ──────────────────────────────────────────────────────────── */
+  /* -- Render ------------------------------------------------------------ */
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuCreditCard} title="Payment" />
+      {/* -- Header ------------------------------------------------ */}
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+          <CreditCard className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+        </div>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
+          Payment
+        </span>
+      </div>
 
-      {/* ── Provider ────────────────────────────────────────── */}
+      {/* -- Provider -------------------------------------------- */}
       <Field label="Provider">
-        <select
+        <Select
           value={provider}
-          onChange={(e) => update({ provider: e.target.value as PaymentProvider })}
-          className={selectClass}
+          onValueChange={(value) => update({ provider: value as PaymentProvider })}
         >
-          {PROVIDERS.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Payment provider">
+            <SelectValue placeholder="Select a provider" />
+          </SelectTrigger>
+          <SelectContent>
+            {PROVIDERS.map((p) => (
+              <SelectItem key={p.value} value={p.value}>
+                {p.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
-      {/* ── Credential ──────────────────────────────────────── */}
-      <Field label="Credential">
-        {secretFallback ? (
-          <>
-            <input
-              type="password"
-              value={credentialId ?? ''}
-              onChange={(e) => update({ credentialId: e.target.value })}
-              placeholder={isStripe ? 'sk_test_…' : 'secret key'}
-              className={inputClass}
-              autoComplete="off"
-            />
-            <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">
-              Couldn&apos;t load stored credentials. Paste the provider secret key directly (stored with the flow).
-            </p>
-          </>
-        ) : (
-          <>
-            <select
-              value={credentialId ?? ''}
-              onChange={(e) => update({ credentialId: e.target.value || undefined })}
-              className={selectClass}
-              disabled={credsLoading}
-            >
-              <option value="">
-                {credsLoading ? 'Loading…' : '— select a credential —'}
-              </option>
+      {/* -- Credential ------------------------------------------ */}
+      {secretFallback ? (
+        <Field
+          label="Credential"
+          help="Could not load stored credentials. Paste the provider secret key directly (stored with the flow)."
+        >
+          <Input
+            type="password"
+            value={credentialId ?? ''}
+            onChange={(e) => update({ credentialId: e.target.value })}
+            placeholder={isStripe ? 'sk_test_...' : 'secret key'}
+            autoComplete="off"
+          />
+        </Field>
+      ) : (
+        <Field
+          label="Credential"
+          error={credsError ?? undefined}
+          help={
+            !credsLoading && credentials.length === 0 && !credsError
+              ? `No ${provider} credentials yet. Create one in Settings, Credentials.`
+              : undefined
+          }
+        >
+          <Select
+            value={credentialId ?? ''}
+            onValueChange={(value) => update({ credentialId: value || undefined })}
+            disabled={credsLoading}
+          >
+            <SelectTrigger aria-label="Stored credential">
+              <SelectValue placeholder={credsLoading ? 'Loading...' : 'Select a credential'} />
+            </SelectTrigger>
+            <SelectContent>
               {credentials.map((c) => (
-                <option key={c.id} value={c.id}>
+                <SelectItem key={c.id} value={c.id}>
                   {c.name}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-            {credsError && (
-              <p className="mt-1 text-[10.5px] text-[var(--st-text-secondary)]">{credsError}</p>
-            )}
-            {!credsLoading && credentials.length === 0 && !credsError && (
-              <p className="mt-1 text-[10.5px] text-[var(--gray-8)]">
-                No {provider} credentials yet — create one in Settings → Credentials.
-              </p>
-            )}
-          </>
-        )}
-      </Field>
+            </SelectContent>
+          </Select>
+        </Field>
+      )}
 
-      <Divider />
+      <Separator />
 
-      {/* ── Amount + Currency ───────────────────────────────── */}
+      {/* -- Amount + Currency ----------------------------------- */}
       <div className="grid grid-cols-[1fr_120px] gap-3">
         <Field label="Amount">
-          <input
+          <Input
             type="text"
             value={amount}
             onChange={(e) => update({ amount: e.target.value })}
             placeholder="9.99 or {{amount}}"
-            className={inputClass}
             inputMode="decimal"
           />
         </Field>
 
         <Field label="Currency">
-          <select
-            value={currency}
-            onChange={(e) => update({ currency: e.target.value })}
-            className={selectClass}
-          >
-            {CURRENCIES.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.value}
-              </option>
-            ))}
-          </select>
+          <Select value={currency} onValueChange={(value) => update({ currency: value })}>
+            <SelectTrigger aria-label="Currency">
+              <SelectValue placeholder="Currency" />
+            </SelectTrigger>
+            <SelectContent>
+              {CURRENCIES.map((c) => (
+                <SelectItem key={c.value} value={c.value}>
+                  {c.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
       </div>
 
-      <p className="-mt-1 flex items-center gap-1 text-[10.5px] text-[var(--gray-8)]">
-        <LuInfo className="h-3 w-3" strokeWidth={2} />
+      <Callout tone="info" icon={Info}>
         Decimal amounts are converted to the smallest currency unit server-side.
-      </p>
+      </Callout>
 
-      {/* ── Description ─────────────────────────────────────── */}
+      {/* -- Description ----------------------------------------- */}
       <Field label="Description">
-        <input
+        <Input
           type="text"
           value={description}
           onChange={(e) => update({ description: e.target.value })}
           placeholder="Order #{{orderId}}"
-          className={inputClass}
         />
       </Field>
 
-      <Divider />
+      <Separator />
 
-      {/* ── Labels ─────────────────────────────────────────── */}
+      {/* -- Labels ---------------------------------------------- */}
       <Field label="Button text">
-        <input
+        <Input
           type="text"
           value={buttonLabel}
           onChange={(e) => updateLabels({ button: e.target.value })}
           placeholder="Pay {{amount}}"
-          className={inputClass}
         />
       </Field>
 
       <Field label="Success message">
-        <input
+        <Input
           type="text"
           value={successLabel}
           onChange={(e) => updateLabels({ success: e.target.value })}
           placeholder="Payment successful!"
-          className={inputClass}
         />
       </Field>
 
@@ -334,33 +332,23 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
           variables={variables}
           value={opts.variableId}
           onChange={(id) => update({ variableId: id })}
-          placeholder="— optional —"
+          placeholder="optional"
         />
       </Field>
 
-      <Divider />
+      <Separator />
 
-      {/* ── Collect customer info (collapsible) ─────────────── */}
-      <div className="space-y-3">
-        <button
-          type="button"
-          onClick={() => setCustomerOpen((v) => !v)}
-          className="flex w-full items-center justify-between"
-        >
-          <div className="flex items-center gap-1.5">
-            <LuUser className="h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={1.8} />
+      {/* -- Collect customer info (collapsible) ----------------- */}
+      <Collapsible className="space-y-3">
+        <CollapsibleTrigger className="w-full" hideChevron={false}>
+          <span className="flex items-center gap-1.5">
+            <User className="h-3.5 w-3.5 text-[var(--st-text-tertiary)]" strokeWidth={1.8} aria-hidden="true" />
             <SectionHeading>Collect customer info</SectionHeading>
-          </div>
-          <LuChevronDown
-            className={`h-3.5 w-3.5 text-[var(--gray-9)] transition-transform duration-200 ${
-              customerOpen ? 'rotate-180' : ''
-            }`}
-            strokeWidth={2}
-          />
-        </button>
+          </span>
+        </CollapsibleTrigger>
 
-        {customerOpen && (
-          <div className="space-y-3 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3">
+        <CollapsibleContent>
+          <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             <ToggleRow
               label="Full name"
               checked={Boolean(info.name)}
@@ -369,9 +357,7 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
             <ToggleRow
               label="Email"
               checked={Boolean(info.email)}
-              onChange={(next) =>
-                updateInfo({ email: next ? (info.email || 'Email') : undefined })
-              }
+              onChange={(next) => updateInfo({ email: next ? (info.email || 'Email') : undefined })}
             />
             <ToggleRow
               label="Phone number"
@@ -381,74 +367,72 @@ export function PaymentInputSettings({ block, onBlockChange, variables = [] }: P
               }
             />
 
-            <Divider />
+            <Separator />
 
             {/* Address collapsible */}
-            <button
-              type="button"
-              onClick={() => setAddressOpen((v) => !v)}
-              className="flex w-full items-center justify-between"
-            >
-              <SectionHeading>Billing address</SectionHeading>
-              <LuChevronDown
-                className={`h-3.5 w-3.5 text-[var(--gray-9)] transition-transform duration-200 ${
-                  addressOpen ? 'rotate-180' : ''
-                }`}
-                strokeWidth={2}
-              />
-            </button>
+            <Collapsible className="space-y-3">
+              <CollapsibleTrigger className="w-full">
+                <SectionHeading>Billing address</SectionHeading>
+              </CollapsibleTrigger>
 
-            {addressOpen && (
-              <div className="grid grid-cols-1 gap-2">
-                <input
-                  type="text"
-                  value={addr.country ?? ''}
-                  onChange={(e) => updateAddress({ country: e.target.value || undefined })}
-                  placeholder="Country"
-                  className={inputClass}
-                />
-                <input
-                  type="text"
-                  value={addr.line1 ?? ''}
-                  onChange={(e) => updateAddress({ line1: e.target.value || undefined })}
-                  placeholder="Address line 1"
-                  className={inputClass}
-                />
-                <input
-                  type="text"
-                  value={addr.line2 ?? ''}
-                  onChange={(e) => updateAddress({ line2: e.target.value || undefined })}
-                  placeholder="Address line 2"
-                  className={inputClass}
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={addr.city ?? ''}
-                    onChange={(e) => updateAddress({ city: e.target.value || undefined })}
-                    placeholder="City"
-                    className={inputClass}
-                  />
-                  <input
-                    type="text"
-                    value={addr.state ?? ''}
-                    onChange={(e) => updateAddress({ state: e.target.value || undefined })}
-                    placeholder="State"
-                    className={inputClass}
-                  />
+              <CollapsibleContent>
+                <div className="grid grid-cols-1 gap-2">
+                  <Field label="Country">
+                    <Input
+                      type="text"
+                      value={addr.country ?? ''}
+                      onChange={(e) => updateAddress({ country: e.target.value || undefined })}
+                      placeholder="Country"
+                    />
+                  </Field>
+                  <Field label="Address line 1">
+                    <Input
+                      type="text"
+                      value={addr.line1 ?? ''}
+                      onChange={(e) => updateAddress({ line1: e.target.value || undefined })}
+                      placeholder="Address line 1"
+                    />
+                  </Field>
+                  <Field label="Address line 2">
+                    <Input
+                      type="text"
+                      value={addr.line2 ?? ''}
+                      onChange={(e) => updateAddress({ line2: e.target.value || undefined })}
+                      placeholder="Address line 2"
+                    />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Field label="City">
+                      <Input
+                        type="text"
+                        value={addr.city ?? ''}
+                        onChange={(e) => updateAddress({ city: e.target.value || undefined })}
+                        placeholder="City"
+                      />
+                    </Field>
+                    <Field label="State">
+                      <Input
+                        type="text"
+                        value={addr.state ?? ''}
+                        onChange={(e) => updateAddress({ state: e.target.value || undefined })}
+                        placeholder="State"
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Postal code">
+                    <Input
+                      type="text"
+                      value={addr.postalCode ?? ''}
+                      onChange={(e) => updateAddress({ postalCode: e.target.value || undefined })}
+                      placeholder="Postal code"
+                    />
+                  </Field>
                 </div>
-                <input
-                  type="text"
-                  value={addr.postalCode ?? ''}
-                  onChange={(e) => updateAddress({ postalCode: e.target.value || undefined })}
-                  placeholder="Postal code"
-                  className={inputClass}
-                />
-              </div>
-            )}
+              </CollapsibleContent>
+            </Collapsible>
           </div>
-        )}
-      </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }

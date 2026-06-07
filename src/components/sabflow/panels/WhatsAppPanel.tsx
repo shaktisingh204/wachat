@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * SabFlow — WhatsApp channel settings panel
+ * SabFlow - WhatsApp channel settings panel
  *
  * Renders a form for connecting a flow to a WhatsApp Business Cloud channel
  * (phone number ID, access token, verify token, business account ID) and
@@ -11,27 +11,38 @@
 import * as React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  LuMessageCircle,
-  LuCopy,
-  LuCheck,
-  LuInfo,
-  LuLoader,
-  LuCircleAlert,
-  LuSave,
-  LuEye,
-  LuEyeOff,
-  LuRefreshCw,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  MessageCircle,
+  Copy,
+  Check,
+  Info,
+  RefreshCw,
+  Eye,
+  EyeOff,
+  Save,
+} from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Badge,
+  Dot,
+  Callout,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import type { WhatsAppConfig } from '@/lib/sabflow/whatsapp/types';
 
-/* ── Props ───────────────────────────────────────────────── */
+/* -- Props ------------------------------------------------- */
 
 interface WhatsAppPanelProps {
   flowId: string;
 }
 
-/* ── Helpers ─────────────────────────────────────────────── */
+/* -- Helpers ----------------------------------------------- */
 
 const TOKEN_MASK = '********';
 
@@ -52,7 +63,7 @@ function buildWebhookUrl(flowId: string): string {
   return `https://yourapp.com/api/sabflow/whatsapp/webhook/${flowId}`;
 }
 
-/* ── Section wrapper (matches NotificationsPanel styling) ─ */
+/* -- Section wrapper (Card-based) -------------------------- */
 
 interface SectionProps {
   icon: React.ElementType;
@@ -63,22 +74,20 @@ interface SectionProps {
 
 function Section({ icon: Icon, title, children, rightSlot }: SectionProps) {
   return (
-    <div className="rounded-xl border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] overflow-hidden">
-      <div className="flex items-center justify-between gap-2.5 px-4 py-3 border-b border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/50">
+    <Card padding="none" className="overflow-hidden">
+      <CardHeader className="flex items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5">
-          <Icon className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
-          <span className="text-[13px] font-semibold text-[var(--st-text)] dark:text-white">
-            {title}
-          </span>
+          <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} aria-hidden="true" />
+          <CardTitle className="text-[13px]">{title}</CardTitle>
         </div>
         {rightSlot}
-      </div>
-      <div className="px-4 py-3 flex flex-col gap-3">{children}</div>
-    </div>
+      </CardHeader>
+      <CardBody className="flex flex-col gap-3">{children}</CardBody>
+    </Card>
   );
 }
 
-/* ── Copyable read-only row ──────────────────────────────── */
+/* -- Copyable read-only row -------------------------------- */
 
 interface CopyRowProps {
   label: string;
@@ -95,51 +104,35 @@ function CopyRow({ label, value, monospace }: CopyRowProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      /* noop — browsers without clipboard permission */
+      /* noop - browsers without clipboard permission */
     }
   }, [value]);
 
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
-        {label}
-      </span>
+    <Field label={label}>
       <div className="flex gap-2">
-        <input
+        <Input
           readOnly
           value={value}
-          className={cn(
-            'flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] outline-none',
-            monospace && 'font-mono',
-          )}
+          className={monospace ? 'flex-1 font-mono' : 'flex-1'}
           onFocus={(e) => e.currentTarget.select()}
         />
-        <button
-          type="button"
+        <IconButton
+          label={copied ? `${label} copied` : `Copy ${label}`}
+          icon={copied ? Check : Copy}
+          variant={copied ? 'outline' : 'secondary'}
           onClick={handleCopy}
-          aria-label={`Copy ${label}`}
-          className={cn(
-            'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors',
-            copied
-              ? 'border-[var(--st-border)] text-[var(--st-text)] bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/30'
-              : 'border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)]',
-          )}
-        >
-          {copied ? (
-            <LuCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-          ) : (
-            <LuCopy className="h-3.5 w-3.5" strokeWidth={1.75} />
-          )}
-        </button>
+          className="shrink-0"
+        />
       </div>
-    </div>
+    </Field>
   );
 }
 
-/* ── Main component ──────────────────────────────────────── */
+/* -- Main component ---------------------------------------- */
 
 export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
-  /* ── State ───────────────────────────────────────────── */
+  /* -- State ----------------------------------------------- */
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
@@ -152,18 +145,18 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
   const [showToken, setShowToken] = useState(false);
 
   // "hasStoredToken" becomes true after a successful load when the server
-  // indicates a token is already stored.  We render the masked placeholder
+  // indicates a token is already stored. We render the masked placeholder
   // in that case and only send a new token when the user actually types one.
   const [hasStoredToken, setHasStoredToken] = useState(false);
 
-  /* ── Derived ─────────────────────────────────────────── */
+  /* -- Derived --------------------------------------------- */
   const webhookUrl = useMemo(() => buildWebhookUrl(flowId), [flowId]);
 
   const isConfigured = Boolean(
     phoneNumberId && businessAccountId && verifyToken && (hasStoredToken || accessToken),
   );
 
-  /* ── Load existing config ────────────────────────────── */
+  /* -- Load existing config -------------------------------- */
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -180,7 +173,7 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
               setHasStoredToken(data.config.accessToken === TOKEN_MASK);
               setAccessToken(''); // Never populate the token field
             } else {
-              // Fresh — pre-generate a verify token so the user can copy it
+              // Fresh - pre-generate a verify token so the user can copy it
               // into Meta immediately.
               setVerifyToken(generateVerifyToken());
             }
@@ -200,12 +193,12 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
     };
   }, [flowId]);
 
-  /* ── Regenerate verify token ─────────────────────────── */
+  /* -- Regenerate verify token ----------------------------- */
   const handleRegenerateVerifyToken = useCallback(() => {
     setVerifyToken(generateVerifyToken());
   }, []);
 
-  /* ── Save ────────────────────────────────────────────── */
+  /* -- Save ------------------------------------------------ */
   const handleSave = useCallback(async () => {
     if (!phoneNumberId.trim() || !businessAccountId.trim() || !verifyToken.trim()) {
       setSaveStatus('error');
@@ -253,234 +246,176 @@ export function WhatsAppPanel({ flowId }: WhatsAppPanelProps) {
     }
   }, [flowId, phoneNumberId, accessToken, verifyToken, businessAccountId, hasStoredToken]);
 
-  /* ── Loading skeleton ────────────────────────────────── */
+  /* -- Loading skeleton ------------------------------------ */
   if (loading) {
     return (
       <div className="flex flex-col gap-4 p-4">
         {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-32 animate-pulse rounded-xl bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]"
-          />
+          <Skeleton key={i} height={128} radius={12} />
         ))}
       </div>
     );
   }
 
-  /* ── Render ──────────────────────────────────────────── */
+  /* -- Render ---------------------------------------------- */
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
-          <LuMessageCircle className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.75} />
-          <h2 className="text-[14px] font-semibold text-[var(--st-text)] dark:text-white">
-            WhatsApp Business
-          </h2>
+          <MessageCircle className="h-4 w-4 text-[var(--st-text-secondary)]" strokeWidth={1.75} aria-hidden="true" />
+          <h2 className="text-[14px] font-semibold text-[var(--st-text)]">WhatsApp Business</h2>
         </div>
         <div className="flex items-center gap-1.5">
-          <span
-            className={cn(
-              'h-2 w-2 rounded-full',
-              isConfigured ? 'bg-[var(--st-text)] shadow-[0_0_0_2px_rgba(34,197,94,0.18)]' : 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]',
-            )}
-            aria-hidden
-          />
-          <span className="text-[11.5px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+          <Dot tone={isConfigured ? 'success' : 'neutral'} pulse={isConfigured} aria-hidden="true" />
+          <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)]">
             {isConfigured ? 'Connected' : 'Not connected'}
           </span>
         </div>
       </div>
 
       {/* Connect section */}
-      <Section icon={LuMessageCircle} title="Connect WhatsApp Business API">
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="wa-phone-number-id"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
-          >
-            Phone Number ID
-          </label>
-          <input
-            id="wa-phone-number-id"
+      <Section icon={MessageCircle} title="Connect WhatsApp Business API">
+        <Field label="Phone Number ID">
+          <Input
             value={phoneNumberId}
             onChange={(e) => setPhoneNumberId(e.target.value)}
             placeholder="e.g. 105954345705861"
-            className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
           />
-        </div>
+        </Field>
 
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="wa-access-token"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
-          >
-            Access Token
-            {hasStoredToken && (
-              <span className="ml-2 rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 px-1.5 py-0.5 text-[10px] font-medium text-[var(--st-text)] dark:text-[var(--st-text-secondary)] normal-case tracking-normal">
-                Saved
-              </span>
-            )}
-          </label>
+        <Field
+          label={
+            <span className="flex items-center gap-2">
+              Access Token
+              {hasStoredToken ? (
+                <Badge tone="success" kind="soft">
+                  Saved
+                </Badge>
+              ) : null}
+            </span>
+          }
+        >
           <div className="flex gap-2">
-            <input
-              id="wa-access-token"
+            <Input
               type={showToken ? 'text' : 'password'}
               value={accessToken}
               onChange={(e) => setAccessToken(e.target.value)}
-              placeholder={hasStoredToken ? 'Leave blank to keep existing token' : 'EAAG…'}
+              placeholder={hasStoredToken ? 'Leave blank to keep existing token' : 'EAAG...'}
               autoComplete="off"
-              className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors font-mono"
+              className="flex-1 font-mono"
             />
-            <button
-              type="button"
+            <IconButton
+              label={showToken ? 'Hide token' : 'Show token'}
+              icon={showToken ? EyeOff : Eye}
+              variant="secondary"
               onClick={() => setShowToken((s) => !s)}
-              aria-label={showToken ? 'Hide token' : 'Show token'}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
-            >
-              {showToken ? (
-                <LuEyeOff className="h-3.5 w-3.5" strokeWidth={1.75} />
-              ) : (
-                <LuEye className="h-3.5 w-3.5" strokeWidth={1.75} />
-              )}
-            </button>
+              className="shrink-0"
+            />
           </div>
-        </div>
+        </Field>
 
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="wa-verify-token"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
-          >
-            Verify Token
-          </label>
+        <Field label="Verify Token">
           <div className="flex gap-2">
-            <input
-              id="wa-verify-token"
+            <Input
               value={verifyToken}
               onChange={(e) => setVerifyToken(e.target.value)}
               placeholder="Auto-generated on load"
-              className="flex-1 rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors font-mono"
+              className="flex-1 font-mono"
             />
-            <button
-              type="button"
+            <IconButton
+              label="Regenerate verify token"
+              icon={RefreshCw}
+              variant="secondary"
               onClick={handleRegenerateVerifyToken}
-              aria-label="Regenerate verify token"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] text-[var(--st-text)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
-            >
-              <LuRefreshCw className="h-3.5 w-3.5" strokeWidth={1.75} />
-            </button>
+              className="shrink-0"
+            />
           </div>
-        </div>
+        </Field>
 
-        <div className="flex flex-col gap-1">
-          <label
-            htmlFor="wa-business-account-id"
-            className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
-          >
-            Business Account ID (WABA)
-          </label>
-          <input
-            id="wa-business-account-id"
+        <Field label="Business Account ID (WABA)">
+          <Input
             value={businessAccountId}
             onChange={(e) => setBusinessAccountId(e.target.value)}
             placeholder="e.g. 104254435827164"
-            className="w-full rounded-lg border border-[var(--st-border)] dark:border-[var(--st-border)] bg-white dark:bg-[var(--st-text)] px-3 py-1.5 text-[12.5px] outline-none focus:ring-2 focus:ring-[var(--st-border)]/30 focus:border-[var(--st-border)] transition-colors"
           />
-        </div>
+        </Field>
       </Section>
 
       {/* Webhook section */}
-      <Section icon={LuCopy} title="Webhook URL">
+      <Section icon={Copy} title="Webhook URL">
         <CopyRow label="Callback URL" value={webhookUrl} monospace />
         <CopyRow label="Verify Token" value={verifyToken} monospace />
-        <p className="text-[11.5px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-          Paste both values into the <strong>Webhook</strong> panel of your
-          Meta app and subscribe to the <code className="rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-1 font-mono text-[11px]">messages</code> field on the WhatsApp
-          Business Account.
+        <p className="text-[11.5px] leading-relaxed text-[var(--st-text-secondary)]">
+          Paste both values into the <strong>Webhook</strong> panel of your Meta app and subscribe
+          to the{' '}
+          <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[11px]">
+            messages
+          </code>{' '}
+          field on the WhatsApp Business Account.
         </p>
       </Section>
 
       {/* Setup instructions */}
-      <Section icon={LuInfo} title="Setup instructions">
-        <ol className="flex flex-col gap-2 pl-4 list-decimal text-[12px] leading-relaxed text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
+      <Section icon={Info} title="Setup instructions">
+        <ol className="flex flex-col gap-2 pl-4 list-decimal text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
           <li>
             Create a Meta Developer app at{' '}
             <a
               href="https://developers.facebook.com/apps"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--st-text)] hover:underline"
+              className="text-[var(--st-accent)] hover:underline"
             >
               developers.facebook.com/apps
             </a>{' '}
             and add the <strong>WhatsApp</strong> product.
           </li>
           <li>
-            In <strong>WhatsApp → API Setup</strong>, copy the{' '}
-            <strong>Phone number ID</strong> and the{' '}
-            <strong>WhatsApp Business Account ID</strong>, then paste them
-            above.
+            In <strong>WhatsApp, API Setup</strong>, copy the <strong>Phone number ID</strong> and
+            the <strong>WhatsApp Business Account ID</strong>, then paste them above.
           </li>
           <li>
             Generate a permanent access token for a System User that has
             <em> whatsapp_business_messaging </em> and
-            <em> whatsapp_business_management </em> permissions, and paste it
-            into <strong>Access Token</strong>.
+            <em> whatsapp_business_management </em> permissions, and paste it into{' '}
+            <strong>Access Token</strong>.
           </li>
           <li>
-            In <strong>WhatsApp → Configuration</strong>, click{' '}
-            <strong>Edit</strong> on the webhook, paste the{' '}
-            <strong>Callback URL</strong> and <strong>Verify Token</strong>{' '}
-            from the section above, then <strong>Verify and save</strong>.
+            In <strong>WhatsApp, Configuration</strong>, click <strong>Edit</strong> on the webhook,
+            paste the <strong>Callback URL</strong> and <strong>Verify Token</strong> from the
+            section above, then <strong>Verify and save</strong>.
           </li>
           <li>
             Subscribe the webhook to the{' '}
-            <code className="rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)] px-1 font-mono text-[11px]">
+            <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[11px]">
               messages
             </code>{' '}
             field so incoming chats are delivered to SabFlow.
           </li>
           <li>
-            Send a test message to your WhatsApp business number — the flow
-            will start automatically on the first inbound message.
+            Send a test message to your WhatsApp business number. The flow will start automatically
+            on the first inbound message.
           </li>
         </ol>
       </Section>
 
+      {/* Save error notice */}
+      {saveStatus === 'error' ? (
+        <Callout tone="danger">{saveError || 'Save failed'}</Callout>
+      ) : null}
+
       {/* Save */}
-      <button
-        type="button"
+      <Button
+        variant={saveStatus === 'saved' ? 'outline' : 'primary'}
+        size="lg"
+        block
+        loading={saving}
+        iconLeft={saveStatus === 'saved' ? Check : Save}
         onClick={handleSave}
-        disabled={saving}
-        className={cn(
-          'flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors',
-          'bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white disabled:opacity-50 disabled:pointer-events-none',
-          saveStatus === 'error' && 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
-        )}
       >
-        {saving ? (
-          <>
-            <LuLoader className="h-4 w-4 animate-spin" />
-            Saving…
-          </>
-        ) : saveStatus === 'saved' ? (
-          <>
-            <LuCheck className="h-4 w-4" strokeWidth={2.5} />
-            Saved
-          </>
-        ) : saveStatus === 'error' ? (
-          <>
-            <LuCircleAlert className="h-4 w-4" />
-            {saveError || 'Save failed'}
-          </>
-        ) : (
-          <>
-            <LuSave className="h-4 w-4" strokeWidth={1.75} />
-            Save configuration
-          </>
-        )}
-      </button>
+        {saving ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save configuration'}
+      </Button>
     </div>
   );
 }

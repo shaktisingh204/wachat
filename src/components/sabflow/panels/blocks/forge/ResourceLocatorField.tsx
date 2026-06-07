@@ -12,6 +12,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
 import type {
   ForgeField,
   ForgeFieldMode,
@@ -19,9 +20,18 @@ import type {
   ResourceLocatorValue,
 } from '@/lib/sabflow/forge/types';
 import { isResourceLocatorValue } from '@/lib/sabflow/forge/extractValue';
-import { inputClass, selectClass } from '../shared/primitives';
+import {
+  Button,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 import { useLoadOptions } from './useLoadOptions';
-import { cn } from '@/lib/utils';
 
 type Props = {
   field: ForgeField;
@@ -63,7 +73,7 @@ export function ResourceLocatorField({
   // declares a loadOptions resolver. Avoids unnecessary network round-trips
   // while the user is typing in url/id mode.
   const isListMode = activeMode?.type === 'list';
-  // Typeahead text — forwarded to the resolver as `ctx.filter`. Empty
+  // Typeahead text, forwarded to the resolver as `ctx.filter`. Empty
   // string means "no filter applied". The hook debounces internally
   // (250ms) so each keystroke does not hit the network.
   const [search, setSearch] = useState('');
@@ -89,11 +99,11 @@ export function ResourceLocatorField({
     }
   }, [activeMode, current.value]);
 
-  const switchMode = (next: ForgeFieldMode) => {
-    // Switching modes clears the value — n8n behaviour. Stops a URL pasted
+  const switchMode = (nextName: string) => {
+    // Switching modes clears the value, n8n behaviour. Stops a URL pasted
     // in URL mode from leaking into ID mode and producing a bogus id.
-    if (next.name === current.mode) return;
-    onChange({ mode: next.name, value: '' });
+    if (nextName === current.mode) return;
+    onChange({ mode: nextName, value: '' });
   };
 
   if (modes.length === 0) {
@@ -101,113 +111,100 @@ export function ResourceLocatorField({
     // ship, but if it does, fall back to a plain text input so the editor
     // doesn't crash.
     return (
-      <input
+      <Input
         type="text"
-        className={inputClass}
         value={current.value}
         onChange={(e) => onChange({ mode: 'id', value: e.target.value })}
+        aria-label={field.label}
       />
     );
   }
 
+  const modeItems: SegmentedItem[] = modes.map((m) => ({
+    value: m.name,
+    label: m.displayName,
+  }));
+
+  const listOptions = remote ?? field.options ?? [];
+
   return (
     <div className="flex flex-col gap-1.5">
       {modes.length > 1 && (
-        <div
-          role="tablist"
+        <SegmentedControl
+          size="sm"
+          items={modeItems}
+          value={current.mode}
+          onChange={switchMode}
           aria-label={`${field.label} input mode`}
-          className="inline-flex items-center gap-1 self-start rounded bg-[var(--gray-3)] p-0.5"
-        >
-          {modes.map((m) => {
-            const active = m.name === current.mode;
-            return (
-              <button
-                key={m.name}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => switchMode(m)}
-                className={cn(
-                  'rounded px-2 py-0.5 text-[11px] font-medium transition-colors',
-                  active
-                    ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                    : 'text-[var(--gray-10)] hover:text-[var(--gray-12)]',
-                )}
-              >
-                {m.displayName}
-              </button>
-            );
-          })}
-        </div>
+        />
       )}
 
       {isListMode ? (
-        <div className="flex flex-col gap-1">
-          <input
+        <div className="flex flex-col gap-1.5">
+          <Input
             type="text"
-            className={inputClass}
+            inputSize="sm"
+            iconLeft={Search}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={
               field.placeholder
-                ? `Search ${field.placeholder.toLowerCase()}…`
-                : 'Search…'
+                ? `Search ${field.placeholder.toLowerCase()}...`
+                : 'Search...'
             }
             spellCheck={false}
             aria-label={`Search ${field.label}`}
           />
-          <div className="relative">
-            <select
-              className={selectClass}
-              value={current.value}
-              onChange={(e) =>
-                onChange({ mode: current.mode, value: e.target.value })
-              }
-              disabled={loading && (!remote || remote.length === 0)}
-              required={field.required}
-            >
-              <option value="">
-                {loading ? 'Loading…' : field.placeholder ?? 'Select…'}
-              </option>
-              {(remote ?? field.options ?? []).map((opt: ForgeSelectOption) => (
-                <option key={opt.value} value={opt.value}>
+          <Select
+            value={current.value || undefined}
+            onValueChange={(v) => onChange({ mode: current.mode, value: v })}
+            disabled={loading && listOptions.length === 0}
+            required={field.required}
+          >
+            <SelectTrigger aria-label={field.label}>
+              <SelectValue
+                placeholder={loading ? 'Loading...' : field.placeholder ?? 'Select...'}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {listOptions.map((opt: ForgeSelectOption) => (
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
           {hasMore && (
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={loadMore}
-              disabled={loading}
-              className={cn(
-                'self-start rounded px-2 py-0.5 text-[11px] font-medium transition-colors',
-                'text-[var(--gray-11)] hover:text-[var(--gray-12)]',
-                'disabled:cursor-wait disabled:opacity-50',
-              )}
+              loading={loading}
+              className="self-start"
             >
-              {loading ? 'Loading…' : 'Load more'}
-            </button>
+              {loading ? 'Loading...' : 'Load more'}
+            </Button>
           )}
         </div>
       ) : (
-        <input
+        <Input
           type="text"
-          className={inputClass}
+          inputSize="sm"
           value={current.value}
           onChange={(e) => onChange({ mode: current.mode, value: e.target.value })}
           placeholder={activeMode?.placeholder ?? field.placeholder}
           required={field.required}
+          invalid={Boolean(validationError)}
           spellCheck={false}
+          aria-label={field.label}
         />
       )}
 
       {error && (
-        <p className="text-[11px] text-[var(--red-10)] leading-snug">{error}</p>
+        <p className="text-[11px] leading-snug text-[var(--st-danger)]">{error}</p>
       )}
       {validationError && (
-        <p className="text-[11px] text-[var(--amber-10)] leading-snug">
+        <p className="text-[11px] leading-snug text-[var(--st-warn)]">
           {validationError}
         </p>
       )}

@@ -2,24 +2,33 @@
 
 import { useCallback } from 'react';
 import {
-  LuLayoutGrid,
-  LuPlus,
-  LuX,
-  LuImage,
-  LuType,
-  LuAlignLeft,
-  LuZap,
-} from 'react-icons/lu';
+  LayoutGrid,
+  Plus,
+  X,
+  Image as ImageIcon,
+  Type as TypeIcon,
+  AlignLeft,
+  Zap,
+  Link as LinkIcon,
+} from 'lucide-react';
 import { createId } from '@paralleldrive/cuid2';
+
 import type { Block, ChoiceItem, Variable } from '@/lib/sabflow/types';
-import { VariableSelect } from './shared/VariableSelect';
 import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
   Field,
-  PanelHeader,
-  Divider,
-  inputClass,
-  toggleClass,
-} from './shared/primitives';
+  Input,
+  Switch,
+  SegmentedControl,
+  Badge,
+  Callout,
+  EmptyState,
+  IconButton,
+} from '@/components/sabcrm/20ui';
+import { VariableSelect } from './shared/VariableSelect';
 
 /* ── Types ──────────────────────────────────────────────────────────────── */
 
@@ -28,6 +37,8 @@ type Props = {
   onBlockChange: (block: Block) => void;
   variables?: Variable[];
 };
+
+type SourceMode = 'static' | 'dynamic';
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
@@ -45,31 +56,21 @@ type ToggleRowProps = {
   label: string;
   description?: string;
   checked: boolean;
-  onToggle: () => void;
+  onToggle: (next: boolean) => void;
 };
 
 function ToggleRow({ label, description, checked, onToggle }: ToggleRowProps) {
   return (
     <div className="flex items-start justify-between gap-3">
-      <div className="flex-1 min-w-0">
-        <p className="text-[12.5px] font-medium text-[var(--gray-11)]">{label}</p>
-        {description && (
-          <p className="text-[11px] text-[var(--gray-8)] mt-0.5 leading-relaxed">{description}</p>
-        )}
+      <div className="min-w-0 flex-1">
+        <p className="text-[12.5px] font-medium text-[var(--st-text)]">{label}</p>
+        {description ? (
+          <p className="mt-0.5 text-[11px] leading-relaxed text-[var(--st-text-secondary)]">
+            {description}
+          </p>
+        ) : null}
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={onToggle}
-        className={toggleClass(checked)}
-      >
-        <span
-          className={`block h-4 w-4 rounded-full bg-white shadow transition-transform duration-150 ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
+      <Switch checked={checked} onCheckedChange={onToggle} aria-label={label} />
     </div>
   );
 }
@@ -85,88 +86,98 @@ type PictureChoiceCardProps = {
 
 function PictureChoiceCard({ choice, index, onChange, onDelete }: PictureChoiceCardProps) {
   return (
-    <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] overflow-hidden transition-colors hover:border-[var(--gray-6)]">
+    <Card padding="none" className="overflow-hidden">
       {/* Card header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--gray-4)] bg-[var(--gray-1)]">
-        <span className="text-[11px] font-semibold text-[var(--gray-8)] uppercase tracking-wide">
+      <CardHeader className="flex items-center justify-between px-3 py-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Card {index + 1}
         </span>
-        <button
-          type="button"
+        <IconButton
+          label={`Remove card ${index + 1}`}
+          icon={X}
+          size="sm"
+          variant="ghost"
           onClick={onDelete}
-          title="Remove card"
-          className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
-        >
-          <LuX className="h-3 w-3" strokeWidth={2.5} />
-        </button>
-      </div>
+        />
+      </CardHeader>
 
       {/* Fields */}
-      <div className="px-3 py-3 space-y-2.5">
+      <CardBody className="space-y-2.5 px-3 py-3">
         {/* Image URL */}
-        <div className="space-y-1">
-          <label className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)]">
-            <LuImage className="h-3 w-3" strokeWidth={2} />
-            Image URL
-          </label>
-          <input
-            type="text"
+        <Field
+          label={
+            <span className="inline-flex items-center gap-1.5">
+              <ImageIcon className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+              Image URL
+            </span>
+          }
+          help="Supports a direct URL or a {{variable}} expression."
+        >
+          <Input
+            type="url"
+            inputSize="sm"
+            iconLeft={LinkIcon}
             value={choice.pictureSrc ?? ''}
             onChange={(e) => onChange({ pictureSrc: e.target.value })}
-            placeholder="https://example.com/image.png or {{variable}}"
-            className={inputClass}
+            placeholder="https://example.com/image.png or {{imageUrl}}"
           />
-        </div>
+        </Field>
 
         {/* Image preview */}
-        {choice.pictureSrc && (
-          <div className="relative rounded-md overflow-hidden bg-[var(--gray-3)] border border-[var(--gray-4)] h-24">
+        {choice.pictureSrc ? (
+          <div className="relative h-24 overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={choice.pictureSrc}
               alt={choice.title ?? `Card ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
               }}
             />
           </div>
-        )}
+        ) : null}
 
         {/* Title */}
-        <div className="space-y-1">
-          <label className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)]">
-            <LuType className="h-3 w-3" strokeWidth={2} />
-            Title
-          </label>
-          <input
+        <Field
+          label={
+            <span className="inline-flex items-center gap-1.5">
+              <TypeIcon className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+              Title
+            </span>
+          }
+        >
+          <Input
             type="text"
+            inputSize="sm"
             value={choice.title ?? ''}
             onChange={(e) => onChange({ title: e.target.value, content: e.target.value })}
             placeholder={`Option ${index + 1}`}
-            className={inputClass}
           />
-        </div>
+        </Field>
 
         {/* Description */}
-        <div className="space-y-1">
-          <label className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--gray-9)]">
-            <LuAlignLeft className="h-3 w-3" strokeWidth={2} />
-            Description
-            <span className="ml-auto text-[10px] text-[var(--gray-7)] font-normal normal-case tracking-normal">
-              optional
+        <Field
+          label={
+            <span className="inline-flex w-full items-center gap-1.5">
+              <AlignLeft className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+              Description
+              <span className="ml-auto text-[10px] font-normal normal-case tracking-normal text-[var(--st-text-tertiary)]">
+                optional
+              </span>
             </span>
-          </label>
-          <input
+          }
+        >
+          <Input
             type="text"
+            inputSize="sm"
             value={choice.description ?? ''}
             onChange={(e) => onChange({ description: e.target.value })}
-            placeholder="Short description…"
-            className={inputClass}
+            placeholder="Short description."
           />
-        </div>
-      </div>
-    </div>
+        </Field>
+      </CardBody>
+    </Card>
   );
 }
 
@@ -190,6 +201,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
       }
     | undefined;
   const isDynamic = Boolean(dynamicItems?.isEnabled ?? false);
+  const sourceMode: SourceMode = isDynamic ? 'dynamic' : 'static';
 
   const choices = getChoices(block);
 
@@ -234,58 +246,50 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
 
   return (
     <div className="space-y-5">
-      <PanelHeader icon={LuLayoutGrid} title="Picture Choice" />
-
-      {/* ── Dynamic items toggle ── */}
-      <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)] overflow-hidden">
-        <button
-          type="button"
-          onClick={() => updateDynamicItems({ isEnabled: false })}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
-            !isDynamic
-              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
-          }`}
-        >
-          <LuLayoutGrid className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span className="text-[12px] font-medium">Static cards</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => updateDynamicItems({ isEnabled: true })}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
-            isDynamic
-              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
-          }`}
-        >
-          <LuZap className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span className="text-[12px] font-medium">Dynamic cards</span>
-        </button>
+      {/* Header */}
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)]">
+          <LayoutGrid className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={1.8} aria-hidden="true" />
+        </div>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
+          Picture Choice
+        </span>
       </div>
+
+      {/* ── Source mode ── */}
+      <SegmentedControl<SourceMode>
+        aria-label="Card source"
+        fullWidth
+        size="sm"
+        value={sourceMode}
+        onChange={(mode) => updateDynamicItems({ isEnabled: mode === 'dynamic' })}
+        items={[
+          { value: 'static', label: 'Static cards', icon: LayoutGrid },
+          { value: 'dynamic', label: 'Dynamic cards', icon: Zap },
+        ]}
+      />
 
       {/* ── Static picture cards ── */}
       {!isDynamic && (
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+            <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Cards
-            </label>
-            {choices.length > 0 && (
-              <span className="text-[11px] text-[var(--gray-7)]">
+            </span>
+            {choices.length > 0 ? (
+              <Badge tone="neutral" kind="soft">
                 {choices.length} card{choices.length !== 1 ? 's' : ''}
-              </span>
-            )}
+              </Badge>
+            ) : null}
           </div>
 
           {choices.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] py-6 text-center">
-              <LuLayoutGrid
-                className="mx-auto h-5 w-5 text-[var(--gray-6)] mb-1.5"
-                strokeWidth={1.5}
-              />
-              <p className="text-[11.5px] text-[var(--gray-8)]">No cards yet — add one below</p>
-            </div>
+            <EmptyState
+              icon={LayoutGrid}
+              size="sm"
+              title="No cards yet"
+              description="Add one below to start your picture choice."
+            />
           ) : (
             <div className="space-y-2.5">
               {choices.map((choice, idx) => (
@@ -301,33 +305,25 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
           )}
 
           {/* Add card button */}
-          <button
-            type="button"
-            onClick={addCard}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          <Button variant="outline" size="sm" block iconLeft={Plus} onClick={addCard}>
             Add card
-          </button>
+          </Button>
         </div>
       )}
 
       {/* ── Dynamic items variable pickers ── */}
       {isDynamic && (
         <div className="space-y-3">
-          <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2.5 flex items-start gap-2">
-            <LuZap className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[var(--st-text)]" strokeWidth={2} />
-            <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
-              Each variable should hold a <strong>JSON array of strings</strong> with the same
-              number of items.
-            </p>
-          </div>
+          <Callout tone="info" icon={Zap}>
+            Each variable should hold a <strong>JSON array of strings</strong> with the same number
+            of items.
+          </Callout>
           <Field label="Image URLs variable">
             <VariableSelect
               variables={variables}
               value={dynamicItems?.pictureSrcsVariableId}
               onChange={(id) => updateDynamicItems({ pictureSrcsVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="Select variable"
             />
           </Field>
           <Field label="Titles variable">
@@ -335,7 +331,7 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
               variables={variables}
               value={dynamicItems?.titlesVariableId}
               onChange={(id) => updateDynamicItems({ titlesVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="Select variable"
             />
           </Field>
           <Field label="Descriptions variable">
@@ -343,17 +339,17 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
               variables={variables}
               value={dynamicItems?.descriptionsVariableId}
               onChange={(id) => updateDynamicItems({ descriptionsVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="Select variable"
             />
           </Field>
         </div>
       )}
 
-      <Divider />
+      <div className="h-px bg-[var(--st-border)]" />
 
       {/* ── Settings section ── */}
       <div className="space-y-4">
-        <p className="text-[11.5px] font-semibold text-[var(--gray-9)] uppercase tracking-wide">
+        <p className="text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Settings
         </p>
 
@@ -367,37 +363,22 @@ export function PictureChoiceSettings({ block, onBlockChange, variables = [] }: 
         </Field>
 
         {/* Multiple choice toggle */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-[12.5px] font-medium text-[var(--gray-11)]">Allow multiple selection</p>
-            <p className="text-[11px] text-[var(--gray-8)] mt-0.5 leading-relaxed">
-              User can pick more than one card
-            </p>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={isMultiple}
-            onClick={() => updateOptions({ isMultipleChoice: !isMultiple })}
-            className={toggleClass(isMultiple)}
-          >
-            <span
-              className={`block h-4 w-4 rounded-full bg-white shadow transition-transform duration-150 ${
-                isMultiple ? 'translate-x-5' : 'translate-x-0.5'
-              }`}
-            />
-          </button>
-        </div>
+        <ToggleRow
+          label="Allow multiple selection"
+          description="User can pick more than one card."
+          checked={isMultiple}
+          onToggle={(next) => updateOptions({ isMultipleChoice: next })}
+        />
 
-        {/* Submit button label — only for multi-select */}
+        {/* Submit button label, only for multi-select */}
         {isMultiple && (
           <Field label="Submit button label">
-            <input
+            <Input
               type="text"
+              inputSize="sm"
               value={buttonLabel}
               onChange={(e) => updateOptions({ buttonLabel: e.target.value })}
               placeholder="Send"
-              className={inputClass}
             />
           </Field>
         )}

@@ -1,9 +1,20 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LuBot } from 'react-icons/lu';
+import { Bot } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass, Divider } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  Textarea,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Slider,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader, Divider } from '../shared/primitives';
 import { VariableSelect } from '../shared/VariableSelect';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
@@ -57,46 +68,45 @@ export function MistralSettings({ block, onBlockChange, variables = [] }: Props)
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuBot} title="Mistral AI" />
+      <PanelHeader icon={Bot} title="Mistral AI" />
 
-      <Field label="API Key">
-        <input
+      <Field label="API Key" help="Stored in the flow settings. Never exposed to end-users.">
+        <Input
           type="password"
           value={opts.apiKey ?? ''}
           onChange={(e) => update({ apiKey: e.target.value })}
-          placeholder="…"
+          placeholder="Paste your Mistral API key"
           autoComplete="off"
-          className={inputClass}
+          aria-label="API key"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Stored in the flow settings. Never exposed to end-users.
-        </p>
       </Field>
 
       <Field label="Model">
-        <select
-          value={model}
-          onChange={(e) => update({ model: e.target.value as MistralModel })}
-          className={selectClass}
-        >
-          {MODELS.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </select>
+        <Select value={model} onValueChange={(v) => update({ model: v as MistralModel })}>
+          <SelectTrigger aria-label="Model">
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            {MODELS.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Divider />
 
       <Field label="System prompt">
-        <textarea
+        <Textarea
           value={opts.systemPrompt ?? ''}
           onChange={(e) => update({ systemPrompt: e.target.value })}
-          placeholder="You are a helpful assistant…"
+          placeholder="You are a helpful assistant."
           rows={4}
           spellCheck
-          className={`${inputClass} resize-y min-h-[80px]`}
+          aria-label="System prompt"
+          className="resize-y min-h-[80px]"
         />
       </Field>
 
@@ -105,33 +115,28 @@ export function MistralSettings({ block, onBlockChange, variables = [] }: Props)
           variables={variables}
           value={opts.responseVariableId}
           onChange={(id) => update({ responseVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
 
       <Divider />
 
-      <Field label={`Temperature — ${temperature.toFixed(1)}`}>
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0">0</span>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.1}
-            value={temperature}
-            onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-            className="flex-1 accent-[var(--st-text)]"
-          />
-          <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">1</span>
-        </div>
-        <p className="text-[10.5px] text-[var(--gray-8)]">
-          Lower = more deterministic; higher = more creative.
-        </p>
+      <Field
+        label={`Temperature: ${temperature.toFixed(1)}`}
+        help="Lower is more deterministic, higher is more creative."
+      >
+        <Slider
+          min={0}
+          max={1}
+          step={0.1}
+          value={temperature}
+          onValueChange={(v) => update({ temperature: Array.isArray(v) ? v[0] : v })}
+          ariaLabel="Temperature"
+        />
       </Field>
 
       <Field label="Max tokens">
-        <input
+        <Input
           type="number"
           min={1}
           max={32768}
@@ -141,7 +146,7 @@ export function MistralSettings({ block, onBlockChange, variables = [] }: Props)
             update({ maxTokens: e.target.value === '' ? undefined : Number(e.target.value) })
           }
           placeholder="1024"
-          className={inputClass}
+          aria-label="Max tokens"
         />
       </Field>
     </div>

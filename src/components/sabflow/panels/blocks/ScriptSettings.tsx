@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { LuCode, LuCopy, LuCheck, LuBraces, LuVariable } from 'react-icons/lu';
-import type { Block, Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { Field, inputClass, toggleClass, PanelHeader } from './shared/primitives';
+import { Code, Copy, Check, Braces, Variable } from 'lucide-react';
+import type { Block, Variable as FlowVariable } from '@/lib/sabflow/types';
+import { Button, Field, Input, Switch, Textarea } from '@/components/sabcrm/20ui';
 
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
-  variables?: Variable[];
+  variables?: FlowVariable[];
 };
 
 const BOILERPLATE = `// Available flow variables are injected automatically.
@@ -41,112 +40,98 @@ export function ScriptSettings({ block, onBlockChange, variables = [] }: Props) 
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuCode} title="Script" />
+      {/* Panel header */}
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <Code className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
+          Script
+        </span>
+      </div>
 
       {/* Code editor area */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-            JavaScript
-          </label>
-          <button
+      <Field
+        label="JavaScript"
+        help="Use {{variableName}} to access flow variables. Return a value to store it below."
+      >
+        <div className="mb-1.5 flex items-center justify-end">
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
+            iconLeft={copied ? Check : Copy}
             onClick={handleApplyBoilerplate}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--gray-12)] transition-colors"
           >
-            {copied ? (
-              <LuCheck className="h-3 w-3 text-[var(--st-text)]" strokeWidth={2} />
-            ) : (
-              <LuCopy className="h-3 w-3" strokeWidth={1.8} />
-            )}
             {copied ? 'Applied' : 'Use template'}
-          </button>
+          </Button>
         </div>
-        <textarea
+        <Textarea
           value={code}
           onChange={(e) => update({ code: e.target.value })}
           rows={12}
-          placeholder={`// Write your JavaScript here…\n// Use {{variableName}} to access flow variables\n\nreturn "result";`}
+          placeholder={'// Write your JavaScript here.\n// Use {{variableName}} to access flow variables\n\nreturn "result";'}
           spellCheck={false}
-          className={cn(
-            'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--st-text)]',
-            'px-3 py-3 font-mono text-[12px] text-[var(--st-text-secondary)] leading-relaxed',
-            'outline-none focus:border-[var(--st-border)] resize-y min-h-[200px]',
-            'placeholder:text-[var(--gray-7)] transition-colors',
-          )}
+          className="min-h-[200px] resize-y font-mono"
         />
-      </div>
+      </Field>
 
       {/* Run on client toggle */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div className="space-y-0.5">
-          <span className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+          <span className="block text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Run on client
           </span>
-          <p className="text-[11px] text-[var(--gray-8)]">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Enables access to <code className="font-mono">window</code> /{' '}
             <code className="font-mono">document</code>
           </p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={runOnClient}
-          onClick={() => update({ runOnClient: !runOnClient })}
-          className={toggleClass(runOnClient)}
-        >
-          <span
-            className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${runOnClient ? 'translate-x-5' : 'translate-x-0.5'}`}
-          />
-        </button>
+        <Switch
+          checked={runOnClient}
+          onCheckedChange={(next) => update({ runOnClient: next })}
+          aria-label="Run on client"
+        />
       </div>
 
       {/* Available variables quick-insert */}
       {variables.length > 0 && (
-        <Field label="Available variables">
-          <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+        <Field
+          label="Available variables"
+          help="Click a variable to append it to the script."
+        >
+          <div className="divide-y divide-[var(--st-border)] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
             {variables.map((v) => (
-              <button
+              <Button
                 key={v.id}
                 type="button"
+                variant="ghost"
+                size="sm"
+                iconLeft={Braces}
+                block
                 onClick={() => insertVariable(v.name)}
-                className={cn(
-                  'flex w-full items-center gap-2 px-3 py-2',
-                  'text-left text-[12px] transition-colors',
-                  'text-[var(--gray-11)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-                  'first:rounded-t-lg last:rounded-b-lg',
-                )}
                 title={`Insert {{${v.name}}}`}
+                className="justify-start rounded-none font-mono"
               >
-                <LuBraces className="h-3 w-3 shrink-0 text-[var(--gray-8)]" strokeWidth={1.8} />
-                <span className="font-mono">{`{{${v.name}}}`}</span>
-              </button>
+                {`{{${v.name}}}`}
+              </Button>
             ))}
           </div>
-          <p className="text-[11px] text-[var(--gray-8)] mt-1">
-            Click a variable to append it to the script.
-          </p>
         </Field>
       )}
 
       {/* Output variable */}
-      <Field label="Save return value to">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            value={typeof options.outputVariable === 'string' ? options.outputVariable : ''}
-            onChange={(e) => update({ outputVariable: e.target.value })}
-            placeholder="scriptOutput"
-            className={cn(inputClass, 'pr-8')}
-          />
-          <LuVariable
-            className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-        </div>
-        <p className="text-[11px] text-[var(--gray-8)] mt-1">
-          The value returned by the script is stored in this variable.
-        </p>
+      <Field
+        label="Save return value to"
+        help="The value returned by the script is stored in this variable."
+      >
+        <Input
+          type="text"
+          value={typeof options.outputVariable === 'string' ? options.outputVariable : ''}
+          onChange={(e) => update({ outputVariable: e.target.value })}
+          placeholder="scriptOutput"
+          iconRight={Variable}
+        />
       </Field>
     </div>
   );

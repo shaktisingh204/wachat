@@ -2,15 +2,24 @@
 
 import { useCallback } from 'react';
 import { createId } from '@paralleldrive/cuid2';
-import {
-  LuPlus,
-  LuX,
-  LuGitBranch,
-  LuInfo,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Plus, X, GitBranch } from 'lucide-react';
 import type { Block, Variable, ConditionOptions, ConditionGroup, Comparison, ComparisonOperator } from '@/lib/sabflow/types';
-import { PanelHeader, selectClass, inputClass } from '../shared/primitives';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  Callout,
+  Field,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader } from '../shared/primitives';
 import { VariableSelect } from '../shared/VariableSelect';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -33,6 +42,11 @@ const COMPARISON_OPERATORS: ComparisonOperator[] = [
 
 /** Operators that do not require a right-hand value input */
 const VALUE_LESS_OPERATORS = new Set<ComparisonOperator>(['Is empty', 'Is not empty']);
+
+const LOGIC_ITEMS = [
+  { value: 'AND' as const, label: 'AND' },
+  { value: 'OR' as const, label: 'OR' },
+];
 
 // ── Factories ─────────────────────────────────────────────────────────────────
 
@@ -150,14 +164,14 @@ export function ConditionSettings({ block, onBlockChange, variables }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuGitBranch} title="Condition" />
+      <PanelHeader icon={GitBranch} title="Condition" />
 
       {/* ── IF header ────────────────────────────────────── */}
       <div className="flex items-center gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--gray-9)]">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-[var(--st-text-secondary)]">
           If
         </span>
-        <div className="flex-1 h-px bg-[var(--gray-4)]" />
+        <div className="flex-1 h-px bg-[var(--st-border)]" />
       </div>
 
       {/* ── Condition groups ──────────────────────────────── */}
@@ -167,13 +181,15 @@ export function ConditionSettings({ block, onBlockChange, variables }: Props) {
             {/* Between-group logical operator badge */}
             {groupIndex > 0 && (
               <div className="flex items-center gap-2 my-2 px-1">
-                <div className="flex-1 h-px bg-[var(--gray-4)]" />
-                <LogicPill
+                <div className="flex-1 h-px bg-[var(--st-border)]" />
+                <SegmentedControl
+                  items={LOGIC_ITEMS}
                   value={logicalOperator}
                   onChange={setTopOperator}
                   size="sm"
+                  aria-label="Logical operator between groups"
                 />
-                <div className="flex-1 h-px bg-[var(--gray-4)]" />
+                <div className="flex-1 h-px bg-[var(--st-border)]" />
               </div>
             )}
 
@@ -193,29 +209,14 @@ export function ConditionSettings({ block, onBlockChange, variables }: Props) {
       </div>
 
       {/* ── Add group button ──────────────────────────────── */}
-      <button
-        type="button"
-        onClick={addGroup}
-        className={cn(
-          'flex w-full items-center justify-center gap-1.5 rounded-lg',
-          'border border-dashed border-[var(--gray-6)] py-2',
-          'text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-          'hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)]',
-          'transition-colors',
-        )}
-      >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2.2} />
+      <Button variant="outline" block iconLeft={Plus} onClick={addGroup}>
         Add condition group
-      </button>
+      </Button>
 
       {/* ── Then hint ─────────────────────────────────────── */}
-      <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5 flex items-start gap-2">
-        <LuInfo className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[var(--gray-8)]" strokeWidth={1.8} />
-        <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
-          <span className="font-semibold text-[var(--gray-11)]">Then — </span>
-          Connect the output edges from this block to define which path to follow when the condition passes or falls through.
-        </p>
-      </div>
+      <Callout tone="info" title="Then">
+        Connect the output edges from this block to define which path to follow when the condition passes or falls through.
+      </Callout>
     </div>
   );
 }
@@ -244,23 +245,21 @@ function ConditionGroupCard({
   onDeleteComparison,
 }: GroupCardProps) {
   return (
-    <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] overflow-hidden">
+    <Card padding="none" className="overflow-hidden">
       {/* Group header */}
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--gray-5)] bg-[var(--gray-3)]">
-        <span className="text-[10.5px] font-semibold uppercase tracking-widest text-[var(--gray-9)] flex-1">
+      <CardHeader className="flex items-center gap-2 px-3 py-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+        <span className="text-[10.5px] font-semibold uppercase tracking-widest text-[var(--st-text-secondary)] flex-1">
           Group
         </span>
         {canDelete && (
-          <button
-            type="button"
+          <IconButton
+            icon={X}
+            label="Delete group"
+            size="sm"
             onClick={onDeleteGroup}
-            title="Delete group"
-            className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-5)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuX className="h-3 w-3" strokeWidth={2.2} />
-          </button>
+          />
         )}
-      </div>
+      </CardHeader>
 
       {/* Comparisons */}
       <div className="p-3 space-y-2">
@@ -269,13 +268,15 @@ function ConditionGroupCard({
             {/* Between-comparison logical operator badge */}
             {idx > 0 && (
               <div className="flex items-center gap-2 my-2">
-                <div className="flex-1 h-px bg-[var(--gray-4)]" />
-                <LogicPill
+                <div className="flex-1 h-px bg-[var(--st-border)]" />
+                <SegmentedControl
+                  items={LOGIC_ITEMS}
                   value={group.logicalOperator}
                   onChange={onGroupOperatorChange}
-                  size="xs"
+                  size="sm"
+                  aria-label="Logical operator between comparisons"
                 />
-                <div className="flex-1 h-px bg-[var(--gray-4)]" />
+                <div className="flex-1 h-px bg-[var(--st-border)]" />
               </div>
             )}
 
@@ -292,22 +293,11 @@ function ConditionGroupCard({
 
       {/* Add comparison footer */}
       <div className="px-3 pb-3">
-        <button
-          type="button"
-          onClick={onAddComparison}
-          className={cn(
-            'flex w-full items-center justify-center gap-1.5 rounded-lg',
-            'border border-dashed border-[var(--gray-5)] py-1.5',
-            'text-[11.5px] text-[var(--gray-8)] hover:text-[var(--gray-12)]',
-            'hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)]',
-            'transition-colors',
-          )}
-        >
-          <LuPlus className="h-3 w-3" strokeWidth={2.2} />
+        <Button variant="ghost" block iconLeft={Plus} onClick={onAddComparison}>
           Add comparison
-        </button>
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -328,10 +318,11 @@ function ComparisonRow({
   onUpdate,
   onDelete,
 }: ComparisonRowProps) {
-  const needsValue = !VALUE_LESS_OPERATORS.has(comparison.operator ?? 'Equal to');
+  const operator = comparison.operator ?? 'Equal to';
+  const needsValue = !VALUE_LESS_OPERATORS.has(operator);
 
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-2.5 space-y-2">
+    <Card variant="outlined" padding="sm" className="space-y-2">
       {/* Variable + delete row */}
       <div className="flex items-center gap-1.5">
         <div className="flex-1 min-w-0">
@@ -339,88 +330,54 @@ function ComparisonRow({
             variables={variables}
             value={comparison.variableId}
             onChange={(variableId) => onUpdate({ variableId })}
-            placeholder="— pick variable —"
+            placeholder="Pick a variable"
           />
         </div>
         {canDelete && (
-          <button
-            type="button"
+          <IconButton
+            icon={X}
+            label="Remove comparison"
+            size="sm"
             onClick={onDelete}
-            title="Remove comparison"
-            className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-7)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </button>
+            className="shrink-0"
+          />
         )}
       </div>
 
       {/* Operator select */}
-      <select
-        value={comparison.operator ?? 'Equal to'}
-        onChange={(e) =>
-          onUpdate({ operator: e.target.value as ComparisonOperator })
-        }
-        className={selectClass}
-      >
-        {COMPARISON_OPERATORS.map((op) => (
-          <option key={op} value={op}>
-            {op}
-          </option>
-        ))}
-      </select>
+      <Field label="Operator">
+        <Select
+          value={operator}
+          onValueChange={(val) => onUpdate({ operator: val as ComparisonOperator })}
+        >
+          <SelectTrigger aria-label="Comparison operator">
+            <SelectValue placeholder="Pick an operator" />
+          </SelectTrigger>
+          <SelectContent>
+            {COMPARISON_OPERATORS.map((op) => (
+              <SelectItem key={op} value={op}>
+                {op}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
       {/* Value input (hidden for valueless operators) */}
       {needsValue && (
-        <input
-          type={comparison.operator === 'Matches regex' ? 'text' : 'text'}
-          value={comparison.value ?? ''}
-          onChange={(e) => onUpdate({ value: e.target.value })}
-          placeholder={
-            comparison.operator === 'Matches regex'
-              ? '/pattern/flags or plain pattern'
-              : 'value or {{variable}}'
-          }
-          className={inputClass}
-        />
+        <Field label="Value">
+          <Input
+            type="text"
+            value={comparison.value ?? ''}
+            onChange={(e) => onUpdate({ value: e.target.value })}
+            placeholder={
+              operator === 'Matches regex'
+                ? '/pattern/flags or plain pattern'
+                : 'value or {{variable}}'
+            }
+          />
+        </Field>
       )}
-    </div>
-  );
-}
-
-// ── LogicPill ─────────────────────────────────────────────────────────────────
-
-type LogicPillProps = {
-  value: 'AND' | 'OR';
-  onChange: (op: 'AND' | 'OR') => void;
-  size: 'sm' | 'xs';
-};
-
-function LogicPill({ value, onChange, size }: LogicPillProps) {
-  const containerCls = cn(
-    'flex rounded-full bg-[var(--gray-3)] border border-[var(--gray-5)] p-0.5 shrink-0',
-  );
-  const btnBase = cn(
-    'rounded-full font-semibold transition-colors',
-    size === 'xs' ? 'px-2 py-0.5 text-[9.5px]' : 'px-2.5 py-0.5 text-[11px]',
-  );
-
-  return (
-    <div className={containerCls}>
-      {(['AND', 'OR'] as const).map((op) => (
-        <button
-          key={op}
-          type="button"
-          onClick={() => onChange(op)}
-          className={cn(
-            btnBase,
-            value === op
-              ? 'bg-[var(--st-text)] text-white shadow-sm'
-              : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          {op}
-        </button>
-      ))}
-    </div>
+    </Card>
   );
 }

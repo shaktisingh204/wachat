@@ -1,16 +1,22 @@
 'use client';
 
-import { LuCalendar } from 'react-icons/lu';
+import { Calendar } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { VariableSelect } from './shared/VariableSelect';
 import {
   Field,
-  PanelHeader,
-  CollapsibleSection,
-  inputClass,
-  selectClass,
-  toggleClass,
-} from './shared/primitives';
+  Input,
+  Switch,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
+import { VariableSelect } from './shared/VariableSelect';
+import { PanelHeader } from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -44,40 +50,33 @@ export function DateInputSettings({ block, onBlockChange, variables = [] }: Prop
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuCalendar} title="Date Input" />
+      <PanelHeader icon={Calendar} title="Date Input" />
 
       <Field label="Date format">
-        <select
-          value={format}
-          onChange={(e) => update({ format: e.target.value })}
-          className={selectClass}
-        >
-          {DATE_FORMAT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <Select value={format} onValueChange={(value) => update({ format: value })}>
+          <SelectTrigger aria-label="Date format">
+            <SelectValue placeholder="Select a date format" />
+          </SelectTrigger>
+          <SelectContent>
+            {DATE_FORMAT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       {/* Include time toggle */}
       <div className="flex items-center justify-between">
-        <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
           Include time
-        </label>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={hasTime}
-          onClick={() => update({ hasTime: !hasTime })}
-          className={toggleClass(hasTime)}
-        >
-          <span
-            className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${
-              hasTime ? 'translate-x-5' : 'translate-x-0.5'
-            }`}
-          />
-        </button>
+        </span>
+        <Switch
+          checked={hasTime}
+          onCheckedChange={(next) => update({ hasTime: next })}
+          aria-label="Include time"
+        />
       </div>
 
       <Field label="Save answer to variable">
@@ -88,28 +87,29 @@ export function DateInputSettings({ block, onBlockChange, variables = [] }: Prop
         />
       </Field>
 
-      <CollapsibleSection title="Validation" defaultOpen>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Min date">
-            <input
-              type={hasTime ? 'datetime-local' : 'date'}
-              value={minDate}
-              onChange={(e) => update({ minDate: e.target.value || undefined })}
-              placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Max date">
-            <input
-              type={hasTime ? 'datetime-local' : 'date'}
-              value={maxDate}
-              onChange={(e) => update({ maxDate: e.target.value || undefined })}
-              placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-      </CollapsibleSection>
+      <Collapsible defaultOpen>
+        <CollapsibleTrigger>Validation</CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Min date">
+              <Input
+                type={hasTime ? 'datetime-local' : 'date'}
+                value={minDate}
+                onChange={(e) => update({ minDate: e.target.value || undefined })}
+                placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
+              />
+            </Field>
+            <Field label="Max date">
+              <Input
+                type={hasTime ? 'datetime-local' : 'date'}
+                value={maxDate}
+                onChange={(e) => update({ maxDate: e.target.value || undefined })}
+                placeholder={hasTime ? 'YYYY-MM-DDTHH:mm' : 'YYYY-MM-DD'}
+              />
+            </Field>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }

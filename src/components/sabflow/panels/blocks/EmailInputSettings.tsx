@@ -1,9 +1,9 @@
 'use client';
 
-import { LuMail } from 'react-icons/lu';
+import { Mail } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
+import { Field, Input } from '@/components/sabcrm/20ui';
 import { VariableSelect } from './shared/VariableSelect';
-import { Field, PanelHeader, inputClass } from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -23,25 +23,30 @@ export function EmailInputSettings({ block, onBlockChange, variables = [] }: Pro
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuMail} title="Email Input" />
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-accent)]">
+          <Mail className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+        </span>
+        <h3 className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+          Email Input
+        </h3>
+      </div>
 
       <Field label="Placeholder text">
-        <input
+        <Input
           type="text"
           value={placeholder}
           onChange={(e) => update({ placeholder: e.target.value })}
           placeholder="your@email.com"
-          className={inputClass}
         />
       </Field>
 
       <Field label="Invalid email message">
-        <input
+        <Input
           type="text"
           value={retryMessage}
           onChange={(e) => update({ retryMessage: e.target.value })}
           placeholder="This email is not valid. Please, try again!"
-          className={inputClass}
         />
       </Field>
 

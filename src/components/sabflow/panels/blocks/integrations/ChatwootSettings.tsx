@@ -1,8 +1,14 @@
 'use client';
 
-import { LuMessageCircle } from 'react-icons/lu';
+import { MessageCircle } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -30,43 +36,56 @@ export function ChatwootSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuMessageCircle} title="Chatwoot" />
+      <PageHeader compact bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <MessageCircle
+              size={16}
+              strokeWidth={1.8}
+              className="text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            />
+            Chatwoot
+          </PageTitle>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <Field label="Account ID">
-        <input
+        <Input
           type="text"
           value={opts.accountId ?? ''}
           onChange={(e) => update({ accountId: e.target.value })}
           placeholder="123456"
-          className={inputClass}
           spellCheck={false}
         />
       </Field>
 
       <Field label="Website Token">
-        <input
+        <Input
           type="text"
           value={opts.websiteToken ?? ''}
           onChange={(e) => update({ websiteToken: e.target.value })}
           placeholder="your-website-token"
-          className={inputClass}
           spellCheck={false}
         />
       </Field>
 
-      <Field label="API URL">
-        <input
+      <Field
+        label="API URL"
+        help={
+          <>
+            Leave blank to use the default{' '}
+            <span className="font-mono text-[var(--st-text)]">https://app.chatwoot.com</span>
+          </>
+        }
+      >
+        <Input
           type="url"
           value={opts.apiUrl ?? ''}
           onChange={(e) => update({ apiUrl: e.target.value })}
           placeholder="https://app.chatwoot.com"
-          className={inputClass}
           spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Leave blank to use the default{' '}
-          <span className="font-mono text-[var(--gray-10)]">https://app.chatwoot.com</span>
-        </p>
       </Field>
     </div>
   );

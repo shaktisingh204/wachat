@@ -1,10 +1,23 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { LuKey, LuPlus, LuLoader, LuExternalLink } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Key, Plus, RefreshCw, ExternalLink } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  IconButton,
+  Button,
+  Spinner,
+  Alert,
+} from '@/components/sabcrm/20ui';
 import { CREDENTIAL_TYPE_LABEL, type CredentialType, type MaskedCredential } from '@/lib/sabflow/credentials/types';
-import { selectClass } from './primitives';
+
+// Sentinel value for the "no credential selected" row. Radix Select forbids an
+// empty-string item value, so we map it to/from `undefined` at the boundary.
+const NONE_VALUE = '__none__';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,20 +56,24 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
 
   const typeName = CREDENTIAL_TYPE_LABEL[credentialType] ?? credentialType;
 
+  const openConnections = useCallback(() => {
+    window.open('/dashboard/sabflow/connections', '_blank', 'noopener,noreferrer');
+  }, []);
+
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-[11.5px] text-[var(--gray-8)]">
-        <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={1.8} />
-        Loading credentials…
+      <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
+        <Spinner size="sm" label="Loading credentials" />
+        Loading credentials...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-[11.5px] text-[var(--st-text)] rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">
+      <Alert tone="danger" title="Could not load credentials">
         {error}
-      </div>
+      </Alert>
     );
   }
 
@@ -65,57 +82,60 @@ export function CredentialSelect({ credentialType, value, onChange }: Props) {
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           {/* leading icon */}
-          <LuKey
-            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-7)]"
+          <Key
+            className="pointer-events-none absolute left-2.5 top-1/2 z-[1] -translate-y-1/2 h-3.5 w-3.5 text-[var(--st-text-tertiary)]"
             strokeWidth={1.8}
+            aria-hidden="true"
           />
-          <select
-            value={value ?? ''}
-            onChange={(e) => onChange(e.target.value || undefined)}
-            className={cn(selectClass, 'pl-8 pr-3')}
+          <Select
+            value={value ?? NONE_VALUE}
+            onValueChange={(v) => onChange(v === NONE_VALUE ? undefined : v)}
           >
-            <option value="">— select {typeName} credential —</option>
-            {credentials.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="pl-8" aria-label={`Select ${typeName} credential`}>
+              <SelectValue placeholder={`Select ${typeName} credential`} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={NONE_VALUE}>No {typeName} credential</SelectItem>
+              {credentials.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Refresh button */}
-        <button
-          type="button"
+        <IconButton
+          label="Refresh credential list"
+          icon={RefreshCw}
+          variant="outline"
+          size="md"
           onClick={load}
-          title="Refresh credential list"
-          className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-8)] hover:text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors shrink-0"
-        >
-          <LuLoader className="h-3.5 w-3.5" strokeWidth={1.8} />
-        </button>
+          className="shrink-0"
+        />
       </div>
 
       {credentials.length === 0 ? (
-        <a
-          href="/dashboard/sabflow/connections"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={Plus}
+          iconRight={ExternalLink}
+          onClick={openConnections}
         >
-          <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
           Add {typeName} credential
-          <LuExternalLink className="h-3 w-3 opacity-70" strokeWidth={1.8} />
-        </a>
+        </Button>
       ) : (
-        <a
-          href="/dashboard/sabflow/connections"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-[11px] text-[var(--gray-8)] hover:text-[var(--gray-11)] transition-colors"
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={Plus}
+          iconRight={ExternalLink}
+          onClick={openConnections}
         >
-          <LuPlus className="h-3 w-3" strokeWidth={2} />
           Manage credentials
-          <LuExternalLink className="h-3 w-3 opacity-60" strokeWidth={1.8} />
-        </a>
+        </Button>
       )}
     </div>
   );

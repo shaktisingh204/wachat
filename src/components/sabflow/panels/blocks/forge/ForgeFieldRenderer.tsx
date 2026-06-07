@@ -4,28 +4,38 @@
  * ForgeFieldRenderer
  *
  * Render a single declarative `ForgeField` against the surrounding options
- * dictionary.  All field types collapse into the handful of primitive inputs
- * defined in `blocks/shared/primitives.tsx` so the visual language stays
- * consistent with hand-written block panels.
+ * dictionary. All field types collapse into the handful of 20ui primitives so
+ * the visual language stays consistent with hand-written block panels.
  */
 
-import { useCallback, useMemo, useState } from 'react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
-import { LuPlus, LuX } from 'react-icons/lu';
+import { useCallback, useMemo } from 'react';
+import type { ChangeEvent } from 'react';
+import { Plus, X } from 'lucide-react';
 
-import { Field, inputClass, selectClass, toggleClass } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  Button,
+  IconButton,
+  Switch,
+  Spinner,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import type {
   ForgeField,
   ForgeKeyValuePair,
   ForgeSelectOption,
 } from '@/lib/sabflow/forge/types';
-import { cn } from '@/lib/utils';
 import { useLoadOptions } from './useLoadOptions';
 import { ResourceLocatorField } from './ResourceLocatorField';
 import { ExpressionEditor } from '../ExpressionEditor';
 import { useContextVariables } from './useContextVariables';
 
-/* ── Props ───────────────────────────────────────────────────────────────── */
+/* -- Props ---------------------------------------------------------------- */
 
 type Props = {
   field: ForgeField;
@@ -33,19 +43,19 @@ type Props = {
   value: unknown;
   /** Called with the next value for this field. */
   onChange: (value: unknown) => void;
-  /** Block id — required to resolve loadOptions server-side. */
+  /** Block id, required to resolve loadOptions server-side. */
   blockId?: string;
   /** Selected action id for multi-action blocks. */
   actionId?: string;
   /** Currently selected credential id (for credential-bound loadOptions). */
   credentialId?: string;
-  /** Snapshot of sibling field values — useful for dependent dropdowns. */
+  /** Snapshot of sibling field values, useful for dependent dropdowns. */
   options?: Record<string, unknown>;
   /** Canvas node ID for graph traversal */
   nodeId?: string;
 };
 
-/* ── Helpers ─────────────────────────────────────────────────────────────── */
+/* -- Helpers -------------------------------------------------------------- */
 
 const asString = (v: unknown): string => {
   if (typeof v === 'string') return v;
@@ -81,7 +91,7 @@ const nextKvId = (): string => {
   return `kv_${Date.now().toString(36)}_${kvIdCounter}`;
 };
 
-/* ── Field renderer ──────────────────────────────────────────────────────── */
+/* -- Field renderer ------------------------------------------------------- */
 
 export function ForgeFieldRenderer({
   field,
@@ -96,7 +106,7 @@ export function ForgeFieldRenderer({
   const contextVariables = useContextVariables(nodeId);
 
   const handleText = useCallback(
-    (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    (e: ChangeEvent<HTMLInputElement>) => {
       onChange(e.target.value);
     },
     [onChange],
@@ -131,9 +141,8 @@ export function ForgeFieldRenderer({
 
       case 'password':
         return (
-          <input
+          <Input
             type="password"
-            className={inputClass}
             value={asString(value)}
             onChange={handleText}
             placeholder={field.placeholder ?? '••••••••'}
@@ -144,9 +153,8 @@ export function ForgeFieldRenderer({
 
       case 'number':
         return (
-          <input
+          <Input
             type="number"
-            className={inputClass}
             value={asNumber(value)}
             onChange={handleNumber}
             placeholder={field.placeholder}
@@ -193,33 +201,37 @@ export function ForgeFieldRenderer({
           );
         }
         return (
-          <div className="relative">
-            <select
-              className={selectClass}
-              value={asString(value)}
-              onChange={handleText}
-              required={field.required}
-            >
-              {!field.required && <option value="">Select…</option>}
+          <Select
+            value={asString(value)}
+            onValueChange={onChange}
+            required={field.required}
+          >
+            <SelectTrigger aria-label={field.label}>
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
               {field.options?.map((opt) => (
-                <option key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
         );
 
       case 'toggle':
         return (
-          <ToggleInput checked={Boolean(value)} onChange={onChange} label={field.label} />
+          <Switch
+            checked={Boolean(value)}
+            onCheckedChange={onChange}
+            aria-label={field.label}
+          />
         );
 
       case 'credential':
         return (
-          <input
+          <Input
             type="password"
-            className={inputClass}
             value={asString(value)}
             onChange={handleText}
             placeholder={field.placeholder ?? 'Credential'}
@@ -247,53 +259,16 @@ export function ForgeFieldRenderer({
       default:
         return null;
     }
-  }, [field, value, handleText, handleNumber, onChange, blockId, actionId, credentialId, options]);
+  }, [field, value, handleText, handleNumber, onChange, blockId, actionId, credentialId, options, contextVariables]);
 
   return (
-    <Field label={field.label}>
+    <Field label={field.label} help={field.helperText}>
       {control}
-      {field.helperText && (
-        <p className="text-[11px] text-[var(--gray-9)] leading-snug">{field.helperText}</p>
-      )}
     </Field>
   );
 }
 
-/* ── Toggle ──────────────────────────────────────────────────────────────── */
-
-type ToggleProps = { checked: boolean; onChange: (v: boolean) => void; label: string };
-
-function ToggleInput({ checked, onChange, label }: ToggleProps) {
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        onChange(!checked);
-      }
-    },
-    [checked, onChange],
-  );
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      onKeyDown={handleKeyDown}
-      className={toggleClass(checked)}
-    >
-      <span
-        className={cn(
-          'pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition',
-          checked ? 'translate-x-5' : 'translate-x-0',
-        )}
-      />
-    </button>
-  );
-}
-
-/* ── Dynamic select (loadOptions) ────────────────────────────────────────── */
+/* -- Dynamic select (loadOptions) ----------------------------------------- */
 
 type DynamicSelectProps = {
   field: ForgeField;
@@ -337,34 +312,40 @@ function DynamicSelect({
   }, [remote, field.options]);
 
   return (
-    <div className="relative space-y-1">
-      <select
-        className={selectClass}
+    <div className="space-y-1">
+      <Select
         value={asString(value)}
-        onChange={(e) => onChange(e.target.value)}
+        onValueChange={onChange}
         required={field.required}
         disabled={loading && merged.length === 0}
       >
-        {!field.required && <option value="">Select…</option>}
-        {merged.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger aria-label={field.label}>
+          <SelectValue placeholder="Select" />
+        </SelectTrigger>
+        <SelectContent>
+          {merged.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {loading && (
-        <p className="text-[11px] text-[var(--gray-9)] leading-snug">Loading options…</p>
+        <p className="flex items-center gap-1.5 text-[11px] leading-snug text-[var(--st-text-secondary)]">
+          <Spinner size="sm" label="Loading options" />
+          Loading options
+        </p>
       )}
       {error && !loading && (
-        <p className="text-[11px] text-[var(--st-text)] leading-snug">
-          {error} — using fallback options.
+        <p className="text-[11px] leading-snug text-[var(--st-danger)]">
+          {error}, using fallback options.
         </p>
       )}
     </div>
   );
 }
 
-/* ── Key/value list ──────────────────────────────────────────────────────── */
+/* -- Key/value list ------------------------------------------------------- */
 
 type KvProps = {
   rows: ForgeKeyValuePair[];
@@ -394,38 +375,32 @@ function KeyValueListInput({ rows, onChange }: KvProps) {
     <div className="space-y-2">
       {rows.map((row) => (
         <div key={row.id} className="flex items-center gap-2">
-          <input
+          <Input
             type="text"
-            className={cn(inputClass, 'flex-1')}
+            className="flex-1"
             placeholder="Key"
             value={row.key}
             onChange={(e) => updateRow(row.id, { key: e.target.value })}
           />
-          <input
+          <Input
             type="text"
-            className={cn(inputClass, 'flex-1')}
+            className="flex-1"
             placeholder="Value"
             value={row.value}
             onChange={(e) => updateRow(row.id, { value: e.target.value })}
           />
-          <button
-            type="button"
+          <IconButton
+            label="Remove row"
+            icon={X}
+            variant="ghost"
+            size="sm"
             onClick={() => removeRow(row.id)}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            aria-label="Remove row"
-          >
-            <LuX className="h-3.5 w-3.5" />
-          </button>
+          />
         </div>
       ))}
-      <button
-        type="button"
-        onClick={addRow}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12px] text-[var(--gray-10)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] transition-colors"
-      >
-        <LuPlus className="h-3.5 w-3.5" />
+      <Button variant="outline" size="sm" iconLeft={Plus} onClick={addRow}>
         Add row
-      </button>
+      </Button>
     </div>
   );
 }

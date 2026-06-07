@@ -1,17 +1,25 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import {
-  LuSparkles,
-  LuChevronDown,
-  LuChevronUp,
-  LuPlus,
-  LuTrash2,
-  LuBraces,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Braces, Plus, Sparkles, Trash2, MessageSquare } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass, Divider } from './shared/primitives';
+import {
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Slider,
+  Button,
+  IconButton,
+  EmptyState,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader, Divider } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
 import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
 import { CredentialSelect } from './shared/CredentialSelect';
@@ -182,7 +190,7 @@ export function OpenAISettings({ block, onBlockChange, variables = [] }: Props) 
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuSparkles} title="OpenAI" />
+      <PanelHeader icon={Sparkles} title="OpenAI" />
 
       {/* ── Credentials ───────────────────────────────── */}
       <SectionLabel>Credentials</SectionLabel>
@@ -201,31 +209,33 @@ export function OpenAISettings({ block, onBlockChange, variables = [] }: Props) 
       <SectionLabel>Configuration</SectionLabel>
 
       <Field label="Model">
-        <select
-          value={model}
-          onChange={(e) => update({ model: e.target.value as OpenAIModel })}
-          className={selectClass}
-        >
-          {MODELS.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </select>
+        <Select value={model} onValueChange={(v) => update({ model: v as OpenAIModel })}>
+          <SelectTrigger aria-label="Model">
+            <SelectValue placeholder="Select a model" />
+          </SelectTrigger>
+          <SelectContent>
+            {MODELS.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field label="Task">
-        <select
-          value={task}
-          onChange={(e) => update({ task: e.target.value as OpenAITask })}
-          className={selectClass}
-        >
-          {TASKS.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label}
-            </option>
-          ))}
-        </select>
+        <Select value={task} onValueChange={(v) => update({ task: v as OpenAITask })}>
+          <SelectTrigger aria-label="Task">
+            <SelectValue placeholder="Select a task" />
+          </SelectTrigger>
+          <SelectContent>
+            {TASKS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Divider />
@@ -321,7 +331,7 @@ function AskAssistantSection({
           value={opts.systemPrompt ?? ''}
           onChange={(v) => update({ systemPrompt: v })}
           variables={variables}
-          placeholder="You are a helpful assistant…"
+          placeholder="You are a helpful assistant."
           rows={4}
           aria-label="System prompt"
           className="min-h-[80px]"
@@ -329,34 +339,36 @@ function AskAssistantSection({
         <VariableHint />
       </Field>
 
-      <Field label="Messages format">
-        <select
+      <Field label="Messages format" help={selectedFormat?.hint}>
+        <Select
           value={messagesFormat}
-          onChange={(e) => update({ messagesFormat: e.target.value as MessagesFormat })}
-          className={selectClass}
+          onValueChange={(v) => update({ messagesFormat: v as MessagesFormat })}
         >
-          {MESSAGE_FORMAT_OPTIONS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        {selectedFormat && (
-          <p className="text-[10.5px] text-[var(--gray-8)] mt-1">{selectedFormat.hint}</p>
-        )}
+          <SelectTrigger aria-label="Messages format">
+            <SelectValue placeholder="Select a format" />
+          </SelectTrigger>
+          <SelectContent>
+            {MESSAGE_FORMAT_OPTIONS.map((f) => (
+              <SelectItem key={f.value} value={f.value}>
+                {f.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       {/* Custom messages list */}
       {messagesFormat === 'custom' && (
         <div className="space-y-2">
-          <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-            Messages
-          </label>
+          <SectionLabel>Messages</SectionLabel>
 
           {customMessages.length === 0 && (
-            <p className="text-[11px] text-[var(--gray-8)] rounded-lg border border-dashed border-[var(--gray-5)] px-3 py-2">
-              No messages yet. Add one below.
-            </p>
+            <EmptyState
+              icon={MessageSquare}
+              size="sm"
+              title="No messages yet"
+              description="Add a message to define the conversation explicitly."
+            />
           )}
 
           {customMessages.map((msg, idx) => (
@@ -370,14 +382,9 @@ function AskAssistantSection({
             />
           ))}
 
-          <button
-            type="button"
-            onClick={addMessage}
-            className="flex items-center gap-1.5 text-[11.5px] text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addMessage}>
             Add message
-          </button>
+          </Button>
         </div>
       )}
 
@@ -390,101 +397,81 @@ function AskAssistantSection({
           variables={variables}
           value={opts.responseVariableId}
           onChange={(id) => update({ responseVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
 
       <Divider />
 
       {/* Advanced collapsible */}
-      <button
-        type="button"
-        onClick={() => setAdvancedOpen(!advancedOpen)}
-        className="flex w-full items-center justify-between text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide hover:text-[var(--gray-12)] transition-colors"
-      >
-        <span>Advanced</span>
-        {advancedOpen ? (
-          <LuChevronUp className="h-3.5 w-3.5" strokeWidth={2} />
-        ) : (
-          <LuChevronDown className="h-3.5 w-3.5" strokeWidth={2} />
-        )}
-      </button>
-
-      {advancedOpen && (
-        <div className="space-y-4 pl-1 border-l-2 border-[var(--gray-4)]">
-          <Field label={`Temperature — ${temperature.toFixed(1)}`}>
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0">0</span>
-              <input
-                type="range"
+      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+        <CollapsibleTrigger>Advanced</CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="space-y-4 pl-1 border-l-2 border-[var(--st-border)]">
+            <Field
+              label={`Temperature: ${temperature.toFixed(1)}`}
+              help="Lower is more deterministic, higher is more creative."
+            >
+              <Slider
                 min={0}
                 max={2}
                 step={0.1}
                 value={temperature}
-                onChange={(e) => update({ temperature: parseFloat(e.target.value) })}
-                className="flex-1 accent-[var(--st-text)]"
+                onValueChange={(v) =>
+                  update({ temperature: Array.isArray(v) ? v[0] : v })
+                }
+                ariaLabel="Temperature"
               />
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
-            </div>
-            <p className="text-[10.5px] text-[var(--gray-8)]">
-              Lower = more deterministic; higher = more creative.
-            </p>
-          </Field>
+            </Field>
 
-          <Field label="Max tokens">
-            <input
-              type="number"
-              min={1}
-              max={128000}
-              step={256}
-              value={maxTokens}
-              onChange={(e) =>
-                update({ maxTokens: e.target.value === '' ? undefined : Number(e.target.value) })
-              }
-              placeholder="1024"
-              className={inputClass}
-            />
-          </Field>
+            <Field label="Max tokens">
+              <Input
+                type="number"
+                min={1}
+                max={128000}
+                step={256}
+                value={maxTokens}
+                onChange={(e) =>
+                  update({ maxTokens: e.target.value === '' ? undefined : Number(e.target.value) })
+                }
+                placeholder="1024"
+              />
+            </Field>
 
-          <Field label={`Frequency penalty — ${frequencyPenalty.toFixed(1)}`}>
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0">-2</span>
-              <input
-                type="range"
+            <Field
+              label={`Frequency penalty: ${frequencyPenalty.toFixed(1)}`}
+              help="Reduces repetition of tokens already in the text."
+            >
+              <Slider
                 min={-2}
                 max={2}
                 step={0.1}
                 value={frequencyPenalty}
-                onChange={(e) => update({ frequencyPenalty: parseFloat(e.target.value) })}
-                className="flex-1 accent-[var(--st-text)]"
+                onValueChange={(v) =>
+                  update({ frequencyPenalty: Array.isArray(v) ? v[0] : v })
+                }
+                ariaLabel="Frequency penalty"
               />
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
-            </div>
-            <p className="text-[10.5px] text-[var(--gray-8)]">
-              Reduces repetition of tokens already in the text.
-            </p>
-          </Field>
+            </Field>
 
-          <Field label={`Presence penalty — ${presencePenalty.toFixed(1)}`}>
-            <div className="flex items-center gap-3">
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0">-2</span>
-              <input
-                type="range"
+            <Field
+              label={`Presence penalty: ${presencePenalty.toFixed(1)}`}
+              help="Encourages the model to introduce new topics."
+            >
+              <Slider
                 min={-2}
                 max={2}
                 step={0.1}
                 value={presencePenalty}
-                onChange={(e) => update({ presencePenalty: parseFloat(e.target.value) })}
-                className="flex-1 accent-[var(--st-text)]"
+                onValueChange={(v) =>
+                  update({ presencePenalty: Array.isArray(v) ? v[0] : v })
+                }
+                ariaLabel="Presence penalty"
               />
-              <span className="text-[11px] text-[var(--gray-8)] w-5 shrink-0 text-right">2</span>
-            </div>
-            <p className="text-[10.5px] text-[var(--gray-8)]">
-              Encourages the model to introduce new topics.
-            </p>
-          </Field>
-        </div>
-      )}
+            </Field>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
@@ -501,33 +488,37 @@ type CustomMessageRowProps = {
 
 function CustomMessageRow({ index, message, variables, onRemove, onPatch }: CustomMessageRowProps) {
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 space-y-2">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5 space-y-2">
       <div className="flex items-center gap-2">
-        <select
-          value={message.role}
-          onChange={(e) => onPatch({ role: e.target.value as MessageRole })}
-          className={cn(selectClass, 'text-[11.5px] py-1 flex-1')}
-          aria-label={`Message ${index + 1} role`}
-        >
-          <option value="system">system</option>
-          <option value="user">user</option>
-          <option value="assistant">assistant</option>
-        </select>
-        <button
-          type="button"
+        <div className="flex-1">
+          <Select
+            value={message.role}
+            onValueChange={(v) => onPatch({ role: v as MessageRole })}
+          >
+            <SelectTrigger aria-label={`Message ${index + 1} role`}>
+              <SelectValue placeholder="Select role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="system">system</SelectItem>
+              <SelectItem value="user">user</SelectItem>
+              <SelectItem value="assistant">assistant</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <IconButton
+          label="Remove message"
+          icon={Trash2}
+          variant="ghost"
+          size="sm"
           onClick={onRemove}
-          className="h-6 w-6 flex items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors shrink-0"
-          aria-label="Remove message"
-        >
-          <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-        </button>
+        />
       </div>
       <VariableAutocompleteInput
         type="textarea"
         value={message.content}
         onChange={(v) => onPatch({ content: v })}
         variables={variables}
-        placeholder="Message content… {{variable}} supported"
+        placeholder="Message content, {{variable}} supported"
         rows={2}
         spellCheck={false}
         aria-label={`Message ${index + 1} content`}
@@ -558,7 +549,7 @@ function CreateImageSection({ opts, update, variables }: CreateImageSectionProps
           value={opts.imagePrompt ?? ''}
           onChange={(v) => update({ imagePrompt: v })}
           variables={variables}
-          placeholder="A photo of a cat wearing a space suit…"
+          placeholder="A photo of a cat wearing a space suit"
           rows={3}
           spellCheck={false}
           aria-label="Image prompt"
@@ -568,28 +559,36 @@ function CreateImageSection({ opts, update, variables }: CreateImageSectionProps
       </Field>
 
       <Field label="Image size">
-        <select
+        <Select
           value={opts.imageSize ?? '1024x1024'}
-          onChange={(e) => update({ imageSize: e.target.value as ImageSize })}
-          className={selectClass}
+          onValueChange={(v) => update({ imageSize: v as ImageSize })}
         >
-          {IMAGE_SIZES.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Image size">
+            <SelectValue placeholder="Select a size" />
+          </SelectTrigger>
+          <SelectContent>
+            {IMAGE_SIZES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field label="Quality">
-        <select
+        <Select
           value={opts.imageQuality ?? 'standard'}
-          onChange={(e) => update({ imageQuality: e.target.value as ImageQuality })}
-          className={selectClass}
+          onValueChange={(v) => update({ imageQuality: v as ImageQuality })}
         >
-          <option value="standard">Standard</option>
-          <option value="hd">HD</option>
-        </select>
+          <SelectTrigger aria-label="Quality">
+            <SelectValue placeholder="Select quality" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="standard">Standard</SelectItem>
+            <SelectItem value="hd">HD</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
 
       <Divider />
@@ -599,7 +598,7 @@ function CreateImageSection({ opts, update, variables }: CreateImageSectionProps
           variables={variables}
           value={opts.imageUrlVariableId}
           onChange={(id) => update({ imageUrlVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
     </div>
@@ -621,29 +620,25 @@ function CreateTranscriptionSection({ opts, update, variables }: CreateTranscrip
     <div className="space-y-4">
       <SectionLabel>Transcription</SectionLabel>
 
-      <Field label="Audio URL variable">
+      <Field
+        label="Audio URL variable"
+        help="The variable must contain a publicly accessible audio URL."
+      >
         <VariableSelect
           variables={variables}
           value={opts.audioUrlVariableId}
           onChange={(id) => update({ audioUrlVariableId: id })}
-          placeholder="— select variable holding audio URL —"
+          placeholder="Select variable holding audio URL"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          The variable must contain a publicly accessible audio URL.
-        </p>
       </Field>
 
-      <Field label="Language (optional)">
-        <input
+      <Field label="Language (optional)" help="ISO-639-1 code. Leave blank for auto-detection.">
+        <Input
           type="text"
           value={opts.transcriptionLanguage ?? ''}
           onChange={(e) => update({ transcriptionLanguage: e.target.value })}
-          placeholder="en, fr, es…"
-          className={inputClass}
+          placeholder="en, fr, es"
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          ISO-639-1 code. Leave blank for auto-detection.
-        </p>
       </Field>
 
       <Divider />
@@ -653,7 +648,7 @@ function CreateTranscriptionSection({ opts, update, variables }: CreateTranscrip
           variables={variables}
           value={opts.transcriptionVariableId}
           onChange={(id) => update({ transcriptionVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
     </div>
@@ -691,17 +686,21 @@ function CreateSpeechSection({ opts, update, variables }: CreateSpeechSectionPro
       </Field>
 
       <Field label="Voice">
-        <select
+        <Select
           value={opts.speechVoice ?? 'alloy'}
-          onChange={(e) => update({ speechVoice: e.target.value })}
-          className={selectClass}
+          onValueChange={(v) => update({ speechVoice: v })}
         >
-          {SPEECH_VOICES.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Voice">
+            <SelectValue placeholder="Select a voice" />
+          </SelectTrigger>
+          <SelectContent>
+            {SPEECH_VOICES.map((v) => (
+              <SelectItem key={v} value={v}>
+                {v}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
       <Divider />
@@ -711,7 +710,7 @@ function CreateSpeechSection({ opts, update, variables }: CreateSpeechSectionPro
           variables={variables}
           value={opts.speechUrlVariableId}
           onChange={(id) => update({ speechUrlVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
     </div>
@@ -739,7 +738,7 @@ function CreateEmbeddingSection({ opts, update, variables }: CreateEmbeddingSect
           value={opts.embeddingInput ?? ''}
           onChange={(v) => update({ embeddingInput: v })}
           variables={variables}
-          placeholder="Text to embed… {{variable}} supported"
+          placeholder="Text to embed, {{variable}} supported"
           rows={3}
           spellCheck={false}
           aria-label="Embedding input text"
@@ -755,7 +754,7 @@ function CreateEmbeddingSection({ opts, update, variables }: CreateEmbeddingSect
           variables={variables}
           value={opts.embeddingVariableId}
           onChange={(id) => update({ embeddingVariableId: id })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
     </div>
@@ -768,7 +767,7 @@ function CreateEmbeddingSection({ opts, update, variables }: CreateEmbeddingSect
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10.5px] font-semibold text-[var(--gray-9)] uppercase tracking-widest">
+    <p className="text-[10.5px] font-semibold text-[var(--st-text-tertiary)] uppercase tracking-widest">
       {children}
     </p>
   );
@@ -776,10 +775,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function VariableHint() {
   return (
-    <p className="text-[10.5px] text-[var(--gray-8)] mt-1 flex items-center gap-1">
-      <LuBraces className="h-3 w-3 shrink-0" strokeWidth={1.8} />
+    <p className="text-[10.5px] text-[var(--st-text-secondary)] mt-1 flex items-center gap-1">
+      <Braces className="h-3 w-3 shrink-0" strokeWidth={1.8} aria-hidden="true" />
       Use{' '}
-      <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
+      <code className="font-mono bg-[var(--st-bg-secondary)] px-1 rounded text-[var(--st-text)]">
         {'{{variable}}'}
       </code>{' '}
       to reference collected values.

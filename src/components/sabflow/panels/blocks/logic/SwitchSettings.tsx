@@ -1,7 +1,22 @@
 'use client';
 
 import { createId } from '@paralleldrive/cuid2';
-import { LuPlus, LuTrash2 } from 'react-icons/lu';
+import { Plus, Trash2, GitBranch } from 'lucide-react';
+import {
+  Field,
+  Input,
+  Label,
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import type { Block, SwitchCase, SwitchOptions } from '@/lib/sabflow/types';
 
 type Props = {
@@ -9,6 +24,14 @@ type Props = {
   onUpdate: (changes: Partial<Block>) => void;
   variables: string[];
 };
+
+const OPERATORS: Array<{ value: NonNullable<SwitchCase['operator']>; label: string }> = [
+  { value: 'equals', label: 'equals' },
+  { value: 'notEquals', label: 'not equals' },
+  { value: 'contains', label: 'contains' },
+  { value: 'greaterThan', label: 'greater than' },
+  { value: 'lessThan', label: 'less than' },
+];
 
 export function SwitchSettings({ block, onUpdate }: Props) {
   const options = (block.options ?? {}) as SwitchOptions;
@@ -44,9 +67,8 @@ export function SwitchSettings({ block, onUpdate }: Props) {
   return (
     <div className="space-y-4">
       <Field label="Expression">
-        <input
+        <Input
           type="text"
-          className={inputClass}
           value={options.expression ?? ''}
           onChange={(e) => update({ expression: e.target.value })}
           placeholder="{{status}} or $json.country"
@@ -55,88 +77,72 @@ export function SwitchSettings({ block, onUpdate }: Props) {
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-            Cases
-          </label>
-          <button
-            type="button"
-            onClick={addCase}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-[var(--st-text)] hover:bg-[var(--st-text)]/10"
-          >
-            <LuPlus className="h-3 w-3" />
+          <Label>Cases</Label>
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addCase}>
             Add case
-          </button>
+          </Button>
         </div>
 
-        {cases.length === 0 && (
-          <p className="text-[11.5px] text-[var(--gray-10)] italic">
-            No cases yet. Click &ldquo;Add case&rdquo; to route the input based
-            on its value.
-          </p>
-        )}
+        {cases.length === 0 ? (
+          <EmptyState
+            size="sm"
+            icon={GitBranch}
+            title="No cases yet"
+            description="Add a case to route the input based on its value."
+          />
+        ) : null}
 
         {cases.map((c) => (
-          <div
-            key={c.id}
-            className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 space-y-2"
-          >
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                className={`${inputClass} flex-1`}
-                value={c.label ?? ''}
-                onChange={(e) => updateCase(c.id, { label: e.target.value })}
-                placeholder="Label"
-              />
-              <button
-                type="button"
-                onClick={() => removeCase(c.id)}
-                className="rounded p-1 text-[var(--gray-9)] hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)]"
-              >
-                <LuTrash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <select
-                className={inputClass}
-                value={c.operator ?? 'equals'}
-                onChange={(e) =>
-                  updateCase(c.id, {
-                    operator: e.target.value as SwitchCase['operator'],
-                  })
-                }
-              >
-                <option value="equals">equals</option>
-                <option value="notEquals">not equals</option>
-                <option value="contains">contains</option>
-                <option value="greaterThan">greater than</option>
-                <option value="lessThan">less than</option>
-              </select>
-              <input
-                type="text"
-                className={inputClass}
-                value={c.value ?? ''}
-                onChange={(e) => updateCase(c.id, { value: e.target.value })}
-                placeholder="Compare to…"
-              />
-            </div>
-          </div>
+          <Card key={c.id}>
+            <CardBody className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Input
+                    type="text"
+                    value={c.label ?? ''}
+                    onChange={(e) => updateCase(c.id, { label: e.target.value })}
+                    placeholder="Label"
+                  />
+                </div>
+                <IconButton
+                  label="Remove case"
+                  icon={Trash2}
+                  variant="danger"
+                  size="sm"
+                  onClick={() => removeCase(c.id)}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Select
+                  value={c.operator ?? 'equals'}
+                  onValueChange={(value) =>
+                    updateCase(c.id, {
+                      operator: value as SwitchCase['operator'],
+                    })
+                  }
+                >
+                  <SelectTrigger aria-label="Operator">
+                    <SelectValue placeholder="Operator" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {OPERATORS.map((op) => (
+                      <SelectItem key={op.value} value={op.value}>
+                        {op.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  type="text"
+                  value={c.value ?? ''}
+                  onChange={(e) => updateCase(c.id, { value: e.target.value })}
+                  placeholder="Compare to"
+                />
+              </div>
+            </CardBody>
+          </Card>
         ))}
       </div>
     </div>
   );
 }
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

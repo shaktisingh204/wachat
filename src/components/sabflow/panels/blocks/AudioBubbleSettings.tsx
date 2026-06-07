@@ -1,84 +1,47 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { Mic, Link as LinkIcon, Music, Upload } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { LuMic, LuLink, LuMusic, LuUpload } from 'react-icons/lu';
+import {
+  cn,
+  Card,
+  Field,
+  Input,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
 import { FileUploadInput } from './shared/FileUploadInput';
 
-/* ── Shared primitives ──────────────────────────────────────── */
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-/* ── Audio preview ──────────────────────────────────────────── */
+/* Audio preview */
 function AudioPreview({ url }: { url: string }) {
   if (!url || /^{{.*}}$/.test(url)) return null;
 
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] p-3">
-      <div className="flex items-center gap-2 mb-2 text-[var(--gray-9)]">
-        <LuMusic className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-        <span className="text-[11px] truncate">{url.split('/').pop() ?? 'Audio file'}</span>
+    <Card variant="outlined" padding="sm">
+      <div className="mb-2 flex items-center gap-2 text-[var(--st-text-tertiary)]">
+        <Music className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} aria-hidden="true" />
+        <span className="truncate text-[11px]">{url.split('/').pop() ?? 'Audio file'}</span>
       </div>
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio
         key={url}
         src={url}
         controls
-        className="w-full h-8"
-        style={{ accentColor: 'var(--st-text)' }}
+        className="h-8 w-full accent-[var(--st-accent)]"
       />
-    </div>
+    </Card>
   );
 }
 
-/* ── Tab switcher ──────────────────────────────────────────── */
+/* Tab values */
 type Tab = 'upload' | 'url';
 
-function TabSwitcher({
-  active,
-  onChange,
-}: {
-  active: Tab;
-  onChange: (next: Tab) => void;
-}) {
-  const btn = (tab: Tab, label: string, Icon: typeof LuUpload) => (
-    <button
-      key={tab}
-      type="button"
-      onClick={() => onChange(tab)}
-      className={cn(
-        'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium transition-colors',
-        active === tab
-          ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-          : 'text-[var(--gray-9)] hover:text-[var(--gray-11)]',
-      )}
-    >
-      <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
-      {label}
-    </button>
-  );
+const TAB_ITEMS = [
+  { value: 'upload' as const, label: 'Upload', icon: Upload },
+  { value: 'url' as const, label: 'URL', icon: LinkIcon },
+];
 
-  return (
-    <div className="flex items-center gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-      {btn('upload', 'Upload', LuUpload)}
-      {btn('url', 'URL', LuLink)}
-    </div>
-  );
-}
-
-/* ── Main component ─────────────────────────────────────────── */
+/* Main component */
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
@@ -112,10 +75,10 @@ export function AudioBubbleSettings({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]/10">
-          <LuMic className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)]">
+          <Mic className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={1.8} aria-hidden="true" />
         </div>
-        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">
           Audio Bubble
         </span>
       </div>
@@ -124,7 +87,16 @@ export function AudioBubbleSettings({
       {tab === 'url' && <AudioPreview url={url} />}
 
       {/* Tabs */}
-      {workspaceId && <TabSwitcher active={tab} onChange={setTab} />}
+      {workspaceId && (
+        <SegmentedControl<Tab>
+          items={TAB_ITEMS}
+          value={tab}
+          onChange={setTab}
+          size="sm"
+          fullWidth
+          aria-label="Audio source"
+        />
+      )}
 
       {tab === 'upload' && workspaceId ? (
         <FileUploadInput
@@ -136,29 +108,28 @@ export function AudioBubbleSettings({
           workspaceId={workspaceId}
         />
       ) : (
-        <Field label="Audio URL">
-          <div className="relative flex items-center">
-            <LuLink
-              className="absolute left-3 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-              strokeWidth={1.8}
-            />
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => update({ url: e.target.value })}
-              placeholder="https://example.com/audio.mp3 or {{audioUrl}}"
-              className={cn(inputClass, 'pl-8')}
-            />
-          </div>
-          <p className="text-[11px] text-[var(--gray-8)]">
-            Supports{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.mp3</code>,{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.wav</code>,{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded">.ogg</code>, or{' '}
-            <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-              {'{{variable}}'}
-            </code>
-          </p>
+        <Field
+          label="Audio URL"
+          help={
+            <>
+              Supports{' '}
+              <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono">.mp3</code>,{' '}
+              <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono">.wav</code>,{' '}
+              <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono">.ogg</code>, or{' '}
+              <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-accent)]">
+                {'{{variable}}'}
+              </code>
+            </>
+          }
+        >
+          <Input
+            type="url"
+            value={url}
+            onChange={(e) => update({ url: e.target.value })}
+            placeholder="https://example.com/audio.mp3 or {{audioUrl}}"
+            iconLeft={LinkIcon}
+            inputSize="sm"
+          />
         </Field>
       )}
     </div>

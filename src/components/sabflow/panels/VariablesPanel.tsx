@@ -1,23 +1,41 @@
 'use client';
 
-import { useState, useRef, useCallback, useId, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { createId } from '@paralleldrive/cuid2';
 import type { Variable, SabFlowDoc } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
 import { extractVariableUsages } from '@/lib/sabflow/variableHelpers';
 import {
-  LuPlus,
-  LuTrash2,
-  LuPencil,
-  LuCheck,
-  LuX,
-  LuVariable,
-  LuEyeOff,
-  LuRefreshCw,
-  LuChevronDown,
-  LuChevronRight,
-  LuInfo,
-} from 'react-icons/lu';
+  Plus,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  Variable as VariableIcon,
+  EyeOff,
+  RefreshCw,
+  ChevronRight,
+  Info,
+} from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  Badge,
+  type BadgeTone,
+  Field,
+  Input,
+  Switch,
+  EmptyState,
+  Callout,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Types
@@ -37,52 +55,15 @@ export interface Props {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Type badge colours
+   Type badge meta
    ──────────────────────────────────────────────────────────────────────────── */
 
-const TYPE_STYLES: Record<VariableVarType, { bg: string; text: string; label: string }> = {
-  text:    { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',     text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',    label: 'Text' },
-  number:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40', text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]', label: 'Num'  },
-  boolean: { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',   text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',  label: 'Bool' },
-  object:  { bg: 'bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40',   text: 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]',  label: 'Obj'  },
+const TYPE_META: Record<VariableVarType, { tone: BadgeTone; label: string }> = {
+  text: { tone: 'neutral', label: 'Text' },
+  number: { tone: 'info', label: 'Num' },
+  boolean: { tone: 'accent', label: 'Bool' },
+  object: { tone: 'warning', label: 'Obj' },
 };
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   Tiny toggle pill component
-   ──────────────────────────────────────────────────────────────────────────── */
-
-function TogglePill({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-medium border transition-colors',
-        checked
-          ? 'bg-[var(--st-text)]/10 border-[var(--st-border)]/30 text-[var(--st-text)]'
-          : 'bg-[var(--gray-2)] border-[var(--gray-5)] text-[var(--gray-9)] hover:border-[var(--gray-7)] hover:text-[var(--gray-11)]',
-      )}
-    >
-      <span
-        className={cn(
-          'h-2 w-2 rounded-full transition-colors shrink-0',
-          checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-6)]',
-        )}
-      />
-      {label}
-    </button>
-  );
-}
 
 /* ─────────────────────────────────────────────────────────────────────────────
    "Used in blocks" expander
@@ -94,8 +75,6 @@ interface UsageChipProps {
 }
 
 function UsageChip({ blockIds, groups }: UsageChipProps) {
-  const [open, setOpen] = useState(false);
-
   const blockNames = useMemo(() => {
     const allBlocks = groups.flatMap((g) =>
       g.blocks.map((b) => ({ id: b.id, label: `${g.title} / ${b.type}` })),
@@ -109,30 +88,27 @@ function UsageChip({ blockIds, groups }: UsageChipProps) {
   if (blockIds.length === 0) return null;
 
   return (
-    <div className="mt-1">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-[10.5px] text-[var(--gray-9)] hover:text-[var(--gray-11)] transition-colors"
+    <Collapsible className="mt-1">
+      <CollapsibleTrigger
+        hideChevron
+        className="flex items-center gap-1 text-[10.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
       >
-        {open
-          ? <LuChevronDown className="h-2.5 w-2.5" strokeWidth={2.5} />
-          : <LuChevronRight className="h-2.5 w-2.5" strokeWidth={2.5} />}
+        <ChevronRight className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
         Used in {blockIds.length} {blockIds.length === 1 ? 'block' : 'blocks'}
-      </button>
-      {open && (
+      </CollapsibleTrigger>
+      <CollapsibleContent>
         <ul className="mt-1 space-y-0.5 pl-3.5">
           {blockNames.map((name, i) => (
             <li
               key={blockIds[i]}
-              className="truncate text-[10.5px] text-[var(--gray-8)] before:content-['·'] before:mr-1"
+              className="truncate text-[10.5px] text-[var(--st-text-tertiary)] before:content-['·'] before:mr-1"
             >
               {name}
             </li>
           ))}
         </ul>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
@@ -144,20 +120,17 @@ interface RowProps {
   variable: RichVariable;
   usedInBlockIds: string[];
   groups: SabFlowDoc['groups'];
-  onSave:   (updated: RichVariable) => void;
+  onSave: (updated: RichVariable) => void;
   onDelete: (id: string) => void;
 }
 
 function VariableRow({ variable, usedInBlockIds, groups, onSave, onDelete }: RowProps) {
-  const [editing, setEditing]   = useState(false);
-  const [draft, setDraft]       = useState<RichVariable>({ ...variable });
-  const nameInputRef            = useRef<HTMLInputElement>(null);
-  const labelId                 = useId();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<RichVariable>({ ...variable });
 
   const startEdit = () => {
     setDraft({ ...variable });
     setEditing(true);
-    requestAnimationFrame(() => nameInputRef.current?.focus());
   };
 
   const commit = useCallback(() => {
@@ -173,61 +146,53 @@ function VariableRow({ variable, usedInBlockIds, groups, onSave, onDelete }: Row
   };
 
   const type: VariableVarType = (variable as RichVariable).varType ?? 'text';
-  const style = TYPE_STYLES[type];
+  const meta = TYPE_META[type];
 
-  return (
-    <div
-      className={cn(
-        'group flex flex-col gap-1.5 rounded-xl border px-3 py-2.5 transition-shadow',
-        editing
-          ? 'border-[var(--st-border)] shadow-[0_0_0_2px_rgba(247,104,8,0.15)] bg-[var(--gray-1)]'
-          : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
-      )}
-    >
-      {editing ? (
-        /* ── Edit mode ─────────────────────────────────────────── */
-        <div className="flex flex-col gap-2">
-          {/* Name + type row */}
-          <div className="flex items-center gap-2">
-            <input
-              ref={nameInputRef}
-              id={labelId}
-              type="text"
+  if (editing) {
+    /* ── Edit mode ─────────────────────────────────────────── */
+    return (
+      <Card padding="sm" className="flex flex-col gap-2">
+        {/* Name + type row */}
+        <div className="flex items-center gap-2">
+          <Field label="Variable name" className="flex-1 min-w-0">
+            <Input
+              autoFocus
+              inputSize="sm"
               value={draft.name}
               onChange={(e) => setDraft((v) => ({ ...v, name: e.target.value }))}
               onKeyDown={(e) => {
-                if (e.key === 'Enter')  commit();
+                if (e.key === 'Enter') commit();
                 if (e.key === 'Escape') discard();
               }}
               placeholder="Variable name"
-              className={cn(
-                'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-                'px-2.5 py-1.5 text-[12.5px] font-mono text-[var(--gray-12)]',
-                'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-              )}
+              className="font-mono"
             />
-            <select
+          </Field>
+          <Field label="Type" className="w-[88px] shrink-0">
+            <Select
               value={draft.varType ?? 'text'}
-              onChange={(e) =>
-                setDraft((v) => ({ ...v, varType: e.target.value as VariableVarType }))
+              onValueChange={(val) =>
+                setDraft((v) => ({ ...v, varType: val as VariableVarType }))
               }
-              className={cn(
-                'rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-                'px-2 py-1.5 text-[11.5px] text-[var(--gray-11)]',
-                'outline-none focus:border-[var(--st-border)] transition-colors cursor-pointer',
-              )}
             >
-              {(Object.keys(TYPE_STYLES) as VariableVarType[]).map((t) => (
-                <option key={t} value={t}>
-                  {TYPE_STYLES[t].label}
-                </option>
-              ))}
-            </select>
-          </div>
+              <SelectTrigger aria-label="Variable type">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(TYPE_META) as VariableVarType[]).map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {TYPE_META[t].label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
 
-          {/* Default value */}
-          <input
-            type="text"
+        {/* Default value */}
+        <Field label="Default value">
+          <Input
+            inputSize="sm"
             value={
               draft.defaultValue !== undefined
                 ? String(draft.defaultValue)
@@ -237,130 +202,112 @@ function VariableRow({ variable, usedInBlockIds, groups, onSave, onDelete }: Row
               setDraft((v) => ({ ...v, defaultValue: e.target.value, value: e.target.value }))
             }
             onKeyDown={(e) => {
-              if (e.key === 'Enter')  commit();
+              if (e.key === 'Enter') commit();
               if (e.key === 'Escape') discard();
             }}
             placeholder="Default value (optional)"
-            className={cn(
-              'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]',
-              'px-2.5 py-1.5 text-[12px] text-[var(--gray-11)]',
-              'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-            )}
           />
+        </Field>
 
-          {/* Flags row */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <TogglePill
-              checked={Boolean(draft.isSessionVariable)}
-              onChange={(v) => setDraft((d) => ({ ...d, isSessionVariable: v }))}
-              label="Session"
-            />
-            <TogglePill
-              checked={Boolean(draft.isHidden)}
-              onChange={(v) => setDraft((d) => ({ ...d, isHidden: v }))}
-              label="Hidden"
-            />
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-end gap-1.5">
-            <button
-              onClick={discard}
-              className="flex items-center gap-1 rounded-lg border border-[var(--gray-5)] px-2.5 py-1 text-[11.5px] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuX className="h-3 w-3" strokeWidth={2.5} /> Cancel
-            </button>
-            <button
-              onClick={commit}
-              disabled={!draft.name.trim()}
-              className={cn(
-                'flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11.5px] font-medium transition-colors',
-                draft.name.trim()
-                  ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-                  : 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-not-allowed',
-              )}
-            >
-              <LuCheck className="h-3 w-3" strokeWidth={2.5} /> Save
-            </button>
-          </div>
+        {/* Flags row */}
+        <div className="flex items-center gap-4 flex-wrap">
+          <Switch
+            size="sm"
+            checked={Boolean(draft.isSessionVariable)}
+            onCheckedChange={(v) => setDraft((d) => ({ ...d, isSessionVariable: v }))}
+            label="Session"
+          />
+          <Switch
+            size="sm"
+            checked={Boolean(draft.isHidden)}
+            onCheckedChange={(v) => setDraft((d) => ({ ...d, isHidden: v }))}
+            label="Hidden"
+          />
         </div>
-      ) : (
-        /* ── View mode ─────────────────────────────────────────── */
-        <div className="flex flex-col gap-1 min-w-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            {/* Type badge */}
+
+        {/* Action buttons */}
+        <div className="flex items-center justify-end gap-1.5">
+          <Button size="sm" variant="ghost" iconLeft={X} onClick={discard}>
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            iconLeft={Check}
+            onClick={commit}
+            disabled={!draft.name.trim()}
+          >
+            Save
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
+  /* ── View mode ─────────────────────────────────────────── */
+  return (
+    <Card variant="interactive" padding="sm" className="group flex flex-col gap-1 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
+        {/* Type badge */}
+        <Badge tone={meta.tone} className="shrink-0 uppercase">
+          {meta.label}
+        </Badge>
+
+        {/* Name */}
+        <p className="flex-1 truncate text-[12.5px] font-mono font-medium text-[var(--st-text)]">
+          {variable.name}
+        </p>
+
+        {/* Flag icons */}
+        <div className="flex items-center gap-1 shrink-0">
+          {variable.isSessionVariable && (
             <span
-              className={cn(
-                'shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
-                style.bg,
-                style.text,
-              )}
+              title="Session variable - not persisted across sessions"
+              className="flex items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-accent-soft)] px-1 py-0.5"
             >
-              {style.label}
+              <RefreshCw className="h-2.5 w-2.5 text-[var(--st-accent)]" strokeWidth={2.5} aria-hidden="true" />
             </span>
-
-            {/* Name */}
-            <p className="flex-1 truncate text-[12.5px] font-mono font-medium text-[var(--gray-12)]">
-              {variable.name}
-            </p>
-
-            {/* Flag icons */}
-            <div className="flex items-center gap-1 shrink-0">
-              {variable.isSessionVariable && (
-                <span
-                  title="Session variable — not persisted across sessions"
-                  className="flex items-center justify-center rounded bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/40 px-1 py-0.5"
-                >
-                  <LuRefreshCw className="h-2.5 w-2.5 text-[var(--st-text)]" strokeWidth={2.5} />
-                </span>
-              )}
-              {variable.isHidden && (
-                <span
-                  title="Hidden — not shown in results"
-                  className="flex items-center justify-center rounded bg-[var(--gray-3)] px-1 py-0.5"
-                >
-                  <LuEyeOff className="h-2.5 w-2.5 text-[var(--gray-9)]" strokeWidth={2.5} />
-                </span>
-              )}
-            </div>
-
-            {/* Hover actions */}
-            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-              <button
-                onClick={startEdit}
-                title="Edit variable"
-                className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)] transition-colors"
-              >
-                <LuPencil className="h-3 w-3" strokeWidth={2} />
-              </button>
-              <button
-                onClick={() => onDelete(variable.id)}
-                title="Delete variable"
-                className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] transition-colors"
-              >
-                <LuTrash2 className="h-3 w-3" strokeWidth={2} />
-              </button>
-            </div>
-          </div>
-
-          {/* Default value preview */}
-          {(variable.defaultValue !== undefined || variable.value) && (
-            <p className="truncate text-[11px] text-[var(--gray-9)] pl-[3.25rem]">
-              = {variable.defaultValue !== undefined
-                  ? String(variable.defaultValue)
-                  : variable.value}
-            </p>
           )}
-
-          {/* Usage expander */}
-          {groups.length > 0 && (
-            <div className="pl-[3.25rem]">
-              <UsageChip blockIds={usedInBlockIds} groups={groups} />
-            </div>
+          {variable.isHidden && (
+            <span
+              title="Hidden - not shown in results"
+              className="flex items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 py-0.5"
+            >
+              <EyeOff className="h-2.5 w-2.5 text-[var(--st-text-secondary)]" strokeWidth={2.5} aria-hidden="true" />
+            </span>
           )}
+        </div>
+
+        {/* Hover actions */}
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <IconButton size="sm" label="Edit variable" icon={Pencil} onClick={startEdit} />
+          <IconButton
+            size="sm"
+            variant="danger"
+            label="Delete variable"
+            icon={Trash2}
+            onClick={() => onDelete(variable.id)}
+          />
+        </div>
+      </div>
+
+      {/* Default value preview */}
+      {(variable.defaultValue !== undefined || variable.value) && (
+        <p className="truncate text-[11px] text-[var(--st-text-secondary)] pl-[3.25rem]">
+          ={' '}
+          {variable.defaultValue !== undefined
+            ? String(variable.defaultValue)
+            : variable.value}
+        </p>
+      )}
+
+      {/* Usage expander */}
+      {groups.length > 0 && (
+        <div className="pl-[3.25rem]">
+          <UsageChip blockIds={usedInBlockIds} groups={groups} />
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
@@ -375,7 +322,7 @@ export function VariablesPanel({ variables, onVariablesChange, flow }: Props) {
     (v) => !search.trim() || v.name.toLowerCase().includes(search.toLowerCase()),
   );
 
-  /* Build usage map — only when `flow` is provided */
+  /* Build usage map, only when `flow` is provided */
   const usageMap = useMemo<Map<string, string[]>>(() => {
     if (!flow) return new Map();
     // extractVariableUsages needs the full SabFlowDoc shape; we only have a
@@ -383,7 +330,7 @@ export function VariablesPanel({ variables, onVariablesChange, flow }: Props) {
     return extractVariableUsages({
       groups: flow.groups,
       variables: flow.variables,
-      // unused fields — safe stubs
+      // unused fields, safe stubs
       _id: undefined,
       userId: '',
       name: '',
@@ -401,9 +348,9 @@ export function VariablesPanel({ variables, onVariablesChange, flow }: Props) {
 
   const handleAdd = () => {
     const newVar: RichVariable = {
-      id:      createId(),
-      name:    `variable${variables.length + 1}`,
-      value:   '',
+      id: createId(),
+      name: `variable${variables.length + 1}`,
+      value: '',
       varType: 'text',
     };
     onVariablesChange([...variables, newVar]);
@@ -426,75 +373,63 @@ export function VariablesPanel({ variables, onVariablesChange, flow }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* ── Header ───────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 shrink-0">
-          <LuVariable className="h-3.5 w-3.5" strokeWidth={2} />
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] shrink-0">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)] shrink-0">
+          <VariableIcon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
         </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Variables</span>
-        <span className="text-[11px] tabular-nums text-[var(--gray-9)] font-medium">
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">Variables</span>
+        <span className="text-[11px] tabular-nums text-[var(--st-text-secondary)] font-medium">
           {variables.length}
         </span>
       </div>
 
       {/* ── Search + Add ──────────────────────────────────────── */}
-      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--gray-4)] shrink-0">
-        <input
-          type="text"
+      <div className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--st-border)] shrink-0">
+        <Input
+          inputSize="sm"
+          aria-label="Filter variables"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter variables…"
-          className={cn(
-            'flex-1 min-w-0 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
-            'px-2.5 py-1.5 text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-            'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-          )}
+          placeholder="Filter variables..."
+          className="flex-1 min-w-0"
         />
-        <button
+        <IconButton
+          label="Add variable"
+          icon={Plus}
+          variant="primary"
           onClick={handleAdd}
-          title="Add variable"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] transition-colors"
-        >
-          <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-        </button>
+        />
       </div>
 
       {/* ── Variable list ────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-1.5">
         {filtered.length === 0 ? (
           /* ── Empty state ──────────────────────────────────── */
-          <div className="flex flex-col items-center justify-center py-10 gap-3 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-              <LuVariable className="h-5 w-5" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-[12.5px] font-medium text-[var(--gray-11)]">
-                {search ? 'No variables match' : 'No variables yet'}
-              </p>
-              {!search && (
-                <p className="text-[11.5px] text-[var(--gray-9)] mt-0.5 max-w-[200px]">
-                  Variables store user answers and computed values across your flow.
-                </p>
-              )}
-            </div>
+          <div className="flex flex-col items-center gap-3 py-8">
+            <EmptyState
+              icon={VariableIcon}
+              title={search ? 'No variables match' : 'No variables yet'}
+              description={
+                search
+                  ? undefined
+                  : 'Variables store user answers and computed values across your flow.'
+              }
+              action={
+                search ? undefined : (
+                  <Button size="sm" variant="primary" iconLeft={Plus} onClick={handleAdd}>
+                    Add variable
+                  </Button>
+                )
+              }
+            />
             {!search && (
-              <button
-                onClick={handleAdd}
-                className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-[var(--st-text)] transition-colors"
-              >
-                <LuPlus className="h-3 w-3" strokeWidth={2.5} /> Add variable
-              </button>
-            )}
-            {!search && (
-              <div className="flex items-start gap-1.5 rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5 text-left max-w-[220px]">
-                <LuInfo className="h-3 w-3 shrink-0 mt-0.5 text-[var(--gray-8)]" strokeWidth={2} />
-                <p className="text-[10.5px] text-[var(--gray-9)] leading-relaxed">
-                  Use{' '}
-                  <code className="rounded bg-[var(--gray-4)] px-0.5 font-mono text-[9.5px] text-[var(--gray-11)]">
-                    {'{{name}}'}
-                  </code>{' '}
-                  in any block to inject a variable's value.
-                </p>
-              </div>
+              <Callout tone="info" icon={Info} className="max-w-[220px] text-left">
+                Use{' '}
+                <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-0.5 font-mono text-[9.5px] text-[var(--st-text)]">
+                  {'{{name}}'}
+                </code>{' '}
+                in any block to inject a variable&apos;s value.
+              </Callout>
             )}
           </div>
         ) : (
@@ -513,21 +448,21 @@ export function VariablesPanel({ variables, onVariablesChange, flow }: Props) {
 
       {/* ── Legend row ───────────────────────────────────────── */}
       {variables.length > 0 && (
-        <div className="flex flex-col gap-1.5 px-4 py-2.5 border-t border-[var(--gray-4)] shrink-0">
-          <p className="text-[11px] text-[var(--gray-9)]">
+        <div className="flex flex-col gap-1.5 px-4 py-2.5 border-t border-[var(--st-border)] shrink-0">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Reference with{' '}
-            <code className="rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10px] text-[var(--gray-11)]">
+            <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text)]">
               {'{{variableName}}'}
             </code>{' '}
             in block settings.
           </p>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-[10px] text-[var(--gray-8)]">
-              <LuRefreshCw className="h-2.5 w-2.5 text-[var(--st-text)]" strokeWidth={2.5} />
-              Session — cleared per session
+            <span className="flex items-center gap-1 text-[10px] text-[var(--st-text-tertiary)]">
+              <RefreshCw className="h-2.5 w-2.5 text-[var(--st-accent)]" strokeWidth={2.5} aria-hidden="true" />
+              Session, cleared per session
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-[var(--gray-8)]">
-              <LuEyeOff className="h-2.5 w-2.5" strokeWidth={2.5} />
+            <span className="flex items-center gap-1 text-[10px] text-[var(--st-text-tertiary)]">
+              <EyeOff className="h-2.5 w-2.5" strokeWidth={2.5} aria-hidden="true" />
               Hidden from results
             </span>
           </div>

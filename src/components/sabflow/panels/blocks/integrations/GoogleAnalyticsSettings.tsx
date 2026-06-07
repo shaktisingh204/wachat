@@ -1,9 +1,16 @@
 'use client';
 
 import { useCallback } from 'react';
-import { LuChartBar } from 'react-icons/lu';
+import { ChartBar } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, Divider } from '../shared/primitives';
+import {
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Separator,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -36,69 +43,87 @@ export function GoogleAnalyticsSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuChartBar} title="Google Analytics" />
+      <PageHeader compact bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle className="flex items-center gap-2">
+            <ChartBar
+              size={16}
+              strokeWidth={1.8}
+              className="text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            />
+            Google Analytics
+          </PageTitle>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <Field label="Tracking ID">
-        <input
+      <Field
+        label="Tracking ID"
+        help={
+          <>
+            Your GA4 Measurement ID (starts with{' '}
+            <span className="font-mono text-[var(--st-text)]">G-</span>).
+          </>
+        }
+      >
+        <Input
           type="text"
           value={opts.trackingId ?? ''}
           onChange={(e) => update({ trackingId: e.target.value })}
           placeholder="G-XXXXXXXXXX"
-          className={inputClass}
+          spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Your GA4 Measurement ID (starts with{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">G-</code>).
-        </p>
       </Field>
 
-      <Divider />
+      <Separator />
 
       <Field label="Event action">
-        <input
+        <Input
           type="text"
           value={opts.eventAction ?? ''}
           onChange={(e) => update({ eventAction: e.target.value })}
           placeholder="e.g. button_click"
-          className={inputClass}
+          spellCheck={false}
         />
       </Field>
 
       <Field label="Event category">
-        <input
+        <Input
           type="text"
           value={opts.eventCategory ?? ''}
           onChange={(e) => update({ eventCategory: e.target.value })}
           placeholder="e.g. engagement"
-          className={inputClass}
+          spellCheck={false}
         />
       </Field>
 
       <Field label="Event label">
-        <input
+        <Input
           type="text"
           value={opts.eventLabel ?? ''}
           onChange={(e) => update({ eventLabel: e.target.value })}
           placeholder="e.g. hero_cta"
-          className={inputClass}
+          spellCheck={false}
         />
       </Field>
 
-      <Field label="Event value">
-        <input
+      <Field
+        label="Event value"
+        help={
+          <>
+            Use{' '}
+            <span className="font-mono text-[var(--st-text)]">{'{{variable}}'}</span>{' '}
+            to pass a dynamic value.
+          </>
+        }
+      >
+        <Input
           type="text"
           value={opts.eventValue ?? ''}
           onChange={(e) => update({ eventValue: e.target.value })}
           placeholder="e.g. {{score}} or a static number"
-          className={inputClass}
+          spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Use{' '}
-          <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-            {'{{variable}}'}
-          </code>{' '}
-          to pass a dynamic value.
-        </p>
       </Field>
     </div>
   );

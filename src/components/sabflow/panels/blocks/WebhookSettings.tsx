@@ -2,10 +2,18 @@
 
 import { useState } from 'react';
 import { createId } from '@paralleldrive/cuid2';
-import { LuWebhook, LuPlus, LuTrash2, LuBraces } from 'react-icons/lu';
+import { Webhook, Plus, Trash2, Braces } from 'lucide-react';
 import type { Block, Variable, WebhookOptions, KVPair } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { Field, inputClass, PanelHeader } from './shared/primitives';
+import {
+  Field,
+  Input,
+  Textarea,
+  Button,
+  IconButton,
+  SegmentedControl,
+  Callout,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
 
 /* ── Types ──────────────────────────────────────────────────── */
@@ -17,20 +25,11 @@ type Props = {
   variables?: Variable[];
 };
 
+const HTTP_METHODS: ReadonlyArray<HttpMethod> = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+
 /* ── Helpers ────────────────────────────────────────────────── */
 function makeKV(): KVPair {
   return { id: createId(), key: '', value: '' };
-}
-
-function methodColor(method: HttpMethod): string {
-  const map: Record<HttpMethod, string> = {
-    GET: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-    POST: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-    PUT: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-    PATCH: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-    DELETE: 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-  };
-  return map[method];
 }
 
 /* ── Main component ─────────────────────────────────────────── */
@@ -60,66 +59,42 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuWebhook} title="Webhook" />
+      <PanelHeader icon={Webhook} title="Webhook" />
 
       {/* Tab strip */}
-      <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-        {(['request', 'response'] as const).map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-              activeTab === tab
-                ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-            )}
-          >
-            {tab === 'request' ? 'Request' : 'Response'}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        aria-label="Webhook section"
+        fullWidth
+        value={activeTab}
+        onChange={(tab) => setActiveTab(tab as 'request' | 'response')}
+        items={[
+          { value: 'request', label: 'Request' },
+          { value: 'response', label: 'Response' },
+        ]}
+      />
 
       {/* ── Request tab ────────────────────────────────────── */}
       {activeTab === 'request' && (
         <div className="space-y-4">
           {/* URL */}
           <Field label="URL">
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={url}
-                onChange={(e) => update({ url: e.target.value })}
-                placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
-                className={cn(inputClass, 'pr-8')}
-              />
-              <LuBraces
-                className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-                strokeWidth={1.8}
-              />
-            </div>
+            <Input
+              type="text"
+              value={url}
+              onChange={(e) => update({ url: e.target.value })}
+              placeholder="https://api.example.com/endpoint or {{webhookUrl}}"
+              iconRight={Braces}
+            />
           </Field>
 
           {/* Method */}
           <Field label="Method">
-            <div className="flex gap-1.5 flex-wrap">
-              {(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as HttpMethod[]).map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => update({ method: m })}
-                  className={cn(
-                    'rounded-md border px-2.5 py-1 text-[11.5px] font-mono font-semibold transition-colors',
-                    method === m
-                      ? methodColor(m)
-                      : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                  )}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label="HTTP method"
+              value={method}
+              onChange={(m) => update({ method: m as HttpMethod })}
+              items={HTTP_METHODS.map((m) => ({ value: m, label: m }))}
+            />
           </Field>
 
           {/* Headers */}
@@ -127,51 +102,46 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
             <div className="space-y-2">
               {headers.map((h) => (
                 <div key={h.id} className="flex gap-2 items-center">
-                  <input
+                  <Input
                     type="text"
                     value={h.key}
                     onChange={(e) => updateHeader(h.id, { key: e.target.value })}
                     placeholder="Header name"
-                    className={cn(inputClass, 'flex-1')}
+                    className="flex-1"
                   />
-                  <input
+                  <Input
                     type="text"
                     value={h.value}
                     onChange={(e) => updateHeader(h.id, { value: e.target.value })}
                     placeholder="Value"
-                    className={cn(inputClass, 'flex-1')}
+                    className="flex-1"
                   />
-                  <button
-                    type="button"
+                  <IconButton
+                    label="Remove header"
+                    icon={Trash2}
                     onClick={() => removeHeader(h.id)}
-                    className="shrink-0 flex h-7 w-7 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
-                    aria-label="Remove header"
-                  >
-                    <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-                  </button>
+                    className="shrink-0"
+                  />
                 </div>
               ))}
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                block
+                iconLeft={Plus}
                 onClick={addHeader}
-                className={cn(
-                  'flex w-full items-center justify-center gap-1.5 rounded-lg',
-                  'border border-dashed border-[var(--gray-6)] py-1.5',
-                  'text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                  'hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)]',
-                  'transition-colors',
-                )}
               >
-                <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
                 Add header
-              </button>
+              </Button>
             </div>
           </Field>
 
           {/* Body */}
           {showBody && (
-            <Field label="Body (JSON)">
-              <textarea
+            <Field
+              label="Body (JSON)"
+              help="Use {{variable}} to inject dynamic values."
+            >
+              <Textarea
                 value={bodyContent}
                 onChange={(e) =>
                   update({ body: { type: 'json', content: e.target.value } })
@@ -179,18 +149,8 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
                 placeholder={'{\n  "key": "{{value}}"\n}'}
                 rows={6}
                 spellCheck={false}
-                className={cn(
-                  inputClass,
-                  'font-mono text-[12px] resize-y min-h-[100px]',
-                )}
+                className="font-mono resize-y min-h-[100px]"
               />
-              <p className="text-[11px] text-[var(--gray-8)] mt-1">
-                Use{' '}
-                <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
-                  {'{{variable}}'}
-                </code>{' '}
-                to inject dynamic values.
-              </p>
             </Field>
           )}
         </div>
@@ -204,7 +164,7 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
               variables={variables}
               value={options.fullResponseVariableId}
               onChange={(id) => update({ fullResponseVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="select variable"
             />
           </Field>
 
@@ -213,14 +173,14 @@ export function WebhookSettings({ block, onBlockChange, variables = [] }: Props)
               variables={variables}
               value={options.statusCodeVariableId}
               onChange={(id) => update({ statusCodeVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="select variable"
             />
           </Field>
 
-          <div className="rounded-lg border border-dashed border-[var(--gray-6)] p-3 text-[12px] text-[var(--gray-9)] leading-relaxed">
-            The full JSON response body is saved to the variable above.
-            Access nested values with dot notation in later blocks.
-          </div>
+          <Callout tone="info">
+            The full JSON response body is saved to the variable above. Access
+            nested values with dot notation in later blocks.
+          </Callout>
         </div>
       )}
     </div>

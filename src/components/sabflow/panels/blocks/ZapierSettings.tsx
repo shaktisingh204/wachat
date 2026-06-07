@@ -1,9 +1,16 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { LuZap, LuPlay, LuCircleCheckBig, LuCircleAlert } from 'react-icons/lu';
+import { Zap, Play, CircleCheckBig, CircleAlert } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, Divider } from './shared/primitives';
+import {
+  Field,
+  Input,
+  Button,
+  Callout,
+  Card,
+  CardBody,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -66,81 +73,89 @@ export function ZapierSettings({ block, onBlockChange, variables: _variables = [
   };
 
   const isConfigured = webhookUrl.startsWith('https://hooks.zapier.com');
+  const isOk = lastResponse !== null && lastResponse.status >= 200 && lastResponse.status < 300;
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuZap} title="Zapier" />
+      <div className="flex items-center gap-2 border-b border-[var(--st-border)] pb-2">
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+          aria-hidden="true"
+        >
+          <Zap size={16} strokeWidth={1.8} />
+        </span>
+        <span className="text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
+          Zapier
+        </span>
+      </div>
 
-      {/* Status badge */}
+      {/* Status notice */}
       {isConfigured ? (
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--st-text)]/10 border border-[var(--st-border)]/25 px-3 py-2">
-          <LuCircleCheckBig className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" strokeWidth={1.8} />
-          <span className="text-[12px] text-[var(--st-text-secondary)] font-medium">
-            Zap webhook is configured.
-          </span>
-        </div>
+        <Callout tone="success" icon={CircleCheckBig}>
+          Zap webhook is configured.
+        </Callout>
       ) : (
-        <div className="flex items-center gap-2 rounded-lg bg-[var(--gray-3)] border border-[var(--gray-5)] px-3 py-2">
-          <LuCircleAlert className="h-4 w-4 text-[var(--gray-9)] shrink-0" strokeWidth={1.8} />
-          <span className="text-[12px] text-[var(--gray-9)]">
-            Paste your Zapier catch-hook URL below.
-          </span>
-        </div>
+        <Callout tone="warning" icon={CircleAlert}>
+          Paste your Zapier catch-hook URL below.
+        </Callout>
       )}
 
-      <Field label="Webhook URL">
-        <input
+      <Field
+        label="Webhook URL"
+        help={
+          <>
+            Create a <strong>Webhooks by Zapier</strong> trigger in your Zap to get this URL.
+          </>
+        }
+      >
+        <Input
           type="url"
           value={webhookUrl}
           onChange={(e) => update({ webhookUrl: e.target.value })}
           placeholder="https://hooks.zapier.com/hooks/catch/12345/abcdef"
-          className={inputClass}
           spellCheck={false}
         />
-        <p className="text-[10.5px] text-[var(--gray-8)] mt-1">
-          Create a{' '}
-          <strong className="text-[var(--gray-10)]">Webhooks by Zapier</strong> trigger in your Zap
-          to get this URL.
-        </p>
       </Field>
 
-      <Divider />
+      <div className="h-px bg-[var(--st-border)]" />
 
-      <button
+      <Button
         type="button"
+        variant="outline"
+        block
+        iconLeft={Play}
         onClick={handleTest}
-        disabled={!webhookUrl || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        disabled={!webhookUrl}
+        loading={isTesting}
       >
-        <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
-        {isTesting ? 'Sending test…' : 'Send test payload'}
-      </button>
+        {isTesting ? 'Sending test...' : 'Send test payload'}
+      </Button>
 
       {testError && (
-        <div className="rounded-lg border border-[var(--st-border)]/25 bg-[var(--st-text)]/10 p-3 space-y-1">
-          <p className="text-[10.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">Error</p>
-          <p className="text-[11px] text-[var(--st-text-secondary)] font-mono break-all">{testError}</p>
-        </div>
+        <Card variant="outlined" padding="none">
+          <CardBody className="space-y-1 p-3">
+            <p className="text-[10.5px] font-medium uppercase tracking-wide text-[var(--st-danger)]">
+              Error
+            </p>
+            <p className="break-all font-mono text-[11px] text-[var(--st-danger)]">{testError}</p>
+          </CardBody>
+        </Card>
       )}
 
       {lastResponse !== null && (
-        <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-1">
-          <p className="text-[10.5px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-            Last response{' '}
-            <span
-              className={
-                lastResponse.status >= 200 && lastResponse.status < 300
-                  ? 'text-[var(--st-text-secondary)]'
-                  : 'text-[var(--st-text-secondary)]'
-              }
-            >
-              {lastResponse.status}
-            </span>
-          </p>
-          <pre className="text-[11px] text-[var(--gray-11)] font-mono whitespace-pre-wrap break-all max-h-[200px] overflow-y-auto">
-            {lastResponse.body || '(empty)'}
-          </pre>
-        </div>
+        <Card variant="outlined" padding="none">
+          <CardBody className="space-y-1 p-3">
+            <p className="text-[10.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              Last response{' '}
+              <span className={isOk ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-danger)]'}>
+                {lastResponse.status}
+              </span>
+            </p>
+            <pre className="max-h-[200px] overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--st-text)]">
+              {lastResponse.body || '(empty)'}
+            </pre>
+          </CardBody>
+        </Card>
       )}
     </div>
   );

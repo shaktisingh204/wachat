@@ -2,11 +2,21 @@
 
 import { LuGitBranch, LuPlus, LuTrash2 } from 'react-icons/lu';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { Field, inputClass, toggleClass, PanelHeader } from './shared/primitives';
+import {
+  Button,
+  Field,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader } from './shared/primitives';
 import { VariableSelect } from './shared/VariableSelect';
 
-/* ── Types ──────────────────────────────────────────────────── */
+/* -- Types --------------------------------------------------- */
 type LogicalOp = 'AND' | 'OR';
 
 type Operator =
@@ -34,16 +44,21 @@ const OPERATOR_LABELS: Record<Operator, string> = {
   ends_with: 'ends with',
   is_empty: 'is empty',
   is_not_empty: 'is not empty',
-  greater_than: '>',
-  less_than: '<',
-  greater_or_equal: '>=',
-  less_or_equal: '<=',
+  greater_than: 'greater than',
+  less_than: 'less than',
+  greater_or_equal: 'greater than or equal',
+  less_or_equal: 'less than or equal',
   matches_regex: 'matches regex',
   not_match_regex: 'does not match regex',
 };
 
 /** Operators that don't require a right-hand value */
 const VALUE_LESS_OPERATORS: Operator[] = ['is_empty', 'is_not_empty'];
+
+const LOGICAL_ITEMS: ReadonlyArray<{ value: LogicalOp; label: string }> = [
+  { value: 'AND', label: 'AND' },
+  { value: 'OR', label: 'OR' },
+];
 
 type Condition = {
   id: string;
@@ -59,12 +74,12 @@ type Props = {
   variables?: Variable[];
 };
 
-/* ── Helpers ────────────────────────────────────────────────── */
+/* -- Helpers ------------------------------------------------- */
 function makeCondition(): Condition {
   return { id: crypto.randomUUID(), variableId: '', operator: 'equals', value: '' };
 }
 
-/* ── Main component ─────────────────────────────────────────── */
+/* -- Main component ------------------------------------------ */
 export function ConditionSettings({ block, onBlockChange, variables = [] }: Props) {
   const options = block.options ?? {};
   const logicalOp: LogicalOp = (options.logicalOperator as LogicalOp) ?? 'AND';
@@ -93,28 +108,18 @@ export function ConditionSettings({ block, onBlockChange, variables = [] }: Prop
     <div className="space-y-4">
       <PanelHeader icon={LuGitBranch} title="Condition" />
 
-      {/* Logical operator toggle — shown only when more than one condition */}
+      {/* Logical operator toggle, shown only when more than one condition */}
       {conditions.length > 1 && (
         <div className="flex items-center gap-2">
-          <span className="text-[11.5px] text-[var(--gray-9)]">Match</span>
-          <div className="flex rounded-lg bg-[var(--gray-3)] p-0.5">
-            {(['AND', 'OR'] as LogicalOp[]).map((op) => (
-              <button
-                key={op}
-                type="button"
-                onClick={() => updateOptions({ logicalOperator: op })}
-                className={cn(
-                  'rounded-md px-3 py-1 text-[12px] font-medium transition-colors',
-                  logicalOp === op
-                    ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                    : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                )}
-              >
-                {op}
-              </button>
-            ))}
-          </div>
-          <span className="text-[11.5px] text-[var(--gray-9)]">conditions</span>
+          <span className="text-[11.5px] text-[var(--st-text-secondary)]">Match</span>
+          <SegmentedControl<LogicalOp>
+            items={LOGICAL_ITEMS}
+            value={logicalOp}
+            onChange={(op) => updateOptions({ logicalOperator: op })}
+            size="sm"
+            aria-label="Match all or any conditions"
+          />
+          <span className="text-[11.5px] text-[var(--st-text-secondary)]">conditions</span>
         </div>
       )}
 
@@ -134,29 +139,23 @@ export function ConditionSettings({ block, onBlockChange, variables = [] }: Prop
       </div>
 
       {/* Add condition button */}
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        block
+        iconLeft={LuPlus}
         onClick={addCondition}
-        className={cn(
-          'flex w-full items-center justify-center gap-1.5 rounded-lg',
-          'border border-dashed border-[var(--gray-6)] py-2',
-          'text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-          'hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)]',
-          'transition-colors',
-        )}
       >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
         Add condition
-      </button>
+      </Button>
 
-      <p className="text-[11px] text-[var(--gray-8)] leading-relaxed">
+      <p className="text-[11px] text-[var(--st-text-tertiary)] leading-relaxed">
         Visual if/else branches are managed on the canvas via the block's output handles.
       </p>
     </div>
   );
 }
 
-/* ── Condition row ──────────────────────────────────────────── */
+/* -- Condition row ------------------------------------------- */
 function ConditionRow({
   condition,
   index,
@@ -175,9 +174,9 @@ function ConditionRow({
   const needsValue = !VALUE_LESS_OPERATORS.includes(condition.operator);
 
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-2">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 space-y-2">
       {index > 0 && (
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--gray-8)] -mt-1 pb-1 border-b border-[var(--gray-4)]">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)] -mt-1 pb-1 border-b border-[var(--st-border)]">
           condition {index + 1}
         </div>
       )}
@@ -188,34 +187,37 @@ function ConditionRow({
           variables={variables}
           value={condition.variableId || undefined}
           onChange={(id) => onUpdate({ variableId: id ?? '' })}
-          placeholder="— select variable —"
+          placeholder="Select variable"
         />
       </Field>
 
       {/* Operator */}
       <Field label="Operator">
-        <select
+        <Select
           value={condition.operator}
-          onChange={(e) => onUpdate({ operator: e.target.value as Operator })}
-          className={inputClass}
+          onValueChange={(op) => onUpdate({ operator: op as Operator })}
         >
-          {(Object.keys(OPERATOR_LABELS) as Operator[]).map((op) => (
-            <option key={op} value={op}>
-              {OPERATOR_LABELS[op]}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Operator">
+            <SelectValue placeholder="Select operator" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.keys(OPERATOR_LABELS) as Operator[]).map((op) => (
+              <SelectItem key={op} value={op}>
+                {OPERATOR_LABELS[op]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
 
-      {/* Right operand — hidden for valueless operators */}
+      {/* Right operand, hidden for valueless operators */}
       {needsValue && (
         <Field label="Value">
-          <input
+          <Input
             type="text"
             value={condition.value}
             onChange={(e) => onUpdate({ value: e.target.value })}
             placeholder="value or {{variable}}"
-            className={inputClass}
           />
         </Field>
       )}
@@ -223,14 +225,14 @@ function ConditionRow({
       {/* Remove */}
       {canRemove && (
         <div className="flex justify-end pt-1">
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={LuTrash2}
             onClick={onRemove}
-            className="flex items-center gap-1 text-[11px] text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
           >
-            <LuTrash2 className="h-3 w-3" strokeWidth={1.8} />
             Remove
-          </button>
+          </Button>
         </div>
       )}
     </div>

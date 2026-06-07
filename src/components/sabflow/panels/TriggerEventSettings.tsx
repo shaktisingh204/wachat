@@ -7,11 +7,11 @@
  *
  * Rendered inside `BlockSettingsPanel` when `openedNodeId` matches an event
  * rather than a block. For every trigger we render:
- *   • Header card — icon, label, "Start" badge, description
- *   • Type-specific basics — cron / webhook auth / manual sample payload
- *   • Filters — per-appEvent filter rows so the trigger only fires for matching events
- *   • Sample payload — JSON preview of `$trigger` for downstream variable mapping
- *   • About this trigger — the in-product docs surface
+ *   - Header card: icon, label, "Start" badge, description
+ *   - Type-specific basics: cron / webhook auth / manual sample payload
+ *   - Filters: per-appEvent filter rows so the trigger only fires for matching events
+ *   - Sample payload: JSON preview of `$trigger` for downstream variable mapping
+ *   - About this trigger: the in-product docs surface
  */
 
 import { useMemo, useState } from 'react';
@@ -27,18 +27,42 @@ import { TRIGGER_OPTIONS } from '@/components/sabflow/canvas/triggerPanel/trigge
 import { getTriggerFilters, type FilterField } from '@/lib/sabflow/docs/triggerFilters';
 import { getSamplePayload } from '@/lib/sabflow/docs/samplePayloads';
 import { getNodeDoc } from '@/lib/sabflow/docs/nodeDocs';
-import { LuPlay, LuPlus, LuTrash2, LuChevronDown, LuChevronRight, LuBookOpen, LuFilter, LuCode, LuCircleCheck } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import {
+  Play,
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  BookOpen,
+  Filter,
+  Code,
+  CircleCheck,
+} from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CardBody,
+  Field,
+  IconButton,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  cn,
+} from '@/components/sabcrm/20ui';
 
 type Props = {
   event: SabFlowEvent;
   onUpdate: (changes: Partial<SabFlowEvent>) => void;
 };
 
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-
-/** appEvents that are generic primitives — show full editor for these. */
+/** appEvents that are generic primitives - show full editor for these. */
 const GENERIC_APP_EVENTS = new Set([
   'flow_start',
   'on_schedule',
@@ -53,8 +77,8 @@ export function TriggerEventSettings({ event, onUpdate }: Props) {
     [event.appEvent],
   );
 
-  const Icon = meta?.icon ?? LuPlay;
-  const color = meta?.color ?? '#10b981';
+  const Icon = meta?.icon ?? Play;
+  const color = meta?.color ?? 'var(--st-accent)';
   const label = meta?.label ?? eventTypeLabel(event.type);
   const description = meta?.description;
   const docKey = event.appEvent ?? event.type;
@@ -73,35 +97,37 @@ export function TriggerEventSettings({ event, onUpdate }: Props) {
   const optionFilters: EventFilter[] =
     ((event.options as WebhookEventOptions | undefined)?.filters as EventFilter[] | undefined) ?? [];
 
+  const tinted = meta?.color != null;
+
   return (
     <div className="space-y-4">
-      {/* Header card — trigger identity + "this is the starting node" hint */}
-      <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 flex gap-3">
-        <span
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: `${color}1f`, color }}
-        >
-          <Icon className="h-4.5 w-4.5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <span className="text-[13px] font-semibold text-[var(--gray-12)] truncate">
-              {label}
-            </span>
-            <span
-              className="rounded-full px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide"
-              style={{ background: `${color}1f`, color }}
-            >
-              Start
-            </span>
+      {/* Header card: trigger identity + "this is the starting node" hint */}
+      <Card padding="sm">
+        <CardBody className="flex gap-3 p-0">
+          <span
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+            style={tinted ? { background: `${color}1f`, color } : undefined}
+            aria-hidden="true"
+          >
+            <Icon className="h-4.5 w-4.5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="truncate text-[13px] font-semibold text-[var(--st-text)]">
+                {label}
+              </span>
+              <Badge tone="accent" kind="soft" className="uppercase">
+                Start
+              </Badge>
+            </div>
+            {description && (
+              <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--st-text-secondary)]">
+                {description}
+              </p>
+            )}
           </div>
-          {description && (
-            <p className="mt-0.5 text-[11.5px] leading-snug text-[var(--gray-9)]">
-              {description}
-            </p>
-          )}
-        </div>
-      </div>
+        </CardBody>
+      </Card>
 
       {/* Type-specific edit body */}
       {event.type === 'schedule' && (
@@ -135,22 +161,22 @@ export function TriggerEventSettings({ event, onUpdate }: Props) {
       {/* App-specific webhooks: handled by the platform integration; nothing
           to configure beyond optional filters. */}
       {event.type === 'webhook' && isAppSpecific && (
-        <InfoCard>
+        <Callout tone="neutral">
           This trigger fires automatically whenever the matching SabNode event
-          occurs. Connect a step below to define what happens — and add filters
+          occurs. Connect a step below to define what happens, and add filters
           to narrow which events fire your flow.
-        </InfoCard>
+        </Callout>
       )}
 
       {(event.type === 'start' || event.type === 'error') && (
-        <InfoCard>
+        <Callout tone="neutral">
           {event.type === 'start'
             ? 'The workflow runs every time it starts. Connect a step below to define what happens first.'
             : 'This workflow will run whenever another flow throws an unhandled error.'}
-        </InfoCard>
+        </Callout>
       )}
 
-      {/* Filters — per-appEvent payload filter rows */}
+      {/* Filters: per-appEvent payload filter rows */}
       {filters.length > 0 && (
         <FiltersSection
           fields={filters}
@@ -181,22 +207,21 @@ function ScheduleFields({
 }) {
   return (
     <div className="space-y-4">
-      <Field label="Cron expression">
-        <input
+      <Field
+        label="Cron expression"
+        help="Five-field cron: minute, hour, day-of-month, month, day-of-week."
+      >
+        <Input
           type="text"
-          className={cn(inputClass, 'font-mono')}
+          className="font-mono"
           value={options.cronExpression ?? ''}
           onChange={(e) => onChange({ cronExpression: e.target.value })}
           placeholder="0 9 * * 1-5"
         />
-        <p className="mt-1 text-[11px] text-[var(--gray-8)]">
-          Five-field cron: minute, hour, day-of-month, month, day-of-week.
-        </p>
       </Field>
       <Field label="Timezone">
-        <input
+        <Input
           type="text"
-          className={inputClass}
           value={options.timezone ?? ''}
           onChange={(e) => onChange({ timezone: e.target.value })}
           placeholder="UTC"
@@ -206,6 +231,17 @@ function ScheduleFields({
   );
 }
 
+const METHOD_ITEMS = [
+  { value: 'GET', label: 'GET' },
+  { value: 'POST', label: 'POST' },
+  { value: 'PUT', label: 'PUT' },
+  { value: 'PATCH', label: 'PATCH' },
+  { value: 'DELETE', label: 'DELETE' },
+  { value: 'ANY', label: 'ANY' },
+] as const;
+
+type WebhookMethod = (typeof METHOD_ITEMS)[number]['value'];
+
 function WebhookFields({
   options,
   onChange,
@@ -213,15 +249,15 @@ function WebhookFields({
   options: WebhookEventOptions;
   onChange: (patch: Partial<WebhookEventOptions>) => void;
 }) {
-  const method = options.method ?? 'POST';
+  const method = (options.method ?? 'POST') as WebhookMethod;
   const auth = options.authentication ?? 'none';
 
   return (
     <div className="space-y-4">
       <Field label="Path">
-        <input
+        <Input
           type="text"
-          className={cn(inputClass, 'font-mono')}
+          className="font-mono"
           value={options.path ?? ''}
           onChange={(e) => onChange({ path: e.target.value })}
           placeholder="/my-webhook"
@@ -229,58 +265,49 @@ function WebhookFields({
       </Field>
 
       <Field label="Method">
-        <div className="flex gap-1.5 flex-wrap">
-          {(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onChange({ method: m })}
-              className={cn(
-                'rounded-md border px-2.5 py-1 text-[11.5px] font-mono font-semibold transition-colors',
-                method === m
-                  ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label="HTTP method"
+          items={METHOD_ITEMS}
+          value={method}
+          onChange={(m) => onChange({ method: m as WebhookEventOptions['method'] })}
+        />
       </Field>
 
       <Field label="Authentication">
-        <select
-          className={inputClass}
+        <Select
           value={auth}
-          onChange={(e) =>
-            onChange({ authentication: e.target.value as WebhookEventOptions['authentication'] })
+          onValueChange={(v) =>
+            onChange({ authentication: v as WebhookEventOptions['authentication'] })
           }
         >
-          <option value="none">None</option>
-          <option value="header">Header</option>
-          <option value="basic">Basic auth</option>
-          <option value="query">Query parameter</option>
-        </select>
+          <SelectTrigger aria-label="Authentication">
+            <SelectValue placeholder="Choose authentication" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="header">Header</SelectItem>
+            <SelectItem value="basic">Basic auth</SelectItem>
+            <SelectItem value="query">Query parameter</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
 
       {auth === 'header' && (
         <>
           <Field label="Header name">
-            <input
+            <Input
               type="text"
-              className={inputClass}
               value={options.authHeaderName ?? ''}
               onChange={(e) => onChange({ authHeaderName: e.target.value })}
               placeholder="X-API-Key"
             />
           </Field>
           <Field label="Header value">
-            <input
+            <Input
               type="text"
-              className={inputClass}
               value={options.authHeaderValue ?? ''}
               onChange={(e) => onChange({ authHeaderValue: e.target.value })}
-              placeholder="••••••••"
+              placeholder="Secret token"
             />
           </Field>
         </>
@@ -289,17 +316,15 @@ function WebhookFields({
       {auth === 'basic' && (
         <>
           <Field label="Username">
-            <input
+            <Input
               type="text"
-              className={inputClass}
               value={options.authBasicUser ?? ''}
               onChange={(e) => onChange({ authBasicUser: e.target.value })}
             />
           </Field>
           <Field label="Password">
-            <input
+            <Input
               type="password"
-              className={inputClass}
               value={options.authBasicPassword ?? ''}
               onChange={(e) => onChange({ authBasicPassword: e.target.value })}
             />
@@ -308,17 +333,21 @@ function WebhookFields({
       )}
 
       <Field label="Response mode">
-        <select
-          className={inputClass}
+        <Select
           value={options.responseMode ?? 'immediately'}
-          onChange={(e) =>
-            onChange({ responseMode: e.target.value as WebhookEventOptions['responseMode'] })
+          onValueChange={(v) =>
+            onChange({ responseMode: v as WebhookEventOptions['responseMode'] })
           }
         >
-          <option value="immediately">Respond immediately (200 OK)</option>
-          <option value="lastNode">Respond with last node&apos;s output</option>
-          <option value="responseNode">Respond from a Response node</option>
-        </select>
+          <SelectTrigger aria-label="Response mode">
+            <SelectValue placeholder="Choose response mode" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="immediately">Respond immediately (200 OK)</SelectItem>
+            <SelectItem value="lastNode">Respond with last node&apos;s output</SelectItem>
+            <SelectItem value="responseNode">Respond from a Response node</SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
     </div>
   );
@@ -342,9 +371,12 @@ function ManualFields({
 
   return (
     <div className="space-y-4">
-      <Field label="Sample payload (JSON)">
-        <textarea
-          className={cn(inputClass, 'font-mono text-[12px] resize-y min-h-[140px]')}
+      <Field
+        label="Sample payload (JSON)"
+        help="Used when running the flow manually so downstream steps see realistic input."
+      >
+        <Textarea
+          className="min-h-[140px] resize-y font-mono text-[12px]"
           value={text}
           onChange={(e) => {
             const raw = e.target.value;
@@ -355,16 +387,12 @@ function ManualFields({
             try {
               onChange({ samplePayload: JSON.parse(raw) });
             } catch {
-              /* Ignore until valid — keep user typing without losing focus. */
+              /* Ignore until valid, keep user typing without losing focus. */
             }
           }}
           placeholder={'{\n  "userId": "abc123"\n}'}
           rows={8}
         />
-        <p className="mt-1 text-[11px] text-[var(--gray-8)]">
-          Used when running the flow manually so downstream steps see realistic
-          input.
-        </p>
       </Field>
     </div>
   );
@@ -403,15 +431,15 @@ function FiltersSection({
 
   return (
     <Section
-      icon={<LuFilter className="h-3.5 w-3.5" />}
+      icon={<Filter className="h-3.5 w-3.5" aria-hidden="true" />}
       title="Filters"
       hint="Only fire when ALL rows match the inbound payload."
       open={open}
       onToggle={() => setOpen(!open)}
     >
       {value.length === 0 ? (
-        <p className="text-[11.5px] text-[var(--gray-8)]">
-          No filters — the flow fires for every event of this type.
+        <p className="text-[11.5px] text-[var(--st-text-tertiary)]">
+          No filters. The flow fires for every event of this type.
         </p>
       ) : (
         <div className="space-y-2">
@@ -431,15 +459,16 @@ function FiltersSection({
       )}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {fields.map((field) => (
-          <button
+          <Button
             key={field.path}
             type="button"
+            variant="outline"
+            size="sm"
+            iconLeft={Plus}
             onClick={() => addFilter(field)}
-            className="inline-flex items-center gap-1 rounded-md border border-dashed border-[var(--gray-6)] bg-[var(--gray-2)] px-2 py-1 text-[11px] text-[var(--gray-10)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] transition-colors"
           >
-            <LuPlus className="h-3 w-3" />
             {field.label}
-          </button>
+          </Button>
         ))}
       </div>
     </Section>
@@ -463,35 +492,38 @@ function FilterRow({
   const showValue = row.operator !== 'exists' && row.operator !== 'not_exists';
 
   return (
-    <div className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] p-2">
+    <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
       <div className="flex items-center gap-1.5">
-        <span className="text-[11px] font-semibold text-[var(--gray-11)] flex-1 truncate">
+        <span className="flex-1 truncate text-[11px] font-semibold text-[var(--st-text)]">
           {field.label}
         </span>
-        <button
-          type="button"
+        <IconButton
+          label="Remove filter"
+          icon={Trash2}
+          size="sm"
+          variant="ghost"
           onClick={onRemove}
-          className="rounded p-1 text-[var(--gray-8)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
-          aria-label="Remove filter"
-        >
-          <LuTrash2 className="h-3.5 w-3.5" />
-        </button>
+        />
       </div>
       {field.hint && (
-        <p className="mt-0.5 text-[10.5px] text-[var(--gray-8)]">{field.hint}</p>
+        <p className="mt-0.5 text-[10.5px] text-[var(--st-text-tertiary)]">{field.hint}</p>
       )}
       <div className="mt-1.5 grid grid-cols-2 gap-1.5">
-        <select
-          className={cn(inputClass, 'py-1 text-[11.5px]')}
+        <Select
           value={row.operator}
-          onChange={(e) => onChange({ operator: e.target.value as EventFilterOperator })}
+          onValueChange={(v) => onChange({ operator: v as EventFilterOperator })}
         >
-          {allowedOps.map((op) => (
-            <option key={op} value={op}>
-              {OP_LABELS[op]}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger aria-label="Operator">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {allowedOps.map((op) => (
+              <SelectItem key={op} value={op}>
+                {OP_LABELS[op]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {showValue && (
           <FilterValueInput field={field} row={row} onChange={onChange} />
         )}
@@ -513,40 +545,48 @@ function FilterValueInput({
 
   if (field.kind === 'select') {
     return (
-      <select
-        className={cn(inputClass, 'py-1 text-[11.5px]')}
+      <Select
         value={String(value)}
-        onChange={(e) => onChange({ value: e.target.value })}
+        onValueChange={(v) => onChange({ value: v })}
       >
-        <option value="">Choose…</option>
-        {(field.options ?? []).map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger aria-label={`${field.label} value`}>
+          <SelectValue placeholder="Choose a value" />
+        </SelectTrigger>
+        <SelectContent>
+          {(field.options ?? []).map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     );
   }
 
   if (field.kind === 'boolean') {
     return (
-      <select
-        className={cn(inputClass, 'py-1 text-[11.5px]')}
+      <Select
         value={String(value)}
-        onChange={(e) => onChange({ value: e.target.value === 'true' })}
+        onValueChange={(v) => onChange({ value: v === 'true' })}
       >
-        <option value="true">true</option>
-        <option value="false">false</option>
-      </select>
+        <SelectTrigger aria-label={`${field.label} value`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="true">true</SelectItem>
+          <SelectItem value="false">false</SelectItem>
+        </SelectContent>
+      </Select>
     );
   }
 
   return (
-    <input
+    <Input
       type={field.kind === 'number' ? 'number' : 'text'}
-      className={cn(inputClass, 'py-1 text-[11.5px]')}
+      inputSize="sm"
       value={String(value)}
       placeholder={field.placeholder}
+      aria-label={`${field.label} value`}
       onChange={(e) =>
         onChange({
           value:
@@ -567,9 +607,9 @@ const OP_LABELS: Record<EventFilterOperator, string> = {
   starts_with: 'starts with',
   ends_with: 'ends with',
   gt: '>',
-  gte: '≥',
+  gte: '>=',
   lt: '<',
-  lte: '≤',
+  lte: '<=',
   in: 'is one of',
   not_in: 'is not one of',
   exists: 'is set',
@@ -600,13 +640,13 @@ function SamplePayloadPreview({ payload }: { payload: unknown }) {
 
   return (
     <Section
-      icon={<LuCode className="h-3.5 w-3.5" />}
+      icon={<Code className="h-3.5 w-3.5" aria-hidden="true" />}
       title="Sample payload"
       hint="Use these tokens in downstream steps via {{$trigger.…}}."
       open={open}
       onToggle={() => setOpen(!open)}
     >
-      <pre className="max-h-72 overflow-auto rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)] p-2.5 text-[11.5px] leading-relaxed text-[var(--gray-11)] font-mono">
+      <pre className="max-h-72 overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5 font-mono text-[11.5px] leading-relaxed text-[var(--st-text-secondary)]">
         {json}
       </pre>
     </Section>
@@ -620,7 +660,7 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
 
   return (
     <Section
-      icon={<LuBookOpen className="h-3.5 w-3.5" />}
+      icon={<BookOpen className="h-3.5 w-3.5" aria-hidden="true" />}
       title="About this trigger"
       hint={doc.summary}
       open={open}
@@ -632,20 +672,20 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
 
       {doc.fields && doc.fields.length > 0 && (
         <div className="mt-3">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Fields
           </p>
           <ul className="mt-1 space-y-1.5">
             {doc.fields.map((f) => (
-              <li key={f.name} className="text-[11.5px] leading-snug text-[var(--gray-11)]">
-                <span className="font-semibold text-[var(--gray-12)]">{f.name}</span>
-                {f.required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
+              <li key={f.name} className="text-[11.5px] leading-snug text-[var(--st-text-secondary)]">
+                <span className="font-semibold text-[var(--st-text)]">{f.name}</span>
+                {f.required ? <span className="ml-1 text-[var(--st-accent)]">*</span> : null}
                 {f.defaultValue ? (
-                  <span className="ml-1 rounded bg-[var(--gray-3)] px-1 font-mono text-[10.5px] text-[var(--gray-10)]">
+                  <span className="ml-1 rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[10.5px] text-[var(--st-text-secondary)]">
                     default: {f.defaultValue}
                   </span>
                 ) : null}
-                <span className="block text-[var(--gray-9)]">{f.description}</span>
+                <span className="block text-[var(--st-text-tertiary)]">{f.description}</span>
               </li>
             ))}
           </ul>
@@ -654,16 +694,16 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
 
       {doc.outputs && doc.outputs.length > 0 && (
         <div className="mt-3">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Available variables
           </p>
           <ul className="mt-1 space-y-1">
             {doc.outputs.map((o) => (
               <li key={o.token} className="flex items-start gap-1.5 text-[11.5px]">
-                <code className="shrink-0 rounded bg-[var(--gray-3)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-text)]">
+                <code className="shrink-0 rounded bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10.5px] text-[var(--st-accent)]">
                   {o.token}
                 </code>
-                <span className="text-[var(--gray-10)]">{o.description}</span>
+                <span className="text-[var(--st-text-secondary)]">{o.description}</span>
               </li>
             ))}
           </ul>
@@ -672,13 +712,13 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
 
       {doc.examples && doc.examples.length > 0 && (
         <div className="mt-3">
-          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+          <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
             Examples
           </p>
           <ul className="mt-1 space-y-1">
             {doc.examples.map((ex) => (
-              <li key={ex} className="flex items-start gap-1.5 text-[11.5px] text-[var(--gray-11)]">
-                <LuCircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-[var(--st-text)]" />
+              <li key={ex} className="flex items-start gap-1.5 text-[11.5px] text-[var(--st-text-secondary)]">
+                <CircleCheck className="mt-[1px] h-3 w-3 shrink-0 text-[var(--st-accent)]" aria-hidden="true" />
                 <span>{ex}</span>
               </li>
             ))}
@@ -687,7 +727,7 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
       )}
 
       {doc.notes && doc.notes.length > 0 && (
-        <div className="mt-3 rounded-md border border-dashed border-[var(--gray-6)] bg-[var(--gray-2)] p-2 text-[11.5px] text-[var(--gray-10)]">
+        <div className="mt-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2 text-[11.5px] text-[var(--st-text-secondary)]">
           {doc.notes.map((n) => <p key={n}>{n}</p>)}
         </div>
       )}
@@ -698,10 +738,10 @@ function DocsSection({ doc }: { doc: ReturnType<typeof getNodeDoc> & object }) {
 function DocBlock({ title, body }: { title: string; body: string }) {
   return (
     <div className="mt-2">
-      <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+      <p className="text-[10.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
         {title}
       </p>
-      <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--gray-11)]">{body}</p>
+      <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--st-text-secondary)]">{body}</p>
     </div>
   );
 }
@@ -724,44 +764,37 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]">
-      <button
-        type="button"
+    <Card padding="none">
+      <Button
+        variant="ghost"
         onClick={onToggle}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left"
+        aria-expanded={open}
+        className={cn(
+          'flex w-full items-center gap-2 px-3 py-2 text-left',
+          '[&_.u-btn__label]:flex [&_.u-btn__label]:flex-1 [&_.u-btn__label]:items-center [&_.u-btn__label]:gap-2',
+        )}
       >
-        <span className="text-[var(--gray-10)]">{icon}</span>
-        <span className="flex-1">
-          <span className="block text-[12px] font-semibold text-[var(--gray-12)]">{title}</span>
-          {hint && (
-            <span className="block text-[10.5px] text-[var(--gray-9)]">{hint}</span>
-          )}
+        <span className="flex flex-1 items-center gap-2">
+          <span className="text-[var(--st-text-secondary)]">{icon}</span>
+          <span className="flex-1">
+            <span className="block text-[12px] font-semibold text-[var(--st-text)]">{title}</span>
+            {hint && (
+              <span className="block text-[10.5px] font-normal text-[var(--st-text-secondary)]">
+                {hint}
+              </span>
+            )}
+          </span>
+          <span className="text-[var(--st-text-tertiary)]">
+            {open ? (
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+          </span>
         </span>
-        <span className="text-[var(--gray-8)]">
-          {open ? <LuChevronDown className="h-3.5 w-3.5" /> : <LuChevronRight className="h-3.5 w-3.5" />}
-        </span>
-      </button>
-      {open && <div className="border-t border-[var(--gray-5)] p-3">{children}</div>}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function InfoCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="rounded-lg border border-dashed border-[var(--gray-6)] bg-[var(--gray-2)] p-3 text-[12px] leading-relaxed text-[var(--gray-9)]">
-      {children}
-    </div>
+      </Button>
+      {open && <div className="border-t border-[var(--st-border)] p-3">{children}</div>}
+    </Card>
   );
 }
 

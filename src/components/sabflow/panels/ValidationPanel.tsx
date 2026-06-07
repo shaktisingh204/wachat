@@ -2,21 +2,27 @@
 
 import { useCallback, useState } from 'react';
 import {
-  LuShieldCheck,
-  LuTriangleAlert as LuAlertTriangle,
-  LuCircleAlert as LuAlertCircle,
-  LuCircleCheck as LuCheckCircle,
-  LuLoader,
-  LuChevronDown,
-  LuChevronRight,
-  LuX,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  ShieldCheck,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
+  X,
+} from 'lucide-react';
+import {
+  cn,
+  Badge,
+  Button,
+  IconButton,
+  EmptyState,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
 import { validateFlow, countValidationResults } from '@/lib/sabflow/validation';
 import type { ValidationError, ValidationSeverity } from '@/lib/sabflow/validation';
 import type { SabFlowDoc, Group } from '@/lib/sabflow/types';
 
-/* ── Props ───────────────────────────────────────────────────────────────── */
+/* -- Props ----------------------------------------------------------------- */
 
 export type ValidationPanelProps = {
   flow: SabFlowDoc;
@@ -30,7 +36,7 @@ export type ValidationPanelProps = {
   onClose?: () => void;
 };
 
-/* ── Helpers ─────────────────────────────────────────────────────────────── */
+/* -- Helpers --------------------------------------------------------------- */
 
 function resolveBlockName(
   groupId: string | undefined,
@@ -43,10 +49,10 @@ function resolveBlockName(
   if (!blockId) return group.title;
   const block = group.blocks.find((b) => b.id === blockId);
   if (!block) return group.title;
-  return `${group.title} › ${block.type}`;
+  return `${group.title} > ${block.type}`;
 }
 
-/* ── SeveritySection ─────────────────────────────────────────────────────── */
+/* -- SeveritySection ------------------------------------------------------- */
 
 type SeveritySectionProps = {
   severity: ValidationSeverity;
@@ -66,114 +72,75 @@ function SeveritySection({
   const [open, setOpen] = useState(defaultOpen);
 
   const isError = severity === 'error';
-  const Icon = isError ? LuAlertCircle : LuAlertTriangle;
-
-  const headerColorCls = isError
-    ? 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]'
-    : 'text-[var(--st-text)] dark:text-[var(--st-text-secondary)]';
-
-  const iconBgCls = isError
-    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-    : 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]';
-
-  const rowHoverCls = isError
-    ? 'hover:bg-[var(--st-bg-muted)]/60 dark:hover:bg-[var(--st-text)]/20'
-    : 'hover:bg-[var(--st-bg-muted)]/60 dark:hover:bg-[var(--st-text)]/20';
-
+  const Icon = isError ? AlertCircle : AlertTriangle;
+  const tone = isError ? 'danger' : 'warning';
   const label = isError ? 'Errors' : 'Warnings';
 
   return (
-    <div className="rounded-xl border border-[var(--gray-5)] overflow-hidden">
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)]"
+    >
       {/* Section header */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 bg-[var(--gray-2)] hover:bg-[var(--gray-3)] transition-colors"
-      >
-        <div className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-lg', iconBgCls)}>
-          <Icon className="h-3.5 w-3.5" strokeWidth={2} />
-        </div>
-        <span className={cn('flex-1 text-left text-[12.5px] font-semibold', headerColorCls)}>
+      <CollapsibleTrigger className="flex w-full items-center gap-2.5 bg-[var(--st-bg-secondary)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--st-bg-muted)]">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+          <Icon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+        </span>
+        <span className="flex-1 text-[12.5px] font-semibold text-[var(--st-text)]">
           {label}
         </span>
-        <span
-          className={cn(
-            'shrink-0 rounded-full px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums',
-            iconBgCls,
-          )}
-        >
+        <Badge tone={tone} kind="soft" className="tabular-nums">
           {items.length}
-        </span>
-        {open ? (
-          <LuChevronDown className="h-3.5 w-3.5 text-[var(--gray-9)] shrink-0" strokeWidth={2.5} />
-        ) : (
-          <LuChevronRight className="h-3.5 w-3.5 text-[var(--gray-9)] shrink-0" strokeWidth={2.5} />
-        )}
-      </button>
+        </Badge>
+      </CollapsibleTrigger>
 
       {/* Items list */}
-      {open && (
-        <ul className="divide-y divide-[var(--gray-4)] bg-[var(--gray-1)]">
+      <CollapsibleContent>
+        <ul className="divide-y divide-[var(--st-border)] bg-[var(--st-bg)]">
           {items.map((err) => {
             const locationLabel = resolveBlockName(err.groupId, err.blockId, groups);
             const isClickable = Boolean(err.groupId);
 
             return (
               <li key={err.id}>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
                   disabled={!isClickable}
                   onClick={() => {
                     if (err.groupId) onFocusBlock(err.groupId, err.blockId);
                   }}
                   className={cn(
-                    'flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors',
-                    isClickable ? rowHoverCls + ' cursor-pointer' : 'cursor-default',
+                    'flex h-auto w-full items-start gap-2.5 rounded-none px-3 py-2.5 text-left',
+                    isClickable ? 'cursor-pointer' : 'cursor-default',
                   )}
                 >
                   <Icon
-                    className={cn('mt-px h-3.5 w-3.5 shrink-0', headerColorCls)}
+                    className="mt-px h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]"
                     strokeWidth={2}
+                    aria-hidden="true"
                   />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[12px] text-[var(--gray-12)] leading-snug">
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[12px] leading-snug text-[var(--st-text)]">
                       {err.message}
-                    </p>
+                    </span>
                     {locationLabel && (
-                      <p className="mt-0.5 text-[11px] text-[var(--gray-9)] font-mono truncate">
+                      <span className="mt-0.5 block truncate font-mono text-[11px] text-[var(--st-text-tertiary)]">
                         {locationLabel}
-                      </p>
+                      </span>
                     )}
-                  </div>
-                </button>
+                  </span>
+                </Button>
               </li>
             );
           })}
         </ul>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
-/* ── EmptyState ──────────────────────────────────────────────────────────── */
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-14 gap-3 text-center px-4">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-        <LuCheckCircle className="h-6 w-6" strokeWidth={1.8} />
-      </div>
-      <div>
-        <p className="text-[13px] font-semibold text-[var(--gray-12)]">All good!</p>
-        <p className="mt-0.5 text-[11.5px] text-[var(--gray-9)]">
-          No issues found in this flow.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ── ValidationPanel ─────────────────────────────────────────────────────── */
+/* -- ValidationPanel ------------------------------------------------------- */
 
 export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }: ValidationPanelProps) {
   const [results, setResults] = useState<ValidationError[] | null>(null);
@@ -181,7 +148,7 @@ export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }
 
   const handleRun = useCallback(() => {
     setRunning(true);
-    // Run synchronously but defer UI update to next tick so the spinner shows
+    // Run synchronously but defer UI update to next tick so the spinner shows.
     requestAnimationFrame(() => {
       const errors = validateFlow(flow);
       setResults(errors);
@@ -198,89 +165,78 @@ export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }
   const warnings = results?.filter((e) => e.severity === 'warning') ?? [];
 
   return (
-    <div className="w-[320px] shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden">
-      {/* ── Panel header ─────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--gray-3)] text-[var(--gray-11)] shrink-0">
-          <LuShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
-        </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">
+    <div className="z-20 flex w-[320px] shrink-0 flex-col overflow-hidden border-l border-[var(--st-border)] bg-[var(--st-bg)]">
+      {/* Panel header */}
+      <div className="flex shrink-0 items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+          <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+        </span>
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">
           Validation
         </span>
 
         {/* Summary badges (shown after a run) */}
         {results !== null && (
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex shrink-0 items-center gap-1">
             {errorCount > 0 && (
-              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+              <Badge tone="danger" kind="soft" className="tabular-nums">
                 {errorCount}
-              </span>
+              </Badge>
             )}
             {warningCount > 0 && (
-              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold tabular-nums text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+              <Badge tone="warning" kind="soft" className="tabular-nums">
                 {warningCount}
-              </span>
+              </Badge>
             )}
             {errorCount === 0 && warningCount === 0 && (
-              <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10.5px] font-bold text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+              <Badge tone="success" kind="soft">
                 OK
-              </span>
+              </Badge>
             )}
           </div>
         )}
 
         {onClose && (
-          <button
-            type="button"
+          <IconButton
+            label="Close validation panel"
+            icon={X}
+            size="sm"
             onClick={onClose}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+            className="shrink-0"
+          />
         )}
       </div>
 
-      {/* ── Run button row ────────────────────────────────────────────────── */}
-      <div className="px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-        <button
-          type="button"
+      {/* Run button row */}
+      <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-3">
+        <Button
+          variant="primary"
+          block
+          loading={running}
+          iconLeft={ShieldCheck}
           onClick={handleRun}
-          disabled={running}
-          className={cn(
-            'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold transition-colors',
-            running
-              ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-[var(--gray-12)] text-[var(--gray-1)] hover:opacity-90 active:opacity-80',
-          )}
         >
-          {running ? (
-            <LuLoader className="h-4 w-4 animate-spin" strokeWidth={2} />
-          ) : (
-            <LuShieldCheck className="h-4 w-4" strokeWidth={2} />
-          )}
-          {running ? 'Checking…' : results === null ? 'Run validation' : 'Re-run validation'}
-        </button>
+          {running ? 'Checking...' : results === null ? 'Run validation' : 'Re-run validation'}
+        </Button>
       </div>
 
-      {/* ── Results body ─────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      {/* Results body */}
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
         {results === null ? (
           /* Pre-run placeholder */
-          <div className="flex flex-col items-center justify-center py-14 gap-3 text-center px-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--gray-3)] text-[var(--gray-9)]">
-              <LuShieldCheck className="h-6 w-6" strokeWidth={1.5} />
-            </div>
-            <div>
-              <p className="text-[12.5px] font-medium text-[var(--gray-11)]">
-                Not yet checked
-              </p>
-              <p className="mt-0.5 text-[11.5px] text-[var(--gray-9)]">
-                Click "Run validation" to inspect the flow for issues.
-              </p>
-            </div>
-          </div>
+          <EmptyState
+            icon={ShieldCheck}
+            tone="neutral"
+            title="Not yet checked"
+            description='Click "Run validation" to inspect the flow for issues.'
+          />
         ) : results.length === 0 ? (
-          <EmptyState />
+          <EmptyState
+            icon={CheckCircle2}
+            tone="success"
+            title="All good"
+            description="No issues found in this flow."
+          />
         ) : (
           <>
             {errors.length > 0 && (
@@ -305,10 +261,10 @@ export function ValidationPanel({ flow, onFocusBlock, onResultsChange, onClose }
         )}
       </div>
 
-      {/* ── Footer hint ──────────────────────────────────────────────────── */}
+      {/* Footer hint */}
       {results !== null && results.length > 0 && (
-        <div className="px-4 py-2.5 border-t border-[var(--gray-4)] shrink-0">
-          <p className="text-[11px] text-[var(--gray-9)]">
+        <div className="shrink-0 border-t border-[var(--st-border)] px-4 py-2.5">
+          <p className="text-[11px] text-[var(--st-text-tertiary)]">
             Click an item to navigate to the affected block.
           </p>
         </div>

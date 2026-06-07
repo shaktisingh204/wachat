@@ -6,24 +6,42 @@
  * Sliding right-side panel that lists saved versions of a SabFlow and
  * allows the user to restore any previous snapshot.
  *
- * Uses react-icons/lu only. No lucide-react.
+ * Pure 20ui design system. Icons: lucide-react.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  LuHistory,
-  LuRotateCcw,
-  LuX,
-  LuPlus,
-  LuCheck,
-  LuLoader,
-  LuTriangleAlert,
-  LuClock,
-  LuTag,
-  LuGitCompare,
-} from 'react-icons/lu';
+  History,
+  RotateCcw,
+  X,
+  Plus,
+  Check,
+  Clock,
+  Tag,
+  GitCompare,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+  Button,
+  IconButton,
+  Badge,
+  Checkbox,
+  Field,
+  Input,
+  Alert,
+  EmptyState,
+  Spinner,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 
 /* ── Types ──────────────────────────────────────────────────────────────────── */
@@ -69,69 +87,11 @@ function formatDate(date: string | Date): string {
   }).format(new Date(date));
 }
 
-/* ── ConfirmDialog ──────────────────────────────────────────────────────────── */
-
-interface ConfirmDialogProps {
-  versionLabel: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmDialog({ versionLabel, onConfirm, onCancel }: ConfirmDialogProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onCancel}
-        aria-hidden="true"
-      />
-
-      {/* Dialog */}
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-[var(--gray-5)] bg-[var(--gray-1)] p-5 shadow-xl">
-        <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
-            <LuTriangleAlert className="h-4.5 w-4.5" strokeWidth={2} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13.5px] font-semibold text-[var(--gray-12)]">
-              Restore this version?
-            </p>
-            <p className="mt-1 text-[12px] text-[var(--gray-10)] leading-relaxed">
-              Restoring{' '}
-              <span className="font-medium text-[var(--gray-12)]">&ldquo;{versionLabel}&rdquo;</span>{' '}
-              will overwrite your current flow. This action cannot be undone — save
-              a version first if you want to keep your current state.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 flex items-center justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3.5 py-1.5 text-[12.5px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            className="flex items-center gap-1.5 rounded-lg bg-[var(--st-text)] px-3.5 py-1.5 text-[12.5px] font-medium text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)] transition-colors"
-          >
-            <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-            Yes, restore
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ── VersionHistoryPanel ────────────────────────────────────────────────────── */
 
 export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [versions, setVersions] = useState<VersionSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -140,8 +100,6 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
   const [labelDraft, setLabelDraft] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const labelInputRef = useRef<HTMLInputElement>(null);
 
   // Restore state
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
@@ -149,7 +107,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
   const [restoreError, setRestoreError] = useState<string | null>(null);
 
   // Compare-two-versions mode: when active, clicking a row toggles selection
-  // instead of restoring.  Once two versions are picked the user can fire the
+  // instead of restoring. Once two versions are picked the user can fire the
   // existing diff page with both ids.
   const [compareMode, setCompareMode] = useState(false);
   const [picked, setPicked] = useState<string[]>([]);
@@ -169,7 +127,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
   const openDiff = useCallback(() => {
     if (picked.length !== 2) return;
-    // The diff page expects `from` (older) and `to` (newer).  Versions are
+    // The diff page expects `from` (older) and `to` (newer). Versions are
     // returned newest-first, so the lower-index pick is the newer one.
     const [a, b] = picked;
     const orderA = versions.findIndex((v) => v._id === a);
@@ -209,7 +167,6 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
-    setSaveError(null);
     setSaveSuccess(false);
     try {
       const res = await fetch(`/api/sabflow/${flowId}/versions`, {
@@ -223,15 +180,16 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
       }
       setLabelDraft('');
       setSaveSuccess(true);
+      toast.success('Version saved');
       setTimeout(() => setSaveSuccess(false), 2000);
       // Refresh list
       await fetchVersions();
     } catch (err) {
-      setSaveError(err instanceof Error ? err.message : 'Failed to save version');
+      toast.error(err instanceof Error ? err.message : 'Failed to save version');
     } finally {
       setIsSaving(false);
     }
-  }, [flowId, labelDraft, fetchVersions]);
+  }, [flowId, labelDraft, fetchVersions, toast]);
 
   /* ── Restore ──────────────────────────────────────────────── */
 
@@ -268,142 +226,129 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
   return (
     <>
-      {/* Confirmation dialog (portal-like, rendered above everything) */}
-      {confirmingVersion && (
-        <ConfirmDialog
-          versionLabel={confirmingVersion.label}
-          onConfirm={handleRestoreConfirmed}
-          onCancel={() => setConfirmingId(null)}
-        />
-      )}
+      {/* Confirmation dialog (Radix-portalled, with focus trap + escape). */}
+      <AlertDialog
+        open={Boolean(confirmingVersion)}
+        onOpenChange={(next) => {
+          if (!next) setConfirmingId(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Restore this version?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Restoring{' '}
+              <span className="font-medium text-[var(--st-text)]">
+                &ldquo;{confirmingVersion?.label}&rdquo;
+              </span>{' '}
+              will overwrite your current flow. This action cannot be undone, save
+              a version first if you want to keep your current state.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction intent="primary" onClick={handleRestoreConfirmed}>
+              Yes, restore
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      <div className="w-[320px] shrink-0 border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden flex flex-col">
+      <div className="ui20 w-[320px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
 
         {/* ── Panel header ─────────────────────────────────────── */}
-        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--gray-4)] shrink-0">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)] shrink-0">
-            <LuHistory className="h-3.5 w-3.5" strokeWidth={2} />
+        <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] shrink-0">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)] shrink-0">
+            <History className="h-3.5 w-3.5" aria-hidden="true" />
           </div>
-          <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">
+          <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">
             Version History
           </span>
           {!isLoading && (
-            <span className="text-[11px] tabular-nums text-[var(--gray-9)] font-medium">
+            <span className="text-[11px] tabular-nums text-[var(--st-text-tertiary)] font-medium">
               {versions.length} / 20
             </span>
           )}
-          <button
-            type="button"
+          <IconButton
+            label="Close version history"
+            icon={X}
+            size="sm"
             onClick={onClose}
-            title="Close"
-            aria-label="Close version history"
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
         </div>
 
         {/* ── Save current version ──────────────────────────────── */}
-        <div className="px-3 py-3 border-b border-[var(--gray-4)] shrink-0 space-y-2">
-          <p className="text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide px-0.5">
+        <div className="px-3 py-3 border-b border-[var(--st-border)] shrink-0 space-y-2">
+          <p className="text-[11px] font-medium text-[var(--st-text-tertiary)] uppercase tracking-wide px-0.5">
             Save current state
           </p>
-          <div className="flex items-center gap-1.5">
-            <div className="relative flex-1 min-w-0">
-              <LuTag className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-[var(--gray-8)] pointer-events-none" strokeWidth={2} />
-              <input
-                ref={labelInputRef}
-                type="text"
-                value={labelDraft}
-                onChange={(e) => setLabelDraft(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') void handleSave(); }}
-                placeholder="Label (optional)"
-                maxLength={60}
-                className={cn(
-                  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
-                  'pl-7 pr-2.5 py-1.5 text-[12px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)]',
-                  'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-                )}
-              />
+          <div className="flex items-end gap-1.5">
+            <div className="flex-1 min-w-0">
+              <Field label="Version label">
+                <Input
+                  inputSize="sm"
+                  value={labelDraft}
+                  onChange={(e) => setLabelDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') void handleSave();
+                  }}
+                  placeholder="Label (optional)"
+                  maxLength={60}
+                  iconLeft={Tag}
+                />
+              </Field>
             </div>
-            <button
-              type="button"
+            <Button
+              variant="primary"
+              size="sm"
               onClick={() => void handleSave()}
-              disabled={isSaving}
-              title="Save version"
+              loading={isSaving}
+              iconLeft={saveSuccess ? Check : Plus}
               aria-label="Save current version"
-              className={cn(
-                'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors',
-                isSaving
-                  ? 'bg-[var(--gray-4)] text-[var(--gray-8)] cursor-wait'
-                  : saveSuccess
-                    ? 'bg-[var(--st-text)] text-white'
-                    : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)] active:bg-[var(--st-text)]',
-              )}
             >
-              {isSaving
-                ? <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-                : saveSuccess
-                  ? <LuCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-                  : <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
-              }
-            </button>
+              {saveSuccess ? 'Saved' : 'Save'}
+            </Button>
           </div>
-          {saveError && (
-            <p className="text-[11px] text-[var(--st-text)] truncate" title={saveError}>{saveError}</p>
-          )}
         </div>
 
         {/* ── Compare-mode toolbar ──────────────────────────────── */}
-        <div className="flex items-center gap-2 border-b border-[var(--gray-4)] px-3 py-2 shrink-0">
-          <button
-            type="button"
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2 shrink-0">
+          <Button
+            variant={compareMode ? 'primary' : 'secondary'}
+            size="sm"
+            iconLeft={GitCompare}
             onClick={() => (compareMode ? exitCompareMode() : setCompareMode(true))}
-            className={cn(
-              'flex items-center gap-1.5 rounded-lg border px-2 py-1 text-[11.5px] font-medium transition-colors',
-              compareMode
-                ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-            )}
             title={compareMode ? 'Exit compare mode' : 'Pick two versions to diff'}
           >
-            <LuGitCompare className="h-3 w-3" strokeWidth={2} />
             {compareMode ? 'Cancel' : 'Compare versions'}
-          </button>
+          </Button>
           {compareMode && (
             <>
-              <span className="text-[10.5px] text-[var(--gray-9)] ml-auto">
+              <span className="text-[10.5px] text-[var(--st-text-tertiary)] ml-auto">
                 {picked.length} / 2 picked
               </span>
-              <button
-                type="button"
+              <Button
+                variant="primary"
+                size="sm"
                 onClick={openDiff}
                 disabled={picked.length !== 2}
-                className={cn(
-                  'rounded-lg px-2 py-1 text-[11.5px] font-semibold transition-colors',
-                  picked.length === 2
-                    ? 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]'
-                    : 'bg-[var(--gray-3)] text-[var(--gray-8)] cursor-not-allowed',
-                )}
               >
                 View diff
-              </button>
+              </Button>
             </>
           )}
         </div>
 
         {/* ── Restore error banner ──────────────────────────────── */}
         {restoreError && (
-          <div className="mx-3 mt-2 flex items-center gap-2 rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 dark:border-[var(--st-border)] dark:bg-[var(--st-text)]/30 shrink-0">
-            <LuTriangleAlert className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" strokeWidth={2} />
-            <p className="text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)] flex-1 min-w-0 truncate">{restoreError}</p>
-            <button
-              type="button"
-              onClick={() => setRestoreError(null)}
-              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
+          <div className="mx-3 mt-2 shrink-0">
+            <Alert
+              tone="danger"
+              onClose={() => setRestoreError(null)}
+              closeLabel="Dismiss restore error"
             >
-              <LuX className="h-3 w-3" strokeWidth={2} />
-            </button>
+              {restoreError}
+            </Alert>
           </div>
         )}
 
@@ -411,37 +356,28 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
         <div className="flex-1 overflow-y-auto px-3 py-2.5 space-y-1.5">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <LuLoader className="h-5 w-5 animate-spin text-[var(--gray-8)]" strokeWidth={2} />
+              <Spinner size="lg" label="Loading versions" />
             </div>
           ) : fetchError ? (
-            <div className="flex flex-col items-center justify-center py-10 gap-3 text-center px-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/30">
-                <LuTriangleAlert className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div>
-                <p className="text-[12.5px] font-medium text-[var(--gray-11)]">Could not load versions</p>
-                <p className="text-[11.5px] text-[var(--gray-9)] mt-0.5">{fetchError}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void fetchVersions()}
-                className="rounded-lg border border-[var(--gray-5)] px-3 py-1.5 text-[12px] text-[var(--gray-10)] hover:bg-[var(--gray-3)] transition-colors"
-              >
-                Retry
-              </button>
-            </div>
+            <EmptyState
+              icon={Clock}
+              tone="danger"
+              size="sm"
+              title="Could not load versions"
+              description={fetchError}
+              action={
+                <Button variant="secondary" size="sm" onClick={() => void fetchVersions()}>
+                  Retry
+                </Button>
+              }
+            />
           ) : versions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-3 text-center px-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--gray-3)] text-[var(--gray-8)]">
-                <LuHistory className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div>
-                <p className="text-[12.5px] font-medium text-[var(--gray-11)]">No versions yet</p>
-                <p className="text-[11.5px] text-[var(--gray-9)] mt-0.5">
-                  Save your first version to start tracking history.
-                </p>
-              </div>
-            </div>
+            <EmptyState
+              icon={History}
+              size="sm"
+              title="No versions yet"
+              description="Save your first version to start tracking history."
+            />
           ) : (
             versions.map((version, idx) => (
               <VersionRow
@@ -465,8 +401,8 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
 
         {/* ── Footer hint ───────────────────────────────────────── */}
         {versions.length > 0 && (
-          <div className="px-4 py-2.5 border-t border-[var(--gray-4)] shrink-0">
-            <p className="text-[11px] text-[var(--gray-9)]">
+          <div className="px-4 py-2.5 border-t border-[var(--st-border)] shrink-0">
+            <p className="text-[11px] text-[var(--st-text-tertiary)]">
               Up to 20 versions are kept. Oldest are removed automatically.
             </p>
           </div>
@@ -519,98 +455,87 @@ function VersionRow({
           : undefined
       }
       className={cn(
-        'group flex items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-all',
+        'group flex items-start gap-2.5 rounded-[var(--st-radius-lg)] border px-3 py-2.5 transition-all',
         compareMode && 'cursor-pointer',
         isPicked
-          ? 'border-[var(--st-border)] bg-[var(--st-text)]/10'
+          ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)]'
           : isLatest
-          ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)]/60 dark:border-[var(--st-border)]/50 dark:bg-[var(--st-text)]/20'
-          : 'border-[var(--gray-5)] bg-[var(--gray-2)] hover:border-[var(--gray-7)] hover:bg-[var(--gray-1)]',
+            ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)]/60'
+            : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg)]',
       )}
     >
       {compareMode && (
-        <input
-          type="checkbox"
-          checked={isPicked}
-          onChange={() => onTogglePick?.()}
-          onClick={(e) => e.stopPropagation()}
-          aria-label={`Select "${version.label}" for comparison`}
-          className="mt-1 h-3.5 w-3.5 shrink-0 accent-[var(--st-text)] cursor-pointer"
-        />
+        <span className="mt-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            size="sm"
+            checked={isPicked}
+            onChange={() => onTogglePick?.()}
+            aria-label={`Select "${version.label}" for comparison`}
+          />
+        </span>
       )}
       {/* Clock icon */}
-      <div className={cn(
-        'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg mt-0.5',
-        isLatest
-          ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-          : 'bg-[var(--gray-3)] text-[var(--gray-8)]',
-      )}>
-        <LuClock className="h-3 w-3" strokeWidth={2} />
+      <div
+        className={cn(
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--st-radius)] mt-0.5',
+          isLatest
+            ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
+            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-tertiary)]',
+        )}
+      >
+        <Clock className="h-3 w-3" aria-hidden="true" />
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 min-w-0">
-          <p className="truncate text-[12.5px] font-medium text-[var(--gray-12)]">
+          <p className="truncate text-[12.5px] font-medium text-[var(--st-text)]">
             {version.label}
           </p>
           {isLatest && (
-            <span className="shrink-0 rounded-md bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[9.5px] font-semibold uppercase tracking-wide text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]">
+            <Badge tone="accent" className="shrink-0">
               Latest
-            </span>
+            </Badge>
           )}
         </div>
         <p
-          className="text-[11px] text-[var(--gray-9)] mt-0.5"
+          className="text-[11px] text-[var(--st-text-tertiary)] mt-0.5"
           title={formatDate(version.savedAt)}
         >
           {relativeTime(version.savedAt)}
         </p>
       </div>
 
-      {/* Action buttons — hidden in compare mode so clicks don't trigger restore. */}
+      {/* Action buttons, hidden in compare mode so clicks do not trigger restore. */}
       <div
         className={cn(
           'flex items-center gap-0.5 mt-0.5',
-          compareMode && 'hidden',
+          compareMode
+            ? 'hidden'
+            : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity',
         )}
       >
         {/* Compare with current */}
-        <button
-          type="button"
+        <IconButton
+          label={
+            isLatest
+              ? 'This is the latest saved version'
+              : `Compare version "${version.label}" with current`
+          }
+          icon={GitCompare}
+          size="sm"
           onClick={onCompare}
           disabled={isLatest}
-          title={isLatest ? 'This is the latest saved version' : 'Compare with current'}
-          aria-label={`Compare version "${version.label}" with current`}
-          className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
-            isLatest
-              ? 'text-[var(--gray-7)] cursor-not-allowed opacity-40'
-              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]',
-          )}
-        >
-          <LuGitCompare className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
 
         {/* Restore */}
-        <button
-          type="button"
+        <IconButton
+          label={`Restore version "${version.label}"`}
+          icon={RotateCcw}
+          size="sm"
           onClick={onRestore}
           disabled={isRestoring}
-          title="Restore this version"
-          aria-label={`Restore version "${version.label}"`}
-          className={cn(
-            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors',
-            isRestoring
-              ? 'text-[var(--gray-8)] cursor-wait'
-              : 'text-[var(--gray-8)] opacity-0 group-hover:opacity-100 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] dark:hover:bg-[var(--st-text)]/30 dark:hover:text-[var(--st-text-secondary)]',
-          )}
-        >
-          {isRestoring
-            ? <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-            : <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
-          }
-        </button>
+        />
       </div>
     </div>
   );

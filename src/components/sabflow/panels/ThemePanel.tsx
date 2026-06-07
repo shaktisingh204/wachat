@@ -1,21 +1,39 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { SabFlowTheme, ThemeColor } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
 import {
-  LuChevronDown,
-  LuChevronRight,
-  LuPalette,
-  LuX,
-  LuRotateCcw,
-  LuLayoutGrid,
-} from 'react-icons/lu';
+  ChevronDown,
+  Palette,
+  X,
+  RotateCcw,
+  LayoutGrid,
+} from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardTitle,
+  Field,
+  Input,
+  Switch,
+  SegmentedControl,
+  ColorPicker,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { ThemePresetPicker } from './ThemePresetPicker';
 
-/* ─────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    Constants
-───────────────────────────────────────────────────────────── */
+------------------------------------------------------------------- */
 
 const ACCENT = '#f76808';
 
@@ -80,15 +98,9 @@ const DEFAULT_THEME: SabFlowTheme = {
   },
 };
 
-/* ─────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    Shared helpers
-───────────────────────────────────────────────────────────── */
-
-const inputCls = [
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)]',
-  'px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-9)]',
-  'outline-none focus:border-[var(--st-border)] focus:ring-1 focus:ring-[var(--st-border)]/20 transition-colors',
-].join(' ');
+------------------------------------------------------------------- */
 
 /** Extract a plain hex string from a ThemeColor (falls back to empty). */
 function colorValue(tc: ThemeColor | undefined, fallback = '#ffffff'): string {
@@ -102,58 +114,9 @@ function asColor(value: string): ThemeColor {
   return { type: 'Color', value };
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ColorSwatch — compact inline color picker
-───────────────────────────────────────────────────────────── */
-
-interface ColorSwatchProps {
-  value: string;
-  onChange: (v: string) => void;
-}
-
-function ColorSwatch({ value, onChange }: ColorSwatchProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const open = useCallback(() => {
-    inputRef.current?.click();
-  }, []);
-
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        title={value || 'Pick a colour'}
-        onClick={open}
-        className="h-6 w-6 rounded-md border-2 border-[var(--gray-5)] shrink-0 transition-transform hover:scale-110 cursor-pointer"
-        style={{ backgroundColor: value || '#ffffff' }}
-      />
-      <input
-        ref={inputRef}
-        type="color"
-        value={value?.startsWith('#') ? value : '#ffffff'}
-        onChange={(e) => onChange(e.target.value)}
-        className="sr-only"
-        tabIndex={-1}
-      />
-      <input
-        type="text"
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="#hex"
-        maxLength={9}
-        className={cn(
-          'w-[90px] rounded-md border border-[var(--gray-5)] bg-[var(--gray-1)]',
-          'px-2 py-1 text-[12px] font-mono text-[var(--gray-12)]',
-          'outline-none focus:border-[var(--st-border)] transition-colors',
-        )}
-      />
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
-   ColorField — label + palette swatches + swatch picker
-───────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------
+   ColorField - label + 20ui ColorPicker (swatch grid + native picker + hex)
+------------------------------------------------------------------- */
 
 interface ColorFieldProps {
   label: string;
@@ -166,37 +129,19 @@ function ColorField({ label, value, fallback = '#ffffff', onChange }: ColorField
   const hex = colorValue(value, fallback);
 
   return (
-    <div className="space-y-1.5">
-      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-        {label}
-      </label>
-      <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] p-2.5 space-y-2">
-        <div className="flex flex-wrap gap-1.5">
-          {PALETTE.map((c) => (
-            <button
-              key={c}
-              type="button"
-              title={c}
-              onClick={() => onChange(asColor(c))}
-              className={cn(
-                'h-5 w-5 rounded border-2 transition-transform hover:scale-110',
-                hex === c
-                  ? 'border-[var(--st-border)] scale-110'
-                  : 'border-transparent hover:border-[var(--gray-6)]',
-              )}
-              style={{ backgroundColor: c }}
-            />
-          ))}
-        </div>
-        <ColorSwatch value={hex} onChange={(v) => onChange(asColor(v))} />
-      </div>
-    </div>
+    <Field label={label}>
+      <ColorPicker
+        value={hex}
+        swatches={PALETTE}
+        onChange={(v) => onChange(asColor(v))}
+      />
+    </Field>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   RadiusField — text input for border-radius
-───────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------
+   RadiusField - text input for border-radius
+------------------------------------------------------------------- */
 
 interface RadiusFieldProps {
   value: string | undefined;
@@ -205,24 +150,19 @@ interface RadiusFieldProps {
 
 function RadiusField({ value, onChange }: RadiusFieldProps) {
   return (
-    <div className="space-y-1.5">
-      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-        Border radius
-      </label>
-      <input
-        type="text"
+    <Field label="Border radius">
+      <Input
         value={value ?? ''}
         onChange={(e) => onChange(e.target.value)}
         placeholder="e.g. 8px or 1rem"
-        className={inputCls}
       />
-    </div>
+    </Field>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Section — collapsible wrapper
-───────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------
+   Section - collapsible wrapper (20ui Collapsible)
+------------------------------------------------------------------- */
 
 interface SectionProps {
   title: string;
@@ -231,87 +171,39 @@ interface SectionProps {
 }
 
 function Section({ title, defaultOpen = true, children }: SectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
-
   return (
-    <div className="rounded-xl border border-[var(--gray-5)] overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 bg-[var(--gray-2)] hover:bg-[var(--gray-3)] transition-colors"
-      >
-        <span className="text-[12.5px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">
-          {title}
-        </span>
-        {open
-          ? <LuChevronDown className="h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={2.5} />
-          : <LuChevronRight className="h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={2.5} />
-        }
-      </button>
-      {open && (
-        <div className="px-4 py-4 space-y-4 bg-[var(--gray-1)]">
-          {children}
-        </div>
-      )}
-    </div>
+    <Collapsible
+      defaultOpen={defaultOpen}
+      className="rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden"
+    >
+      <CollapsibleTrigger className="w-full text-[12.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+        {title}
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-4">{children}</div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   SubSection — inner card with title
-───────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------
+   SubSection - inner card with title
+------------------------------------------------------------------- */
 
 function SubSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] p-3.5 space-y-3.5">
-      <p className="text-[11px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
+    <Card variant="outlined" padding="md" className="space-y-3.5">
+      <CardTitle className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {title}
-      </p>
+      </CardTitle>
       {children}
-    </div>
+    </Card>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ToggleRow
-───────────────────────────────────────────────────────────── */
-
-function ToggleRow({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-[12px] text-[var(--gray-11)]">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0',
-          checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute h-3.5 w-3.5 rounded-full bg-white shadow transition-transform',
-            checked ? 'translate-x-4' : 'translate-x-1',
-          )}
-        />
-      </button>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    RoundnessPreset
-───────────────────────────────────────────────────────────── */
+------------------------------------------------------------------- */
 
 type Roundness = 'None' | 'Medium' | 'Large';
 
@@ -330,37 +222,21 @@ function RoundnessPreset({
 }) {
   const active = value ?? 'Medium';
   return (
-    <div className="space-y-1.5">
-      <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-        Roundness
-      </label>
-      <div className="flex gap-1.5">
-        {ROUNDNESS_OPTIONS.map(({ label, value: v }) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => onChange(v)}
-            className={cn(
-              'flex-1 py-1.5 text-[12px] font-medium transition-colors border',
-              v === 'None'   && 'rounded',
-              v === 'Medium' && 'rounded-lg',
-              v === 'Large'  && 'rounded-full',
-              active === v
-                ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <Field label="Roundness">
+      <SegmentedControl<Roundness>
+        aria-label="Roundness"
+        fullWidth
+        items={ROUNDNESS_OPTIONS}
+        value={active}
+        onChange={onChange}
+      />
+    </Field>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ThemePanel — main export
-───────────────────────────────────────────────────────────── */
+/* -------------------------------------------------------------------
+   ThemePanel - main export
+------------------------------------------------------------------- */
 
 export interface ThemePanelProps {
   theme: SabFlowTheme;
@@ -371,7 +247,7 @@ export interface ThemePanelProps {
 export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
   const [showPresets, setShowPresets] = useState(false);
 
-  /* ── Updater helpers ────────────────────────────────── */
+  /* -- Updater helpers ---------------------------------- */
 
   const setGeneral = useCallback(
     (partial: Partial<NonNullable<SabFlowTheme['general']>>) => {
@@ -433,7 +309,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
     [theme, onThemeChange],
   );
 
-  /* ── Resolved values (with defaults) ────────────────── */
+  /* -- Resolved values (with defaults) ------------------ */
 
   const bgType    = theme.general?.background?.type    ?? 'Color';
   const bgContent = theme.general?.background?.content ?? '#ffffff';
@@ -450,7 +326,7 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
   const headerBg      = theme.chat?.header?.backgroundColor ?? '#ffffff';
   const headerColor   = theme.chat?.header?.color           ?? '#161616';
 
-  /* Rich typed fields — may come from the new ThemeColor shape or the legacy flat string */
+  /* Rich typed fields - may come from the new ThemeColor shape or the legacy flat string */
   const hostBgColor   = theme.chat?.hostBubble?.backgroundColor
     ?? (theme.chat?.hostBubble as { backgroundColor?: string } | undefined)?.backgroundColor
       ? asColor((theme.chat?.hostBubble as { backgroundColor?: string }).backgroundColor ?? '#f5f5f5')
@@ -483,51 +359,47 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
 
   const roundness = theme.chat?.roundness ?? 'Medium';
 
-  /* ── Render ──────────────────────────────────────────── */
+  const BG_TYPE_ITEMS = (['Color', 'Image', 'None'] as const).map((t) => ({ value: t, label: t }));
+  const PLACEMENT_ITEMS = [
+    { value: 'top', label: 'Top' },
+    { value: 'bottom', label: 'Bottom' },
+  ] as const;
+
+  /* -- Render -------------------------------------------- */
 
   return (
-    <div className="w-[320px] shrink-0 flex flex-col border-l border-[var(--gray-5)] bg-[var(--gray-1)] z-20 overflow-hidden">
+    <div className="ui20 w-[320px] shrink-0 flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden">
 
-      {/* ── Header ───────────────────────────────────── */}
-      <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-        <div
-          className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
-          style={{ backgroundColor: `${ACCENT}18` }}
-        >
-          <LuPalette className="h-4 w-4" strokeWidth={1.8} style={{ color: ACCENT }} />
+      {/* Header */}
+      <div className="flex items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3 shrink-0">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] shrink-0">
+          <Palette className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={1.8} aria-hidden="true" />
         </div>
-        <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)]">Theme</span>
+        <span className="flex-1 text-[13px] font-semibold text-[var(--st-text)]">Theme</span>
 
         {/* Presets toggle */}
-        <button
-          type="button"
-          title="Theme presets"
+        <IconButton
+          label="Theme presets"
+          icon={LayoutGrid}
+          size="sm"
           onClick={() => setShowPresets((v) => !v)}
-          className={cn(
-            'flex h-6 w-6 items-center justify-center rounded transition-colors',
-            showPresets
-              ? 'bg-[var(--st-text)]/15 text-[var(--st-text)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)]',
-          )}
-        >
-          <LuLayoutGrid className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+          aria-pressed={showPresets}
+        />
 
         {onClose && (
-          <button
-            type="button"
+          <IconButton
+            label="Close theme panel"
+            icon={X}
+            size="sm"
             onClick={onClose}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
         )}
       </div>
 
-      {/* ── Presets drawer ───────────────────────────── */}
+      {/* Presets drawer */}
       {showPresets && (
-        <div className="border-b border-[var(--gray-4)] bg-[var(--gray-2)] px-4 py-4 shrink-0">
-          <p className="mb-3 text-[11px] font-semibold text-[var(--gray-10)] uppercase tracking-wide">
+        <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-4 shrink-0">
+          <p className="mb-3 text-[11px] font-semibold text-[var(--st-text-tertiary)] uppercase tracking-wide">
             Presets
           </p>
           <ThemePresetPicker
@@ -539,88 +411,70 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
         </div>
       )}
 
-      {/* ── Scrollable body ──────────────────────────── */}
+      {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
 
-        {/* ── General ────────────────────────────────── */}
+        {/* General */}
         <Section title="General">
 
           {/* Font */}
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-              Font family
-            </label>
-            <select
-              value={font}
-              onChange={(e) => setGeneral({ font: e.target.value })}
-              className={inputCls}
-            >
-              {GOOGLE_FONTS.map((f) => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-          </div>
+          <Field label="Font family">
+            <Select value={font} onValueChange={(v) => setGeneral({ font: v })}>
+              <SelectTrigger aria-label="Font family">
+                <SelectValue placeholder="Choose a font" />
+              </SelectTrigger>
+              <SelectContent>
+                {GOOGLE_FONTS.map((f) => (
+                  <SelectItem key={f} value={f}>{f}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
           {/* Background */}
-          <div className="space-y-2">
-            <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-              Background
-            </label>
-            <div className="flex gap-1.5">
-              {(['Color', 'Image', 'None'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() =>
-                    // The legacy `SabFlowTheme.general.background.type` accepts
-                    // `'Color' | 'Image' | 'None' | 'Transparent'`; cast through
-                    // `unknown` because the strict `GeneralTheme.background.type`
-                    // setter is `'Color' | 'Transparent'` only.
-                    setBackground({ type: t as unknown as 'Color' | 'Transparent', content: undefined })
-                  }
-                  className={cn(
-                    'flex-1 rounded-lg border py-1.5 text-[12px] font-medium transition-colors',
-                    bgType === t
-                      ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                      : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
-                  )}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+          <Field label="Background">
+            <SegmentedControl
+              aria-label="Background type"
+              fullWidth
+              items={BG_TYPE_ITEMS}
+              value={bgType}
+              onChange={(t) =>
+                // The legacy `SabFlowTheme.general.background.type` accepts
+                // 'Color' | 'Image' | 'None' | 'Transparent'; cast through
+                // `unknown` because the strict `GeneralTheme.background.type`
+                // setter is 'Color' | 'Transparent' only.
+                setBackground({ type: t as unknown as 'Color' | 'Transparent', content: undefined })
+              }
+            />
+          </Field>
 
-            {bgType === 'Color' && (
-              <ColorField
-                label="Background colour"
-                value={asColor(bgContent)}
-                fallback="#ffffff"
-                onChange={(tc) => setBackground({ content: colorValue(tc) })}
+          {bgType === 'Color' && (
+            <ColorField
+              label="Background colour"
+              value={asColor(bgContent)}
+              fallback="#ffffff"
+              onChange={(tc) => setBackground({ content: colorValue(tc) })}
+            />
+          )}
+
+          {(bgType as string) === 'Image' && (
+            <Field label="Background image">
+              <SabFileUrlInput
+                accept="image"
+                value={bgContent}
+                onChange={(url) => setBackground({ content: url })}
+                placeholder="Pick a background image"
+                pickerTitle="Choose a background image"
               />
-            )}
-
-            {(bgType as string) === 'Image' && (
-              <div className="space-y-1.5">
-                <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  value={bgContent}
-                  onChange={(e) => setBackground({ content: e.target.value })}
-                  placeholder="https://example.com/bg.jpg"
-                  className={inputCls}
-                />
-              </div>
-            )}
-          </div>
+            </Field>
+          )}
 
           {/* Progress bar */}
-          <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] p-3.5 space-y-3">
-            <ToggleRow
+          <Card variant="outlined" padding="md" className="space-y-3">
+            <Switch
               label="Progress bar"
               checked={progressBarEnabled}
-              onChange={(v) => setProgressBar({ isEnabled: v })}
+              onCheckedChange={(v) => setProgressBar({ isEnabled: v })}
             />
             {progressBarEnabled && (
               <>
@@ -630,34 +484,21 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
                   fallback={ACCENT}
                   onChange={(tc) => setProgressBar({ color: colorValue(tc) })}
                 />
-                <div className="space-y-1.5">
-                  <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-                    Placement
-                  </label>
-                  <div className="flex gap-1.5">
-                    {(['top', 'bottom'] as const).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setProgressBar({ placement: p })}
-                        className={cn(
-                          'flex-1 rounded-lg border py-1.5 text-[12px] font-medium transition-colors capitalize',
-                          progressBarPlacement === p
-                            ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                            : 'border-[var(--gray-5)] text-[var(--gray-9)] hover:bg-[var(--gray-3)]',
-                        )}
-                      >
-                        {p}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <Field label="Placement">
+                  <SegmentedControl
+                    aria-label="Progress bar placement"
+                    fullWidth
+                    items={PLACEMENT_ITEMS}
+                    value={progressBarPlacement}
+                    onChange={(p) => setProgressBar({ placement: p })}
+                  />
+                </Field>
               </>
             )}
-          </div>
+          </Card>
         </Section>
 
-        {/* ── Chat ───────────────────────────────────── */}
+        {/* Chat */}
         <Section title="Chat">
 
           {/* Roundness */}
@@ -674,26 +515,21 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
               fallback="#ffffff"
               onChange={(tc) => setChatNested('container', { backgroundColor: colorValue(tc) })}
             />
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
-                Max width
-              </label>
-              <input
-                type="text"
+            <Field label="Max width">
+              <Input
                 value={containerMaxWidth}
                 onChange={(e) => setChatNested('container', { maxWidth: e.target.value })}
                 placeholder="800px"
-                className={inputCls}
               />
-            </div>
+            </Field>
           </SubSection>
 
           {/* Header */}
           <SubSection title="Header">
-            <ToggleRow
+            <Switch
               label="Show header"
               checked={headerEnabled}
-              onChange={(v) => setChatNested('header', { isEnabled: v })}
+              onCheckedChange={(v) => setChatNested('header', { isEnabled: v })}
             />
             {headerEnabled && (
               <>
@@ -808,21 +644,16 @@ export function ThemePanel({ theme, onThemeChange, onClose }: ThemePanelProps) {
         </Section>
       </div>
 
-      {/* ── Footer: reset ────────────────────────────── */}
-      <div className="shrink-0 border-t border-[var(--gray-4)] px-4 py-3">
-        <button
-          type="button"
+      {/* Footer: reset */}
+      <div className="shrink-0 border-t border-[var(--st-border)] px-4 py-3">
+        <Button
+          variant="outline"
+          block
+          iconLeft={RotateCcw}
           onClick={() => onThemeChange(DEFAULT_THEME)}
-          className={cn(
-            'flex w-full items-center justify-center gap-2 rounded-lg border',
-            'border-[var(--gray-5)] py-2 text-[12.5px] font-medium',
-            'text-[var(--gray-9)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)]',
-            'transition-colors active:scale-[0.98]',
-          )}
         >
-          <LuRotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
           Reset to defaults
-        </button>
+        </Button>
       </div>
 
     </div>

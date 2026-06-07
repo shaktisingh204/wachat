@@ -1,8 +1,8 @@
 'use client';
 
-import { LuFlaskConical } from 'react-icons/lu';
+import { FlaskConical } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { PanelHeader } from './shared/primitives';
+import { Field, Input, Slider } from '@/components/sabcrm/20ui';
 
 type Props = {
   block: Block;
@@ -23,35 +23,41 @@ export function ABTestSettings({ block, onBlockChange, variables: _variables = [
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuFlaskConical} title="A/B Test" />
+      {/* Block header */}
+      <div className="flex items-center gap-2 pb-1 border-b border-[var(--st-border)]">
+        <div className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <FlaskConical className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+        </div>
+        <span className="text-[12px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wide">
+          A/B Test
+        </span>
+      </div>
 
       {/* Visual split bar */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <div className="flex items-center justify-between text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
           <span>Split</span>
-          <span className="font-mono text-[var(--gray-11)]">
+          <span className="font-mono text-[var(--st-text)]">
             A&nbsp;{aPercent}% / B&nbsp;{bPercent}%
           </span>
         </div>
 
         {/* Segmented bar */}
-        <div className="relative h-5 w-full overflow-hidden rounded-full bg-[var(--gray-3)]">
+        <div className="relative h-5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
           <div
-            className="absolute inset-y-0 left-0 rounded-full transition-all duration-150"
-            style={{ width: `${aPercent}%`, background: '#f76808' }}
+            className="absolute inset-y-0 left-0 rounded-full bg-[var(--st-accent)] transition-all duration-150"
+            style={{ width: `${aPercent}%` }}
           />
         </div>
 
         {/* Range slider */}
-        <input
-          type="range"
+        <Slider
           min={0}
           max={100}
           step={1}
           value={aPercent}
-          onChange={(e) => update({ aPercent: Number(e.target.value) })}
-          className="w-full accent-[var(--st-text)]"
-          aria-label="A branch percentage"
+          onValueChange={(v) => update({ aPercent: Number(Array.isArray(v) ? v[0] : v) })}
+          ariaLabel="A branch percentage"
         />
       </div>
 
@@ -61,17 +67,15 @@ export function ABTestSettings({ block, onBlockChange, variables: _variables = [
           label="A branch"
           value={aPercent}
           onChange={(v) => update({ aPercent: Math.min(100, Math.max(0, v)) })}
-          accent="#f76808"
         />
         <PercentField
           label="B branch"
           value={bPercent}
           onChange={(v) => update({ aPercent: Math.min(100, Math.max(0, 100 - v)) })}
-          accent="var(--gray-9)"
         />
       </div>
 
-      <p className="text-[11px] text-[var(--gray-8)] leading-relaxed">
+      <p className="text-[11px] text-[var(--st-text-tertiary)] leading-relaxed">
         Users are randomly routed to branch A or B at the configured ratio.
         The two output handles on the canvas represent branch A and B.
       </p>
@@ -79,38 +83,29 @@ export function ABTestSettings({ block, onBlockChange, variables: _variables = [
   );
 }
 
-/* ── Percent field helper ───────────────────────────────────── */
+/* Percent field helper */
 function PercentField({
   label,
   value,
   onChange,
-  accent,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
-  accent: string;
 }) {
   return (
-    <div className="flex-1 space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      <div className="flex items-center gap-1.5">
-        <input
+    <div className="flex-1">
+      <Field label={label}>
+        <Input
           type="number"
           min={0}
           max={100}
           step={1}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-center text-[var(--gray-12)] outline-none transition-colors"
-          style={{ '--tw-ring-color': accent } as React.CSSProperties}
-          onFocus={(e) => (e.currentTarget.style.borderColor = accent)}
-          onBlur={(e) => (e.currentTarget.style.borderColor = '')}
+          suffix="%"
         />
-        <span className="text-[12px] text-[var(--gray-9)] shrink-0">%</span>
-      </div>
+      </Field>
     </div>
   );
 }

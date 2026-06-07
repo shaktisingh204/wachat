@@ -1,15 +1,10 @@
 'use client';
 
-import { LuType } from 'react-icons/lu';
+import { Type } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
+import { Field, Input, Switch } from '@/components/sabcrm/20ui';
 import { VariableSelect } from './shared/VariableSelect';
-import {
-  Field,
-  PanelHeader,
-  CollapsibleSection,
-  inputClass,
-  toggleClass,
-} from './shared/primitives';
+import { PanelHeader, CollapsibleSection } from './shared/primitives';
 
 type Props = {
   block: Block;
@@ -44,45 +39,35 @@ export function TextInputSettings({ block, onBlockChange, variables = [] }: Prop
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuType} title="Text Input" />
+      <PanelHeader icon={Type} title="Text Input" />
 
       {/* Long text toggle */}
       <div className="flex items-center justify-between">
-        <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           Long text (textarea)
-        </label>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isLong}
-          onClick={() => update({ isLong: !isLong })}
-          className={toggleClass(isLong)}
-        >
-          <span
-            className={`block h-4 w-4 rounded-full bg-white shadow transition-transform ${
-              isLong ? 'translate-x-5' : 'translate-x-0.5'
-            }`}
-          />
-        </button>
+        </span>
+        <Switch
+          checked={isLong}
+          onCheckedChange={(next) => update({ isLong: next })}
+          aria-label="Long text (textarea)"
+        />
       </div>
 
       <Field label="Placeholder text">
-        <input
+        <Input
           type="text"
           value={placeholder}
           onChange={(e) => update({ placeholder: e.target.value })}
-          placeholder="Type your answer…"
-          className={inputClass}
+          placeholder="Type your answer..."
         />
       </Field>
 
       <Field label="Button label">
-        <input
+        <Input
           type="text"
           value={buttonLabel}
           onChange={(e) => update({ buttonLabel: e.target.value })}
           placeholder="Send"
-          className={inputClass}
         />
       </Field>
 
@@ -97,43 +82,39 @@ export function TextInputSettings({ block, onBlockChange, variables = [] }: Prop
       <CollapsibleSection title="Validation">
         <div className="grid grid-cols-2 gap-3">
           <Field label="Min length">
-            <input
+            <Input
               type="number"
               min={0}
               value={minLength ?? ''}
               onChange={(e) => update({ minLength: toIntOrUndef(e.target.value) })}
-              placeholder="—"
-              className={inputClass}
+              placeholder="No limit"
             />
           </Field>
           <Field label="Max length">
-            <input
+            <Input
               type="number"
               min={0}
               value={maxLength ?? ''}
               onChange={(e) => update({ maxLength: toIntOrUndef(e.target.value) })}
-              placeholder="—"
-              className={inputClass}
+              placeholder="No limit"
             />
           </Field>
         </div>
         <Field label="Regex pattern">
-          <input
+          <Input
             type="text"
             value={pattern}
             onChange={(e) => update({ pattern: e.target.value || undefined })}
             placeholder="^[A-Z0-9]+$"
             spellCheck={false}
-            className={inputClass}
           />
         </Field>
         <Field label="Pattern error message">
-          <input
+          <Input
             type="text"
             value={patternMessage}
             onChange={(e) => update({ patternMessage: e.target.value || undefined })}
             placeholder="Value does not match the expected format"
-            className={inputClass}
           />
         </Field>
       </CollapsibleSection>

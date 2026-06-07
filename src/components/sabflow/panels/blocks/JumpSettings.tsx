@@ -1,13 +1,24 @@
 'use client';
 
-import { LuCornerRightDown } from 'react-icons/lu';
+import { CornerDownRight, FolderTree } from 'lucide-react';
 import type { Block, Group, Variable } from '@/lib/sabflow/types';
-import { Field, inputClass, selectClass, PanelHeader } from './shared/primitives';
+import {
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  EmptyState,
+  Callout,
+} from '@/components/sabcrm/20ui';
+import { PanelHeader } from './shared/primitives';
 
 type Props = {
   block: Block;
   onBlockChange: (block: Block) => void;
-  /** All groups in the current flow — used to populate the target selector */
+  /** All groups in the current flow - used to populate the target selector */
   groups?: Group[];
   variables?: Variable[];
 };
@@ -22,45 +33,50 @@ export function JumpSettings({ block, onBlockChange, groups = [], variables: _va
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuCornerRightDown} title="Jump" />
+      <PanelHeader icon={CornerDownRight} title="Jump" />
 
       {/* Target group dropdown */}
       <Field label="Jump to group">
         {groups.length > 0 ? (
-          <select
+          <Select
             value={targetGroupId}
-            onChange={(e) => update({ targetGroupId: e.target.value })}
-            className={selectClass}
+            onValueChange={(v) => update({ targetGroupId: v })}
           >
-            <option value="">— select a group —</option>
-            {groups.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.title || `Group ${g.id.slice(0, 6)}`}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger aria-label="Jump to group">
+              <SelectValue placeholder="Select a group" />
+            </SelectTrigger>
+            <SelectContent>
+              {groups.map((g) => (
+                <SelectItem key={g.id} value={g.id}>
+                  {g.title || `Group ${g.id.slice(0, 6)}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         ) : (
-          <div className="rounded-lg border border-dashed border-[var(--gray-6)] px-3 py-2.5 text-[12px] text-[var(--gray-8)]">
-            No groups available in this flow yet.
-          </div>
+          <EmptyState
+            icon={FolderTree}
+            size="sm"
+            title="No groups yet"
+            description="This flow has no groups to jump to."
+          />
         )}
       </Field>
 
       {/* Optional block label / note */}
       <Field label="Block label (optional)">
-        <input
+        <Input
           type="text"
           value={blockLabel}
           onChange={(e) => update({ blockLabel: e.target.value })}
-          placeholder="Describe the jump destination…"
-          className={inputClass}
+          placeholder="Describe the jump destination"
+          aria-label="Block label"
         />
       </Field>
 
-      <p className="text-[11px] text-[var(--gray-8)] leading-relaxed">
-        Execution jumps to the start of the selected group.
-        Use this to create loops or shortcuts in your flow.
-      </p>
+      <Callout tone="info">
+        Execution jumps to the start of the selected group. Use this to create loops or shortcuts in your flow.
+      </Callout>
     </div>
   );
 }

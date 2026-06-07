@@ -1,31 +1,31 @@
 'use client';
 
-/* ─────────────────────────────────────────────────────────────────────────────
+/* -----------------------------------------------------------------------------
    ExpressionEditor
-   ────────────────────────────────────────────────────────────────────────────
+   -----------------------------------------------------------------------------
    n8n-style inline editor that flips between two modes:
 
-     Fixed mode       — plain text input, string stored as-is.
-     Expression mode  — monospace input with a purple-tinted border and a
-                        leading `=` glyph.  The stored value is `=<expr>`.
+     Fixed mode       - plain text input, string stored as-is.
+     Expression mode  - monospace input with an accent-tinted border and a
+                        leading `=` glyph. The stored value is `=<expr>`.
 
    A small `f(x)` toggle button (top-right) switches modes when `mode='auto'`.
    When the toggle is held on "expression", a live preview of the resolved
    value is rendered beneath the input via <ExpressionPreview/>.
 
    Autocomplete triggers
-   ─────────────────────
-     `$`           → expression roots ($json, $node, $input, $vars, $now, $env)
-     `$json.`      → top-level keys of the sample input schema
-     `$node[`      → `"NodeName"` completions (with closing bracket inserted)
-     `{{`          → variable names (Typebot syntax)
+   ---------------------
+     `$`           -> expression roots ($json, $node, $input, $vars, $now, $env)
+     `$json.`      -> top-level keys of the sample input schema
+     `$node[`      -> `"NodeName"` completions (with closing bracket inserted)
+     `{{`          -> variable names (Typebot syntax)
 
    Keyboard
-   ────────
-     ArrowUp/Down  — move activeIndex
-     Enter / Tab   — insert suggestion
-     Escape        — close menu
-   ──────────────────────────────────────────────────────────────────────────── */
+   --------
+     ArrowUp/Down  - move activeIndex
+     Enter / Tab   - insert suggestion
+     Escape        - close menu
+   --------------------------------------------------------------------------- */
 
 import {
   useCallback,
@@ -37,18 +37,15 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
-// `LuFunctionSquare` was renamed in newer react-icons releases — alias to the
-// closest available icon so existing call-sites do not need to change.
-import { LuSquareFunction as LuFunctionSquare, LuBraces, LuBoxes, LuCircleDollarSign } from 'react-icons/lu';
+import { SquareFunction, Braces, Boxes, CircleDollarSign } from 'lucide-react';
+import { Button, Input, Textarea, cn } from '@/components/sabcrm/20ui';
 import type { Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { inputClass } from './primitives';
 import { getCaretCoordinates } from './helpers/caretPosition';
 import { ExpressionPreview } from './ExpressionPreview';
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Types
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 export type ExpressionEditorMode = 'fixed' | 'expression' | 'auto';
 
@@ -79,7 +76,7 @@ interface Trigger {
   endIndex: number;
   /** Current filter text entered after the trigger. */
   query: string;
-  /** For `$json.…` completions, the full path before the caret. */
+  /** For `$json....` completions, the full path before the caret. */
   path?: string[];
 }
 
@@ -94,9 +91,9 @@ interface Suggestion {
   cursorOffset?: number;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Constants
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 const EXPRESSION_PREFIX = '=';
 
@@ -119,19 +116,19 @@ const EXPRESSION_ROOTS: ReadonlyArray<{
   { name: '$env', detail: 'Environment variables', snippet: '$env.' },
 ];
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Trigger detection
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 /**
  * Inspects the characters immediately preceding the caret to determine which
- * (if any) autocomplete trigger is active.  Returns null when no trigger is
- * in effect — the menu should stay closed.
+ * (if any) autocomplete trigger is active. Returns null when no trigger is
+ * in effect - the menu should stay closed.
  */
 function detectTrigger(value: string, caret: number): Trigger | null {
   const before = value.slice(0, caret);
 
-  // `{{ query` — variable mention
+  // `{{ query` - variable mention
   const braceOpen = before.lastIndexOf('{{');
   if (braceOpen !== -1) {
     const tail = before.slice(braceOpen + 2);
@@ -145,7 +142,7 @@ function detectTrigger(value: string, caret: number): Trigger | null {
     }
   }
 
-  // `$node["…`
+  // `$node["...`
   const nodeBracket = before.lastIndexOf('$node[');
   if (nodeBracket !== -1) {
     const tail = before.slice(nodeBracket + '$node['.length);
@@ -160,7 +157,7 @@ function detectTrigger(value: string, caret: number): Trigger | null {
           query: quoteMatch[1],
         };
       }
-      // User is past `[` but hasn't opened a quote yet — trigger on `[` itself.
+      // User is past `[` but hasn't opened a quote yet - trigger on `[` itself.
       if (tail === '') {
         return {
           kind: 'node-bracket',
@@ -172,7 +169,7 @@ function detectTrigger(value: string, caret: number): Trigger | null {
     }
   }
 
-  // `$json.key.subkey` — property path
+  // `$json.key.subkey` - property path
   const jsonMatch = before.match(/\$json((?:\.[\w]*)*)$/);
   if (jsonMatch && jsonMatch[1] !== undefined && before.endsWith(jsonMatch[0])) {
     const pathPart = jsonMatch[1]; // e.g. `.user.na`
@@ -191,7 +188,7 @@ function detectTrigger(value: string, caret: number): Trigger | null {
     }
   }
 
-  // Bare `$query` — expression root menu
+  // Bare `$query` - expression root menu
   const rootMatch = before.match(/\$([A-Za-z_]\w*)?$/);
   if (rootMatch) {
     return {
@@ -205,9 +202,9 @@ function detectTrigger(value: string, caret: number): Trigger | null {
   return null;
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Suggestion builders
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 function buildRootSuggestions(trigger: Trigger): Suggestion[] {
   const query = trigger.query.toLowerCase();
@@ -288,18 +285,18 @@ function buildVariableSuggestions(
 
 function describeValue(value: unknown): string {
   if (value === null) return 'null';
-  if (Array.isArray(value)) return `array · ${value.length}`;
+  if (Array.isArray(value)) return `array, ${value.length}`;
   if (typeof value === 'object') return 'object';
   if (typeof value === 'string') {
-    const preview = value.length > 24 ? `${value.slice(0, 24)}…` : value;
+    const preview = value.length > 24 ? `${value.slice(0, 24)}...` : value;
     return `"${preview}"`;
   }
   return String(value);
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Component
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 export function ExpressionEditor({
   value,
@@ -315,7 +312,7 @@ export function ExpressionEditor({
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  /* ── Mode resolution ───────────────────────────────────────────────── */
+  /* -- Mode resolution ------------------------------------------------- */
 
   const isForcedExpression = mode === 'expression';
   const isForcedFixed = mode === 'fixed';
@@ -332,7 +329,7 @@ export function ExpressionEditor({
     }
   }, [value, mode, userWantsExpression]);
 
-  /* ── Split value/inner (strip the leading `=`) ─────────────────────── */
+  /* -- Split value/inner (strip the leading `=`) --------------------- */
 
   const innerValue = isExpression && value.startsWith(EXPRESSION_PREFIX)
     ? value.slice(1)
@@ -340,7 +337,7 @@ export function ExpressionEditor({
       ? value
       : value;
 
-  /* ── Autocomplete state ────────────────────────────────────────────── */
+  /* -- Autocomplete state -------------------------------------------- */
 
   const [trigger, setTrigger] = useState<Trigger | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -368,7 +365,7 @@ export function ExpressionEditor({
 
   const isMenuOpen = trigger !== null && suggestions.length > 0;
 
-  /* ── Trigger recomputation ─────────────────────────────────────────── */
+  /* -- Trigger recomputation ----------------------------------------- */
 
   const recomputeTrigger = useCallback(() => {
     const el = inputRef.current;
@@ -393,7 +390,7 @@ export function ExpressionEditor({
     }
   }, [isExpression]);
 
-  /* ── Onchange handlers ─────────────────────────────────────────────── */
+  /* -- Onchange handlers --------------------------------------------- */
 
   const emit = useCallback(
     (nextInner: string) => {
@@ -419,7 +416,7 @@ export function ExpressionEditor({
     setMenuPos(null);
   }, []);
 
-  /* ── Insertion ─────────────────────────────────────────────────────── */
+  /* -- Insertion ----------------------------------------------------- */
 
   const insertSuggestion = useCallback(
     (suggestion: Suggestion) => {
@@ -449,7 +446,7 @@ export function ExpressionEditor({
     [trigger, emit, closeMenu, recomputeTrigger],
   );
 
-  /* ── Keyboard nav ──────────────────────────────────────────────────── */
+  /* -- Keyboard nav -------------------------------------------------- */
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -479,7 +476,7 @@ export function ExpressionEditor({
     [isMenuOpen, suggestions, activeIndex, insertSuggestion, closeMenu],
   );
 
-  /* ── Click-outside ─────────────────────────────────────────────────── */
+  /* -- Click-outside ------------------------------------------------- */
 
   useEffect(() => {
     if (!isMenuOpen) return;
@@ -493,7 +490,7 @@ export function ExpressionEditor({
     return () => document.removeEventListener('mousedown', handlePointer);
   }, [isMenuOpen, closeMenu]);
 
-  /* ── Reposition on scroll/resize ───────────────────────────────────── */
+  /* -- Reposition on scroll/resize ----------------------------------- */
 
   useLayoutEffect(() => {
     if (!isMenuOpen) return;
@@ -506,7 +503,7 @@ export function ExpressionEditor({
     };
   }, [isMenuOpen, recomputeTrigger]);
 
-  /* ── Toggle handler ────────────────────────────────────────────────── */
+  /* -- Toggle handler ------------------------------------------------ */
 
   const toggleMode = useCallback(() => {
     if (mode !== 'auto') return;
@@ -523,17 +520,13 @@ export function ExpressionEditor({
     closeMenu();
   }, [mode, onChange, value, closeMenu]);
 
-  /* ── Styling ───────────────────────────────────────────────────────── */
+  /* -- Styling ------------------------------------------------------- */
 
-  const exprClass = cn(
-    'font-mono text-[12.5px]',
-    'border-[var(--st-border)]/40 focus:border-[var(--st-border)]',
-    'bg-[var(--st-text)]/5',
-  );
+  const exprClass = isExpression ? 'font-mono text-[12.5px]' : undefined;
 
   const containerClass = cn('relative', className);
 
-  /* ── Render helpers ────────────────────────────────────────────────── */
+  /* -- Render helpers ------------------------------------------------ */
 
   const sharedInputProps = {
     value: innerValue,
@@ -555,37 +548,35 @@ export function ExpressionEditor({
         {isExpression && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] font-mono text-[13px] font-semibold select-none"
+            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] font-mono text-[13px] font-semibold select-none z-10"
           >
             =
           </span>
         )}
 
         {multiline ? (
-          <textarea
+          <Textarea
             {...sharedInputProps}
             ref={(node) => {
               inputRef.current = node;
             }}
             rows={4}
             className={cn(
-              inputClass,
               'resize-y min-h-[76px]',
-              isExpression && exprClass,
+              exprClass,
               isExpression && 'pl-7',
               mode === 'auto' && 'pr-10',
             )}
           />
         ) : (
-          <input
+          <Input
             {...sharedInputProps}
             ref={(node) => {
               inputRef.current = node;
             }}
             type="text"
             className={cn(
-              inputClass,
-              isExpression && exprClass,
+              exprClass,
               isExpression && 'pl-7',
               mode === 'auto' && 'pr-10',
             )}
@@ -593,22 +584,17 @@ export function ExpressionEditor({
         )}
 
         {mode === 'auto' && (
-          <button
-            type="button"
+          <Button
+            variant={isExpression ? 'primary' : 'secondary'}
+            size="sm"
             onClick={toggleMode}
+            iconLeft={SquareFunction}
             aria-pressed={isExpression}
             title={isExpression ? 'Switch to fixed value' : 'Switch to expression'}
-            className={cn(
-              'absolute right-1.5 top-1.5 flex h-6 items-center gap-1 rounded-md px-1.5',
-              'text-[11px] font-mono font-semibold transition-colors',
-              isExpression
-                ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] hover:bg-[var(--st-text)]/25'
-                : 'bg-[var(--gray-3)] text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-11)]',
-            )}
+            className="absolute right-1.5 top-1.5 font-mono"
           >
-            <LuFunctionSquare className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
-            <span>f(x)</span>
-          </button>
+            f(x)
+          </Button>
         )}
       </div>
 
@@ -635,9 +621,9 @@ export function ExpressionEditor({
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════════════
+/* ============================================================================
    Suggestion menu
-   ══════════════════════════════════════════════════════════════════════════ */
+   ============================================================================ */
 
 interface SuggestionMenuProps {
   suggestions: Suggestion[];
@@ -656,6 +642,7 @@ function SuggestionMenu({
   onHover,
   ref,
 }: SuggestionMenuProps): ReactNode {
+  // Position is derived from live caret coordinates, so it must stay inline.
   const style: CSSProperties = {
     position: 'fixed',
     top: position.top,
@@ -670,14 +657,13 @@ function SuggestionMenu({
       style={style}
       className={cn(
         'min-w-[260px] max-w-[360px] max-h-[280px] overflow-y-auto',
-        'rounded-lg border border-[var(--st-border)]/30 bg-[var(--gray-1)] shadow-xl',
+        'rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)]',
         'backdrop-blur-md p-1',
       )}
     >
       {suggestions.map((suggestion, index) => (
-        <button
+        <div
           key={suggestion.id}
-          type="button"
           role="option"
           aria-selected={index === activeIndex}
           onMouseEnter={() => onHover(index)}
@@ -686,20 +672,20 @@ function SuggestionMenu({
             onSelect(suggestion);
           }}
           className={cn(
-            'w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors',
+            'w-full flex items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left cursor-pointer transition-colors',
             index === activeIndex
-              ? 'bg-[var(--st-text)]/15 text-white'
-              : 'text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
+              ? 'bg-[var(--st-accent-soft)] text-[var(--st-text)]'
+              : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-surface-hover)]',
           )}
         >
           <SuggestionIcon icon={suggestion.icon} />
           <div className="flex-1 min-w-0">
             <div className="font-mono text-[12px] truncate">{suggestion.label}</div>
             {suggestion.detail && (
-              <div className="text-[10.5px] text-[var(--gray-8)] truncate">{suggestion.detail}</div>
+              <div className="text-[10.5px] text-[var(--st-text-tertiary)] truncate">{suggestion.detail}</div>
             )}
           </div>
-        </button>
+        </div>
       ))}
     </div>
   );
@@ -709,8 +695,8 @@ function SuggestionIcon({ icon }: { icon: Suggestion['icon'] }): ReactNode {
   const className = 'h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]';
   const strokeWidth = 1.8;
   if (icon === 'dollar')
-    return <LuCircleDollarSign className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+    return <CircleDollarSign className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
   if (icon === 'boxes')
-    return <LuBoxes className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
-  return <LuBraces className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+    return <Boxes className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
+  return <Braces className={className} strokeWidth={strokeWidth} aria-hidden="true" />;
 }

@@ -3,19 +3,32 @@
 import { useCallback, useState } from 'react';
 import { createId } from '@paralleldrive/cuid2';
 import {
-  LuWebhook,
-  LuPlus,
-  LuTrash2,
-  LuPlay,
-  LuLoader,
-  LuChevronDown,
-  LuChevronRight,
-  LuToggleLeft,
-  LuToggleRight,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Webhook,
+  Plus,
+  Trash2,
+  Play,
+  ChevronDown,
+  ChevronRight,
+  ArrowRight,
+} from 'lucide-react';
 import type { Block, Variable, WebhookOptions, KVPair, WebhookBody } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass, Divider } from './shared/primitives';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Field,
+  Input,
+  Textarea,
+  Button,
+  IconButton,
+  Switch,
+  Separator,
+  SegmentedControl,
+  Badge,
+  Card,
+  EmptyState,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import { VariableSelect } from './shared/VariableSelect';
 
 /* ══════════════════════════════════════════════════════════
@@ -33,14 +46,6 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
   { value: 'form-data', label: 'Form Data' },
   { value: 'raw', label: 'Raw' },
 ];
-
-const METHOD_BADGE: Record<HttpMethod, string> = {
-  GET:    'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-  POST:   'border-[var(--st-border)]/40   bg-[var(--st-text)]/10   text-[var(--st-text-secondary)]',
-  PUT:    'border-[var(--st-border)]/40  bg-[var(--st-text)]/10  text-[var(--st-text-secondary)]',
-  PATCH:  'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]',
-  DELETE: 'border-[var(--st-border)]/40    bg-[var(--st-text)]/10    text-[var(--st-text-secondary)]',
-};
 
 /* ══════════════════════════════════════════════════════════
    Props
@@ -79,87 +84,48 @@ function KVList({
 
   return (
     <div className="space-y-2">
-      {rows.length === 0 && (
-        <p className="text-[11px] text-[var(--gray-8)] italic">{emptyLabel}</p>
-      )}
+      {rows.length === 0 && <EmptyState size="sm" title={emptyLabel} />}
       {rows.map((r) => (
         <div key={r.id} className="flex gap-1.5 items-center">
-          <input
-            type="text"
+          <Input
+            inputSize="sm"
             value={r.key}
             onChange={(e) => patch(r.id, 'key', e.target.value)}
             placeholder={keyPlaceholder}
-            className={cn(inputClass, 'flex-1 text-[12px]')}
+            className="flex-1"
           />
-          <input
-            type="text"
+          <Input
+            inputSize="sm"
             value={r.value}
             onChange={(e) => patch(r.id, 'value', e.target.value)}
             placeholder={valuePlaceholder}
-            className={cn(inputClass, 'flex-1 text-[12px]')}
+            className="flex-1"
           />
-          <button
-            type="button"
+          <IconButton
+            label="Remove row"
+            icon={Trash2}
+            size="sm"
+            variant="ghost"
             onClick={() => remove(r.id)}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text-secondary)] transition-colors"
-            aria-label="Remove row"
-          >
-            <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-          </button>
+          />
         </div>
       ))}
-      <button
-        type="button"
-        onClick={add}
-        className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-6)] px-3 py-1.5 w-full justify-center text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)] transition-colors"
-      >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+      <Button variant="outline" size="sm" block iconLeft={Plus} onClick={add}>
         {addLabel}
-      </button>
+      </Button>
     </div>
   );
 }
 
-/** Inline toggle switch */
-function Toggle({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  label: string;
-}) {
-  const Icon = checked ? LuToggleRight : LuToggleLeft;
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className="flex items-center gap-2 text-[12px] text-[var(--gray-11)] hover:text-[var(--gray-12)] transition-colors"
-    >
-      <Icon
-        className={cn(
-          'h-5 w-5 transition-colors',
-          checked ? 'text-[var(--st-text)]' : 'text-[var(--gray-7)]',
-        )}
-        strokeWidth={1.8}
-      />
-      {label}
-    </button>
-  );
-}
-
 /* ══════════════════════════════════════════════════════════
-   Test-response status badge
+   Test-response status tone
    ══════════════════════════════════════════════════════════ */
 
-function statusColor(code: number): string {
-  if (code >= 500) return 'text-[var(--st-text-secondary)]';
-  if (code >= 400) return 'text-[var(--st-text-secondary)]';
-  if (code >= 300) return 'text-[var(--st-text-secondary)]';
-  return 'text-[var(--st-text-secondary)]';
+function statusTone(code: number): BadgeTone {
+  if (code >= 500) return 'danger';
+  if (code >= 400) return 'warning';
+  if (code >= 300) return 'info';
+  return 'success';
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -272,91 +238,86 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
   }, [url, method, headers, queryParams, body, timeout]);
 
   /* ── Tab config ───────────────────────────────────── */
-  const tabs: { id: ActiveTab; label: string; count?: number }[] = [
-    { id: 'headers',  label: 'Headers',  count: headers.length      || undefined },
-    { id: 'params',   label: 'Params',   count: queryParams.length  || undefined },
-    { id: 'body',     label: 'Body',     count: BODY_METHODS.includes(method) ? undefined : undefined },
-    { id: 'response', label: 'Response' },
-  ];
-
   const showBody = BODY_METHODS.includes(method);
+
+  const tabItems: { value: ActiveTab; label: React.ReactNode; disabled?: boolean }[] = [
+    {
+      value: 'headers',
+      label: (
+        <span className="inline-flex items-center gap-1">
+          Headers
+          {headers.length > 0 && (
+            <Badge tone="neutral" kind="solid">
+              {headers.length}
+            </Badge>
+          )}
+        </span>
+      ),
+    },
+    {
+      value: 'params',
+      label: (
+        <span className="inline-flex items-center gap-1">
+          Params
+          {queryParams.length > 0 && (
+            <Badge tone="neutral" kind="solid">
+              {queryParams.length}
+            </Badge>
+          )}
+        </span>
+      ),
+    },
+    { value: 'body', label: 'Body', disabled: !showBody },
+    { value: 'response', label: 'Response' },
+  ];
 
   /* ── Render ───────────────────────────────────────── */
   return (
     <div className="space-y-4">
       {/* Header */}
-      <PanelHeader icon={LuWebhook} title="HTTP Request" />
+      <PageHeader compact>
+        <PageHeaderHeading>
+          <span className="inline-flex items-center gap-2">
+            <Webhook size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+            <PageTitle>HTTP Request</PageTitle>
+          </span>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      {/* Method + URL row */}
-      <div className="flex gap-2 items-center">
-        {/* Method picker — pill buttons */}
-        <div className="flex gap-1 shrink-0 flex-wrap">
-          {METHODS.map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => update({ method: m })}
-              className={cn(
-                'rounded border px-2 py-1 text-[10.5px] font-mono font-semibold transition-colors',
-                method === m
-                  ? METHOD_BADGE[m]
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-8)] hover:text-[var(--gray-11)]',
-              )}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Method picker */}
+      <Field label="Method">
+        <SegmentedControl
+          aria-label="HTTP method"
+          fullWidth
+          size="sm"
+          value={method}
+          onChange={(m) => update({ method: m as HttpMethod })}
+          items={METHODS.map((m) => ({ value: m, label: m }))}
+        />
+      </Field>
 
       {/* URL input */}
       <Field label="URL">
-        <input
+        <Input
           type="url"
           value={url}
           onChange={(e) => update({ url: e.target.value })}
           placeholder="https://api.example.com/endpoint"
-          className={inputClass}
           spellCheck={false}
         />
       </Field>
 
-      <Divider />
+      <Separator />
 
       {/* Tab strip */}
-      <div
-        role="tablist"
-        className="flex gap-0.5 rounded-lg bg-[var(--gray-3)] p-1"
-      >
-        {tabs.map((t) => {
-          const isDisabled = t.id === 'body' && !showBody;
-          return (
-            <button
-              key={t.id}
-              role="tab"
-              type="button"
-              aria-selected={activeTab === t.id}
-              disabled={isDisabled}
-              onClick={() => !isDisabled && setActiveTab(t.id)}
-              className={cn(
-                'flex-1 flex items-center justify-center gap-1 rounded-md py-1.5 text-[11.5px] font-medium transition-colors',
-                activeTab === t.id && !isDisabled
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : isDisabled
-                    ? 'text-[var(--gray-6)] cursor-not-allowed'
-                    : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {t.label}
-              {t.count !== undefined && (
-                <span className="rounded-full bg-[var(--st-text)] px-1.5 py-px text-[9px] font-semibold text-white leading-none">
-                  {t.count}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <SegmentedControl
+        aria-label="Request section"
+        fullWidth
+        size="sm"
+        value={activeTab}
+        onChange={(t) => setActiveTab(t as ActiveTab)}
+        items={tabItems}
+      />
 
       {/* ── Headers tab ─────────────────────────────── */}
       {activeTab === 'headers' && (
@@ -387,43 +348,38 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
         <div className="space-y-3">
           {/* Body type selector */}
           <Field label="Encoding">
-            <div className="flex gap-1">
-              {BODY_TYPES.map((bt) => (
-                <button
-                  key={bt.value}
-                  type="button"
-                  onClick={() => updateBody({ type: bt.value })}
-                  className={cn(
-                    'flex-1 rounded-md border py-1.5 text-[11.5px] font-medium transition-colors',
-                    body.type === bt.value
-                      ? 'border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text)]'
-                      : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                  )}
-                >
-                  {bt.label}
-                </button>
-              ))}
-            </div>
+            <SegmentedControl
+              aria-label="Body encoding"
+              fullWidth
+              size="sm"
+              value={body.type}
+              onChange={(t) => updateBody({ type: t as BodyType })}
+              items={BODY_TYPES.map((bt) => ({ value: bt.value, label: bt.label }))}
+            />
           </Field>
 
           {/* JSON body */}
           {body.type === 'json' && (
-            <Field label="Body">
-              <textarea
+            <Field
+              label="Body"
+              help={
+                <span>
+                  Use{' '}
+                  <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-text)]">
+                    {'{{variable}}'}
+                  </code>{' '}
+                  to inject flow variables.
+                </span>
+              }
+            >
+              <Textarea
                 value={body.content ?? ''}
                 onChange={(e) => updateBody({ content: e.target.value })}
                 placeholder={'{\n  "key": "{{variable}}"\n}'}
                 rows={8}
                 spellCheck={false}
-                className={cn(inputClass, 'font-mono text-[12px] resize-y min-h-[120px]')}
+                className="font-mono resize-y min-h-[120px]"
               />
-              <p className="mt-1 text-[11px] text-[var(--gray-8)]">
-                Use{' '}
-                <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[var(--st-text)]">
-                  {'{{variable}}'}
-                </code>{' '}
-                to inject flow variables.
-              </p>
             </Field>
           )}
 
@@ -442,13 +398,13 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
           {/* Raw body */}
           {body.type === 'raw' && (
             <Field label="Body">
-              <textarea
+              <Textarea
                 value={body.content ?? ''}
                 onChange={(e) => updateBody({ content: e.target.value })}
-                placeholder="Raw request body…"
+                placeholder="Raw request body..."
                 rows={8}
                 spellCheck={false}
-                className={cn(inputClass, 'font-mono text-[12px] resize-y min-h-[120px]')}
+                className="font-mono resize-y min-h-[120px]"
               />
             </Field>
           )}
@@ -459,13 +415,11 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
       {activeTab === 'response' && (
         <div className="space-y-4">
           {/* Save full response toggle */}
-          <div className="flex items-center justify-between">
-            <Toggle
-              checked={saveFullResponse}
-              onChange={(v) => update({ saveFullResponseToVariable: v })}
-              label="Save full response to variable"
-            />
-          </div>
+          <Switch
+            checked={saveFullResponse}
+            onCheckedChange={(v) => update({ saveFullResponseToVariable: v })}
+            label="Save full response to variable"
+          />
 
           {saveFullResponse && (
             <Field label="Response variable">
@@ -473,7 +427,7 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                 variables={variables}
                 value={fullResponseVarId}
                 onChange={(id) => update({ fullResponseVariableId: id })}
-                placeholder="— select variable —"
+                placeholder="Select variable"
               />
             </Field>
           )}
@@ -483,33 +437,31 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
               variables={variables}
               value={statusCodeVarId}
               onChange={(id) => update({ statusCodeVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="Select variable"
             />
           </Field>
 
-          <Divider />
+          <Separator />
 
           {/* JSON path mappings */}
           <div className="space-y-2">
-            <span className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide block">
+            <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide block">
               JSON Path Mappings
             </span>
-            <p className="text-[11px] text-[var(--gray-8)]">
+            <p className="text-[11px] text-[var(--st-text-tertiary)]">
               Extract values from the response using JSONPath expressions (e.g.{' '}
-              <code className="rounded bg-[var(--gray-3)] px-1 font-mono text-[var(--st-text)]">
+              <code className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-text)]">
                 $.data.user.name
               </code>
               ).
             </p>
 
-            {responseMappings.length === 0 && (
-              <p className="text-[11px] text-[var(--gray-8)] italic">No mappings yet.</p>
-            )}
+            {responseMappings.length === 0 && <EmptyState size="sm" title="No mappings yet." />}
 
             {responseMappings.map((m) => (
               <div key={m.id} className="flex gap-1.5 items-center">
-                <input
-                  type="text"
+                <Input
+                  inputSize="sm"
                   value={m.jsonPath}
                   onChange={(e) =>
                     update({
@@ -519,9 +471,13 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                     })
                   }
                   placeholder="$.path.to.value"
-                  className={cn(inputClass, 'flex-1 font-mono text-[12px]')}
+                  className="flex-1 font-mono"
                 />
-                <span className="shrink-0 text-[11px] text-[var(--gray-7)]">→</span>
+                <ArrowRight
+                  size={14}
+                  aria-hidden="true"
+                  className="shrink-0 text-[var(--st-text-tertiary)]"
+                />
                 <div className="flex-1">
                   <VariableSelect
                     variables={variables}
@@ -533,26 +489,28 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                         ),
                       })
                     }
-                    placeholder="— select variable —"
+                    placeholder="Select variable"
                   />
                 </div>
-                <button
-                  type="button"
+                <IconButton
+                  label="Remove mapping"
+                  icon={Trash2}
+                  size="sm"
+                  variant="ghost"
                   onClick={() =>
                     update({
                       responseMappings: responseMappings.filter((x) => x.id !== m.id),
                     })
                   }
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text-secondary)] transition-colors"
-                  aria-label="Remove mapping"
-                >
-                  <LuTrash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
-                </button>
+                />
               </div>
             ))}
 
-            <button
-              type="button"
+            <Button
+              variant="outline"
+              size="sm"
+              block
+              iconLeft={Plus}
               onClick={() =>
                 update({
                   responseMappings: [
@@ -561,91 +519,88 @@ export function HttpRequestSettings({ block, onBlockChange, variables = [] }: Pr
                   ],
                 })
               }
-              className="flex items-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-6)] px-3 py-1.5 w-full justify-center text-[12px] text-[var(--gray-9)] hover:text-[var(--gray-12)] hover:border-[var(--gray-8)] hover:bg-[var(--gray-2)] transition-colors"
             >
-              <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
               Add mapping
-            </button>
+            </Button>
           </div>
 
-          <Divider />
+          <Separator />
 
           {/* Timeout */}
           <Field label="Timeout (ms)">
-            <input
+            <Input
               type="number"
               value={timeout}
               min={500}
               max={120000}
               step={500}
               onChange={(e) => update({ timeout: Number(e.target.value) })}
-              className={inputClass}
             />
           </Field>
         </div>
       )}
 
-      <Divider />
+      <Separator />
 
       {/* Test button */}
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        block
+        loading={isTesting}
+        iconLeft={isTesting ? undefined : Play}
+        disabled={!url.trim()}
         onClick={handleTest}
-        disabled={!url.trim() || isTesting}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--st-border)] px-3 py-2 text-[12px] font-medium text-[var(--st-text)] hover:bg-[var(--st-text)] disabled:cursor-not-allowed disabled:opacity-40 transition-colors"
       >
-        {isTesting ? (
-          <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-        ) : (
-          <LuPlay className="h-3.5 w-3.5" strokeWidth={2} />
-        )}
-        {isTesting ? 'Sending…' : 'Send test request'}
-      </button>
+        {isTesting ? 'Sending...' : 'Send test request'}
+      </Button>
 
       {/* Test result panel */}
       {(testResult !== null || testError !== null) && (
-        <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] overflow-hidden">
+        <Card className="overflow-hidden">
           {/* Result header */}
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            block
+            className="justify-between"
+            aria-expanded={testExpanded}
             onClick={() => setTestExpanded((v) => !v)}
-            className="flex w-full items-center justify-between px-3 py-2 hover:bg-[var(--gray-3)] transition-colors"
           >
-            <div className="flex items-center gap-2">
+            <span className="flex items-center gap-2">
               {testResult !== null ? (
                 <>
-                  <span
-                    className={cn(
-                      'text-[11px] font-semibold font-mono',
-                      statusColor(testResult.status),
-                    )}
-                  >
+                  <Badge tone={statusTone(testResult.status)} kind="soft">
                     {testResult.status}
-                  </span>
-                  <span className="text-[11px] text-[var(--gray-9)]">
+                  </Badge>
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">
                     {testResult.statusText}
                   </span>
                 </>
               ) : (
-                <span className="text-[11px] text-[var(--st-text-secondary)] font-medium">Error</span>
+                <Badge tone="danger" kind="soft">
+                  Error
+                </Badge>
               )}
-            </div>
+            </span>
             {testExpanded ? (
-              <LuChevronDown className="h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
+              <ChevronDown size={14} aria-hidden="true" className="text-[var(--st-text-tertiary)]" />
             ) : (
-              <LuChevronRight className="h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
+              <ChevronRight
+                size={14}
+                aria-hidden="true"
+                className="text-[var(--st-text-tertiary)]"
+              />
             )}
-          </button>
+          </Button>
 
           {/* Body */}
           {testExpanded && (
-            <div className="border-t border-[var(--gray-4)] p-3">
-              <pre className="max-h-[280px] overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--gray-11)]">
+            <div className="border-t border-[var(--st-border)] p-3">
+              <pre className="max-h-[280px] overflow-y-auto whitespace-pre-wrap break-all font-mono text-[11px] text-[var(--st-text-secondary)]">
                 {testResult !== null ? testResult.body : testError}
               </pre>
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );

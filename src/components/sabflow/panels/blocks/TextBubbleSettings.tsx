@@ -1,25 +1,29 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import type { Block, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import {
-  LuMessageSquare,
-  LuBold,
-  LuItalic,
-  LuBraces,
-  LuChevronDown,
-} from 'react-icons/lu';
+  MessageSquare,
+  Bold,
+  Italic,
+  Braces,
+  ChevronDown,
+} from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/sabcrm/20ui';
 import { VariableAutocompleteInput } from './shared/VariableAutocompleteInput';
-
-/* ── Shared primitives ──────────────────────────────────────── */
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
 
 /* ── Variable highlight renderer ────────────────────────────── */
 /**
- * Renders a text string with `{{variableName}}` tokens highlighted in orange.
- * Used as a read-only overlay — the real textarea sits on top.
+ * Renders a text string with `{{variableName}}` tokens highlighted.
+ * Used as a read-only overlay below the editor.
  */
 function HighlightedText({ text }: { text: string }) {
   const parts = text.split(/({{[^}]*}})/g);
@@ -27,7 +31,7 @@ function HighlightedText({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         /^{{.*}}$/.test(part) ? (
-          <span key={i} className="text-[var(--st-text)] font-medium">
+          <span key={i} className="font-medium text-[var(--st-accent)]">
             {part}
           </span>
         ) : (
@@ -45,61 +49,39 @@ type VariablePickerProps = {
 };
 
 function VariablePicker({ variables, onSelect }: VariablePickerProps) {
-  const [open, setOpen] = useState(false);
-
   if (variables.length === 0) {
     return (
-      <button
-        type="button"
-        title="No variables defined in this flow"
+      <Button
+        variant="secondary"
+        size="sm"
+        iconLeft={Braces}
         disabled
-        className="flex items-center gap-1 rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[12px] text-[var(--gray-8)] cursor-not-allowed"
+        title="No variables defined in this flow"
       >
-        <LuBraces className="h-3.5 w-3.5" strokeWidth={1.8} />
         Variable
-      </button>
+      </Button>
     );
   }
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-md border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1 text-[12px] text-[var(--gray-11)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] transition-colors"
-      >
-        <LuBraces className="h-3.5 w-3.5" strokeWidth={1.8} />
-        Variable
-        <LuChevronDown className="h-3 w-3" strokeWidth={2} />
-      </button>
-
-      {open && (
-        <>
-          {/* Click-away backdrop */}
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <ul
-            role="listbox"
-            className="absolute left-0 top-full z-50 mt-1 min-w-[160px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] shadow-lg overflow-hidden"
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="secondary" size="sm" iconLeft={Braces} iconRight={ChevronDown}>
+          Variable
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[160px]">
+        {variables.map((varName) => (
+          <DropdownMenuItem
+            key={varName}
+            onSelect={() => onSelect(varName)}
+            className="font-mono"
           >
-            {variables.map((varName) => (
-              <li
-                key={varName}
-                role="option"
-                aria-selected={false}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  onSelect(varName);
-                  setOpen(false);
-                }}
-                className="flex items-center gap-2 px-3 py-2 text-[12px] font-mono cursor-pointer text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--st-text)] transition-colors"
-              >
-                {`{{${varName}}}`}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+            {`{{${varName}}}`}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -175,45 +157,43 @@ export function TextBubbleSettings({
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]/10">
-          <LuMessageSquare className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)]">
+          <MessageSquare className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
         </div>
-        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">
           Text Bubble
         </span>
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <label className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           Message
         </label>
 
         {/* Toolbar */}
-        <div className="flex items-center gap-1 rounded-t-lg border border-b-0 border-[var(--gray-5)] bg-[var(--gray-3)] px-2 py-1.5">
-          <button
-            type="button"
-            title="Bold (wraps selection with **)"
+        <div className="flex items-center gap-1 rounded-t-[var(--st-radius)] border border-b-0 border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-1.5">
+          <IconButton
+            label="Bold (wraps selection with **)"
+            icon={Bold}
+            variant="ghost"
+            size="sm"
             onMouseDown={(e) => {
               e.preventDefault();
               wrapSelection('**', '**');
             }}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-5)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuBold className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
-          <button
-            type="button"
-            title="Italic (wraps selection with _)"
+          />
+          <IconButton
+            label="Italic (wraps selection with _)"
+            icon={Italic}
+            variant="ghost"
+            size="sm"
             onMouseDown={(e) => {
               e.preventDefault();
               wrapSelection('_', '_');
             }}
-            className="flex h-6 w-6 items-center justify-center rounded text-[var(--gray-9)] hover:bg-[var(--gray-5)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuItalic className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
 
-          <div className="mx-1 h-4 w-px bg-[var(--gray-5)]" />
+          <div className="mx-1 h-4 w-px bg-[var(--st-border)]" aria-hidden="true" />
 
           <VariablePicker variables={variables} onSelect={insertVariable} />
         </div>
@@ -224,11 +204,11 @@ export function TextBubbleSettings({
           value={content}
           onChange={updateContent}
           variables={variableObjects}
-          placeholder="Type your message… Use {{variable}} to insert variables"
+          placeholder="Type your message... Use {{variable}} to insert variables"
           rows={5}
           spellCheck={false}
           aria-label="Message content"
-          className="rounded-t-none min-h-[100px]"
+          className="min-h-[100px] rounded-t-none"
           inputRef={(node) => {
             textareaRef.current = node as HTMLTextAreaElement | null;
           }}
@@ -236,15 +216,15 @@ export function TextBubbleSettings({
 
         {/* Live variable highlight preview */}
         {content && (
-          <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2 text-[13px] leading-relaxed whitespace-pre-wrap break-words">
+          <div className="whitespace-pre-wrap break-words rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[13px] leading-relaxed text-[var(--st-text)]">
             <HighlightedText text={content} />
           </div>
         )}
       </div>
 
-      <p className="text-[11px] text-[var(--gray-8)] leading-relaxed">
+      <p className="text-[11px] leading-relaxed text-[var(--st-text-tertiary)]">
         Use{' '}
-        <code className="font-mono bg-[var(--gray-3)] px-1 rounded text-[var(--st-text)]">
+        <code className="rounded bg-[var(--st-bg-secondary)] px-1 font-mono text-[var(--st-accent)]">
           {'{{variableName}}'}
         </code>{' '}
         to insert dynamic values collected earlier in the flow.

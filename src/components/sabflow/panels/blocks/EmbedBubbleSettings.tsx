@@ -1,25 +1,11 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { Code, Link, Minus, Plus } from 'lucide-react';
+
 import type { Block } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
-import { LuCode, LuLink, LuMinus, LuPlus } from 'react-icons/lu';
-
-/* ── Shared primitives ──────────────────────────────────────── */
-const inputClass =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';
-
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-        {label}
-      </label>
-      {children}
-      {hint && <p className="text-[11px] text-[var(--gray-8)]">{hint}</p>}
-    </div>
-  );
-}
+import { Button, Field, Input, Textarea } from '@/components/sabcrm/20ui';
 
 /* ── Sanitize: extract src from <iframe> tags ───────────────── */
 function extractIframeSrc(raw: string): string {
@@ -39,15 +25,15 @@ function EmbedPreview({ url, height }: { url: string; height: number }) {
 
   return (
     <div
-      className="relative w-full overflow-hidden rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)]"
+      className="relative w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
+      // Runtime-computed: preview frame height follows the user-chosen value (capped).
       style={{ height: `${Math.min(height, 320)}px` }}
     >
       <iframe
         key={url}
         src={url}
         title="Embed preview"
-        className="absolute inset-0 h-full w-full rounded-lg"
-        style={{ pointerEvents: 'none' }}
+        className="pointer-events-none absolute inset-0 h-full w-full rounded-[var(--st-radius)]"
         sandbox="allow-scripts allow-same-origin"
       />
     </div>
@@ -71,43 +57,40 @@ function HeightStepper({
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={Minus}
         onClick={decrement}
         disabled={value <= MIN}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Decrease height"
-      >
-        <LuMinus className="h-3.5 w-3.5" strokeWidth={2} />
-      </button>
+      />
 
-      <input
+      <Input
         type="number"
         min={MIN}
         max={MAX}
         step={STEP}
         value={value}
+        inputSize="sm"
         onChange={(e) => {
           const n = parseInt(e.target.value, 10);
           if (!isNaN(n)) onChange(Math.min(MAX, Math.max(MIN, n)));
         }}
-        className={cn(
-          inputClass,
-          'w-24 text-center [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-        )}
+        className="w-24 text-center"
+        aria-label="Display height in pixels"
       />
 
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={Plus}
         onClick={increment}
         disabled={value >= MAX}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         aria-label="Increase height"
-      >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
-      </button>
+      />
 
-      <span className="text-[12px] text-[var(--gray-8)]">px</span>
+      <span className="text-[12px] text-[var(--st-text-tertiary)]">px</span>
     </div>
   );
 }
@@ -146,12 +129,10 @@ export function EmbedBubbleSettings({ block, onBlockChange, className }: Props) 
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]/10">
-          <LuCode className="h-4 w-4 text-[var(--st-text)]" strokeWidth={1.8} />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)]">
+          <Code className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={1.8} aria-hidden="true" />
         </div>
-        <span className="text-[13px] font-semibold text-[var(--gray-12)]">
-          Embed Bubble
-        </span>
+        <span className="text-[13px] font-semibold text-[var(--st-text)]">Embed Bubble</span>
       </div>
 
       {/* Preview */}
@@ -159,23 +140,22 @@ export function EmbedBubbleSettings({ block, onBlockChange, className }: Props) 
 
       {/* URL / embed code input */}
       <Field
-        label="URL or embed code"
-        hint="Paste a URL or an <iframe> tag — the src will be extracted automatically."
+        label={
+          <span className="inline-flex items-center gap-1.5">
+            <Link className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+            URL or embed code
+          </span>
+        }
+        help="Paste a URL or an <iframe> tag. The src will be extracted automatically."
       >
-        <div className="relative flex items-start">
-          <LuLink
-            className="absolute left-3 top-[11px] h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-          <textarea
-            value={rawInput}
-            onChange={(e) => setRawInput(e.target.value)}
-            onBlur={(e) => handleUrlCommit(e.target.value)}
-            placeholder={'https://example.com/page\nor\n<iframe src="https://…" />'}
-            rows={3}
-            className={cn(inputClass, 'pl-8 resize-y min-h-[72px] font-mono text-[12px]')}
-          />
-        </div>
+        <Textarea
+          value={rawInput}
+          onChange={(e) => setRawInput(e.target.value)}
+          onBlur={(e) => handleUrlCommit(e.target.value)}
+          placeholder={'https://example.com/page\nor\n<iframe src="https://..." />'}
+          rows={3}
+          className="min-h-[72px] resize-y font-mono text-[12px]"
+        />
       </Field>
 
       {/* Height */}

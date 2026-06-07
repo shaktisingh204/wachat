@@ -1,9 +1,9 @@
 'use client';
 
-import { LuClock, LuBraces } from 'react-icons/lu';
+import { Clock, Braces } from 'lucide-react';
 import type { Block, Variable } from '@/lib/sabflow/types';
-import { cn } from '@/lib/utils';
-import { Field, PanelHeader } from './shared/primitives';
+import { Field, Input, Slider, SegmentedControl, Button } from '@/components/sabcrm/20ui';
+import { PanelHeader } from './shared/primitives';
 
 type DurationUnit = 'seconds' | 'minutes' | 'hours';
 
@@ -19,6 +19,12 @@ const PRESET_SECONDS: Record<DurationUnit, number[]> = {
   hours: [1, 2, 6, 12, 24],
 };
 
+const UNIT_ITEMS: { value: DurationUnit; label: string }[] = [
+  { value: 'seconds', label: 'Seconds' },
+  { value: 'minutes', label: 'Minutes' },
+  { value: 'hours', label: 'Hours' },
+];
+
 export function WaitSettings({ block, onBlockChange, variables: _variables = [] }: Props) {
   const options = block.options ?? {};
   const unit: DurationUnit = (options.unit as DurationUnit) ?? 'seconds';
@@ -28,75 +34,64 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
     onBlockChange({ ...block, options: { ...options, ...patch } });
 
   const maxSlider = unit === 'seconds' ? 300 : unit === 'minutes' ? 120 : 48;
+  const waitingMessage = typeof options.waitingMessage === 'string' ? options.waitingMessage : '';
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuClock} title="Wait" />
+      <PanelHeader icon={Clock} title="Wait" />
 
       {/* Unit selector */}
       <Field label="Unit">
-        <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-0.5">
-          {(['seconds', 'minutes', 'hours'] as DurationUnit[]).map((u) => (
-            <button
-              key={u}
-              type="button"
-              onClick={() => update({ unit: u, duration: 1 })}
-              className={cn(
-                'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-                unit === u
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {u}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl<DurationUnit>
+          items={UNIT_ITEMS}
+          value={unit}
+          onChange={(next) => update({ unit: next, duration: 1 })}
+          fullWidth
+          aria-label="Duration unit"
+        />
       </Field>
 
       {/* Duration control */}
       <Field label={`Duration (${unit})`}>
         {/* Quick-pick presets */}
-        <div className="flex flex-wrap gap-1.5 mb-2">
+        <div className="mb-2 flex flex-wrap gap-1.5">
           {PRESET_SECONDS[unit].map((preset) => (
-            <button
+            <Button
               key={preset}
-              type="button"
+              size="sm"
+              variant={duration === preset ? 'primary' : 'secondary'}
               onClick={() => update({ duration: preset })}
-              className={cn(
-                'rounded-md border px-2.5 py-1 text-[11.5px] font-medium transition-colors',
-                duration === preset
-                  ? 'border-[var(--st-border)]/50 bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
             >
               {preset}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Slider + numeric input */}
         <div className="flex items-center gap-3">
-          <input
-            type="range"
+          <Slider
+            className="flex-1"
             min={0}
             max={maxSlider}
             step={1}
             value={duration}
-            onChange={(e) => update({ duration: Number(e.target.value) })}
-            className="flex-1 accent-[var(--st-text)]"
+            onValueChange={(next) =>
+              update({ duration: Array.isArray(next) ? next[0] : next })
+            }
+            ariaLabel={`Duration in ${unit}`}
           />
-          <div className="flex items-center gap-1 shrink-0">
-            <input
+          <div className="flex shrink-0 items-center gap-1">
+            <Input
               type="number"
               min={0}
               max={maxSlider * 10}
               step={1}
               value={duration}
               onChange={(e) => update({ duration: Number(e.target.value) })}
-              className="w-[70px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2 py-1.5 text-[13px] text-center text-[var(--gray-12)] outline-none focus:border-[var(--st-border)] transition-colors"
+              className="w-[70px] text-center"
+              aria-label={`Duration value in ${unit}`}
             />
-            <span className="text-[12px] text-[var(--gray-9)]">
+            <span className="text-[12px] text-[var(--st-text-secondary)]">
               {unit.slice(0, 3)}
             </span>
           </div>
@@ -104,26 +99,17 @@ export function WaitSettings({ block, onBlockChange, variables: _variables = [] 
       </Field>
 
       {/* Optional waiting message */}
-      <Field label="Waiting message (optional)">
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            value={typeof options.waitingMessage === 'string' ? options.waitingMessage : ''}
-            onChange={(e) => update({ waitingMessage: e.target.value })}
-            placeholder="Please wait… or {{customMessage}}"
-            className={cn(
-              'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2 text-[13px]',
-              'text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors pr-8',
-            )}
-          />
-          <LuBraces
-            className="absolute right-2.5 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-            strokeWidth={1.8}
-          />
-        </div>
-        <p className="text-[11px] text-[var(--gray-8)] mt-1">
-          Shown to the user while waiting. Leave empty to wait silently.
-        </p>
+      <Field
+        label="Waiting message (optional)"
+        help="Shown to the user while waiting. Leave empty to wait silently."
+      >
+        <Input
+          type="text"
+          value={waitingMessage}
+          onChange={(e) => update({ waitingMessage: e.target.value })}
+          placeholder="Please wait, or {{customMessage}}"
+          iconRight={Braces}
+        />
       </Field>
     </div>
   );

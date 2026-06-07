@@ -1,19 +1,41 @@
 'use client';
 
-import { useState, useCallback, useId } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  LuCopy,
-  LuCheck,
-  LuLink,
-  LuCode,
-  LuExternalLink,
-  LuShare2,
-  LuQrCode,
-  LuGlobe,
-  LuTriangleAlert as LuAlertTriangle,
-  LuLoader,
-} from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+  Copy,
+  Check,
+  Link2,
+  Code2,
+  ExternalLink,
+  Share2,
+  QrCode,
+  Globe,
+  AlertTriangle,
+} from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Field,
+  Input,
+  Badge,
+  Alert,
+  SegmentedControl,
+  ColorPicker,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 /* ── Constants ───────────────────────────────────────────── */
 
@@ -71,7 +93,7 @@ function parseShareUrl(shareUrl: string): { origin: string; flowId: string } {
 function buildStandardSnippet(shareUrl: string, opts: StandardOpts): string {
   const { origin, flowId } = parseShareUrl(shareUrl);
   // Two options shown: direct iframe, or data-* standard mode via embed.js
-  return `<!-- SabFlow — Standard embed (inline iframe) -->
+  return `<!-- SabFlow Standard embed (inline iframe) -->
 <div id="sabflow-container" style="width:100%;height:${opts.height}px;border-radius:${opts.borderRadius}px;overflow:hidden;"></div>
 <script
   src="${origin}/embed.js"
@@ -85,7 +107,7 @@ function buildStandardSnippet(shareUrl: string, opts: StandardOpts): string {
 
 function buildPopupSnippet(shareUrl: string, opts: PopupOpts): string {
   const { origin, flowId } = parseShareUrl(shareUrl);
-  return `<!-- SabFlow — Popup embed (button opens a centred modal) -->
+  return `<!-- SabFlow Popup embed (button opens a centred modal) -->
 <script
   src="${origin}/embed.js"
   data-flow-id="${flowId}"
@@ -97,7 +119,7 @@ function buildPopupSnippet(shareUrl: string, opts: PopupOpts): string {
 
 function buildBubbleSnippet(shareUrl: string, opts: BubbleOpts): string {
   const { origin, flowId } = parseShareUrl(shareUrl);
-  return `<!-- SabFlow — Bubble embed (floating chat button) -->
+  return `<!-- SabFlow Bubble embed (floating chat button) -->
 <script
   src="${origin}/embed.js"
   data-flow-id="${flowId}"
@@ -110,40 +132,39 @@ function buildBubbleSnippet(shareUrl: string, opts: BubbleOpts): string {
 
 /* ── CopyButton ──────────────────────────────────────────── */
 
-function CopyButton({ text, label = 'Copy', className }: { text: string; label?: string; className?: string }) {
+function CopyButton({
+  text,
+  label = 'Copy',
+  className,
+}: {
+  text: string;
+  label?: string;
+  className?: string;
+}) {
   const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
 
   const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      toast.success('Copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // clipboard write failed silently
+      toast.error('Could not copy to clipboard');
     }
-  }, [text]);
+  }, [text, toast]);
 
   return (
-    <button
-      type="button"
+    <Button
+      variant={copied ? 'secondary' : 'ghost'}
+      size="sm"
       onClick={handleCopy}
-      title={copied ? 'Copied!' : 'Copy to clipboard'}
-      aria-label={copied ? 'Copied!' : 'Copy to clipboard'}
-      className={cn(
-        'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors shrink-0',
-        copied
-          ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-          : 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]',
-        className,
-      )}
+      iconLeft={copied ? Check : Copy}
+      className={className}
     >
-      {copied ? (
-        <LuCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
-      ) : (
-        <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
-      )}
-      {copied ? 'Copied!' : label}
-    </button>
+      {copied ? 'Copied' : label}
+    </Button>
   );
 }
 
@@ -159,55 +180,58 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-1)] overflow-hidden">
-      <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 bg-[var(--gray-2)]">
-        <span className="text-[var(--gray-9)] shrink-0">{icon}</span>
-        <span className="text-[13px] font-semibold text-[var(--gray-11)] uppercase tracking-wide">
-          {title}
+    <Card padding="none" className="overflow-hidden">
+      <CardHeader className="flex items-center gap-2.5">
+        <span className="text-[var(--st-text-tertiary)] shrink-0" aria-hidden="true">
+          {icon}
         </span>
-      </div>
-      <div className="px-4 py-4">{children}</div>
-    </section>
+        <CardTitle className="text-[13px] uppercase tracking-wide">{title}</CardTitle>
+      </CardHeader>
+      <CardBody>{children}</CardBody>
+    </Card>
   );
 }
 
 /* ── ShareLinkSection ────────────────────────────────────── */
 
 function ShareLinkSection({ shareUrl }: { shareUrl: string }) {
+  const openInNewTab = useCallback(() => {
+    window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  }, [shareUrl]);
+
   return (
     <SectionCard
-      icon={<LuLink className="h-4 w-4" strokeWidth={1.8} />}
+      icon={<Link2 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />}
       title="Share link"
     >
       <div className="space-y-3">
         {/* URL row */}
-        <div className="flex items-center gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2">
-          <input
-            readOnly
-            value={shareUrl}
-            aria-label="Direct share URL"
-            className="flex-1 bg-transparent text-[12.5px] font-mono text-[var(--gray-11)] outline-none truncate"
-          />
+        <div className="flex items-center gap-2">
+          <Field className="flex-1">
+            <Input
+              readOnly
+              value={shareUrl}
+              aria-label="Direct share URL"
+              className="font-mono"
+            />
+          </Field>
           <CopyButton text={shareUrl} />
-          <a
-            href={shareUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Open in new tab"
-            aria-label="Open flow in new tab"
-            className="flex items-center justify-center rounded-lg p-1.5 text-[var(--gray-9)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)] transition-colors shrink-0"
-          >
-            <LuExternalLink className="h-3.5 w-3.5" strokeWidth={2} />
-          </a>
+          <IconButton
+            label="Open flow in new tab"
+            icon={ExternalLink}
+            variant="ghost"
+            onClick={openInNewTab}
+            className="shrink-0"
+          />
         </div>
 
         {/* QR code placeholder */}
-        <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] px-4 py-6">
-          <LuQrCode className="h-8 w-8 text-[var(--gray-7)]" strokeWidth={1.4} />
-          <p className="text-[12px] text-[var(--gray-9)] text-center leading-relaxed">
+        <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-6">
+          <QrCode className="h-8 w-8 text-[var(--st-text-tertiary)]" strokeWidth={1.4} aria-hidden="true" />
+          <p className="text-[12px] text-[var(--st-text-secondary)] text-center leading-relaxed">
             QR code will appear here
           </p>
-          <p className="text-[11px] text-[var(--gray-7)] font-mono break-all text-center max-w-xs">
+          <p className="text-[11px] text-[var(--st-text-tertiary)] font-mono break-all text-center max-w-xs">
             {shareUrl}
           </p>
         </div>
@@ -218,31 +242,6 @@ function ShareLinkSection({ shareUrl }: { shareUrl: string }) {
 
 /* ── EmbedCustomization ──────────────────────────────────── */
 
-function LabeledField({
-  label,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1">
-      <label
-        htmlFor={htmlFor}
-        className="text-[11.5px] font-medium text-[var(--gray-10)]"
-      >
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inputCls =
-  'rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1.5 text-[12.5px] text-[var(--gray-12)] outline-none focus:border-[var(--gray-8)] focus:ring-1 focus:ring-[var(--gray-6)] transition-colors w-full';
-
 function StandardCustomization({
   opts,
   onChange,
@@ -250,32 +249,26 @@ function StandardCustomization({
   opts: StandardOpts;
   onChange: (patch: Partial<StandardOpts>) => void;
 }) {
-  const heightId = useId();
-  const radiusId = useId();
   return (
     <div className="grid grid-cols-2 gap-3">
-      <LabeledField label="Height (px)" htmlFor={heightId}>
-        <input
-          id={heightId}
+      <Field label="Height (px)">
+        <Input
           type="number"
           min={200}
           max={1200}
           value={opts.height}
           onChange={(e) => onChange({ height: Number(e.target.value) })}
-          className={inputCls}
         />
-      </LabeledField>
-      <LabeledField label="Border radius (px)" htmlFor={radiusId}>
-        <input
-          id={radiusId}
+      </Field>
+      <Field label="Border radius (px)">
+        <Input
           type="number"
           min={0}
           max={32}
           value={opts.borderRadius}
           onChange={(e) => onChange({ borderRadius: Number(e.target.value) })}
-          className={inputCls}
         />
-      </LabeledField>
+      </Field>
     </div>
   );
 }
@@ -287,35 +280,28 @@ function PopupCustomization({
   opts: PopupOpts;
   onChange: (patch: Partial<PopupOpts>) => void;
 }) {
-  const labelId = useId();
-  const colorId = useId();
   return (
     <div className="grid grid-cols-2 gap-3">
-      <LabeledField label="Button label" htmlFor={labelId}>
-        <input
-          id={labelId}
+      <Field label="Button label">
+        <Input
           type="text"
           value={opts.buttonLabel}
           onChange={(e) => onChange({ buttonLabel: e.target.value })}
           placeholder="Open chat"
-          className={inputCls}
         />
-      </LabeledField>
-      <LabeledField label="Button color" htmlFor={colorId}>
-        <div className="flex items-center gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-2.5 py-1 h-[34px]">
-          <input
-            id={colorId}
-            type="color"
+      </Field>
+      <Field label="Button color">
+        <div className="flex items-center gap-2">
+          <ColorPicker
             value={opts.buttonColor}
-            onChange={(e) => onChange({ buttonColor: e.target.value })}
+            onChange={(color) => onChange({ buttonColor: color })}
             aria-label="Button color picker"
-            className="h-5 w-5 rounded cursor-pointer border-0 bg-transparent p-0"
           />
-          <span className="text-[12px] font-mono text-[var(--gray-11)]">
+          <span className="text-[12px] font-mono text-[var(--st-text-secondary)]">
             {opts.buttonColor}
           </span>
         </div>
-      </LabeledField>
+      </Field>
     </div>
   );
 }
@@ -327,33 +313,32 @@ function BubbleCustomization({
   opts: BubbleOpts;
   onChange: (patch: Partial<BubbleOpts>) => void;
 }) {
-  const textId = useId();
-  const posId = useId();
   return (
     <div className="grid grid-cols-2 gap-3">
-      <LabeledField label="Button text" htmlFor={textId}>
-        <input
-          id={textId}
+      <Field label="Button text">
+        <Input
           type="text"
           value={opts.buttonText}
           onChange={(e) => onChange({ buttonText: e.target.value })}
           placeholder="Chat with us"
-          className={inputCls}
         />
-      </LabeledField>
-      <LabeledField label="Position" htmlFor={posId}>
-        <select
-          id={posId}
+      </Field>
+      <Field label="Position">
+        <Select
           value={opts.position}
-          onChange={(e) =>
-            onChange({ position: e.target.value as BubbleOpts['position'] })
+          onValueChange={(value) =>
+            onChange({ position: value as BubbleOpts['position'] })
           }
-          className={inputCls}
         >
-          <option value="bottom-right">Bottom right</option>
-          <option value="bottom-left">Bottom left</option>
-        </select>
-      </LabeledField>
+          <SelectTrigger aria-label="Bubble position">
+            <SelectValue placeholder="Pick a position" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="bottom-right">Bottom right</SelectItem>
+            <SelectItem value="bottom-left">Bottom left</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
     </div>
   );
 }
@@ -408,41 +393,31 @@ function EmbedSection({ shareUrl }: { shareUrl: string }) {
 
   return (
     <SectionCard
-      icon={<LuCode className="h-4 w-4" strokeWidth={1.8} />}
+      icon={<Code2 className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />}
       title="Embed on your site"
     >
       <div className="space-y-4">
-        <p className="text-[12.5px] text-[var(--gray-10)] leading-relaxed">
+        <p className="text-[12.5px] text-[var(--st-text-secondary)] leading-relaxed">
           Paste one of the snippets below into your website&apos;s HTML to embed this flow.
         </p>
 
         {/* Tab bar */}
-        <div className="flex gap-1 rounded-xl bg-[var(--gray-3)] p-1">
-          {TAB_CONFIG.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex-1 rounded-lg py-1.5 text-[12.5px] font-medium transition-colors',
-                activeTab === tab.id
-                  ? 'bg-white text-[var(--gray-12)] shadow-sm dark:bg-[var(--gray-2)]'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-11)]',
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          fullWidth
+          aria-label="Embed mode"
+          value={activeTab}
+          onChange={(value) => setActiveTab(value as EmbedMode)}
+          items={TAB_CONFIG.map((tab) => ({ value: tab.id, label: tab.label }))}
+        />
 
         {/* Mode description */}
-        <p className="text-[12px] text-[var(--gray-10)] leading-relaxed">
+        <p className="text-[12px] text-[var(--st-text-secondary)] leading-relaxed">
           {activeDesc}
         </p>
 
         {/* Customization controls */}
-        <div className="rounded-xl border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-3">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--gray-8)] mb-3">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-tertiary)] mb-3">
             Customise
           </p>
           {activeTab === 'standard' && (
@@ -466,14 +441,14 @@ function EmbedSection({ shareUrl }: { shareUrl: string }) {
         </div>
 
         {/* Code block */}
-        <div className="rounded-xl border border-[var(--gray-5)] bg-[var(--gray-2)] overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--gray-4)] bg-[var(--gray-3)]">
-            <span className="text-[11px] font-medium text-[var(--gray-9)] uppercase tracking-wide">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+            <span className="text-[11px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               HTML
             </span>
             <CopyButton text={snippet} label="Copy code" />
           </div>
-          <pre className="overflow-x-auto p-4 text-[12px] font-mono leading-relaxed text-[var(--gray-11)] whitespace-pre">
+          <pre className="overflow-x-auto p-4 text-[12px] font-mono leading-relaxed text-[var(--st-text-secondary)] whitespace-pre">
             <code>{snippet}</code>
           </pre>
         </div>
@@ -512,59 +487,38 @@ function PublishSection({
 
   return (
     <SectionCard
-      icon={<LuGlobe className="h-4 w-4" strokeWidth={1.8} />}
+      icon={<Globe className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />}
       title="Publish status"
     >
       <div className="space-y-3">
         {/* Status badge + toggle */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold',
-                isPublished
-                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)] dark:bg-[var(--st-text)]/40 dark:text-[var(--st-text-secondary)]'
-                  : 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-              )}
-            >
-              <span
-                className={cn(
-                  'h-1.5 w-1.5 rounded-full',
-                  isPublished ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-7)]',
-                )}
-              />
+            <Badge tone={isPublished ? 'success' : 'neutral'} dot>
               {isPublished ? 'Published' : 'Draft'}
-            </span>
+            </Badge>
 
             {status === 'DRAFT' && (
-              <span className="flex items-center gap-1 text-[11.5px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-                <LuAlertTriangle className="h-3.5 w-3.5" strokeWidth={2} />
+              <span className="flex items-center gap-1 text-[11.5px] text-[var(--st-warn)]">
+                <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                 Not publicly visible
               </span>
             )}
           </div>
 
-          <button
-            type="button"
+          <Button
+            variant={isPublished ? 'secondary' : 'primary'}
+            size="sm"
             onClick={handleToggle}
-            disabled={loading}
-            style={isPublished ? {} : { backgroundColor: ACCENT }}
-            className={cn(
-              'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors shrink-0 disabled:opacity-60',
-              isPublished
-                ? 'bg-[var(--gray-3)] text-[var(--gray-11)] hover:bg-[var(--gray-4)] hover:text-[var(--gray-12)]'
-                : 'text-white hover:opacity-90',
-            )}
+            loading={loading}
+            className="shrink-0"
           >
-            {loading ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-            ) : null}
             {isPublished ? 'Unpublish' : 'Publish'}
-          </button>
+          </Button>
         </div>
 
         {/* Description */}
-        <p className="text-[12px] text-[var(--gray-9)] leading-relaxed">
+        <p className="text-[12px] text-[var(--st-text-secondary)] leading-relaxed">
           {isPublished
             ? 'This flow is live. Anyone with the link can view and interact with it.'
             : 'Publish this flow to make it accessible via the share link and embed code.'}
@@ -572,10 +526,9 @@ function PublishSection({
 
         {/* Error */}
         {error && (
-          <p className="flex items-center gap-1.5 text-[12px] text-[var(--st-text)] dark:text-[var(--st-text-secondary)]">
-            <LuAlertTriangle className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+          <Alert tone="danger" icon={AlertTriangle}>
             {error}
-          </p>
+          </Alert>
         )}
       </div>
     </SectionCard>
@@ -594,18 +547,20 @@ export function SharePanel({
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl mx-auto">
       {/* Page heading */}
-      <div className="flex items-center gap-3">
-        <div
-          className="flex h-9 w-9 items-center justify-center rounded-xl shrink-0"
-          style={{ backgroundColor: `${ACCENT}18` }}
-        >
-          <LuShare2 className="h-5 w-5" strokeWidth={1.8} style={{ color: ACCENT }} />
-        </div>
-        <div>
-          <h1 className="text-[16px] font-semibold text-[var(--gray-12)]">Share</h1>
-          <p className="text-[12.5px] text-[var(--gray-10)]">{flowName}</p>
-        </div>
-      </div>
+      <PageHeader bordered={false} compact>
+        <PageHeaderHeading className="flex flex-row items-center gap-3">
+          <span
+            className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] shrink-0 bg-[var(--st-accent)]/10 text-[var(--st-accent)]"
+            aria-hidden="true"
+          >
+            <Share2 className="h-5 w-5" strokeWidth={1.8} />
+          </span>
+          <span className="flex flex-col">
+            <PageTitle className="text-[16px]">Share</PageTitle>
+            <PageDescription>{flowName}</PageDescription>
+          </span>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <ShareLinkSection shareUrl={shareUrl} />
       <EmbedSection shareUrl={shareUrl} />

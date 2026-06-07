@@ -14,9 +14,16 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { LuKeyRound, LuZap } from 'react-icons/lu';
+import { KeyRound, Zap } from 'lucide-react';
 
-import { Field, selectClass } from '../shared/primitives';
+import {
+  Field,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 import { ForgeFieldRenderer } from './ForgeFieldRenderer';
 import { CredentialSelect } from '../shared/CredentialSelect';
 import {
@@ -82,7 +89,9 @@ export function ForgeBlockSettings({ block, options, onChange, nodeId }: Props) 
     <div className="space-y-5">
       {/* Block description */}
       {block.description && (
-        <p className="text-[12px] leading-relaxed text-[var(--gray-10)]">{block.description}</p>
+        <p className="text-[12px] leading-relaxed text-[var(--st-text-secondary)]">
+          {block.description}
+        </p>
       )}
 
       {/* ── Auth section ──────────────────────────────────── */}
@@ -128,23 +137,27 @@ export function ForgeBlockSettings({ block, options, onChange, nodeId }: Props) 
       {multiAction && block.actions && (
         <>
           <Field label="Action">
-            <select
-              className={selectClass}
-              value={selectedActionId ?? ''}
-              onChange={(e) => handleActionChange(e.target.value)}
+            <Select
+              value={selectedActionId ?? undefined}
+              onValueChange={handleActionChange}
             >
-              {block.actions.map((action) => (
-                <option key={action.id} value={action.id}>
-                  {action.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger aria-label="Action">
+                <SelectValue placeholder="Select an action" />
+              </SelectTrigger>
+              <SelectContent>
+                {block.actions.map((action) => (
+                  <SelectItem key={action.id} value={action.id}>
+                    {action.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           {selectedAction && (
             <>
               {selectedAction.description && (
-                <p className="text-[11.5px] leading-relaxed text-[var(--gray-9)]">
+                <p className="text-[11.5px] leading-relaxed text-[var(--st-text-tertiary)]">
                   {selectedAction.description}
                 </p>
               )}
@@ -173,11 +186,11 @@ type FieldGroupProps = {
   fields: ForgeField[];
   options: Record<string, unknown>;
   onChange: (fieldId: string, value: unknown) => void;
-  /** Block id — forwarded so `select` fields with `loadOptions` can resolve. */
+  /** Block id - forwarded so `select` fields with `loadOptions` can resolve. */
   blockId?: string;
   /** Selected action id (multi-action blocks). */
   actionId?: string;
-  /** Selected credential id — drives credential-bound dynamic dropdowns. */
+  /** Selected credential id - drives credential-bound dynamic dropdowns. */
   credentialId?: string;
   /** Canvas node ID */
   nodeId?: string;
@@ -225,12 +238,16 @@ type SectionProps = {
 };
 
 function Section({ icon, title, children }: SectionProps) {
-  const Icon = icon === 'key' ? LuKeyRound : LuZap;
+  const Icon = icon === 'key' ? KeyRound : Zap;
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5 text-[var(--gray-10)]" strokeWidth={1.8} />
-        <span className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+        <Icon
+          className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+          strokeWidth={1.8}
+          aria-hidden="true"
+        />
+        <span className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
           {title}
         </span>
       </div>

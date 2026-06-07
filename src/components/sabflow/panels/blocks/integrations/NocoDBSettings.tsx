@@ -1,8 +1,19 @@
 'use client';
 
-import { LuDatabase } from 'react-icons/lu';
+import { Database } from 'lucide-react';
 import type { Block } from '@/lib/sabflow/types';
-import { Field, PanelHeader, inputClass, selectClass } from '../shared/primitives';
+import {
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -15,6 +26,13 @@ interface NocoDBOptions {
   action?: NocoDBAction;
 }
 
+const ACTIONS: { value: NocoDBAction; label: string }[] = [
+  { value: 'insert_row', label: 'Insert Row' },
+  { value: 'list_rows', label: 'List Rows' },
+  { value: 'update_row', label: 'Update Row' },
+  { value: 'delete_row', label: 'Delete Row' },
+];
+
 /* ── Props ─────────────────────────────────────────────────── */
 
 type Props = {
@@ -26,6 +44,7 @@ type Props = {
 
 export function NocoDBSettings({ block, onBlockChange }: Props) {
   const opts = (block.options ?? {}) as NocoDBOptions;
+  const action: NocoDBAction = opts.action ?? 'insert_row';
 
   const update = (patch: Partial<NocoDBOptions>) => {
     onBlockChange({ ...block, options: { ...opts, ...patch } });
@@ -33,52 +52,62 @@ export function NocoDBSettings({ block, onBlockChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <PanelHeader icon={LuDatabase} title="NocoDB" />
+      <PageHeader compact>
+        <PageHeaderHeading>
+          <span className="inline-flex items-center gap-2">
+            <Database size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+            <PageTitle>NocoDB</PageTitle>
+          </span>
+        </PageHeaderHeading>
+      </PageHeader>
 
       <Field label="API URL">
-        <input
+        <Input
           type="url"
           value={opts.apiUrl ?? ''}
           onChange={(e) => update({ apiUrl: e.target.value })}
           placeholder="https://your-nocodb.com"
-          className={inputClass}
           spellCheck={false}
+          aria-label="API URL"
         />
       </Field>
 
       <Field label="API Token">
-        <input
+        <Input
           type="text"
           value={opts.apiToken ?? ''}
           onChange={(e) => update({ apiToken: e.target.value })}
           placeholder="xc-auth-token or API token"
-          className={inputClass}
           spellCheck={false}
+          autoComplete="off"
+          aria-label="API token"
         />
       </Field>
 
       <Field label="Table ID">
-        <input
+        <Input
           type="text"
           value={opts.tableId ?? ''}
           onChange={(e) => update({ tableId: e.target.value })}
           placeholder="md_xxxxxxxxxxxxx"
-          className={inputClass}
           spellCheck={false}
+          aria-label="Table ID"
         />
       </Field>
 
       <Field label="Action">
-        <select
-          value={opts.action ?? 'insert_row'}
-          onChange={(e) => update({ action: e.target.value as NocoDBAction })}
-          className={selectClass}
-        >
-          <option value="insert_row">Insert Row</option>
-          <option value="list_rows">List Rows</option>
-          <option value="update_row">Update Row</option>
-          <option value="delete_row">Delete Row</option>
-        </select>
+        <Select value={action} onValueChange={(v) => update({ action: v as NocoDBAction })}>
+          <SelectTrigger aria-label="Action">
+            <SelectValue placeholder="Select an action" />
+          </SelectTrigger>
+          <SelectContent>
+            {ACTIONS.map((a) => (
+              <SelectItem key={a.value} value={a.value}>
+                {a.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </Field>
     </div>
   );

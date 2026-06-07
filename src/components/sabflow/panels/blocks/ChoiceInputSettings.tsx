@@ -1,29 +1,34 @@
 'use client';
 
-import { useState, useCallback, useId } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  LuListChecks,
-  LuPlus,
-  LuX,
-  LuChevronUp,
-  LuChevronDown,
-  LuZap,
-  LuSearch,
-  LuAlignLeft,
-  LuChevronRight,
-} from 'react-icons/lu';
+  ListChecks,
+  Plus,
+  X,
+  ChevronUp,
+  ChevronDown,
+  Zap,
+  Search,
+  AlignLeft,
+  ChevronRight,
+} from 'lucide-react';
 import { createId } from '@paralleldrive/cuid2';
 import type { Block, ChoiceItem, Variable } from '@/lib/sabflow/types';
-import { VariableSelect } from './shared/VariableSelect';
 import {
+  Button,
+  IconButton,
+  Card,
   Field,
-  PanelHeader,
-  Divider,
-  inputClass,
-  toggleClass,
-} from './shared/primitives';
+  Input,
+  Switch,
+  SegmentedControl,
+  EmptyState,
+  Callout,
+  Badge,
+} from '@/components/sabcrm/20ui';
+import { VariableSelect } from './shared/VariableSelect';
 
-/* ── Types ──────────────────────────────────────────────────────────────── */
+/* -- Types ----------------------------------------------------------------- */
 
 type Props = {
   block: Block;
@@ -31,7 +36,7 @@ type Props = {
   variables?: Variable[];
 };
 
-/* ── Helpers ────────────────────────────────────────────────────────────── */
+/* -- Helpers --------------------------------------------------------------- */
 
 function makeChoice(): ChoiceItem {
   return { id: createId(), content: '', value: '' };
@@ -42,7 +47,7 @@ function getChoices(block: Block): ChoiceItem[] {
   return items as ChoiceItem[];
 }
 
-/* ── Toggle row ─────────────────────────────────────────────────────────── */
+/* -- Toggle row ------------------------------------------------------------ */
 
 type ToggleRowProps = {
   label: string;
@@ -55,29 +60,24 @@ function ToggleRow({ label, description, checked, onToggle }: ToggleRowProps) {
   return (
     <div className="flex items-start justify-between gap-3">
       <div className="flex-1 min-w-0">
-        <p className="text-[12.5px] font-medium text-[var(--gray-11)]">{label}</p>
+        <p className="text-[12.5px] font-medium text-[var(--st-text)]">{label}</p>
         {description && (
-          <p className="text-[11px] text-[var(--gray-8)] mt-0.5 leading-relaxed">{description}</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)] mt-0.5 leading-relaxed">
+            {description}
+          </p>
         )}
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={onToggle}
-        className={toggleClass(checked)}
-      >
-        <span
-          className={`block h-4 w-4 rounded-full bg-white shadow transition-transform duration-150 ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
+      <Switch
+        checked={checked}
+        onCheckedChange={onToggle}
+        size="sm"
+        aria-label={label}
+      />
     </div>
   );
 }
 
-/* ── Choice row ─────────────────────────────────────────────────────────── */
+/* -- Choice row ------------------------------------------------------------ */
 
 type ChoiceRowProps = {
   choice: ChoiceItem;
@@ -102,89 +102,83 @@ function ChoiceRow({
   onMoveUp,
   onMoveDown,
 }: ChoiceRowProps) {
-  const labelId = useId();
-
   return (
-    <div className="group rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] overflow-hidden transition-colors hover:border-[var(--gray-6)]">
+    <Card variant="outlined" padding="none" className="group overflow-hidden">
       {/* Main row */}
       <div className="flex items-center gap-1.5 px-2 py-1.5">
         {/* Reorder buttons */}
         <div className="flex flex-col shrink-0">
-          <button
-            type="button"
+          <IconButton
+            label="Move up"
+            icon={ChevronUp}
+            size="sm"
             onClick={onMoveUp}
             disabled={index === 0}
-            title="Move up"
-            className="flex h-4 w-4 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--gray-11)] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
-          >
-            <LuChevronUp className="h-3 w-3" strokeWidth={2.5} />
-          </button>
-          <button
-            type="button"
+          />
+          <IconButton
+            label="Move down"
+            icon={ChevronDown}
+            size="sm"
             onClick={onMoveDown}
             disabled={index === total - 1}
-            title="Move down"
-            className="flex h-4 w-4 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--gray-11)] disabled:opacity-25 disabled:cursor-not-allowed transition-colors"
-          >
-            <LuChevronDown className="h-3 w-3" strokeWidth={2.5} />
-          </button>
+          />
         </div>
 
         {/* Label input */}
-        <input
-          id={labelId}
-          type="text"
+        <Input
+          inputSize="sm"
           value={choice.content ?? ''}
           onChange={(e) => onChange({ content: e.target.value })}
           placeholder={`Choice ${index + 1}`}
-          className="flex-1 min-w-0 rounded-md border border-transparent bg-transparent px-1.5 py-1 text-[12.5px] text-[var(--gray-12)] placeholder:text-[var(--gray-7)] outline-none focus:border-[var(--gray-5)] focus:bg-[var(--gray-1)] transition-colors"
+          aria-label={`Choice ${index + 1} label`}
+          className="flex-1 min-w-0"
         />
 
         {/* Toggle saved-value field */}
-        <button
-          type="button"
+        <IconButton
+          label={showValue ? 'Hide saved value' : 'Set saved value (optional)'}
+          icon={AlignLeft}
+          size="sm"
+          variant={showValue ? 'primary' : 'ghost'}
+          aria-pressed={showValue}
           onClick={onToggleValue}
-          title={showValue ? 'Hide saved value' : 'Set saved value (optional)'}
-          className={`shrink-0 flex h-5 w-5 items-center justify-center rounded transition-colors ${
-            showValue
-              ? 'text-[var(--st-text)] bg-[var(--st-text)]'
-              : 'text-[var(--gray-7)] hover:text-[var(--gray-10)] hover:bg-[var(--gray-3)]'
-          }`}
-        >
-          <LuAlignLeft className="h-3 w-3" strokeWidth={2} />
-        </button>
+        />
 
         {/* Delete */}
-        <button
-          type="button"
+        <IconButton
+          label="Remove choice"
+          icon={X}
+          size="sm"
+          variant="danger"
           onClick={onDelete}
-          title="Remove choice"
-          className="shrink-0 flex h-5 w-5 items-center justify-center rounded text-[var(--gray-7)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)]/10 transition-colors"
-        >
-          <LuX className="h-3 w-3" strokeWidth={2.5} />
-        </button>
+        />
       </div>
 
       {/* Expandable saved-value row */}
       {showValue && (
-        <div className="px-2 pb-2 border-t border-[var(--gray-4)]">
+        <div className="px-2 pb-2 border-t border-[var(--st-border)]">
           <div className="pt-1.5 flex items-center gap-1.5">
-            <LuChevronRight className="h-3 w-3 shrink-0 text-[var(--gray-7)]" strokeWidth={2} />
-            <input
-              type="text"
+            <ChevronRight
+              className="h-3 w-3 shrink-0 text-[var(--st-text-tertiary)]"
+              strokeWidth={2}
+              aria-hidden="true"
+            />
+            <Input
+              inputSize="sm"
               value={choice.value ?? ''}
               onChange={(e) => onChange({ value: e.target.value })}
               placeholder="Saved value (defaults to label)"
-              className="flex-1 min-w-0 rounded-md border border-[var(--gray-4)] bg-[var(--gray-1)] px-2 py-1 text-[11.5px] text-[var(--gray-11)] placeholder:text-[var(--gray-7)] outline-none focus:border-[var(--st-border)] transition-colors"
+              aria-label="Saved value"
+              className="flex-1 min-w-0"
             />
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 }
 
-/* ── Main component ─────────────────────────────────────────────────────── */
+/* -- Main component -------------------------------------------------------- */
 
 export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Props) {
   const options = block.options ?? {};
@@ -216,7 +210,7 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
     [block, onBlockChange],
   );
 
-  /* ── Choice list operations ── */
+  /* -- Choice list operations -- */
 
   const addChoice = useCallback(() => {
     updateItems([...choices, makeChoice()]);
@@ -264,62 +258,56 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
     });
   }, []);
 
-  /* ── Render ── */
+  /* -- Render -- */
 
   return (
     <div className="space-y-5">
-      <PanelHeader icon={LuListChecks} title="Choice Input" />
-
-      {/* ── Mode selector: Static vs Dynamic ── */}
-      <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)] overflow-hidden">
-        <button
-          type="button"
-          onClick={() => updateOptions({ isDynamic: false })}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
-            !isDynamic
-              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
-          }`}
+      {/* Panel header */}
+      <div className="flex items-center gap-2 pb-1 border-b border-[var(--st-border)]">
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+          aria-hidden="true"
         >
-          <LuListChecks className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span className="text-[12px] font-medium">Static choices</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => updateOptions({ isDynamic: true })}
-          className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
-            isDynamic
-              ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-              : 'text-[var(--gray-9)] hover:bg-[var(--gray-3)]'
-          }`}
-        >
-          <LuZap className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-          <span className="text-[12px] font-medium">Dynamic choices</span>
-        </button>
+          <ListChecks className="h-4 w-4" strokeWidth={1.8} />
+        </span>
+        <span className="text-[12px] font-semibold text-[var(--st-text)] uppercase tracking-wide">
+          Choice Input
+        </span>
       </div>
 
-      {/* ── Static choices list ── */}
+      {/* -- Mode selector: Static vs Dynamic -- */}
+      <SegmentedControl
+        fullWidth
+        aria-label="Choice source"
+        value={isDynamic ? 'dynamic' : 'static'}
+        onChange={(v) => updateOptions({ isDynamic: v === 'dynamic' })}
+        items={[
+          { value: 'static', label: 'Static choices', icon: ListChecks },
+          { value: 'dynamic', label: 'Dynamic choices', icon: Zap },
+        ]}
+      />
+
+      {/* -- Static choices list -- */}
       {!isDynamic && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+            <span className="text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
               Choices
-            </label>
+            </span>
             {choices.length > 0 && (
-              <span className="text-[11px] text-[var(--gray-7)]">
+              <Badge tone="neutral" kind="soft">
                 {choices.length} item{choices.length !== 1 ? 's' : ''}
-              </span>
+              </Badge>
             )}
           </div>
 
           {choices.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] py-5 text-center">
-              <LuListChecks
-                className="mx-auto h-5 w-5 text-[var(--gray-6)] mb-1.5"
-                strokeWidth={1.5}
-              />
-              <p className="text-[11.5px] text-[var(--gray-8)]">No choices yet — add one below</p>
-            </div>
+            <EmptyState
+              icon={ListChecks}
+              size="sm"
+              title="No choices yet"
+              description="Add one below to get started."
+            />
           ) : (
             <div className="space-y-1.5">
               {choices.map((choice, idx) => (
@@ -340,49 +328,37 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           )}
 
           {/* Add choice button */}
-          <button
-            type="button"
-            onClick={addChoice}
-            className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--gray-5)] py-2 text-[12px] font-medium text-[var(--gray-8)] hover:border-[var(--st-border)] hover:text-[var(--st-text)] hover:bg-[var(--st-text)] transition-colors"
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          <Button variant="outline" block iconLeft={Plus} onClick={addChoice}>
             Add choice
-          </button>
+          </Button>
         </div>
       )}
 
-      {/* ── Dynamic choices variable picker ── */}
+      {/* -- Dynamic choices variable picker -- */}
       {isDynamic && (
         <div className="space-y-3">
-          <div className="rounded-lg border border-[var(--gray-4)] bg-[var(--gray-2)] px-3 py-2.5 flex items-start gap-2">
-            <LuZap
-              className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[var(--st-text)]"
-              strokeWidth={2}
-            />
-            <p className="text-[11.5px] text-[var(--gray-9)] leading-relaxed">
-              Point to a variable holding a{' '}
-              <strong>JSON array of strings</strong>, e.g.{' '}
-              <code className="bg-[var(--gray-3)] px-1 rounded text-[10.5px]">
-                {`["Option A","Option B"]`}
-              </code>
-            </p>
-          </div>
+          <Callout tone="info" icon={Zap}>
+            Point to a variable holding a <strong>JSON array of strings</strong>, e.g.{' '}
+            <code className="bg-[var(--st-bg-secondary)] px-1 rounded-[var(--st-radius-sm)] text-[10.5px]">
+              {`["Option A","Option B"]`}
+            </code>
+          </Callout>
           <Field label="Dynamic choices variable">
             <VariableSelect
               variables={variables}
               value={dynamicVariableId}
               onChange={(id) => updateOptions({ dynamicVariableId: id })}
-              placeholder="— select variable —"
+              placeholder="Select variable"
             />
           </Field>
         </div>
       )}
 
-      <Divider />
+      <div className="h-px bg-[var(--st-border)]" />
 
-      {/* ── Settings section ── */}
+      {/* -- Settings section -- */}
       <div className="space-y-4">
-        <p className="text-[11.5px] font-semibold text-[var(--gray-9)] uppercase tracking-wide">
+        <p className="text-[11.5px] font-semibold text-[var(--st-text-secondary)] uppercase tracking-wide">
           Settings
         </p>
 
@@ -403,20 +379,18 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           onToggle={() => updateOptions({ isMultipleChoice: !isMultiple })}
         />
 
-        {/* Button label — only for multi-select */}
+        {/* Button label - only for multi-select */}
         {isMultiple && (
           <Field label="Submit button label">
-            <input
-              type="text"
+            <Input
               value={buttonLabel}
               onChange={(e) => updateOptions({ buttonLabel: e.target.value })}
               placeholder="Send"
-              className={inputClass}
             />
           </Field>
         )}
 
-        <Divider />
+        <div className="h-px bg-[var(--st-border)]" />
 
         {/* Searchable toggle */}
         <ToggleRow
@@ -426,22 +400,15 @@ export function ChoiceInputSettings({ block, onBlockChange, variables = [] }: Pr
           onToggle={() => updateOptions({ isSearchable: !isSearchable })}
         />
 
-        {/* Search placeholder — only when searchable */}
+        {/* Search placeholder - only when searchable */}
         {isSearchable && (
           <Field label="Search placeholder">
-            <div className="relative">
-              <LuSearch
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-7)] pointer-events-none"
-                strokeWidth={2}
-              />
-              <input
-                type="text"
-                value={searchPlaceholder}
-                onChange={(e) => updateOptions({ searchInputPlaceholder: e.target.value })}
-                placeholder="Search…"
-                className={`${inputClass} pl-8`}
-              />
-            </div>
+            <Input
+              iconLeft={Search}
+              value={searchPlaceholder}
+              onChange={(e) => updateOptions({ searchInputPlaceholder: e.target.value })}
+              placeholder="Search..."
+            />
           </Field>
         )}
       </div>
