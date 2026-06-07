@@ -23,7 +23,7 @@ export const ZoruDrawerOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-50 bg-zoru-ink/40 backdrop-blur-[2px]", className)}
+    className={cn("fixed inset-0 z-50 bg-[var(--st-text)]/40 backdrop-blur-[2px]", className)}
     {...props}
   />
 ));
@@ -38,12 +38,12 @@ export const ZoruDrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        "zoruui fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[var(--zoru-radius-xl)] border-t border-zoru-line bg-zoru-bg",
+        "zoruui fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[var(--st-radius-lg)] border-t border-[var(--st-border)] bg-[var(--st-bg)]",
         className,
       )}
       {...props}
     >
-      <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-zoru-line-strong" />
+      <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-[var(--st-border-strong)]" />
       {children}
     </DrawerPrimitive.Content>
   </ZoruDrawerPortal>
@@ -80,7 +80,7 @@ export const ZoruDrawerTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold tracking-tight text-zoru-ink", className)}
+    className={cn("text-base font-semibold tracking-tight text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -92,7 +92,7 @@ export const ZoruDrawerDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DrawerPrimitive.Description
     ref={ref}
-    className={cn("text-sm leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

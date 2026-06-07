@@ -224,7 +224,7 @@ export default function LeaveCalendarClient({
           </div>
         </div>
 
-        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-zoru-line scrollbar-track-transparent pb-4">
+        <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-[var(--st-border)] scrollbar-track-transparent pb-4">
           <div className="min-w-[700px]">
             {viewMode !== 'day' && (
               <div className={`grid grid-cols-7 gap-1`}>
@@ -326,7 +326,7 @@ export default function LeaveCalendarClient({
                               <span>{cell.date ? fmtDate(cell.date, 'EEE, MMM d') : ''}</span>
                               <span className="text-[11px] text-[var(--st-text-secondary)]">{dayEntries.length} leaves</span>
                             </div>
-                            <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-zoru-line scrollbar-track-transparent pr-1">
+                            <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--st-border)] scrollbar-track-transparent pr-1">
                               {dayEntries.map((e) => (
                                 <div
                                   key={`popover-${e._id}-${e.date}`}

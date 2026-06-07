@@ -22,32 +22,32 @@ export function ZoruCalendarLume({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("text-zoru-ink", className)}
+      className={cn("text-[var(--st-text)]", className)}
       classNames={{
         months: "flex flex-col gap-y-2",
         month: "flex flex-col gap-2",
         month_caption: "relative flex h-8 items-center justify-center",
-        caption_label: "text-[13px] font-semibold tracking-tight text-zoru-ink",
+        caption_label: "text-[13px] font-semibold tracking-tight text-[var(--st-text)]",
         nav: "absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between",
         button_previous:
-          "inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2 transition-colors",
+          "inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] transition-colors",
         button_next:
-          "inline-flex h-7 w-7 items-center justify-center rounded-full text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2 transition-colors",
+          "inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] transition-colors",
         month_grid: "w-full border-collapse",
         weekdays: "flex w-full",
         weekday:
-          "text-zoru-ink-subtle w-10 h-8 font-normal text-[10px] flex items-center justify-center uppercase tracking-[0.15em]",
+          "text-[var(--st-text-tertiary)] w-10 h-8 font-normal text-[10px] flex items-center justify-center uppercase tracking-[0.15em]",
         week: "flex w-full",
         day: "relative h-10 w-10 p-0 text-center text-sm",
         day_button: cn(
-          "inline-flex h-10 w-10 items-center justify-center rounded-full p-0 text-sm font-medium text-zoru-ink",
-          "hover:bg-zoru-surface-2 transition-colors",
+          "inline-flex h-10 w-10 items-center justify-center rounded-full p-0 text-sm font-medium text-[var(--st-text)]",
+          "hover:bg-[var(--st-bg-muted)] transition-colors",
         ),
         selected:
-          "[&>button]:bg-zoru-primary [&>button]:text-zoru-primary-foreground",
-        today: "[&>button]:font-semibold [&>button]:text-zoru-ink-strong",
-        outside: "day-outside text-zoru-ink-subtle",
-        disabled: "text-zoru-ink-subtle opacity-40",
+          "[&>button]:bg-[var(--st-accent)] [&>button]:text-[var(--st-text-inverted)]",
+        today: "[&>button]:font-semibold [&>button]:text-[var(--st-text)]",
+        outside: "day-outside text-[var(--st-text-tertiary)]",
+        disabled: "text-[var(--st-text-tertiary)] opacity-40",
         hidden: "invisible",
         ...classNames,
       }}

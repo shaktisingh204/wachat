@@ -19,7 +19,7 @@ export const ZoruCommand = React.forwardRef<
   <CommandPrimitive
     ref={ref}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-bg text-zoru-ink",
+      "flex h-full w-full flex-col overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg)] text-[var(--st-text)]",
       className,
     )}
     {...props}
@@ -49,7 +49,7 @@ export function ZoruCommandDialog({
         className={cn("overflow-hidden p-0 max-w-2xl", contentProps?.className)}
       >
         <ZoruDialogTitle className="sr-only">{title}</ZoruDialogTitle>
-        <ZoruCommand className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-zoru-ink-subtle [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-zoru-line [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2">
+        <ZoruCommand className="[&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-2 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-[var(--st-text-tertiary)] [&_[cmdk-input-wrapper]]:border-b [&_[cmdk-input-wrapper]]:border-[var(--st-border)] [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2">
           {children}
         </ZoruCommand>
       </ZoruDialogContent>
@@ -62,14 +62,14 @@ export const ZoruCommandInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <div
-    className="flex items-center border-b border-zoru-line px-3"
+    className="flex items-center border-b border-[var(--st-border)] px-3"
     cmdk-input-wrapper=""
   >
-    <Search className="mr-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+    <Search className="mr-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-zoru-ink-subtle disabled:cursor-not-allowed disabled:opacity-50",
+        "flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-[var(--st-text-tertiary)] disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
@@ -96,7 +96,7 @@ export const ZoruCommandEmpty = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Empty
     ref={ref}
-    className={cn("py-6 text-center text-sm text-zoru-ink-muted", className)}
+    className={cn("py-6 text-center text-sm text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));
@@ -109,8 +109,8 @@ export const ZoruCommandGroup = React.forwardRef<
   <CommandPrimitive.Group
     ref={ref}
     className={cn(
-      "overflow-hidden p-1 text-zoru-ink",
-      "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-zoru-ink-subtle",
+      "overflow-hidden p-1 text-[var(--st-text)]",
+      "[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wide [&_[cmdk-group-heading]]:text-[var(--st-text-tertiary)]",
       className,
     )}
     {...props}
@@ -124,7 +124,7 @@ export const ZoruCommandSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 h-px bg-zoru-line", className)}
+    className={cn("-mx-1 h-px bg-[var(--st-border)]", className)}
     {...props}
   />
 ));
@@ -137,8 +137,8 @@ export const ZoruCommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-sm outline-none text-zoru-ink",
-      "data-[selected=true]:bg-zoru-surface-2",
+      "relative flex cursor-default select-none items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-sm outline-none text-[var(--st-text)]",
+      "data-[selected=true]:bg-[var(--st-bg-muted)]",
       "data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
       "[&_svg]:size-4 [&_svg]:shrink-0",
       className,
@@ -154,7 +154,7 @@ export function ZoruCommandShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("ml-auto text-[11px] tracking-widest text-zoru-ink-subtle", className)}
+      className={cn("ml-auto text-[11px] tracking-widest text-[var(--st-text-tertiary)]", className)}
       {...props}
     />
   );

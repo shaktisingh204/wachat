@@ -46,7 +46,7 @@ export function ZoruAppRail({
     <ZoruTooltipProvider delayDuration={150}>
       <aside
         className={cn(
-          "flex h-full w-14 shrink-0 flex-col items-center gap-2 border-r border-zoru-line bg-zoru-bg py-3",
+          "flex h-full w-14 shrink-0 flex-col items-center gap-2 border-r border-[var(--st-border)] bg-[var(--st-bg)] py-3",
           className,
         )}
       >
@@ -61,7 +61,7 @@ export function ZoruAppRail({
           ))}
         </nav>
         {footer && footer.length > 0 && (
-          <nav className="flex flex-col items-center gap-1 border-t border-zoru-line/60 pt-2">
+          <nav className="flex flex-col items-center gap-1 border-t border-[var(--st-border)]/60 pt-2">
             {footer.map((item) => (
               <RailButton key={item.id} item={item} />
             ))}
@@ -77,17 +77,17 @@ function RailButton({ item }: { item: ZoruAppRailItem }) {
     <span
       className={cn(
         // Default (inactive): transparent bg, dark icon, light hover wash.
-        "relative inline-flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] text-zoru-ink transition-colors",
-        "hover:bg-zoru-surface-2",
+        "relative inline-flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-text)] transition-colors",
+        "hover:bg-[var(--st-bg-muted)]",
         // Active: solid black tile with a white icon.
         item.active &&
-          "bg-zoru-ink text-zoru-bg hover:bg-zoru-ink hover:text-zoru-bg",
+          "bg-[var(--st-text)] text-[var(--st-bg)] hover:bg-[var(--st-text)] hover:text-[var(--st-bg)]",
         "[&_svg]:size-[18px]",
       )}
     >
       {item.icon}
       {item.badge && (
-        <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-primary px-1 text-[9px] font-semibold text-zoru-primary-foreground">
+        <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-accent)] px-1 text-[9px] font-semibold text-[var(--st-text-inverted)]">
           {item.badge}
         </span>
       )}

@@ -15,25 +15,25 @@ import { cn } from "@/lib/utils"
  *  - outline: neutral border with indigo hover
  */
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-zoru-line focus:ring-offset-2",
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-zoru-ink text-white hover:bg-zoru-ink/85",
+          "border-transparent bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/85",
         secondary:
-          "border-transparent bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-surface-2/80",
+          "border-transparent bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/80",
         destructive:
-          "border-transparent bg-zoru-ink text-white hover:bg-zoru-ink/85",
+          "border-transparent bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]/85",
         success:
-          "border-transparent bg-zoru-ink text-white hover:bg-zoru-ink",
+          "border-transparent bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]",
         warning:
-          "border-transparent bg-zoru-ink text-white hover:bg-zoru-ink",
+          "border-transparent bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]",
         info:
-          "border-transparent bg-zoru-ink text-white hover:bg-zoru-ink",
+          "border-transparent bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]",
         prism:
           "border-transparent text-white [background:var(--prism-gradient)]",
-        outline: "text-zoru-ink hover:border-zoru-line",
+        outline: "text-[var(--st-text)] hover:border-[var(--st-border)]",
       },
     },
     defaultVariants: {

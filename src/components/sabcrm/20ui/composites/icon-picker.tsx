@@ -91,26 +91,26 @@ export function ZoruIconPicker({
           disabled={disabled}
           aria-label={`Pick an icon (current: ${value || "none"})`}
           className={cn(
-            "inline-flex w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1.5 text-sm text-zoru-ink transition-colors hover:border-zoru-line-strong",
+            "inline-flex w-full items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5 text-sm text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)]",
             disabled && "cursor-not-allowed opacity-50",
             "focus-visible:outline-none",
             className,
           )}
         >
           <span
-            className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] border border-zoru-line bg-zoru-surface"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] border border-[var(--st-border)] bg-[var(--st-surface)]"
             style={{ color: swatchColor }}
           >
             <Selected className="h-4 w-4" />
           </span>
-          <span className="font-mono text-xs text-zoru-ink-muted">
+          <span className="font-mono text-xs text-[var(--st-text-secondary)]">
             {value || placeholder}
           </span>
         </button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent align={align} className="w-72 space-y-2 p-2">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+          <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--st-text-secondary)]" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -132,9 +132,9 @@ export function ZoruIconPicker({
                   setOpen(false);
                 }}
                 className={cn(
-                  "inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-transparent text-zoru-ink-muted transition-colors",
-                  "hover:border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink",
-                  active && "border-zoru-ink bg-zoru-surface-2 text-zoru-ink",
+                  "inline-flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] border border-transparent text-[var(--st-text-secondary)] transition-colors",
+                  "hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+                  active && "border-[var(--st-text)] bg-[var(--st-bg-muted)] text-[var(--st-text)]",
                 )}
                 style={active && color ? { color } : undefined}
               >
@@ -143,23 +143,23 @@ export function ZoruIconPicker({
             );
           })}
           {entries.length === 0 ? (
-            <div className="col-span-7 py-4 text-center text-xs text-zoru-ink-muted">
+            <div className="col-span-7 py-4 text-center text-xs text-[var(--st-text-secondary)]">
               No icons match.
             </div>
           ) : null}
         </div>
-        <div className="flex items-center justify-between border-t border-zoru-line pt-2">
+        <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-2">
           <button
             type="button"
             onClick={() => {
               onChange("");
               setOpen(false);
             }}
-            className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             Clear
           </button>
-          <span className="text-[11px] text-zoru-ink-muted">{entries.length} icons</span>
+          <span className="text-[11px] text-[var(--st-text-secondary)]">{entries.length} icons</span>
         </div>
       </ZoruPopoverContent>
     </Popover>

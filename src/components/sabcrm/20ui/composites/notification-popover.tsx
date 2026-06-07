@@ -192,7 +192,7 @@ export function ZoruNotificationPopover({
           {unreadCount > 0 && (
             <span
               aria-hidden
-              className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-danger px-1 text-[9px] text-zoru-danger-foreground ring-2 ring-zoru-bg"
+              className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-danger)] px-1 text-[9px] text-[var(--st-text-inverted)] ring-2 ring-[var(--st-bg)]"
             >
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
@@ -205,10 +205,10 @@ export function ZoruNotificationPopover({
         className="w-[380px] p-0"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zoru-line px-4 py-3">
+        <div className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-3">
           <div className="flex flex-col">
-            <p className="text-sm text-zoru-ink">Notifications</p>
-            <p className="text-[11px] text-zoru-ink-muted">
+            <p className="text-sm text-[var(--st-text)]">Notifications</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
               {unreadCount > 0
                 ? `${unreadCount} unread`
                 : "You're all caught up"}
@@ -233,7 +233,7 @@ export function ZoruNotificationPopover({
         </div>
 
         {/* Category filter — segmented buttons, NOT tabs */}
-        <div className="border-b border-zoru-line bg-zoru-surface px-2 py-2">
+        <div className="border-b border-[var(--st-border)] bg-[var(--st-surface)] px-2 py-2">
           <div className="flex gap-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
             {CATEGORIES.map((cat) => {
               const active = activeCategory === cat.id;
@@ -244,10 +244,10 @@ export function ZoruNotificationPopover({
                   onClick={() => setActiveCategory(cat.id)}
                   aria-pressed={active}
                   className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--zoru-radius-sm)] px-2.5 py-1 text-xs transition-colors",
+                    "inline-flex shrink-0 items-center gap-1.5 rounded-[var(--st-radius-sm)] px-2.5 py-1 text-xs transition-colors",
                     active
-                      ? "bg-zoru-ink text-zoru-on-primary"
-                      : "text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink",
+                      ? "bg-[var(--st-text)] text-[var(--st-text-inverted)]"
+                      : "text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
                   )}
                 >
                   <span className="[&_svg]:size-3.5">{cat.icon}</span>
@@ -261,7 +261,7 @@ export function ZoruNotificationPopover({
         {/* Body */}
         <ScrollArea className="h-[360px]">
           {loading && notifications.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-zoru-ink-muted">
+            <div className="flex h-full flex-col items-center justify-center gap-2 text-[var(--st-text-secondary)]">
               <Loader2 className="h-5 w-5 animate-spin" />
               <p className="text-xs">Loading…</p>
             </div>
@@ -275,7 +275,7 @@ export function ZoruNotificationPopover({
               />
             </div>
           ) : (
-            <ul className="divide-y divide-zoru-line">
+            <ul className="divide-y divide-[var(--st-border)]">
               {filtered.map((n) => {
                 const id = n._id.toString();
                 return (
@@ -291,27 +291,27 @@ export function ZoruNotificationPopover({
                       }}
                       className={cn(
                         "group relative flex w-full gap-3 px-4 py-3 text-left transition-colors",
-                        "hover:bg-zoru-surface focus-visible:bg-zoru-surface focus-visible:outline-none",
-                        !n.isRead && "bg-zoru-surface/60",
+                        "hover:bg-[var(--st-surface)] focus-visible:bg-[var(--st-surface)] focus-visible:outline-none",
+                        !n.isRead && "bg-[var(--st-surface)]/60",
                       )}
                     >
                       <span
                         aria-hidden
                         className={cn(
                           "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                          !n.isRead ? "bg-zoru-ink" : "bg-transparent",
+                          !n.isRead ? "bg-[var(--st-text)]" : "bg-transparent",
                         )}
                       />
                       <div className="min-w-0 flex-1 space-y-1">
                         <p
                           className={cn(
-                            "text-sm leading-snug text-zoru-ink",
-                            n.isRead && "text-zoru-ink-muted",
+                            "text-sm leading-snug text-[var(--st-text)]",
+                            n.isRead && "text-[var(--st-text-secondary)]",
                           )}
                         >
                           {n.message}
                         </p>
-                        <div className="flex items-center gap-2 text-[11px] text-zoru-ink-subtle">
+                        <div className="flex items-center gap-2 text-[11px] text-[var(--st-text-tertiary)]">
                           <span>
                             {new Date(n.createdAt).toLocaleDateString()}
                           </span>
@@ -327,7 +327,7 @@ export function ZoruNotificationPopover({
                           aria-label="Mark as read"
                           tabIndex={-1}
                           onClick={(e) => handleMarkOne(id, e)}
-                          className="absolute right-3 top-3 inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-zoru-ink-muted opacity-0 transition-opacity hover:bg-zoru-surface-2 hover:text-zoru-ink group-hover:opacity-100"
+                          className="absolute right-3 top-3 inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[var(--st-text-secondary)] opacity-0 transition-opacity hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] group-hover:opacity-100"
                         >
                           <Check className="h-3 w-3" />
                         </span>
@@ -341,14 +341,14 @@ export function ZoruNotificationPopover({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t border-zoru-line bg-zoru-surface px-4 py-2 text-center">
+        <div className="border-t border-[var(--st-border)] bg-[var(--st-surface)] px-4 py-2 text-center">
           <button
             type="button"
             onClick={() => {
               setOpen(false);
               router.push("/dashboard/notifications");
             }}
-            className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
+            className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             View all notifications →
           </button>

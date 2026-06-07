@@ -9,7 +9,7 @@ import { cn } from "./lib/cn";
 export const zoruButtonVariants = cva(
   [
     "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium",
-    "rounded-[var(--zoru-radius)] border border-transparent",
+    "rounded-[var(--st-radius)] border border-transparent",
     "transition-[background,color,border,box-shadow,transform] duration-200",
     "disabled:pointer-events-none disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([data-stop])]:size-4",
@@ -19,27 +19,27 @@ export const zoruButtonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+          "border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-accent-hover)] hover:shadow-[var(--st-shadow-md)] active:bg-[var(--st-accent-hover)]",
         primary:
-          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+          "border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-accent-hover)] hover:shadow-[var(--st-shadow-md)] active:bg-[var(--st-accent-hover)]",
         rose:
-          "border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)] active:bg-zoru-primary-active",
+          "border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-accent-hover)] hover:shadow-[var(--st-shadow-md)] active:bg-[var(--st-accent-hover)]",
         obsidian:
-          "border-zoru-ink bg-zoru-ink text-zoru-bg shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-ink-muted hover:shadow-[var(--zoru-shadow-md)]",
+          "border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-text-secondary)] hover:shadow-[var(--st-shadow-md)]",
         pill:
-          "rounded-full border-zoru-primary bg-zoru-primary text-zoru-primary-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-primary-hover hover:shadow-[var(--zoru-shadow-md)]",
+          "rounded-full border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-accent-hover)] hover:shadow-[var(--st-shadow-md)]",
         secondary:
-          "border-zoru-line bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface-2 hover:shadow-[var(--zoru-shadow-md)]",
+          "border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] hover:shadow-[var(--st-shadow-md)]",
         outline:
-          "border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface hover:shadow-[var(--zoru-shadow-md)]",
-        ghost: "bg-transparent text-zoru-ink hover:translate-y-0 hover:bg-zoru-surface-2",
-        link: "h-auto bg-transparent px-0 text-zoru-ink underline-offset-4 hover:translate-y-0 hover:underline",
+          "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-surface)] hover:shadow-[var(--st-shadow-md)]",
+        ghost: "bg-transparent text-[var(--st-text)] hover:translate-y-0 hover:bg-[var(--st-bg-muted)]",
+        link: "h-auto bg-transparent px-0 text-[var(--st-text)] underline-offset-4 hover:translate-y-0 hover:underline",
         "sidebar-active":
-          "border-zoru-line bg-zoru-surface-2 text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line-strong hover:bg-zoru-surface-2",
+          "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)]",
         destructive:
-          "border-zoru-danger bg-zoru-danger text-zoru-danger-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-danger/90 hover:shadow-[var(--zoru-shadow-md)]",
+          "border-[var(--st-danger)] bg-[var(--st-danger)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-danger)]/90 hover:shadow-[var(--st-shadow-md)]",
         success:
-          "border-zoru-success bg-zoru-success text-zoru-success-foreground shadow-[var(--zoru-shadow-sm)] hover:bg-zoru-success/90 hover:shadow-[var(--zoru-shadow-md)]",
+          "border-[var(--st-status-ok)] bg-[var(--st-status-ok)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-sm)] hover:bg-[var(--st-status-ok)]/90 hover:shadow-[var(--st-shadow-md)]",
       },
       size: {
         sm: "h-8 px-3 text-xs",

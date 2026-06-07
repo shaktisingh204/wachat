@@ -30,11 +30,11 @@ export function ZoruCallToAction({
   return (
     <section
       className={cn(
-        "rounded-[var(--zoru-radius-xl)] px-8 py-12 md:px-12 md:py-16",
-        variant === "default" && "border border-zoru-line bg-zoru-bg",
-        variant === "soft" && "bg-zoru-surface",
-        variant === "outline" && "border border-zoru-line-strong bg-transparent",
-        variant === "inverted" && "bg-zoru-ink text-zoru-on-primary",
+        "rounded-[var(--st-radius-lg)] px-8 py-12 md:px-12 md:py-16",
+        variant === "default" && "border border-[var(--st-border)] bg-[var(--st-bg)]",
+        variant === "soft" && "bg-[var(--st-surface)]",
+        variant === "outline" && "border border-[var(--st-border-strong)] bg-transparent",
+        variant === "inverted" && "bg-[var(--st-text)] text-[var(--st-text-inverted)]",
         className,
       )}
       {...props}
@@ -46,8 +46,8 @@ export function ZoruCallToAction({
               className={cn(
                 "text-[11px] font-medium uppercase tracking-[0.2em]",
                 variant === "inverted"
-                  ? "text-zoru-on-primary/70"
-                  : "text-zoru-ink-subtle",
+                  ? "text-[var(--st-text-inverted)]/70"
+                  : "text-[var(--st-text-tertiary)]",
               )}
             >
               {eyebrow}
@@ -56,7 +56,7 @@ export function ZoruCallToAction({
           <h2
             className={cn(
               "text-3xl font-semibold tracking-tight md:text-4xl",
-              variant === "inverted" ? "text-zoru-on-primary" : "text-zoru-ink",
+              variant === "inverted" ? "text-[var(--st-text-inverted)]" : "text-[var(--st-text)]",
             )}
           >
             {title}
@@ -66,8 +66,8 @@ export function ZoruCallToAction({
               className={cn(
                 "text-base leading-relaxed",
                 variant === "inverted"
-                  ? "text-zoru-on-primary/80"
-                  : "text-zoru-ink-muted",
+                  ? "text-[var(--st-text-inverted)]/80"
+                  : "text-[var(--st-text-secondary)]",
               )}
             >
               {description}

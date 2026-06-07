@@ -16,7 +16,7 @@ export function PageHeader({
     <header
       className={cn(
         "flex flex-col gap-3 pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-6",
-        bordered && "border-b border-zoru-line",
+        bordered && "border-b border-[var(--st-border)]",
         className,
       )}
       {...props}
@@ -38,7 +38,7 @@ export function ZoruPageEyebrow({
   return (
     <p
       className={cn(
-        "text-[11px] font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle",
+        "text-[11px] font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]",
         className,
       )}
       {...props}
@@ -53,7 +53,7 @@ export function ZoruPageTitle({
   return (
     <h1
       className={cn(
-        "text-2xl font-semibold tracking-tight text-zoru-ink",
+        "text-2xl font-semibold tracking-tight text-[var(--st-text)]",
         className,
       )}
       {...props}
@@ -67,7 +67,7 @@ export function ZoruPageDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("max-w-2xl text-sm leading-relaxed text-zoru-ink-muted", className)}
+      className={cn("max-w-2xl text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
       {...props}
     />
   );

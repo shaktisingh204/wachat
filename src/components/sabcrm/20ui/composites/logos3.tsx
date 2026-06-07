@@ -28,7 +28,7 @@ export interface ZoruLogos3Props {
 /**
  * Auto-scrolling "trusted by" logo strip. Pure CSS marquee — no
  * embla-auto-scroll dependency. Logos are deliberately desaturated to
- * `text-zoru-ink-muted` to keep the strip visually quiet.
+ * `text-[var(--st-text-secondary)]` to keep the strip visually quiet.
  */
 export function ZoruLogos3({
   heading,
@@ -40,7 +40,7 @@ export function ZoruLogos3({
   return (
     <section className={cn("flex flex-col items-center gap-8", className)}>
       {heading && (
-        <h3 className="text-sm font-medium uppercase tracking-[0.2em] text-zoru-ink-subtle">
+        <h3 className="text-sm font-medium uppercase tracking-[0.2em] text-[var(--st-text-tertiary)]">
           {heading}
         </h3>
       )}

@@ -17,10 +17,10 @@ export const ZoruSelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2 text-sm",
-      "text-zoru-ink placeholder:text-zoru-ink-subtle",
-      "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-zoru-line-strong",
-      "data-[state=open]:border-zoru-ink data-[state=open]:shadow-[var(--zoru-shadow-md)]",
+      "flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm",
+      "text-[var(--st-text)] placeholder:text-[var(--st-text-tertiary)]",
+      "shadow-[var(--st-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-[var(--st-border-strong)]",
+      "data-[state=open]:border-[var(--st-text)] data-[state=open]:shadow-[var(--st-shadow-md)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none [&>span]:line-clamp-1",
       className,
@@ -29,7 +29,7 @@ export const ZoruSelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 shrink-0 text-zoru-ink-muted" data-stop />
+      <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" data-stop />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -41,7 +41,7 @@ const ZoruSelectScrollUp = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
-    className={cn("flex cursor-default items-center justify-center py-1 text-zoru-ink-muted", className)}
+    className={cn("flex cursor-default items-center justify-center py-1 text-[var(--st-text-secondary)]", className)}
     {...props}
   >
     <ChevronUp className="h-4 w-4" data-stop />
@@ -55,7 +55,7 @@ const ZoruSelectScrollDown = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
-    className={cn("flex cursor-default items-center justify-center py-1 text-zoru-ink-muted", className)}
+    className={cn("flex cursor-default items-center justify-center py-1 text-[var(--st-text-secondary)]", className)}
     {...props}
   >
     <ChevronDown className="h-4 w-4" data-stop />
@@ -73,7 +73,7 @@ export const ZoruSelectContent = React.forwardRef<
       position={position}
       className={cn(
         "zoruui relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-hidden",
-        "zoruui-surface-sheen rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
+        "zoruui-surface-sheen rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -105,7 +105,7 @@ export const ZoruSelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn("px-2 py-1.5 text-xs font-medium text-zoru-ink-muted uppercase tracking-wide", className)}
+    className={cn("px-2 py-1.5 text-xs font-medium text-[var(--st-text-secondary)] uppercase tracking-wide", className)}
     {...props}
   />
 ));
@@ -118,9 +118,9 @@ export const ZoruSelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] py-2 pl-2.5 pr-8 text-sm outline-none",
-      "text-zoru-ink",
-      "focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[state=checked]:bg-zoru-surface",
+      "relative flex w-full cursor-default select-none items-center gap-2 rounded-[var(--st-radius-sm)] py-2 pl-2.5 pr-8 text-sm outline-none",
+      "text-[var(--st-text)]",
+      "focus:bg-[var(--st-bg-muted)] data-[highlighted]:bg-[var(--st-bg-muted)] data-[state=checked]:bg-[var(--st-surface)]",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
@@ -142,7 +142,7 @@ export const ZoruSelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-zoru-line", className)}
+    className={cn("-mx-1 my-1 h-px bg-[var(--st-border)]", className)}
     {...props}
   />
 ));

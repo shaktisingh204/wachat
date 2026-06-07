@@ -42,7 +42,7 @@ export function DatePicker({
           disabled={disabled}
           className={cn(
             "w-full justify-start font-normal",
-            !value && "text-zoru-ink-subtle",
+            !value && "text-[var(--st-text-tertiary)]",
             className,
           )}
         >
@@ -97,7 +97,7 @@ export function ZoruDateRangePicker({
           disabled={disabled}
           className={cn(
             "w-full justify-start font-normal",
-            !value?.from && "text-zoru-ink-subtle",
+            !value?.from && "text-[var(--st-text-tertiary)]",
             className,
           )}
         >

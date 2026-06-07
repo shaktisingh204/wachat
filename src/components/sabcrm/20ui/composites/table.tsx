@@ -6,11 +6,11 @@ export const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-sm)]">
+  <div className="relative w-full overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)]">
     <div className="w-full overflow-x-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm text-zoru-ink", className)}
+      className={cn("w-full caption-bottom text-sm text-[var(--st-text)]", className)}
       {...props}
     />
     </div>
@@ -24,7 +24,7 @@ export const ZoruTableHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <thead
     ref={ref}
-    className={cn("[&_tr]:border-b [&_tr]:border-zoru-line", className)}
+    className={cn("[&_tr]:border-b [&_tr]:border-[var(--st-border)]", className)}
     {...props}
   />
 ));
@@ -49,7 +49,7 @@ export const ZoruTableFooter = React.forwardRef<
   <tfoot
     ref={ref}
     className={cn(
-      "border-t border-zoru-line bg-zoru-surface font-medium",
+      "border-t border-[var(--st-border)] bg-[var(--st-surface)] font-medium",
       className,
     )}
     {...props}
@@ -64,8 +64,8 @@ export const ZoruTableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b border-zoru-line transition-colors",
-      "hover:bg-zoru-surface data-[state=selected]:bg-zoru-surface-2",
+      "border-b border-[var(--st-border)] transition-colors",
+      "hover:bg-[var(--st-surface)] data-[state=selected]:bg-[var(--st-bg-muted)]",
       className,
     )}
     {...props}
@@ -80,7 +80,7 @@ export const ZoruTableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-10 bg-zoru-surface px-3 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle",
+      "h-10 bg-[var(--st-surface)] px-3 text-left align-middle text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]",
       "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-0",
       className,
     )}
@@ -110,7 +110,7 @@ export const ZoruTableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-4 text-xs text-zoru-ink-muted", className)}
+    className={cn("mt-4 text-xs text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

@@ -177,14 +177,14 @@ export function ZoruTagPicker({
                 <button
                     type="button"
                     className={cn(
-                        "flex h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink",
-                        "hover:border-zoru-line-strong focus:outline-none focus:border-zoru-ink",
+                        "flex h-9 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-[13px] text-[var(--st-text)]",
+                        "hover:border-[var(--st-border-strong)] focus:outline-none focus:border-[var(--st-text)]",
                         className,
                     )}
                 >
                     <span className="flex min-w-0 flex-1 flex-wrap items-center gap-1 truncate text-left">
                         {selectedLabels.length === 0 ? (
-                            <span className="text-zoru-ink-subtle">{placeholder}</span>
+                            <span className="text-[var(--st-text-tertiary)]">{placeholder}</span>
                         ) : (
                             selectedLabels.map((tag) => (
                                 <span
@@ -201,14 +201,14 @@ export function ZoruTagPicker({
                             ))
                         )}
                     </span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
                 </button>
             </ZoruPopoverTrigger>
             <ZoruPopoverContent
                 className="w-[--radix-popover-trigger-width] min-w-[260px] p-0"
                 align="start"
             >
-                <div className="border-b border-zoru-line p-2">
+                <div className="border-b border-[var(--st-border)] p-2">
                     <Input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -220,7 +220,7 @@ export function ZoruTagPicker({
 
                 <div className="max-h-72 overflow-y-auto py-1">
                     {filtered.length === 0 && !createOpen && (
-                        <p className="px-3 py-4 text-center text-[12px] text-zoru-ink-subtle">
+                        <p className="px-3 py-4 text-center text-[12px] text-[var(--st-text-tertiary)]">
                             {query ? `No tags match "${query}"` : "No tags yet."}
                         </p>
                     )}
@@ -269,12 +269,12 @@ export function ZoruTagPicker({
                         return (
                             <div
                                 key={tag._id}
-                                className="group flex items-center gap-2 px-2 py-1.5 hover:bg-zoru-surface-2"
+                                className="group flex items-center gap-2 px-2 py-1.5 hover:bg-[var(--st-bg-muted)]"
                             >
                                 <button
                                     type="button"
                                     onClick={() => toggle(tag._id)}
-                                    className="flex flex-1 items-center gap-2 text-left text-[13px] text-zoru-ink"
+                                    className="flex flex-1 items-center gap-2 text-left text-[13px] text-[var(--st-text)]"
                                 >
                                     <Check
                                         className={cn(
@@ -294,7 +294,7 @@ export function ZoruTagPicker({
                                             <button
                                                 type="button"
                                                 aria-label={`Actions for ${tag.name}`}
-                                                className="rounded p-1 text-zoru-ink-muted opacity-0 transition-opacity hover:bg-zoru-surface-3 hover:text-zoru-ink group-hover:opacity-100 focus-visible:opacity-100"
+                                                className="rounded p-1 text-[var(--st-text-secondary)] opacity-0 transition-opacity hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] group-hover:opacity-100 focus-visible:opacity-100"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 <MoreHorizontal className="h-4 w-4" />
@@ -333,7 +333,7 @@ export function ZoruTagPicker({
                 </div>
 
                 {showCreate && (
-                    <div className="border-t border-zoru-line p-2">
+                    <div className="border-t border-[var(--st-border)] p-2">
                         {createOpen ? (
                             <div className="flex items-center gap-2">
                                 <Input
@@ -389,7 +389,7 @@ export function ZoruTagPicker({
                                     setCreateName(query);
                                     setCreateOpen(true);
                                 }}
-                                className="flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-[12px] font-medium text-zoru-ink hover:bg-zoru-surface-2"
+                                className="flex w-full items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-[12px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                             >
                                 <Plus className="h-3.5 w-3.5" />
                                 <span>

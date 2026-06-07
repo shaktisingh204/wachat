@@ -4,19 +4,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "./lib/cn";
 
 export const zoruBadgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium shadow-[var(--zoru-shadow-sm)] transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
+  "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium shadow-[var(--st-shadow-sm)] transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-zoru-primary text-zoru-primary-foreground",
-        secondary: "border-zoru-line bg-zoru-surface text-zoru-ink",
-        outline: "border-zoru-line-strong bg-zoru-bg text-zoru-ink",
-        ghost: "border-transparent bg-zoru-surface-2 text-zoru-ink-muted",
-        success: "border-zoru-success/20 bg-zoru-success/10 text-zoru-success-ink",
-        destructive: "border-zoru-danger/20 bg-zoru-danger/10 text-zoru-danger-ink",
-        danger: "border-zoru-danger/20 bg-zoru-danger/10 text-zoru-danger-ink",
-        warning: "border-zoru-warning/25 bg-zoru-warning/15 text-zoru-warning-ink",
-        info: "border-zoru-info/20 bg-zoru-info/10 text-zoru-info-ink",
+        default: "border-transparent bg-[var(--st-accent)] text-[var(--st-text-inverted)]",
+        secondary: "border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-text)]",
+        outline: "border-[var(--st-border-strong)] bg-[var(--st-bg)] text-[var(--st-text)]",
+        ghost: "border-transparent bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]",
+        success: "border-[var(--st-status-ok)]/20 bg-[var(--st-status-ok)]/10 text-[var(--st-status-ok)]",
+        destructive: "border-[var(--st-danger)]/20 bg-[var(--st-danger)]/10 text-[var(--st-danger-strong)]",
+        danger: "border-[var(--st-danger)]/20 bg-[var(--st-danger)]/10 text-[var(--st-danger-strong)]",
+        warning: "border-[var(--st-warn)]/25 bg-[var(--st-warn)]/15 text-[var(--st-warn)]",
+        info: "border-[var(--st-accent)]/20 bg-[var(--st-accent)]/10 text-[var(--st-accent)]",
       },
     },
     defaultVariants: { variant: "default" },

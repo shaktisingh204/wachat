@@ -23,24 +23,24 @@ export function ZoruFeatureCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] p-6",
-        variant === "default" && "border border-zoru-line bg-zoru-bg",
-        variant === "soft" && "bg-zoru-surface",
-        variant === "outline" && "border border-zoru-line-strong",
+        "flex flex-col gap-3 rounded-[var(--st-radius-lg)] p-6",
+        variant === "default" && "border border-[var(--st-border)] bg-[var(--st-bg)]",
+        variant === "soft" && "bg-[var(--st-surface)]",
+        variant === "outline" && "border border-[var(--st-border-strong)]",
         className,
       )}
       {...props}
     >
       {icon && (
-        <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-5">
+        <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)] [&_svg]:size-5">
           {icon}
         </span>
       )}
-      <h3 className="text-base font-semibold tracking-tight text-zoru-ink">
+      <h3 className="text-base font-semibold tracking-tight text-[var(--st-text)]">
         {title}
       </h3>
       {description && (
-        <p className="text-sm leading-relaxed text-zoru-ink-muted">
+        <p className="text-sm leading-relaxed text-[var(--st-text-secondary)]">
           {description}
         </p>
       )}
@@ -73,12 +73,12 @@ export function ZoruFeatureGrid({
       {(heading || subhead) && (
         <div className="flex flex-col items-start gap-2">
           {heading && (
-            <h2 className="text-3xl font-semibold tracking-tight text-zoru-ink">
+            <h2 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">
               {heading}
             </h2>
           )}
           {subhead && (
-            <p className="max-w-2xl text-base leading-relaxed text-zoru-ink-muted">
+            <p className="max-w-2xl text-base leading-relaxed text-[var(--st-text-secondary)]">
               {subhead}
             </p>
           )}

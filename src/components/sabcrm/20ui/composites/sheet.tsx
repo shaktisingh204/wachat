@@ -19,7 +19,7 @@ const ZoruSheetOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-zoru-ink/45 backdrop-blur-sm",
+      "fixed inset-0 z-50 bg-[var(--st-text)]/45 backdrop-blur-sm",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
@@ -31,7 +31,7 @@ ZoruSheetOverlay.displayName = "ZoruSheetOverlay";
 
 const sheetVariants = cva(
   [
-    "zoruui zoruui-surface-sheen fixed z-50 gap-4 bg-zoru-bg p-6 shadow-[var(--zoru-shadow-xl)]",
+    "zoruui zoruui-surface-sheen fixed z-50 gap-4 bg-[var(--st-bg)] p-6 shadow-[var(--st-shadow-lg)]",
     "transition ease-in-out",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:duration-200 data-[state=open]:duration-300",
@@ -39,12 +39,12 @@ const sheetVariants = cva(
   {
     variants: {
       side: {
-        top: "inset-x-0 top-0 border-b border-zoru-line data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        top: "inset-x-0 top-0 border-b border-[var(--st-border)] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
-          "inset-x-0 bottom-0 border-t border-zoru-line data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        left: "inset-y-0 left-0 h-full w-3/4 border-r border-zoru-line data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
+          "inset-x-0 bottom-0 border-t border-[var(--st-border)] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+        left: "inset-y-0 left-0 h-full w-3/4 border-r border-[var(--st-border)] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
         right:
-          "inset-y-0 right-0 h-full w-3/4 border-l border-zoru-line data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+          "inset-y-0 right-0 h-full w-3/4 border-l border-[var(--st-border)] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
       },
     },
     defaultVariants: { side: "right" },
@@ -72,7 +72,7 @@ export const ZoruSheetContent = React.forwardRef<
       {!hideClose && (
         <DialogPrimitive.Close
           aria-label="Close"
-          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-transparent text-zoru-ink-muted transition-colors hover:border-zoru-line hover:bg-zoru-bg hover:text-zoru-ink focus-visible:outline-none disabled:pointer-events-none"
+          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] border border-transparent text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-border)] hover:bg-[var(--st-bg)] hover:text-[var(--st-text)] focus-visible:outline-none disabled:pointer-events-none"
         >
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>
@@ -109,7 +109,7 @@ export const ZoruSheetTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold tracking-tight text-zoru-ink", className)}
+    className={cn("text-base font-semibold tracking-tight text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -121,7 +121,7 @@ export const ZoruSheetDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

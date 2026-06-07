@@ -21,7 +21,7 @@ export const ZoruBreadcrumbList = React.forwardRef<
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center gap-1.5 text-sm text-zoru-ink-muted sm:gap-2.5",
+      "flex flex-wrap items-center gap-1.5 text-sm text-[var(--st-text-secondary)] sm:gap-2.5",
       className,
     )}
     {...props}
@@ -49,7 +49,7 @@ export const ZoruBreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn("transition-colors hover:text-zoru-ink", className)}
+      className={cn("transition-colors hover:text-[var(--st-text)]", className)}
       {...props}
     />
   );
@@ -64,7 +64,7 @@ export const ZoruBreadcrumbPage = React.forwardRef<
     ref={ref}
     role="link"
     aria-current="page"
-    className={cn("font-medium text-zoru-ink", className)}
+    className={cn("font-medium text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -79,7 +79,7 @@ export function ZoruBreadcrumbSeparator({
     <li
       role="presentation"
       aria-hidden="true"
-      className={cn("[&>svg]:size-3.5 text-zoru-ink-subtle", className)}
+      className={cn("[&>svg]:size-3.5 text-[var(--st-text-tertiary)]", className)}
       {...props}
     >
       {children ?? <ChevronRight />}
@@ -98,7 +98,7 @@ export function ZoruBreadcrumbEllipsis({
       className={cn("flex h-9 w-9 items-center justify-center", className)}
       {...props}
     >
-      <MoreHorizontal className="h-4 w-4 text-zoru-ink-subtle" />
+      <MoreHorizontal className="h-4 w-4 text-[var(--st-text-tertiary)]" />
       <span className="sr-only">More</span>
     </span>
   );

@@ -21,18 +21,18 @@ export function ZoruSonner({
         ...toastOptions,
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-zoru-bg group-[.toaster]:text-zoru-ink group-[.toaster]:border group-[.toaster]:border-zoru-line group-[.toaster]:shadow-[var(--zoru-shadow-md)] group-[.toaster]:rounded-[var(--zoru-radius)]",
-          description: "group-[.toast]:text-zoru-ink-muted",
+            "group toast group-[.toaster]:bg-[var(--st-bg)] group-[.toaster]:text-[var(--st-text)] group-[.toaster]:border group-[.toaster]:border-[var(--st-border)] group-[.toaster]:shadow-[var(--st-shadow-md)] group-[.toaster]:rounded-[var(--st-radius)]",
+          description: "group-[.toast]:text-[var(--st-text-secondary)]",
           actionButton:
-            "group-[.toast]:bg-zoru-primary group-[.toast]:text-zoru-primary-foreground group-[.toast]:rounded-[var(--zoru-radius-sm)]",
+            "group-[.toast]:bg-[var(--st-accent)] group-[.toast]:text-[var(--st-text-inverted)] group-[.toast]:rounded-[var(--st-radius-sm)]",
           cancelButton:
-            "group-[.toast]:bg-zoru-surface-2 group-[.toast]:text-zoru-ink group-[.toast]:rounded-[var(--zoru-radius-sm)]",
+            "group-[.toast]:bg-[var(--st-bg-muted)] group-[.toast]:text-[var(--st-text)] group-[.toast]:rounded-[var(--st-radius-sm)]",
           error:
-            "group-[.toaster]:!border-zoru-danger/40 group-[.toaster]:!bg-zoru-danger/5 group-[.toaster]:!text-zoru-danger",
+            "group-[.toaster]:!border-[var(--st-danger)]/40 group-[.toaster]:!bg-[var(--st-danger)]/5 group-[.toaster]:!text-[var(--st-danger)]",
           success:
-            "group-[.toaster]:!border-zoru-success/40 group-[.toaster]:!bg-zoru-success/5",
+            "group-[.toaster]:!border-[var(--st-status-ok)]/40 group-[.toaster]:!bg-[var(--st-status-ok)]/5",
           warning:
-            "group-[.toaster]:!border-zoru-warning/40 group-[.toaster]:!bg-zoru-warning/5",
+            "group-[.toaster]:!border-[var(--st-warn)]/40 group-[.toaster]:!bg-[var(--st-warn)]/5",
           ...toastOptions?.classNames,
         },
       }}

@@ -68,21 +68,21 @@ export function ZoruColorPicker({
           disabled={disabled}
           aria-label={`Pick a color (current: ${value})`}
           className={cn(
-            "inline-flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1.5 text-sm text-zoru-ink transition-colors hover:border-zoru-line-strong",
+            "inline-flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1.5 text-sm text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)]",
             disabled && "cursor-not-allowed opacity-50",
             "focus-visible:outline-none",
             className,
           )}
         >
           <span
-            className="rounded-[6px] border border-zoru-line"
+            className="rounded-[6px] border border-[var(--st-border)]"
             style={{
               backgroundColor: value,
               width: swatchSize,
               height: swatchSize,
             }}
           />
-          <span className="font-mono text-xs uppercase text-zoru-ink-muted">
+          <span className="font-mono text-xs uppercase text-[var(--st-text-secondary)]">
             {value}
           </span>
         </button>
@@ -90,7 +90,7 @@ export function ZoruColorPicker({
       <ZoruPopoverContent align={align} className="w-64 space-y-3">
         <div className="flex items-center gap-2">
           <label
-            className="relative inline-flex h-9 w-9 shrink-0 cursor-pointer overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line"
+            className="relative inline-flex h-9 w-9 shrink-0 cursor-pointer overflow-hidden rounded-[var(--st-radius-sm)] border border-[var(--st-border)]"
             aria-label="Native color picker"
           >
             <input
@@ -125,10 +125,10 @@ export function ZoruColorPicker({
               aria-label={p}
               onClick={() => commit(p)}
               className={cn(
-                "h-7 w-7 rounded-[var(--zoru-radius-sm)] border border-zoru-line transition-transform",
+                "h-7 w-7 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] transition-transform",
                 "hover:scale-105",
                 p.toLowerCase() === draft.toLowerCase() &&
-                  "ring-1 ring-zoru-ink ring-offset-1",
+                  "ring-1 ring-[var(--st-text)] ring-offset-1",
               )}
               style={{ backgroundColor: p }}
             />

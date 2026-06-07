@@ -142,7 +142,7 @@ export function ZoruUserDropdown({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-2 rounded-full p-1 pr-2 text-sm text-zoru-ink transition-colors hover:bg-zoru-surface-2 focus-visible:outline-none",
+            "inline-flex items-center gap-2 rounded-full p-1 pr-2 text-sm text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none",
             compact && "pr-1",
             className,
           )}
@@ -156,10 +156,10 @@ export function ZoruUserDropdown({
               <span className="hidden text-left sm:flex sm:flex-col sm:items-start sm:leading-tight">
                 <span className="text-sm font-medium">{name}</span>
                 {email && (
-                  <span className="text-[11px] text-zoru-ink-muted">{email}</span>
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">{email}</span>
                 )}
               </span>
-              <ChevronDown className="hidden h-3 w-3 text-zoru-ink-muted sm:inline-block" />
+              <ChevronDown className="hidden h-3 w-3 text-[var(--st-text-secondary)] sm:inline-block" />
             </>
           )}
         </button>
@@ -167,11 +167,11 @@ export function ZoruUserDropdown({
       <ZoruDropdownMenuContent align={align} className="w-56">
         <ZoruDropdownMenuLabel>
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium normal-case tracking-normal text-zoru-ink">
+            <span className="text-sm font-medium normal-case tracking-normal text-[var(--st-text)]">
               {name}
             </span>
             {email && (
-              <span className="text-[11px] normal-case tracking-normal text-zoru-ink-muted">
+              <span className="text-[11px] normal-case tracking-normal text-[var(--st-text-secondary)]">
                 {email}
               </span>
             )}

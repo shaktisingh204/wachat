@@ -102,17 +102,17 @@ export function ZoruFilePicker({
           <ZoruDialogDescription>{description}</ZoruDialogDescription>
         </ZoruDialogHeader>
 
-        <div className="flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+        <div className="flex gap-1 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-surface)] p-1">
           {(["library", "upload"] as const).map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
               className={cn(
-                "flex-1 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors",
+                "flex-1 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm transition-colors",
                 tab === id
-                  ? "bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]"
-                  : "text-zoru-ink-muted hover:text-zoru-ink",
+                  ? "bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]"
+                  : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]",
               )}
             >
               {id === "library" ? "Library" : "Upload"}
@@ -148,17 +148,17 @@ export function ZoruFilePicker({
             </div>
 
             {error && (
-              <p className="text-xs text-zoru-danger-ink" role="alert">
+              <p className="text-xs text-[var(--st-danger-strong)]" role="alert">
                 {error}
               </p>
             )}
 
             {loading ? (
               <div className="flex h-40 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />
               </div>
             ) : items.length === 0 ? (
-              <div className="flex h-40 items-center justify-center rounded-[var(--zoru-radius)] border border-dashed border-zoru-line text-sm text-zoru-ink-muted">
+              <div className="flex h-40 items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] text-sm text-[var(--st-text-secondary)]">
                 No files yet — upload your first one.
               </div>
             ) : (
@@ -171,9 +171,9 @@ export function ZoruFilePicker({
                         onPick(item);
                         onOpenChange(false);
                       }}
-                      className="group flex w-full flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
+                      className="group flex w-full flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-left transition-shadow hover:shadow-[var(--st-shadow-md)]"
                     >
-                      <div className="aspect-square w-full overflow-hidden rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
+                      <div className="aspect-square w-full overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)]">
                         {item.tag === "image" ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -183,12 +183,12 @@ export function ZoruFilePicker({
                             loading="lazy"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-zoru-ink-muted">
+                          <div className="flex h-full w-full items-center justify-center text-[var(--st-text-secondary)]">
                             <FileIcon className="h-8 w-8" />
                           </div>
                         )}
                       </div>
-                      <p className="truncate text-xs text-zoru-ink">{item.name}</p>
+                      <p className="truncate text-xs text-[var(--st-text)]">{item.name}</p>
                     </button>
                   </li>
                 ))}
@@ -201,7 +201,7 @@ export function ZoruFilePicker({
           <div>
             <UploadDropzone uploading={uploading} onFile={handleUpload} accept={accept} />
             {error && (
-              <p className="mt-2 text-xs text-zoru-danger-ink" role="alert">
+              <p className="mt-2 text-xs text-[var(--st-danger-strong)]" role="alert">
                 {error}
               </p>
             )}
@@ -255,13 +255,13 @@ function UploadDropzone({
         if (file) onFile(file);
       }}
       className={cn(
-        "flex flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius)] border-2 border-dashed p-10 text-center",
-        drag ? "border-zoru-ink bg-zoru-surface-2" : "border-zoru-line bg-zoru-surface",
+        "flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border-2 border-dashed p-10 text-center",
+        drag ? "border-[var(--st-text)] bg-[var(--st-bg-muted)]" : "border-[var(--st-border)] bg-[var(--st-surface)]",
       )}
     >
-      <Upload className="h-6 w-6 text-zoru-ink-muted" />
-      <p className="text-sm text-zoru-ink">Drag a file here or click to browse</p>
-      <p className="text-xs text-zoru-ink-muted">Up to 100 MB. Stored on Cloudflare R2.</p>
+      <Upload className="h-6 w-6 text-[var(--st-text-secondary)]" />
+      <p className="text-sm text-[var(--st-text)]">Drag a file here or click to browse</p>
+      <p className="text-xs text-[var(--st-text-secondary)]">Up to 100 MB. Stored on Cloudflare R2.</p>
       <input
         ref={inputRef}
         type="file"
@@ -332,21 +332,21 @@ export function ZoruFileInput({
         disabled={disabled}
         onClick={() => setOpen(true)}
         className={cn(
-          "flex h-9 w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-left text-sm text-zoru-ink transition-colors",
-          "hover:bg-zoru-surface-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex h-9 w-full items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-left text-sm text-[var(--st-text)] transition-colors",
+          "hover:bg-[var(--st-bg-muted)] disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
       >
         {value ? (
           value.tag === "image" ? (
-            <ImageIcon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+            <ImageIcon className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
           ) : (
-            <FileIcon className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+            <FileIcon className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
           )
         ) : (
-          <Upload className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+          <Upload className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         )}
-        <span className={cn("flex-1 truncate", !value && "text-zoru-ink-muted")}>
+        <span className={cn("flex-1 truncate", !value && "text-[var(--st-text-secondary)]")}>
           {value?.name ?? placeholder}
         </span>
         {value && (
@@ -365,7 +365,7 @@ export function ZoruFileInput({
                 onChange(null);
               }
             }}
-            className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-3 hover:text-zoru-ink"
+            className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
           >
             <X className="h-3.5 w-3.5" />
           </span>

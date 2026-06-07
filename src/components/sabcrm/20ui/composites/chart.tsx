@@ -12,11 +12,11 @@ import { cn } from "./lib/cn";
  * a dedicated viz component if you need rainbow categorical colours.
  */
 export const ZORU_CHART_PALETTE = [
-  "hsl(var(--zoru-ink))",
-  "hsl(var(--zoru-ink-muted))",
-  "hsl(var(--zoru-ink-subtle))",
-  "hsl(var(--zoru-line-strong))",
-  "hsl(var(--zoru-line))",
+  "hsl(var(--st-text))",
+  "hsl(var(--st-text-secondary))",
+  "hsl(var(--st-text-tertiary))",
+  "hsl(var(--st-border-strong))",
+  "hsl(var(--st-border))",
 ] as const;
 
 export interface ZoruChartContainerProps
@@ -69,18 +69,18 @@ export function ZoruChartTooltip({
   return (
     <div
       className={cn(
-        "rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2.5 py-1.5 text-xs shadow-[var(--zoru-shadow-sm)]",
+        "rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs shadow-[var(--st-shadow-sm)]",
         className,
       )}
     >
       {label !== undefined && (
-        <p className="mb-1 font-medium text-zoru-ink">{String(label)}</p>
+        <p className="mb-1 font-medium text-[var(--st-text)]">{String(label)}</p>
       )}
       <ul className="space-y-0.5">
         {payload.map((entry, idx) => (
           <li
             key={`${entry.dataKey}-${idx}`}
-            className="flex items-center gap-2 text-zoru-ink-muted"
+            className="flex items-center gap-2 text-[var(--st-text-secondary)]"
           >
             <span
               aria-hidden
@@ -88,7 +88,7 @@ export function ZoruChartTooltip({
               style={{ backgroundColor: entry.color ?? "currentColor" }}
             />
             <span className="truncate">{entry.name}</span>
-            <span className="ml-auto font-medium text-zoru-ink">
+            <span className="ml-auto font-medium text-[var(--st-text)]">
               {String(entry.value ?? "")}
             </span>
           </li>

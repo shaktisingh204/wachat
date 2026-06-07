@@ -41,7 +41,7 @@ export function ZoruShell({
   return (
     <div
       className={cn(
-        "flex h-screen w-full overflow-hidden bg-zoru-bg text-zoru-ink",
+        "flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]",
         className,
       )}
       {...props}
@@ -59,7 +59,7 @@ export function ZoruShell({
           {children}
         </main>
         {dock && (
-          <div className="border-t border-zoru-line bg-zoru-bg px-4 py-2">
+          <div className="border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-2">
             {dock}
           </div>
         )}

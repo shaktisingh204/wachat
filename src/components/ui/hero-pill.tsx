@@ -26,9 +26,9 @@ export function HeroPill({
       )}
       {...props}
     >
-      <p className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-zoru-surface px-3 py-1 text-sm font-medium text-zoru-ink shadow-sm shadow-black/[.12] dark:bg-zoru-surface-2 hover:bg-zoru-surface-2/80 transition-colors">
+      <p className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[var(--st-surface)] px-3 py-1 text-sm font-medium text-[var(--st-text)] shadow-sm shadow-black/[.12] dark:bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]/80 transition-colors">
         {icon && (
-          <span className="mr-2 flex shrink-0 border-r border-zoru-line pr-2">
+          <span className="mr-2 flex shrink-0 border-r border-[var(--st-border)] pr-2">
             {icon}
           </span>
         )}
@@ -48,7 +48,7 @@ export function StarIcon() {
       className="transition-transform group-hover:scale-110 duration-300"
     >
       <path
-        className="fill-zoru-ink"
+        className="fill-[var(--st-text)]"
         d="M6.958.713a1 1 0 0 0-1.916 0l-.999 3.33-3.33 1a1 1 0 0 0 0 1.915l3.33.999 1 3.33a1 1 0 0 0 1.915 0l.999-3.33 3.33-1a1 1 0 0 0 0-1.915l-3.33-.999-1-3.33Z"
       />
     </svg>

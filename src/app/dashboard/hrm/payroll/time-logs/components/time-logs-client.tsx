@@ -427,7 +427,7 @@ export function TimeLogsClient({
 
         {/* Bulk Actions Banner */}
         {selectedIds.size > 0 && (
-          <div className="mb-4 flex items-center justify-between rounded-md bg-zoru-bg-[var(--st-bg-muted)] p-2 px-3 border border-[var(--st-border)]">
+          <div className="mb-4 flex items-center justify-between rounded-md bg-[var(--st-bg)]-[var(--st-bg-muted)] p-2 px-3 border border-[var(--st-border)]">
             <span className="text-sm font-medium text-[var(--st-text)]">{selectedIds.size} selected</span>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={handleBulkApprove} disabled={isPending}>

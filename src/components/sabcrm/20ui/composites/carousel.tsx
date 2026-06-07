@@ -78,7 +78,7 @@ export function ZoruCarousel({
             aria-label="Previous"
             onClick={() => step(-1)}
             disabled={!canPrev}
-            className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-zoru-bg shadow-[var(--zoru-shadow-sm)] disabled:opacity-0"
+            className="absolute left-2 top-1/2 z-10 -translate-y-1/2 bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)] disabled:opacity-0"
           >
             <ChevronLeft />
           </Button>
@@ -88,7 +88,7 @@ export function ZoruCarousel({
             aria-label="Next"
             onClick={() => step(1)}
             disabled={!canNext}
-            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-zoru-bg shadow-[var(--zoru-shadow-sm)] disabled:opacity-0"
+            className="absolute right-2 top-1/2 z-10 -translate-y-1/2 bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)] disabled:opacity-0"
           >
             <ChevronRight />
           </Button>

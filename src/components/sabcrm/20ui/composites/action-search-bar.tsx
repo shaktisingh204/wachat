@@ -69,25 +69,25 @@ export function ZoruActionSearchBar({
     <div ref={containerRef} className={cn("relative w-full max-w-md", className)}>
       <div
         className={cn(
-          "flex h-10 w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 transition-colors",
-          focused && "border-zoru-ink",
+          "flex h-10 w-full items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 transition-colors",
+          focused && "border-[var(--st-text)]",
         )}
       >
-        <Search className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+        <Search className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           placeholder={placeholder}
-          className="flex-1 bg-transparent text-sm text-zoru-ink placeholder:text-zoru-ink-subtle focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-tertiary)] focus:outline-none"
         />
         {query && (
           <button
             type="button"
             aria-label="Clear"
             onClick={() => setQuery("")}
-            className="rounded-[4px] text-zoru-ink-muted hover:text-zoru-ink"
+            className="rounded-[4px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -102,10 +102,10 @@ export function ZoruActionSearchBar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.12 }}
-            className="absolute left-0 right-0 top-full z-30 mt-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 shadow-[var(--zoru-shadow-md)]"
+            className="absolute left-0 right-0 top-full z-30 mt-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--st-shadow-md)]"
           >
             {matches.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-zoru-ink-muted">
+              <p className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
                 {emptyHint ?? "No matches."}
               </p>
             ) : (
@@ -122,17 +122,17 @@ export function ZoruActionSearchBar({
                       <button
                         type="button"
                         onClick={handleSelect}
-                        className="flex w-full items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-left text-sm text-zoru-ink transition-colors hover:bg-zoru-surface-2 focus-visible:bg-zoru-surface-2 focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-zoru-ink-muted"
+                        className="flex w-full items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:bg-[var(--st-bg-muted)] focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[var(--st-text-secondary)]"
                       >
                         {action.icon}
                         <span className="flex-1 truncate">{action.label}</span>
                         {action.meta && (
-                          <span className="text-xs text-zoru-ink-muted">
+                          <span className="text-xs text-[var(--st-text-secondary)]">
                             {action.meta}
                           </span>
                         )}
                         {action.shortcut && (
-                          <span className="text-[11px] text-zoru-ink-subtle">
+                          <span className="text-[11px] text-[var(--st-text-tertiary)]">
                             {action.shortcut}
                           </span>
                         )}

@@ -413,7 +413,7 @@ export function RelationInput({
       </button>
 
       {open && !disabled && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
           <div className="border-b border-[var(--st-border)] p-1.5">
             <Input
               id={searchId}

@@ -18,7 +18,7 @@ export const ZoruDialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-zoru-ink/45 backdrop-blur-sm",
+      "fixed inset-0 z-50 bg-[var(--st-text)]/45 backdrop-blur-sm",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
@@ -48,7 +48,7 @@ export const ZoruDialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "zoruui zoruui-surface-sheen fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 p-6",
-        "rounded-[var(--zoru-radius-xl)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-xl)]",
+        "rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -61,7 +61,7 @@ export const ZoruDialogContent = React.forwardRef<
       {!hideClose && (
         <DialogPrimitive.Close
           aria-label="Close"
-          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-transparent text-zoru-ink-muted transition-colors hover:border-zoru-line hover:bg-zoru-bg hover:text-zoru-ink focus-visible:outline-none disabled:pointer-events-none"
+          className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] border border-transparent text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-border)] hover:bg-[var(--st-bg)] hover:text-[var(--st-text)] focus-visible:outline-none disabled:pointer-events-none"
         >
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>
@@ -105,7 +105,7 @@ export const ZoruDialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-base font-semibold leading-none tracking-tight text-zoru-ink",
+      "text-base font-semibold leading-none tracking-tight text-[var(--st-text)]",
       className,
     )}
     {...props}
@@ -119,7 +119,7 @@ export const ZoruDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

@@ -162,27 +162,27 @@ export function BurndownChart({ projectId }: BurndownChartProps) {
               >
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="var(--zoru-line, #e5e7eb)"
+                  stroke="var(--st-border, #e5e7eb)"
                 />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatTick}
                   fontSize={11}
-                  stroke="var(--zoru-ink-muted, #6b7280)"
+                  stroke="var(--st-text-secondary, #6b7280)"
                 />
                 <YAxis
                   fontSize={11}
-                  stroke="var(--zoru-ink-muted, #6b7280)"
+                  stroke="var(--st-text-secondary, #6b7280)"
                   allowDecimals={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'var(--zoru-bg, #fff)',
-                    border: '1px solid var(--zoru-line, #e5e7eb)',
+                    backgroundColor: 'var(--st-bg, #fff)',
+                    border: '1px solid var(--st-border, #e5e7eb)',
                     borderRadius: 8,
                     fontSize: 12,
                   }}
-                  labelStyle={{ color: 'var(--zoru-ink, #111)' }}
+                  labelStyle={{ color: 'var(--st-text, #111)' }}
                 />
                 <Legend
                   wrapperStyle={{ fontSize: 12 }}

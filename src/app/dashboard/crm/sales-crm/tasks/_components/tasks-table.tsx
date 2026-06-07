@@ -171,7 +171,7 @@ export function TasksTable({
                                     key={id}
                                     className={[
                                         'border-[var(--st-border)] transition-colors',
-                                        isOverdue ? 'border-l-2 border-l-zoru-danger' : '',
+                                        isOverdue ? 'border-l-2 border-l-[var(--st-danger)]' : '',
                                         isSel ? 'bg-[var(--st-bg-muted)]/70' : '',
                                         status === 'Completed' ? 'opacity-70' : '',
                                     ].join(' ')}

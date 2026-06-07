@@ -14,7 +14,7 @@ export const ZoruDropdownMenuSub = DropdownMenuPrimitive.Sub;
 export const ZoruDropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 
 const itemBase =
-  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2.5 py-2 text-sm outline-none text-zoru-ink transition-colors focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
+  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--st-radius-sm)] px-2.5 py-2 text-sm outline-none text-[var(--st-text)] transition-colors focus:bg-[var(--st-bg-muted)] data-[highlighted]:bg-[var(--st-bg-muted)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0";
 
 export const ZoruDropdownMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.SubTrigger>,
@@ -24,11 +24,11 @@ export const ZoruDropdownMenuSubTrigger = React.forwardRef<
 >(({ className, inset, children, ...props }, ref) => (
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
-    className={cn(itemBase, inset && "pl-8", "data-[state=open]:bg-zoru-surface-2", className)}
+    className={cn(itemBase, inset && "pl-8", "data-[state=open]:bg-[var(--st-bg-muted)]", className)}
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto h-4 w-4 text-zoru-ink-muted" />
+    <ChevronRight className="ml-auto h-4 w-4 text-[var(--st-text-secondary)]" />
   </DropdownMenuPrimitive.SubTrigger>
 ));
 ZoruDropdownMenuSubTrigger.displayName = "ZoruDropdownMenuSubTrigger";
@@ -40,7 +40,7 @@ export const ZoruDropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-1.5 text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
+      "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -60,7 +60,7 @@ export const ZoruDropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-1.5 text-zoru-ink shadow-[var(--zoru-shadow-lg)]",
+        "zoruui zoruui-surface-sheen z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 text-[var(--st-text)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -86,7 +86,7 @@ export const ZoruDropdownMenuItem = React.forwardRef<
     className={cn(
       itemBase,
       inset && "pl-8",
-      destructive && "text-zoru-danger focus:bg-zoru-danger/10 focus:text-zoru-danger",
+      destructive && "text-[var(--st-danger)] focus:bg-[var(--st-danger)]/10 focus:text-[var(--st-danger)]",
       className,
     )}
     {...props}
@@ -142,7 +142,7 @@ export const ZoruDropdownMenuLabel = React.forwardRef<
   <DropdownMenuPrimitive.Label
     ref={ref}
     className={cn(
-      "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle",
+      "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]",
       inset && "pl-8",
       className,
     )}
@@ -157,7 +157,7 @@ export const ZoruDropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-zoru-line", className)}
+    className={cn("-mx-1 my-1 h-px bg-[var(--st-border)]", className)}
     {...props}
   />
 ));
@@ -170,7 +170,7 @@ export function ZoruDropdownMenuShortcut({
   return (
     <span
       className={cn(
-        "ml-auto text-[11px] tracking-widest text-zoru-ink-subtle",
+        "ml-auto text-[11px] tracking-widest text-[var(--st-text-tertiary)]",
         className,
       )}
       {...props}

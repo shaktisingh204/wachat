@@ -17,7 +17,7 @@ export const ZoruAlertDialogOverlay = React.forwardRef<
   <AlertDialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-zoru-ink/40 backdrop-blur-[2px]",
+      "fixed inset-0 z-50 bg-[var(--st-text)]/40 backdrop-blur-[2px]",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className,
@@ -37,7 +37,7 @@ export const ZoruAlertDialogContent = React.forwardRef<
       ref={ref}
       className={cn(
         "zoruui fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 p-6",
-        "rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-xl)]",
+        "rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -77,7 +77,7 @@ export const ZoruAlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
     ref={ref}
-    className={cn("text-base font-semibold tracking-tight text-zoru-ink", className)}
+    className={cn("text-base font-semibold tracking-tight text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -89,7 +89,7 @@ export const ZoruAlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

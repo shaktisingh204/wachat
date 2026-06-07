@@ -44,10 +44,10 @@ export function ZoruPricingCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col gap-6 rounded-[var(--zoru-radius-xl)] p-8",
+        "relative flex flex-col gap-6 rounded-[var(--st-radius-lg)] p-8",
         featured
-          ? "bg-zoru-ink text-zoru-on-primary shadow-[var(--zoru-shadow-lg)]"
-          : "border border-zoru-line bg-zoru-bg text-zoru-ink",
+          ? "bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-lg)]"
+          : "border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]",
         className,
       )}
       {...props}
@@ -55,7 +55,7 @@ export function ZoruPricingCard({
       {featured && (
         <Badge
           variant="ghost"
-          className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-zoru-on-primary text-zoru-ink"
+          className="absolute -top-3 left-1/2 -translate-x-1/2 border-0 bg-[var(--st-text-inverted)] text-[var(--st-text)]"
         >
           {featuredLabel}
         </Badge>
@@ -65,7 +65,7 @@ export function ZoruPricingCard({
         <h3
           className={cn(
             "text-base font-semibold tracking-tight",
-            featured ? "text-zoru-on-primary" : "text-zoru-ink",
+            featured ? "text-[var(--st-text-inverted)]" : "text-[var(--st-text)]",
           )}
         >
           {name}
@@ -74,7 +74,7 @@ export function ZoruPricingCard({
           <p
             className={cn(
               "text-sm",
-              featured ? "text-zoru-on-primary/70" : "text-zoru-ink-muted",
+              featured ? "text-[var(--st-text-inverted)]/70" : "text-[var(--st-text-secondary)]",
             )}
           >
             {tagline}
@@ -86,7 +86,7 @@ export function ZoruPricingCard({
         <span
           className={cn(
             "text-4xl font-semibold tracking-tight",
-            featured ? "text-zoru-on-primary" : "text-zoru-ink",
+            featured ? "text-[var(--st-text-inverted)]" : "text-[var(--st-text)]",
           )}
         >
           {price}
@@ -95,7 +95,7 @@ export function ZoruPricingCard({
           <span
             className={cn(
               "pb-1 text-sm",
-              featured ? "text-zoru-on-primary/70" : "text-zoru-ink-muted",
+              featured ? "text-[var(--st-text-inverted)]/70" : "text-[var(--st-text-secondary)]",
             )}
           >
             {period}
@@ -106,20 +106,20 @@ export function ZoruPricingCard({
       {cta}
 
       {features.length > 0 && (
-        <ul className="flex flex-col gap-2.5 border-t border-zoru-line/30 pt-6">
+        <ul className="flex flex-col gap-2.5 border-t border-[var(--st-border)]/30 pt-6">
           {features.map((f, i) => (
             <li
               key={i}
               className={cn(
                 "flex items-start gap-2 text-sm",
                 f.included === false && "opacity-50",
-                featured ? "text-zoru-on-primary/85" : "text-zoru-ink-muted",
+                featured ? "text-[var(--st-text-inverted)]/85" : "text-[var(--st-text-secondary)]",
               )}
             >
               <Check
                 className={cn(
                   "mt-0.5 h-3.5 w-3.5 shrink-0",
-                  featured ? "text-zoru-on-primary" : "text-zoru-ink",
+                  featured ? "text-[var(--st-text-inverted)]" : "text-[var(--st-text)]",
                 )}
               />
               <span>{f.label}</span>
@@ -158,12 +158,12 @@ export function ZoruPricingTier({
       {(heading || subhead) && (
         <div className="flex flex-col items-center gap-2 text-center">
           {heading && (
-            <h2 className="text-3xl font-semibold tracking-tight text-zoru-ink">
+            <h2 className="text-3xl font-semibold tracking-tight text-[var(--st-text)]">
               {heading}
             </h2>
           )}
           {subhead && (
-            <p className="max-w-xl text-base leading-relaxed text-zoru-ink-muted">
+            <p className="max-w-xl text-base leading-relaxed text-[var(--st-text-secondary)]">
               {subhead}
             </p>
           )}

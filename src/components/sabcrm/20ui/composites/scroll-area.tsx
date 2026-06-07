@@ -46,7 +46,7 @@ export const ZoruScrollBar = React.forwardRef<
     )}
     {...props}
   >
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-zoru-line-strong" />
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-full bg-[var(--st-border-strong)]" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ));
 ZoruScrollBar.displayName = "ZoruScrollBar";

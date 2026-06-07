@@ -88,19 +88,19 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
       <div className="flex flex-col space-y-4 p-4 md:flex-row md:items-center md:justify-between md:space-y-0 lg:flex-none">
         <div className="flex flex-auto">
           <div className="flex items-center gap-4">
-            <div className="hidden w-20 flex-col items-center justify-center rounded-lg bg-zoru-surface-2 p-0.5 md:flex">
-              <h1 className="p-1 text-xs uppercase text-zoru-ink-muted">
+            <div className="hidden w-20 flex-col items-center justify-center rounded-lg bg-[var(--st-bg-muted)] p-0.5 md:flex">
+              <h1 className="p-1 text-xs uppercase text-[var(--st-text-secondary)]">
                 {format(today, "MMM")}
               </h1>
-              <div className="flex w-full items-center justify-center rounded-lg bg-zoru-surface p-0.5 text-lg font-bold shadow-sm">
+              <div className="flex w-full items-center justify-center rounded-lg bg-[var(--st-surface)] p-0.5 text-lg font-bold shadow-sm">
                 <span>{format(today, "d")}</span>
               </div>
             </div>
             <div className="flex flex-col">
-              <h2 className="text-lg font-semibold text-zoru-ink">
+              <h2 className="text-lg font-semibold text-[var(--st-text)]">
                 {format(firstDayCurrentMonth, "MMMM, yyyy")}
               </h2>
-              <p className="text-sm text-zoru-ink-muted">
+              <p className="text-sm text-[var(--st-text-secondary)]">
                 {format(firstDayCurrentMonth, "MMM d, yyyy")} -{" "}
                 {format(endOfMonth(firstDayCurrentMonth), "MMM d, yyyy")}
               </p>
@@ -159,7 +159,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
       {/* Calendar Grid */}
       <div className="lg:flex lg:flex-auto lg:flex-col">
         {/* Week Days Header */}
-        <div className="grid grid-cols-7 text-center text-xs font-semibold leading-6 lg:flex-none bg-zoru-surface-2/40">
+        <div className="grid grid-cols-7 text-center text-xs font-semibold leading-6 lg:flex-none bg-[var(--st-bg-muted)]/40">
           <div className="py-2.5">Sun</div>
           <div className="py-2.5">Mon</div>
           <div className="py-2.5">Tue</div>
@@ -183,14 +183,14 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       isSameMonth(day, firstDayCurrentMonth) &&
-                      "text-zoru-ink",
+                      "text-[var(--st-text)]",
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       !isSameMonth(day, firstDayCurrentMonth) &&
-                      "text-zoru-ink-muted",
+                      "text-[var(--st-text-secondary)]",
                     (isEqual(day, selectedDay) || isToday(day)) &&
                       "font-semibold",
-                    "flex h-14 flex-col px-3 py-2 hover:bg-zoru-surface-2 focus:z-10",
+                    "flex h-14 flex-col px-3 py-2 hover:bg-[var(--st-bg-muted)] focus:z-10",
                   )}
                 >
                   <time
@@ -199,10 +199,10 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                       "ml-auto flex size-6 items-center justify-center rounded-full",
                       isEqual(day, selectedDay) &&
                         isToday(day) &&
-                        "bg-zoru-ink text-white",
+                        "bg-[var(--st-text)] text-white",
                       isEqual(day, selectedDay) &&
                         !isToday(day) &&
-                        "bg-zoru-ink text-white",
+                        "bg-[var(--st-text)] text-white",
                     )}
                   >
                     {format(day, "d")}
@@ -220,7 +220,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                             {date.events.map((event) => (
                               <span
                                 key={event.id}
-                                className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-zoru-surface-2-foreground"
+                                className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-[var(--st-text)]"
                               />
                             ))}
                           </div>
@@ -237,9 +237,9 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     !isEqual(day, selectedDay) &&
                       !isToday(day) &&
                       !isSameMonth(day, firstDayCurrentMonth) &&
-                      "bg-zoru-surface-2/50 text-zoru-ink-muted",
-                    "relative flex flex-col hover:bg-zoru-surface-2 focus:z-10",
-                    !isEqual(day, selectedDay) && "hover:bg-zoru-surface-2/75",
+                      "bg-[var(--st-bg-muted)]/50 text-[var(--st-text-secondary)]",
+                    "relative flex flex-col hover:bg-[var(--st-bg-muted)] focus:z-10",
+                    !isEqual(day, selectedDay) && "hover:bg-[var(--st-bg-muted)]/75",
                   )}
                 >
                   <header className="flex items-center justify-between p-2.5">
@@ -250,17 +250,17 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                         !isEqual(day, selectedDay) &&
                           !isToday(day) &&
                           isSameMonth(day, firstDayCurrentMonth) &&
-                          "text-zoru-ink",
+                          "text-[var(--st-text)]",
                         !isEqual(day, selectedDay) &&
                           !isToday(day) &&
                           !isSameMonth(day, firstDayCurrentMonth) &&
-                          "text-zoru-ink-muted",
+                          "text-[var(--st-text-secondary)]",
                         isEqual(day, selectedDay) &&
                           isToday(day) &&
-                          "bg-zoru-ink",
+                          "bg-[var(--st-text)]",
                         isEqual(day, selectedDay) &&
                           !isToday(day) &&
-                          "bg-zoru-ink",
+                          "bg-[var(--st-text)]",
                         (isEqual(day, selectedDay) || isToday(day)) &&
                           "font-semibold",
                         "flex h-7 w-7 items-center justify-center rounded-full text-xs",
@@ -279,18 +279,18 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                           {day.events.slice(0, 1).map((event) => (
                             <div
                               key={event.id}
-                              className="flex flex-col items-start gap-1 rounded-lg bg-zoru-surface-2/50 p-2 text-xs leading-tight shadow-sm"
+                              className="flex flex-col items-start gap-1 rounded-lg bg-[var(--st-bg-muted)]/50 p-2 text-xs leading-tight shadow-sm"
                             >
                               <p className="font-medium leading-none">
                                 {event.name}
                               </p>
-                              <p className="leading-none text-zoru-ink-muted">
+                              <p className="leading-none text-[var(--st-text-secondary)]">
                                 {event.time}
                               </p>
                             </div>
                           ))}
                           {day.events.length > 1 && (
-                            <div className="text-xs text-zoru-ink-muted">
+                            <div className="text-xs text-[var(--st-text-secondary)]">
                               + {day.events.length - 1} more
                             </div>
                           )}
@@ -313,14 +313,14 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                   !isEqual(day, selectedDay) &&
                     !isToday(day) &&
                     isSameMonth(day, firstDayCurrentMonth) &&
-                    "text-zoru-ink",
+                    "text-[var(--st-text)]",
                   !isEqual(day, selectedDay) &&
                     !isToday(day) &&
                     !isSameMonth(day, firstDayCurrentMonth) &&
-                    "text-zoru-ink-muted",
+                    "text-[var(--st-text-secondary)]",
                   (isEqual(day, selectedDay) || isToday(day)) &&
                     "font-semibold",
-                  "flex h-14 flex-col px-3 py-2 hover:bg-zoru-surface-2 focus:z-10",
+                  "flex h-14 flex-col px-3 py-2 hover:bg-[var(--st-bg-muted)] focus:z-10",
                 )}
               >
                 <time
@@ -329,10 +329,10 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                     "ml-auto flex size-6 items-center justify-center rounded-full",
                     isEqual(day, selectedDay) &&
                       isToday(day) &&
-                      "bg-zoru-ink text-white",
+                      "bg-[var(--st-text)] text-white",
                     isEqual(day, selectedDay) &&
                       !isToday(day) &&
-                      "bg-zoru-ink text-white",
+                      "bg-[var(--st-text)] text-white",
                   )}
                 >
                   {format(day, "d")}
@@ -349,7 +349,7 @@ export function FullScreenCalendar({ data }: FullScreenCalendarProps) {
                           {date.events.map((event) => (
                             <span
                               key={event.id}
-                              className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-zoru-surface-2-foreground"
+                              className="mx-0.5 mt-1 h-1.5 w-1.5 rounded-full bg-[var(--st-text)]"
                             />
                           ))}
                         </div>

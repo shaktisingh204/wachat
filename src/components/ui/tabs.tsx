@@ -34,7 +34,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "relative inline-flex h-12 items-center justify-center rounded-lg bg-zoru-surface p-1 text-zoru-ink-muted shadow-sm",
+      "relative inline-flex h-12 items-center justify-center rounded-lg bg-[var(--st-surface)] p-1 text-[var(--st-text-secondary)] shadow-sm",
       className
     )}
     {...props}
@@ -75,8 +75,8 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
       ref={triggerRef}
       className={cn(
-        "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-zoru-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-zoru-ink",
-        noPill && "data-[state=active]:bg-zoru-surface data-[state=active]:shadow-sm",
+        "relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium ring-offset-[var(--st-surface)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-[var(--st-text)]",
+        noPill && "data-[state=active]:bg-[var(--st-surface)] data-[state=active]:shadow-sm",
         className
       )}
       {...props}
@@ -86,7 +86,7 @@ const TabsTrigger = React.forwardRef<
           {/* Limelight glow above the active trigger */}
           <m.span
             layoutId={`${layoutId}-tab-limelight`}
-            className="pointer-events-none absolute -top-1 left-1/2 z-0 h-[5px] w-10 -translate-x-1/2 rounded-full bg-zoru-ink"
+            className="pointer-events-none absolute -top-1 left-1/2 z-0 h-[5px] w-10 -translate-x-1/2 rounded-full bg-[var(--st-text)]"
             transition={springSoft}
           >
             <span className="absolute left-[-30%] top-[5px] h-14 w-[160%] [clip-path:polygon(5%_100%,25%_0,75%_0,95%_100%)] bg-gradient-to-b from-primary/30 to-transparent" />
@@ -94,7 +94,7 @@ const TabsTrigger = React.forwardRef<
           {/* Soft active surface (no border) */}
           <m.span
             layoutId={`${layoutId}-tab-pill`}
-            className="absolute inset-0 z-0 rounded-md bg-zoru-surface shadow-sm"
+            className="absolute inset-0 z-0 rounded-md bg-[var(--st-surface)] shadow-sm"
             transition={springSoft}
           />
         </>
@@ -112,7 +112,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-2 ring-offset-zoru-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-line focus-visible:ring-offset-2",
+      "mt-2 ring-offset-[var(--st-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2",
       className
     )}
     {...props}

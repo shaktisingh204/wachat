@@ -33,12 +33,12 @@ export function ZoruWaterLoader({
         className="relative inline-flex items-center justify-center"
         style={{ width: size, height: size }}
       >
-        <span className="absolute inset-0 animate-ping rounded-full bg-zoru-ink/15" />
-        <span className="absolute inset-2 animate-pulse-soft rounded-full bg-zoru-ink/25" />
-        <span className="relative inline-flex h-1/3 w-1/3 rounded-full bg-zoru-ink" />
+        <span className="absolute inset-0 animate-ping rounded-full bg-[var(--st-text)]/15" />
+        <span className="absolute inset-2 animate-pulse-soft rounded-full bg-[var(--st-text)]/25" />
+        <span className="relative inline-flex h-1/3 w-1/3 rounded-full bg-[var(--st-text)]" />
       </div>
       {label && (
-        <span className="text-xs text-zoru-ink-muted">{label}</span>
+        <span className="text-xs text-[var(--st-text-secondary)]">{label}</span>
       )}
       <span className="sr-only">Loading…</span>
     </div>

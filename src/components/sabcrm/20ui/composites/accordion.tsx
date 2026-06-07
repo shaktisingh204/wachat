@@ -14,7 +14,7 @@ export const ZoruAccordionItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
-    className={cn("border-b border-zoru-line last:border-b-0", className)}
+    className={cn("border-b border-[var(--st-border)] last:border-b-0", className)}
     {...props}
   />
 ));
@@ -28,8 +28,8 @@ export const ZoruAccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between gap-4 py-4 text-left text-sm font-medium text-zoru-ink",
-        "transition-all hover:text-zoru-ink-strong",
+        "flex flex-1 items-center justify-between gap-4 py-4 text-left text-sm font-medium text-[var(--st-text)]",
+        "transition-all hover:text-[var(--st-text)]",
         "[&[data-state=open]>svg]:rotate-180",
         "focus-visible:outline-none",
         className,
@@ -37,7 +37,7 @@ export const ZoruAccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 text-zoru-ink-muted transition-transform duration-200" />
+      <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
@@ -49,7 +49,7 @@ export const ZoruAccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-sm text-zoru-ink-muted data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="overflow-hidden text-sm text-[var(--st-text-secondary)] data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
     <div className={cn("pb-4 pt-0 leading-relaxed", className)}>{children}</div>
@@ -71,7 +71,7 @@ export const ZoruAccordion03Item = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-5 transition-colors data-[state=open]:bg-zoru-surface",
+      "rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-5 transition-colors data-[state=open]:bg-[var(--st-surface)]",
       className,
     )}
     {...props}
@@ -87,8 +87,8 @@ export const ZoruAccordion03Trigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between gap-4 py-5 text-left text-base font-medium text-zoru-ink",
-        "transition-colors hover:text-zoru-ink-strong",
+        "flex flex-1 items-center justify-between gap-4 py-5 text-left text-base font-medium text-[var(--st-text)]",
+        "transition-colors hover:text-[var(--st-text)]",
         "[&[data-state=open]>svg]:rotate-45",
         "focus-visible:outline-none",
         className,
@@ -96,7 +96,7 @@ export const ZoruAccordion03Trigger = React.forwardRef<
       {...props}
     >
       {children}
-      <Plus className="h-5 w-5 shrink-0 text-zoru-ink-muted transition-transform duration-200" />
+      <Plus className="h-5 w-5 shrink-0 text-[var(--st-text-secondary)] transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
@@ -108,7 +108,7 @@ export const ZoruAccordion03Content = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-sm text-zoru-ink-muted data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="overflow-hidden text-sm text-[var(--st-text-secondary)] data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
     <div className={cn("pb-5 pt-0 leading-relaxed", className)}>{children}</div>

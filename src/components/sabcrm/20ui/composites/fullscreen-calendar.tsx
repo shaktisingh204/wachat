@@ -74,16 +74,16 @@ export function ZoruFullscreenCalendar({
   return (
     <div
       className={cn(
-        "flex h-full flex-col rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg",
+        "flex h-full flex-col rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)]",
         className,
       )}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-zoru-line px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
         <div>
-          <p className="text-sm font-semibold text-zoru-ink">
+          <p className="text-sm font-semibold text-[var(--st-text)]">
             {format(month, "MMMM yyyy")}
           </p>
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             {events.length} event{events.length === 1 ? "" : "s"} this month
           </p>
         </div>
@@ -114,7 +114,7 @@ export function ZoruFullscreenCalendar({
         </div>
       </header>
 
-      <div className="grid grid-cols-7 border-b border-zoru-line text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+      <div className="grid grid-cols-7 border-b border-[var(--st-border)] text-[10px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
           <div key={d} className="px-3 py-2 text-left">
             {d}
@@ -132,9 +132,9 @@ export function ZoruFullscreenCalendar({
               type="button"
               onClick={() => onSelectDate?.(day)}
               className={cn(
-                "group relative flex flex-col items-stretch border-b border-r border-zoru-line p-2 text-left transition-colors",
-                "hover:bg-zoru-surface focus-visible:outline-none",
-                !inMonth && "bg-zoru-surface/40 text-zoru-ink-subtle",
+                "group relative flex flex-col items-stretch border-b border-r border-[var(--st-border)] p-2 text-left transition-colors",
+                "hover:bg-[var(--st-surface)] focus-visible:outline-none",
+                !inMonth && "bg-[var(--st-surface)]/40 text-[var(--st-text-tertiary)]",
                 idx % 7 === 6 && "border-r-0",
                 idx >= days.length - 7 && "border-b-0",
               )}
@@ -143,8 +143,8 @@ export function ZoruFullscreenCalendar({
                 <span
                   className={cn(
                     "inline-flex h-6 min-w-6 items-center justify-center rounded-full text-xs",
-                    isToday(day) && "bg-zoru-primary text-zoru-primary-foreground",
-                    !isToday(day) && inMonth && "text-zoru-ink",
+                    isToday(day) && "bg-[var(--st-accent)] text-[var(--st-text-inverted)]",
+                    !isToday(day) && inMonth && "text-[var(--st-text)]",
                   )}
                 >
                   {format(day, "d")}
@@ -160,7 +160,7 @@ export function ZoruFullscreenCalendar({
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                     aria-label={`Add event on ${format(day, "PP")}`}
                   >
-                    <Plus className="h-3 w-3 text-zoru-ink-muted" />
+                    <Plus className="h-3 w-3 text-[var(--st-text-secondary)]" />
                   </span>
                 )}
               </div>
@@ -169,16 +169,16 @@ export function ZoruFullscreenCalendar({
                   <div
                     key={e.id}
                     className={cn(
-                      "truncate rounded-[3px] bg-zoru-surface-2 px-1.5 py-0.5 text-[11px] text-zoru-ink",
+                      "truncate rounded-[3px] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[11px] text-[var(--st-text)]",
                       isSameDay(day, e.date) && isToday(day) &&
-                        "bg-zoru-primary/10",
+                        "bg-[var(--st-accent)]/10",
                     )}
                   >
                     {e.title}
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-[10px] text-zoru-ink-muted">
+                  <div className="text-[10px] text-[var(--st-text-secondary)]">
                     + {dayEvents.length - 3} more
                   </div>
                 )}

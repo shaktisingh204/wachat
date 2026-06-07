@@ -8,7 +8,7 @@ export function Skeleton({ className, ...props }: ZoruSkeletonProps) {
   return (
     <div
       className={cn(
-        "animate-pulse-soft rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 shadow-inner",
+        "animate-pulse-soft rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] shadow-inner",
         className,
       )}
       {...props}

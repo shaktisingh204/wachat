@@ -64,11 +64,11 @@ export function ZoruTestimonialCard({
   return (
     <figure
       className={cn(
-        "w-full max-w-xs rounded-[var(--zoru-radius-xl)] border border-zoru-line bg-zoru-bg p-8 shadow-[var(--zoru-shadow-sm)]",
+        "w-full max-w-xs rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-8 shadow-[var(--st-shadow-sm)]",
         className,
       )}
     >
-      <blockquote className="text-sm leading-relaxed text-zoru-ink">
+      <blockquote className="text-sm leading-relaxed text-[var(--st-text)]">
         {testimonial.text}
       </blockquote>
       <figcaption className="mt-5 flex items-center gap-3">
@@ -83,11 +83,11 @@ export function ZoruTestimonialCard({
           />
         )}
         <div className="flex flex-col">
-          <span className="text-sm font-medium text-zoru-ink">
+          <span className="text-sm font-medium text-[var(--st-text)]">
             {testimonial.name}
           </span>
           {testimonial.role && (
-            <span className="text-[11px] text-zoru-ink-muted">
+            <span className="text-[11px] text-[var(--st-text-secondary)]">
               {testimonial.role}
             </span>
           )}
@@ -148,11 +148,11 @@ export function ZoruTestimonialsColumns({
       ))}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-zoru-bg to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[var(--st-bg)] to-transparent"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-zoru-bg to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[var(--st-bg)] to-transparent"
       />
     </div>
   );

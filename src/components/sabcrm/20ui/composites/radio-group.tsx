@@ -25,9 +25,9 @@ export const ZoruRadioGroupItem = React.forwardRef<
   <RadioGroupPrimitive.Item
     ref={ref}
     className={cn(
-      "aspect-square h-4 w-4 rounded-full border border-zoru-line-strong bg-zoru-bg text-zoru-primary shadow-[var(--zoru-shadow-sm)]",
-      "transition-[border-color,box-shadow,background-color] hover:border-zoru-ink hover:shadow-[var(--zoru-shadow-md)]",
-      "data-[state=checked]:border-zoru-primary",
+      "aspect-square h-4 w-4 rounded-full border border-[var(--st-border-strong)] bg-[var(--st-bg)] text-[var(--st-accent)] shadow-[var(--st-shadow-sm)]",
+      "transition-[border-color,box-shadow,background-color] hover:border-[var(--st-text)] hover:shadow-[var(--st-shadow-md)]",
+      "data-[state=checked]:border-[var(--st-accent)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none",
       className,
@@ -63,18 +63,18 @@ export const ZoruRadioCard = React.forwardRef<
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,transform,background-color]",
-        "hover:-translate-y-0.5 hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-md)]",
-        "has-[[data-state=checked]]:border-zoru-ink has-[[data-state=checked]]:bg-zoru-surface has-[[data-state=checked]]:shadow-[var(--zoru-shadow-md)]",
+        "group relative flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 shadow-[var(--st-shadow-sm)] transition-[border-color,box-shadow,transform,background-color]",
+        "hover:-translate-y-0.5 hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-md)]",
+        "has-[[data-state=checked]]:border-[var(--st-text)] has-[[data-state=checked]]:bg-[var(--st-surface)] has-[[data-state=checked]]:shadow-[var(--st-shadow-md)]",
       )}
     >
       <RadioGroupPrimitive.Item
         ref={ref}
         id={itemId}
         className={cn(
-          "mt-0.5 aspect-square h-4 w-4 shrink-0 rounded-full border border-zoru-line-strong bg-zoru-bg text-zoru-primary",
-          "shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-zoru-ink",
-          "data-[state=checked]:border-zoru-primary",
+          "mt-0.5 aspect-square h-4 w-4 shrink-0 rounded-full border border-[var(--st-border-strong)] bg-[var(--st-bg)] text-[var(--st-accent)]",
+          "shadow-[var(--st-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:border-[var(--st-text)]",
+          "data-[state=checked]:border-[var(--st-accent)]",
           "disabled:cursor-not-allowed disabled:opacity-50",
           "focus-visible:outline-none",
           className,
@@ -89,12 +89,12 @@ export const ZoruRadioCard = React.forwardRef<
         htmlFor={itemId}
         className="flex flex-1 cursor-pointer flex-col gap-0.5"
       >
-        <span className="flex items-center gap-2 text-sm font-medium text-zoru-ink">
+        <span className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
           {icon}
           {label}
         </span>
         {description && (
-          <span className="text-xs text-zoru-ink-muted">{description}</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">{description}</span>
         )}
       </label>
     </div>

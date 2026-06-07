@@ -377,7 +377,7 @@ export function MilestonesListClient({ initialRows }: MilestonesListClientProps)
                         key={r._id}
                         className={[
                           'border-[var(--st-border)] transition-colors',
-                          overdue ? 'border-l-2 border-l-zoru-danger' : '',
+                          overdue ? 'border-l-2 border-l-[var(--st-danger)]' : '',
                           isReached(r) ? 'opacity-70' : '',
                         ].join(' ')}
                       >

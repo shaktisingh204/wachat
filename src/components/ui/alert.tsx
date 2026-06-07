@@ -12,19 +12,19 @@ import { cn } from "@/lib/utils"
  *  - info: sky
  */
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-zoru-ink",
+  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-[var(--st-text)]",
   {
     variants: {
       variant: {
-        default: "bg-zoru-surface text-zoru-ink",
+        default: "bg-[var(--st-surface)] text-[var(--st-text)]",
         destructive:
-          "border-destructive/40 bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
+          "border-destructive/40 bg-[var(--st-text)] text-[var(--st-text)] [&>svg]:text-[var(--st-text)]",
         success:
-          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
+          "border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text)] [&>svg]:text-[var(--st-text)]",
         warning:
-          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
+          "border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text)] [&>svg]:text-[var(--st-text)]",
         info:
-          "border-zoru-line bg-zoru-ink text-zoru-ink [&>svg]:text-zoru-ink",
+          "border-[var(--st-border)] bg-[var(--st-text)] text-[var(--st-text)] [&>svg]:text-[var(--st-text)]",
       },
     },
     defaultVariants: {

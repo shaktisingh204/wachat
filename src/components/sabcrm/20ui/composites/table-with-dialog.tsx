@@ -65,7 +65,7 @@ export function ZoruTableWithDialog<T>({
     <>
       <div
         className={cn(
-          "rounded-[var(--zoru-radius-lg)] border border-zoru-line",
+          "rounded-[var(--st-radius-lg)] border border-[var(--st-border)]",
           className,
         )}
       >
@@ -91,7 +91,7 @@ export function ZoruTableWithDialog<T>({
               <ZoruTableRow className="hover:bg-transparent">
                 <ZoruTableCell
                   colSpan={columns.length}
-                  className="h-32 text-center text-sm text-zoru-ink-muted"
+                  className="h-32 text-center text-sm text-[var(--st-text-secondary)]"
                 >
                   {empty ?? "No rows."}
                 </ZoruTableCell>

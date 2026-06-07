@@ -40,7 +40,7 @@ export function ZoruFileCardCollections({
     return (
       <div
         className={cn(
-          "flex items-center justify-center rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line p-12 text-sm text-zoru-ink-muted",
+          "flex items-center justify-center rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] p-12 text-sm text-[var(--st-text-secondary)]",
           className,
         )}
       >
@@ -51,24 +51,24 @@ export function ZoruFileCardCollections({
 
   if (view === "list") {
     return (
-      <ul className={cn("divide-y divide-zoru-line rounded-[var(--zoru-radius-lg)] border border-zoru-line", className)}>
+      <ul className={cn("divide-y divide-[var(--st-border)] rounded-[var(--st-radius-lg)] border border-[var(--st-border)]", className)}>
         {items.map((item) => (
           <li
             key={item.id}
-            className="flex items-center gap-3 px-3 py-2 transition-colors hover:bg-zoru-surface"
+            className="flex items-center gap-3 px-3 py-2 transition-colors hover:bg-[var(--st-surface)]"
           >
             <button
               type="button"
               onClick={() => onItemClick?.(item)}
               className="flex flex-1 items-center gap-3 text-left focus-visible:outline-none"
             >
-              <FileTypeIcon mime={item.mime} className="h-4 w-4 text-zoru-ink-muted" />
+              <FileTypeIcon mime={item.mime} className="h-4 w-4 text-[var(--st-text-secondary)]" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-zoru-ink">
+                <span className="block truncate text-sm font-medium text-[var(--st-text)]">
                   {item.name}
                 </span>
                 {(item.size !== undefined || item.modified) && (
-                  <span className="block text-[11px] text-zoru-ink-muted">
+                  <span className="block text-[11px] text-[var(--st-text-secondary)]">
                     {item.size !== undefined && formatBytes(item.size)}
                     {item.size !== undefined && item.modified && " · "}
                     {item.modified && item.modified.toLocaleDateString()}
@@ -102,12 +102,12 @@ export function ZoruFileCardCollections({
       {items.map((item) => (
         <div
           key={item.id}
-          className="group flex flex-col overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg transition-shadow hover:shadow-[var(--zoru-shadow-md)]"
+          className="group flex flex-col overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] transition-shadow hover:shadow-[var(--st-shadow-md)]"
         >
           <button
             type="button"
             onClick={() => onItemClick?.(item)}
-            className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-zoru-surface text-zoru-ink-subtle focus-visible:outline-none"
+            className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-[var(--st-surface)] text-[var(--st-text-tertiary)] focus-visible:outline-none"
           >
             {item.thumbnailUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -122,10 +122,10 @@ export function ZoruFileCardCollections({
           </button>
           <div className="flex items-start gap-2 px-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-zoru-ink">
+              <p className="truncate text-sm font-medium text-[var(--st-text)]">
                 {item.name}
               </p>
-              <p className="text-[11px] text-zoru-ink-muted">
+              <p className="text-[11px] text-[var(--st-text-secondary)]">
                 {item.size !== undefined && formatBytes(item.size)}
                 {item.size !== undefined && item.modified && " · "}
                 {item.modified && item.modified.toLocaleDateString()}

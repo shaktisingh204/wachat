@@ -132,7 +132,7 @@ export default async function WelcomeKitDetailPage({
                                         <span>{fmtDate(it.delivered_at)}</span>
                                     ) : null}
                                     {it.delivered ? (
-                                        <span className="flex items-center gap-1 text-[var(--zoru-success,green)]">
+                                        <span className="flex items-center gap-1 text-[var(--st-status-ok,green)]">
                                             <Check className="h-3.5 w-3.5" /> delivered
                                         </span>
                                     ) : (

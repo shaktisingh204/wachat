@@ -52,7 +52,7 @@ export function ZoruFileToolbar({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-2",
+        "flex flex-wrap items-center gap-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2",
         className,
       )}
     >
@@ -65,7 +65,7 @@ export function ZoruFileToolbar({
       />
 
       {selectionCount > 0 && (
-        <div className="flex items-center gap-2 rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-2 py-1 text-xs text-zoru-ink">
+        <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-2 py-1 text-xs text-[var(--st-text)]">
           <span className="font-medium">{selectionCount} selected</span>
           {onDeleteSelection && (
             <DropdownMenu>
@@ -95,15 +95,15 @@ export function ZoruFileToolbar({
       )}
 
       <div className="ml-auto flex items-center gap-2">
-        <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line p-0.5">
+        <div className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] p-0.5">
           <button
             type="button"
             aria-label="Grid view"
             aria-pressed={view === "grid"}
             onClick={() => onViewChange("grid")}
             className={cn(
-              "inline-flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:text-zoru-ink",
-              view === "grid" && "bg-zoru-surface-2 text-zoru-ink",
+              "inline-flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]",
+              view === "grid" && "bg-[var(--st-bg-muted)] text-[var(--st-text)]",
             )}
           >
             <LayoutGrid className="h-4 w-4" />
@@ -114,8 +114,8 @@ export function ZoruFileToolbar({
             aria-pressed={view === "list"}
             onClick={() => onViewChange("list")}
             className={cn(
-              "inline-flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:text-zoru-ink",
-              view === "list" && "bg-zoru-surface-2 text-zoru-ink",
+              "inline-flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]",
+              view === "list" && "bg-[var(--st-bg-muted)] text-[var(--st-text)]",
             )}
           >
             <List className="h-4 w-4" />

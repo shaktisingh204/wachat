@@ -31,13 +31,13 @@ export function CallToAction({
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center gap-4 rounded-xl bg-zoru-surface p-8 text-center shadow-md",
+        "relative flex flex-col items-center gap-4 rounded-xl bg-[var(--st-surface)] p-8 text-center shadow-md",
         className
       )}
       {...props}
     >
-      <h2 className="text-2xl font-semibold tracking-tight text-zoru-ink">{title}</h2>
-      <p className="max-w-prose text-sm text-zoru-ink-muted">{description}</p>
+      <h2 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">{title}</h2>
+      <p className="max-w-prose text-sm text-[var(--st-text-secondary)]">{description}</p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button onClick={onPrimaryClick}>{primaryLabel}</Button>
         <Button variant="outline" onClick={onSecondaryClick}>

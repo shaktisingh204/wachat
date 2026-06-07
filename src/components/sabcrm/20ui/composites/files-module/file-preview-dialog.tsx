@@ -46,7 +46,7 @@ export function ZoruFilePreviewDialog({
                   .join(" · ")}
               </ZoruDialogDescription>
             </ZoruDialogHeader>
-            <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--zoru-radius)] bg-zoru-surface">
+            <div className="flex max-h-[60vh] items-center justify-center overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-surface)]">
               {previewKind === "image" && previewUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -78,7 +78,7 @@ export function ZoruFilePreviewDialog({
                   className="h-[60vh] w-full border-0 bg-white"
                 />
               ) : (
-                <p className="p-8 text-sm text-zoru-ink-muted">
+                <p className="p-8 text-sm text-[var(--st-text-secondary)]">
                   Preview not available for this file type.
                 </p>
               )}

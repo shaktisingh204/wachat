@@ -88,20 +88,20 @@ export function ZoruFileUploadCard({
           handleFiles(e.dataTransfer.files);
         }}
         className={cn(
-          "flex flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg p-10 text-center transition-colors",
-          "hover:border-zoru-line-strong hover:bg-zoru-surface",
-          dragOver && "border-zoru-ink bg-zoru-surface-2",
-          disabled && "cursor-not-allowed opacity-50 hover:bg-zoru-bg",
+          "flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-10 text-center transition-colors",
+          "hover:border-[var(--st-border-strong)] hover:bg-[var(--st-surface)]",
+          dragOver && "border-[var(--st-text)] bg-[var(--st-bg-muted)]",
+          disabled && "cursor-not-allowed opacity-50 hover:bg-[var(--st-bg)]",
           "focus-visible:outline-none",
         )}
       >
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
           <CloudUpload className="h-5 w-5" />
         </span>
-        <p className="text-sm font-medium text-zoru-ink">
+        <p className="text-sm font-medium text-[var(--st-text)]">
           Drop files here, or click to browse
         </p>
-        {hint && <p className="text-xs text-zoru-ink-muted">{hint}</p>}
+        {hint && <p className="text-xs text-[var(--st-text-secondary)]">{hint}</p>}
         <input
           ref={inputRef}
           type="file"
@@ -120,14 +120,14 @@ export function ZoruFileUploadCard({
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
+              className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-sm font-medium text-zoru-ink">
+                  <p className="truncate text-sm font-medium text-[var(--st-text)]">
                     {item.file.name}
                   </p>
-                  <p className="shrink-0 text-[11px] text-zoru-ink-muted">
+                  <p className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
                     {formatBytes(item.file.size)}
                   </p>
                 </div>
@@ -138,12 +138,12 @@ export function ZoruFileUploadCard({
                   />
                 )}
                 {item.status === "error" && (
-                  <p className="mt-1 text-xs text-zoru-danger">
+                  <p className="mt-1 text-xs text-[var(--st-danger)]">
                     {item.errorMessage ?? "Upload failed."}
                   </p>
                 )}
                 {item.status === "done" && (
-                  <p className="mt-1 text-xs text-zoru-success">Uploaded</p>
+                  <p className="mt-1 text-xs text-[var(--st-status-ok)]">Uploaded</p>
                 )}
               </div>
               {onRemove && (

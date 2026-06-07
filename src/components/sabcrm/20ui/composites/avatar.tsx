@@ -12,7 +12,7 @@ export const Avatar = React.forwardRef<
   <AvatarPrimitive.Root
     ref={ref}
     className={cn(
-      "relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-zoru-surface-2",
+      "relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[var(--st-bg-muted)]",
       className,
     )}
     {...props}
@@ -39,7 +39,7 @@ export const ZoruAvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-full bg-zoru-surface-2 text-xs font-medium text-zoru-ink",
+      "flex h-full w-full items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-xs font-medium text-[var(--st-text)]",
       className,
     )}
     {...props}

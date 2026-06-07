@@ -136,17 +136,17 @@ export function ZoruAppSidebar({
   return (
     <aside
       className={cn(
-        "flex h-full w-60 shrink-0 flex-col border-r border-zoru-line bg-zoru-bg",
+        "flex h-full w-60 shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg)]",
         className,
       )}
     >
       {(heading || caption) && (
         <div className="flex flex-col gap-0.5 px-4 pb-3 pt-4">
           {heading && (
-            <p className="text-sm font-semibold text-zoru-ink">{heading}</p>
+            <p className="text-sm font-semibold text-[var(--st-text)]">{heading}</p>
           )}
           {caption && (
-            <p className="text-xs text-zoru-ink-muted">{caption}</p>
+            <p className="text-xs text-[var(--st-text-secondary)]">{caption}</p>
           )}
         </div>
       )}
@@ -176,7 +176,7 @@ export function ZoruAppSidebar({
                     setQuery("");
                   }}
                   aria-label="Clear search"
-                  className="rounded-sm text-zoru-ink-subtle hover:text-zoru-ink focus-visible:outline-none"
+                  className="rounded-sm text-[var(--st-text-tertiary)] hover:text-[var(--st-text)] focus-visible:outline-none"
                 >
                   <X className="size-4" />
                 </button>
@@ -188,10 +188,10 @@ export function ZoruAppSidebar({
             <div
               id="zoru-sidebar-suggestions"
               role="listbox"
-              className="absolute left-3 right-3 top-[calc(100%-0.25rem)] z-30 max-h-80 overflow-y-auto rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow-lg)]"
+              className="absolute left-3 right-3 top-[calc(100%-0.25rem)] z-30 max-h-80 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[var(--st-shadow-lg)]"
             >
               {suggestions.length === 0 ? (
-                <p className="px-3 py-4 text-center text-xs text-zoru-ink-subtle">
+                <p className="px-3 py-4 text-center text-xs text-[var(--st-text-tertiary)]">
                   No matches for &ldquo;{trimmed}&rdquo;
                 </p>
               ) : (
@@ -217,7 +217,7 @@ export function ZoruAppSidebar({
           <SidebarGroup key={group.id} group={group} />
         ))}
       </nav>
-      {footer && <div className="border-t border-zoru-line p-3">{footer}</div>}
+      {footer && <div className="border-t border-[var(--st-border)] p-3">{footer}</div>}
     </aside>
   );
 }
@@ -242,10 +242,10 @@ function SuggestionRow({
   const content = (
     <div
       className={cn(
-        "flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-zoru-ink-muted",
-        "hover:bg-zoru-surface-2 hover:text-zoru-ink",
-        active && "bg-zoru-surface-2 text-zoru-ink",
-        "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-zoru-ink-muted",
+        "flex w-full items-center gap-2 px-3 py-1.5 text-left text-[13px] text-[var(--st-text-secondary)]",
+        "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+        active && "bg-[var(--st-bg-muted)] text-[var(--st-text)]",
+        "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[var(--st-text-secondary)]",
       )}
     >
       {item.icon}
@@ -254,7 +254,7 @@ function SuggestionRow({
           {highlight(item.label, query)}
         </div>
         {trailText && (
-          <div className="truncate text-[11px] text-zoru-ink-subtle">
+          <div className="truncate text-[11px] text-[var(--st-text-tertiary)]">
             {trailText}
           </div>
         )}
@@ -303,7 +303,7 @@ function highlight(label: string, query: string) {
   return (
     <>
       {label.slice(0, idx)}
-      <mark className="bg-transparent font-semibold text-zoru-ink">
+      <mark className="bg-transparent font-semibold text-[var(--st-text)]">
         {label.slice(idx, end)}
       </mark>
       {label.slice(end)}
@@ -361,7 +361,7 @@ function SidebarGroup({ group }: { group: ZoruSidebarGroup }) {
       <ZoruCollapsibleTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center justify-between gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle hover:text-zoru-ink-muted [&[data-state=open]>svg]:rotate-180 focus-visible:outline-none"
+          className="flex w-full items-center justify-between gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)] hover:text-[var(--st-text-secondary)] [&[data-state=open]>svg]:rotate-180 focus-visible:outline-none"
         >
           <span>{group.label}</span>
           <ChevronDown className="h-3 w-3 transition-transform duration-200" />
@@ -387,12 +387,12 @@ function SidebarLeaf({
 }) {
   const hasChildren = !!(item.children && item.children.length > 0);
   const className = cn(
-    "group flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm text-zoru-ink-muted transition-colors",
+    "group flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm text-[var(--st-text-secondary)] transition-colors",
     depth > 0 && "pl-7 text-[13px]",
-    "hover:bg-zoru-surface-2 hover:text-zoru-ink",
-    item.active && "bg-zoru-surface-2 text-zoru-ink font-medium",
-    "focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-zoru-ink-muted",
-    item.active && "[&_svg]:text-zoru-ink",
+    "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+    item.active && "bg-[var(--st-bg-muted)] text-[var(--st-text)] font-medium",
+    "focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[var(--st-text-secondary)]",
+    item.active && "[&_svg]:text-[var(--st-text)]",
   );
 
   const inner = (
@@ -400,7 +400,7 @@ function SidebarLeaf({
       {item.icon}
       <span className="flex-1 truncate">{item.label}</span>
       {item.badge && (
-        <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-zoru-surface-3 px-1 text-[10px] font-semibold text-zoru-ink-muted group-hover:text-zoru-ink">
+        <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] px-1 text-[10px] font-semibold text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)]">
           {item.badge}
         </span>
       )}

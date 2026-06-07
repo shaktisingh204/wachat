@@ -139,7 +139,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+      <div className="rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
         <Table>
           <ZoruTableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -159,7 +159,7 @@ export function DataTable<TData, TValue>({
                           }
                           className={cn(
                             "inline-flex items-center gap-1.5",
-                            canSort && "hover:text-zoru-ink",
+                            canSort && "hover:text-[var(--st-text)]",
                           )}
                           disabled={!canSort}
                         >
@@ -201,7 +201,7 @@ export function DataTable<TData, TValue>({
               <ZoruTableRow className="hover:bg-transparent">
                 <ZoruTableCell
                   colSpan={columns.length}
-                  className="h-32 text-center text-sm text-zoru-ink-muted"
+                  className="h-32 text-center text-sm text-[var(--st-text-secondary)]"
                 >
                   {empty ?? "No results."}
                 </ZoruTableCell>
@@ -212,12 +212,12 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="flex items-center justify-between gap-3 px-1">
-        <p className="text-xs text-zoru-ink-muted">
+        <p className="text-xs text-[var(--st-text-secondary)]">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected
         </p>
         <div className="flex items-center gap-2">
-          <p className="text-xs text-zoru-ink-muted">
+          <p className="text-xs text-[var(--st-text-secondary)]">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {Math.max(table.getPageCount(), 1)}
           </p>

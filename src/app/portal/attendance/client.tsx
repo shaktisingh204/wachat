@@ -132,7 +132,7 @@ export default function AttendanceClient({
         </div>
 
         {todayAttendance && (
-           <div className="rounded-md bg-zoru-bg-[var(--st-bg-muted)] p-4 text-sm mt-4">
+           <div className="rounded-md bg-[var(--st-bg)]-[var(--st-bg-muted)] p-4 text-sm mt-4">
              <div className="flex justify-between mb-2">
                <span className="text-[var(--st-text-tertiary)]">Clock In:</span>
                <span className="font-medium">

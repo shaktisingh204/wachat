@@ -19,7 +19,7 @@ export const ZoruMenubar = React.forwardRef<
   <MenubarPrimitive.Root
     ref={ref}
     className={cn(
-      "flex h-9 items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 shadow-[var(--zoru-shadow-sm)]",
+      "flex h-9 items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-[var(--st-shadow-sm)]",
       className,
     )}
     {...props}
@@ -28,7 +28,7 @@ export const ZoruMenubar = React.forwardRef<
 ZoruMenubar.displayName = "ZoruMenubar";
 
 const itemBase =
-  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--zoru-radius-sm)] px-2 py-1.5 text-sm outline-none text-zoru-ink transition-colors focus:bg-zoru-surface-2 data-[highlighted]:bg-zoru-surface-2 data-[disabled]:pointer-events-none data-[disabled]:opacity-50";
+  "relative flex cursor-default select-none items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-sm outline-none text-[var(--st-text)] transition-colors focus:bg-[var(--st-bg-muted)] data-[highlighted]:bg-[var(--st-bg-muted)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50";
 
 export const ZoruMenubarTrigger = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Trigger>,
@@ -37,8 +37,8 @@ export const ZoruMenubarTrigger = React.forwardRef<
   <MenubarPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-[var(--zoru-radius-sm)] px-3 py-1 text-sm font-medium text-zoru-ink outline-none",
-      "focus:bg-zoru-surface-2 data-[state=open]:bg-zoru-surface-2",
+      "flex cursor-default select-none items-center rounded-[var(--st-radius-sm)] px-3 py-1 text-sm font-medium text-[var(--st-text)] outline-none",
+      "focus:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)]",
       className,
     )}
     {...props}
@@ -54,11 +54,11 @@ export const ZoruMenubarSubTrigger = React.forwardRef<
 >(({ className, inset, children, ...props }, ref) => (
   <MenubarPrimitive.SubTrigger
     ref={ref}
-    className={cn(itemBase, inset && "pl-8", "data-[state=open]:bg-zoru-surface-2", className)}
+    className={cn(itemBase, inset && "pl-8", "data-[state=open]:bg-[var(--st-bg-muted)]", className)}
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto h-4 w-4 text-zoru-ink-muted" />
+    <ChevronRight className="ml-auto h-4 w-4 text-[var(--st-text-secondary)]" />
   </MenubarPrimitive.SubTrigger>
 ));
 ZoruMenubarSubTrigger.displayName = "ZoruMenubarSubTrigger";
@@ -70,7 +70,7 @@ export const ZoruMenubarSubContent = React.forwardRef<
   <MenubarPrimitive.SubContent
     ref={ref}
     className={cn(
-      "zoruui z-50 min-w-[8rem] overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+      "zoruui z-50 min-w-[8rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
       className,
     )}
     {...props}
@@ -89,7 +89,7 @@ export const ZoruMenubarContent = React.forwardRef<
       alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(
-        "zoruui z-50 min-w-[12rem] overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1 text-zoru-ink shadow-[var(--zoru-shadow-md)]",
+        "zoruui z-50 min-w-[12rem] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-[var(--st-text)] shadow-[var(--st-shadow-md)]",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -163,7 +163,7 @@ export const ZoruMenubarLabel = React.forwardRef<
   <MenubarPrimitive.Label
     ref={ref}
     className={cn(
-      "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle",
+      "px-2 py-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]",
       inset && "pl-8",
       className,
     )}
@@ -178,7 +178,7 @@ export const ZoruMenubarSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenubarPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-zoru-line", className)}
+    className={cn("-mx-1 my-1 h-px bg-[var(--st-border)]", className)}
     {...props}
   />
 ));
@@ -190,7 +190,7 @@ export function ZoruMenubarShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("ml-auto text-[11px] tracking-widest text-zoru-ink-subtle", className)}
+      className={cn("ml-auto text-[11px] tracking-widest text-[var(--st-text-tertiary)]", className)}
       {...props}
     />
   );

@@ -17,14 +17,14 @@ export const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "text-sm font-medium leading-none text-zoru-ink",
+      "text-sm font-medium leading-none text-[var(--st-text)]",
       "peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
       className,
     )}
     {...props}
   >
     {children}
-    {required && <span className="ml-0.5 text-zoru-danger">*</span>}
+    {required && <span className="ml-0.5 text-[var(--st-danger)]">*</span>}
   </LabelPrimitive.Root>
 ));
 Label.displayName = "Label";

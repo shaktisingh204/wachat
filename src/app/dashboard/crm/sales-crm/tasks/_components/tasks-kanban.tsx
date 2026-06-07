@@ -70,7 +70,7 @@ export function TasksKanban({ tasks }: TasksKanbanProps) {
                                         href={`/dashboard/crm/sales-crm/tasks/${String(task._id)}`}
                                         className={[
                                             'block rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-2.5 transition-colors hover:border-[var(--st-border-strong)]',
-                                            overdue ? 'border-l-2 border-l-zoru-danger' : '',
+                                            overdue ? 'border-l-2 border-l-[var(--st-danger)]' : '',
                                         ].join(' ')}
                                     >
                                         <div className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--st-text)]">

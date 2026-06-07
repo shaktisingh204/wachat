@@ -5,20 +5,20 @@ import { cn } from "./lib/cn";
 
 export const zoruCardVariants = cva(
   [
-    "rounded-[var(--zoru-radius-lg)] bg-zoru-bg p-5 text-zoru-ink",
+    "rounded-[var(--st-radius-lg)] bg-[var(--st-bg)] p-5 text-[var(--st-text)]",
     "transition-[border-color,box-shadow,transform,background-color] duration-200",
   ].join(" "),
   {
     variants: {
       variant: {
-        default: "border border-zoru-line shadow-[var(--zoru-shadow-sm)]",
-        soft: "border border-zoru-line/70 bg-zoru-surface",
-        outline: "border border-zoru-line-strong shadow-none",
-        elevated: "border border-zoru-line shadow-[var(--zoru-shadow-md)]",
+        default: "border border-[var(--st-border)] shadow-[var(--st-shadow-sm)]",
+        soft: "border border-[var(--st-border)]/70 bg-[var(--st-surface)]",
+        outline: "border border-[var(--st-border-strong)] shadow-none",
+        elevated: "border border-[var(--st-border)] shadow-[var(--st-shadow-md)]",
         plain: "border-0 bg-transparent shadow-none",
       },
       interactive: {
-        true: "cursor-pointer hover:-translate-y-0.5 hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-lg)]",
+        true: "cursor-pointer hover:-translate-y-0.5 hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-lg)]",
         false: "",
       },
     },
@@ -55,7 +55,7 @@ export const ZoruCardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("text-base font-semibold leading-snug tracking-tight text-zoru-ink", className)}
+    className={cn("text-base font-semibold leading-snug tracking-tight text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -67,7 +67,7 @@ export const ZoruCardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("text-sm leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

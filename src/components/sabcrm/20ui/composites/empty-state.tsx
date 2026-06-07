@@ -24,7 +24,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-[var(--zoru-radius-lg)] border border-dashed border-zoru-line bg-zoru-bg text-center",
+        "flex flex-col items-center justify-center rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] text-center",
         compact ? "gap-2 p-6" : "gap-3 p-12",
         className,
       )}
@@ -33,7 +33,7 @@ export function EmptyState({
       {icon && (
         <div
           className={cn(
-            "flex items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted",
+            "flex items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]",
             compact ? "h-9 w-9 [&_svg]:size-4" : "h-12 w-12 [&_svg]:size-5",
           )}
         >
@@ -41,11 +41,11 @@ export function EmptyState({
         </div>
       )}
       <div className="flex flex-col gap-1">
-        <p className={cn("font-medium text-zoru-ink", compact ? "text-sm" : "text-base")}>
+        <p className={cn("font-medium text-[var(--st-text)]", compact ? "text-sm" : "text-base")}>
           {title}
         </p>
         {description && (
-          <p className="max-w-md text-sm leading-relaxed text-zoru-ink-muted">
+          <p className="max-w-md text-sm leading-relaxed text-[var(--st-text-secondary)]">
             {description}
           </p>
         )}

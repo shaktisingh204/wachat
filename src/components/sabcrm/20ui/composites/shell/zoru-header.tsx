@@ -30,7 +30,7 @@ export function ZoruHeader({
   return (
     <header
       className={cn(
-        "flex h-14 items-center gap-4 border-b border-zoru-line bg-zoru-bg px-4",
+        "flex h-14 items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4",
         sticky && "sticky top-0 z-20",
         className,
       )}

@@ -12,9 +12,9 @@ export const Switch = React.forwardRef<
   <SwitchPrimitive.Root
     ref={ref}
     className={cn(
-      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-[var(--zoru-shadow-sm)]",
-      "transition-[background-color,box-shadow] duration-200 hover:shadow-[var(--zoru-shadow-md)]",
-      "data-[state=unchecked]:bg-zoru-line-strong data-[state=checked]:bg-zoru-primary",
+      "peer inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent shadow-[var(--st-shadow-sm)]",
+      "transition-[background-color,box-shadow] duration-200 hover:shadow-[var(--st-shadow-md)]",
+      "data-[state=unchecked]:bg-[var(--st-border-strong)] data-[state=checked]:bg-[var(--st-accent)]",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "focus-visible:outline-none",
       className,
@@ -23,7 +23,7 @@ export const Switch = React.forwardRef<
   >
     <SwitchPrimitive.Thumb
       className={cn(
-        "pointer-events-none block h-4 w-4 rounded-full bg-zoru-bg shadow-[var(--zoru-shadow-sm)] ring-0",
+        "pointer-events-none block h-4 w-4 rounded-full bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)] ring-0",
         "transition-transform duration-200",
         "data-[state=unchecked]:translate-x-0 data-[state=checked]:translate-x-4",
       )}
@@ -72,7 +72,7 @@ export function ZoruBouncyToggle({
         <span
           className={cn(
             "text-sm font-medium transition-colors duration-300",
-            isChecked ? "text-zoru-ink" : "text-zoru-ink-muted",
+            isChecked ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]",
           )}
         >
           {label}
@@ -89,8 +89,8 @@ export function ZoruBouncyToggle({
         onPointerLeave={() => setPressed(false)}
         className={cn(
           "group relative h-8 w-14 rounded-full p-1 transition-all duration-500 ease-out",
-          "shadow-[var(--zoru-shadow-sm)] focus-visible:outline-none",
-          isChecked ? "bg-zoru-ink" : "bg-zoru-line-strong",
+          "shadow-[var(--st-shadow-sm)] focus-visible:outline-none",
+          isChecked ? "bg-[var(--st-text)]" : "bg-[var(--st-border-strong)]",
           disabled && "opacity-50 cursor-not-allowed",
         )}
       >
@@ -102,7 +102,7 @@ export function ZoruBouncyToggle({
         />
         <div
           className={cn(
-            "relative h-6 w-6 rounded-full bg-zoru-bg shadow-[var(--zoru-shadow-md)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]",
+            "relative h-6 w-6 rounded-full bg-[var(--st-bg)] shadow-[var(--st-shadow-md)] transition-all duration-500 ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]",
             isChecked ? "translate-x-6" : "translate-x-0",
             pressed && "scale-90 duration-150",
           )}
@@ -111,8 +111,8 @@ export function ZoruBouncyToggle({
             className={cn(
               "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500",
               isChecked
-                ? "h-2 w-2 bg-zoru-ink scale-100"
-                : "h-1.5 w-1.5 bg-zoru-ink-subtle scale-100",
+                ? "h-2 w-2 bg-[var(--st-text)] scale-100"
+                : "h-1.5 w-1.5 bg-[var(--st-text-tertiary)] scale-100",
             )}
           />
         </div>

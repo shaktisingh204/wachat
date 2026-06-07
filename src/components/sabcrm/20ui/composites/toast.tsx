@@ -26,7 +26,7 @@ ZoruToastViewport.displayName = "ZoruToastViewport";
 
 const toastVariants = cva(
   [
-    "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-[var(--zoru-radius)] border bg-zoru-bg p-4 pr-8 shadow-[var(--zoru-shadow-md)]",
+    "group pointer-events-auto relative flex w-full items-start gap-3 overflow-hidden rounded-[var(--st-radius)] border bg-[var(--st-bg)] p-4 pr-8 shadow-[var(--st-shadow-md)]",
     "data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full",
@@ -37,15 +37,15 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-zoru-line text-zoru-ink",
+        default: "border-[var(--st-border)] text-[var(--st-text)]",
         destructive:
-          "border-zoru-danger/40 bg-zoru-danger/5 text-zoru-danger [&_[data-zoru-toast-title]]:text-zoru-danger",
+          "border-[var(--st-danger)]/40 bg-[var(--st-danger)]/5 text-[var(--st-danger)] [&_[data-zoru-toast-title]]:text-[var(--st-danger)]",
         success:
-          "border-zoru-success/40 bg-zoru-success/5 text-zoru-ink [&_[data-zoru-toast-title]]:text-zoru-success",
+          "border-[var(--st-status-ok)]/40 bg-[var(--st-status-ok)]/5 text-[var(--st-text)] [&_[data-zoru-toast-title]]:text-[var(--st-status-ok)]",
         warning:
-          "border-zoru-warning/40 bg-zoru-warning/5 text-zoru-ink",
+          "border-[var(--st-warn)]/40 bg-[var(--st-warn)]/5 text-[var(--st-text)]",
         info:
-          "border-zoru-info/40 bg-zoru-info/5 text-zoru-ink [&_[data-zoru-toast-title]]:text-zoru-info",
+          "border-[var(--st-accent)]/40 bg-[var(--st-accent)]/5 text-[var(--st-text)] [&_[data-zoru-toast-title]]:text-[var(--st-accent)]",
       },
     },
     defaultVariants: { variant: "default" },
@@ -75,7 +75,7 @@ export const ZoruToastAction = React.forwardRef<
   <ToastPrimitive.Action
     ref={ref}
     className={cn(
-      "inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-transparent px-3 text-xs font-medium text-zoru-ink transition-colors hover:bg-zoru-surface-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
+      "inline-flex h-8 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-transparent px-3 text-xs font-medium text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
     {...props}
@@ -92,7 +92,7 @@ export const ZoruToastClose = React.forwardRef<
     aria-label="Close"
     toast-close=""
     className={cn(
-      "absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted opacity-0 transition-opacity hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none group-hover:opacity-100",
+      "absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-secondary)] opacity-0 transition-opacity hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] focus-visible:outline-none group-hover:opacity-100",
       className,
     )}
     {...props}
@@ -109,7 +109,7 @@ export const ZoruToastTitle = React.forwardRef<
   <ToastPrimitive.Title
     ref={ref}
     data-zoru-toast-title=""
-    className={cn("text-sm font-medium text-zoru-ink", className)}
+    className={cn("text-sm font-medium text-[var(--st-text)]", className)}
     {...props}
   />
 ));
@@ -121,7 +121,7 @@ export const ZoruToastDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToastPrimitive.Description
     ref={ref}
-    className={cn("mt-0.5 text-xs leading-relaxed text-zoru-ink-muted", className)}
+    className={cn("mt-0.5 text-xs leading-relaxed text-[var(--st-text-secondary)]", className)}
     {...props}
   />
 ));

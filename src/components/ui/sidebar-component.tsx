@@ -107,37 +107,37 @@ type ModuleHue = {
 };
 
 const MODULE_HUE: Record<string, ModuleHue> = {
-  whatsapp:        { name: "emerald",  gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",  inkMuted: "text-zoru-ink/70",  soft: "bg-zoru-surface-2",   softer: "bg-zoru-surface-2/60",   hoverSoft: "hover:bg-zoru-surface-2",  ring: "ring-zoru-line/70",  titleInk: "text-zoru-ink/80" },
-  sabchat:         { name: "sky",      gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",      inkMuted: "text-zoru-ink/70",      soft: "bg-zoru-surface-2",       softer: "bg-zoru-surface-2/60",       hoverSoft: "hover:bg-zoru-surface-2",      ring: "ring-zoru-line/70",      titleInk: "text-zoru-ink/80" },
-  facebook:        { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",    ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  "ad-manager":    { name: "indigo",   gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
-  telegram:        { name: "cyan",     gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  instagram:       { name: "pink",     gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  crm:             { name: "violet",   gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
-  hrm:             { name: "rose",     gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabflow:         { name: "lime",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  team:            { name: "indigo",   gradient: "from-zoru-ink to-zoru-ink",    ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
-  email:           { name: "sky",      gradient: "from-zoru-ink to-zoru-ink",       ink: "text-zoru-ink",      inkMuted: "text-zoru-ink/70",      soft: "bg-zoru-surface-2",       softer: "bg-zoru-surface-2/60",       hoverSoft: "hover:bg-zoru-surface-2",      ring: "ring-zoru-line/70",      titleInk: "text-zoru-ink/80" },
-  sms:             { name: "green",    gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",    titleInk: "text-zoru-ink/80" },
-  api:             { name: "slate",    gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",    inkMuted: "text-zoru-ink/70",    soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",    titleInk: "text-zoru-ink/80" },
-  "website-builder": { name: "teal",   gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  "url-shortener": { name: "purple",   gradient: "from-zoru-ink to-zoru-ink", ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
-  "qr-code-maker": { name: "fuchsia",  gradient: "from-zoru-ink to-zoru-ink",   ink: "text-zoru-ink",  inkMuted: "text-zoru-ink/70",  soft: "bg-zoru-surface-2",   softer: "bg-zoru-surface-2/60",   hoverSoft: "hover:bg-zoru-surface-2",  ring: "ring-zoru-line/70",  titleInk: "text-zoru-ink/80" },
-  "seo-suite":     { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabshop:         { name: "orange",   gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabwebinar:      { name: "fuchsia",  gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabmeet:         { name: "purple",   gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabdesk:         { name: "rose",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  settings:        { name: "zinc",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink",        soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabsprints:      { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabcheckout:     { name: "amber",    gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabtables:       { name: "cyan",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabvault:        { name: "red",      gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabcreator:      { name: "yellow",   gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabpractice:     { name: "teal",     gradient: "from-zoru-ink to-zoru-ink",     ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",     softer: "bg-zoru-surface-2/60",     hoverSoft: "hover:bg-zoru-surface-2",    ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabbi:           { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabsign:         { name: "blue",     gradient: "from-zoru-ink to-zoru-ink",      ink: "text-zoru-ink",     inkMuted: "text-zoru-ink/70",     soft: "bg-zoru-surface-2",      softer: "bg-zoru-surface-2/60",      hoverSoft: "hover:bg-zoru-surface-2",     ring: "ring-zoru-line/70",     titleInk: "text-zoru-ink/80" },
-  sabops:          { name: "indigo",   gradient: "from-zoru-ink to-zoru-ink",  ink: "text-zoru-ink",   inkMuted: "text-zoru-ink/70",   soft: "bg-zoru-surface-2",    softer: "bg-zoru-surface-2/60",    hoverSoft: "hover:bg-zoru-surface-2",   ring: "ring-zoru-line/70",   titleInk: "text-zoru-ink/80" },
+  whatsapp:        { name: "emerald",  gradient: "from-[var(--st-text)] to-[var(--st-text)]",   ink: "text-[var(--st-text)]",  inkMuted: "text-[var(--st-text)]/70",  soft: "bg-[var(--st-bg-muted)]",   softer: "bg-[var(--st-bg-muted)]/60",   hoverSoft: "hover:bg-[var(--st-bg-muted)]",  ring: "ring-[var(--st-border)]/70",  titleInk: "text-[var(--st-text)]/80" },
+  sabchat:         { name: "sky",      gradient: "from-[var(--st-text)] to-[var(--st-text)]",       ink: "text-[var(--st-text)]",      inkMuted: "text-[var(--st-text)]/70",      soft: "bg-[var(--st-bg-muted)]",       softer: "bg-[var(--st-bg-muted)]/60",       hoverSoft: "hover:bg-[var(--st-bg-muted)]",      ring: "ring-[var(--st-border)]/70",      titleInk: "text-[var(--st-text)]/80" },
+  facebook:        { name: "blue",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",    ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  "ad-manager":    { name: "indigo",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",  ink: "text-[var(--st-text)]",   inkMuted: "text-[var(--st-text)]/70",   soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",   titleInk: "text-[var(--st-text)]/80" },
+  telegram:        { name: "cyan",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",       ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  instagram:       { name: "pink",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",   ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  crm:             { name: "violet",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",  ink: "text-[var(--st-text)]",   inkMuted: "text-[var(--st-text)]/70",   soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",   titleInk: "text-[var(--st-text)]/80" },
+  hrm:             { name: "rose",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",       ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabflow:         { name: "lime",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",    inkMuted: "text-[var(--st-text)]/70",    soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  team:            { name: "indigo",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",    ink: "text-[var(--st-text)]",   inkMuted: "text-[var(--st-text)]/70",   soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",   titleInk: "text-[var(--st-text)]/80" },
+  email:           { name: "sky",      gradient: "from-[var(--st-text)] to-[var(--st-text)]",       ink: "text-[var(--st-text)]",      inkMuted: "text-[var(--st-text)]/70",      soft: "bg-[var(--st-bg-muted)]",       softer: "bg-[var(--st-bg-muted)]/60",       hoverSoft: "hover:bg-[var(--st-bg-muted)]",      ring: "ring-[var(--st-border)]/70",      titleInk: "text-[var(--st-text)]/80" },
+  sms:             { name: "green",    gradient: "from-[var(--st-text)] to-[var(--st-text)]",  ink: "text-[var(--st-text)]",    inkMuted: "text-[var(--st-text)]/70",    soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",    titleInk: "text-[var(--st-text)]/80" },
+  api:             { name: "slate",    gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",    inkMuted: "text-[var(--st-text)]/70",    soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",    titleInk: "text-[var(--st-text)]/80" },
+  "website-builder": { name: "teal",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  "url-shortener": { name: "purple",   gradient: "from-[var(--st-text)] to-[var(--st-text)]", ink: "text-[var(--st-text)]",   inkMuted: "text-[var(--st-text)]/70",   soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",   titleInk: "text-[var(--st-text)]/80" },
+  "qr-code-maker": { name: "fuchsia",  gradient: "from-[var(--st-text)] to-[var(--st-text)]",   ink: "text-[var(--st-text)]",  inkMuted: "text-[var(--st-text)]/70",  soft: "bg-[var(--st-bg-muted)]",   softer: "bg-[var(--st-bg-muted)]/60",   hoverSoft: "hover:bg-[var(--st-bg-muted)]",  ring: "ring-[var(--st-border)]/70",  titleInk: "text-[var(--st-text)]/80" },
+  "seo-suite":     { name: "blue",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabshop:         { name: "orange",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabwebinar:      { name: "fuchsia",  gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabmeet:         { name: "purple",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabdesk:         { name: "rose",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  settings:        { name: "zinc",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]",        soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabsprints:      { name: "blue",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabcheckout:     { name: "amber",    gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabtables:       { name: "cyan",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabvault:        { name: "red",      gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabcreator:      { name: "yellow",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabpractice:     { name: "teal",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",     ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",     softer: "bg-[var(--st-bg-muted)]/60",     hoverSoft: "hover:bg-[var(--st-bg-muted)]",    ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabbi:           { name: "blue",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabsign:         { name: "blue",     gradient: "from-[var(--st-text)] to-[var(--st-text)]",      ink: "text-[var(--st-text)]",     inkMuted: "text-[var(--st-text)]/70",     soft: "bg-[var(--st-bg-muted)]",      softer: "bg-[var(--st-bg-muted)]/60",      hoverSoft: "hover:bg-[var(--st-bg-muted)]",     ring: "ring-[var(--st-border)]/70",     titleInk: "text-[var(--st-text)]/80" },
+  sabops:          { name: "indigo",   gradient: "from-[var(--st-text)] to-[var(--st-text)]",  ink: "text-[var(--st-text)]",   inkMuted: "text-[var(--st-text)]/70",   soft: "bg-[var(--st-bg-muted)]",    softer: "bg-[var(--st-bg-muted)]/60",    hoverSoft: "hover:bg-[var(--st-bg-muted)]",   ring: "ring-[var(--st-border)]/70",   titleInk: "text-[var(--st-text)]/80" },
 };
 
 const FALLBACK_HUE: ModuleHue = MODULE_HUE.settings;
@@ -271,7 +271,7 @@ function SearchBar({
     <div className={cn("relative shrink-0 transition-all duration-300", collapsed ? "w-full flex justify-center" : "w-full")}>
       <div className={cn(
         "h-9 rounded-xl flex items-center transition-all duration-300",
-        "bg-white ring-1 ring-zoru-line/80 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_1px_2px_-1px_rgba(15,23,42,0.06)]",
+        "bg-white ring-1 ring-[var(--st-border)]/80 shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_1px_2px_-1px_rgba(15,23,42,0.06)]",
         "focus-within:ring-2", hue.ring,
         collapsed ? "w-9 min-w-9 justify-center" : "w-full",
       )}>
@@ -286,7 +286,7 @@ function SearchBar({
             onChange={(e) => onChange(e.target.value)}
             tabIndex={collapsed ? -1 : 0}
             aria-label="Search menu"
-            className="w-full bg-transparent border-0 outline-none text-[12.5px] text-zoru-ink placeholder:text-zoru-ink-muted py-1.5 px-2 focus:ring-0"
+            className="w-full bg-transparent border-0 outline-none text-[12.5px] text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] py-1.5 px-2 focus:ring-0"
           />
         </div>
       </div>
@@ -300,14 +300,14 @@ function BrandBadge() {
   return (
     <Link
       href="/wachat"
-      className="block shrink-0 w-full rounded-xl hover:bg-zoru-surface-2 transition-colors mb-1"
+      className="block shrink-0 w-full rounded-xl hover:bg-[var(--st-bg-muted)] transition-colors mb-1"
       aria-label="SabNode home"
     >
       <div className="flex items-center gap-2 h-9 px-1">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shadow-sm ring-1 ring-white/40">
+        <div className="size-7 rounded-lg bg-gradient-to-br from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] flex items-center justify-center shadow-sm ring-1 ring-white/40">
           <span className="text-white font-bold text-[12px] drop-shadow-sm">S</span>
         </div>
-        <span className="font-semibold text-[14px] tracking-tight bg-gradient-to-r from-zoru-ink to-zoru-ink bg-clip-text text-transparent">
+        <span className="font-semibold text-[14px] tracking-tight bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] bg-clip-text text-transparent">
           SabNode
         </span>
       </div>
@@ -318,7 +318,7 @@ function BrandBadge() {
 function AvatarCircle({ size = 28 }: { size?: number }) {
   return (
     <div
-      className="rounded-full bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shrink-0 ring-2 ring-white shadow-md"
+      className="rounded-full bg-gradient-to-br from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] flex items-center justify-center shrink-0 ring-2 ring-white shadow-md"
       style={{ width: size, height: size }}
     >
       <UserIcon size={Math.max(12, size - 14)} className="text-white" />
@@ -348,7 +348,7 @@ function IconNavButton({
     "flex items-center justify-center rounded-xl size-9 min-w-9 transition-all duration-150 relative",
     active
       ? cn("bg-gradient-to-br text-white shadow-md ring-1 ring-white/30", h.gradient)
-      : "text-zoru-ink hover:bg-zoru-surface-2 hover:text-zoru-ink",
+      : "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
   );
   if (href) {
     return (
@@ -368,13 +368,13 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
   return (
     <aside
       className={cn(
-        "flex flex-col gap-1.5 items-center py-3 shrink-0 min-h-screen border-r border-zoru-line/70 bg-white",
+        "flex flex-col gap-1.5 items-center py-3 shrink-0 min-h-screen border-r border-[var(--st-border)]/70 bg-white",
         compact ? "w-12 px-1.5" : "w-14 px-2",
       )}
       aria-label="Module navigation"
     >
       <Link href="/wachat" aria-label="SabNode home" className="mb-1 size-9 flex items-center justify-center">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink flex items-center justify-center shadow-sm ring-1 ring-white/40">
+        <div className="size-7 rounded-lg bg-gradient-to-br from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)] flex items-center justify-center shadow-sm ring-1 ring-white/40">
           <span className="text-white font-bold text-[12px] drop-shadow-sm">S</span>
         </div>
       </Link>
@@ -398,7 +398,7 @@ function IconRail({ active, compact = false }: { active: string; compact?: boole
         </nav>
       </ScrollArea>
 
-      <div className="flex flex-col gap-1.5 w-full items-center pt-2 border-t border-zoru-line/70">
+      <div className="flex flex-col gap-1.5 w-full items-center pt-2 border-t border-[var(--st-border)]/70">
         <IconNavButton
           active={active === "settings"}
           title="Settings"
@@ -470,10 +470,10 @@ function AppDock({ active }: { active: string }) {
         name="Profile"
         href="/dashboard/profile"
         accent={{
-          gradient: "from-zoru-ink via-zoru-ink to-zoru-ink",
-          ink: "text-zoru-ink",
-          soft: "bg-zoru-surface-2",
-          ring: "ring-zoru-line/70",
+          gradient: "from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)]",
+          ink: "text-[var(--st-text)]",
+          soft: "bg-[var(--st-bg-muted)]",
+          ring: "ring-[var(--st-border)]/70",
         }}
         onActivate={
           tabs
@@ -483,11 +483,11 @@ function AppDock({ active }: { active: string }) {
                   title: "Profile",
                   href,
                   hue: {
-                    gradient: "from-zoru-ink via-zoru-ink to-zoru-ink",
-                    ink: "text-zoru-ink",
-                    soft: "bg-zoru-surface-2",
-                    ring: "ring-zoru-line/70",
-                    hoverSoft: "hover:bg-zoru-surface-2",
+                    gradient: "from-[var(--st-text)] via-[var(--st-text)] to-[var(--st-text)]",
+                    ink: "text-[var(--st-text)]",
+                    soft: "bg-[var(--st-bg-muted)]",
+                    ring: "ring-[var(--st-border)]/70",
+                    hoverSoft: "hover:bg-[var(--st-bg-muted)]",
                   },
                 })
             : undefined
@@ -592,7 +592,7 @@ function MenuRow({
               "text-white shadow-md ring-1 ring-white/20",
               "bg-gradient-to-r", hue.gradient,
             )
-          : cn("text-zoru-ink hover:text-zoru-ink", hue.hoverSoft),
+          : cn("text-[var(--st-text)] hover:text-[var(--st-text)]", hue.hoverSoft),
         collapsed ? "w-9 min-w-9 h-9 justify-center p-0" : "w-full min-h-9 px-2.5 py-1",
       )}
       title={collapsed ? item.label : undefined}
@@ -622,7 +622,7 @@ function MenuRow({
             <span
               className={cn(
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
-                (isActive && !item.subItems) ? "bg-white/25 text-white" : "bg-zoru-surface-2/80 text-zoru-ink",
+                (isActive && !item.subItems) ? "bg-white/25 text-white" : "bg-[var(--st-bg-muted)]/80 text-[var(--st-text)]",
               )}
             >
               beta
@@ -634,7 +634,7 @@ function MenuRow({
                 "rounded-full text-[9px] px-1.5 py-0.5 uppercase tracking-wide font-bold",
                 (isActive && !item.subItems)
                   ? "bg-white/25 text-white"
-                  : "bg-gradient-to-r from-zoru-ink to-zoru-ink text-white shadow-sm",
+                  : "bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] text-white shadow-sm",
               )}
             >
               new
@@ -643,7 +643,7 @@ function MenuRow({
         </span>
       </span>
       {item.subItems && !collapsed && (
-        <ChevronRight className={cn("w-3.5 h-3.5 ml-1 transition-transform", open ? "rotate-90" : "", (isActive && !item.subItems) ? "text-white" : "text-zoru-ink-muted")} />
+        <ChevronRight className={cn("w-3.5 h-3.5 ml-1 transition-transform", open ? "rotate-90" : "", (isActive && !item.subItems) ? "text-white" : "text-[var(--st-text-secondary)]")} />
       )}
     </div>
   );
@@ -775,7 +775,7 @@ function DetailPanel({
         // makes ONLY the menu list scroll while the brand/section/search
         // header and the account footer stay static.
         "relative sticky top-0 h-screen flex flex-col gap-2.5 items-stretch py-3 transition-all duration-300",
-        "bg-white border-r border-zoru-line/70",
+        "bg-white border-r border-[var(--st-border)]/70",
         // 60% of the original (`w-72 lg:w-80`) +15% — lands at w-52 / w-56
         // (208 / 224 px), close to 202 / 221 px exact.
         collapsed ? "w-12 min-w-12 px-1.5" : "w-52 lg:w-56 px-2.5",
@@ -811,7 +811,7 @@ function DetailPanel({
             />
           ))}
           {totalMatches === 0 && (
-            <div className="text-[12px] text-zoru-ink px-3 py-2">
+            <div className="text-[12px] text-[var(--st-text)] px-3 py-2">
               No matches for &ldquo;{query}&rdquo;.
             </div>
           )}
@@ -820,7 +820,7 @@ function DetailPanel({
 
       {/* Static footer — pinned at the bottom of the rail. */}
       {!collapsed && (
-        <div className="shrink-0 w-full pt-2 border-t border-zoru-line/70">
+        <div className="shrink-0 w-full pt-2 border-t border-[var(--st-border)]/70">
           <Link
             href="/dashboard/profile"
             className={cn(
@@ -830,8 +830,8 @@ function DetailPanel({
           >
             <AvatarCircle size={28} />
             <div className="flex flex-col min-w-0">
-              <span className="text-[12px] font-semibold text-zoru-ink truncate">Account</span>
-              <span className="text-[10.5px] text-zoru-ink truncate">Profile &amp; preferences</span>
+              <span className="text-[12px] font-semibold text-[var(--st-text)] truncate">Account</span>
+              <span className="text-[10.5px] text-[var(--st-text)] truncate">Profile &amp; preferences</span>
             </div>
           </Link>
         </div>
@@ -887,14 +887,14 @@ export function SabNodeTwoLineSidebarMobile() {
           <button
             type="button"
             aria-label="Open navigation"
-            className="fixed top-3 left-3 z-40 inline-flex items-center justify-center rounded-xl bg-white size-9 shadow-md ring-1 ring-zoru-line/70 text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2 transition-colors"
+            className="fixed top-3 left-3 z-40 inline-flex items-center justify-center rounded-xl bg-white size-9 shadow-md ring-1 ring-[var(--st-border)]/70 text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] transition-colors"
           >
             <MenuIcon size={18} />
           </button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="p-0 w-[280px] border-r border-zoru-line/70 bg-white"
+          className="p-0 w-[280px] border-r border-[var(--st-border)]/70 bg-white"
         >
           <SheetTitle className="sr-only">SabNode navigation</SheetTitle>
           <div className="flex flex-row h-full">
@@ -920,12 +920,12 @@ export function SabNodeSidebar() {
 
 export function Frame760() {
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-zoru-surface-2 via-white to-zoru-surface-2">
+    <div className="min-h-screen flex bg-gradient-to-br from-[var(--st-bg-muted)] via-white to-[var(--st-bg-muted)]">
       <SabNodeSidebar />
-      <main className="flex-1 p-6 text-zoru-ink">
+      <main className="flex-1 p-6 text-[var(--st-text)]">
         <div className="max-w-3xl">
           <h1 className="text-[22px] font-semibold mb-1.5">SabNode two-line sidebar</h1>
-          <p className="text-zoru-ink text-[13.5px] leading-relaxed">
+          <p className="text-[var(--st-text)] text-[13.5px] leading-relaxed">
             Light clay palette · production-ready. Left rail = every module from
             <code className="font-mono mx-1">appIcons</code>. Right rail = the active module&rsquo;s
             menu, drawn live from

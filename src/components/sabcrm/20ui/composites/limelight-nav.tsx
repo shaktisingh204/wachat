@@ -61,7 +61,7 @@ export function ZoruLimelightNav({
     <div
       ref={containerRef}
       className={cn(
-        "relative inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-bg p-1.5",
+        "relative inline-flex items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5",
         className,
       )}
     >
@@ -79,9 +79,9 @@ export function ZoruLimelightNav({
             item.onClick?.();
           }}
           className={cn(
-            "relative inline-flex h-9 w-9 items-center justify-center rounded-full text-zoru-ink-muted transition-colors",
-            "hover:text-zoru-ink",
-            index === active && "text-zoru-ink",
+            "relative inline-flex h-9 w-9 items-center justify-center rounded-full text-[var(--st-text-secondary)] transition-colors",
+            "hover:text-[var(--st-text)]",
+            index === active && "text-[var(--st-text)]",
             "focus-visible:outline-none [&_svg]:size-4",
             itemClassName,
           )}
@@ -92,7 +92,7 @@ export function ZoruLimelightNav({
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute bottom-0 h-[2px] rounded-full bg-zoru-ink",
+          "pointer-events-none absolute bottom-0 h-[2px] rounded-full bg-[var(--st-text)]",
           ready ? "transition-[transform,width] duration-300 ease-out" : "opacity-0",
           highlightClassName,
         )}

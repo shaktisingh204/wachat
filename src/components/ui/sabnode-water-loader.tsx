@@ -155,7 +155,7 @@ export function SabNodeWaterLoader({
       </svg>
 
       {caption && (
-        <span className="text-[12px] tracking-[0.18em] uppercase font-bold text-zoru-ink">
+        <span className="text-[12px] tracking-[0.18em] uppercase font-bold text-[var(--st-text)]">
           {caption}
         </span>
       )}
@@ -213,7 +213,7 @@ export function SabNodeWaterLoader({
  */
 export function SabNodeWaterLoaderScreen({ caption }: { caption?: string }) {
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-zoru-surface-2 via-white to-zoru-surface-2">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-[var(--st-bg-muted)] via-white to-[var(--st-bg-muted)]">
       <SabNodeWaterLoader caption={caption ?? "Loading…"} />
     </div>
   );

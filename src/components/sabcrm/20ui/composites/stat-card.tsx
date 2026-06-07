@@ -40,15 +40,15 @@ export function StatCard({
       <ZoruCardContent className="flex flex-col gap-3 pt-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
-            <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
               {label}
             </p>
-            <p className="text-2xl font-semibold tracking-tight text-zoru-ink">
+            <p className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
               {value}
             </p>
           </div>
           {icon && (
-            <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink-muted [&_svg]:size-4">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-4">
               {icon}
             </span>
           )}
@@ -59,7 +59,7 @@ export function StatCard({
               <span
                 className={cn(
                   "inline-flex items-center gap-0.5 font-medium",
-                  isGood ? "text-zoru-success" : "text-zoru-danger",
+                  isGood ? "text-[var(--st-status-ok)]" : "text-[var(--st-danger)]",
                 )}
               >
                 {positive ? (
@@ -70,7 +70,7 @@ export function StatCard({
                 {formatDelta ? formatDelta(delta) : `${Math.abs(delta).toFixed(1)}%`}
               </span>
             )}
-            {period && <span className="text-zoru-ink-muted">{period}</span>}
+            {period && <span className="text-[var(--st-text-secondary)]">{period}</span>}
           </div>
         )}
         {chart && <div className="-mx-2 -mb-2">{chart}</div>}

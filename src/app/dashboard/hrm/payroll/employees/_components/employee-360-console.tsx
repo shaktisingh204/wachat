@@ -153,7 +153,7 @@ export function Employee360Console({
             {/* Identity & KYC Verification Cards */}
             <div className="grid gap-6 md:grid-cols-2">
               {/* PAN Card View */}
-              <Card className="relative overflow-hidden p-6 border-l-4 border-l-zoru-success bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)] shadow-sm">
+              <Card className="relative overflow-hidden p-6 border-l-4 border-l-[var(--st-status-ok)] bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)] shadow-sm">
                 <div className="absolute right-[-10px] top-[-10px] opacity-10">
                   <ShieldCheck className="h-32 w-32 text-[var(--st-status-ok)]" />
                 </div>
@@ -190,7 +190,7 @@ export function Employee360Console({
               </Card>
 
               {/* Aadhaar Card View */}
-              <Card className="relative overflow-hidden p-6 border-l-4 border-l-zoru-info bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)] shadow-sm">
+              <Card className="relative overflow-hidden p-6 border-l-4 border-l-[var(--st-accent)] bg-gradient-to-br from-[var(--st-bg)] to-[var(--st-bg-muted)] shadow-sm">
                 <div className="absolute right-[-10px] top-[-10px] opacity-10">
                   <UserCheck className="h-32 w-32 text-[var(--st-text-secondary)]" />
                 </div>
@@ -504,7 +504,7 @@ export function Employee360Console({
             {/* Casual / Earned Leave Cards */}
             <div className="grid gap-6 sm:grid-cols-3">
               {/* Earned Leave Progress Card */}
-              <Card className="p-6 border-b-4 border-b-zoru-warning bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
+              <Card className="p-6 border-b-4 border-b-[var(--st-warn)] bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)]">Earned Leave (EL)</span>
                   <Badge tone="warning">PLANNED</Badge>
@@ -519,7 +519,7 @@ export function Employee360Console({
               </Card>
 
               {/* Casual Leave Progress Card */}
-              <Card className="p-6 border-b-4 border-b-zoru-success bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
+              <Card className="p-6 border-b-4 border-b-[var(--st-status-ok)] bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)]">Casual Leave (CL)</span>
                   <Badge tone="success">HEALTHY</Badge>
@@ -534,7 +534,7 @@ export function Employee360Console({
               </Card>
 
               {/* Sick Leave Card */}
-              <Card className="p-6 border-b-4 border-b-zoru-info bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
+              <Card className="p-6 border-b-4 border-b-[var(--st-accent)] bg-gradient-to-tr from-[var(--st-bg)] to-[var(--st-bg-secondary)] shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-[12px] font-bold uppercase tracking-wider text-[var(--st-text-secondary)]">Sick Leave (SL)</span>
                   <Badge tone="info">ACTIVE</Badge>

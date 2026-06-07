@@ -41,27 +41,27 @@ export function ZoruJobListing({
           <button
             type="button"
             onClick={() => onJobClick?.(job)}
-            className="group flex w-full flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-5 text-left transition-shadow hover:shadow-[var(--zoru-shadow-md)] focus-visible:outline-none"
+            className="group flex w-full flex-col gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-5 text-left transition-shadow hover:shadow-[var(--st-shadow-md)] focus-visible:outline-none"
           >
             <div className="flex items-start gap-4">
               {job.logo && (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface text-zoru-ink-muted [&_svg]:size-5">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-surface)] text-[var(--st-text-secondary)] [&_svg]:size-5">
                   {job.logo}
                 </span>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
                   {job.company}
                 </p>
-                <h3 className="mt-0.5 text-base font-semibold text-zoru-ink">
+                <h3 className="mt-0.5 text-base font-semibold text-[var(--st-text)]">
                   {job.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-zoru-ink-muted">
+                <p className="mt-2 text-sm leading-relaxed text-[var(--st-text-secondary)]">
                   {job.description}
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zoru-ink-muted">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--st-text-secondary)]">
               {job.salary && (
                 <span className="inline-flex items-center gap-1">
                   <Wallet className="h-3 w-3" /> {job.salary}
@@ -73,7 +73,7 @@ export function ZoruJobListing({
                 </span>
               )}
               {job.remote && (
-                <span className="inline-flex items-center rounded-full border border-zoru-line px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+                <span className="inline-flex items-center rounded-full border border-[var(--st-border)] px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
                   {job.remote}
                 </span>
               )}

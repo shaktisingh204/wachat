@@ -127,20 +127,20 @@ export function ZoruDynamicSelector({
           type="button"
           disabled={disabled}
           className={cn(
-            "flex h-9 items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-left text-sm text-zoru-ink transition-colors",
-            "hover:bg-zoru-surface-2 disabled:cursor-not-allowed disabled:opacity-50",
+            "flex h-9 items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 text-left text-sm text-[var(--st-text)] transition-colors",
+            "hover:bg-[var(--st-bg-muted)] disabled:cursor-not-allowed disabled:opacity-50",
             block && "w-full",
             className,
           )}
         >
-          <span className={cn("flex-1 truncate", !value && "text-zoru-ink-muted")}>
+          <span className={cn("flex-1 truncate", !value && "text-[var(--st-text-secondary)]")}>
             {value ? labelCache ?? "(selected)" : placeholder}
           </span>
-          <ChevronDown className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
         </button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-        <div className="border-b border-zoru-line p-2">
+        <div className="border-b border-[var(--st-border)] p-2">
           <Input
             autoFocus
             placeholder={searchPlaceholder}
@@ -152,10 +152,10 @@ export function ZoruDynamicSelector({
         <div className="max-h-72 overflow-y-auto p-1">
           {loading ? (
             <div className="flex h-20 items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+              <Loader2 className="h-4 w-4 animate-spin text-[var(--st-text-secondary)]" />
             </div>
           ) : options.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-zoru-ink-muted">
+            <p className="px-3 py-6 text-center text-sm text-[var(--st-text-secondary)]">
               {emptyMessage}
             </p>
           ) : (
@@ -173,21 +173,21 @@ export function ZoruDynamicSelector({
                         setQuery("");
                       }}
                       className={cn(
-                        "flex w-full items-start gap-2 rounded-[var(--zoru-radius-sm)] px-2.5 py-2 text-left text-sm",
-                        "hover:bg-zoru-surface-2",
-                        selected && "bg-zoru-surface-2",
+                        "flex w-full items-start gap-2 rounded-[var(--st-radius-sm)] px-2.5 py-2 text-left text-sm",
+                        "hover:bg-[var(--st-bg-muted)]",
+                        selected && "bg-[var(--st-bg-muted)]",
                       )}
                     >
                       <Check
                         className={cn(
                           "mt-0.5 h-4 w-4 shrink-0",
-                          selected ? "text-zoru-ink" : "text-transparent",
+                          selected ? "text-[var(--st-text)]" : "text-transparent",
                         )}
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-zoru-ink">{opt.label}</p>
+                        <p className="truncate text-[var(--st-text)]">{opt.label}</p>
                         {opt.description && (
-                          <p className="truncate text-xs text-zoru-ink-muted">
+                          <p className="truncate text-xs text-[var(--st-text-secondary)]">
                             {opt.description}
                           </p>
                         )}
@@ -201,7 +201,7 @@ export function ZoruDynamicSelector({
           )}
         </div>
         {showCreate && (
-          <div className="border-t border-zoru-line p-1">
+          <div className="border-t border-[var(--st-border)] p-1">
             <Button
               size="sm"
               variant="ghost"
@@ -219,7 +219,7 @@ export function ZoruDynamicSelector({
           </div>
         )}
         {error && (
-          <p className="border-t border-zoru-line p-2 text-xs text-zoru-danger-ink">
+          <p className="border-t border-[var(--st-border)] p-2 text-xs text-[var(--st-danger-strong)]">
             {error}
           </p>
         )}

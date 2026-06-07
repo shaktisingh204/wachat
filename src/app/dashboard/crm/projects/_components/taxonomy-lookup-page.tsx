@@ -594,7 +594,7 @@ function TaxonomyDialog<R extends TaxonomyRow>({
                       name={f.name}
                       required={f.required}
                       defaultValue={defaultVal}
-                      className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-[var(--st-surface)] placeholder:text-[var(--st-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {f.placeholder ? (
                         <option value="">{f.placeholder}</option>

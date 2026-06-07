@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-zoru-ink text-white shadow-sm shadow-black/5 hover:bg-zoru-ink/90",
+        default: "bg-[var(--st-text)] text-white shadow-sm shadow-black/5 hover:bg-[var(--st-text)]/90",
         destructive:
-          "bg-zoru-ink text-white shadow-sm shadow-black/5 hover:bg-zoru-ink/90",
+          "bg-[var(--st-text)] text-white shadow-sm shadow-black/5 hover:bg-[var(--st-text)]/90",
         outline:
-          "bg-zoru-surface shadow-sm shadow-black/5 hover:bg-zoru-surface-2 hover:text-zoru-ink",
+          "bg-[var(--st-surface)] shadow-sm shadow-black/5 hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
         secondary:
-          "bg-zoru-surface-2 text-zoru-ink shadow-sm shadow-black/5 hover:bg-zoru-surface-2/80",
-        ghost: "hover:bg-zoru-surface-2 hover:text-zoru-ink",
-        link: "text-zoru-ink underline-offset-4 hover:underline",
+          "bg-[var(--st-bg-muted)] text-[var(--st-text)] shadow-sm shadow-black/5 hover:bg-[var(--st-bg-muted)]/80",
+        ghost: "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+        link: "text-[var(--st-text)] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-9 px-4 py-2",

@@ -253,11 +253,11 @@ function ZoruHomeShellContent({
     "Workspace";
 
   const planFooter = plan?.name || plan?.credits !== undefined ? (
-    <div className="flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="flex flex-col gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-surface)] p-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs text-zoru-ink">{plan?.name ?? "Free plan"}</span>
+        <span className="text-xs text-[var(--st-text)]">{plan?.name ?? "Free plan"}</span>
         {plan?.credits !== undefined && (
-          <span className="text-[11px] text-zoru-ink-muted">
+          <span className="text-[11px] text-[var(--st-text-secondary)]">
             {plan.credits.toLocaleString()} credits
           </span>
         )}
@@ -269,7 +269,7 @@ function ZoruHomeShellContent({
   ) : null;
 
   return (
-    <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
+    <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* App rail — 20ui, in its own theme-synced design-system root. */}
       <div className={`ui20 ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
         <AppRail items={railItems} label="SabNode apps" />
@@ -296,10 +296,10 @@ function ZoruHomeShellContent({
                 aria-label="SabNode home"
                 className="inline-flex items-center gap-2"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
+                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-text)] text-xs text-[var(--st-text-inverted)]">
                   S
                 </span>
-                <span className="hidden text-sm text-zoru-ink sm:inline">
+                <span className="hidden text-sm text-[var(--st-text)] sm:inline">
                   SabNode
                 </span>
               </a>

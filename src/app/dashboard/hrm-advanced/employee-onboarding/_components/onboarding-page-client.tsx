@@ -225,7 +225,7 @@ export function OnboardingPageClient({ initialTasks }: { initialTasks: Onboardin
             className="max-w-xs"
           />
           <select 
-            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-zoru-surface placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 max-w-[150px]"
+            className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-[var(--st-border)] bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-[var(--st-surface)] placeholder:text-[var(--st-text-secondary)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50 max-w-[150px]"
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value as any)}
           >
