@@ -1,8 +1,15 @@
 'use client';
 
-import { Card, CardBody, CardFooter, CardHeader, CardTitle, Button } from '@/components/sabcrm/20ui';
 import {
-  cn } from '@/lib/utils';
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Button,
+  EmptyState,
+  cn,
+} from '@/components/sabcrm/20ui';
 
 import React from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
@@ -36,15 +43,15 @@ interface RepeaterBlockRendererProps {
 }
 
 const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
-    <Card className="h-full flex flex-col">
+    <Card padding="none" className="h-full flex flex-col overflow-hidden">
         <CardHeader className="p-0">
             {item.imageUrl ? (
                 <div className="relative aspect-video">
-                    <Image src={item.imageUrl} alt={item.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="repeater item image" />
+                    <Image src={item.imageUrl} alt={item.title} fill className="object-cover" data-ai-hint="repeater item image" />
                 </div>
             ) : (
-                <div className="aspect-video bg-[var(--st-bg-muted)] rounded-t-lg flex items-center justify-center">
-                    <ShoppingBag className="h-10 w-10 text-[var(--st-text-secondary)]" />
+                <div className="aspect-video bg-[var(--st-bg-secondary)] flex items-center justify-center">
+                    <ShoppingBag className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />
                 </div>
             )}
             <div className="p-4">
@@ -56,7 +63,7 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
         </CardBody>
         {item.buttonText && item.buttonLink && (
             <CardFooter className="p-4 pt-0">
-                <Button asChild className="w-full">
+                <Button variant="primary" block>
                     <Link href={item.buttonLink}>{item.buttonText}</Link>
                 </Button>
             </CardFooter>
@@ -65,7 +72,7 @@ const RepeaterItemCard = ({ item }: { item: RepeaterItem }) => (
 );
 
 export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ settings }) => {
-    const { 
+    const {
         items = [],
         layout = 'grid',
         columns = 3,
@@ -77,18 +84,20 @@ export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ se
     const options: EmblaOptionsType = { loop, align: 'start', slidesToScroll: 1 };
     const plugins = autoplay ? [Autoplay({ delay: autoplayDelay * 1000, stopOnInteraction: false })] : [];
     const [emblaRef, emblaApi] = useEmblaCarousel(options, plugins);
-    
+
     const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi);
     const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } = usePrevNextButtons(emblaApi);
 
     if (items.length === 0) {
         return (
-            <div className="p-4 text-center border-2 border-dashed rounded-lg text-[var(--st-text-secondary)]">
-                Repeater Block: No items added.
-            </div>
+            <EmptyState
+                icon={ShoppingBag}
+                title="Repeater block is empty"
+                description="No items have been added yet. Add an item to populate this block."
+            />
         );
     }
-    
+
     if (layout === 'carousel') {
         return (
             <div className="embla w-full">
@@ -140,7 +149,7 @@ export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ se
             </div>
         );
     }
-    
+
     // Default to list view
     return (
         <div className="flex flex-col gap-6">

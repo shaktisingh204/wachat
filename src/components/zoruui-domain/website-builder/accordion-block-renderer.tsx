@@ -1,10 +1,17 @@
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/sabcrm/20ui';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import React from 'react';
 
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
+import { LayoutList } from 'lucide-react';
 
 type AccordionItemData = {
   id: string;
@@ -50,15 +57,14 @@ const IconRenderer = ({ iconName, className }: { iconName?: string; className?: 
     // @ts-ignore
     const IconComponent = iconName ? LucideIcons[iconName] : null;
     if (!IconComponent) return null;
-    return <IconComponent className={cn('h-4 w-4 shrink-0 transition-transform duration-200', className)} />;
+    return <IconComponent aria-hidden="true" className={cn('h-4 w-4 shrink-0 transition-transform duration-200', className)} />;
 };
 
 export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ settings }) => {
-    const { 
+    const {
         items = [],
         behavior = 'single',
         defaultActiveItem,
-        titleHtmlTag: TitleTag = 'h3',
         inactiveIcon = 'Plus',
         activeIcon = 'Minus',
         iconPosition = 'right',
@@ -72,9 +78,15 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     } = settings;
 
     if (items.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-[var(--st-text-secondary)]">Accordion Block: No items configured.</div>;
+        return (
+            <EmptyState
+                icon={LayoutList}
+                title="Accordion block"
+                description="No items configured yet. Add a few sections to build out this accordion."
+            />
+        );
     }
-    
+
     const wrapperStyle: React.CSSProperties = {
         paddingTop: padding?.top ? `${padding.top}px` : undefined,
         paddingBottom: padding?.bottom ? `${padding.bottom}px` : undefined,
@@ -93,7 +105,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     };
 
     const shadowClass = ({ sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'} as Record<string, string>)[boxShadow] || '';
-    
+
     const contentStyle: React.CSSProperties = {
         backgroundColor: contentBgColor,
         color: contentColor,
@@ -107,13 +119,13 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
         fontFamily: titleFontFamily,
         padding: titlePadding ? `${titlePadding}px` : undefined,
     };
-    
+
     const animationClass = ({ fadeIn: 'animate-in fade-in duration-500', fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500' } as Record<string, string>)[animation || 'none'] || '';
     const responsiveClasses = cn({ 'max-lg:hidden': responsiveVisibility?.desktop === false, 'max-md:hidden lg:hidden': responsiveVisibility?.tablet === false, 'max-sm:hidden': responsiveVisibility?.mobile === false });
     const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => { if(attr.key) acc[attr.key] = attr.value; return acc; }, {});
 
     const dynamicStyles = `
-        .accordion-item-${(settings as any).id} > [data-state="open"] > button { background-color: ${activeTitleBgColor || ''} !important; color: ${activeTitleColor || ''} !important; }
+        .accordion-item-${(settings as any).id} > [data-state="open"] .u-accordion__trigger { background-color: ${activeTitleBgColor || ''} !important; color: ${activeTitleColor || ''} !important; }
         .accordion-item-${(settings as any).id} > [data-state="open"] .inactive-icon { display: none; }
         .accordion-item-${(settings as any).id} > [data-state="closed"] .active-icon { display: none; }
         ${customCss || ''}
@@ -122,26 +134,34 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     return (
         <div id={cssId} className={cn(animationClass, responsiveClasses, cssClasses)} style={wrapperStyle} {...customAttrs}>
             <style>{dynamicStyles}</style>
-            <Accordion type={behavior as any} collapsible className="w-full space-y-2" defaultValue={defaultActiveItem as any} style={{ gap: `${spaceBetween}px` }}>
+            <Accordion
+                type={behavior as any}
+                collapsible
+                className="w-full space-y-2 border-none bg-transparent"
+                defaultValue={defaultActiveItem as any}
+                style={{ gap: `${spaceBetween}px` }}
+            >
                 {items.map(item => (
-                    <AccordionItem 
-                        key={item.id} 
-                        value={item.id} 
-                        style={itemStyle} 
+                    <AccordionItem
+                        key={item.id}
+                        value={item.id}
+                        style={itemStyle}
                         className={cn(`accordion-item-${(settings as any).id} border-none overflow-hidden`, shadowClass)}
                     >
-                        <AccordionTrigger style={triggerStyle} asChild>
-                             <TitleTag className={cn('flex flex-1 items-center justify-between font-medium transition-all hover:underline', iconPosition === 'right' && 'flex-row-reverse')}>
-                                {item.icon && <IconRenderer iconName={item.icon} className="mr-2" />}
-                                {item.title}
-                                <div className="relative">
+                        <AccordionTrigger hideChevron style={triggerStyle}>
+                            <span className={cn('flex flex-1 items-center justify-between gap-2 font-medium', iconPosition === 'right' && 'flex-row-reverse')}>
+                                <span className="flex flex-1 items-center gap-2">
+                                    {item.icon && <IconRenderer iconName={item.icon} />}
+                                    <span className="flex-1 text-left">{item.title}</span>
+                                </span>
+                                <span className="relative flex items-center text-[var(--st-text-tertiary)]">
                                     <IconRenderer iconName={inactiveIcon} className="inactive-icon" />
                                     <IconRenderer iconName={activeIcon} className="active-icon" />
-                                </div>
-                            </TitleTag>
+                                </span>
+                            </span>
                         </AccordionTrigger>
                         <AccordionContent>
-                           <div style={contentStyle} className="whitespace-pre-wrap">{item.content}</div>
+                            <div style={contentStyle} className="whitespace-pre-wrap text-[var(--st-text-secondary)]">{item.content}</div>
                         </AccordionContent>
                     </AccordionItem>
                 ))}
@@ -149,5 +169,3 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
         </div>
     );
 };
-
-    

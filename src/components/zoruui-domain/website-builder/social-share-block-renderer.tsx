@@ -7,13 +7,13 @@ import { cn } from '@/lib/utils';
 import { Facebook, Twitter, Linkedin, MessageSquare, Send, Mail, Printer } from 'lucide-react';
 
 const PinterestIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
         <path d="M12.5.5C6.1 1.4 2.3 6.6.5 12c-2.3 7 1.8 13.9 8.2 11.2 1-.4 1.4-1.5 1.1-2.5-.2-.8-.8-1.8-1-2.2-.3-.6-.2-1.2.2-1.7 1.2-1.3 2.1-3.2 2-5.3-.2-2.3-1.6-4.3-3.8-4.9C6.2 6.1 5 7.1 5 8.9c0 1.2.7 2.3 1.5 2.7.4.2.5.1.4-.2C6.3 10.5 6 9.3 6 8.5c0-1.7 1.1-3.3 3-3.6 2.2-.3 4.1 1.1 4.4 3.2.3 2.2-1.1 4.2-3 5.3-.5.5-.6 1-.4 1.6.2.6.9 1.6 1.2 2.1 1.4 2.8 5.5 1.5 6.5-1.5 1.5-4.5-1-9.9-5.7-11.8z" />
     </svg>
 );
 
 const RedditIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
       <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
       <path fill="#FFF" d="M15.91 10.34a2.2 2.2 0 0 1-2.22 2.21 2.14 2.14 0 0 1-2.13-2.21 2.21 2.21 0 0 1 2.13-2.22c.9 0 1.7.54 2.22 1.34" />
       <path fill="#FFF" d="M8.2 10.34a2.2 2.2 0 0 1-2.22 2.21 2.14 2.14 0 0 1-2.13-2.21A2.2 2.2 0 0 1 6 8.12c.9 0 1.7.54 2.22 1.34" />
@@ -46,7 +46,6 @@ const getShareUrl = (platform: string, url: string, text: string) => {
         case 'pinterest': return `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedText}`;
         case 'reddit': return `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedText}`;
         case 'email': return `mailto:?subject=${encodedText}&body=${encodedUrl}`;
-        case 'print': return 'javascript:window.print()';
         default: return '#';
     }
 };
@@ -56,7 +55,7 @@ interface SocialShareBlockRendererProps {
 }
 
 export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> = ({ settings }) => {
-    const { 
+    const {
         platforms = ['facebook', 'twitter', 'linkedin'],
         style = 'iconOnly',
         shape = 'rounded',
@@ -81,8 +80,8 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
         setPageTitle(document.title);
     }, [urlType, customUrl]);
 
-    const buttonSizeClasses = ({ small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'} as Record<string, string>)[size];
-    const iconSizeClasses = ({ small: 'h-4 w-4', medium: 'h-5 w-5', large: 'h-6 w-6'} as Record<string, string>)[size];
+    const buttonSizeProp = ({ small: 'sm', medium: 'md', large: 'lg' } as Record<string, 'sm' | 'md' | 'lg'>)[size] ?? 'md';
+    const iconSizeClasses = ({ small: 'h-4 w-4', medium: 'h-5 w-5', large: 'h-6 w-6' } as Record<string, string>)[size];
 
     const shapeClasses: Record<string, string> = { square: 'rounded-none', rounded: 'rounded-md', circle: 'rounded-full' };
 
@@ -97,59 +96,68 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
     } as Record<string, string>)[columns];
 
     const uniqueId = React.useId().replace(/:/g, "");
-    
+
+    // The website-builder lets the end user pick share-button colors at runtime,
+    // so the per-instance hover styling is genuinely runtime-computed. Values fall
+    // back to 20ui tokens when the user has not chosen a color.
     const customStyleTag = (
         <style>{`
             .social-btn--${uniqueId} {
                 background-color: ${backgroundColor || 'transparent'};
-                border-color: ${backgroundColor || color};
+                border-color: ${backgroundColor || color || 'var(--st-border)'};
+                color: ${color || 'var(--st-text)'};
             }
             .social-btn--${uniqueId} .icon, .social-btn--${uniqueId} .label {
                 color: ${color || 'currentColor'};
             }
             .social-btn--${uniqueId}:hover {
                  background-color: ${hoverBackgroundColor || backgroundColor || 'transparent'};
-                 border-color: ${hoverBackgroundColor || hoverColor || color};
+                 border-color: ${hoverBackgroundColor || hoverColor || color || 'var(--st-border-strong)'};
             }
              .social-btn--${uniqueId}:hover .icon, .social-btn--${uniqueId}:hover .label {
-                color: ${hoverColor || color};
+                color: ${hoverColor || color || 'var(--st-text)'};
             }
         `}</style>
     );
 
+    const handleShare = (platform: string) => {
+        if (platform === 'print') {
+            window.print();
+            return;
+        }
+        const shareUrl = getShareUrl(platform, currentUrl, pageTitle);
+        window.open(shareUrl, '_blank', 'noopener,noreferrer');
+    };
+
     return (
-        <>
+        <div className="ui20">
             {customStyleTag}
             <div className={cn('flex flex-wrap', alignmentClasses[alignment])} style={{ gap: `${gap}px` }}>
                 <div className={cn('grid w-full', gridColsClass)} style={{ gap: `${gap}px` }}>
                     {platforms.map((platform: string) => {
                         const Icon = platformData[platform]?.icon;
                         if (!Icon) return null;
-                        
-                        const buttonContent = (
-                            <>
-                                <Icon className={cn('icon', iconSizeClasses)} style={{ fontSize: `${iconSize}px` }}/>
-                                {style === 'withLabel' && <span className="label">{platformData[platform].name}</span>}
-                            </>
-                        );
 
-                        const shareUrl = getShareUrl(platform, currentUrl, pageTitle);
-                        
+                        const name = platformData[platform].name;
+                        const label = platform === 'print' ? 'Print this page' : `Share on ${name}`;
+
                         return (
                             <Button
                                 key={platform}
-                                asChild
                                 variant="outline"
-                                className={cn('flex items-center gap-2 social-btn', `social-btn--${uniqueId}`, buttonSizeClasses, shapeClasses[shape])}
+                                size={buttonSizeProp}
+                                onClick={() => handleShare(platform)}
+                                aria-label={style === 'iconOnly' ? label : undefined}
+                                title={style === 'iconOnly' ? label : undefined}
+                                className={cn('flex items-center gap-2 social-btn', `social-btn--${uniqueId}`, shapeClasses[shape])}
                             >
-                                <a href={shareUrl} target="_blank" rel="noopener noreferrer">
-                                    {buttonContent}
-                                </a>
+                                <Icon className={cn('icon', iconSizeClasses)} style={{ fontSize: `${iconSize}px` }} aria-hidden="true" />
+                                {style === 'withLabel' ? <span className="label">{name}</span> : null}
                             </Button>
-                        )
+                        );
                     })}
                 </div>
             </div>
-        </>
+        </div>
     );
 };

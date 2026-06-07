@@ -1,6 +1,6 @@
 'use client';
 
-import { buttonVariants } from '@/components/sabcrm/20ui';
+import { Button, type ButtonSize } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 
@@ -21,12 +21,12 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
         tabletAlign, mobileAlign
     } = safeSettings;
 
-    const Tag = link ? 'a' : (htmlTag || 'button');
-    
+    const renderAsLink = Boolean(link);
+
     const alignmentClasses = {
         left: 'justify-start', center: 'justify-center', right: 'justify-end', justify: 'justify-stretch',
     };
-    
+
     const responsiveClasses = cn(
         'flex w-full',
         alignmentClasses[align as keyof typeof alignmentClasses] || 'justify-start',
@@ -46,8 +46,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
             'max-sm:hidden': responsiveVisibility?.mobile === false,
         }
     );
-    
-    const animationDelayStyle: React.CSSProperties = animationDelay ? { animationDelay: `${animationDelay}ms` } : {};
+
     const animationClasses = {
         fade: 'animate-in fade-in',
         'slide-up': 'animate-in fade-in-0 slide-in-from-bottom-5',
@@ -63,8 +62,9 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
         if(attr.key) acc[attr.key] = attr.value;
         return acc;
     }, {});
-    
-    const uniqueId = cssId || React.useId().replace(/:/g, "");
+
+    const reactId = React.useId().replace(/:/g, "");
+    const uniqueId = cssId || reactId;
 
     const customStyleTag = (
       <style>{`
@@ -86,6 +86,8 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
             border-radius: ${border?.radius ? `${border.radius.tl || 0}px ${border.radius.tr || 0}px ${border.radius.br || 0}px ${border.radius.bl || 0}px` : '0.5rem'};
             box-shadow: ${boxShadow?.type === 'inset' ? 'inset ' : ''} ${boxShadow?.x || 0}px ${boxShadow?.y || 0}px ${boxShadow?.blur || 0}px ${boxShadow?.spread || 0}px ${boxShadow?.color || 'transparent'};
             transition: all ${transitionDuration}s ease-in-out;
+            gap: ${iconSpacing ? `${iconSpacing}px` : '0'};
+            ${animationDelay ? `animation-delay: ${animationDelay}ms;` : ''}
             ${customCss || ''}
         }
         #${uniqueId}:hover {
@@ -106,6 +108,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     const iconElement = IconComponent ? (
         <IconComponent
             className="icon-component"
+            aria-hidden="true"
             style={{
                 width: iconStyle.size ? `${iconStyle.size}px` : '1em',
                 height: iconStyle.size ? `${iconStyle.size}px` : '1em',
@@ -113,7 +116,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
             }}
         />
     ) : null;
-    
+
     const content = (
       <>
         {iconPosition === 'left' && iconElement}
@@ -121,35 +124,52 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
         {iconPosition === 'right' && iconElement}
       </>
     );
-    
-    const zoruSize = size === 'default' ? 'md' : size;
-    const buttonClasses = cn(
-        buttonVariants({ size: zoruSize, variant: 'default' }),
+
+    const sizeMap: Record<string, ButtonSize> = { default: 'md', sm: 'sm', md: 'md', lg: 'lg' };
+    const buttonSize: ButtonSize = sizeMap[size as string] || 'md';
+
+    // 20ui base button classes (mirror the Button component) so the anchor variant
+    // matches the native-button variant. Runtime visuals come from the #uniqueId style.
+    const baseButtonClasses = cn(
+        'u-btn',
+        'u-btn--secondary',
+        `u-btn--${buttonSize}`,
         animationClasses[animation as keyof typeof animationClasses],
         animationDurationClasses[animationDuration as keyof typeof animationDurationClasses],
         hoverAnimationClass,
         cssClasses
     );
 
-    const buttonProps = {
-        id: uniqueId,
-        className: buttonClasses,
-        style: { gap: iconSpacing ? `${iconSpacing}px` : undefined, ...animationDelayStyle },
-        ...customAttrs,
-        ...(Tag === 'a' && {
-            href: link,
-            target: linkNewWindow ? '_blank' : '_self',
-            rel: linkNofollow ? 'nofollow' : undefined,
-        }),
-        ...(Tag === 'button' && {
-            type: 'button'
-        })
-    };
-
     return (
-        <div className={responsiveClasses}>
+        <div className={cn('ui20', responsiveClasses)}>
             {customStyleTag}
-            {React.createElement(Tag, buttonProps, content)}
+            {renderAsLink ? (
+                <Link
+                    id={uniqueId}
+                    href={link}
+                    target={linkNewWindow ? '_blank' : '_self'}
+                    rel={linkNofollow ? 'nofollow' : undefined}
+                    className={baseButtonClasses}
+                    {...customAttrs}
+                >
+                    {content}
+                </Link>
+            ) : (
+                <Button
+                    id={uniqueId}
+                    variant="secondary"
+                    size={buttonSize}
+                    className={cn(
+                        animationClasses[animation as keyof typeof animationClasses],
+                        animationDurationClasses[animationDuration as keyof typeof animationDurationClasses],
+                        hoverAnimationClass,
+                        cssClasses,
+                    )}
+                    {...customAttrs}
+                >
+                    {content}
+                </Button>
+            )}
         </div>
     );
 };

@@ -47,7 +47,6 @@ import {
   cn,
   Badge,
   type BadgeTone,
-  Button,
   IconButton,
   SegmentedControl,
   Slider,

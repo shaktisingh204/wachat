@@ -6,6 +6,8 @@ type EmblaOptionsType = Parameters<typeof useEmblaCarousel>[0];
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ImageOff } from 'lucide-react';
+import { EmptyState } from '@/components/sabcrm/20ui';
 import { DotButton, useDotButton } from './embla-carousel-dot-button';
 import { PrevButton, NextButton, usePrevNextButtons } from './embla-carousel-arrow-buttons';
 import { cn } from '@/lib/utils';
@@ -28,7 +30,7 @@ interface ImageCarouselRendererProps {
     pauseOnHover?: boolean;
     navigation?: 'none' | 'arrows' | 'dots' | 'arrows_dots';
     imageStretch?: boolean;
-    
+
     // Style props
     spacing?: number;
     border?: { type?: string; width?: {top?: string, right?: string, bottom?: string, left?: string}, color?: string };
@@ -53,7 +55,7 @@ interface ImageCarouselRendererProps {
     dotAlignment?: 'flex-start' | 'center' | 'flex-end';
     dotColor?: string;
     activeDotColor?: string;
-    
+
     // Advanced
     margin?: { top?: number; right?: number; bottom?: number; left?: number };
     padding?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -69,7 +71,7 @@ interface ImageCarouselRendererProps {
 }
 
 export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ settings }) => {
-    const { 
+    const {
         images = [],
         slidesToShow = 1,
         slidesToScroll = 1,
@@ -88,36 +90,42 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
         slidesToScroll,
         slidesToShow
     } as any;
-    
+
     const plugins = autoplay ? [Autoplay({ delay: autoplayDelay, stopOnInteraction: !pauseOnHover, stopOnMouseEnter: pauseOnHover })] : [];
-    
+
     const [emblaRef, emblaApi] = useEmblaCarousel(options, plugins);
-    
+
     const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi);
     const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } = usePrevNextButtons(emblaApi);
 
+    const uniqueId = React.useId().replace(/:/g, "");
+
     if (images.length === 0) {
-        return <div className="p-4 text-center border-2 border-dashed rounded-lg text-[var(--st-text-secondary)]">Image Carousel: No images added.</div>;
+        return (
+            <EmptyState
+                icon={ImageOff}
+                title="No images added"
+                description="Add images to this carousel to see them appear here."
+            />
+        );
     }
-    
+
     const hoverClass = settings.hoverAnimation && settings.hoverAnimation !== 'none' ? `group-hover:${settings.hoverAnimation}` : '';
     const shadowClass = ({ sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'} as Record<string, string>)[settings.boxShadow || 'none'] || 'shadow-none';
 
     const animationDurationClass = ({ slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300'} as Record<string, string>)[settings.animationDuration || 'normal'];
     const animationClass = settings.animation && settings.animation !== 'none' ? `animate-in ${settings.animation} ${animationDurationClass}` : '';
-    
+
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
         'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
-    
+
     const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
         if(attr.key) acc[attr.key] = attr.value;
         return acc;
     }, {});
-    
-    const uniqueId = React.useId().replace(/:/g, "");
 
     const getFilterString = (filter: any) => {
         if (!filter) return 'none';
@@ -156,10 +164,10 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
         .embla--${uniqueId} .embla__dot {
             width: ${settings.dotSize || 12}px;
             height: ${settings.dotSize || 12}px;
-            background-color: ${settings.dotColor || 'hsla(0, 0%, 100%, 0.3)'};
+            background-color: ${settings.dotColor || 'rgba(255, 255, 255, 0.3)'};
         }
         .embla--${uniqueId} .embla__dot--selected {
-            background-color: ${settings.activeDotColor || 'hsl(var(--primary))'};
+            background-color: ${settings.activeDotColor || 'var(--st-accent)'};
         }
         .image--${uniqueId} {
             filter: ${getFilterString(settings.filter)};
@@ -199,13 +207,13 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
                                         data-ai-hint="carousel image"
                                     />
                                 </div>
-                                {image.caption && <p className="mt-2 text-sm text-center">{image.caption}</p>}
+                                {image.caption && <p className="mt-2 text-sm text-center text-[var(--st-text)]">{image.caption}</p>}
                             </Link>
                         </div>
                     ))}
                 </div>
             </div>
-            
+
             {(navigation === 'arrows' || navigation === 'arrows_dots') && (
                 <>
                     <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} className={cn(arrowPosition === 'outside' && '-left-16')} />
@@ -220,6 +228,7 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
                             key={index}
                             onClick={() => onDotButtonClick(index)}
                             className={cn('embla__dot', index === selectedIndex && 'embla__dot--selected')}
+                            aria-label={`Go to slide ${index + 1}`}
                         />
                     ))}
                 </div>

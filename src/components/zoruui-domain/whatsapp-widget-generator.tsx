@@ -1,6 +1,30 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Avatar, AvatarImage, AvatarFallback, Separator, Switch } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Button,
+  Label,
+  Input,
+  Textarea,
+  Field,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+  Separator,
+  Switch,
+  Slider,
+  ColorPicker,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useMemo,
@@ -9,20 +33,15 @@ import {
   useTransition } from 'react';
 import type { WithId,
   Project } from '@/lib/definitions';
-import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2, Settings, Zap } from 'lucide-react';
+import { Code, Save, LoaderCircle, Palette, MessageSquare, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { CodeBlock } from './code-block';
-
-import { Slider } from '../ui/slider';
-import { ColorPicker } from '../ui/color-picker';
 import { saveWidgetSettings } from '@/app/actions/widget.actions';
 import { saveAdvancedWidgetSettings } from '@/app/actions/wachat-widget-tracking.actions';
 import type { AdvancedSettingsBody } from '@/lib/rust-client/wachat-widget-tracking';
 import { useFormStatus } from 'react-dom';
-import Image from 'next/image';
-import { SabFilePickerButton } from '@/components/sabfiles';
-import { Upload } from 'lucide-react';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 interface WhatsAppWidgetGeneratorProps {
     project: WithId<Project>;
@@ -33,8 +52,8 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <Button type="submit" variant="primary" disabled={pending} iconLeft={pending ? undefined : Save}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
             Save Widget Settings
         </Button>
     )
@@ -127,7 +146,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     // `wachat-widget-tracking` crate now owns at
     // `POST /v1/wachat/widget/{projectId}/track`. The Rust route requires a
     // session JWT (AuthUser), so the public visitor-side ping can't call it
-    // directly — FOLLOW-UP: repoint the generated tracker's `/api/widget/track`
+    // directly. FOLLOW-UP: repoint the generated tracker's `/api/widget/track`
     // POST at the Rust endpoint via the api-platform proxy or a thin public
     // Next route that forwards `{ eventType }` to the crate.
     const embedCode = useMemo(() => {
@@ -140,7 +159,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     }, [project._id, advancedSettings]);
 
     return (
-        <Card className="card-gradient card-gradient-blue">
+        <Card>
             <form action={formAction}>
                 <input type="hidden" name="projectId" value={project._id.toString()} />
                 <input type="hidden" name="phoneNumber" value={settings.phoneNumber} />
@@ -159,7 +178,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
 
                 <CardHeader>
                     <div className="flex items-center gap-3">
-                        <Code className="h-8 w-8" />
+                        <Code className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden="true" />
                         <div>
                             <CardTitle>WhatsApp Widget Generator</CardTitle>
                             <CardDescription>Create a customizable chat widget to embed on your website.</CardDescription>
@@ -171,74 +190,102 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                         {/* Customization Panel */}
                         <div className="space-y-4">
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />Content</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" aria-hidden="true" />Content</CardTitle></CardHeader>
                                 <CardBody className="space-y-4">
-                                    <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
-                                    <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} /></div>
+                                    <Field label="Phone Number">
+                                        <Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}>
+                                            <SelectTrigger aria-label="Phone Number"><SelectValue placeholder="Select a number" /></SelectTrigger>
+                                            <SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent>
+                                        </Select>
+                                    </Field>
+                                    <Field label="Welcome Message">
+                                        <Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} />
+                                    </Field>
+                                    <Field label="Pre-filled User Message">
+                                        <Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} />
+                                    </Field>
                                 </CardBody>
                             </Card>
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" />Appearance</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5" aria-hidden="true" />Appearance</CardTitle></CardHeader>
                                 <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
-                                        <div className="space-y-2"><Label htmlFor="widget-color">Widget Color</Label><ColorPicker id="widget-color" value={settings.buttonColor} onChange={v => handleSettingChange('buttonColor', v)} /></div>
+                                        <Field label="Position">
+                                            <Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}>
+                                                <SelectTrigger aria-label="Position"><SelectValue placeholder="Pick a position" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                                                    <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </Field>
+                                        <Field label="Widget Color">
+                                            <ColorPicker value={settings.buttonColor} onChange={v => handleSettingChange('buttonColor', v)} />
+                                        </Field>
                                     </div>
-                                    <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Header Subtitle</Label><Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
-                                    <div className="space-y-2">
-                                        <Label>Avatar URL or Upload</Label>
-                                        <Input placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} />
-                                        <SabFilePickerButton
+                                    <Field label="Header Title">
+                                        <Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} />
+                                    </Field>
+                                    <Field label="Header Subtitle">
+                                        <Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} />
+                                    </Field>
+                                    <Field label="Header Avatar" help="Pick an image from your SabFiles library or upload a new one.">
+                                        <SabFileUrlInput
                                             accept="image"
-                                            onPick={({ url }) => handleSettingChange('headerAvatarUrl', url)}
-                                        >
-                                            <Upload className="h-4 w-4" /> Choose file
-                                        </SabFilePickerButton>
-                                    </div>
-                                    <div className="space-y-2"><Label>CTA Text</Label><Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} /></div>
+                                            value={settings.headerAvatarUrl}
+                                            onChange={(url) => handleSettingChange('headerAvatarUrl', url)}
+                                            pickerTitle="Choose widget avatar"
+                                        />
+                                    </Field>
+                                    <Field label="CTA Text">
+                                        <Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} />
+                                    </Field>
                                     <Separator />
-                                    <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50} /></div>
-                                    <div className="space-y-2"><Label>Padding ({settings.padding}px)</Label><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32} /></div>
+                                    <Field label={`Border Radius (${settings.borderRadius}px)`}>
+                                        <Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', (v as number[])[0])} min={0} max={50} ariaLabel="Border radius" />
+                                    </Field>
+                                    <Field label={`Padding (${settings.padding}px)`}>
+                                        <Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', (v as number[])[0])} min={8} max={32} ariaLabel="Padding" />
+                                    </Field>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label htmlFor="text-color">Text Color</Label><ColorPicker id="text-color" value={settings.textColor} onChange={v => handleSettingChange('textColor', v)} /></div>
-                                        <div className="space-y-2"><Label htmlFor="button-text-color">Button Text Color</Label><ColorPicker id="button-text-color" value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} /></div>
+                                        <Field label="Text Color">
+                                            <ColorPicker value={settings.textColor} onChange={v => handleSettingChange('textColor', v)} />
+                                        </Field>
+                                        <Field label="Button Text Color">
+                                            <ColorPicker value={settings.buttonTextColor} onChange={v => handleSettingChange('buttonTextColor', v)} />
+                                        </Field>
                                     </div>
                                 </CardBody>
                             </Card>
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" />Behavior & Testing</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5" aria-hidden="true" />Behavior and Testing</CardTitle></CardHeader>
                                 <CardBody className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Auto-Open Delay (seconds)</Label>
+                                    <Field label="Auto-Open Delay (seconds)" help="Set to 0 to disable auto-open. For example, 5 means open after 5 seconds.">
                                         <Input type="number" min="0" value={advancedSettings.autoOpenDelay} onChange={e => handleAdvancedSettingChange('autoOpenDelay', parseInt(e.target.value) || 0)} placeholder="0 for disabled" />
-                                        <p className="text-xs text-[var(--st-text-secondary)]">Set to 0 to disable auto-open. (e.g. 5 means open after 5 seconds)</p>
-                                    </div>
+                                    </Field>
                                     <Separator />
-                                    <div className="space-y-2 flex items-center justify-between">
-                                        <div>
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="space-y-1">
                                             <Label>A/B Test Variants</Label>
-                                            <p className="text-xs text-[var(--st-text-secondary)]">Test classic vs alternative widget styles on your site</p>
+                                            <p className="text-xs text-[var(--st-text-secondary)]">Test classic vs alternative widget styles on your site.</p>
                                         </div>
-                                        <Switch checked={advancedSettings.abTestEnabled} onCheckedChange={v => handleAdvancedSettingChange('abTestEnabled', v)} />
+                                        <Switch checked={advancedSettings.abTestEnabled} onCheckedChange={v => handleAdvancedSettingChange('abTestEnabled', v)} aria-label="Enable A/B test variants" />
                                     </div>
                                     {advancedSettings.abTestEnabled && (
-                                        <div className="space-y-2">
-                                            <Label>Style Variant to Preview</Label>
+                                        <Field label="Style Variant to Preview">
                                             <Select value={advancedSettings.styleVariant} onValueChange={(v) => handleAdvancedSettingChange('styleVariant', v)}>
-                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectTrigger aria-label="Style variant"><SelectValue placeholder="Pick a variant" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="classic">Classic</SelectItem>
                                                     <SelectItem value="modern">Modern (Floating Box)</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                        </div>
+                                        </Field>
                                     )}
                                     <Separator />
                                     <div className="flex justify-end">
-                                        <Button type="button" variant="outline" disabled={isSavingAdvanced} onClick={handleSaveAdvanced}>
-                                            {isSavingAdvanced ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                                        <Button type="button" variant="outline" disabled={isSavingAdvanced} onClick={handleSaveAdvanced} iconLeft={isSavingAdvanced ? undefined : Save}>
+                                            {isSavingAdvanced ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
                                             Save Advanced Settings
                                         </Button>
                                     </div>
@@ -248,10 +295,10 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                         {/* Preview and Code Panel */}
                         <div className="space-y-4">
                             <Label>Live Preview</Label>
-                            <div className="relative h-[500px] bg-white rounded-lg overflow-hidden border">
+                            <div className="relative h-[500px] bg-[var(--st-bg)] rounded-[var(--st-radius)] overflow-hidden border border-[var(--st-border)]">
                                 {/* Dummy Webpage Background */}
                                 <div className="absolute inset-0 pointer-events-none opacity-50 flex flex-col">
-                                    <div className="h-12 border-b flex items-center px-6 gap-4 bg-[var(--st-bg-muted)]">
+                                    <div className="h-12 border-b border-[var(--st-border)] flex items-center px-6 gap-4 bg-[var(--st-bg-muted)]">
                                         <div className="h-4 w-24 bg-[var(--st-bg-muted)] rounded-md"></div>
                                         <div className="ml-auto flex gap-4">
                                             <div className="h-2 w-12 bg-[var(--st-bg-muted)] rounded"></div>
@@ -267,19 +314,19 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                             <div className="h-4 w-4/6 bg-[var(--st-bg-muted)] rounded-sm"></div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-4 max-w-lg mt-8">
-                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-lg"></div>
-                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-lg"></div>
+                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-[var(--st-radius)]"></div>
+                                            <div className="h-32 bg-[var(--st-bg-muted)] rounded-[var(--st-radius)]"></div>
                                         </div>
                                     </div>
                                 </div>
                                 {/* Widget Container */}
-                                <div className="absolute inset-0 flex items-end pointer-events-none p-5" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start' }}>
+                                <div className={`absolute inset-0 flex items-end pointer-events-none p-5 ${settings.position.includes('right') ? 'justify-end' : 'justify-start'}`}>
                                 <div id="sabnode-widget-container-preview" className="relative pointer-events-auto">
                                     {showWidget && (
                                         <div id="sabnode-widget-chatbox-preview" className="absolute bg-white overflow-hidden" style={{ bottom: advancedSettings.styleVariant === 'modern' ? '80px' : '96px', right: advancedSettings.styleVariant === 'modern' ? '-10px' : '0', width: advancedSettings.styleVariant === 'modern' ? '320px' : '350px', borderRadius: `${settings.borderRadius}px`, boxShadow: advancedSettings.styleVariant === 'modern' ? '0 10px 25px rgba(0,0,0,0.1)' : '0 5px 20px rgba(0,0,0,0.2)' }}>
                                             <div className="sabnode-chat-header flex items-center gap-3" style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px` }}>
                                                 <Avatar className="w-10 h-10">
-                                                    {settings.headerAvatarUrl && <AvatarImage src={settings.headerAvatarUrl} />}
+                                                    {settings.headerAvatarUrl && <AvatarImage src={settings.headerAvatarUrl} alt="" />}
                                                     <AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback>
                                                 </Avatar>
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
@@ -289,6 +336,7 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                             </div>
                                             <div className="sabnode-chat-footer bg-white border-t border-[#eee]" style={{ padding: `${settings.padding}px` }}>
                                                 <Button
+                                                    variant="primary"
                                                     className="sabnode-cta-button w-full h-12"
                                                     style={{ backgroundColor: settings.buttonColor, color: settings.buttonTextColor, borderRadius: advancedSettings.styleVariant === 'modern' ? '8px' : '9999px' }}
                                                     onClick={() => toast({ title: 'Widget Clicked', description: 'Action recorded' })}
@@ -301,6 +349,8 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     )}
                                     <Button
                                         id="sabnode-widget-button-preview"
+                                        variant="primary"
+                                        aria-label={showWidget ? 'Close chat widget preview' : 'Open chat widget preview'}
                                         style={{ backgroundColor: settings.buttonColor, borderRadius: advancedSettings.styleVariant === 'modern' ? '16px' : '9999px' }}
                                         onClick={() => setShowWidget(!showWidget)}
                                         className={`relative ${advancedSettings.styleVariant === 'modern' ? 'h-14 w-14' : 'h-16 w-16'} shadow-lg`}

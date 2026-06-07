@@ -2,12 +2,10 @@
 
 import * as React from 'react';
 
-import { Card } from '@/components/sabcrm/20ui';
+import { Button } from '@/components/sabcrm/20ui';
 import type { SabFlowTheme } from '@/lib/sabflow/types';
 
-/* ─────────────────────────────────────────────────────────────
-   Preset definitions
-───────────────────────────────────────────────────────────── */
+/* Preset definitions */
 
 type Preset = {
   id: string;
@@ -265,9 +263,7 @@ const PRESETS: Preset[] = [
   },
 ];
 
-/* ─────────────────────────────────────────────────────────────
-   PresetCard
-───────────────────────────────────────────────────────────── */
+/* PresetCard */
 
 interface PresetCardProps {
   preset: Preset;
@@ -279,59 +275,43 @@ function PresetCard({ preset, onApply }: PresetCardProps) {
 
   const apply = React.useCallback(() => onApply(preset.theme), [onApply, preset.theme]);
 
-  const handleKeyDown = React.useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        apply();
-      }
-    },
-    [apply],
-  );
-
   return (
-    <Card
-      variant="interactive"
-      padding="sm"
-      role="button"
-      tabIndex={0}
-      aria-label={`Apply ${preset.label} theme`}
+    <Button
+      variant="ghost"
       onClick={apply}
-      onKeyDown={handleKeyDown}
-      className="group flex flex-col gap-2 text-left"
+      aria-label={`Apply ${preset.label} theme`}
+      className="group h-auto w-full flex-col items-stretch gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-left"
     >
-      {/* Mini chat preview (decorative) */}
-      <div
-        className="w-full min-h-16 space-y-1.5 overflow-hidden rounded-[var(--st-radius)] p-2"
+      {/* Mini chat preview (decorative). Swatch colors are runtime preset data. */}
+      <span
+        className="block w-full min-h-16 space-y-1.5 overflow-hidden rounded-[var(--st-radius)] p-2"
         style={{ backgroundColor: bg }}
         aria-hidden="true"
       >
         {/* Host bubble */}
-        <div className="h-2.5 w-[65%] rounded-full" style={{ backgroundColor: host }} />
+        <span className="block h-2.5 w-[65%] rounded-full" style={{ backgroundColor: host }} />
         {/* Host bubble, second line */}
-        <div className="h-2 w-[45%] rounded-full opacity-60" style={{ backgroundColor: host }} />
+        <span className="block h-2 w-[45%] rounded-full opacity-60" style={{ backgroundColor: host }} />
         {/* Guest bubble, right-aligned */}
-        <div className="flex justify-end">
-          <div className="h-2.5 w-[50%] rounded-full" style={{ backgroundColor: guest }} />
-        </div>
+        <span className="flex justify-end">
+          <span className="block h-2.5 w-[50%] rounded-full" style={{ backgroundColor: guest }} />
+        </span>
         {/* Input bar */}
-        <div className="mt-1 flex items-center gap-1">
-          <div className="h-2 flex-1 rounded-full opacity-40" style={{ backgroundColor: host }} />
-          <div className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: button }} />
-        </div>
-      </div>
+        <span className="mt-1 flex items-center gap-1">
+          <span className="block h-2 flex-1 rounded-full opacity-40" style={{ backgroundColor: host }} />
+          <span className="block h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: button }} />
+        </span>
+      </span>
 
       {/* Label */}
       <span className="w-full text-center text-[12px] font-medium text-[var(--st-text-secondary)] transition-colors group-hover:text-[var(--st-text)]">
         {preset.label}
       </span>
-    </Card>
+    </Button>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   ThemePresetPicker, main export
-───────────────────────────────────────────────────────────── */
+/* ThemePresetPicker, main export */
 
 export interface ThemePresetPickerProps {
   onApply: (theme: SabFlowTheme) => void;

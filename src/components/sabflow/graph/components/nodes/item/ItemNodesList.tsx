@@ -170,8 +170,8 @@ export function ItemNodesList({ block, groupId, onBlockChange }: Props) {
       {draggedItem && draggedItem.blockId === block.id &&
         createPortal(
           <div
-            className="flex fixed w-[200px] pointer-events-none origin-[0_0_0] rotate-[-2deg]"
-            style={{ left: overlayPos.x, top: overlayPos.y, zIndex: 9999 }}
+            className="flex fixed w-[200px] pointer-events-none origin-[0_0_0] rotate-[-2deg] z-[9999]"
+            style={{ left: overlayPos.x, top: overlayPos.y }}
           >
             <ItemNode
               item={draggedItem}

@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent, EmptyState } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
+import { LayoutPanelTop } from 'lucide-react';
 
 type Tab = {
   id: string;
@@ -21,7 +22,7 @@ interface TabsBlockRendererProps {
     stretchTabs?: boolean;
     tabSpacing?: number;
     iconPosition?: 'left' | 'right';
-    
+
     // Style props
     tabsListBgColor?: string;
     tabsListBorderRadius?: number;
@@ -35,7 +36,7 @@ interface TabsBlockRendererProps {
     contentBorderRadius?: number;
     contentBorderType?: string;
     contentShadow?: string;
-    
+
     // Advanced props
     margin?: { top?: number; right?: number; bottom?: number; left?: number };
     padding?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -44,16 +45,16 @@ interface TabsBlockRendererProps {
     cssId?: string;
     cssClasses?: string;
     customCss?: string;
-    customAttributes?: {id: string, key: string, value: string}[];
+    customAttributes?: { id: string; key: string; value: string }[];
   };
 }
 
 const IconRenderer = ({ iconName, className }: { iconName?: string; className?: string }) => {
-    if (!iconName) return null;
-    // @ts-ignore
-    const IconComponent = LucideIcons[iconName];
-    if (!IconComponent) return null;
-    return <IconComponent className={cn('h-4 w-4', className)} />;
+  if (!iconName) return null;
+  // @ts-ignore
+  const IconComponent = LucideIcons[iconName];
+  if (!IconComponent) return null;
+  return <IconComponent className={cn('h-4 w-4', className)} aria-hidden="true" />;
 };
 
 export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }) => {
@@ -62,9 +63,11 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
 
   if (tabs.length === 0) {
     return (
-      <div className="p-4 text-center border-2 border-dashed rounded-lg text-[var(--st-text-secondary)]">
-        Tabs Block: No tabs configured.
-      </div>
+      <EmptyState
+        icon={LayoutPanelTop}
+        title="No tabs configured"
+        description="Add at least one tab to this Tabs block to preview its content."
+      />
     );
   }
 
@@ -80,69 +83,86 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
   };
 
   const tabsListStyle: React.CSSProperties = {
-    backgroundColor: settings.tabsListBgColor || 'hsl(var(--muted))',
+    backgroundColor: settings.tabsListBgColor || 'var(--st-bg-secondary)',
     borderRadius: settings.tabsListBorderRadius ? `${settings.tabsListBorderRadius}px` : undefined,
     justifyContent: alignment,
     gap: settings.tabSpacing ? `${settings.tabSpacing}px` : undefined,
   };
-  
+
   const contentStyle: React.CSSProperties = {
     backgroundColor: settings.contentBgColor,
     color: settings.contentTextColor,
     padding: settings.contentPadding ? `${settings.contentPadding}px` : undefined,
     borderRadius: settings.contentBorderRadius ? `${settings.contentBorderRadius}px` : undefined,
-    border: settings.contentBorderType !== 'none' ? `1px ${settings.contentBorderType || 'solid'} hsl(var(--border))` : 'none',
+    border:
+      settings.contentBorderType !== 'none'
+        ? `1px ${settings.contentBorderType || 'solid'} var(--st-border)`
+        : 'none',
   };
-  
+
   const shadowClasses: Record<string, string> = { sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg' };
 
-  const animationClass = ({
-    fadeIn: 'animate-in fade-in duration-500',
-    fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-  } as Record<string, string>)[settings.animation || 'none'] || '';
+  const animationClass =
+    ({
+      fadeIn: 'animate-in fade-in duration-500',
+      fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+    } as Record<string, string>)[settings.animation || 'none'] || '';
 
   const responsiveClasses = cn({
     'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
     'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
     'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
   });
-  
+
   const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
-    if(attr.key) acc[attr.key] = attr.value;
+    if (attr.key) acc[attr.key] = attr.value;
     return acc;
   }, {});
 
   return (
-    <div id={settings.cssId} style={wrapperStyle} className={cn(animationClass, responsiveClasses, settings.cssClasses)} {...customAttributes}>
+    <div
+      id={settings.cssId}
+      style={wrapperStyle}
+      className={cn(animationClass, responsiveClasses, settings.cssClasses)}
+      {...customAttributes}
+    >
       {settings.customCss && <style>{settings.customCss}</style>}
       <style>{`
           [data-radix-collection-item][data-state="active"] {
-            background-color: ${settings.activeTabBgColor || 'hsl(var(--background))'} !important;
-            color: ${settings.activeTabTextColor || 'hsl(var(--foreground))'} !important;
+            background-color: ${settings.activeTabBgColor || 'var(--st-bg)'} !important;
+            color: ${settings.activeTabTextColor || 'var(--st-text)'} !important;
             box-shadow: ${settings.contentShadow && settings.contentShadow !== 'none' ? '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' : 'none'};
           }
         `}</style>
       <Tabs defaultValue={settings.defaultActiveTab || tabs[0]?.id}>
         <TabsList
           className={cn(
-            "w-full h-auto p-1",
+            'w-full h-auto p-1',
             settings.stretchTabs && 'grid',
-            shadowClasses[settings.tabsListShadow || 'none']
+            shadowClasses[settings.tabsListShadow || 'none'],
           )}
           style={{
             ...tabsListStyle,
-            ...(settings.stretchTabs && { gridTemplateColumns: `repeat(${tabs.length}, 1fr)`})
+            ...(settings.stretchTabs && { gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }),
           }}
         >
-          {tabs.map(tab => {
+          {tabs.map((tab) => {
             const iconPosition = settings.iconPosition || 'left';
-            const iconElement = <IconRenderer iconName={tab.icon} className={cn(iconPosition === 'left' ? 'mr-2' : 'ml-2')} />;
+            const iconElement = (
+              <IconRenderer
+                iconName={tab.icon}
+                className={cn(iconPosition === 'left' ? 'mr-2' : 'ml-2')}
+              />
+            );
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
                 style={{ color: settings.tabTextColor }}
-                className={cn('flex items-center gap-2', iconPosition === 'right' && 'flex-row-reverse')}
+                className={cn(
+                  'flex items-center gap-2',
+                  iconPosition === 'right' && 'flex-row-reverse',
+                )}
               >
                 {iconElement}
                 {tab.label}
@@ -150,8 +170,16 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
             );
           })}
         </TabsList>
-        {tabs.map(tab => (
-          <TabsContent key={tab.id} value={tab.id} className={cn("mt-4 p-4 border rounded-lg", shadowClasses[settings.contentShadow || 'none'])} style={contentStyle}>
+        {tabs.map((tab) => (
+          <TabsContent
+            key={tab.id}
+            value={tab.id}
+            className={cn(
+              'mt-4 p-4 border rounded-lg',
+              shadowClasses[settings.contentShadow || 'none'],
+            )}
+            style={contentStyle}
+          >
             <p>{tab.content}</p>
           </TabsContent>
         ))}

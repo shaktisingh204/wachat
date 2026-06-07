@@ -1,6 +1,14 @@
 'use client';
 
-import { Separator, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui';
+import {
+  Separator,
+  Button,
+  IconButton,
+  EmptyState,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  useToast } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -21,7 +29,6 @@ import type { WithId,
   WebsiteBlock,
   EcommShop,
   EcommPage } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
@@ -34,7 +41,8 @@ import { saveEcommPage,
 import { ChevronLeft,
   ChevronRight,
   X,
-  Plus } from 'lucide-react';
+  Plus,
+  MousePointerClick } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function findList(items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null {
@@ -122,15 +130,15 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                 layout: layout,
             });
         } else {
-            toast({ title: 'Error', description: 'No active page to save.', variant: 'destructive' });
+            toast({ title: 'Error', description: 'No active page to save.', tone: 'danger' });
             setIsSaving(false);
             return;
         }
 
         if (result.error) {
-            toast({ title: 'Error Saving', description: result.error, variant: 'destructive' });
+            toast({ title: 'Error Saving', description: result.error, tone: 'danger' });
         } else {
-            toast({ title: 'Success!', description: 'Your changes have been saved.' });
+            toast({ title: 'Success', description: 'Your changes have been saved.', tone: 'success' });
             fetchPages();
         }
         setIsSaving(false);
@@ -241,11 +249,11 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             {/* Root Container: Full Viewport, Fixed Layout */}
-            <div className="flex flex-col h-screen w-full bg-[var(--st-bg-secondary)] dark:bg-[var(--st-text)] overflow-hidden relative">
-                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+            <div className="ui20 flex flex-col h-screen w-full bg-[var(--st-bg-secondary)] overflow-hidden relative">
+                <div className="absolute inset-0 z-0 opacity-[0.03] [background-image:radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:24px_24px]" aria-hidden="true"></div>
 
                 {/* 1. Header (Fixed at top) */}
-                <div className="flex-none z-50 bg-[var(--st-bg-secondary)]/70 backdrop-blur-md border-b sticky top-0 supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
+                <div className="flex-none z-50 bg-[var(--st-bg-secondary)]/70 backdrop-blur-md border-b border-[var(--st-border)] sticky top-0 supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
                     <WebsiteBuilderHeader
                         site={shop}
                         pages={pages}
@@ -275,24 +283,24 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                         </div>
                     </div>
 
-                    {/* B. FAB (Floating Action ZoruButton) - Absolute Overlay */}
+                    {/* B. FAB (Floating Action Button) - Absolute Overlay */}
                     <DropdownMenu open={isBlockPaletteOpen} onOpenChange={setIsBlockPaletteOpen}>
                         <DropdownMenuTrigger asChild>
-                            <Button
-                                size="icon"
-                                className="absolute bottom-8 right-8 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-primary to-primary/80 text-white hover:shadow-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 border border-white/10"
-                            >
-                                <Plus className="h-7 w-7" />
-                            </Button>
+                            <IconButton
+                                label="Add elements"
+                                icon={Plus}
+                                variant="primary"
+                                className="absolute bottom-8 right-8 h-16 w-16 rounded-[var(--st-radius-pill)] shadow-[var(--st-shadow-lg)] z-50 hover:scale-105 active:scale-95"
+                            />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-xl shadow-2xl border bg-[var(--st-bg-secondary)]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
-                            <div className="p-4 border-b sticky top-0 bg-[var(--st-bg-secondary)]/80 backdrop-blur-md z-10">
-                                <h3 className="font-semibold text-sm">Add Elements</h3>
+                        <DropdownMenuContent align="end" side="top" className="w-80 h-[500px] overflow-y-auto p-0 z-50 rounded-[var(--st-radius-lg)] shadow-[var(--st-shadow-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--st-bg-secondary)]/60">
+                            <div className="p-4 border-b border-[var(--st-border)] sticky top-0 bg-[var(--st-bg-secondary)]/80 backdrop-blur-md z-10">
+                                <h3 className="font-semibold text-sm text-[var(--st-text)]">Add Elements</h3>
                             </div>
                             <div className="p-4">
                                 <BlockPalette onAddBlock={(type) => { handleAddBlock(type); setIsBlockPaletteOpen(false); }} />
                                 <Separator className="my-4" />
-                                <div className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">PAGES & LAYOUT</div>
+                                <div className="text-xs font-semibold text-[var(--st-text-secondary)] mb-2">PAGES &amp; LAYOUT</div>
                                 <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             </div>
                         </DropdownMenuContent>
@@ -302,16 +310,20 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                     {/* Fixed position relative to Main Content Area, high Z-index */}
                     <div
                         className={cn(
-                            "absolute top-0 right-0 bottom-0 z-40 bg-[var(--st-bg-secondary)]/80 backdrop-blur-2xl border-l shadow-[-10px_0_30px_-15px_rgba(0,0,0,0.1)] transition-transform duration-300 ease-cubic-bezier(0.4, 0, 0.2, 1) flex flex-col",
+                            "absolute top-0 right-0 bottom-0 z-40 bg-[var(--st-bg-secondary)]/80 backdrop-blur-2xl border-l border-[var(--st-border)] shadow-[var(--st-shadow-lg)] transition-transform duration-300 ease-out flex flex-col",
                             "w-[400px] lg:w-[40%]", // Responsive width: fixed on small, % on large
                             !rightPanelOpen && "translate-x-full pointer-events-none"
                         )}
                     >
-                        <div className="flex items-center justify-between p-4 border-b bg-transparent sticky top-0 z-10">
-                            <h3 className="font-semibold text-sm">Properties</h3>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/50 rounded-full" onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}>
-                                <X className="h-4 w-4" />
-                            </Button>
+                        <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)] bg-transparent sticky top-0 z-10">
+                            <h3 className="font-semibold text-sm text-[var(--st-text)]">Properties</h3>
+                            <IconButton
+                                label="Close properties"
+                                icon={X}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => { setRightPanelOpen(false); setSelectedBlockId(null); }}
+                            />
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                             {selectedBlock ? (
@@ -322,8 +334,12 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
                                     onRemove={handleRemoveBlock}
                                 />
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full text-[var(--st-text-secondary)] p-4 text-center">
-                                    <p className="text-sm">Select a block on the canvas to edit its properties.</p>
+                                <div className="flex h-full items-center justify-center">
+                                    <EmptyState
+                                        icon={MousePointerClick}
+                                        title="No block selected"
+                                        description="Select a block on the canvas to edit its properties."
+                                    />
                                 </div>
                             )}
                         </div>

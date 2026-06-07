@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Card,
   Skeleton,
@@ -21,6 +22,33 @@ interface ReferrerTableProps {
 
 function getFaviconUrl(domain: string): string {
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=16`;
+}
+
+/** A source row's favicon, with a graceful fallback chip when the image fails. */
+function SourceFavicon({ domain }: { domain: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <span
+        className="h-4 w-4 shrink-0 rounded-sm bg-[var(--st-bg-muted)] flex items-center justify-center text-[9px] text-[var(--st-text-secondary)]"
+        aria-hidden="true"
+      >
+        {domain.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={getFaviconUrl(domain)}
+      alt=""
+      width={16}
+      height={16}
+      className="h-4 w-4 shrink-0 rounded-sm"
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 function ShareBar({ pct }: { pct: number }) {
@@ -109,20 +137,14 @@ export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
                     <Td>
                       <div className="flex items-center gap-2 min-w-0">
                         {row.isDirect ? (
-                          <span className="h-4 w-4 shrink-0 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-[9px] text-[var(--st-text-secondary)]">
+                          <span
+                            className="h-4 w-4 shrink-0 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-[9px] text-[var(--st-text-secondary)]"
+                            aria-hidden="true"
+                          >
                             -
                           </span>
                         ) : (
-                          <img
-                            src={getFaviconUrl(row.domain)}
-                            alt=""
-                            width={16}
-                            height={16}
-                            className="h-4 w-4 shrink-0 rounded-sm"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
+                          <SourceFavicon domain={row.domain} />
                         )}
                         <span className="truncate text-[var(--st-text)]">{row.domain}</span>
                       </div>

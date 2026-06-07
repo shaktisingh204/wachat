@@ -8,6 +8,8 @@ import { BlockNodeOverlay } from './BlockNodeOverlay';
 import { PlaceholderNode } from '../PlaceholderNode';
 import { useBlockDnd, computeNearestPlaceholderIndex } from '@/components/sabflow/graph/providers/GraphDndProvider';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
+import { EmptyState } from '@/components/sabcrm/20ui';
+import { MousePointerClick } from 'lucide-react';
 
 type NodePosition = { absolute: { x: number; y: number }; relative: { x: number; y: number } };
 
@@ -130,7 +132,7 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
     edges.map((e) => e.from.blockId).filter(Boolean) as string[],
   );
 
-  // Per-block map of pin ids that already have an outgoing edge — used by
+  // Per-block map of pin ids that already have an outgoing edge, used by
   // MultiSourceEndpoints to render a persistent filled dot on active pins.
   const outgoingPinIdsByBlock = new Map<string, Set<string>>();
   for (const e of edges) {
@@ -200,7 +202,7 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
               isReadOnly
                 ? undefined
                 : (targetBlock) => {
-                    // Open the block's settings panel — the test runner
+                    // Open the block's settings panel. The test runner
                     // lives inside `TestNodePanel` (already mounted there).
                     // A custom DOM event signals the panel to auto-fire its
                     // Run button once it mounts; using a window event keeps
@@ -224,12 +226,15 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
       ))}
 
       {blocks.length === 0 && (
-        <div className="flex items-center justify-center py-4 text-[12px] text-[var(--gray-9)] italic">
-          Drop a block here
-        </div>
+        <EmptyState
+          size="sm"
+          icon={MousePointerClick}
+          title="Drop a block here"
+          className="py-4"
+        />
       )}
 
-      {/* Drag overlay portal — matches Typebot: fixed top-0 left-0, translated + rotated */}
+      {/* Drag overlay portal, matches Typebot: fixed top-0 left-0, translated + rotated */}
       {draggedBlock?.groupId === groupId &&
         createPortal(
           <BlockNodeOverlay

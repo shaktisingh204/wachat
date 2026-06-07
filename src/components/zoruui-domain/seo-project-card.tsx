@@ -1,10 +1,22 @@
 'use client';
 
-import { Card, CardBody, CardHeader, CardTitle, Button, Badge, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Button,
+  IconButton,
+  Badge,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import React from 'react';
-import { BarChart, ArrowRight, Trash2, MoreVertical, Calendar } from 'lucide-react';
+import { BarChart, ArrowRight, Trash2, MoreVertical, Calendar, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
@@ -32,6 +44,7 @@ interface SeoProjectCardProps {
 
 export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onToggleFavorite, onDelete }: SeoProjectCardProps) {
     const router = useRouter();
+    const { toast } = useToast();
 
     // Handle differences between main Project type and SeoProject type
     const displayName = project.domain || project.name || 'Untitled Project';
@@ -39,6 +52,12 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
     const lastAuditText = project.lastAuditDate
         ? formatDistanceToNow(new Date(project.lastAuditDate), { addSuffix: true })
         : 'Never';
+    const healthBarClass =
+        healthScore >= 90
+            ? 'bg-[var(--st-status-ok)]'
+            : healthScore >= 70
+              ? 'bg-[var(--st-warn)]'
+              : 'bg-[var(--st-danger)]';
 
     const handleCardClick = (e: React.MouseEvent) => {
         // Prevent navigation if clicking on interactive elements
@@ -48,26 +67,56 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
         router.push(`/dashboard/seo/${project._id}`);
     };
 
+    const handleToggleFavorite = async () => {
+        if (onToggleFavorite) {
+            onToggleFavorite(String(project._id), !!project.isFavorite);
+            return;
+        }
+        try {
+            const { toggleSeoProjectFavorite } = await import('@/app/actions/seo.actions');
+            await toggleSeoProjectFavorite(String(project._id), !project.isFavorite);
+            window.location.reload(); // Fallback if no callback provided
+        } catch (err) {
+            console.error(err);
+            toast.error('Could not update favorite. Please try again.');
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Delete "${displayName}"? This cannot be undone.`)) return;
+
+        if (onDelete) {
+            onDelete(String(project._id));
+            return;
+        }
+        const res = await deleteSeoProject(String(project._id));
+        if (res?.error) {
+            toast.error(res.error);
+        } else {
+            window.location.reload();
+        }
+    };
+
     return (
         <Card
+            variant="interactive"
+            padding="none"
             className={cn(
-                "group relative flex flex-col transition-all duration-300",
-                "border-[var(--st-border)]/50 bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm",
-                "hover:shadow-xl hover:-translate-y-1 hover:border-[var(--st-border)]/50", // Orange for SEO
-                "cursor-pointer overflow-hidden rounded-xl"
+                "group relative flex flex-col overflow-hidden",
+                "cursor-pointer rounded-[var(--st-radius)]"
             )}
             onClick={handleCardClick}
         >
-            {/* Gradient Accent Line */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)]" />
+            {/* Accent line */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-[var(--st-accent)]" aria-hidden="true" />
 
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-5">
                 <div className="flex-1 min-w-0 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] dark:bg-[var(--st-text)]/20 flex items-center justify-center flex-shrink-0">
-                        <BarChart className="h-5 w-5 text-[var(--st-text)] dark:text-[var(--st-text-secondary)]" />
+                    <div className="h-10 w-10 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center flex-shrink-0">
+                        <BarChart className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
                     </div>
-                    <div>
-                        <CardTitle className="font-bold text-lg truncate group-hover:text-[var(--st-text)] transition-colors">
+                    <div className="min-w-0">
+                        <CardTitle className="font-bold text-lg truncate">
                             {displayName}
                         </CardTitle>
                         <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-0.5">
@@ -77,56 +126,38 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                 </div>
 
                 <div className="flex items-center gap-1 -mr-2">
-                    <Button
+                    <IconButton
+                        label={project.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        icon={Star}
                         variant="ghost"
-                        size="icon"
-                        className={cn("h-8 w-8 rounded-full", project.isFavorite ? "text-[var(--st-text)] hover:text-[var(--st-text)]" : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)]")}
-                        onClick={async (e) => {
+                        size="sm"
+                        className={project.isFavorite ? 'text-[var(--st-warn)]' : 'text-[var(--st-text-secondary)]'}
+                        onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            if (onToggleFavorite) {
-                                onToggleFavorite(String(project._id), !!project.isFavorite);
-                            } else {
-                                try {
-                                    const { toggleSeoProjectFavorite } = await import('@/app/actions/seo.actions');
-                                    await toggleSeoProjectFavorite(String(project._id), !project.isFavorite);
-                                    window.location.reload(); // Fallback if no callback provided
-                                } catch (e) {
-                                    console.error(e);
-                                }
-                            }
+                            void handleToggleFavorite();
                         }}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={project.isFavorite ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                        <span className="sr-only">Toggle Favorite</span>
-                    </Button>
+                    />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] rounded-full">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                            </Button>
+                            <IconButton
+                                label="Open project menu"
+                                icon={MoreVertical}
+                                variant="ghost"
+                                size="sm"
+                                className="text-[var(--st-text-secondary)]"
+                            />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem
-                                className="text-[var(--st-text)] focus:text-[var(--st-text)]"
-                                onSelect={async (e) => {
+                                variant="danger"
+                                iconLeft={Trash2}
+                                onSelect={(e) => {
                                     e.preventDefault();
-                                    if (!window.confirm(`Delete "${displayName}"? This cannot be undone.`)) return;
-                                    
-                                    if (onDelete) {
-                                        onDelete(String(project._id));
-                                    } else {
-                                        const res = await deleteSeoProject(String(project._id));
-                                        if (res?.error) {
-                                            window.alert(res.error);
-                                        } else {
-                                            window.location.reload();
-                                        }
-                                    }
+                                    void handleDelete();
                                 }}
                             >
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete Project
+                                Delete Project
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -135,26 +166,23 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
 
             <CardBody className="space-y-4 pb-4">
                 <div className="grid grid-cols-2 gap-4 my-2">
-                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]/20">
+                    <div className="flex flex-col gap-1.5 p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]">
                         <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Health Score</span>
                         <div className="flex items-center gap-2">
                             <div className="h-2 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
                                 <div
-                                    className={cn(
-                                        "h-full transition-all duration-500",
-                                        healthScore >= 90 ? 'bg-[var(--st-text)]' : healthScore >= 70 ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]'
-                                    )}
+                                    className={cn("h-full transition-all duration-500", healthBarClass)}
                                     style={{ width: `${healthScore}%` }}
                                 />
                             </div>
-                            <span className="font-bold text-sm">{healthScore}</span>
+                            <span className="font-bold text-sm text-[var(--st-text)]">{healthScore}</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-1.5 p-2 rounded-lg bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]/20">
+                    <div className="flex flex-col gap-1.5 p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]/30 border border-[var(--st-border)]">
                         <span className="text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)] font-bold">Last Audit</span>
-                        <div className="flex items-center gap-1.5 text-sm font-medium">
-                            <Calendar className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                        <div className="flex items-center gap-1.5 text-sm font-medium text-[var(--st-text)]">
+                            <Calendar className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
                             <span className="truncate">{lastAuditText}</span>
                         </div>
                     </div>
@@ -165,7 +193,7 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                     <div className="flex flex-wrap gap-2 min-h-[1.5rem]">
                         {project.competitors && project.competitors.length > 0 ? (
                             project.competitors.slice(0, 3).map((comp: string) => (
-                                <Badge key={comp} variant="outline" className="text-[10px] font-normal px-1.5 h-5 bg-[var(--st-bg-secondary)]/50">
+                                <Badge key={comp} variant="outline" className="text-[10px] font-normal">
                                     {comp}
                                 </Badge>
                             ))
@@ -178,10 +206,12 @@ export const SeoProjectCard = React.memo(function SeoProjectCard({ project, onTo
                 <div className="pt-2">
                     <Link href={`/dashboard/seo/${project._id}`} className="block">
                         <Button
-                            className="w-full bg-gradient-to-r from-[var(--st-text)] to-[var(--st-text)] hover:from-[var(--st-text)] hover:to-[var(--st-text)] text-white shadow-md shadow-[var(--st-border)]/10 border-0"
+                            variant="gradient"
                             size="sm"
+                            block
+                            iconRight={ArrowRight}
                         >
-                            View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                            View Dashboard
                         </Button>
                     </Link>
                 </div>

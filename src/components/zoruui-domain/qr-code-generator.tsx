@@ -60,7 +60,6 @@ import { createQrCode } from '@/app/actions/qr-code.actions';
 import { QrCodeRenderer } from './qr-code-renderer';
 import type { User as UserType, Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox';
-import { cn } from '@/lib/utils';
 import {
   buildCalendarEvent,
   buildVCard,

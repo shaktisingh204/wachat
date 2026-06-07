@@ -43,7 +43,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
         setApiKey(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
     }, []);
 
-    const { 
+    const {
         address = 'Eiffel Tower, Paris, France',
         mapType = 'roadmap',
         zoom = 14,
@@ -69,13 +69,17 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
     } = settings;
 
     if (apiKey === undefined) {
-        return <Skeleton style={{ height }} />;
+        return <Skeleton height={height} />;
     }
 
     if (!apiKey) {
         return (
-            <Alert variant="destructive" style={{ height: 'auto', minHeight: '200px' }} className="flex flex-col items-center justify-center text-center">
-                <MapPin className="h-6 w-6" />
+            <Alert
+                variant="destructive"
+                icon={null}
+                className="flex min-h-[200px] flex-col items-center justify-center text-center"
+            >
+                <MapPin className="h-6 w-6" aria-hidden="true" />
                 <AlertTitle>Google Maps API Key Missing</AlertTitle>
                 <AlertDescription>
                     Please configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` in your environment variables.
@@ -83,7 +87,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
             </Alert>
         );
     }
-    
+
     const query = encodeURIComponent(address);
     const langParam = language ? `&language=${language}` : '';
     const src = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${query}&maptype=${mapType}&zoom=${zoom}${langParam}`;
@@ -114,25 +118,25 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
         '--map-tablet-height': tabletHeight,
         '--map-mobile-height': mobileHeight,
     } as React.CSSProperties;
-    
+
     const animationClass = {
         fadeIn: 'animate-in fade-in',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5',
     }[animation || 'none'];
-    
+
     const animationDurationClass = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' }[animationDuration || 'normal'];
-    
+
     const responsiveClasses = cn({
         'max-lg:hidden': responsiveVisibility?.desktop === false,
         'hidden md:max-lg:block': responsiveVisibility?.tablet !== false,
         'max-sm:hidden': responsiveVisibility?.mobile === false,
     });
-    
+
     const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => {
         if(attr.key) acc[attr.key] = attr.value;
         return acc;
     }, {});
-    
+
     const customStyleTag = (
         <style>{`
             #map-wrapper-${uniqueId} { height: var(--map-height); }
@@ -143,7 +147,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
     );
 
     return (
-        <div 
+        <div
             id={`map-wrapper-${uniqueId}`}
             style={wrapperStyle}
             className={cn('overflow-hidden', animationClass, animationDurationClass, responsiveClasses, cssClasses)}
@@ -154,7 +158,7 @@ export const MapBlockRenderer: React.FC<MapBlockRendererProps> = ({ settings }) 
                 title={`Map of ${address}`}
                 width="100%"
                 height="100%"
-                style={{ border: 0 }}
+                className="border-0"
                 loading="lazy"
                 allowFullScreen
                 src={src}>

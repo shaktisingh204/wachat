@@ -1,14 +1,33 @@
 'use client';
 
-import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
 import {
-  useForm,
-  Controller } from 'react-hook-form';
+  Button,
+  Input,
+  Textarea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Checkbox,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Alert,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useCart } from '@/context/cart-context';
 import { useState, useMemo, useTransition } from 'react';
-import { LoaderCircle, CheckCircle, AlertCircle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
@@ -77,7 +96,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         startTransition(async () => {
             setSubmissionStatus('submitting');
             setErrorMessage('');
-            
+
             try {
                 if (settings.webhookUrl) {
                     const response = await fetch(settings.webhookUrl, {
@@ -87,7 +106,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                     });
                     if (!response.ok) throw new Error(`Submission failed with status: ${response.status}`);
                 }
-                setSuccessMessage(settings.successMessage || 'Thank you! Your submission has been received.');
+                setSuccessMessage(settings.successMessage || 'Thank you. Your submission has been received.');
                 if (settings.redirectUrl) window.location.href = settings.redirectUrl;
             } catch (error: any) {
                 setSubmissionStatus('error');
@@ -95,9 +114,19 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
             }
         });
     }
-    
+
     if (successMessage) {
-        return <div className="p-8 text-center border-2 border-dashed rounded-lg text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{successMessage}</h3></div>;
+        return (
+            <Card className="mx-auto">
+                <CardBody>
+                    <EmptyState
+                        icon={CheckCircle}
+                        tone="success"
+                        title={successMessage}
+                    />
+                </CardBody>
+            </Card>
+        );
     }
 
     const descriptionStyle: React.CSSProperties = {
@@ -106,7 +135,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
     };
 
     const uniqueId = React.useId().replace(/:/g, "");
-    
+
     const dynamicStyles = `
       #form-${uniqueId} .form-field {
         color: ${settings.fieldColor};
@@ -119,8 +148,8 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         border-style: ${settings.fieldBorderType || 'solid'};
       }
       #form-${uniqueId} .form-field:focus {
-        border-color: ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
-        box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'hsl(var(--primary))'} !important;
+        border-color: ${settings.fieldFocusBorderColor || 'var(--st-accent)'} !important;
+        box-shadow: 0 0 0 1px ${settings.fieldFocusBorderColor || 'var(--st-accent)'} !important;
       }
       #form-${uniqueId} .submit-button {
         color: ${settings.buttonColor};
@@ -155,7 +184,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
 
                         if (field.type === 'html') return <div key={field.id} className={widthClasses[field.columnWidth || '100%']} dangerouslySetInnerHTML={{ __html: field.htmlContent || '' }} />;
                         if (field.type === 'hidden') return <Controller key={field.id} name={field.fieldId || field.id} control={control} render={({ field: controllerField }) => <input type="hidden" {...controllerField} />} />;
-                        
+
                         const fieldName = field.fieldId || field.id;
 
                         return (
@@ -172,28 +201,38 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                                             switch(field.type) {
                                                 case 'textarea': return <Textarea {...commonProps} />;
                                                 case 'select': return <Select onValueChange={controllerField.onChange} defaultValue={controllerField.value}><SelectTrigger className={cn('form-field', sizeClasses)}><SelectValue placeholder={field.placeholder || "Select..."} /></SelectTrigger><SelectContent>{fieldOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}</SelectContent></Select>;
-                                                case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.label}</Label></div>;
-                                                case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onCheckedChange={controllerField.onChange} /><Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label></div>;
-                                                case 'radio': return <RadioGroup onValueChange={controllerField.onChange} defaultValue={controllerField.value} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><RadioGroupItem value={opt} id={`${fieldName}-${opt}`} /><Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label></div>)}</RadioGroup>
-                                                case 'file': return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
+                                                case 'checkbox': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onChange={(e) => controllerField.onChange(e.target.checked)} label={field.label} /></div>;
+                                                case 'acceptance': return <div className="flex items-center gap-2 pt-2"><Checkbox id={fieldName} checked={controllerField.value} onChange={(e) => controllerField.onChange(e.target.checked)} label={field.defaultValue || 'I agree to the terms.'} /></div>;
+                                                case 'radio': return <RadioGroup value={controllerField.value} onValueChange={controllerField.onChange} orientation="vertical" className="pt-2">{fieldOptions.map(opt => <RadioGroupItem key={opt} value={opt} id={`${fieldName}-${opt}`} label={opt} />)}</RadioGroup>;
+                                                case 'file': return <SabFileUrlInput value={controllerField.value || ''} onChange={(url) => controllerField.onChange(url)} placeholder={field.placeholder || 'Choose a file'} name={fieldName} className={cn('form-field', sizeClasses)} />;
                                                 default: return <Input {...commonProps} type={field.type} />;
                                             }
                                         }}
                                     />
                                     {field.description && <p className="text-xs pt-1" style={descriptionStyle}>{field.description}</p>}
-                                    {errors[fieldName] && <p className="text-sm font-medium text-[var(--st-text)]">{errors[fieldName]?.message as string}</p>}
+                                    {errors[fieldName] && <p className="text-sm font-medium text-[var(--st-danger)]">{errors[fieldName]?.message as string}</p>}
                                 </div>
                             </div>
                         )
                     })}
-                     {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
+                     {submissionStatus === 'error' && (
+                        <div className="col-span-12">
+                            <Alert tone="danger">{errorMessage}</Alert>
+                        </div>
+                     )}
                 </CardBody>
                 <CardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
-                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                        {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
+                    <Button
+                        id={settings.buttonId}
+                        type="submit"
+                        size={settings.buttonSize}
+                        variant="primary"
+                        className="submit-button"
+                        loading={isPending}
+                        iconLeft={SubmitIcon && settings.buttonIconPosition === 'left' ? SubmitIcon : undefined}
+                        iconRight={SubmitIcon && settings.buttonIconPosition === 'right' ? SubmitIcon : undefined}
+                    >
                         {settings.submitButtonText || 'Submit'}
-                        {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                     </Button>
                 </CardFooter>
             </form>
