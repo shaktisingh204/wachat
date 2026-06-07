@@ -3,6 +3,7 @@
 import React, { PropsWithChildren, useCallback, useEffect, useState } from 'react'
 import { EmblaCarouselType } from 'embla-carousel'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { IconButton } from '@/components/sabcrm/20ui'
 
 type UsePrevNextButtonsType = {
   prevBtnDisabled: boolean
@@ -56,31 +57,27 @@ type PropType = PropsWithChildren<
 >
 
 export const PrevButton: React.FC<PropType> = (props) => {
-  const { children, ...restProps } = props
+  const { children, className, ...restProps } = props
 
   return (
-    <button
-      className="embla__button embla__button--prev"
-      type="button"
+    <IconButton
+      label="Previous slide"
+      icon={ChevronLeft}
+      className={['embla__button', 'embla__button--prev', className].filter(Boolean).join(' ')}
       {...restProps}
-    >
-        <ChevronLeft className="embla__button__svg" />
-      {children}
-    </button>
+    />
   )
 }
 
 export const NextButton: React.FC<PropType> = (props) => {
-  const { children, ...restProps } = props
+  const { children, className, ...restProps } = props
 
   return (
-    <button
-      className="embla__button embla__button--next"
-      type="button"
+    <IconButton
+      label="Next slide"
+      icon={ChevronRight}
+      className={['embla__button', 'embla__button--next', className].filter(Boolean).join(' ')}
       {...restProps}
-    >
-      <ChevronRight className="embla__button__svg" />
-      {children}
-    </button>
+    />
   )
 }

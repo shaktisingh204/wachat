@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * SabSMS contacts — client interactive surface.
+ * SabSMS contacts - client interactive surface.
  *
  * Renders the data table, bulk actions, row actions, audit drawer,
  * import dialog, opt-in dialog, and inline tag/phone editors. All
  * mutations dispatch to the server actions in `./actions.ts`. The
  * server passes the workspace id + initial rows + URL filters; this
- * component never reads its own filters from the URL — filter state
+ * component never reads its own filters from the URL - filter state
  * lives in the URL via `SabsmsFilterBar`, and parent navigation
  * triggers a fresh fetch on every change.
  */
@@ -22,13 +22,34 @@ import {
   PhoneCall,
   Pencil,
   ShieldOff,
-  Tag,
+  Tag as TagIcon,
   Trash2,
   Users,
 } from "lucide-react";
 
 import { SabFilePicker } from "@/components/sabfiles";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  IconButton,
+  Input,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -103,14 +124,14 @@ function formatConsent(c: ContactRow["consent"]) {
 }
 
 function formatHour(h?: number): string {
-  if (h === undefined) return "—";
+  if (h === undefined) return "-";
   const ap = h < 12 ? "am" : "pm";
   const hr = h % 12 === 0 ? 12 : h % 12;
   return `${hr} ${ap}`;
 }
 
 function formatRelative(iso?: string): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const t = new Date(iso).getTime();
   const diff = Date.now() - t;
   if (diff < 60_000) return "just now";
@@ -127,13 +148,10 @@ export function ContactsTable({
   workspaceName,
   countryOptions,
 }: ContactsTableProps) {
+  const { toast } = useToast();
   const [rows, setRows] = React.useState(initialRows);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [busy, setBusy] = React.useState<string | null>(null);
-  const [feedback, setFeedback] = React.useState<{
-    kind: "ok" | "err";
-    msg: string;
-  } | null>(null);
 
   // Sync when server-rendered rows change (filter / page navigation).
   React.useEffect(() => {
@@ -169,11 +187,10 @@ export function ContactsTable({
     okMsg: string,
   ) {
     if (res.ok) {
-      setFeedback({ kind: "ok", msg: okMsg });
+      toast.success(okMsg);
     } else {
-      setFeedback({ kind: "err", msg: res.error ?? "Action failed" });
+      toast.error(res.error ?? "Action failed");
     }
-    setTimeout(() => setFeedback(null), 4000);
   }
 
   async function withBusy<T>(label: string, fn: () => Promise<T>): Promise<T> {
@@ -338,7 +355,7 @@ export function ContactsTable({
           feedbackResult(
             { ok: true },
             `Imported ${res.inserted} (skipped ${res.skipped})${
-              res.errors.length > 0 ? ` · ${res.errors.length} errors` : ""
+              res.errors.length > 0 ? `, ${res.errors.length} errors` : ""
             }`,
           );
         } else {
@@ -418,7 +435,7 @@ export function ContactsTable({
       id: "tags",
       header: "Tags",
       render: (r) => (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           {r.tags.slice(0, 3).map((t) => (
             <Badge key={t} variant="secondary" className="text-[10px]">
               {t}
@@ -429,14 +446,12 @@ export function ContactsTable({
               +{r.tags.length - 3}
             </span>
           )}
-          <button
-            type="button"
-            className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+          <IconButton
+            label="Edit tags"
+            icon={Pencil}
+            size="sm"
             onClick={() => openTagEditor(r)}
-            aria-label="Edit tags"
-          >
-            <Pencil className="h-3 w-3" />
-          </button>
+          />
         </div>
       ),
     },
@@ -484,7 +499,7 @@ export function ContactsTable({
   return (
     <div className="space-y-4">
       <SabsmsFilterBar
-        searchPlaceholder="Search phone, name, email, tags…"
+        searchPlaceholder="Search phone, name, email, tags..."
         facets={[
           { ...SOURCE_FACET, options: [...SOURCE_FACET.options] },
           {
@@ -534,19 +549,6 @@ export function ContactsTable({
         }
       />
 
-      {feedback && (
-        <div
-          className={
-            feedback.kind === "ok"
-              ? "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
-              : "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
-          }
-          role="status"
-        >
-          {feedback.msg}
-        </div>
-      )}
-
       <SabsmsDataTable
         rows={rows}
         total={total}
@@ -565,7 +567,7 @@ export function ContactsTable({
           },
           {
             label: "Add to segment",
-            icon: <Tag className="h-3.5 w-3.5" />,
+            icon: <TagIcon className="h-3.5 w-3.5" />,
             onSelect: bulkSegment,
           },
           {
@@ -609,7 +611,7 @@ export function ContactsTable({
           },
           {
             label: "Edit tags",
-            icon: <Tag className="h-4 w-4" />,
+            icon: <TagIcon className="h-4 w-4" />,
             onSelect: openTagEditor,
           },
           {
@@ -644,13 +646,15 @@ export function ContactsTable({
               Comma-separated. Maximum 63 characters per tag.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            value={tagEditor.draft}
-            onChange={(e) =>
-              setTagEditor((prev) => ({ ...prev, draft: e.target.value }))
-            }
-            placeholder="vip, india-tier-1"
-          />
+          <Field label="Tags">
+            <Input
+              value={tagEditor.draft}
+              onChange={(e) =>
+                setTagEditor((prev) => ({ ...prev, draft: e.target.value }))
+              }
+              placeholder="vip, india-tier-1"
+            />
+          </Field>
           <DialogFooter>
             <Button
               variant="outline"
@@ -660,7 +664,9 @@ export function ContactsTable({
             >
               Cancel
             </Button>
-            <Button onClick={commitTagEditor}>Save</Button>
+            <Button variant="primary" onClick={commitTagEditor}>
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -676,18 +682,18 @@ export function ContactsTable({
           <DialogHeader>
             <DialogTitle>Edit phone format</DialogTitle>
             <DialogDescription>
-              Phones must be E.164 (start with `+`, country code, then number).
+              Phones must be E.164 (start with +, country code, then number).
             </DialogDescription>
           </DialogHeader>
-          <Label htmlFor="phone-input">Phone</Label>
-          <Input
-            id="phone-input"
-            value={phoneEditor.draft}
-            onChange={(e) =>
-              setPhoneEditor((prev) => ({ ...prev, draft: e.target.value }))
-            }
-            placeholder="+14155551212"
-          />
+          <Field label="Phone">
+            <Input
+              value={phoneEditor.draft}
+              onChange={(e) =>
+                setPhoneEditor((prev) => ({ ...prev, draft: e.target.value }))
+              }
+              placeholder="+14155551212"
+            />
+          </Field>
           <DialogFooter>
             <Button
               variant="outline"
@@ -695,7 +701,9 @@ export function ContactsTable({
             >
               Cancel
             </Button>
-            <Button onClick={commitPhoneEditor}>Save</Button>
+            <Button variant="primary" onClick={commitPhoneEditor}>
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -706,11 +714,11 @@ export function ContactsTable({
         onOpenChange={(o) =>
           setAuditDrawer((prev) => ({ ...prev, open: o }))
         }
-        title={`Audit — ${auditDrawer.contact?.phone ?? ""}`}
+        title={`Audit - ${auditDrawer.contact?.phone ?? ""}`}
         description="Consent + opt-in/out events recorded for this contact."
       >
         {auditDrawer.loading ? (
-          <div className="text-sm text-[var(--st-text)]">Loading…</div>
+          <div className="text-sm text-[var(--st-text)]">Loading...</div>
         ) : auditDrawer.entries.length === 0 ? (
           <div className="text-sm text-[var(--st-text)]">
             No audit entries yet.
@@ -720,7 +728,7 @@ export function ContactsTable({
             {auditDrawer.entries.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-[var(--st-border)] bg-white p-3"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
               >
                 <div className="flex justify-between text-xs text-[var(--st-text)]">
                   <span>{e.actor ?? "system"}</span>
@@ -736,7 +744,7 @@ export function ContactsTable({
         )}
       </SabsmsDetailDrawer>
 
-      {/* CSV import — SabFiles picker only, no raw URL paste */}
+      {/* CSV import - SabFiles picker only, no raw URL paste */}
       <SabFilePicker
         open={importOpen}
         onOpenChange={setImportOpen}

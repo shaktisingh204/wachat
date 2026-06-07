@@ -1,23 +1,47 @@
 'use client';
 
-import { Button, Badge, Alert, AlertDescription, AlertTitle, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger, Skeleton, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+    Button,
+    Badge,
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    Skeleton,
+    Input,
+    Field,
+    SegmentedControl,
+    EmptyState,
+    Sheet,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+    type SegmentedItem,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import {
     Plus,
-  Filter,
-  Columns3,
-  SlidersHorizontal,
-  Download,
-  RefreshCw,
-  AlertCircle,
-  Megaphone,
-  Layers,
-  Image as ImageIcon,
-  } from 'lucide-react';
+    Filter,
+    Columns3,
+    SlidersHorizontal,
+    Download,
+    RefreshCw,
+    AlertCircle,
+    Megaphone,
+    Layers,
+    Image as ImageIcon,
+} from 'lucide-react';
 
 import * as React from 'react';
-import Link from 'next/link';
 
 import { useToast } from '@/hooks/use-toast';
 import { useAdManager } from '@/context/ad-manager-context';
@@ -131,35 +155,27 @@ function LevelTabs({
     setLevel: (l: Level) => void;
     counts: Record<Level, number | null>;
 }) {
+    const items: SegmentedItem<Level>[] = (Object.keys(LEVEL_META) as Level[]).map((l) => {
+        const meta = LEVEL_META[l];
+        const count = counts[l];
+        return {
+            value: l,
+            icon: meta.icon as React.ComponentType<{ className?: string }> as SegmentedItem<Level>['icon'],
+            label: (
+                <span className="inline-flex items-center gap-2">
+                    {meta.label}
+                    {count != null && <Badge tone="neutral">{count}</Badge>}
+                </span>
+            ),
+        };
+    });
     return (
-        <div className="flex items-center gap-1 border rounded-lg p-1 bg-[var(--st-bg-secondary)]">
-            {(Object.keys(LEVEL_META) as Level[]).map((l) => {
-                const meta = LEVEL_META[l];
-                const Icon = meta.icon;
-                const active = l === level;
-                return (
-                    <button
-                        key={l}
-                        type="button"
-                        onClick={() => setLevel(l)}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                            active ? 'bg-[var(--st-text)] text-white' : 'text-[var(--st-text)]/70 hover:bg-[var(--st-bg-muted)]'
-                        }`}
-                    >
-                        <Icon className="h-4 w-4" />
-                        {meta.label}
-                        {counts[l] != null && (
-                            <Badge
-                                variant={active ? 'secondary' : 'outline'}
-                                className={active ? 'bg-white/20 text-white border-0' : ''}
-                            >
-                                {counts[l]}
-                            </Badge>
-                        )}
-                    </button>
-                );
-            })}
-        </div>
+        <SegmentedControl
+            items={items}
+            value={level}
+            onChange={setLevel}
+            aria-label="Ad entity level"
+        />
     );
 }
 
@@ -338,16 +354,21 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
 
     if (!activeAccount) {
         return (
-            <div className="py-12 flex flex-col items-center justify-center gap-4 text-center">
-                <Megaphone className="h-16 w-16 text-[var(--st-text-secondary)]" />
-                <Alert className="max-w-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No ad account selected</AlertTitle>
-                    <AlertDescription>Pick an ad account to start managing campaigns.</AlertDescription>
-                </Alert>
-                <Button asChild>
-                    <Link href="/dashboard/ad-manager/ad-accounts">Go to Ad accounts</Link>
-                </Button>
+            <div className="py-12">
+                <EmptyState
+                    icon={Megaphone}
+                    title="No ad account selected"
+                    description="Pick an ad account to start managing campaigns."
+                    action={
+                        <Button
+                            variant="primary"
+                            iconLeft={Megaphone}
+                            onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
+                        >
+                            Go to Ad accounts
+                        </Button>
+                    }
+                />
             </div>
         );
     }
@@ -355,31 +376,30 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
     return (
         <div className="flex flex-col gap-3">
             {/* Toolbar */}
-            <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
+            <div className="flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 shadow-sm">
                 <LevelTabs level={level} setLevel={setLevel} counts={counts} />
                 <div className="flex-1" />
                 <Button
+                    variant="primary"
                     size="sm"
-                    className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white"
+                    iconLeft={Plus}
                     onClick={() => router.push('/dashboard/ad-manager/create')}
                 >
-                    <Plus className="h-4 w-4 mr-1" /> Create
+                    Create
                 </Button>
                 {selectedIds.size > 0 && (
                     <>
-                        <div className="h-6 w-px bg-border mx-1" />
+                        <div className="h-6 w-px bg-[var(--st-border)] mx-1" />
                         <span className="text-xs text-[var(--st-text-secondary)]">{selectedIds.size} selected</span>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('ACTIVE')}>Activate</Button>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('PAUSED')}>Pause</Button>
                         <Button variant="outline" size="sm" onClick={() => handleBulk('DELETED')}>Delete</Button>
                     </>
                 )}
-                <div className="h-6 w-px bg-border mx-1" />
+                <div className="h-6 w-px bg-[var(--st-border)] mx-1" />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            <Filter className="h-4 w-4 mr-1" /> Filters
-                        </Button>
+                        <Button variant="outline" size="sm" iconLeft={Filter}>Filters</Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <DropdownMenuLabel>Effective status</DropdownMenuLabel>
@@ -401,9 +421,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                 </DropdownMenu>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            <Columns3 className="h-4 w-4 mr-1" /> Columns: {columnPreset}
-                        </Button>
+                        <Button variant="outline" size="sm" iconLeft={Columns3}>Columns: {columnPreset}</Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                         <DropdownMenuLabel>Column presets</DropdownMenuLabel>
@@ -417,8 +435,7 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                 </DropdownMenu>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                            <SlidersHorizontal className="h-4 w-4 mr-1" />
+                        <Button variant="outline" size="sm" iconLeft={SlidersHorizontal}>
                             Breakdown{breakdown !== 'none' && `: ${BREAKDOWNS.find((b) => b.id === breakdown)?.label}`}
                         </Button>
                     </DropdownMenuTrigger>
@@ -432,28 +449,32 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="outline" size="sm" onClick={handleExport}>
-                    <Download className="h-4 w-4 mr-1" /> Export
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={refresh} disabled={refreshing}>
-                    <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <Button variant="outline" size="sm" iconLeft={Download} onClick={handleExport}>Export</Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label="Refresh data"
+                    title="Refresh data"
+                    onClick={refresh}
+                    disabled={refreshing}
+                >
+                    <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} aria-hidden="true" />
                 </Button>
             </div>
 
             {/* Content */}
             <div>
                 {error && (
-                    <Alert variant="destructive" className="mb-4">
-                        <AlertCircle className="h-4 w-4" />
+                    <Alert tone="danger" icon={AlertCircle} className="mb-4">
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 )}
                 {loading ? (
                     <div className="space-y-2">
-                        <Skeleton className="h-10 w-full" />
+                        <Skeleton height={40} width="100%" />
                         {Array.from({ length: 8 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 w-full" />
+                            <Skeleton key={i} height={56} width="100%" />
                         ))}
                     </div>
                 ) : (
@@ -481,33 +502,31 @@ export function CampaignsHub({ initialLevel = 'campaign' }: { initialLevel?: Lev
                         </SheetDescription>
                     </SheetHeader>
                     <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                            <Label>Name</Label>
+                        <Field label="Name">
                             <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
-                        </div>
+                        </Field>
                         {level !== 'ad' && (
-                            <div className="space-y-2">
-                                <Label>Daily budget</Label>
+                            <Field
+                                label="Daily budget"
+                                help="In account currency (whole units, not cents)."
+                            >
                                 <Input
                                     type="number"
                                     value={editingBudget}
                                     onChange={(e) => setEditingBudget(e.target.value)}
                                     placeholder="e.g. 500"
                                 />
-                                <p className="text-xs text-[var(--st-text-secondary)]">
-                                    In account currency (whole units, not cents).
-                                </p>
-                            </div>
+                            </Field>
                         )}
                     </div>
                     <SheetFooter>
                         <Button variant="outline" onClick={() => setEditingId(null)}>Cancel</Button>
                         <Button
-                            className="bg-[var(--st-text)] hover:bg-[var(--st-text)]/90"
+                            variant="primary"
                             onClick={saveEdit}
-                            disabled={savingEdit}
+                            loading={savingEdit}
                         >
-                            {savingEdit ? 'Saving…' : 'Save changes'}
+                            {savingEdit ? 'Saving...' : 'Save changes'}
                         </Button>
                     </SheetFooter>
                 </SheetContent>

@@ -1,8 +1,28 @@
 'use client';
 
 import { useState } from 'react';
-import { LuClock, LuCalendarClock, LuChevronDown } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Clock, CalendarClock } from 'lucide-react';
+
+import {
+  cn,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SegmentedControl,
+  Button,
+  Badge,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -17,7 +37,7 @@ export interface ScheduleTriggerConfig {
     value: number;
     unit: IntervalUnit;
   };
-  /** Raw cron expression — only used when mode === 'cron' */
+  /** Raw cron expression, only used when mode === 'cron' */
   cronExpression: string;
   /** IANA timezone string, e.g. "Asia/Kolkata" */
   timezone: string;
@@ -70,6 +90,11 @@ const CRON_PRESETS: { label: string; value: string }[] = [
   { label: 'Monthly (1st)',     value: '0 0 1 * *' },
 ];
 
+const MODE_ITEMS = [
+  { value: 'interval' as ScheduleMode, label: 'Simple Interval' },
+  { value: 'cron' as ScheduleMode, label: 'Cron Expression' },
+];
+
 /* ── Component ───────────────────────────────────────────── */
 
 export function ScheduleTrigger({ config, onChange, className }: ScheduleTriggerProps) {
@@ -80,146 +105,144 @@ export function ScheduleTrigger({ config, onChange, className }: ScheduleTrigger
   return (
     <div className={cn('space-y-4', className)}>
       {/* Node header */}
-      <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]">
-          <LuCalendarClock className="h-4 w-4" strokeWidth={2} />
-        </div>
-        <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Schedule Trigger</p>
-          <p className="text-[11px] text-[var(--gray-9)]">{humanDescription}</p>
-        </div>
-      </div>
+      <Card variant="outlined" padding="md">
+        <CardHeader className="flex items-center gap-2">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+            aria-hidden="true"
+          >
+            <CalendarClock size={16} strokeWidth={2} />
+          </span>
+          <div className="min-w-0">
+            <CardTitle className="text-[12.5px]">Schedule Trigger</CardTitle>
+            <CardDescription className="text-[11px]">{humanDescription}</CardDescription>
+          </div>
+        </CardHeader>
+      </Card>
 
       {/* Mode toggle */}
-      <div className="space-y-1.5">
-        <Label>Trigger Mode</Label>
-        <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-          {(['interval', 'cron'] as ScheduleMode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onChange({ ...config, mode: m })}
-              className={cn(
-                'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-                config.mode === m
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {m === 'interval' ? 'Simple Interval' : 'Cron Expression'}
-            </button>
-          ))}
-        </div>
-      </div>
+      <Field label="Trigger Mode">
+        <SegmentedControl
+          aria-label="Trigger mode"
+          fullWidth
+          items={MODE_ITEMS}
+          value={config.mode}
+          onChange={(mode) => onChange({ ...config, mode })}
+        />
+      </Field>
 
       {/* Interval mode */}
       {config.mode === 'interval' && (
-        <div className="space-y-3">
-          <Label>Repeat every</Label>
+        <Field label="Repeat every">
           <div className="flex gap-2">
-            <input
+            <Input
               type="number"
               min={1}
-              className={cn(INPUT_CLS, 'w-24 shrink-0')}
+              className="w-24 shrink-0"
+              aria-label="Interval value"
               value={config.interval.value}
               onChange={(e) =>
-                onChange({ ...config, interval: { ...config.interval, value: Math.max(1, Number(e.target.value)) } })
+                onChange({
+                  ...config,
+                  interval: { ...config.interval, value: Math.max(1, Number(e.target.value)) },
+                })
               }
             />
-            <select
-              className={cn(INPUT_CLS, 'flex-1')}
+            <Select
               value={config.interval.unit}
-              onChange={(e) =>
-                onChange({ ...config, interval: { ...config.interval, unit: e.target.value as IntervalUnit } })
+              onValueChange={(unit) =>
+                onChange({ ...config, interval: { ...config.interval, unit: unit as IntervalUnit } })
               }
             >
-              {INTERVAL_UNITS.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
+              <SelectTrigger aria-label="Interval unit" className="flex-1">
+                <SelectValue placeholder="Unit" />
+              </SelectTrigger>
+              <SelectContent>
+                {INTERVAL_UNITS.map((u) => (
+                  <SelectItem key={u} value={u} className="capitalize">
+                    {u}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </div>
+        </Field>
       )}
 
       {/* Cron mode */}
       {config.mode === 'cron' && (
         <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label>Cron Expression</Label>
-            <input
+          <Field
+            label="Cron Expression"
+            help="Format: minute hour day-of-month month day-of-week"
+          >
+            <Input
               type="text"
-              className={cn(INPUT_CLS, 'font-mono')}
+              className="font-mono"
               value={config.cronExpression}
               onChange={(e) => onChange({ ...config, cronExpression: e.target.value })}
               placeholder="* * * * *"
             />
-            <p className="text-[11px] text-[var(--gray-9)]">
-              Format: minute hour day-of-month month day-of-week
-            </p>
-          </div>
+          </Field>
 
           {/* Quick presets */}
-          <div className="space-y-1.5">
-            <button
-              type="button"
-              onClick={() => setPresetsOpen((v) => !v)}
-              className="flex items-center gap-1.5 text-[11.5px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-            >
-              Quick presets
-              <LuChevronDown
-                className={cn('h-3.5 w-3.5 transition-transform', presetsOpen ? 'rotate-180' : '')}
-                strokeWidth={2}
-              />
-            </button>
-
-            {presetsOpen && (
-              <div className="grid grid-cols-1 gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-1.5">
-                {CRON_PRESETS.map((p) => (
-                  <button
-                    key={p.value}
-                    type="button"
-                    onClick={() => {
-                      onChange({ ...config, cronExpression: p.value });
-                      setPresetsOpen(false);
-                    }}
-                    className={cn(
-                      'flex items-center justify-between rounded-md px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-[var(--gray-3)]',
-                      config.cronExpression === p.value
-                        ? 'bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                        : 'text-[var(--gray-11)]',
-                    )}
-                  >
-                    <span>{p.label}</span>
-                    <code className="text-[11px] font-mono text-[var(--gray-9)]">{p.value}</code>
-                  </button>
-                ))}
+          <Collapsible open={presetsOpen} onOpenChange={setPresetsOpen}>
+            <CollapsibleTrigger>Quick presets</CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="grid grid-cols-1 gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1.5">
+                {CRON_PRESETS.map((p) => {
+                  const selected = config.cronExpression === p.value;
+                  return (
+                    <Button
+                      key={p.value}
+                      variant={selected ? 'outline' : 'ghost'}
+                      size="sm"
+                      block
+                      className="justify-between"
+                      onClick={() => {
+                        onChange({ ...config, cronExpression: p.value });
+                        setPresetsOpen(false);
+                      }}
+                    >
+                      <span>{p.label}</span>
+                      <code className="font-mono text-[11px] text-[var(--st-text-secondary)]">
+                        {p.value}
+                      </code>
+                    </Button>
+                  );
+                })}
               </div>
-            )}
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       )}
 
       {/* Timezone */}
-      <div className="space-y-1.5">
-        <Label>Timezone</Label>
-        <select
-          className={INPUT_CLS}
+      <Field label="Timezone">
+        <Select
           value={config.timezone}
-          onChange={(e) => onChange({ ...config, timezone: e.target.value })}
+          onValueChange={(timezone) => onChange({ ...config, timezone })}
         >
-          {TIMEZONES.map((tz) => (
-            <option key={tz} value={tz}>{tz}</option>
-          ))}
-          {!TIMEZONES.includes(config.timezone) && (
-            <option value={config.timezone}>{config.timezone}</option>
-          )}
-        </select>
-      </div>
+          <SelectTrigger aria-label="Timezone">
+            <SelectValue placeholder="Select a timezone" />
+          </SelectTrigger>
+          <SelectContent>
+            {TIMEZONES.map((tz) => (
+              <SelectItem key={tz} value={tz}>
+                {tz}
+              </SelectItem>
+            ))}
+            {!TIMEZONES.includes(config.timezone) && (
+              <SelectItem value={config.timezone}>{config.timezone}</SelectItem>
+            )}
+          </SelectContent>
+        </Select>
+      </Field>
 
       {/* Current summary */}
-      <div className="flex items-center gap-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
-        <LuClock className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" strokeWidth={2} />
-        <p className="text-[12px] text-[var(--gray-11)]">{humanDescription}</p>
+      <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
+        <Clock size={16} strokeWidth={2} className="shrink-0 text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <p className="text-[12px] text-[var(--st-text)]">{humanDescription}</p>
       </div>
 
       {/* Output schema */}
@@ -248,32 +271,26 @@ function buildHumanDescription(config: ScheduleTriggerConfig): string {
 
 /* ── Shared primitives ───────────────────────────────────── */
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
-
 type OutputField = { key: string; type: string; description: string };
 
 function OutputSchema({ fields }: { fields: OutputField[] }) {
   return (
-    <div className="space-y-1.5">
-      <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+    <Field label="Output">
+      <div className="divide-y divide-[var(--st-border-light)] rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-[var(--st-text-secondary)]">{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
+            <code className="min-w-[80px] font-mono text-[11.5px] font-medium text-[var(--st-text-secondary)]">
+              {f.key}
+            </code>
+            <Badge tone="neutral" kind="soft" className="font-mono text-[10px]">
+              {f.type}
+            </Badge>
+            <span className="flex-1 truncate text-[11px] text-[var(--st-text-secondary)]">
+              {f.description}
+            </span>
           </div>
         ))}
       </div>
-    </div>
+    </Field>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

@@ -1,5 +1,5 @@
 /**
- * /portal/support layout — customer self-service helpdesk shell.
+ * /portal/support layout - customer self-service helpdesk shell.
  *
  * Authentication boundary: portal session required (not staff session).
  * If no session, redirect to `/login?return=/portal/support`. Anyone with
@@ -12,7 +12,6 @@
 export const dynamic = 'force-dynamic';
 
 import 'server-only';
-import '@/components/sabcrm/20ui/zoru-legacy.css';
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
@@ -31,12 +30,12 @@ export default async function SupportPortalLayout({
   }
 
   return (
-    <div className="zoruui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <header className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link
             href="/portal/support"
-            className="text-[15px] font-semibold tracking-tight"
+            className="text-[15px] font-semibold tracking-tight text-[var(--st-text)]"
           >
             Help &amp; Support
           </Link>

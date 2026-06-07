@@ -1,28 +1,44 @@
 'use client';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  Check,
-  File as FileIcon,
-  FileImage,
-  FileText,
-  FileVideo,
-  FileAudio,
-  Loader2,
-  RefreshCw,
-  Search,
-  Upload,
-  X,
-  } from 'lucide-react';
+    Badge,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    Field,
+    Input,
+    Progress,
+    SegmentedControl,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertCircle,
+    Check,
+    File as FileIcon,
+    FileImage,
+    FileText,
+    FileVideo,
+    FileAudio,
+    Loader2,
+    RefreshCw,
+    Search,
+    Upload,
+    X,
+    } from 'lucide-react';
 
 /**
- * SabFilePicker — the project-wide single source for picking a file.
+ * SabFilePicker - the project-wide single source for picking a file.
  * Replaces every ad-hoc `<input type="file">` and every "media URL"
  * text field across the app.
  *
  * **No external URLs.** SabNode policy is that every file lives in
- * SabFiles. The picker has exactly two modes — Library (existing
+ * SabFiles. The picker has exactly two modes - Library (existing
  * SabFiles) and Upload (new). External URL paste is intentionally
  * absent; users cannot point at random hosts.
  *
@@ -49,7 +65,7 @@ import type {
 export type SabFileAccept = SabfilesCategory | 'all';
 
 export interface SabFilePick {
-    /** SabFiles node id (always present — every file lives in SabFiles). */
+    /** SabFiles node id (always present - every file lives in SabFiles). */
     id: string;
     /** Stable URL the caller should use as the value. */
     url: string;
@@ -75,7 +91,7 @@ export interface SabFilePickerProps {
     title?: string;
     /**
      * Override the SabFiles parent folder for uploads. When omitted and
-     * the picker is rendered under `/dashboard/crm/*`, the CRM ↔ Storage
+     * the picker is rendered under `/dashboard/crm/*`, the CRM to Storage
      * binding (configured at `/dashboard/crm/settings/integrations/storage`)
      * is auto-applied as the upload destination. Pass `null` to force
      * the root regardless of binding.
@@ -103,11 +119,11 @@ function categoryAccept(c: SabfilesCategory): string | undefined {
 }
 
 function iconFor(mime?: string): React.ReactElement {
-    if (mime?.startsWith('image/')) return <FileImage className="text-[var(--st-text)]" />;
-    if (mime?.startsWith('video/')) return <FileVideo className="text-[var(--st-text)]" />;
-    if (mime?.startsWith('audio/')) return <FileAudio className="text-[var(--st-text)]" />;
-    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-[var(--st-text)]" />;
-    return <FileIcon className="text-[var(--st-text-secondary)]" />;
+    if (mime?.startsWith('image/')) return <FileImage className="text-[var(--st-text)]" aria-hidden="true" />;
+    if (mime?.startsWith('video/')) return <FileVideo className="text-[var(--st-text)]" aria-hidden="true" />;
+    if (mime?.startsWith('audio/')) return <FileAudio className="text-[var(--st-text)]" aria-hidden="true" />;
+    if (mime?.includes('pdf') || mime?.includes('text')) return <FileText className="text-[var(--st-text)]" aria-hidden="true" />;
+    return <FileIcon className="text-[var(--st-text-secondary)]" aria-hidden="true" />;
 }
 
 function fmtSize(bytes?: number): string {
@@ -181,7 +197,7 @@ export function SabFilePicker({
     const [libraryError, setLibraryError] = React.useState<string | null>(null);
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const [tasks, setTasks] = React.useState<UploadTask[]>([]);
-    // Bumping this counter triggers a library refetch — used by the
+    // Bumping this counter triggers a library refetch - used by the
     // refresh button and immediately after an upload confirms so files
     // dropped here AND files added in another tab both appear.
     const [refreshTick, setRefreshTick] = React.useState(0);
@@ -209,7 +225,7 @@ export function SabFilePicker({
         setRefreshTick((n) => n + 1);
     }, [open, accept]);
 
-    // Debounce query → fetch.
+    // Debounce query then fetch.
     React.useEffect(() => {
         const id = setTimeout(() => setDebouncedQuery(query), 250);
         return () => clearTimeout(id);
@@ -233,7 +249,7 @@ export function SabFilePicker({
                 toastRef.current({
                     title: 'Library failed to load',
                     description: msg,
-                    variant: 'destructive',
+                    tone: 'danger',
                 });
                 setItems([]);
             } else {
@@ -258,7 +274,7 @@ export function SabFilePicker({
                     toast({
                         title: 'File too large',
                         description: `${f.name} exceeds ${fmtSize(maxSize)}.`,
-                        variant: 'destructive',
+                        tone: 'danger',
                     });
                     continue;
                 }
@@ -286,7 +302,7 @@ export function SabFilePicker({
                 toastRef.current({
                     title: 'Upload failed',
                     description: `${file.name}: ${err}`,
-                    variant: 'destructive',
+                    tone: 'danger',
                 });
             };
 
@@ -403,6 +419,26 @@ export function SabFilePicker({
 
     const doneCount = tasks.filter((t) => t.status === 'done').length;
 
+    const modeItems: { value: Mode; label: React.ReactNode; icon: typeof FileImage }[] = [
+        { value: 'library', label: 'Library', icon: FileImage },
+    ];
+    if (allowUpload) {
+        modeItems.push({
+            value: 'upload',
+            icon: Upload,
+            label: (
+                <span className="inline-flex items-center gap-1.5">
+                    Upload
+                    {inFlight > 0 && (
+                        <Badge tone="accent" kind="solid">
+                            {inFlight}
+                        </Badge>
+                    )}
+                </span>
+            ),
+        });
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             {/* The picker is frequently opened from INSIDE another modal (e.g. the
@@ -421,23 +457,13 @@ export function SabFilePicker({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="inline-flex w-fit items-center gap-1 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
-                        <ModeButton
-                            active={mode === 'library'}
-                            icon={<FileImage />}
-                            label="Library"
-                            onClick={() => setMode('library')}
-                        />
-                        {allowUpload && (
-                            <ModeButton
-                                active={mode === 'upload'}
-                                icon={<Upload />}
-                                label="Upload"
-                                onClick={() => setMode('upload')}
-                                badge={inFlight > 0 ? inFlight : undefined}
-                            />
-                        )}
-                    </div>
+                    <SegmentedControl<Mode>
+                        items={modeItems}
+                        value={mode}
+                        onChange={setMode}
+                        aria-label="Pick source"
+                        className="w-fit"
+                    />
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-5">
@@ -445,87 +471,86 @@ export function SabFilePicker({
                         <>
                             <div className="flex items-center gap-2">
                                 <div className="flex-1">
-                                    <Input
-                                        value={query}
-                                        onChange={(e) => setQuery(e.target.value)}
-                                        leadingSlot={<Search />}
-                                        placeholder="Search your files…"
-                                    />
+                                    <Field label="Search files">
+                                        <Input
+                                            value={query}
+                                            onChange={(e) => setQuery(e.target.value)}
+                                            iconLeft={Search}
+                                            placeholder="Search your files..."
+                                        />
+                                    </Field>
                                 </div>
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    size="icon"
+                                    size="md"
                                     aria-label="Refresh library"
                                     disabled={loading}
+                                    iconLeft={RefreshCw}
+                                    className={cn(loading && '[&_svg]:animate-spin')}
                                     onClick={() => setRefreshTick((n) => n + 1)}
-                                >
-                                    <RefreshCw className={cn(loading && 'animate-spin')} />
-                                </Button>
+                                />
                             </div>
 
-                            <div className="-mx-0.5 flex flex-wrap items-center gap-1.5 px-0.5">
-                                {visibleTabs.map((t) => (
-                                    <button
-                                        key={t.id}
-                                        type="button"
-                                        onClick={() => setCategory(t.id)}
-                                        className={cn(
-                                            'rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1 text-xs text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-text)]/30 hover:text-[var(--st-text)]',
-                                            category === t.id &&
-                                                'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:text-[var(--st-text-inverted)]',
-                                        )}
-                                    >
-                                        {t.label}
-                                    </button>
-                                ))}
-                            </div>
+                            <SegmentedControl<SabfilesCategory>
+                                items={visibleTabs.map((t) => ({ value: t.id, label: t.label }))}
+                                value={category}
+                                onChange={setCategory}
+                                size="sm"
+                                aria-label="Filter by category"
+                                className="w-fit"
+                            />
 
                             <div className="min-h-0 flex-1 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40">
                                 {loading ? (
                                     <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-[var(--st-text-secondary)]">
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
-                                        your library…
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> Loading
+                                        your library...
                                     </div>
                                 ) : libraryError ? (
-                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-[var(--st-text)]">
-                                        <AlertCircle className="h-6 w-6" />
-                                        <div className="font-medium">Couldn’t load your library</div>
-                                        <div className="max-w-md text-xs text-[var(--st-text-secondary)]">
-                                            {libraryError}
-                                        </div>
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setRefreshTick((n) => n + 1)}
-                                        >
-                                            <RefreshCw /> Try again
-                                        </Button>
+                                    <div className="flex h-full min-h-[320px] items-center justify-center">
+                                        <EmptyState
+                                            icon={AlertCircle}
+                                            tone="danger"
+                                            title="Could not load your library"
+                                            description={libraryError}
+                                            action={
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    iconLeft={RefreshCw}
+                                                    onClick={() => setRefreshTick((n) => n + 1)}
+                                                >
+                                                    Try again
+                                                </Button>
+                                            }
+                                        />
                                     </div>
                                 ) : items.length === 0 ? (
-                                    <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-2 px-6 text-center text-sm text-[var(--st-text-secondary)]">
-                                        <FileImage className="h-7 w-7 text-[var(--st-text-secondary)]/70" />
-                                        <div className="font-medium text-[var(--st-text)]">
-                                            {debouncedQuery
-                                                ? 'No matches'
-                                                : 'Nothing here yet'}
-                                        </div>
-                                        <div className="max-w-sm text-xs">
-                                            {debouncedQuery
-                                                ? `No files matched “${debouncedQuery}”. Try clearing the search or switching category.`
-                                                : 'Upload a file to add it to your SabFiles library.'}
-                                        </div>
-                                        {allowUpload && !debouncedQuery && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => setMode('upload')}
-                                            >
-                                                <Upload /> Upload now
-                                            </Button>
-                                        )}
+                                    <div className="flex h-full min-h-[320px] items-center justify-center">
+                                        <EmptyState
+                                            icon={FileImage}
+                                            title={debouncedQuery ? 'No matches' : 'Nothing here yet'}
+                                            description={
+                                                debouncedQuery
+                                                    ? `No files matched "${debouncedQuery}". Try clearing the search or switching category.`
+                                                    : 'Upload a file to add it to your SabFiles library.'
+                                            }
+                                            action={
+                                                allowUpload && !debouncedQuery ? (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        iconLeft={Upload}
+                                                        onClick={() => setMode('upload')}
+                                                    >
+                                                        Upload now
+                                                    </Button>
+                                                ) : undefined
+                                            }
+                                        />
                                     </div>
                                 ) : (
                                     <ul className="grid grid-cols-2 gap-2 p-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -533,10 +558,13 @@ export function SabFilePicker({
                                             const selected = selectedId === n.id;
                                             return (
                                                 <li key={n.id}>
-                                                    <button
+                                                    <Button
                                                         type="button"
+                                                        variant="ghost"
+                                                        aria-pressed={selected}
+                                                        aria-label={`Select ${n.name}`}
                                                         className={cn(
-                                                            'group relative flex w-full flex-col items-stretch gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md',
+                                                            'group !h-auto !w-full !items-stretch !justify-start gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] !p-2 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-[var(--st-text)]/40 hover:shadow-md [&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:flex-col [&_.u-btn__label]:gap-1.5',
                                                             selected &&
                                                                 'border-[var(--st-text)] ring-2 ring-[var(--st-text)]/30',
                                                         )}
@@ -546,7 +574,7 @@ export function SabFilePicker({
                                                             setTimeout(onConfirmPick, 0);
                                                         }}
                                                     >
-                                                        <div className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)]">
+                                                        <span className="relative flex h-24 w-full items-center justify-center overflow-hidden rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)]">
                                                             {n.mime?.startsWith('image/') &&
                                                             n.url ? (
                                                                 // eslint-disable-next-line @next/next/no-img-element
@@ -562,18 +590,18 @@ export function SabFilePicker({
                                                                 </span>
                                                             )}
                                                             {selected && (
-                                                                <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow">
-                                                                    <Check className="h-3 w-3" />
-                                                                </div>
+                                                                <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow">
+                                                                    <Check className="h-3 w-3" aria-hidden="true" />
+                                                                </span>
                                                             )}
-                                                        </div>
-                                                        <div className="truncate text-xs font-medium text-[var(--st-text)]">
+                                                        </span>
+                                                        <span className="truncate text-xs font-medium text-[var(--st-text)]">
                                                             {n.name}
-                                                        </div>
-                                                        <div className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+                                                        </span>
+                                                        <span className="text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
                                                             {fmtSize(n.size)}
-                                                        </div>
-                                                    </button>
+                                                        </span>
+                                                    </Button>
                                                 </li>
                                             );
                                         })}
@@ -588,6 +616,7 @@ export function SabFilePicker({
                             <div
                                 role="button"
                                 tabIndex={0}
+                                aria-label="Choose or drop files to upload"
                                 onClick={() => fileInputRef.current?.click()}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' || e.key === ' ') {
@@ -602,10 +631,10 @@ export function SabFilePicker({
                                     e.preventDefault();
                                     onUploadFiles(e.dataTransfer.files);
                                 }}
-                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)]"
+                                className="flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-6 text-center transition-colors hover:border-[var(--st-text)]/40 hover:bg-[var(--st-bg-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                             >
                                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] shadow-sm">
-                                    <Upload className="h-5 w-5" />
+                                    <Upload className="h-5 w-5" aria-hidden="true" />
                                 </div>
                                 <div className="text-sm font-medium text-[var(--st-text)]">
                                     Click or drag files here
@@ -636,17 +665,18 @@ export function SabFilePicker({
                                                 ({doneCount}/{tasks.length})
                                             </span>
                                             {inFlight > 0 && (
-                                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" />
+                                                <Loader2 className="ml-2 inline h-3.5 w-3.5 animate-spin text-[var(--st-text-secondary)]" aria-hidden="true" />
                                             )}
                                         </span>
                                         {doneCount > 0 && (
-                                            <button
+                                            <Button
                                                 type="button"
-                                                className="text-[11px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline"
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={() => setMode('library')}
                                             >
                                                 View in library
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
                                     <ul className="flex max-h-56 flex-col gap-2 overflow-y-auto p-3">
@@ -660,27 +690,22 @@ export function SabFilePicker({
                                                         {t.name}
                                                     </span>
                                                     {t.status === 'done' && t.node && (
-                                                        <button
+                                                        <Button
                                                             type="button"
-                                                            className={cn(
-                                                                'text-[11px] font-medium',
-                                                                selectedId === t.node.id
-                                                                    ? 'text-[var(--st-text)]'
-                                                                    : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:underline',
-                                                            )}
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            iconLeft={selectedId === t.node.id ? Check : undefined}
                                                             onClick={() =>
                                                                 setSelectedId(t.node!.id)
                                                             }
                                                         >
                                                             {selectedId === t.node.id
-                                                                ? '✓ Selected'
+                                                                ? 'Selected'
                                                                 : 'Select'}
-                                                        </button>
+                                                        </Button>
                                                     )}
                                                     {t.status === 'error' && (
-                                                        <span className="text-[11px] font-medium text-[var(--st-text)]">
-                                                            Failed
-                                                        </span>
+                                                        <Badge tone="danger">Failed</Badge>
                                                     )}
                                                     {(t.status === 'uploading' ||
                                                         t.status === 'queued') && (
@@ -690,13 +715,13 @@ export function SabFilePicker({
                                                     )}
                                                 </div>
                                                 {t.status === 'error' ? (
-                                                    <span className="text-[11px] text-[var(--st-text)]">
+                                                    <span className="text-[11px] text-[var(--st-danger)]">
                                                         {t.error}
                                                     </span>
                                                 ) : (
                                                     <Progress
                                                         value={t.progress}
-                                                        className="h-1"
+                                                        size="sm"
                                                     />
                                                 )}
                                             </li>
@@ -721,7 +746,7 @@ export function SabFilePicker({
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>
                         Cancel
                     </Button>
-                    <Button onClick={onConfirmPick} disabled={!selectedId}>
+                    <Button variant="primary" onClick={onConfirmPick} disabled={!selectedId}>
                         Use this file
                     </Button>
                 </DialogFooter>
@@ -730,50 +755,10 @@ export function SabFilePicker({
     );
 }
 
-function ModeButton({
-    active,
-    icon,
-    label,
-    onClick,
-    badge,
-}: {
-    active: boolean;
-    icon: React.ReactElement;
-    label: string;
-    onClick: () => void;
-    badge?: number;
-}) {
-    return (
-        <button
-            type="button"
-            onClick={onClick}
-            className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)] [&>svg]:h-3.5 [&>svg]:w-3.5',
-                active && 'bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-sm hover:text-[var(--st-text-inverted)]',
-            )}
-        >
-            {icon}
-            {label}
-            {badge != null && badge > 0 && (
-                <span
-                    className={cn(
-                        'inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full px-1 text-[10px] font-semibold',
-                        active
-                            ? 'bg-[var(--st-text-inverted)] text-[var(--st-text)]'
-                            : 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
-                    )}
-                >
-                    {badge}
-                </span>
-            )}
-        </button>
-    );
-}
-
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 // Controlled "file chip" input: holds a SabFiles URL as its value, but
 // the UI only shows the picked file's name + Browse + Clear. Free-text
-// URL paste is intentionally disabled — every file MUST come from
+// URL paste is intentionally disabled - every file MUST come from
 // SabFiles (library or upload). The component still exposes `name=`
 // and `value=` so existing forms that POST a `*Url` field via FormData
 // keep working transparently.
@@ -782,7 +767,7 @@ function ModeButton({
 // its `value` / `onChange(value)` shape) so the 16+ migrated call sites
 // don't need updates. The legacy `placeholder` and `allowFreeText`
 // props are accepted but ignored.
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 export interface SabFileUrlInputProps {
     value: string;
     onChange: (value: string, pick?: SabFilePick) => void;
@@ -864,7 +849,7 @@ export function SabFileUrlInput({
                                 className="h-5 w-5 rounded object-cover"
                             />
                         ) : (
-                            <FileIcon className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                            <FileIcon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                         )}
                         <span className="truncate text-[var(--st-text)]">{displayName}</span>
                     </>
@@ -878,25 +863,25 @@ export function SabFileUrlInput({
                 type="button"
                 variant="outline"
                 disabled={disabled}
+                iconLeft={Upload}
                 onClick={() => setOpen(true)}
             >
-                <Upload /> {value ? 'Change' : 'Choose file'}
+                {value ? 'Change' : 'Choose file'}
             </Button>
             {value && (
                 <Button
                     type="button"
                     variant="ghost"
-                    size="icon-sm"
+                    size="sm"
                     aria-label="Clear"
+                    iconLeft={X}
                     disabled={disabled}
                     onClick={() => {
                         setLastName(null);
                         setLastMime(undefined);
                         onChange('');
                     }}
-                >
-                    <X />
-                </Button>
+                />
             )}
             <SabFilePicker
                 open={open}
@@ -913,7 +898,7 @@ export function SabFileUrlInput({
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 // Bridge utility: download a picked SabFile back into a `File` object.
 //
 // Used by Meta-pipeline forms (template headers, broadcast media,
@@ -922,7 +907,7 @@ export function SabFileUrlInput({
 // upload. The user picks from SabFiles, the browser pulls the bytes
 // from R2 (or the `/api/sabfiles/raw/:id` proxy), and the form gets
 // the same `File` shape it would have got from a `<input type="file">`.
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 export async function fetchSabFilePickAsFile(pick: SabFilePick): Promise<File> {
     const res = await fetch(pick.url, { credentials: 'include' });
     if (!res.ok) {
@@ -969,10 +954,10 @@ export function SabFileToFileButton({
                 type="button"
                 variant={variant}
                 className={className}
+                loading={busy}
                 disabled={busy}
                 onClick={() => setOpen(true)}
             >
-                {busy ? <Loader2 className="animate-spin" /> : null}
                 {children ?? 'Pick from SabFiles'}
             </Button>
             <SabFilePicker
@@ -999,10 +984,10 @@ export function SabFileToFileButton({
     );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 // Convenience: a button that opens the picker. For non-input call sites
 // (e.g. "attach a file" buttons in chat composers).
-// ──────────────────────────────────────────────────────────────────────
+// ----------------------------------------------------------------------
 export interface SabFilePickerButtonProps
     extends Omit<SabFilePickerProps, 'open' | 'onOpenChange'> {
     children?: React.ReactNode;
@@ -1024,13 +1009,10 @@ export function SabFilePickerButton({
                 type="button"
                 variant={variant}
                 className={className}
+                iconLeft={children ? undefined : Upload}
                 onClick={() => setOpen(true)}
             >
-                {children ?? (
-                    <>
-                        <Upload /> Choose file
-                    </>
-                )}
+                {children ?? 'Choose file'}
             </Button>
             <SabFilePicker
                 {...rest}

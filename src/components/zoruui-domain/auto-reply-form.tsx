@@ -1,21 +1,40 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Label, Switch, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Button,
+  IconButton,
+  Field,
+  Switch,
+  Textarea,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  EmptyState,
+  useToast,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
   useRef,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle, Save, Trash2, PlusCircle } from 'lucide-react';
+import { LoaderCircle, Save, Trash2, PlusCircle, MessageSquareText } from 'lucide-react';
 import { handleUpdateAutoReplySettings } from '@/app/actions/project.actions';
-import { useToast } from '@/hooks/use-toast';
 import type { WithId,
   Project,
   GeneralReplyRule } from '@/lib/definitions';
 import { timezones } from '@/lib/timezones';
 
-import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
 const initialState = { message: null, error: null };
@@ -23,8 +42,8 @@ const initialState = { message: null, error: null };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+    <Button type="submit" variant="primary" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="mr-2 h-4 w-4" aria-hidden="true" />}
       Save
     </Button>
   );
@@ -73,10 +92,10 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: 'Success', description: state.message, tone: 'success' });
     }
     if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({ title: 'Error', description: state.error, tone: 'danger' });
     }
   }, [state, toast]);
 
@@ -101,20 +120,23 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   const renderFormContent = () => {
     switch (type) {
         case 'welcomeMessage':
-            return <div className="space-y-2"><Label htmlFor="message">Message</Label><Textarea id="message" name="message" defaultValue={project.autoReplySettings?.welcomeMessage?.message || ''} placeholder="Hello! 👋 Welcome to our business. How can we help you today?" /></div>;
+            return (
+              <Field label="Message">
+                <Textarea name="message" defaultValue={project.autoReplySettings?.welcomeMessage?.message || ''} placeholder="Hello! Welcome to our business. How can we help you today?" />
+              </Field>
+            );
 
         case 'aiAssistant':
             return (
                 <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="context">Business Context</Label>
-                        <Textarea id="context" name="context" className="min-h-32" defaultValue={project.autoReplySettings?.aiAssistant?.context || ''} placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50..." />
-                        <p className="text-xs text-[var(--st-text-secondary)]">Provide information about your business for the AI to use when answering questions.</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch checked={autoTranslate} onCheckedChange={setAutoTranslate} />
-                        <Label className="font-normal">Auto-detect & translate to user's language</Label>
-                    </div>
+                    <Field label="Business Context" help="Provide information about your business for the AI to use when answering questions.">
+                        <Textarea name="context" className="min-h-32" defaultValue={project.autoReplySettings?.aiAssistant?.context || ''} placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50." />
+                    </Field>
+                    <Switch
+                        checked={autoTranslate}
+                        onCheckedChange={setAutoTranslate}
+                        label="Auto-detect and translate to the user's language"
+                    />
                 </div>
             );
 
@@ -122,48 +144,39 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             const settings = project.autoReplySettings?.inactiveHours;
             return (
                  <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="message">Away Message</Label>
-                        <Textarea id="message" name="message" defaultValue={settings?.message || ''} placeholder="Thanks for reaching out! We're currently away. Our business hours are Mon-Fri 9 AM to 6 PM. We'll get back to you as soon as possible." />
-                    </div>
+                    <Field label="Away Message">
+                        <Textarea name="message" defaultValue={settings?.message || ''} placeholder="Thanks for reaching out! We are currently away. Our business hours are Mon-Fri 9 AM to 6 PM. We will get back to you as soon as possible." />
+                    </Field>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="startTime">Away From (Start)</Label>
-                            <Input id="startTime" name="startTime" type="time" defaultValue={settings?.startTime || '20:00'} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="endTime">Available At (End)</Label>
-                            <Input id="endTime" name="endTime" type="time" defaultValue={settings?.endTime || '08:00'} />
-                        </div>
+                        <Field label="Away From (Start)">
+                            <Input name="startTime" type="time" defaultValue={settings?.startTime || '20:00'} />
+                        </Field>
+                        <Field label="Available At (End)">
+                            <Input name="endTime" type="time" defaultValue={settings?.endTime || '08:00'} />
+                        </Field>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="timezone">Timezone</Label>
+                    <Field label="Timezone">
                         <Select name="timezone" defaultValue={settings?.timezone || 'Asia/Kolkata'}>
-                            <SelectTrigger id="timezone"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label="Timezone"><SelectValue /></SelectTrigger>
                             <SelectContent className="max-h-60">{timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}</SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label>Active on these days</Label>
-                        <p className="text-xs text-[var(--st-text-secondary)] mb-2">Away message will be sent on selected days during the inactive hours.</p>
+                    </Field>
+                    <Field label="Active on these days" help="Away message will be sent on selected days during the inactive hours.">
                         <div className="flex flex-wrap gap-2">
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => (
-                                <button
+                                <Button
                                     key={day}
                                     type="button"
+                                    size="sm"
+                                    variant={selectedDays.includes(index) ? 'primary' : 'outline'}
+                                    aria-pressed={selectedDays.includes(index)}
                                     onClick={() => toggleDay(index)}
-                                    className={cn(
-                                        'rounded-full px-3 py-1.5 text-xs font-medium border transition-colors',
-                                        selectedDays.includes(index)
-                                            ? 'bg-[var(--st-text)] text-white border-primary'
-                                            : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]'
-                                    )}
                                 >
                                     {day}
-                                </button>
+                                </Button>
                             ))}
                         </div>
-                    </div>
+                    </Field>
                 </div>
             );
         }
@@ -172,21 +185,30 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
             return (
                 <div className="space-y-4">
                     {replies.length === 0 && (
-                        <p className="text-sm text-[var(--st-text-secondary)] italic">No keyword rules yet. Add one below.</p>
+                        <EmptyState
+                            icon={MessageSquareText}
+                            title="No keyword rules yet"
+                            description="Add a rule below to reply automatically based on keywords."
+                        />
                     )}
                     {replies.map((rule) => (
-                        <div key={rule.id} className="p-4 border rounded-lg space-y-3 relative bg-[var(--st-bg-muted)]/50">
-                             <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeReplyRule(rule.id)}><Trash2 className="h-4 w-4 text-[var(--st-text)]"/></Button>
-                            <div className="space-y-2">
-                                <Label>Keywords (comma-separated)</Label>
+                        <div key={rule.id} className="relative space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
+                            <IconButton
+                                label="Remove rule"
+                                icon={Trash2}
+                                variant="ghost"
+                                size="sm"
+                                className="absolute right-1 top-1"
+                                onClick={() => removeReplyRule(rule.id)}
+                            />
+                            <Field label="Keywords (comma-separated)">
                                 <Input value={rule.keywords} onChange={(e) => handleReplyRuleChange(rule.id, 'keywords', e.target.value)} placeholder="hello, hi, hey" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Reply Message</Label>
+                            </Field>
+                            <Field label="Reply Message">
                                 <Textarea value={rule.reply} onChange={(e) => handleReplyRuleChange(rule.id, 'reply', e.target.value)} placeholder="Hi there! How can I help you?" />
-                            </div>
+                            </Field>
                             <Select value={rule.matchType} onValueChange={(val) => handleReplyRuleChange(rule.id, 'matchType', val)}>
-                                <SelectTrigger className="w-[180px] h-8 text-xs"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-[180px]" aria-label="Match type"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="contains">Contains keyword</SelectItem>
                                     <SelectItem value="exact">Exact match</SelectItem>
@@ -194,7 +216,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                             </Select>
                         </div>
                     ))}
-                    <Button type="button" variant="outline" size="sm" onClick={addReplyRule}><PlusCircle className="mr-2 h-4 w-4"/>Add Rule</Button>
+                    <Button type="button" variant="outline" size="sm" iconLeft={PlusCircle} onClick={addReplyRule}>Add Rule</Button>
                 </div>
             )
         }
@@ -219,7 +241,11 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 <CardTitle>{formDetails[type].title}</CardTitle>
                 <CardDescription>{formDetails[type].description}</CardDescription>
             </div>
-            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch
+                checked={isEnabled}
+                onCheckedChange={setIsEnabled}
+                aria-label={`Enable ${formDetails[type].title}`}
+            />
           </div>
         </CardHeader>
         <CardBody className={cn(!isEnabled && 'opacity-50 pointer-events-none')}>

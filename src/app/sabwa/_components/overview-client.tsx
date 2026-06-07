@@ -1,6 +1,53 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Popover, PopoverContent, PopoverTrigger, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui';
+/*
+ * Overview (Phase 1) - client surface for `/sabwa`.
+ *
+ * The server component (`page.tsx`) pre-fetches everything that's safe to
+ * fetch with what we know server-side (sessions, plan limits). Everything
+ * that depends on which session the user has *selected* in the
+ * SessionSwitcher (analytics, scheduled queue, audit feed) is the
+ * client's job. It knows the active sessionId via `useSabwaSession()` and
+ * subscribes to live status changes through `useSabwaStream`.
+ *
+ * Rebuilt on the 20ui design system. The session-switcher popover, KPI grid,
+ * ban-risk gauge, quick actions and plan-usage rows use 20ui primitives
+ * (Button, Card, Badge, Popover, Tooltip, Progress, PageHeader, EmptyState)
+ * and `--st-*` tokens throughout.
+ *
+ * Source of truth: SABWA_PLAN.md section 6 page 1.
+ */
+
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Progress,
+  Skeleton,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  cn,
+} from "@/components/sabcrm/20ui";
 import {
   Activity,
   AlertTriangle,
@@ -20,29 +67,12 @@ import {
   TimerReset,
   Users,
   Zap,
-  } from "lucide-react";
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-
-/**
- * Overview (Phase 1) — client surface for `/sabwa`.
- *
- * The server component (`page.tsx`) pre-fetches everything that's safe to
- * fetch with what we know server-side (sessions, plan limits). Everything
- * that depends on which session the user has *selected* in the
- * SessionSwitcher (analytics, scheduled queue, audit feed) is the
- * client's job — it knows the active sessionId via `useSabwaSession()` and
- * subscribes to live status changes through `useSabwaStream`.
- *
- * Rebuilt on ZoruUI primitives. The session-switcher popover, KPI grid,
- * ban-risk gauge, quick actions and plan-usage rows now use Zoru tokens
- * (`text-[var(--st-text)]`, `bg-[var(--st-bg-secondary)]`, `text-[var(--st-status-ok)]`, etc.) and
- * the neutral `--zoru-radius` / `--zoru-radius-lg` design language.
- *
- * Source of truth: SABWA_PLAN.md § 6 page 1.
- */
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   getAnalytics,
@@ -62,7 +92,7 @@ import type { SabwaPlanLimits } from "@/lib/sabwa/plan-limits";
 
 import { StatusBadge } from "./status-badge";
 
-// ─── Types passed from the server shell ────────────────────────────────────
+// Types passed from the server shell
 
 export interface OverviewSessionSummary {
   sessionId: string;
@@ -95,7 +125,7 @@ interface AsyncShape<T> {
   loading: boolean;
 }
 
-// ─── Helpers ───────────────────────────────────────────────────────────────
+// Helpers
 
 function formatQuota(value: number | "unlimited" | "custom"): string {
   if (value === "unlimited") return "Unlimited";
@@ -109,7 +139,7 @@ function quotaToNumber(value: number | "unlimited" | "custom"): number | null {
 }
 
 function maskedPhone(phoneE164?: string): string {
-  if (!phoneE164) return "—";
+  if (!phoneE164) return "Not set";
   // Show first 3 + last 2 digits, mask middle.
   const trimmed = phoneE164.replace(/\s+/g, "");
   if (trimmed.length <= 5) return trimmed;
@@ -152,18 +182,22 @@ function bandFromScore(score: number): {
   };
 }
 
-// ─── Breadcrumb ────────────────────────────────────────────────────────────
+// Breadcrumb
 
 function OverviewBreadcrumb() {
   return (
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
+          <BreadcrumbLink asChild>
+            <Link href="/dashboard">SabNode</Link>
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
-          <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
+          <BreadcrumbLink asChild>
+            <Link href="/sabwa">SabWa</Link>
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbItem>
@@ -174,11 +208,12 @@ function OverviewBreadcrumb() {
   );
 }
 
-// ─── Disconnected hero (no sessions at all) ────────────────────────────────
+// Disconnected hero (no sessions at all)
 
 function DisconnectedHero() {
+  const router = useRouter();
   return (
-    <Card className="overflow-hidden border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+    <Card padding="none" className="overflow-hidden">
       <CardBody className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-8 md:p-8">
         <div
           aria-hidden
@@ -186,27 +221,33 @@ function DisconnectedHero() {
         >
           <QrCode className="h-10 w-10" />
         </div>
-        <div className="min-w-0 flex-1 space-y-2">
-          <h1 className="text-xl font-semibold tracking-tight text-[var(--st-text)] md:text-2xl">
-            Connect your personal WhatsApp in 30 seconds
-          </h1>
-          <p className="text-sm text-[var(--st-text-secondary)]">
-            Scan a QR with the WhatsApp app on your phone and SabNode will
-            mirror your chats, groups and broadcasts here. By connecting, you
-            agree to follow WhatsApp&apos;s terms of service — unsolicited bulk
-            messaging is the leading cause of account bans, so SabWa
-            ships with anti-ban defaults you can tune later.
-          </p>
-        </div>
+        <PageHeader bordered={false} className="min-w-0 flex-1">
+          <PageHeaderHeading>
+            <PageTitle>Connect your personal WhatsApp in 30 seconds</PageTitle>
+            <PageDescription>
+              Scan a QR with the WhatsApp app on your phone and SabNode will
+              mirror your chats, groups and broadcasts here. By connecting, you
+              agree to follow WhatsApp&apos;s terms of service. Unsolicited bulk
+              messaging is the leading cause of account bans, so SabWa ships with
+              anti-ban defaults you can tune later.
+            </PageDescription>
+          </PageHeaderHeading>
+        </PageHeader>
         <div className="flex flex-col gap-2 md:flex-none">
-          <Button asChild size="lg" className="gap-2">
-            <Link href="/sabwa/connect">
-              <QrCode className="h-4 w-4" />
-              Connect WhatsApp
-            </Link>
+          <Button
+            variant="primary"
+            size="lg"
+            iconLeft={QrCode}
+            onClick={() => router.push("/sabwa/connect")}
+          >
+            Connect WhatsApp
           </Button>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/sabwa/settings/rate-limits">Read ban-risk guide</Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/sabwa/settings/rate-limits")}
+          >
+            Read ban-risk guide
           </Button>
         </div>
       </CardBody>
@@ -214,7 +255,7 @@ function DisconnectedHero() {
   );
 }
 
-// ─── Active session header card ────────────────────────────────────────────
+// Active session header card
 
 function SessionHeaderCard({
   active,
@@ -227,6 +268,7 @@ function SessionHeaderCard({
   liveStatus: SabwaSessionStatus | "pairing" | "syncing" | "ready" | null;
   onSwitch: (sessionId: string) => void;
 }) {
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const displayStatus = liveStatus ?? active.status;
 
@@ -239,7 +281,7 @@ function SessionHeaderCard({
     .toUpperCase();
 
   return (
-    <Card>
+    <Card padding="none">
       <CardBody className="flex flex-col gap-4 p-4 md:flex-row md:items-center md:gap-6 md:p-6">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <div
@@ -277,10 +319,9 @@ function SessionHeaderCard({
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={Smartphone}
                 disabled={sessions.length < 2}
-                className="gap-2"
               >
-                <Smartphone className="h-4 w-4" />
                 Switch session
               </Button>
             </PopoverTrigger>
@@ -293,14 +334,15 @@ function SessionHeaderCard({
                   const isActive = s.sessionId === active.sessionId;
                   return (
                     <li key={s.sessionId}>
-                      <button
-                        type="button"
+                      <Button
+                        variant="ghost"
+                        block
                         onClick={() => {
                           onSwitch(s.sessionId);
                           setOpen(false);
                         }}
                         className={cn(
-                          "flex w-full items-center justify-between gap-2 rounded-[var(--st-radius)] px-2 py-2 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]",
+                          "!justify-between !h-auto !px-2 !py-2 text-left",
                           isActive && "bg-[var(--st-bg-muted)]",
                         )}
                       >
@@ -313,30 +355,30 @@ function SessionHeaderCard({
                           </span>
                         </span>
                         <StatusBadge status={s.status} size="sm" />
-                      </button>
+                      </Button>
                     </li>
                   );
                 })}
               </ul>
               <div className="my-2 h-px bg-[var(--st-border)]" aria-hidden />
               <Button
-                asChild
                 variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-2"
+                block
+                iconLeft={PlusCircle}
+                className="!justify-start"
+                onClick={() => router.push("/sabwa/connect")}
               >
-                <Link href="/sabwa/connect">
-                  <PlusCircle className="h-4 w-4" />
-                  <span className="text-sm">Connect another number</span>
-                </Link>
+                Connect another number
               </Button>
             </PopoverContent>
           </Popover>
-          <Button asChild variant="ghost" size="sm" className="gap-2">
-            <Link href="/sabwa/devices">
-              Manage devices
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconRight={ArrowRight}
+            onClick={() => router.push("/sabwa/devices")}
+          >
+            Manage devices
           </Button>
         </div>
       </CardBody>
@@ -344,7 +386,7 @@ function SessionHeaderCard({
   );
 }
 
-// ─── KPI cards ─────────────────────────────────────────────────────────────
+// KPI cards
 
 function Sparkline({
   series,
@@ -353,7 +395,7 @@ function Sparkline({
   series: ReadonlyArray<{ in: number; out: number; date?: string }>;
   className?: string;
 }) {
-  // Combined in+out series, normalised to a 60×20 viewBox.
+  // Combined in+out series, normalised to a 60x20 viewBox.
   const points = series.length
     ? series.map((d) => d.in + d.out)
     : [0, 0, 0, 0, 0, 0, 0];
@@ -401,11 +443,8 @@ function KpiCardShell({
 }) {
   const body = (
     <Card
-      className={cn(
-        "h-full transition-shadow",
-        href && "cursor-pointer hover:shadow-[var(--st-shadow-md)]",
-        className,
-      )}
+      variant={href ? "interactive" : "outlined"}
+      className={cn("h-full", className)}
     >
       <CardBody className="flex h-full flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
@@ -530,7 +569,7 @@ function KpiRow({
         ) : (
           <div>
             <p className="text-2xl font-semibold tabular-nums leading-none text-[var(--st-text)]">
-              {responseSec ? `${responseSec}s` : "—"}
+              {responseSec ? `${responseSec}s` : "Not yet"}
             </p>
             <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
               Median, last 7 days
@@ -542,7 +581,7 @@ function KpiRow({
   );
 }
 
-// ─── Ban-risk gauge ────────────────────────────────────────────────────────
+// Ban-risk gauge
 
 function BanRiskGauge({
   score,
@@ -553,24 +592,25 @@ function BanRiskGauge({
   reasons: string[];
   loading: boolean;
 }) {
+  const router = useRouter();
   const clamped = Math.max(0, Math.min(100, Math.round(score)));
   const band = bandFromScore(clamped);
 
-  // Semicircular gauge — half-circle path with stroke-dasharray.
-  // Arc length ~157 for r=50 → πr.
+  // Semicircular gauge. Half-circle path with stroke-dasharray.
+  // Arc length ~157 for r=50 (pi * r).
   const r = 50;
   const circumference = Math.PI * r;
   const fraction = clamped / 100;
   const dashOffset = circumference * (1 - fraction);
 
   return (
-    <Card>
+    <Card padding="none">
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center gap-2">
           <CardTitle className="text-base font-semibold">
             Ban-risk score
           </CardTitle>
-          <Badge variant="outline" className={cn("text-[10px]", band.className)}>
+          <Badge kind="outline" className={cn("text-[10px]", band.className)}>
             <ShieldAlert className="mr-1 h-3 w-3" />
             {band.label}
           </Badge>
@@ -638,22 +678,27 @@ function BanRiskGauge({
               </p>
             ) : (
               <ul className="space-y-1 text-sm">
-                {reasons.slice(0, 3).map((r) => (
+                {reasons.slice(0, 3).map((reason) => (
                   <li
-                    key={r}
+                    key={reason}
                     className="flex items-start gap-2 text-[var(--st-text-secondary)]"
                   >
                     <Circle
                       className="mt-1.5 h-1.5 w-1.5 flex-none fill-current"
                       aria-hidden
                     />
-                    <span>{r}</span>
+                    <span>{reason}</span>
                   </li>
                 ))}
               </ul>
             )}
-            <Button asChild variant="link" size="sm" className="h-auto px-0">
-              <Link href="/sabwa/settings/rate-limits">Review settings</Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="!h-auto !px-0 !text-[var(--st-accent)]"
+              onClick={() => router.push("/sabwa/settings/rate-limits")}
+            >
+              Review settings
             </Button>
           </div>
         </div>
@@ -662,13 +707,14 @@ function BanRiskGauge({
   );
 }
 
-// ─── Quick actions ─────────────────────────────────────────────────────────
+// Quick actions
 
 function QuickActions({
   onSchedule,
 }: {
   onSchedule: () => void;
 }) {
+  const router = useRouter();
   const items: Array<{
     label: string;
     href?: string;
@@ -683,7 +729,7 @@ function QuickActions({
   ];
 
   return (
-    <Card>
+    <Card padding="none">
       <CardHeader className="pb-2">
         <CardTitle className="text-base font-semibold">Quick actions</CardTitle>
         <CardDescription>
@@ -692,42 +738,24 @@ function QuickActions({
       </CardHeader>
       <CardBody>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {items.map(({ label, href, onClick, icon: Icon }) => {
-            const inner = (
-              <>
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium leading-tight">
-                  {label}
-                </span>
-              </>
-            );
-            const className =
-              "flex h-auto flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-center text-[var(--st-text)] transition-colors hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)] focus-visible:ring-offset-2";
-            if (href) {
-              return (
-                <Link key={label} href={href} className={className}>
-                  {inner}
-                </Link>
-              );
-            }
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={onClick}
-                className={className}
-              >
-                {inner}
-              </button>
-            );
-          })}
+          {items.map(({ label, href, onClick, icon: Icon }) => (
+            <Button
+              key={label}
+              variant="outline"
+              onClick={onClick ?? (href ? () => router.push(href) : undefined)}
+              className="!h-auto !flex-col !gap-2 !p-3 text-center"
+            >
+              <Icon className="h-5 w-5" aria-hidden />
+              <span className="text-xs font-medium leading-tight">{label}</span>
+            </Button>
+          ))}
         </div>
       </CardBody>
     </Card>
   );
 }
 
-// ─── Recent activity feed ──────────────────────────────────────────────────
+// Recent activity feed
 
 function targetHrefForAction(action: string): string {
   if (action.startsWith("session.")) return "/sabwa/devices";
@@ -748,8 +776,9 @@ function RecentActivity({
   entries: SabwaAuditEntryRow[];
   loading: boolean;
 }) {
+  const router = useRouter();
   return (
-    <Card>
+    <Card padding="none">
       <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
         <div>
           <CardTitle className="text-base font-semibold">
@@ -759,11 +788,13 @@ function RecentActivity({
             Latest 10 events touching this session.
           </CardDescription>
         </div>
-        <Button asChild variant="ghost" size="sm" className="gap-1">
-          <Link href="/sabwa/audit">
-            See all
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          iconRight={ArrowRight}
+          onClick={() => router.push("/sabwa/audit")}
+        >
+          See all
         </Button>
       </CardHeader>
       <CardBody>
@@ -778,16 +809,11 @@ function RecentActivity({
             ))}
           </ul>
         ) : entries.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-8 text-center">
-            <Activity
-              className="h-8 w-8 text-[var(--st-text-secondary)]"
-              aria-hidden
-            />
-            <p className="text-sm font-medium text-[var(--st-text)]">No activity yet</p>
-            <p className="text-xs text-[var(--st-text-secondary)]">
-              Send a message or schedule something — it&apos;ll show up here.
-            </p>
-          </div>
+          <EmptyState
+            icon={Activity}
+            title="No activity yet"
+            description="Send a message or schedule something. It will show up here."
+          />
         ) : (
           <ul className="divide-y divide-[var(--st-border)]">
             {entries.slice(0, 10).map((e) => {
@@ -811,7 +837,7 @@ function RecentActivity({
                       {e.target ? (
                         <span className="text-[var(--st-text-secondary)]">
                           {" "}
-                          · {e.target}
+                          - {e.target}
                         </span>
                       ) : null}
                     </span>
@@ -834,7 +860,7 @@ function RecentActivity({
   );
 }
 
-// ─── Onboarding checklist ──────────────────────────────────────────────────
+// Onboarding checklist
 
 interface ChecklistItem {
   label: string;
@@ -844,11 +870,12 @@ interface ChecklistItem {
 
 function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
   const allDone = items.every((i) => i.done);
-  if (allDone) return null;
+  // Hook order must stay stable; bail to render after deriving values below.
   const completed = items.filter((i) => i.done).length;
+  if (allDone) return null;
 
   return (
-    <Card>
+    <Card padding="none">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -894,7 +921,7 @@ function OnboardingChecklist({ items }: { items: ChecklistItem[] }) {
   );
 }
 
-// ─── Plan usage card ───────────────────────────────────────────────────────
+// Plan usage card
 
 function PlanUsageCard({
   planName,
@@ -909,6 +936,7 @@ function PlanUsageCard({
   todaySends: number;
   scheduledPending: number;
 }) {
+  const router = useRouter();
   const rows: Array<{
     label: string;
     used: number;
@@ -924,7 +952,7 @@ function PlanUsageCard({
   ];
 
   return (
-    <Card>
+    <Card padding="none">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div>
@@ -936,8 +964,12 @@ function PlanUsageCard({
               <span className="capitalize">{planName || "free"}</span> plan.
             </CardDescription>
           </div>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/dashboard/billing">Upgrade</Link>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/billing")}
+          >
+            Upgrade
           </Button>
         </div>
       </CardHeader>
@@ -950,8 +982,8 @@ function PlanUsageCard({
                 capNum && capNum > 0
                   ? Math.min(100, Math.round((used / capNum) * 100))
                   : 0;
-              const danger = percent >= 85;
-              const warn = percent >= 60 && percent < 85;
+              const tone: "danger" | "warning" | "accent" =
+                percent >= 85 ? "danger" : percent >= 60 ? "warning" : "accent";
               return (
                 <li key={label} className="space-y-1.5">
                   <div className="flex items-baseline justify-between gap-2">
@@ -974,29 +1006,12 @@ function PlanUsageCard({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div
-                    role="progressbar"
-                    aria-valuemin={0}
-                    aria-valuemax={capNum ?? 0}
-                    aria-valuenow={used}
-                    className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]"
-                  >
-                    {capNum ? (
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all",
-                          danger
-                            ? "bg-[var(--st-danger)]"
-                            : warn
-                              ? "bg-[var(--st-warn)]"
-                              : "bg-[var(--st-text)]",
-                        )}
-                        style={{ width: `${percent}%` }}
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-[var(--st-text)]/40" />
-                    )}
-                  </div>
+                  <Progress
+                    value={capNum ? percent : 100}
+                    tone={capNum ? tone : "accent"}
+                    size="sm"
+                    label={`${label} usage`}
+                  />
                 </li>
               );
             })}
@@ -1007,7 +1022,7 @@ function PlanUsageCard({
   );
 }
 
-// ─── Schedule dialog stub (placeholder until real one is wired) ────────────
+// Schedule dialog stub (placeholder until real one is wired)
 
 function ScheduleDialog({
   open,
@@ -1017,26 +1032,25 @@ function ScheduleDialog({
   onOpenChange: (next: boolean) => void;
 }) {
   // The full schedule editor lives at `/sabwa/scheduler` (see SABWA_PLAN.md
-  // § 6 page 13). The Overview's "Schedule message" CTA just navigates
-  // there for now — once the modal component lands at
+  // section 6 page 13). The Overview's "Schedule message" CTA just navigates
+  // there for now. Once the modal component lands at
   // `/sabwa/scheduler/_components/schedule-dialog` this stub will be
   // swapped for the real one.
+  const router = useRouter();
   React.useEffect(() => {
     if (!open) return;
     onOpenChange(false);
-    if (typeof window !== "undefined") {
-      window.location.href = "/sabwa/scheduler";
-    }
-  }, [open, onOpenChange]);
+    router.push("/sabwa/scheduler");
+  }, [open, onOpenChange, router]);
   return null;
 }
 
-// ─── Main client component ─────────────────────────────────────────────────
+// Main client component
 
 export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) {
   const { sessions, initialSessionId, planLimits, planName } = bootstrap;
 
-  // Hooks must run unconditionally — even when there are no sessions we still
+  // Hooks must run unconditionally. Even when there are no sessions we still
   // declare them so the hook order stays stable across renders.
   const [activeId, setActiveId] = React.useState<string>(
     initialSessionId ?? sessions[0]?.sessionId ?? "",
@@ -1076,7 +1090,7 @@ export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) 
         : null;
     })();
 
-  // Async client data — analytics, scheduled queue, audit feed, session status.
+  // Async client data: analytics, scheduled queue, audit feed, session status.
   const [analytics, setAnalytics] = React.useState<AsyncShape<SabwaAnalyticsPayload>>(
     { data: null, loading: true },
   );
@@ -1105,7 +1119,7 @@ export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) 
     setAudit({ data: null, loading: true });
     setStatusInfo({ data: null, loading: true });
 
-    // Independent fetches — kick off in parallel so the dashboard renders as
+    // Independent fetches. Kick off in parallel so the dashboard renders as
     // each card resolves rather than waiting for the slowest.
     void (async () => {
       try {
@@ -1190,7 +1204,7 @@ export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) 
     };
   }, [activeId]);
 
-  // Onboarding checklist — purely client-side derivation.
+  // Onboarding checklist. Purely client-side derivation.
   const checklist: ChecklistItem[] = React.useMemo(
     () => [
       {
@@ -1227,7 +1241,7 @@ export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) 
     statusInfo.data?.banRiskScore ?? analytics.data?.kpis.banRiskScore ?? 0;
   const banReasons = statusInfo.data?.banRiskReasons ?? [];
 
-  // Empty state — no sessions paired yet. Rendered after hooks so the hook
+  // Empty state: no sessions paired yet. Rendered after hooks so the hook
   // call order stays stable across renders.
   if (sessions.length === 0 || !active) {
     return (
@@ -1282,8 +1296,8 @@ export function OverviewClient({ bootstrap }: { bootstrap: OverviewBootstrap }) 
 
       <ScheduleDialog open={scheduleOpen} onOpenChange={setScheduleOpen} />
 
-      {/* Hidden marker so unused-import linters don't complain about Phone — */}
-      {/* it's reserved for the Calls quick-action when that page lands. */}
+      {/* Hidden marker so unused-import linters don't complain about Phone. */}
+      {/* It's reserved for the Calls quick-action when that page lands. */}
       <span className="hidden" aria-hidden>
         <Phone className="h-0 w-0" />
         <AlertTriangle className="h-0 w-0" />

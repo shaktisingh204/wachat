@@ -1,8 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { LuSheet, LuPlus, LuX, LuRefreshCw } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Sheet, Plus, X } from 'lucide-react';
+import {
+  cn,
+  Field,
+  Input,
+  Card,
+  CardTitle,
+  Switch,
+  Button,
+  IconButton,
+  EmptyState,
+  RadioGroup,
+  Radio,
+  SegmentedControl,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -62,11 +81,11 @@ export type GoogleSheetsNodeProps = {
 /* ── Constants ───────────────────────────────────────────── */
 
 const OPERATIONS: { id: GoogleSheetsOperation; label: string; description: string }[] = [
-  { id: 'read_row',    label: 'Read Row',    description: 'Find and read a single row' },
-  { id: 'read_range',  label: 'Read Range',  description: 'Read multiple rows from a range' },
-  { id: 'append_row',  label: 'Append Row',  description: 'Add a new row at the bottom' },
-  { id: 'update_row',  label: 'Update Row',  description: 'Find and update an existing row' },
-  { id: 'delete_row',  label: 'Delete Row',  description: 'Find and delete a row' },
+  { id: 'read_row', label: 'Read Row', description: 'Find and read a single row' },
+  { id: 'read_range', label: 'Read Range', description: 'Read multiple rows from a range' },
+  { id: 'append_row', label: 'Append Row', description: 'Add a new row at the bottom' },
+  { id: 'update_row', label: 'Update Row', description: 'Find and update an existing row' },
+  { id: 'delete_row', label: 'Delete Row', description: 'Find and delete a row' },
   { id: 'clear_range', label: 'Clear Range', description: 'Clear all values in a range' },
 ];
 
@@ -85,7 +104,6 @@ export function GoogleSheetsNode({ config, onChange, className }: GoogleSheetsNo
 
   const isWriteOp = WRITE_OPS.includes(config.operation);
   const isLookupOp = LOOKUP_OPS.includes(config.operation);
-  const isReadOp = config.operation === 'read_row' || config.operation === 'read_range';
 
   const updateColumn = (id: string, field: keyof ColumnMapping, val: string) =>
     onChange({
@@ -103,219 +121,202 @@ export function GoogleSheetsNode({ config, onChange, className }: GoogleSheetsNo
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
-          <LuSheet className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+          <Sheet className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Google Sheets</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Read and write spreadsheet data</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Google Sheets</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Read and write spreadsheet data</p>
         </div>
       </div>
 
       {/* Operation selector */}
-      <div className="space-y-1.5">
-        <Label>Operation</Label>
-        <div className="grid grid-cols-2 gap-1.5">
+      <Field label="Operation">
+        <RadioGroup
+          aria-label="Operation"
+          value={config.operation}
+          onValueChange={(v) => onChange({ ...config, operation: v as GoogleSheetsOperation })}
+          className="grid grid-cols-2 gap-1.5"
+        >
           {OPERATIONS.map(({ id, label, description }) => (
-            <button
+            <Radio
               key={id}
-              type="button"
-              onClick={() => onChange({ ...config, operation: id })}
+              value={id}
               className={cn(
-                'rounded-lg border px-3 py-2 text-left transition-colors',
+                'items-start rounded-[var(--st-radius)] border px-3 py-2',
                 config.operation === id
-                  ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/8 text-[var(--gray-12)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-6)]',
+                  ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)]'
+                  : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]',
               )}
-            >
-              <p className="text-[12px] font-semibold">{label}</p>
-              <p className="text-[10.5px] text-[var(--gray-9)] mt-0.5">{description}</p>
-            </button>
+              label={
+                <span className="block">
+                  <span className="block text-[12px] font-semibold text-[var(--st-text)]">{label}</span>
+                  <span className="mt-0.5 block text-[10.5px] text-[var(--st-text-secondary)]">{description}</span>
+                </span>
+              }
+            />
           ))}
-        </div>
-      </div>
+        </RadioGroup>
+      </Field>
 
       {/* Config / Columns tabs */}
-      <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-        {(['config', 'columns'] as const).map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setActiveTab(t)}
-            className={cn(
-              'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-              activeTab === t
-                ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-            )}
-          >
-            {t === 'config' ? 'Configuration' : 'Columns'}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        aria-label="Section"
+        fullWidth
+        value={activeTab}
+        onChange={setActiveTab}
+        items={[
+          { value: 'config', label: 'Configuration' },
+          { value: 'columns', label: 'Columns' },
+        ]}
+      />
 
       {/* Config tab */}
       {activeTab === 'config' && (
         <div className="space-y-3">
           {/* Spreadsheet ID */}
-          <div className="space-y-1.5">
-            <Label>Spreadsheet ID</Label>
-            <input
-              type="text"
-              className={INPUT_CLS}
+          <Field
+            label="Spreadsheet ID"
+            help={
+              <>
+                Found in the spreadsheet URL: /spreadsheets/d/<strong>SPREADSHEET_ID</strong>/edit
+              </>
+            }
+          >
+            <Input
               value={config.spreadsheetId}
               onChange={(e) => onChange({ ...config, spreadsheetId: e.target.value })}
               placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
             />
-            <p className="text-[11px] text-[var(--gray-9)]">
-              Found in the spreadsheet URL: /spreadsheets/d/<strong>SPREADSHEET_ID</strong>/edit
-            </p>
-          </div>
+          </Field>
 
           {/* Sheet name */}
-          <div className="space-y-1.5">
-            <Label>Sheet / Tab Name</Label>
-            <input
-              type="text"
-              className={INPUT_CLS}
+          <Field label="Sheet / Tab Name">
+            <Input
               value={config.sheetName}
               onChange={(e) => onChange({ ...config, sheetName: e.target.value })}
               placeholder="Sheet1 (leave empty for first sheet)"
             />
-          </div>
+          </Field>
 
           {/* Range */}
-          <div className="space-y-1.5">
-            <Label>Range</Label>
-            <input
-              type="text"
-              className={cn(INPUT_CLS, 'font-mono')}
+          <Field label="Range" help="A1 notation range to operate on">
+            <Input
+              className="font-mono"
               value={config.range}
               onChange={(e) => onChange({ ...config, range: e.target.value })}
               placeholder="A1:Z1000"
             />
-            <p className="text-[11px] text-[var(--gray-9)]">A1 notation range to operate on</p>
-          </div>
+          </Field>
 
           {/* Lookup (for row-level ops that need to find a row) */}
           {isLookupOp && (
-            <div className="space-y-3 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3">
-              <p className="text-[12px] font-semibold text-[var(--gray-11)]">Row Lookup</p>
-              <div className="space-y-1.5">
-                <Label>Lookup Column</Label>
-                <input
-                  type="text"
-                  className={INPUT_CLS}
+            <Card variant="outlined" padding="sm" className="space-y-3 bg-[var(--st-bg-secondary)]">
+              <CardTitle className="text-[12px]">Row Lookup</CardTitle>
+              <Field label="Lookup Column">
+                <Input
                   value={config.lookupColumn}
                   onChange={(e) => onChange({ ...config, lookupColumn: e.target.value })}
                   placeholder="email"
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Lookup Value</Label>
-                <input
-                  type="text"
-                  className={INPUT_CLS}
+              </Field>
+              <Field label="Lookup Value">
+                <Input
                   value={config.lookupValue}
                   onChange={(e) => onChange({ ...config, lookupValue: e.target.value })}
                   placeholder="{{contact.email}}"
                 />
-              </div>
-            </div>
+              </Field>
+            </Card>
           )}
 
           {/* Include headers toggle for range reads */}
           {config.operation === 'read_range' && (
-            <div className="flex items-center justify-between rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+            <Card variant="outlined" padding="sm" className="flex items-center justify-between bg-[var(--st-bg-secondary)]">
               <div>
-                <p className="text-[12.5px] font-medium text-[var(--gray-12)]">Include Header Row</p>
-                <p className="text-[11px] text-[var(--gray-9)]">Use row 1 as column names in output</p>
+                <p className="text-[12.5px] font-medium text-[var(--st-text)]">Include Header Row</p>
+                <p className="text-[11px] text-[var(--st-text-secondary)]">Use row 1 as column names in output</p>
               </div>
-              <Toggle
+              <Switch
+                aria-label="Include header row"
                 checked={config.includeHeaders}
-                onChange={(v) => onChange({ ...config, includeHeaders: v })}
+                onCheckedChange={(v) => onChange({ ...config, includeHeaders: v })}
               />
-            </div>
+            </Card>
           )}
 
           {/* Output variable */}
-          <div className="space-y-1.5">
-            <Label>Save Result to Variable</Label>
-            <input
-              type="text"
-              className={INPUT_CLS}
+          <Field label="Save Result to Variable">
+            <Input
               value={config.outputVariable}
               onChange={(e) => onChange({ ...config, outputVariable: e.target.value })}
               placeholder="{{sheetsResult}}"
             />
-          </div>
+          </Field>
         </div>
       )}
 
       {/* Columns tab */}
       {activeTab === 'columns' && (
         <div className="space-y-3">
-          <p className="text-[11.5px] text-[var(--gray-9)]">
+          <p className="text-[11.5px] text-[var(--st-text-secondary)]">
             {isWriteOp
               ? 'Map variables to sheet columns for writing.'
               : 'Map sheet columns to variables to capture their values.'}
           </p>
 
           {config.columns.length === 0 && (
-            <div className="rounded-lg border border-dashed border-[var(--gray-5)] py-6 text-center text-[12px] text-[var(--gray-9)]">
-              <LuSheet className="mx-auto mb-2 h-5 w-5 opacity-30" strokeWidth={1.5} />
-              No columns mapped yet
-            </div>
+            <EmptyState
+              size="sm"
+              icon={Sheet}
+              title="No columns mapped yet"
+              description={isWriteOp ? 'Add a mapping to write values into the sheet.' : 'Add a mapping to capture column values.'}
+            />
           )}
 
           <div className="space-y-2">
             {config.columns.map((col) => (
               <div key={col.id} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  className={cn(INPUT_CLS, 'flex-1')}
-                  value={col.columnName}
-                  onChange={(e) => updateColumn(col.id, 'columnName', e.target.value)}
-                  placeholder="Column name"
-                />
-                <span className="text-[var(--gray-8)] shrink-0">
-                  {isWriteOp ? '←' : '→'}
+                <Field label="" className="flex-1">
+                  <Input
+                    value={col.columnName}
+                    onChange={(e) => updateColumn(col.id, 'columnName', e.target.value)}
+                    placeholder="Column name"
+                    aria-label="Column name"
+                  />
+                </Field>
+                <span className="shrink-0 text-[var(--st-text-tertiary)]" aria-hidden="true">
+                  {isWriteOp ? '<-' : '->'}
                 </span>
-                <input
-                  type="text"
-                  className={cn(INPUT_CLS, 'flex-1')}
-                  value={col.value}
-                  onChange={(e) => updateColumn(col.id, 'value', e.target.value)}
-                  placeholder={isWriteOp ? '{{variable}}' : '{{save.here}}'}
-                />
-                <button
-                  type="button"
+                <Field label="" className="flex-1">
+                  <Input
+                    value={col.value}
+                    onChange={(e) => updateColumn(col.id, 'value', e.target.value)}
+                    placeholder={isWriteOp ? '{{variable}}' : '{{save.here}}'}
+                    aria-label={isWriteOp ? 'Variable to write' : 'Variable to store into'}
+                  />
+                </Field>
+                <IconButton
+                  label="Remove column mapping"
+                  icon={X}
+                  size="sm"
                   onClick={() => removeColumn(col.id)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
-                >
-                  <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-                </button>
+                />
               </div>
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={addColumn}
-            className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+          <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addColumn}>
             Add column mapping
-          </button>
+          </Button>
         </div>
       )}
 
       <OutputSchema
-        accent="#22c55e"
         fields={[
-          { key: 'rows',         type: 'array',   description: 'Array of row objects keyed by column name' },
-          { key: 'updatedRange', type: 'string',  description: 'The range that was actually modified' },
-          { key: 'rowIndex',     type: 'number?', description: 'Zero-based index of affected row (row ops)' },
+          { key: 'rows', type: 'array', description: 'Array of row objects keyed by column name' },
+          { key: 'updatedRange', type: 'string', description: 'The range that was actually modified' },
+          { key: 'rowIndex', type: 'number?', description: 'Zero-based index of affected row (row ops)' },
         ]}
       />
     </div>
@@ -324,49 +325,39 @@ export function GoogleSheetsNode({ config, onChange, className }: GoogleSheetsNo
 
 /* ── Shared primitives ───────────────────────────────────── */
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-5 w-9 rounded-full transition-colors',
-        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-      )}
-    >
-      <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
-  );
-}
-
 type OutputField = { key: string; type: string; description: string };
 
-function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[] }) {
+function OutputSchema({ fields }: { fields: OutputField[] }) {
   return (
-    <div className="space-y-1.5">
-      <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
-        {fields.map((f) => (
-          <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] text-[11.5px] font-mono font-medium" style={{ color: accent }}>{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Field label="Output">
+      <Card variant="outlined" padding="none" className="overflow-hidden">
+        <Table density="compact" hover={false}>
+          <THead>
+            <Tr>
+              <Th>Field</Th>
+              <Th>Type</Th>
+              <Th>Description</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            {fields.map((f) => (
+              <Tr key={f.key}>
+                <Td>
+                  <code className="font-mono text-[11.5px] font-medium text-[var(--st-status-ok)]">{f.key}</code>
+                </Td>
+                <Td>
+                  <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text-secondary)]">
+                    {f.type}
+                  </code>
+                </Td>
+                <Td truncate className="text-[11px] text-[var(--st-text-secondary)]">
+                  {f.description}
+                </Td>
+              </Tr>
+            ))}
+          </TBody>
+        </Table>
+      </Card>
+    </Field>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

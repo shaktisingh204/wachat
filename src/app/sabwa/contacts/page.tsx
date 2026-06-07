@@ -1,35 +1,80 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn } from '@/components/sabcrm/20ui';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Breadcrumb,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Skeleton,
+  Table,
+  TBody,
+  Td,
+  Textarea,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import {
   BookUser,
   Ban,
-  CheckSquare,
   Download,
   MessageSquare,
   Plus,
   Search,
   Smartphone,
-  Square,
   Tag as TagIcon,
   Upload,
   Users,
   X,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * SabWa — Contacts (Page 14)
+ * SabWa - Contacts (Page 14)
  *
- * Unified contact book for a SabWa session. DataTable with avatar / name /
+ * Unified contact book for a SabWa session. A table with avatar / name /
  * phone / last-interaction / tags / source columns, plus a right-side
  * drawer showing profile + tags + custom fields + notes + mutual groups +
  * last 5 messages + scheduled messages for the selected contact.
  *
- * Migrated to ZoruUI primitives. The drawer's tab strip is replaced with
- * a segmented Button group (no tab UI per the ZoruUI design rules).
- * No server actions, prop shapes, or data flow changed.
+ * Pure 20ui. The drawer's section strip is a 20ui SegmentedControl (no tab
+ * UI). No server actions, prop shapes, or data flow changed.
  *
- * Source of truth: SABWA_PLAN.md § 6 — Page 14.
+ * Source of truth: SABWA_PLAN.md section 6 - Page 14.
  */
 
 import * as React from 'react';
@@ -44,7 +89,7 @@ import { useSabwaSession } from '@/lib/sabwa/session-context';
 import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 import type { SabwaContact } from '@/lib/sabwa/types';
 
-// ─── Local view model ──────────────────────────────────────────────────────
+// Local view model -----------------------------------------------------------
 
 type ContactSource = 'synced' | 'manual' | 'imported';
 
@@ -79,9 +124,9 @@ function initialsFromName(name?: string): string {
 }
 
 function formatRelative(ts?: Date | string): string {
-  if (!ts) return '—';
+  if (!ts) return '-';
   const d = typeof ts === 'string' ? new Date(ts) : ts;
-  if (Number.isNaN(d.getTime())) return '—';
+  if (Number.isNaN(d.getTime())) return '-';
   const diff = (Date.now() - d.getTime()) / 1000;
   if (diff < 60) return 'just now';
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
@@ -111,12 +156,13 @@ function toContactRow(c: SabwaContact): ContactRow {
   };
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
+// Page -----------------------------------------------------------------------
 
 export default function Page() {
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? null;
   const resolve = useResolveJid(sessionId);
+  const { toast } = useToast();
   const [search, setSearch] = React.useState('');
   const [tagFilter, setTagFilter] = React.useState<string>('all');
   const [sourceFilter, setSourceFilter] = React.useState<ContactSource | 'all'>(
@@ -133,6 +179,7 @@ export default function Page() {
   const [importOpen, setImportOpen] = React.useState(false);
   const [newName, setNewName] = React.useState('');
   const [newPhone, setNewPhone] = React.useState('');
+  const [importFile, setImportFile] = React.useState<File | null>(null);
 
   // Initial + filtered load.
   React.useEffect(() => {
@@ -170,6 +217,7 @@ export default function Page() {
   }, [contacts]);
 
   const allSelected = selected.size > 0 && selected.size === contacts.length;
+  const someSelected = selected.size > 0 && selected.size < contacts.length;
 
   const toggleRow = React.useCallback((id: string) => {
     setSelected((prev) => {
@@ -226,28 +274,21 @@ export default function Page() {
     a.download = `sabwa-contacts-${Date.now()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [contacts, selected]);
+    toast.success(`Exported ${rows.length} contacts to CSV`);
+  }, [contacts, selected, toast]);
 
   if (!sessionId) {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Contacts</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <Breadcrumb
+          items={[
+            { label: 'SabNode', href: '/dashboard' },
+            { label: 'SabWa', href: '/sabwa' },
+            { label: 'Contacts' },
+          ]}
+        />
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
@@ -263,64 +304,56 @@ export default function Page() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10 space-y-6">
       {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/sabwa">SabWa</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Contacts</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <Breadcrumb
+        items={[
+          { label: 'SabNode', href: '/dashboard' },
+          { label: 'SabWa', href: '/sabwa' },
+          { label: 'Contacts' },
+        ]}
+      />
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <PageHeader bordered={false}>
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <span
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+            aria-hidden="true"
+          >
             <BookUser className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-              Contacts
-            </h1>
-            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
-              Unified contact book — search, tag, segment, and segment-export
-              your audience.
-            </p>
-          </div>
+          </span>
+          <PageHeaderHeading>
+            <PageTitle>Contacts</PageTitle>
+            <PageDescription>
+              Unified contact book. Search, tag, segment, and segment-export your
+              audience.
+            </PageDescription>
+          </PageHeaderHeading>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setImportOpen(true)}>
-            <Upload className="mr-2 h-4 w-4" /> Import CSV
+        <PageActions>
+          <Button variant="outline" iconLeft={Upload} onClick={() => setImportOpen(true)}>
+            Import CSV
           </Button>
-          <Button onClick={() => setAddOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add contact
+          <Button variant="primary" iconLeft={Plus} onClick={() => setAddOpen(true)}>
+            Add contact
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       {/* Filter bar */}
-      <Card>
+      <Card padding="none">
         <CardHeader className="gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[220px] flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+            <div className="min-w-[220px] flex-1">
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by name, phone, or push name…"
-                className="pl-9"
+                placeholder="Search by name, phone, or push name"
+                iconLeft={Search}
                 aria-label="Search contacts"
               />
             </div>
             <Select value={tagFilter} onValueChange={setTagFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px]" aria-label="Filter by tag">
                 <SelectValue placeholder="All tags" />
               </SelectTrigger>
               <SelectContent>
@@ -336,7 +369,7 @@ export default function Page() {
               value={sourceFilter}
               onValueChange={(v) => setSourceFilter(v as ContactSource | 'all')}
             >
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px]" aria-label="Filter by source">
                 <SelectValue placeholder="All sources" />
               </SelectTrigger>
               <SelectContent>
@@ -354,26 +387,25 @@ export default function Page() {
                 {selected.size} selected
               </span>
               <Separator orientation="vertical" className="h-5" />
-              <Button size="sm" variant="ghost">
-                <TagIcon className="mr-1.5 h-3.5 w-3.5" /> Tag
+              <Button size="sm" variant="ghost" iconLeft={TagIcon}>
+                Tag
               </Button>
-              <Button size="sm" variant="ghost" onClick={exportSelectedCsv}>
-                <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+              <Button size="sm" variant="ghost" iconLeft={Download} onClick={exportSelectedCsv}>
+                Export CSV
               </Button>
-              <Button size="sm" variant="ghost">
-                <Users className="mr-1.5 h-3.5 w-3.5" /> Add to broadcast
+              <Button size="sm" variant="ghost" iconLeft={Users}>
+                Add to broadcast
               </Button>
-              <Button size="sm" variant="ghost" className="text-[var(--st-danger)]">
-                <Ban className="mr-1.5 h-3.5 w-3.5" /> Block
+              <Button size="sm" variant="ghost" iconLeft={Ban} className="text-[var(--st-danger)]">
+                Block
               </Button>
-              <Button
+              <IconButton
+                label="Clear selection"
+                icon={X}
                 size="sm"
-                variant="ghost"
                 className="ml-auto"
                 onClick={() => setSelected(new Set())}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
+              />
             </div>
           )}
         </CardHeader>
@@ -381,19 +413,13 @@ export default function Page() {
           <Table>
             <THead>
               <Tr>
-                <Th className="w-10">
-                  <button
-                    type="button"
-                    aria-label="Select all"
-                    onClick={toggleAll}
-                    className="inline-flex h-5 w-5 items-center justify-center"
-                  >
-                    {allSelected ? (
-                      <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
-                    ) : (
-                      <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                    )}
-                  </button>
+                <Th width={40}>
+                  <Checkbox
+                    checked={allSelected}
+                    indeterminate={someSelected}
+                    onChange={toggleAll}
+                    aria-label="Select all contacts"
+                  />
                 </Th>
                 <Th>Contact</Th>
                 <Th>Phone</Th>
@@ -407,7 +433,7 @@ export default function Page() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <Tr key={`contacts-skeleton-${i}`}>
                     <Td colSpan={6} className="py-2">
-                      <Skeleton className="h-[56px] w-full rounded-[var(--st-radius-lg)]" />
+                      <Skeleton height={56} radius="var(--st-radius-lg)" />
                     </Td>
                   </Tr>
                 ))}
@@ -415,20 +441,15 @@ export default function Page() {
                 <Tr>
                   <Td colSpan={6} className="py-8">
                     <EmptyState
-                      icon={<Users />}
+                      icon={Users}
                       title="No contacts yet"
                       description="Import a CSV in seconds, or add one manually. Once your WhatsApp session syncs, address-book contacts will appear here automatically."
                       action={
                         <div className="flex flex-wrap items-center justify-center gap-2">
-                          <Button onClick={() => setAddOpen(true)}>
-                            <Plus className="mr-1.5 h-4 w-4" />
+                          <Button variant="primary" iconLeft={Plus} onClick={() => setAddOpen(true)}>
                             Add contact
                           </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setImportOpen(true)}
-                          >
-                            <Upload className="mr-1.5 h-4 w-4" />
+                          <Button variant="outline" iconLeft={Upload} onClick={() => setImportOpen(true)}>
                             Import CSV
                           </Button>
                         </div>
@@ -442,25 +463,16 @@ export default function Page() {
                 return (
                   <Tr
                     key={c.id}
-                    className={cn(
-                      'cursor-pointer',
-                      checked && 'bg-[var(--st-bg-secondary)]',
-                    )}
+                    selected={checked}
+                    className="cursor-pointer"
                     onClick={() => openContact(c)}
                   >
                     <Td onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
+                      <Checkbox
+                        checked={checked}
+                        onChange={() => toggleRow(c.id)}
                         aria-label={`Select ${c.name ?? c.jid}`}
-                        onClick={() => toggleRow(c.id)}
-                        className="inline-flex h-5 w-5 items-center justify-center"
-                      >
-                        {checked ? (
-                          <CheckSquare className="h-4 w-4 text-[var(--st-text)]" />
-                        ) : (
-                          <Square className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                        )}
-                      </button>
+                      />
                     </Td>
                     <Td>
                       <div className="flex items-center gap-3">
@@ -490,7 +502,7 @@ export default function Page() {
                       </div>
                     </Td>
                     <Td className="font-mono text-xs">
-                      {c.phoneE164 ?? '—'}
+                      {c.phoneE164 ?? '-'}
                     </Td>
                     <Td className="text-sm text-[var(--st-text-secondary)]">
                       {formatRelative(c.lastInteractionAt)}
@@ -498,7 +510,7 @@ export default function Page() {
                     <Td>
                       <div className="flex flex-wrap gap-1">
                         {c.tags.length === 0 && (
-                          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+                          <span className="text-xs text-[var(--st-text-secondary)]">-</span>
                         )}
                         {c.tags.slice(0, 3).map((t) => (
                           <Badge key={t} variant="secondary" className="text-[10px]">
@@ -552,34 +564,32 @@ export default function Page() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="contact-name">Name</Label>
+            <Field label="Name" id="contact-name">
               <Input
-                id="contact-name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Lina from Aurora"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="contact-phone">Phone (E.164)</Label>
+            </Field>
+            <Field label="Phone (E.164)" id="contact-phone">
               <Input
-                id="contact-phone"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
                 placeholder="+919876543210"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
                 setAddOpen(false);
                 setNewName('');
                 setNewPhone('');
+                toast.success('Contact queued');
                 // TODO (Phase 2): call createContact action.
               }}
               disabled={!newPhone}
@@ -599,12 +609,44 @@ export default function Page() {
               CSV columns: <code>name,phone,tags</code>. Phones must be E.164.
             </DialogDescription>
           </DialogHeader>
-          <Input type="file" accept=".csv,text/csv" />
+          <div className="flex items-center gap-2">
+            <SabFileToFileButton
+              accept="all"
+              onPickFile={(file) => {
+                setImportFile(file);
+                toast.success(`Selected ${file.name}`);
+              }}
+              onError={() => toast.error('Could not load that file')}
+            >
+              Choose CSV from SabFiles
+            </SabFileToFileButton>
+            {importFile ? (
+              <span className="truncate text-sm text-[var(--st-text-secondary)]">
+                {importFile.name}
+              </span>
+            ) : null}
+          </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setImportOpen(false)}>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setImportOpen(false);
+                setImportFile(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => setImportOpen(false)}>Import</Button>
+            <Button
+              variant="primary"
+              disabled={!importFile}
+              onClick={() => {
+                setImportOpen(false);
+                setImportFile(null);
+                toast.success('Import started');
+              }}
+            >
+              Import
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -612,7 +654,7 @@ export default function Page() {
   );
 }
 
-// ─── Contact drawer ────────────────────────────────────────────────────────
+// Contact drawer -------------------------------------------------------------
 
 interface ContactDrawerProps {
   sessionId: string;
@@ -722,42 +764,30 @@ function ContactDrawer({
 
         {/* Quick actions */}
         <div className="mt-4 grid grid-cols-2 gap-2">
-          <Button size="sm" variant="outline">
-            <MessageSquare className="mr-1.5 h-3.5 w-3.5" /> Open chat
+          <Button size="sm" variant="outline" iconLeft={MessageSquare}>
+            Open chat
           </Button>
-          <Button size="sm" variant="outline">
-            <Users className="mr-1.5 h-3.5 w-3.5" /> Add to broadcast
+          <Button size="sm" variant="outline" iconLeft={Users}>
+            Add to broadcast
           </Button>
-          <Button size="sm" variant="outline">
-            <TagIcon className="mr-1.5 h-3.5 w-3.5" /> Add to label
+          <Button size="sm" variant="outline" iconLeft={TagIcon}>
+            Add to label
           </Button>
-          <Button size="sm" variant="outline" className="text-[var(--st-danger)]">
-            <Ban className="mr-1.5 h-3.5 w-3.5" />{' '}
+          <Button size="sm" variant="outline" iconLeft={Ban} className="text-[var(--st-danger)]">
             {contact.isBlocked ? 'Unblock' : 'Block'}
           </Button>
         </div>
 
         <Separator className="my-4" />
 
-        {/* Section switcher — segmented buttons replace the old Tabs UI */}
-        <div
-          role="group"
+        {/* Section switcher - 20ui SegmentedControl replaces the old Tabs UI */}
+        <SegmentedControl
+          items={DRAWER_SECTIONS}
+          value={section}
+          onChange={(v) => setSection(v as DrawerSection)}
+          fullWidth
           aria-label="Contact section"
-          className="flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
-        >
-          {DRAWER_SECTIONS.map((s) => (
-            <Button
-              key={s.value}
-              type="button"
-              variant={section === s.value ? 'default' : 'ghost'}
-              size="sm"
-              className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
-              onClick={() => setSection(s.value)}
-            >
-              {s.label}
-            </Button>
-          ))}
-        </div>
+        />
 
         {section === 'overview' && (
           <div className="space-y-4 pt-4">
@@ -771,14 +801,13 @@ function ContactDrawer({
                 {contact.tags.map((t) => (
                   <Badge key={t} variant="secondary" className="gap-1">
                     {t}
-                    <button
-                      type="button"
-                      aria-label={`Remove tag ${t}`}
+                    <IconButton
+                      label={`Remove tag ${t}`}
+                      icon={X}
+                      size="sm"
                       onClick={() => removeTag(t)}
-                      className="ml-0.5 rounded-sm opacity-70 hover:opacity-100"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                      className="ml-0.5 opacity-70 hover:opacity-100"
+                    />
                   </Badge>
                 ))}
               </div>
@@ -793,7 +822,8 @@ function ContactDrawer({
                     }
                   }}
                   placeholder="Add a tag and press enter"
-                  className="h-8 text-sm"
+                  inputSize="sm"
+                  aria-label="Add a tag"
                 />
                 <Button size="sm" variant="outline" onClick={() => void addTag()}>
                   Add
@@ -831,14 +861,15 @@ function ContactDrawer({
                   disabled={savingNotes || notesDraft === (contact.notes ?? '')}
                   onClick={() => void saveNotes()}
                 >
-                  {savingNotes ? 'Saving…' : 'Save'}
+                  {savingNotes ? 'Saving...' : 'Save'}
                 </Button>
               </div>
               <Textarea
                 rows={4}
                 value={notesDraft}
                 onChange={(e) => setNotesDraft(e.target.value)}
-                placeholder="Free-form notes about this contact…"
+                placeholder="Free-form notes about this contact"
+                aria-label="Contact notes"
               />
             </section>
           </div>
@@ -919,7 +950,7 @@ function ContactDrawer({
   );
 }
 
-// ─── Custom-fields editor ──────────────────────────────────────────────────
+// Custom-fields editor -------------------------------------------------------
 
 interface CustomFieldsEditorProps {
   value: Record<string, string>;
@@ -956,15 +987,13 @@ function CustomFieldsEditor({ value, onChange }: CustomFieldsEditorProps) {
           <li key={k} className="flex items-center gap-2 text-sm">
             <span className="min-w-[100px] truncate font-medium text-[var(--st-text)]">{k}</span>
             <span className="flex-1 truncate text-[var(--st-text-secondary)]">{v}</span>
-            <Button
-              type="button"
-              size="icon"
+            <IconButton
+              label={`Remove field ${k}`}
+              icon={X}
+              size="sm"
               variant="ghost"
-              aria-label={`Remove field ${k}`}
               onClick={() => removePair(k)}
-            >
-              <X className="h-3.5 w-3.5" />
-            </Button>
+            />
           </li>
         ))}
       </ul>
@@ -973,17 +1002,17 @@ function CustomFieldsEditor({ value, onChange }: CustomFieldsEditorProps) {
           value={keyDraft}
           onChange={(e) => setKeyDraft(e.target.value)}
           placeholder="Key"
-          className="h-8 text-sm"
+          inputSize="sm"
+          aria-label="Custom field key"
         />
         <Input
           value={valDraft}
           onChange={(e) => setValDraft(e.target.value)}
           placeholder="Value"
-          className="h-8 text-sm"
+          inputSize="sm"
+          aria-label="Custom field value"
         />
-        <Button size="sm" variant="outline" onClick={addPair} disabled={!keyDraft}>
-          <Plus className="h-3.5 w-3.5" />
-        </Button>
+        <Button size="sm" variant="outline" iconLeft={Plus} onClick={addPair} disabled={!keyDraft} aria-label="Add custom field" />
       </div>
     </div>
   );

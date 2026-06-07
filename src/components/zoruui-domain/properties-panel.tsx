@@ -1,12 +1,23 @@
 'use client';
 
-import { Label, Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, ScrollArea, Separator } from '@/components/sabcrm/20ui';
 import {
-  useState,
-  useEffect,
-  useCallback } from 'react';
+  Label,
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Field,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  ScrollArea,
+  Separator } from '@/components/sabcrm/20ui';
+import {
+  useState } from 'react';
 
-import { Trash2, Settings2, Plus, Variable, ChevronDown } from 'lucide-react';
+import { Trash2, Settings2, Plus, Variable } from 'lucide-react';
 import { ALL_BLOCK_TYPES } from '@/components/flow-builder/Sidebar';
 import { useProject } from '@/context/project-context';
 import { cn } from '@/lib/utils';
@@ -24,32 +35,49 @@ function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
         { key: '{{custom.', label: 'Custom Variable...' },
     ];
     if (!open) return (
-        <button type="button" onClick={() => setOpen(true)} className="flex items-center gap-1 text-[10px] text-[var(--st-text)] hover:underline">
-            <Variable className="h-3 w-3" /> Insert variable
-        </button>
+        <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={Variable}
+            onClick={() => setOpen(true)}
+            className="text-[10px]"
+        >
+            Insert variable
+        </Button>
     );
     return (
-        <div className="rounded-md border bg-[var(--st-bg-muted)]/30 p-2 space-y-1">
+        <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]/30 p-2 space-y-1">
             {vars.map(v => (
-                <button key={v.key} type="button" onClick={() => { onInsert(v.key); setOpen(false); }}
-                    className="block w-full text-left text-[11px] px-2 py-1 rounded hover:bg-[var(--st-bg-muted)] truncate">
-                    <code className="text-[var(--st-text)]">{v.key}</code> <span className="text-[var(--st-text-secondary)] ml-1">{v.label}</span>
-                </button>
+                <Button
+                    key={v.key}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { onInsert(v.key); setOpen(false); }}
+                    className="block w-full justify-start text-left text-[11px] truncate"
+                >
+                    <code className="text-[var(--st-text)]">{v.key}</code>{' '}
+                    <span className="text-[var(--st-text-secondary)] ml-1">{v.label}</span>
+                </Button>
             ))}
-            <button type="button" onClick={() => setOpen(false)} className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] ml-2">Close</button>
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpen(false)}
+                className="text-[10px] text-[var(--st-text-secondary)] ml-2"
+            >
+                Close
+            </Button>
         </div>
     );
 }
 
 /* ── Reusable editor field ──────────────────────────── */
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function EditorField({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
     return (
-        <div className="space-y-1.5">
-            <Label className="text-xs">{label}</Label>
+        <Field label={<span className="text-xs">{label}</span>} help={hint}>
             {children}
-            {hint && <p className="text-[10px] text-[var(--st-text-secondary)]">{hint}</p>}
-        </div>
+        </Field>
     );
 }
 
@@ -58,11 +86,11 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 function TextNodeEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Message Text">
+            <EditorField label="Message Text">
                 <Textarea value={data.text || ''} onChange={e => onChange({ text: e.target.value })} placeholder="Hello {{name}}! How can I help you today?" className="min-h-[100px] text-sm" />
                 <VariableInserter onInsert={v => onChange({ text: (data.text || '') + v })} />
-            </Field>
-            <Field label="Preview URL" hint="If enabled, URLs in the message will show a link preview">
+            </EditorField>
+            <EditorField label="Preview URL" hint="If enabled, URLs in the message will show a link preview">
                 <Select value={data.previewUrl || 'true'} onValueChange={v => onChange({ previewUrl: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -70,7 +98,7 @@ function TextNodeEditor({ data, onChange }: { data: any; onChange: (d: any) => v
                         <SelectItem value="false">Disabled</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -84,27 +112,27 @@ function MediaNodeEditor({ data, onChange, mediaType }: { data: any; onChange: (
         : 'all';
     return (
         <>
-            <Field label={`${mediaType} URL`}>
+            <EditorField label={`${mediaType} URL`}>
                 <SabFileUrlInput
                     value={data.mediaUrl || ''}
                     onChange={(v) => onChange({ mediaUrl: v })}
                     accept={accept}
                     placeholder="https://example.com/media.jpg"
                 />
-            </Field>
-            <Field label="Or Base64 Data" hint="Paste a base64 data URI">
+            </EditorField>
+            <EditorField label="Or Base64 Data" hint="Paste a base64 data URI">
                 <Input value={data.imageBase64 || ''} onChange={e => onChange({ imageBase64: e.target.value })} placeholder="data:image/png;base64,..." />
-            </Field>
+            </EditorField>
             {mediaType !== 'sticker' && mediaType !== 'audio' && (
-                <Field label="Caption">
+                <EditorField label="Caption">
                     <Textarea value={data.caption || ''} onChange={e => onChange({ caption: e.target.value })} placeholder="Optional caption" rows={2} />
                     <VariableInserter onInsert={v => onChange({ caption: (data.caption || '') + v })} />
-                </Field>
+                </EditorField>
             )}
             {mediaType === 'document' && (
-                <Field label="Filename">
+                <EditorField label="Filename">
                     <Input value={data.filename || ''} onChange={e => onChange({ filename: e.target.value })} placeholder="report.pdf" />
-                </Field>
+                </EditorField>
             )}
         </>
     );
@@ -122,26 +150,26 @@ function ButtonsNodeEditor({ data, onChange }: { data: any; onChange: (d: any) =
 
     return (
         <>
-            <Field label="Message Body">
+            <EditorField label="Message Body">
                 <Textarea value={data.text || ''} onChange={e => onChange({ text: e.target.value })} placeholder="What would you like to do?" rows={3} />
                 <VariableInserter onInsert={v => onChange({ text: (data.text || '') + v })} />
-            </Field>
-            <Field label="Header (Optional)">
+            </EditorField>
+            <EditorField label="Header (Optional)">
                 <Input value={data.header || ''} onChange={e => onChange({ header: e.target.value })} placeholder="Choose an option" />
-            </Field>
-            <Field label="Footer (Optional)">
+            </EditorField>
+            <EditorField label="Footer (Optional)">
                 <Input value={data.footer || ''} onChange={e => onChange({ footer: e.target.value })} />
-            </Field>
+            </EditorField>
             <div className="space-y-2">
                 <Label className="text-xs">Buttons ({buttons.length}/3)</Label>
                 {buttons.map((btn: any, i: number) => (
                     <div key={i} className="flex items-center gap-2">
                         <Input value={btn.text || ''} onChange={e => updateBtn(i, 'text', e.target.value)} placeholder={`Button ${i + 1}`} className="flex-1 text-sm" />
-                        <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeBtn(i)}><Trash2 className="h-3 w-3" /></Button>
+                        <IconButton label={`Remove button ${i + 1}`} icon={Trash2} variant="ghost" size="sm" onClick={() => removeBtn(i)} />
                     </div>
                 ))}
                 {buttons.length < 3 && (
-                    <Button type="button" variant="outline" size="sm" onClick={addBtn} className="w-full"><Plus className="h-3 w-3 mr-1" /> Add Button</Button>
+                    <Button type="button" variant="outline" size="sm" iconLeft={Plus} onClick={addBtn} block>Add Button</Button>
                 )}
             </div>
         </>
@@ -164,18 +192,18 @@ function ListMessageEditor({ data, onChange }: { data: any; onChange: (d: any) =
 
     return (
         <>
-            <Field label="Body Text">
+            <EditorField label="Body Text">
                 <Textarea value={data.text || ''} onChange={e => onChange({ text: e.target.value })} placeholder="Choose from the options below" rows={2} />
-            </Field>
-            <Field label="Button Text" hint="Text shown on the list menu button">
+            </EditorField>
+            <EditorField label="Button Text" hint="Text shown on the list menu button">
                 <Input value={data.buttonText || ''} onChange={e => onChange({ buttonText: e.target.value })} placeholder="View Options" />
-            </Field>
-            <Field label="Header (Optional)">
+            </EditorField>
+            <EditorField label="Header (Optional)">
                 <Input value={data.header || ''} onChange={e => onChange({ header: e.target.value })} />
-            </Field>
+            </EditorField>
             <div className="space-y-3">
                 {sections.map((section: any, si: number) => (
-                    <div key={si} className="border rounded-md p-2 space-y-2">
+                    <div key={si} className="border border-[var(--st-border)] rounded-[var(--st-radius)] p-2 space-y-2">
                         <Input value={section.title || ''} onChange={e => updateSection(si, 'title', e.target.value)} placeholder="Section title" className="text-sm font-medium" />
                         {(section.rows || []).map((row: any, ri: number) => (
                             <div key={ri} className="flex gap-2">
@@ -187,7 +215,7 @@ function ListMessageEditor({ data, onChange }: { data: any; onChange: (d: any) =
                             </div>
                         ))}
                         {(section.rows || []).length < 10 && (
-                            <Button type="button" variant="ghost" size="sm" onClick={() => addRow(si)} className="w-full text-xs"><Plus className="h-3 w-3 mr-1" /> Row</Button>
+                            <Button type="button" variant="ghost" size="sm" iconLeft={Plus} onClick={() => addRow(si)} block className="text-xs">Row</Button>
                         )}
                     </div>
                 ))}
@@ -199,7 +227,7 @@ function ListMessageEditor({ data, onChange }: { data: any; onChange: (d: any) =
 function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Condition Type">
+            <EditorField label="Condition Type">
                 <Select value={data.conditionType || 'variable'} onValueChange={v => onChange({ conditionType: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -207,14 +235,14 @@ function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => 
                         <SelectItem value="user_response">Wait for User Response</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
             {(data.conditionType === 'variable' || !data.conditionType) && (
-                <Field label="Variable" hint="Use {{variable_name}} syntax">
+                <EditorField label="Variable" hint="Use {{variable_name}} syntax">
                     <Input value={data.variable || ''} onChange={e => onChange({ variable: e.target.value })} placeholder="{{last_input}}" />
                     <VariableInserter onInsert={v => onChange({ variable: v })} />
-                </Field>
+                </EditorField>
             )}
-            <Field label="Operator">
+            <EditorField label="Operator">
                 <Select value={data.operator || 'equals'} onValueChange={v => onChange({ operator: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -233,10 +261,10 @@ function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => 
                         <SelectItem value="regex">Matches regex</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
-            <Field label="Value">
+            </EditorField>
+            <EditorField label="Value">
                 <Input value={data.value || ''} onChange={e => onChange({ value: e.target.value })} placeholder="confirmed" />
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -244,10 +272,10 @@ function ConditionEditor({ data, onChange }: { data: any; onChange: (d: any) => 
 function DelayEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Duration">
+            <EditorField label="Duration">
                 <Input type="number" min="1" value={data.duration || '5'} onChange={e => onChange({ duration: e.target.value })} />
-            </Field>
-            <Field label="Unit">
+            </EditorField>
+            <EditorField label="Unit">
                 <Select value={data.unit || 'seconds'} onValueChange={v => onChange({ unit: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -256,7 +284,7 @@ function DelayEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                         <SelectItem value="hours">Hours</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -264,14 +292,14 @@ function DelayEditor({ data, onChange }: { data: any; onChange: (d: any) => void
 function InputEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Prompt Text" hint="Message sent before waiting for user input">
+            <EditorField label="Prompt Text" hint="Message sent before waiting for user input">
                 <Textarea value={data.text || ''} onChange={e => onChange({ text: e.target.value })} placeholder="What is your name?" rows={2} />
                 <VariableInserter onInsert={v => onChange({ text: (data.text || '') + v })} />
-            </Field>
-            <Field label="Save Response As" hint="Variable name to store the user's response">
+            </EditorField>
+            <EditorField label="Save Response As" hint="Variable name to store the user's response">
                 <Input value={data.saveAs || ''} onChange={e => onChange({ saveAs: e.target.value })} placeholder="user_name" />
-            </Field>
-            <Field label="Validation" hint="Optional validation for the expected input type">
+            </EditorField>
+            <EditorField label="Validation" hint="Optional validation for the expected input type">
                 <Select value={data.validation || 'none'} onValueChange={v => onChange({ validation: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -282,10 +310,10 @@ function InputEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                         <SelectItem value="yes_no">Yes / No</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
-            <Field label="Timeout (seconds)" hint="Max wait time before continuing. 0 = forever">
+            </EditorField>
+            <EditorField label="Timeout (seconds)" hint="Max wait time before continuing. 0 = forever">
                 <Input type="number" min="0" value={data.timeout || '0'} onChange={e => onChange({ timeout: e.target.value })} />
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -293,13 +321,13 @@ function InputEditor({ data, onChange }: { data: any; onChange: (d: any) => void
 function SetVariableEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Variable Name">
+            <EditorField label="Variable Name">
                 <Input value={data.variableName || ''} onChange={e => onChange({ variableName: e.target.value })} placeholder="order_status" />
-            </Field>
-            <Field label="Value" hint="Use {{var}} to reference other variables, or literal text">
+            </EditorField>
+            <EditorField label="Value" hint="Use {{var}} to reference other variables, or literal text">
                 <Input value={data.variableValue || ''} onChange={e => onChange({ variableValue: e.target.value })} placeholder="confirmed" />
                 <VariableInserter onInsert={v => onChange({ variableValue: (data.variableValue || '') + v })} />
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -307,7 +335,7 @@ function SetVariableEditor({ data, onChange }: { data: any; onChange: (d: any) =
 function ApiEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Method">
+            <EditorField label="Method">
                 <Select value={data.method || 'GET'} onValueChange={v => onChange({ method: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -318,21 +346,21 @@ function ApiEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
                         <SelectItem value="DELETE">DELETE</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
-            <Field label="URL">
+            </EditorField>
+            <EditorField label="URL">
                 <Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://api.example.com/data" />
                 <VariableInserter onInsert={v => onChange({ url: (data.url || '') + v })} />
-            </Field>
-            <Field label="Headers (JSON)" hint="e.g. {&quot;Authorization&quot;: &quot;Bearer xxx&quot;}">
+            </EditorField>
+            <EditorField label="Headers (JSON)" hint='e.g. {"Authorization": "Bearer xxx"}'>
                 <Textarea value={data.headers || ''} onChange={e => onChange({ headers: e.target.value })} placeholder='{"Content-Type": "application/json"}' rows={2} className="font-mono text-xs" />
-            </Field>
-            <Field label="Body (JSON)" hint="For POST/PUT/PATCH. Supports {{variables}}">
+            </EditorField>
+            <EditorField label="Body (JSON)" hint="For POST/PUT/PATCH. Supports {{variables}}">
                 <Textarea value={data.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder='{"name": "{{name}}"}' rows={3} className="font-mono text-xs" />
                 <VariableInserter onInsert={v => onChange({ body: (data.body || '') + v })} />
-            </Field>
-            <Field label="Save Response As" hint="Variable name to store the JSON response">
+            </EditorField>
+            <EditorField label="Save Response As" hint="Variable name to store the JSON response">
                 <Input value={data.saveAs || ''} onChange={e => onChange({ saveAs: e.target.value })} placeholder="api_result" />
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -340,10 +368,10 @@ function ApiEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
 function LocationEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Latitude"><Input value={data.latitude || ''} onChange={e => onChange({ latitude: e.target.value })} placeholder="28.6139" /></Field>
-            <Field label="Longitude"><Input value={data.longitude || ''} onChange={e => onChange({ longitude: e.target.value })} placeholder="77.2090" /></Field>
-            <Field label="Name"><Input value={data.name || ''} onChange={e => onChange({ name: e.target.value })} placeholder="Our Office" /></Field>
-            <Field label="Address"><Input value={data.address || ''} onChange={e => onChange({ address: e.target.value })} placeholder="123 Main St" /></Field>
+            <EditorField label="Latitude"><Input value={data.latitude || ''} onChange={e => onChange({ latitude: e.target.value })} placeholder="28.6139" /></EditorField>
+            <EditorField label="Longitude"><Input value={data.longitude || ''} onChange={e => onChange({ longitude: e.target.value })} placeholder="77.2090" /></EditorField>
+            <EditorField label="Name"><Input value={data.name || ''} onChange={e => onChange({ name: e.target.value })} placeholder="Our Office" /></EditorField>
+            <EditorField label="Address"><Input value={data.address || ''} onChange={e => onChange({ address: e.target.value })} placeholder="123 Main St" /></EditorField>
         </>
     );
 }
@@ -351,9 +379,9 @@ function LocationEditor({ data, onChange }: { data: any; onChange: (d: any) => v
 function ContactEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Contact Name"><Input value={data.contactName || ''} onChange={e => onChange({ contactName: e.target.value })} placeholder="John Doe" /></Field>
-            <Field label="Phone Number"><Input value={data.contactPhone || ''} onChange={e => onChange({ contactPhone: e.target.value })} placeholder="+919876543210" /></Field>
-            <Field label="Email (Optional)"><Input value={data.contactEmail || ''} onChange={e => onChange({ contactEmail: e.target.value })} placeholder="john@example.com" /></Field>
+            <EditorField label="Contact Name"><Input value={data.contactName || ''} onChange={e => onChange({ contactName: e.target.value })} placeholder="John Doe" /></EditorField>
+            <EditorField label="Phone Number"><Input value={data.contactPhone || ''} onChange={e => onChange({ contactPhone: e.target.value })} placeholder="+919876543210" /></EditorField>
+            <EditorField label="Email (Optional)"><Input value={data.contactEmail || ''} onChange={e => onChange({ contactEmail: e.target.value })} placeholder="john@example.com" /></EditorField>
         </>
     );
 }
@@ -362,20 +390,27 @@ function ReactionEditor({ data, onChange }: { data: any; onChange: (d: any) => v
     const emojis = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🎉', '🔥', '👏', '💯'];
     return (
         <>
-            <Field label="React to" hint="Leave empty to react to the last received message">
+            <EditorField label="React to" hint="Leave empty to react to the last received message">
                 <Input value={data.messageId || ''} onChange={e => onChange({ messageId: e.target.value })} placeholder="Auto (last message)" />
-            </Field>
-            <Field label="Emoji">
+            </EditorField>
+            <EditorField label="Emoji">
                 <div className="flex flex-wrap gap-1">
                     {emojis.map(e => (
-                        <button key={e} type="button" onClick={() => onChange({ emoji: e })}
-                            className={cn('text-xl p-1 rounded hover:bg-[var(--st-bg-muted)]', data.emoji === e && 'bg-[var(--st-text)]/10 ring-1 ring-primary')}>
+                        <Button
+                            key={e}
+                            variant="ghost"
+                            size="sm"
+                            aria-label={`React with ${e}`}
+                            aria-pressed={data.emoji === e}
+                            onClick={() => onChange({ emoji: e })}
+                            className={cn('text-xl', data.emoji === e && 'ring-1 ring-[var(--st-accent)]')}
+                        >
                             {e}
-                        </button>
+                        </Button>
                     ))}
                 </div>
                 <Input value={data.emoji || ''} onChange={e => onChange({ emoji: e.target.value })} placeholder="Or type any emoji" className="mt-1" />
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -383,10 +418,10 @@ function ReactionEditor({ data, onChange }: { data: any; onChange: (d: any) => v
 function CtaUrlEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Body Text"><Textarea value={data.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder="Check out our website" rows={2} /></Field>
-            <Field label="Button Text"><Input value={data.displayText || ''} onChange={e => onChange({ displayText: e.target.value })} placeholder="Visit Website" /></Field>
-            <Field label="URL"><Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://example.com" /></Field>
-            <Field label="Header (Optional)"><Input value={data.header || ''} onChange={e => onChange({ header: e.target.value })} /></Field>
+            <EditorField label="Body Text"><Textarea value={data.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder="Check out our website" rows={2} /></EditorField>
+            <EditorField label="Button Text"><Input value={data.displayText || ''} onChange={e => onChange({ displayText: e.target.value })} placeholder="Visit Website" /></EditorField>
+            <EditorField label="URL"><Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://example.com" /></EditorField>
+            <EditorField label="Header (Optional)"><Input value={data.header || ''} onChange={e => onChange({ header: e.target.value })} /></EditorField>
         </>
     );
 }
@@ -396,7 +431,7 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
     const agents = (activeProject as any)?.agents || [];
     return (
         <>
-            <Field label="Assign To">
+            <EditorField label="Assign To">
                 <Select value={data.agentId || ''} onValueChange={v => {
                     const agent = agents.find((a: any) => a.userId?.toString() === v);
                     onChange({ agentId: v, agentName: agent?.name || v });
@@ -410,8 +445,8 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                         ))}
                     </SelectContent>
                 </Select>
-            </Field>
-            <Field label="Status" hint="Set conversation status when assigning">
+            </EditorField>
+            <EditorField label="Status" hint="Set conversation status when assigning">
                 <Select value={data.status || 'open'} onValueChange={v => onChange({ status: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -420,7 +455,7 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
                         <SelectItem value="vip">VIP</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -428,8 +463,8 @@ function AgentEditor({ data, onChange }: { data: any; onChange: (d: any) => void
 function TagEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Tag Name"><Input value={data.tagName || ''} onChange={e => onChange({ tagName: e.target.value })} placeholder="hot_lead" /></Field>
-            <Field label="Action">
+            <EditorField label="Tag Name"><Input value={data.tagName || ''} onChange={e => onChange({ tagName: e.target.value })} placeholder="hot_lead" /></EditorField>
+            <EditorField label="Action">
                 <Select value={data.tagAction || 'add'} onValueChange={v => onChange({ tagAction: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -437,7 +472,7 @@ function TagEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
                         <SelectItem value="remove">Remove Tag</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -445,8 +480,8 @@ function TagEditor({ data, onChange }: { data: any; onChange: (d: any) => void }
 function WebhookEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Webhook URL"><Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://hooks.example.com/trigger" /></Field>
-            <Field label="Method">
+            <EditorField label="Webhook URL"><Input value={data.url || ''} onChange={e => onChange({ url: e.target.value })} placeholder="https://hooks.example.com/trigger" /></EditorField>
+            <EditorField label="Method">
                 <Select value={data.method || 'POST'} onValueChange={v => onChange({ method: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -454,8 +489,8 @@ function WebhookEditor({ data, onChange }: { data: any; onChange: (d: any) => vo
                         <SelectItem value="GET">GET</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
-            <Field label="Include Contact Data" hint="Sends contact name, phone, variables">
+            </EditorField>
+            <EditorField label="Include Contact Data" hint="Sends contact name, phone, variables">
                 <Select value={data.includeContact || 'true'} onValueChange={v => onChange({ includeContact: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -463,7 +498,7 @@ function WebhookEditor({ data, onChange }: { data: any; onChange: (d: any) => vo
                         <SelectItem value="false">No</SelectItem>
                     </SelectContent>
                 </Select>
-            </Field>
+            </EditorField>
         </>
     );
 }
@@ -471,8 +506,8 @@ function WebhookEditor({ data, onChange }: { data: any; onChange: (d: any) => vo
 function NotificationEditor({ data, onChange }: { data: any; onChange: (d: any) => void }) {
     return (
         <>
-            <Field label="Message"><Textarea value={data.message || ''} onChange={e => onChange({ message: e.target.value })} placeholder="New lead from WhatsApp!" rows={2} /></Field>
-            <Field label="Link (Optional)"><Input value={data.link || ''} onChange={e => onChange({ link: e.target.value })} placeholder="/wachat/contacts" /></Field>
+            <EditorField label="Message"><Textarea value={data.message || ''} onChange={e => onChange({ message: e.target.value })} placeholder="New lead from WhatsApp!" rows={2} /></EditorField>
+            <EditorField label="Link (Optional)"><Input value={data.link || ''} onChange={e => onChange({ link: e.target.value })} placeholder="/wachat/contacts" /></EditorField>
         </>
     );
 }
@@ -481,9 +516,9 @@ function SimpleEditor({ data, onChange, fields }: { data: any; onChange: (d: any
     return (
         <>
             {fields.map(f => (
-                <Field key={f.key} label={f.label}>
+                <EditorField key={f.key} label={f.label}>
                     <Input value={data[f.key] || ''} onChange={e => onChange({ [f.key]: e.target.value })} placeholder={f.placeholder} />
-                </Field>
+                </EditorField>
             ))}
         </>
     );
@@ -514,9 +549,9 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
         switch (node.type) {
             case 'start':
                 return (
-                    <Field label="Trigger Keywords" hint="Comma-separated keywords that start this flow">
+                    <EditorField label="Trigger Keywords" hint="Comma-separated keywords that start this flow">
                         <Textarea value={d.triggerKeywords || ''} onChange={e => onChange({ triggerKeywords: e.target.value })} placeholder="hi, hello, start" rows={2} />
-                    </Field>
+                    </EditorField>
                 );
             case 'text': return <TextNodeEditor data={d} onChange={onChange} />;
             case 'image': return <MediaNodeEditor data={d} onChange={onChange} mediaType="image" />;
@@ -556,16 +591,16 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
             case 'sendSms':
                 return (
                     <>
-                        <Field label="Phone Number"><Input value={d.phone || ''} onChange={e => onChange({ phone: e.target.value })} placeholder="{{waId}} or +1234567890" /></Field>
-                        <Field label="Message"><Textarea value={d.message || ''} onChange={e => onChange({ message: e.target.value })} placeholder="SMS text" rows={3} /></Field>
+                        <EditorField label="Phone Number"><Input value={d.phone || ''} onChange={e => onChange({ phone: e.target.value })} placeholder="{{waId}} or +1234567890" /></EditorField>
+                        <EditorField label="Message"><Textarea value={d.message || ''} onChange={e => onChange({ message: e.target.value })} placeholder="SMS text" rows={3} /></EditorField>
                     </>
                 );
             case 'sendEmail':
                 return (
                     <>
-                        <Field label="To Email"><Input value={d.to || ''} onChange={e => onChange({ to: e.target.value })} placeholder="{{email}} or user@example.com" /></Field>
-                        <Field label="Subject"><Input value={d.subject || ''} onChange={e => onChange({ subject: e.target.value })} placeholder="Email subject" /></Field>
-                        <Field label="Body"><Textarea value={d.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder="Email body" rows={4} /></Field>
+                        <EditorField label="To Email"><Input value={d.to || ''} onChange={e => onChange({ to: e.target.value })} placeholder="{{email}} or user@example.com" /></EditorField>
+                        <EditorField label="Subject"><Input value={d.subject || ''} onChange={e => onChange({ subject: e.target.value })} placeholder="Email subject" /></EditorField>
+                        <EditorField label="Body"><Textarea value={d.body || ''} onChange={e => onChange({ body: e.target.value })} placeholder="Email body" rows={4} /></EditorField>
                     </>
                 );
             case 'createCrmLead':
@@ -598,9 +633,9 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
 
     return (
         <div className="flex flex-col h-full bg-[var(--st-bg-secondary)]/50 backdrop-blur-sm">
-            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0 bg-[var(--st-bg-secondary)]/80">
-                <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <Settings2 className="h-4 w-4 text-[var(--st-text-secondary)]" />
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)] shrink-0 bg-[var(--st-bg-secondary)]/80">
+                <h3 className="font-semibold text-sm flex items-center gap-2 text-[var(--st-text)]">
+                    <Settings2 className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     {blockInfo?.label || node.type}
                 </h3>
             </div>
@@ -608,9 +643,9 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
             <ScrollArea className="flex-1">
                 <div className="p-4 space-y-5">
                     {/* Label */}
-                    <Field label="Block Label">
+                    <EditorField label="Block Label">
                         <Input value={node.data.label || ''} onChange={handleLabelChange} placeholder={blockInfo?.label || 'Enter label'} className="bg-[var(--st-bg-secondary)]" />
-                    </Field>
+                    </EditorField>
 
                     <Separator />
 
@@ -622,9 +657,9 @@ export function PropertiesPanel({ node, availableVariables, onUpdate, deleteNode
             </ScrollArea>
 
             {node.type !== 'start' && (
-                <div className="p-4 border-t bg-[var(--st-bg-secondary)]/50 mt-auto shrink-0">
-                    <Button variant="ghost" className="w-full hover:bg-[var(--st-text)]/10 hover:text-[var(--st-text)] text-[var(--st-text)]" onClick={() => deleteNode(node.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete Block
+                <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]/50 mt-auto shrink-0">
+                    <Button variant="ghost" block iconLeft={Trash2} onClick={() => deleteNode(node.id)} className="text-[var(--st-text)]">
+                        Delete Block
                     </Button>
                 </div>
             )}

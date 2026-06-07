@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * SabSMS imports — multi-step wizard component.
+ * SabSMS imports - multi-step wizard component.
  *
  * Mounts inside a Dialog from `imports-table.tsx`. Drives the user
- * through: file pick (SabFiles) → column mapping → preview + dedupe →
- * options (consent / suppression / tags / segment / cron / webhook) →
+ * through: file pick (SabFiles) -> column mapping -> preview + dedupe ->
+ * options (consent / suppression / tags / segment / cron / webhook) ->
  * confirm.
  *
  * The wizard is purely a UI composer. On commit it calls the server
@@ -20,12 +20,42 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Tag,
+  Tag as TagIcon,
   Upload,
   Webhook,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Label,
+  Progress,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {
@@ -103,7 +133,7 @@ export function ImportsWizard({
       const raw = window.localStorage.getItem(MAPPING_TEMPLATES_KEY);
       if (raw) setTemplates(JSON.parse(raw) as MappingTemplate[]);
     } catch {
-      // Corrupt local storage — fall back to empty.
+      // Corrupt local storage - fall back to empty.
       setTemplates([]);
     }
   }, []);
@@ -305,9 +335,9 @@ export function ImportsWizard({
         <DialogHeader className="border-b border-[var(--st-border)] px-6 py-4">
           <DialogTitle>New import</DialogTitle>
           <DialogDescription>
-            Step {stepIndex + 1} of {STEPS.length} — {step}
+            Step {stepIndex + 1} of {STEPS.length} - {step}
           </DialogDescription>
-          <Progress value={progressPct} className="mt-3 h-1" />
+          <Progress value={progressPct} size="sm" className="mt-3" aria-label="Import progress" />
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
@@ -385,36 +415,30 @@ export function ImportsWizard({
           <div className="flex w-full items-center justify-between gap-2">
             <Button
               variant="ghost"
+              iconLeft={ChevronLeft}
               onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
               disabled={stepIndex === 0 || submitting}
             >
-              <ChevronLeft className="mr-1.5 h-4 w-4" />
               Back
             </Button>
             {step !== "Confirm" ? (
               <Button
+                variant="primary"
+                iconRight={ChevronRight}
                 onClick={() => setStepIndex((i) => Math.min(STEPS.length - 1, i + 1))}
                 disabled={!canAdvance()}
               >
                 Next
-                <ChevronRight className="ml-1.5 h-4 w-4" />
               </Button>
             ) : (
               <Button
+                variant="primary"
+                iconLeft={submitting ? undefined : Upload}
+                loading={submitting}
                 onClick={handleSubmit}
                 disabled={!canAdvance() || submitting}
               >
-                {submitting ? (
-                  <>
-                    <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                    Queuing…
-                  </>
-                ) : (
-                  <>
-                    <Upload className="mr-1.5 h-4 w-4" />
-                    Start import
-                  </>
-                )}
+                {submitting ? "Queuing" : "Start import"}
               </Button>
             )}
           </div>
@@ -424,7 +448,7 @@ export function ImportsWizard({
   );
 }
 
-// ─── Steps ────────────────────────────────────────────────────────────────
+// --- Steps ------------------------------------------------------------------
 
 function UploadStep({
   picked,
@@ -445,10 +469,10 @@ function UploadStep({
     <div className="space-y-4">
       <p className="text-sm text-[var(--st-text)]">
         Drag your CSV into SabFiles, or pick a file already in your library.
-        Every imported file lives in SabFiles — we never accept external URLs.
+        Every imported file lives in SabFiles, we never accept external URLs.
       </p>
-      <div className="rounded-md border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] px-6 py-8 text-center">
-        <Upload className="mx-auto mb-3 h-6 w-6 text-[var(--st-text)]" />
+      <div className="rounded-[var(--st-radius)] border-2 border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-8 text-center">
+        <Upload className="mx-auto mb-3 h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
         <p className="mb-3 text-sm text-[var(--st-text)]">
           Pick a CSV from SabFiles to begin.
         </p>
@@ -462,25 +486,23 @@ function UploadStep({
       </div>
 
       {picked && (
-        <Alert variant={parseError ? "default" : "default"}>
-          {parsing ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <CheckCircle2 className="h-4 w-4" />
+        <Alert
+          tone={parseError ? "warning" : "success"}
+          icon={parsing ? Loader2 : CheckCircle2}
+          title={picked.name}
+        >
+          {parsing
+            ? "Parsing"
+            : `${rowsCount.toLocaleString()} data row${rowsCount === 1 ? "" : "s"}.`}
+          {parseError && (
+            <span className="block text-[var(--st-text-secondary)]">{parseError}</span>
           )}
-          <AlertTitle>{picked.name}</AlertTitle>
-          <AlertDescription>
-            {parsing
-              ? "Parsing…"
-              : `${rowsCount.toLocaleString()} data row${rowsCount === 1 ? "" : "s"}.`}
-            {parseError && <span className="block text-[var(--st-text)]">{parseError}</span>}
-          </AlertDescription>
         </Alert>
       )}
 
       {lastImport && (
-        <p className="text-xs text-[var(--st-text)]">
-          Last import: <strong>{lastImport.name}</strong> ·{" "}
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          Last import: <strong>{lastImport.name}</strong> ,{" "}
           {lastImport.counts.imported.toLocaleString()} contacts imported.
         </p>
       )}
@@ -519,13 +541,18 @@ function MappingStep({
   ];
   return (
     <div className="space-y-5">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between gap-3">
         <p className="text-sm text-[var(--st-text)] max-w-xl">
-          Match each contact field to a column in your CSV. We've auto-detected
-          the most likely matches — adjust as needed.
+          Match each contact field to a column in your CSV. We have auto-detected
+          the most likely matches, adjust as needed.
         </p>
-        <Button variant="outline" size="sm" onClick={onAiMapping} disabled={aiMappingLoading}>
-          {aiMappingLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        <Button
+          variant="outline"
+          size="sm"
+          loading={aiMappingLoading}
+          onClick={onAiMapping}
+          disabled={aiMappingLoading}
+        >
           AI Automap
         </Button>
       </div>
@@ -542,11 +569,11 @@ function MappingStep({
                 })
               }
             >
-              <SelectTrigger>
-                <SelectValue placeholder="— None —" />
+              <SelectTrigger aria-label={f.label}>
+                <SelectValue placeholder="None" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">— None —</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {headers.map((h) => (
                   <SelectItem key={h} value={h}>
                     {h}
@@ -561,23 +588,24 @@ function MappingStep({
       <Separator />
 
       <div className="space-y-2">
-        <Label>Saved mapping templates</Label>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            value={templateName}
-            onChange={(e) => onTemplateNameChange(e.target.value)}
-            placeholder="Template name"
-            className="max-w-xs"
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onSaveTemplate}
-            disabled={!templateName.trim()}
-          >
-            Save current mapping
-          </Button>
-        </div>
+        <Field label="Saved mapping templates">
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              value={templateName}
+              onChange={(e) => onTemplateNameChange(e.target.value)}
+              placeholder="Template name"
+              className="max-w-xs"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onSaveTemplate}
+              disabled={!templateName.trim()}
+            >
+              Save current mapping
+            </Button>
+          </div>
+        </Field>
         {templates.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-1">
             {templates.map((t) => (
@@ -585,9 +613,9 @@ function MappingStep({
                 key={t.id}
                 variant="ghost"
                 size="sm"
+                iconLeft={TagIcon}
                 onClick={() => onLoadTemplate(t.id)}
               >
-                <Tag className="mr-1.5 h-3.5 w-3.5" />
                 {t.name}
               </Button>
             ))}
@@ -636,48 +664,43 @@ function PreviewStep({
         )}
       </div>
 
-      <div className="overflow-hidden rounded-md border border-[var(--st-border)]">
+      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
         <div className="max-h-[40vh] overflow-auto">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[var(--st-bg-muted)]">
-              <tr>
+          <Table density="compact" stickyHeader className="text-xs">
+            <THead>
+              <Tr>
                 {headers.map((h) => (
-                  <th
-                    key={h}
-                    className="border-b border-[var(--st-border)] px-3 py-2 text-left font-medium text-[var(--st-text)]"
-                  >
+                  <Th key={h}>
                     {h}
                     {h === phoneCol && (
-                      <span className="ml-1.5 text-[10px] text-[var(--st-text)]">
+                      <span className="ml-1.5 text-[10px] text-[var(--st-text-tertiary)]">
                         normalised
                       </span>
                     )}
-                  </th>
+                  </Th>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((r, i) => (
-                <tr key={i} className="even:bg-[var(--st-bg-muted)]/50">
+                <Tr key={i}>
                   {headers.map((h) => {
                     const raw = r[h] ?? "";
                     const isPhone = h === phoneCol;
                     const norm = isPhone ? normalisePhone(raw) : null;
                     return (
-                      <td
-                        key={h}
-                        className="border-b border-[var(--st-border)] px-3 py-1.5 align-top text-[var(--st-text)]"
-                      >
+                      <Td key={h} className="align-top text-[var(--st-text)]">
                         {isPhone ? (
                           <span>
                             <code className="text-[11px]">{raw}</code>
                             {norm && norm !== raw && (
-                              <span className="ml-1 text-[10px] text-[var(--st-text)]">
-                                → <code>{norm}</code>
+                              <span className="ml-1 text-[10px] text-[var(--st-text-secondary)]">
+                                {"-> "}
+                                <code>{norm}</code>
                               </span>
                             )}
                             {!norm && (
-                              <span className="ml-1 text-[10px] text-[var(--st-text)]">
+                              <span className="ml-1 text-[10px] text-[var(--st-danger)]">
                                 invalid
                               </span>
                             )}
@@ -685,13 +708,13 @@ function PreviewStep({
                         ) : (
                           raw
                         )}
-                      </td>
+                      </Td>
                     );
                   })}
-                </tr>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
       </div>
     </div>
@@ -736,83 +759,87 @@ function OptionsStep({
   return (
     <div className="space-y-5">
       <div className="space-y-3">
-        <label className="flex items-start gap-2">
-          <Checkbox
-            checked={skipSuppressed}
-            onCheckedChange={(v) => onSkipSuppressed(v === true)}
-          />
-          <span className="text-sm">
-            Skip phones already in the suppression list.
-          </span>
-        </label>
-        <label className="flex items-start gap-2">
-          <Checkbox
-            checked={skipDuplicates}
-            onCheckedChange={(v) => onSkipDuplicates(v === true)}
-          />
-          <span className="text-sm">
-            Skip duplicate phones within this file.
-          </span>
-        </label>
-        <label className="flex items-start gap-2 rounded-md bg-[var(--st-bg-muted)] p-3">
-          <Checkbox
-            checked={consentAttested}
-            onCheckedChange={(v) => onConsentAttested(v === true)}
-          />
-          <span className="text-sm text-[var(--st-text)]">
-            <strong>Consent attestation (required).</strong> I confirm every
-            recipient in this file has given prior express written consent to
-            receive SMS messages, and that consent records are retained.
-          </span>
-        </label>
+        <Checkbox
+          checked={skipSuppressed}
+          onCheckedChange={(v) => onSkipSuppressed(v === true)}
+          className="items-start"
+          label={
+            <span className="text-sm text-[var(--st-text)]">
+              Skip phones already in the suppression list.
+            </span>
+          }
+        />
+        <Checkbox
+          checked={skipDuplicates}
+          onCheckedChange={(v) => onSkipDuplicates(v === true)}
+          className="items-start"
+          label={
+            <span className="text-sm text-[var(--st-text)]">
+              Skip duplicate phones within this file.
+            </span>
+          }
+        />
+        <Checkbox
+          checked={consentAttested}
+          onCheckedChange={(v) => onConsentAttested(v === true)}
+          className="items-start rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3"
+          label={
+            <span className="text-sm text-[var(--st-text)]">
+              <strong>Consent attestation (required).</strong> I confirm every
+              recipient in this file has given prior express written consent to
+              receive SMS messages, and that consent records are retained.
+            </span>
+          }
+        />
       </div>
 
       <Separator />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <Label>Bulk tags (comma-separated)</Label>
+        <Field label="Bulk tags (comma-separated)">
           <Input
             value={bulkTagsRaw}
             onChange={(e) => onBulkTagsRaw(e.target.value)}
             placeholder="e.g. webinar-2026, hot-lead"
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Assign to segment (id)</Label>
+        </Field>
+        <Field label="Assign to segment (id)">
           <Input
             value={segmentId}
             onChange={(e) => onSegmentId(e.target.value)}
-            placeholder="seg_…"
+            placeholder="seg_..."
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Add to list (id)</Label>
+        </Field>
+        <Field label="Add to list (id)">
           <Input
             value={listId}
             onChange={(e) => onListId(e.target.value)}
-            placeholder="lst_…"
+            placeholder="lst_..."
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Schedule (cron expression)</Label>
+        </Field>
+        <Field label="Schedule (cron expression)">
           <Input
             value={cronExpression}
             onChange={(e) => onCron(e.target.value)}
             placeholder="0 9 * * 1 (Mondays 9am)"
           />
-        </div>
-        <div className="space-y-1.5 sm:col-span-2">
-          <Label>
-            <Webhook className="mr-1 inline h-3.5 w-3.5" />
-            On-complete webhook URL
-          </Label>
+        </Field>
+        <Field
+          className="sm:col-span-2"
+          label={
+            <span className="inline-flex items-center gap-1">
+              <Webhook className="h-3.5 w-3.5" aria-hidden="true" />
+              On-complete webhook URL
+            </span>
+          }
+        >
           <Input
+            type="url"
             value={webhookUrl}
             onChange={(e) => onWebhook(e.target.value)}
             placeholder="https://example.com/hooks/import"
           />
-        </div>
+        </Field>
       </div>
     </div>
   );
@@ -837,64 +864,24 @@ function ConfirmStep({
   const cost = validRows * 0.0075;
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <Label>Import name</Label>
+      <Field label="Import name">
         <Input
           value={name}
           onChange={(e) => onName(e.target.value)}
           placeholder="Q1 webinar attendees"
         />
-      </div>
+      </Field>
       <div className="grid grid-cols-3 gap-3">
-        <SummaryStat label="Total" value={totalRows.toLocaleString()} />
-        <SummaryStat
-          label="Will import"
-          value={validRows.toLocaleString()}
-          tone="ok"
-        />
-        <SummaryStat
-          label="Cost estimate (HLR)"
-          value={`$${cost.toFixed(2)}`}
-        />
+        <StatCard label="Total" value={totalRows.toLocaleString()} />
+        <StatCard label="Will import" value={validRows.toLocaleString()} />
+        <StatCard label="Cost estimate (HLR)" value={`$${cost.toFixed(2)}`} />
       </div>
       {submitError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
+        <Alert tone="danger" icon={AlertCircle}>
           <AlertTitle>Failed to queue import</AlertTitle>
           <AlertDescription>{submitError}</AlertDescription>
         </Alert>
       )}
-    </div>
-  );
-}
-
-function SummaryStat({
-  label,
-  value,
-  tone = "neutral",
-}: {
-  label: string;
-  value: string;
-  tone?: "neutral" | "ok";
-}) {
-  return (
-    <div
-      className={`rounded-md border px-3 py-2 ${
-        tone === "ok"
-          ? "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
-          : "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
-      }`}
-    >
-      <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text)]">
-        {label}
-      </div>
-      <div
-        className={`text-lg font-semibold ${
-          tone === "ok" ? "text-[var(--st-text)]" : "text-[var(--st-text)]"
-        }`}
-      >
-        {value}
-      </div>
     </div>
   );
 }

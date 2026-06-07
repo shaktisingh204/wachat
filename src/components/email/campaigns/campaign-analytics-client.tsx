@@ -1,15 +1,32 @@
 'use client';
 
 /**
- * Per-campaign analytics — opens, clicks (CTR), bounces, unsubscribes,
+ * Per-campaign analytics. Opens, clicks (CTR), bounces, unsubscribes,
  * and a deal-conversion slot (wired when a campaign is linked to a CRM
  * deal pipeline via the `campaign.conversionPipelineId` field).
  */
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, MousePointerClick, Mailbox, UserMinus, Inbox, Activity } from 'lucide-react';
-import { Badge, Button, Card, EmptyState, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Separator, Skeleton, StatCard } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Separator,
+  Skeleton,
+  StatCard,
+} from '@/components/sabcrm/20ui';
 import {
   actionGetEmailCampaign,
   actionGetEmailCampaignReport,
@@ -42,6 +59,7 @@ function pct(num: number, denom: number) {
 }
 
 export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) {
+  const router = useRouter();
   const [campaign, setCampaign] = useState<EmailCampaignDoc | null>(null);
   const [report, setReport] = useState<ReportData>(ZERO);
   const [loading, setLoading] = useState(true);
@@ -77,8 +95,14 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
   if (error || !campaign) {
     return (
       <EmptyState
+        icon={Inbox}
         title="Campaign not found"
         description={error ?? 'No campaign matched that id.'}
+        action={
+          <Button variant="outline" iconLeft={ArrowLeft} onClick={() => router.push('/dashboard/email/campaigns')}>
+            Back to campaigns
+          </Button>
+        }
       />
     );
   }
@@ -91,7 +115,7 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
   const unsubRate = pct(report.unsubscribed, report.delivered);
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>{campaign.name}</PageTitle>
@@ -102,37 +126,34 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/email/campaigns">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to campaigns
-            </Link>
+          <Button
+            variant="outline"
+            iconLeft={ArrowLeft}
+            onClick={() => router.push('/dashboard/email/campaigns')}
+          >
+            Back to campaigns
           </Button>
         </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard label="Sent" value={report.sent.toLocaleString()} icon={<Inbox className="h-4 w-4" />} />
+        <StatCard label="Sent" value={report.sent.toLocaleString()} icon={Inbox} />
         <StatCard
           label="Delivered"
           value={`${report.delivered.toLocaleString()} (${deliveryRate})`}
-          icon={<Mailbox className="h-4 w-4" />}
+          icon={Mailbox}
         />
         <StatCard
           label="Opens"
           value={`${report.opened.toLocaleString()} (${openRate})`}
-          icon={<Eye className="h-4 w-4" />}
+          icon={Eye}
         />
         <StatCard
           label="Clicks"
           value={`${report.clicked.toLocaleString()} (${clickRate})`}
-          icon={<MousePointerClick className="h-4 w-4" />}
+          icon={MousePointerClick}
         />
-        <StatCard
-          label="CTR (click/open)"
-          value={ctr}
-          icon={<Activity className="h-4 w-4" />}
-        />
+        <StatCard label="CTR (click/open)" value={ctr} icon={Activity} />
         <StatCard
           label="Bounces"
           value={`${report.bounced.toLocaleString()} (${bounceRate})`}
@@ -140,33 +161,40 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
         <StatCard
           label="Unsubscribes"
           value={`${report.unsubscribed.toLocaleString()} (${unsubRate})`}
-          icon={<UserMinus className="h-4 w-4" />}
+          icon={UserMinus}
         />
         <StatCard label="Complaints" value={report.complained.toLocaleString()} />
       </div>
 
-      <Card className="space-y-3 p-6">
-        <h2 className="text-base font-semibold">Conversion</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Conversion</CardTitle>
+          <CardDescription>
+            Conversion is recorded against any CRM deal whose contact engaged with this campaign and
+            subsequently advanced through the linked pipeline. Link a pipeline on the campaign
+            settings to start tracking attribution.
+          </CardDescription>
+        </CardHeader>
         <Separator />
-        <p className="text-sm text-[color:var(--st-text-secondary)]">
-          Conversion is recorded against any CRM deal whose contact engaged with this campaign and
-          subsequently advanced through the linked pipeline. Link a pipeline on the campaign settings
-          to start tracking attribution.
-        </p>
-        <Button variant="outline" asChild>
-          <Link href={`/dashboard/email/campaigns/${campaign._id}`}>
+        <CardBody>
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/dashboard/email/campaigns/${campaign._id}`)}
+          >
             Open campaign settings
-          </Link>
-        </Button>
+          </Button>
+        </CardBody>
       </Card>
 
-      <Card className="space-y-3 p-6">
-        <h2 className="text-base font-semibold">Event stream</h2>
+      <Card>
+        <CardHeader>
+          <CardTitle>Event stream</CardTitle>
+          <CardDescription>
+            Live time-series of opens, clicks, bounces, and unsubscribes from the email-events crate
+            surfaces here. (Component pending. The backend already emits to email_events.)
+          </CardDescription>
+        </CardHeader>
         <Separator />
-        <p className="text-sm text-[color:var(--st-text-secondary)]">
-          Live time-series of opens / clicks / bounces / unsubscribes from the `email-events` crate
-          surfaces here. (Component pending — backend already emits to `email_events`.)
-        </p>
       </Card>
     </div>
   );

@@ -39,7 +39,11 @@ function classify(file) {
   }
   if (/<button[\s>]/.test(src)) reasons.push('raw<button>');
   const inputRe = /<input\b([^>]*)>/g;
-  while ((m = inputRe.exec(src))) { if (!/type\s*=\s*['"]hidden['"]/.test(m[1])) { reasons.push('raw<input>'); break; } }
+  while ((m = inputRe.exec(src))) {
+    const a = m[1];
+    if (/type\s*=\s*['"](hidden|file)['"]/.test(a) || /getInputProps/.test(a)) continue;
+    reasons.push('raw<input>'); break;
+  }
   if (/<select[\s>]/.test(src)) reasons.push('raw<select>');
   if (/<textarea[\s>]/.test(src)) reasons.push('raw<textarea>');
   if (/<table[\s>]/.test(src)) reasons.push('raw<table>');

@@ -9,7 +9,6 @@ import {
   useTransition,
 } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   GitCompareArrows,
   History,
@@ -22,8 +21,34 @@ import {
   X,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Switch,
+  Textarea,
+} from "@/components/sabcrm/20ui";
 import { SabsmsDetailDrawer, SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
+import { formatUTC } from "@/lib/utils";
 
 import { AiRewriteToolbar } from "./ai-rewrite";
 import { TemplatePreview } from "./preview";
@@ -106,8 +131,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
 
   const detectedVars = useMemo(() => detectVariables(vm.bodies), [vm.bodies]);
 
-  // Keep `variableDefaults` in step with the variables we've detected —
-  // add stubs for any new var name we just saw, drop entries the user
+  // Keep `variableDefaults` in step with the variables we've detected.
+  // Add stubs for any new var name we just saw, drop entries the user
   // removed from every body.
   useEffect(() => {
     setVm((prev) => {
@@ -265,7 +290,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       const res = await withdrawTemplate(vm.id);
       if (!res.ok) setError(res.error);
       else {
-        setInfo("Withdrawn — back to draft");
+        setInfo("Withdrawn, back to draft");
         setVm((prev) => ({ ...prev, status: "draft" }));
       }
     });
@@ -282,7 +307,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
     setDiffData(res);
   }
 
-  // Variable autocomplete — toggle a popover when the user is typing
+  // Variable autocomplete: toggle a popover when the user is typing
   // immediately after `{{` in the textarea.
   function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const v = e.target.value;
@@ -313,7 +338,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
   return (
     <div className="space-y-6">
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        {/* ── Left column — primary editor ─────────────────────────── */}
+        {/* Left column: primary editor */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -322,12 +347,12 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   <CardTitle>Template</CardTitle>
                   <CardDescription>
                     Variables use{" "}
-                    <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
+                    <code className="rounded bg-[var(--st-bg-secondary)] px-1 text-xs">
                       {"{{ name }}"}
                     </code>{" "}
                     syntax. Conditional blocks use{" "}
-                    <code className="rounded bg-[var(--st-bg-muted)] px-1 text-xs">
-                      {"{% if x %}…{% endif %}"}
+                    <code className="rounded bg-[var(--st-bg-secondary)] px-1 text-xs">
+                      {"{% if x %}...{% endif %}"}
                     </code>
                     .
                   </CardDescription>
@@ -349,17 +374,14 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             </CardHeader>
             <CardBody className="space-y-5">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="tpl-name">Name</Label>
+                <Field label="Name">
                   <Input
-                    id="tpl-name"
                     value={vm.name}
                     onChange={(e) => setVm((p) => ({ ...p, name: e.target.value }))}
                     placeholder="otp-login-en"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="tpl-category">Category</Label>
+                </Field>
+                <Field label="Category">
                   <Select
                     value={vm.category}
                     onValueChange={(v) =>
@@ -369,7 +391,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <SelectTrigger id="tpl-category">
+                    <SelectTrigger aria-label="Category">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -380,51 +402,44 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
               </div>
 
-              {/* Locale switcher — segmented buttons (no ZoruTabs) */}
+              {/* Locale switcher: segmented buttons */}
               <div className="space-y-2">
                 <div className="text-xs font-medium text-[var(--st-text)]">Locale</div>
-                <div className="flex flex-wrap gap-1.5 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1">
+                <div className="flex flex-wrap gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1">
                   {SUPPORTED_LOCALES.map((l) => {
                     const has = vm.bodies.some((b) => b.locale === l.code);
                     const active = activeLocale === l.code;
+                    const canRemove = has && active && vm.bodies.length > 1;
                     return (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          setActiveLocale(l.code);
-                          if (!has) setBodyForLocale(l.code, "");
-                        }}
-                        className={
-                          "group inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs transition-colors " +
-                          (active
-                            ? "bg-white text-[var(--st-text)] shadow-sm border border-[var(--st-border)]"
-                            : "text-[var(--st-text)] hover:bg-white/60")
-                        }
-                      >
-                        <span className="font-medium uppercase tracking-wide">
-                          {l.code}
-                        </span>
-                        <span className="hidden text-[var(--st-text-secondary)] sm:inline">
-                          {l.label}
-                        </span>
-                        {has && active && vm.bodies.length > 1 && (
-                          <span
-                            role="button"
-                            aria-label={`Remove ${l.code}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeLocale(l.code);
-                            }}
-                            className="ml-1 rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]"
-                          >
-                            <X className="h-3 w-3" />
+                      <div key={l.code} className="inline-flex items-center gap-0.5">
+                        <Button
+                          variant={active ? "secondary" : "ghost"}
+                          size="sm"
+                          aria-pressed={active}
+                          onClick={() => {
+                            setActiveLocale(l.code);
+                            if (!has) setBodyForLocale(l.code, "");
+                          }}
+                        >
+                          <span className="font-medium uppercase tracking-wide">
+                            {l.code}
                           </span>
-                        )}
-                      </button>
+                          <span className="hidden text-[var(--st-text-secondary)] sm:inline">
+                            {l.label}
+                          </span>
+                        </Button>
+                        {canRemove ? (
+                          <IconButton
+                            label={`Remove ${l.code}`}
+                            icon={X}
+                            size="sm"
+                            onClick={() => removeLocale(l.code)}
+                          />
+                        ) : null}
+                      </div>
                     );
                   })}
                 </div>
@@ -434,12 +449,11 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor={`tpl-body-${activeLocale}`}>
-                    Body — {activeLocale}
+                    Body, {activeLocale}
                   </Label>
                   <Popover open={varsHelpOpen} onOpenChange={setVarsHelpOpen}>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+                      <Button variant="ghost" size="sm" iconLeft={Sparkles}>
                         Variables &amp; helpers
                       </Button>
                     </PopoverTrigger>
@@ -448,33 +462,36 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         <div className="mb-1 font-medium">Date snippets</div>
                         <div className="flex flex-col gap-1">
                           {DATE_SNIPPETS.map((s) => (
-                            <button
+                            <Button
                               key={s}
-                              type="button"
-                              className="rounded bg-[var(--st-bg-muted)] px-2 py-1 text-left font-mono text-xs hover:bg-[var(--st-bg-muted)]"
+                              variant="ghost"
+                              size="sm"
+                              className="justify-start font-mono"
                               onClick={() => {
                                 insertSnippet(s);
                                 setVarsHelpOpen(false);
                               }}
                             >
                               {s}
-                            </button>
+                            </Button>
                           ))}
                         </div>
                       </div>
                       <Separator />
                       <div>
                         <div className="mb-1 font-medium">Conditional block</div>
-                        <button
-                          type="button"
-                          className="w-full rounded bg-[var(--st-bg-muted)] px-2 py-1 text-left font-mono text-xs hover:bg-[var(--st-bg-muted)]"
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          block
+                          className="justify-start font-mono"
                           onClick={() => {
                             insertSnippet("{% if name %}Hi {{ name }}{% endif %}");
                             setVarsHelpOpen(false);
                           }}
                         >
-                          {"{% if name %}…{% endif %}"}
-                        </button>
+                          {"{% if name %}...{% endif %}"}
+                        </Button>
                       </div>
                     </PopoverContent>
                   </Popover>
@@ -490,19 +507,21 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     className="font-mono text-sm"
                   />
                   {varSuggestOpen && detectedVars.length > 0 && (
-                    <div className="absolute right-2 top-2 z-10 w-48 rounded-md border border-[var(--st-border)] bg-white p-1 text-xs shadow-md">
-                      <div className="px-2 py-1 text-[10px] font-semibold uppercase text-[var(--st-text)]">
+                    <div className="absolute right-2 top-2 z-10 w-48 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 text-xs shadow-md">
+                      <div className="px-2 py-1 text-[10px] font-semibold uppercase text-[var(--st-text-secondary)]">
                         Insert variable
                       </div>
                       {detectedVars.map((v) => (
-                        <button
+                        <Button
                           key={v}
-                          type="button"
-                          className="block w-full rounded px-2 py-1 text-left font-mono hover:bg-[var(--st-bg-muted)]"
+                          variant="ghost"
+                          size="sm"
+                          block
+                          className="justify-start font-mono"
                           onClick={() => insertVar(v)}
                         >
                           {v}
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   )}
@@ -528,12 +547,12 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
             </CardHeader>
             <CardBody className="space-y-3">
               {vm.variableDefaults.length === 0 && (
-                <p className="text-xs text-[var(--st-text)]">
+                <p className="text-xs text-[var(--st-text-secondary)]">
                   Type{" "}
-                  <code className="rounded bg-[var(--st-bg-muted)] px-1">
+                  <code className="rounded bg-[var(--st-bg-secondary)] px-1">
                     {"{{ var_name }}"}
                   </code>{" "}
-                  in the body — variables appear here automatically.
+                  in the body. Variables appear here automatically.
                 </p>
               )}
               {vm.variableDefaults.map((v, i) => (
@@ -542,6 +561,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   className="grid grid-cols-[1fr_1.5fr_auto] items-center gap-2"
                 >
                   <Input
+                    aria-label={`Variable name ${i + 1}`}
                     value={v.name}
                     onChange={(e) =>
                       setVm((p) => {
@@ -553,6 +573,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     className="font-mono text-xs"
                   />
                   <Input
+                    aria-label={`Default value for ${v.name || `variable ${i + 1}`}`}
                     value={v.defaultValue}
                     onChange={(e) =>
                       setVm((p) => {
@@ -564,9 +585,9 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     placeholder="default value"
                     className="text-xs"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
+                  <IconButton
+                    label={`Remove ${v.name || `variable ${i + 1}`}`}
+                    icon={Trash2}
                     onClick={() =>
                       setVm((p) => ({
                         ...p,
@@ -575,15 +596,13 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         ),
                       }))
                     }
-                    aria-label={`Remove ${v.name}`}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  />
                 </div>
               ))}
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={Plus}
                 onClick={() =>
                   setVm((p) => ({
                     ...p,
@@ -594,7 +613,6 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                   }))
                 }
               >
-                <Plus className="mr-1 h-3.5 w-3.5" />
                 Add variable
               </Button>
             </CardBody>
@@ -649,8 +667,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     }))
                   }
                 />
-                <div className="space-y-1.5">
-                  <Label>Content category</Label>
+                <Field label="Content category">
                   <Select
                     value={vm.metadata.dlt.contentCategory}
                     onValueChange={(v) =>
@@ -663,7 +680,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Content category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
@@ -674,14 +691,14 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                         Transactional
                       </SelectItem>
                       <SelectItem value="service-implicit">
-                        Service — implicit
+                        Service, implicit
                       </SelectItem>
                       <SelectItem value="service-explicit">
-                        Service — explicit
+                        Service, explicit
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
               </CardBody>
             </Card>
 
@@ -719,8 +736,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     }))
                   }
                 />
-                <div className="space-y-1.5">
-                  <Label>Use case</Label>
+                <Field label="Use case">
                   <Select
                     value={vm.metadata.tendlc.useCase}
                     onValueChange={(v) =>
@@ -733,7 +749,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Use case">
                       <SelectValue placeholder="Select use case" />
                     </SelectTrigger>
                     <SelectContent>
@@ -754,9 +770,8 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Sample messages</Label>
+                </Field>
+                <Field label="Sample messages">
                   <Textarea
                     rows={3}
                     value={vm.metadata.tendlc.sampleMessages.join("\n")}
@@ -775,7 +790,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     placeholder="One sample per line"
                     className="text-xs"
                   />
-                </div>
+                </Field>
               </CardBody>
             </Card>
           </div>
@@ -829,21 +844,21 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-3">
-              <Label htmlFor="reviewer-notes">Reviewer notes</Label>
-              <Textarea
-                id="reviewer-notes"
-                rows={3}
-                value={reviewerNotes}
-                onChange={(e) => setReviewerNotes(e.target.value)}
-                placeholder="Why this template, what changed, links to spec…"
-              />
+              <Field label="Reviewer notes">
+                <Textarea
+                  rows={3}
+                  value={reviewerNotes}
+                  onChange={(e) => setReviewerNotes(e.target.value)}
+                  placeholder="Why this template, what changed, links to spec."
+                />
+              </Field>
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <Button
                   variant="outline"
+                  iconLeft={ShieldCheck}
                   onClick={handleSubmitForApproval}
                   disabled={pending}
                 >
-                  <ShieldCheck className="mr-1.5 h-4 w-4" />
                   Submit for approval
                 </Button>
                 {vm.status === "submitted" && (
@@ -855,12 +870,13 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                     Withdraw
                   </Button>
                 )}
-                <Button variant="ghost" asChild>
-                  <Link href="/sabsms/templates/approvals">
-                    Reviewer inbox
-                  </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => router.push("/sabsms/templates/approvals")}
+                >
+                  Reviewer inbox
                 </Button>
-                <p className="text-[11px] text-[var(--st-text)]">
+                <p className="text-[11px] text-[var(--st-text-secondary)]">
                   TODO: <code>/sabsms/templates/approvals</code> ships
                   with Phase 11.
                 </p>
@@ -869,7 +885,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
           </Card>
         </div>
 
-        {/* ── Right column — preview + toolbar ──────────────────────── */}
+        {/* Right column: preview + toolbar */}
         <div className="space-y-4">
           <div className="sticky top-4 space-y-4">
             <Card>
@@ -880,12 +896,14 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 </CardDescription>
               </CardHeader>
               <CardBody>
-                <Textarea
-                  value={payloadJson}
-                  onChange={(e) => setPayloadJson(e.target.value)}
-                  className="font-mono text-xs"
-                  rows={6}
-                />
+                <Field label="Payload JSON">
+                  <Textarea
+                    value={payloadJson}
+                    onChange={(e) => setPayloadJson(e.target.value)}
+                    className="font-mono text-xs"
+                    rows={6}
+                  />
+                </Field>
               </CardBody>
             </Card>
 
@@ -897,18 +915,22 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
               metadata={vm.metadata}
             />
 
-            <div className="rounded border border-[var(--st-border)] bg-white p-3 space-y-2">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <Button onClick={handleSave} disabled={pending}>
-                  <Save className="mr-1.5 h-4 w-4" />
-                  {pending ? "Saving…" : "Save draft"}
+                <Button
+                  variant="primary"
+                  iconLeft={Save}
+                  loading={pending}
+                  onClick={handleSave}
+                >
+                  {pending ? "Saving" : "Save draft"}
                 </Button>
                 <Button
                   variant="outline"
+                  iconLeft={SendHorizontal}
                   onClick={handlePublish}
                   disabled={pending}
                 >
-                  <SendHorizontal className="mr-1.5 h-4 w-4" />
                   Publish
                 </Button>
               </div>
@@ -916,17 +938,17 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 <Button
                   variant="ghost"
                   size="sm"
+                  iconLeft={History}
                   onClick={() => setHistoryOpen(true)}
                 >
-                  <History className="mr-1.5 h-3.5 w-3.5" />
                   History
                 </Button>
                 <Button
                   variant="ghost"
                   size="sm"
+                  iconLeft={GitCompareArrows}
                   onClick={openDiff}
                 >
-                  <GitCompareArrows className="mr-1.5 h-3.5 w-3.5" />
                   Diff vs published
                 </Button>
                 <Button
@@ -945,21 +967,19 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
                 />
               </div>
               {error && (
-                <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
+                <Alert tone="danger" title="Could not complete">
                   {error}
-                </p>
+                </Alert>
               )}
               {info && !error && (
-                <p className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs text-[var(--st-text)]">
-                  {info}
-                </p>
+                <Alert tone="success">{info}</Alert>
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Diff drawer (#18) ─────────────────────────────────────── */}
+      {/* Diff drawer (#18) */}
       <SabsmsDetailDrawer
         open={diffOpen}
         onOpenChange={setDiffOpen}
@@ -967,28 +987,28 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         description={`Locale: ${activeLocale}`}
       >
         {diffData === null ? (
-          <p className="text-sm text-[var(--st-text)]">Computing diff…</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">Computing diff.</p>
         ) : !diffData.ok ? (
-          <p className="text-sm text-[var(--st-text)]">{diffData.error}</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">{diffData.error}</p>
         ) : !diffData.hasPrevious ? (
-          <p className="text-sm text-[var(--st-text)]">
-            No published version yet — publish once to enable diffs.
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            No published version yet. Publish once to enable diffs.
           </p>
         ) : (
-          <div className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">
             {diffData.segments.map((s, i) => {
               if (s.kind === "same") return <span key={i}>{s.text}</span>;
               if (s.kind === "ins")
                 return (
                   <ins
                     key={i}
-                    className="bg-[var(--st-bg-muted)] text-[var(--st-text)] no-underline"
+                    className="bg-[var(--st-bg-muted)] text-[var(--st-status-ok)] no-underline"
                   >
                     {s.text}
                   </ins>
                 );
               return (
-                <del key={i} className="bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                <del key={i} className="bg-[var(--st-danger-soft)] text-[var(--st-danger)]">
                   {s.text}
                 </del>
               );
@@ -997,35 +1017,39 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         )}
       </SabsmsDetailDrawer>
 
-      {/* ── Version history drawer ─────────────────────────────────────── */}
+      {/* Version history drawer */}
       <SabsmsDetailDrawer
         open={historyOpen}
         onOpenChange={setHistoryOpen}
         title="Version history"
-        description="View past saves and restore bodies & variables."
+        description="View past saves and restore bodies and variables."
       >
         <div className="space-y-4">
           {!vm.history || vm.history.length === 0 ? (
-            <p className="text-sm text-[var(--st-text)]">No version history yet.</p>
+            <EmptyState
+              icon={History}
+              title="No version history yet"
+              description="Saved drafts and published versions will appear here."
+            />
           ) : (
             vm.history.map((entry) => (
               <div
                 key={entry.id}
-                className="rounded border border-[var(--st-border)] bg-white p-3 space-y-2"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 space-y-2"
               >
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-medium text-[var(--st-text)]">
                     {formatUTC(entry.timestamp, true)}
                   </div>
                   <Badge variant="outline">{entry.status}</Badge>
                 </div>
-                <div className="text-xs text-[var(--st-text)]">
+                <div className="text-xs text-[var(--st-text-secondary)]">
                   {entry.bodies.length} locale(s), {entry.variableDefaults.length} variable(s)
                 </div>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="w-full"
+                  block
                   onClick={() => {
                     setVm((p) => ({
                       ...p,
@@ -1043,7 +1067,7 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
         </div>
       </SabsmsDetailDrawer>
 
-      {/* ── PII scrub preview drawer (#14) ────────────────────────── */}
+      {/* PII scrub preview drawer (#14) */}
       <SabsmsDetailDrawer
         open={piiOpen}
         onOpenChange={setPiiOpen}
@@ -1052,22 +1076,22 @@ export function TemplateEditor({ initial, isNew }: TemplateEditorProps) {
       >
         <div className="space-y-3 text-sm">
           <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text)]">
+            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text-secondary)]">
               Original
             </div>
-            <pre className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 whitespace-pre-wrap text-xs">
+            <pre className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 whitespace-pre-wrap text-xs">
               {activeBody || "(empty)"}
             </pre>
           </div>
           <div>
-            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text)]">
+            <div className="mb-1 text-xs font-semibold uppercase text-[var(--st-text-secondary)]">
               After scrub
             </div>
-            <pre className="rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 whitespace-pre-wrap text-xs">
+            <pre className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 whitespace-pre-wrap text-xs">
               {piiScrub(activeBody) || "(empty)"}
             </pre>
           </div>
-          <p className="text-[11px] text-[var(--st-text)]">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Phones (E.164-ish) and emails are masked before any AI
             prompt leaves the workspace.
           </p>
@@ -1087,14 +1111,13 @@ function DltField({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="space-y-1.5">
-      <Label>{label}</Label>
+    <Field label={label}>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="font-mono text-xs"
       />
-    </div>
+    </Field>
   );
 }
 
@@ -1111,10 +1134,10 @@ function PolicyRow({
 }) {
   return (
     <label className="flex items-start gap-3 cursor-pointer">
-      <Switch checked={checked} onCheckedChange={onChange} />
+      <Switch checked={checked} onCheckedChange={onChange} aria-label={title} />
       <div className="flex-1">
         <div className="text-sm font-medium text-[var(--st-text)]">{title}</div>
-        <div className="text-xs text-[var(--st-text)]">{desc}</div>
+        <div className="text-xs text-[var(--st-text-secondary)]">{desc}</div>
       </div>
     </label>
   );

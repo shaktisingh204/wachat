@@ -1,5 +1,4 @@
 {
-  "_doc": "Verified-legit raw usage. Each entry: path -> [reasons to ignore]. Audited, not blind suppression.",
-  "src/app/dashboard/seo/tools/html-to-markdown/page.tsx": ["raw<table>"],
-  "src/app/dashboard/facebook/live-studio/page.tsx": ["raw<input>"]
+  "_doc": "Verified-legit raw usage. Each entry: path -> [reasons to ignore]. Audited, not blind suppression. (type=file/hidden inputs + getInputProps are handled generally in the scanner, not here.)",
+  "src/app/dashboard/seo/tools/html-to-markdown/page.tsx": ["raw<table>"]
 }

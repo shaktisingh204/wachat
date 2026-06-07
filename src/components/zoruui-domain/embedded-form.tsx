@@ -1,6 +1,27 @@
 'use client';
 
-import { Button, Input, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Checkbox, Label, RadioGroup, RadioGroupItem, Card } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Checkbox,
+  RadioGroup,
+  RadioGroupItem,
+  Card,
+  Alert,
+  EmptyState,
+  Badge,
+  useToast,
+  cn,
+} from '@/components/sabcrm/20ui';
+import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   useForm,
   Controller } from 'react-hook-form';
@@ -9,9 +30,7 @@ import * as z from 'zod';
 import { useState, useMemo, useTransition, useEffect, useRef } from 'react';
 import { LoaderCircle,
   CheckCircle,
-  AlertCircle,
   Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 import type { FormField,
   FormPage,
@@ -63,18 +82,17 @@ function StarRating({ value, max, onChange, disabled }: {
             {Array.from({ length: max }).map((_, i) => {
                 const filled = i < value;
                 return (
-                    <button
+                    <IconButton
                         key={i}
-                        type="button"
+                        icon={Star}
+                        label={`${i + 1} star${i ? 's' : ''}`}
                         disabled={disabled}
-                        aria-label={`${i + 1} star${i ? 's' : ''}`}
                         onClick={() => onChange(i + 1)}
-                        className="p-0.5"
-                    >
-                        <Star
-                            className={cn('h-6 w-6 transition-colors', filled ? 'fill-[var(--st-text-secondary)] text-[var(--st-text-secondary)]' : 'text-[var(--st-text-secondary)]')}
-                        />
-                    </button>
+                        className={cn(
+                            'text-[var(--st-text-secondary)]',
+                            filled && '[&_svg]:fill-[var(--st-text-secondary)]',
+                        )}
+                    />
                 );
             })}
         </div>
@@ -82,6 +100,7 @@ function StarRating({ value, max, onChange, disabled }: {
 }
 
 export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
+    const { toast } = useToast();
     const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'error'>('idle');
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -181,7 +200,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         const re = new RegExp(v.pattern);
                         stringSchema = stringSchema.regex(re, { message: v.errorMessage || 'Invalid format' });
                     } catch {
-                        // Invalid regex stored on the form — silently skip.
+                        // Invalid regex stored on the form. Silently skip.
                     }
                 }
                 fieldSchema = stringSchema;
@@ -223,7 +242,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
     const { control, handleSubmit, formState: { errors }, trigger, getValues } = formHook;
 
-    // Cross-field conditional required — manually evaluated before submit.
+    // Cross-field conditional required. Manually evaluated before submit.
     const evaluateConditionalRequired = (): string | null => {
         const values = getValues();
         for (const f of allFields) {
@@ -249,6 +268,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
         if (condErr) {
             setSubmissionStatus('error');
             setErrorMessage(condErr);
+            toast.error(condErr);
             return;
         }
         startTransition(async () => {
@@ -267,10 +287,14 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                     window.location.href = result.redirectUrl;
                     return;
                 }
-                setSuccessMessage(result.message || postSubmit.successMessage || 'Thank you! Your submission has been received.');
+                const ok = result.message || postSubmit.successMessage || 'Thank you! Your submission has been received.';
+                setSuccessMessage(ok);
+                toast.success(ok);
             } catch (error: unknown) {
+                const msg = error instanceof Error ? error.message : 'An unknown error occurred.';
                 setSubmissionStatus('error');
-                setErrorMessage(error instanceof Error ? error.message : 'An unknown error occurred.');
+                setErrorMessage(msg);
+                toast.error(msg);
             }
         });
     }
@@ -284,9 +308,12 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
     if (successMessage) {
         return (
-            <div ref={containerRef} className="p-8 text-center border-2 border-dashed rounded-lg text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-                <CheckCircle className="mx-auto h-12 w-12" />
-                <h3 className="mt-4 text-lg font-semibold">{successMessage}</h3>
+            <div ref={containerRef} className="ui20 p-8">
+                <EmptyState
+                    icon={CheckCircle}
+                    tone="success"
+                    title={successMessage}
+                />
             </div>
         );
     }
@@ -307,26 +334,26 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
       #${uniqueId} .form-field {
         color: ${(settings.fieldColor as string) || 'inherit'};
         background-color: ${(settings.fieldBgColor as string) || 'transparent'};
-        border-color: ${(settings.fieldBorderColor as string) || 'hsl(var(--input))'};
+        border-color: ${(settings.fieldBorderColor as string) || 'var(--st-border)'};
         border-radius: ${themeRadius != null ? `${themeRadius}px` : `${(settings.fieldBorderRadius as number) ?? 6}px`};
         padding: ${(settings.fieldPadding as number) ?? 8}px;
         border-width: ${(settings.fieldBorderWidth as number) || 1}px;
         border-style: ${(settings.fieldBorderType as string) || 'solid'};
       }
       #${uniqueId} .form-field:focus {
-        border-color: ${theme.primaryColor || (settings.fieldFocusBorderColor as string) || 'hsl(var(--primary))'} !important;
-        box-shadow: 0 0 0 1px ${theme.primaryColor || (settings.fieldFocusBorderColor as string) || 'hsl(var(--primary))'} !important;
+        border-color: ${theme.primaryColor || (settings.fieldFocusBorderColor as string) || 'var(--st-accent)'} !important;
+        box-shadow: 0 0 0 1px ${theme.primaryColor || (settings.fieldFocusBorderColor as string) || 'var(--st-accent)'} !important;
       }
       #${uniqueId} .submit-button {
-        color: ${(settings.buttonColor as string) || 'hsl(var(--primary-foreground))'};
-        background-color: ${theme.primaryColor || (settings.buttonBgColor as string) || 'hsl(var(--primary))'};
+        color: ${(settings.buttonColor as string) || 'var(--st-text-inverted)'};
+        background-color: ${theme.primaryColor || (settings.buttonBgColor as string) || 'var(--st-accent)'};
         border-radius: ${themeRadius != null ? `${themeRadius}px` : `${(settings.buttonBorderRadius as number) ?? 6}px`};
         padding: ${(settings.buttonPadding as number) ?? 10}px;
       }
     `;
 
     const buttonIconName = settings.buttonIcon as string | undefined;
-    const SubmitIcon = buttonIconName ? (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>>)[buttonIconName] : null;
+    const SubmitIcon = buttonIconName ? (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[buttonIconName] : null;
 
     const renderField = (field: FormField) => {
         const widthClasses: Record<string, string> = { '100%': 'col-span-12', '50%': 'col-span-12 sm:col-span-6', '33.33%': 'col-span-12 sm:col-span-4', '25%': 'col-span-12 sm:col-span-3' };
@@ -360,9 +387,10 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                 {field.labelPosition !== 'hidden' && (
                     <Label
                         htmlFor={fieldName}
+                        required={field.required}
                         className={cn(field.labelPosition === 'inline' && 'flex-shrink-0', (field.type === 'checkbox' || field.type === 'acceptance') && 'hidden')}
                     >
-                        {field.label} {field.required && '*'}
+                        {field.label}
                     </Label>
                 )}
                 <div className="w-full">
@@ -379,7 +407,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                 case 'select':
                                     return (
                                         <Select onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''}>
-                                            <SelectTrigger className={cn('form-field', sizeClasses)}>
+                                            <SelectTrigger className={cn('form-field', sizeClasses)} aria-label={field.label}>
                                                 <SelectValue placeholder={field.placeholder || 'Select...'} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -390,25 +418,20 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                 case 'checkbox':
                                     return (
                                         <div className="flex items-center gap-2 pt-2">
-                                            <Checkbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
-                                            <Label htmlFor={fieldName} className="font-normal">{field.label}</Label>
+                                            <Checkbox id={fieldName} checked={!!controllerField.value} onChange={(e) => controllerField.onChange(e.target.checked)} label={field.label} />
                                         </div>
                                     );
                                 case 'acceptance':
                                     return (
                                         <div className="flex items-center gap-2 pt-2">
-                                            <Checkbox id={fieldName} checked={!!controllerField.value} onCheckedChange={controllerField.onChange} />
-                                            <Label htmlFor={fieldName} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</Label>
+                                            <Checkbox id={fieldName} checked={!!controllerField.value} onChange={(e) => controllerField.onChange(e.target.checked)} label={field.defaultValue || 'I agree to the terms.'} />
                                         </div>
                                     );
                                 case 'radio':
                                     return (
-                                        <RadioGroup onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''} className="flex flex-col gap-2 pt-2">
+                                        <RadioGroup onValueChange={controllerField.onChange} value={(controllerField.value as string) || ''} className="pt-2" aria-label={field.label}>
                                             {fieldOptions.map(opt => (
-                                                <div key={opt} className="flex items-center space-x-2">
-                                                    <RadioGroupItem value={opt} id={`${fieldName}-${opt}`} />
-                                                    <Label htmlFor={`${fieldName}-${opt}`} className="font-normal">{opt}</Label>
-                                                </div>
+                                                <RadioGroupItem key={opt} value={opt} id={`${fieldName}-${opt}`} label={opt} />
                                             ))}
                                         </RadioGroup>
                                     );
@@ -419,12 +442,12 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                     const setPart = (k: keyof AddressValue, v: string) => controllerField.onChange({ ...addr, [k]: v });
                                     return (
                                         <div className="grid grid-cols-2 gap-2">
-                                            <Input className="col-span-2 form-field" value={addr.line1 || ''} onChange={(e) => setPart('line1', e.target.value)} placeholder="Address line 1" />
-                                            <Input className="col-span-2 form-field" value={addr.line2 || ''} onChange={(e) => setPart('line2', e.target.value)} placeholder="Address line 2" />
-                                            <Input className="form-field" value={addr.city || ''} onChange={(e) => setPart('city', e.target.value)} placeholder="City" />
-                                            <Input className="form-field" value={addr.state || ''} onChange={(e) => setPart('state', e.target.value)} placeholder="State / Region" />
-                                            <Input className="form-field" value={addr.zip || ''} onChange={(e) => setPart('zip', e.target.value)} placeholder="ZIP / Postal code" />
-                                            <Input className="form-field" value={addr.country || ''} onChange={(e) => setPart('country', e.target.value)} placeholder="Country" />
+                                            <Input className="col-span-2 form-field" value={addr.line1 || ''} onChange={(e) => setPart('line1', e.target.value)} placeholder="Address line 1" aria-label="Address line 1" />
+                                            <Input className="col-span-2 form-field" value={addr.line2 || ''} onChange={(e) => setPart('line2', e.target.value)} placeholder="Address line 2" aria-label="Address line 2" />
+                                            <Input className="form-field" value={addr.city || ''} onChange={(e) => setPart('city', e.target.value)} placeholder="City" aria-label="City" />
+                                            <Input className="form-field" value={addr.state || ''} onChange={(e) => setPart('state', e.target.value)} placeholder="State / Region" aria-label="State or region" />
+                                            <Input className="form-field" value={addr.zip || ''} onChange={(e) => setPart('zip', e.target.value)} placeholder="ZIP / Postal code" aria-label="ZIP or postal code" />
+                                            <Input className="form-field" value={addr.country || ''} onChange={(e) => setPart('country', e.target.value)} placeholder="Country" aria-label="Country" />
                                         </div>
                                     );
                                 }
@@ -439,19 +462,34 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                                 case 'signature':
                                     // Signature canvas requires `react-signature-canvas` (not in package.json).
                                     // Leave a typed placeholder so the field still submits; user can type their name.
-                                    // TODO: when react-signature-canvas is added, swap to <SignatureCanvas/> and store dataURL.
+                                    // TODO: when react-signature-canvas is added, swap to a signature pad and store dataURL.
                                     return <Input {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
-                                case 'file':
-                                    // TODO: route to SabFiles public upload (no anonymous upload endpoint yet).
-                                    // For now, anonymous embed uploads use the native input — submission posts metadata only.
-                                    return <Input {...commonProps} type="file" accept={field.allowedFileTypes} multiple={field.multiple} />;
+                                case 'file': {
+                                    // SabFiles policy: file inputs source from the SabFiles picker (library + upload),
+                                    // never a free-text URL. We store the picked file's stable SabFiles URL as the value.
+                                    const pickedUrl = (controllerField.value as string) || '';
+                                    return (
+                                        <div className="flex items-center gap-3">
+                                            <SabFilePickerButton
+                                                onPick={(pick) => controllerField.onChange(pick.url)}
+                                            >
+                                                {pickedUrl ? 'Replace file' : 'Choose file'}
+                                            </SabFilePickerButton>
+                                            {pickedUrl && (
+                                                <span className="truncate text-sm text-[var(--st-text-secondary)]">
+                                                    {decodeURIComponent(pickedUrl.split('/').pop() || pickedUrl)}
+                                                </span>
+                                            )}
+                                        </div>
+                                    );
+                                }
                                 default:
                                     return <Input {...commonProps} type={field.type} />;
                             }
                         }}
                     />
                     {field.description && <p className="text-xs pt-1 text-[var(--st-text-secondary)]">{field.description}</p>}
-                    {errors[fieldName] && <p className="text-sm font-medium text-[var(--st-text)]">{errors[fieldName]?.message as string}</p>}
+                    {errors[fieldName] && <p className="text-sm font-medium text-[var(--st-danger)]">{errors[fieldName]?.message as string}</p>}
                 </div>
             </div>
         );
@@ -462,30 +500,27 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     const logoSrc = theme.logoFileUrl || (settings.logoUrl as string | undefined);
 
     return (
-        <div ref={containerRef} className="p-2">
+        <div ref={containerRef} className="ui20 p-2">
             <style>{dynamicStyles}</style>
-            <Card className="shadow-md w-full" id={uniqueId}>
+            <Card padding="none" className="shadow-md w-full" id={uniqueId}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="text-center my-6 px-6">
                         {logoSrc && <Image src={logoSrc} alt="Logo" width={80} height={80} className="object-contain mx-auto" />}
-                        <h1 className="text-2xl font-bold mt-4">{(settings.title as string) || 'Form Title'}</h1>
+                        <h1 className="text-2xl font-bold mt-4 text-[var(--st-text)]">{(settings.title as string) || 'Form Title'}</h1>
                         <p className="text-[var(--st-text-secondary)]">{(settings.description as string) || ''}</p>
                     </div>
 
                     {isMultiStep && (
                         <div className="px-6 pb-4 flex items-center justify-center gap-2 flex-wrap">
                             {pages.map((p, i) => (
-                                <div key={p.id} className="flex items-center gap-2">
-                                    <span
-                                        className={cn(
-                                            'text-xs px-2 py-1 rounded-full',
-                                            i === currentPageIdx ? 'text-white' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
-                                        )}
-                                        style={i === currentPageIdx && theme.primaryColor ? { backgroundColor: theme.primaryColor } : undefined}
-                                    >
-                                        {i + 1}. {p.title}
-                                    </span>
-                                </div>
+                                <Badge
+                                    key={p.id}
+                                    tone={i === currentPageIdx ? 'accent' : 'neutral'}
+                                    kind={i === currentPageIdx ? 'solid' : 'soft'}
+                                    style={i === currentPageIdx && theme.primaryColor ? { backgroundColor: theme.primaryColor, color: 'var(--st-text-inverted)' } : undefined}
+                                >
+                                    {i + 1}. {p.title}
+                                </Badge>
                             ))}
                         </div>
                     )}
@@ -495,10 +530,9 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
                     <div className="p-6 pt-0 grid grid-cols-12" style={{ gap: `${(settings.fieldSpacing as number) || 24}px` }}>
                         {currentPage.fields.filter(f => f.type !== 'hidden').map(renderField)}
-                        {submissionStatus === 'error' && (
-                            <div className="col-span-12 p-4 bg-[var(--st-text)]/10 text-[var(--st-text)] text-sm rounded-md flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4" />
-                                <p>{errorMessage}</p>
+                        {submissionStatus === 'error' && errorMessage && (
+                            <div className="col-span-12">
+                                <Alert tone="danger">{errorMessage}</Alert>
                             </div>
                         )}
                     </div>
@@ -511,15 +545,20 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
                         ) : <span />}
 
                         {isMultiStep && !isLastPage ? (
-                            <Button type="button" onClick={goToNextPage} className="submit-button">
+                            <Button type="button" variant="primary" onClick={goToNextPage} className="submit-button">
                                 Next
                             </Button>
                         ) : (
-                            <Button type="submit" className="submit-button" disabled={isPending}>
-                                {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                                {SubmitIcon && (settings.buttonIconPosition as string) === 'left' && <SubmitIcon className="mr-2 h-4 w-4" />}
+                            <Button
+                                type="submit"
+                                variant="primary"
+                                className="submit-button"
+                                disabled={isPending}
+                                iconLeft={SubmitIcon && (settings.buttonIconPosition as string) === 'left' ? (SubmitIcon as typeof Star) : undefined}
+                                iconRight={SubmitIcon && (settings.buttonIconPosition as string) === 'right' ? (SubmitIcon as typeof Star) : undefined}
+                            >
+                                {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
                                 {(settings.submitButtonText as string) || 'Submit'}
-                                {SubmitIcon && (settings.buttonIconPosition as string) === 'right' && <SubmitIcon className="ml-2 h-4 w-4" />}
                             </Button>
                         )}
                     </div>

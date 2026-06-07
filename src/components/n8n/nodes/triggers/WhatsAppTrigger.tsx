@@ -1,10 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { LuMessageSquare, LuPlus, LuX, LuPhone, LuHash, LuFilter } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { MessageSquare, Plus, Phone, Hash, Filter } from 'lucide-react';
 
-/* ── Types ───────────────────────────────────────────────── */
+import { cn } from '@/lib/utils';
+import {
+  Field,
+  Input,
+  Label,
+  Checkbox,
+  Tag,
+  IconButton,
+  SegmentedControl,
+  Card,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
+
+/* -- Types -------------------------------------------------- */
 
 export type WhatsAppEventType =
   | 'message'         // any incoming message
@@ -27,7 +44,7 @@ export interface WhatsAppTriggerConfig {
   allowedSenders: string[];
   /** Event types to trigger on */
   eventTypes: WhatsAppEventType[];
-  /** Optional keyword filter — only fires when the message text matches */
+  /** Optional keyword filter, only fires when the message text matches */
   keywordFilter: WhatsAppKeywordFilter | null;
   /** Group name / label for display purposes only */
   label: string;
@@ -39,7 +56,7 @@ export interface WhatsAppTriggerOutput {
   to: string;            // receiving phone number ID
   messageId: string;
   timestamp: string;     // ISO-8601
-  type: string;          // text | image | document | …
+  type: string;          // text | image | document ...
   text?: string;         // body of a text message
   media?: {
     id: string;
@@ -62,7 +79,7 @@ export type WhatsAppTriggerProps = {
   className?: string;
 };
 
-/* ── Constants ───────────────────────────────────────────── */
+/* -- Constants ---------------------------------------------- */
 
 const EVENT_TYPE_LABELS: Record<WhatsAppEventType, string> = {
   message:            'Incoming Message',
@@ -74,7 +91,13 @@ const EVENT_TYPE_LABELS: Record<WhatsAppEventType, string> = {
 
 const ALL_EVENT_TYPES = Object.keys(EVENT_TYPE_LABELS) as WhatsAppEventType[];
 
-/* ── Component ───────────────────────────────────────────── */
+const MATCH_TYPE_ITEMS = [
+  { value: 'contains' as const, label: 'Contains' },
+  { value: 'exact' as const, label: 'Exact' },
+  { value: 'starts_with' as const, label: 'Starts with' },
+];
+
+/* -- Component ---------------------------------------------- */
 
 export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTriggerProps) {
   const [newSender, setNewSender] = useState('');
@@ -120,49 +143,43 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('ui20 space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]">
-          <LuMessageSquare className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent)]/10 text-[var(--st-accent)]">
+          <MessageSquare className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">WhatsApp Trigger</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Fires on incoming WhatsApp messages</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">WhatsApp Trigger</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Fires on incoming WhatsApp messages</p>
         </div>
       </div>
 
       {/* Label */}
-      <div className="space-y-1.5">
-        <Label>Node Label</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="Node Label">
+        <Input
           value={config.label}
           onChange={(e) => onChange({ ...config, label: e.target.value })}
           placeholder="e.g. Order bot trigger"
         />
-      </div>
+      </Field>
 
       {/* Phone number ID */}
-      <div className="space-y-1.5">
-        <Label>
+      <Field
+        label={
           <span className="flex items-center gap-1.5">
-            <LuPhone className="h-3.5 w-3.5" strokeWidth={2} />
+            <Phone className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             WABA Phone Number ID
           </span>
-        </Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+        }
+        help="The Meta phone number ID from your WABA account settings"
+      >
+        <Input
           value={config.phoneNumberId}
           onChange={(e) => onChange({ ...config, phoneNumberId: e.target.value })}
           placeholder="Leave empty for all accounts"
         />
-        <p className="text-[11px] text-[var(--gray-9)]">
-          The Meta phone number ID from your WABA account settings
-        </p>
-      </div>
+      </Field>
 
       {/* Event types */}
       <div className="space-y-1.5">
@@ -171,31 +188,14 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
           {ALL_EVENT_TYPES.map((type) => {
             const active = config.eventTypes.includes(type);
             return (
-              <button
+              <Checkbox
                 key={type}
-                type="button"
-                onClick={() => toggleEvent(type)}
-                className={cn(
-                  'flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-[12.5px] transition-colors',
-                  active
-                    ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/8 text-[var(--gray-12)]'
-                    : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-10)] hover:border-[var(--gray-6)]',
-                )}
-              >
-                <span
-                  className={cn(
-                    'h-3.5 w-3.5 rounded border-2 flex items-center justify-center shrink-0',
-                    active ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--gray-6)]',
-                  )}
-                >
-                  {active && (
-                    <svg viewBox="0 0 10 10" className="h-2 w-2 fill-white">
-                      <path d="M1.5 5L4 7.5L8.5 2" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                    </svg>
-                  )}
-                </span>
-                {EVENT_TYPE_LABELS[type]}
-              </button>
+                size="sm"
+                checked={active}
+                onChange={() => toggleEvent(type)}
+                label={EVENT_TYPE_LABELS[type]}
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-[12.5px] text-[var(--st-text)]"
+              />
             );
           })}
         </div>
@@ -205,50 +205,44 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
       <div className="space-y-1.5">
         <Label>
           <span className="flex items-center gap-1.5">
-            <LuFilter className="h-3.5 w-3.5" strokeWidth={2} />
+            <Filter className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             Filter by Sender (E.164)
           </span>
         </Label>
-        <p className="text-[11px] text-[var(--gray-9)]">
+        <p className="text-[11px] text-[var(--st-text-secondary)]">
           Only trigger for these phone numbers. Leave empty to allow all.
         </p>
 
         {config.allowedSenders.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {config.allowedSenders.map((s) => (
-              <span
+              <Tag
                 key={s}
-                className="flex items-center gap-1 rounded-full border border-[var(--gray-5)] bg-[var(--gray-3)] pl-2.5 pr-1.5 py-0.5 text-[11.5px] font-mono text-[var(--gray-11)]"
+                onRemove={() => removeSender(s)}
+                removeLabel={`Remove sender ${s}`}
+                className="font-mono"
               >
                 {s}
-                <button
-                  type="button"
-                  onClick={() => removeSender(s)}
-                  className="flex h-3.5 w-3.5 items-center justify-center rounded-full text-[var(--gray-8)] hover:text-[var(--gray-12)] transition-colors"
-                >
-                  <LuX className="h-2.5 w-2.5" strokeWidth={2.5} />
-                </button>
-              </span>
+              </Tag>
             ))}
           </div>
         )}
 
         <div className="flex gap-2">
-          <input
+          <Input
             type="tel"
-            className={cn(INPUT_CLS, 'flex-1')}
+            className="flex-1"
             value={newSender}
             onChange={(e) => setNewSender(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSender())}
             placeholder="+919876543210"
           />
-          <button
-            type="button"
+          <IconButton
+            label="Add sender"
+            icon={Plus}
+            variant="outline"
             onClick={addSender}
-            className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-          >
-            <LuPlus className="h-4 w-4" strokeWidth={2} />
-          </button>
+          />
         </div>
       </div>
 
@@ -256,77 +250,64 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
       <div className="space-y-1.5">
         <Label>
           <span className="flex items-center gap-1.5">
-            <LuHash className="h-3.5 w-3.5" strokeWidth={2} />
+            <Hash className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             Keyword Filter
           </span>
         </Label>
 
-        <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-3">
+        <Card padding="sm" className="space-y-3">
           {/* Match type */}
-          <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-            {(['contains', 'exact', 'starts_with'] as const).map((mt) => (
-              <button
-                key={mt}
-                type="button"
-                onClick={() => onChange({ ...config, keywordFilter: { ...ensureFilter(), matchType: mt } })}
-                className={cn(
-                  'flex-1 rounded-md py-1 text-[11px] font-medium transition-colors capitalize',
-                  config.keywordFilter?.matchType === mt
-                    ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                    : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-                )}
-              >
-                {mt.replace('_', ' ')}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            aria-label="Keyword match type"
+            fullWidth
+            size="sm"
+            items={MATCH_TYPE_ITEMS}
+            value={config.keywordFilter?.matchType ?? 'contains'}
+            onChange={(mt) =>
+              onChange({ ...config, keywordFilter: { ...ensureFilter(), matchType: mt } })
+            }
+          />
 
           {/* Keyword chips */}
           {(config.keywordFilter?.keywords ?? []).length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {config.keywordFilter!.keywords.map((k) => (
-                <span
+                <Tag
                   key={k}
-                  className="flex items-center gap-1 rounded-full border border-[var(--st-border)]/30 bg-[var(--st-text)]/10 pl-2.5 pr-1.5 py-0.5 text-[11.5px] text-[var(--st-text-secondary)]"
+                  onRemove={() => removeKeyword(k)}
+                  removeLabel={`Remove keyword ${k}`}
                 >
                   {k}
-                  <button
-                    type="button"
-                    onClick={() => removeKeyword(k)}
-                    className="flex h-3.5 w-3.5 items-center justify-center rounded-full hover:opacity-70 transition-opacity"
-                  >
-                    <LuX className="h-2.5 w-2.5" strokeWidth={2.5} />
-                  </button>
-                </span>
+                </Tag>
               ))}
             </div>
           )}
 
           {/* Add keyword */}
           <div className="flex gap-2">
-            <input
-              type="text"
-              className={cn(INPUT_CLS, 'flex-1 text-[12px]')}
+            <Input
+              inputSize="sm"
+              className="flex-1"
               value={newKeyword}
               onChange={(e) => setNewKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addKeyword())}
-              placeholder="order, help, start…"
+              placeholder="order, help, start"
             />
-            <button
-              type="button"
+            <IconButton
+              label="Add keyword"
+              icon={Plus}
+              size="sm"
+              variant="outline"
               onClick={addKeyword}
-              className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              <LuPlus className="h-4 w-4" strokeWidth={2} />
-            </button>
+            />
           </div>
 
           {!config.keywordFilter && (
-            <p className="text-[11px] text-[var(--gray-9)] text-center italic">
-              No keyword filter — all messages will trigger this node
+            <p className="text-[11px] text-[var(--st-text-secondary)] text-center italic">
+              No keyword filter, all messages will trigger this node
             </p>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* Output schema */}
@@ -336,7 +317,7 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
           { key: 'to',         type: 'string',  description: 'Receiving phone number ID' },
           { key: 'messageId',  type: 'string',  description: 'WABA message ID' },
           { key: 'timestamp',  type: 'string',  description: 'ISO-8601 receive time' },
-          { key: 'type',       type: 'string',  description: 'Message type: text | image | …' },
+          { key: 'type',       type: 'string',  description: 'Message type: text | image' },
           { key: 'text',       type: 'string?', description: 'Text body (for text messages)' },
           { key: 'media',      type: 'object?', description: 'Media metadata (id, mimeType, url)' },
           { key: 'rawPayload', type: 'object',  description: 'Full webhook payload from Meta' },
@@ -346,15 +327,7 @@ export function WhatsAppTrigger({ config, onChange, className }: WhatsAppTrigger
   );
 }
 
-/* ── Shared primitives ───────────────────────────────────── */
-
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
+/* -- Shared primitives -------------------------------------- */
 
 type OutputField = { key: string; type: string; description: string };
 
@@ -362,18 +335,34 @@ function OutputSchema({ fields }: { fields: OutputField[] }) {
   return (
     <div className="space-y-1.5">
       <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
-        {fields.map((f) => (
-          <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] text-[11.5px] font-mono font-medium text-[var(--st-text-secondary)]">{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
-          </div>
-        ))}
-      </div>
+      <Card padding="none">
+        <Table density="compact" hover={false}>
+          <THead>
+            <Tr>
+              <Th>Field</Th>
+              <Th>Type</Th>
+              <Th>Description</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            {fields.map((f) => (
+              <Tr key={f.key}>
+                <Td>
+                  <code className="font-mono text-[11.5px] font-medium text-[var(--st-accent)]">
+                    {f.key}
+                  </code>
+                </Td>
+                <Td>
+                  <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text-secondary)]">
+                    {f.type}
+                  </span>
+                </Td>
+                <Td className="text-[var(--st-text-secondary)]">{f.description}</Td>
+              </Tr>
+            ))}
+          </TBody>
+        </Table>
+      </Card>
     </div>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

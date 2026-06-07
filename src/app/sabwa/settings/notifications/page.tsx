@@ -1,6 +1,36 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Switch, Label, Input, Badge, Separator, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+  IconButton,
+  Switch,
+  Label,
+  Input,
+  Badge,
+  Separator,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Bell,
   Mail,
@@ -10,8 +40,7 @@ import {
   Plus,
   Play,
   Trash2,
-  } from 'lucide-react';
-import { toast } from 'sonner';
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -68,6 +97,7 @@ function newWindow(): SabwaMuteWindow {
 
 export default function NotificationsSettingsPage() {
   const { activeProjectId } = useProject();
+  const { toast } = useToast();
   const [prefs, setPrefs] = React.useState<SabwaNotificationPrefs>(DEFAULT_PREFS);
   const [loading, setLoading] = React.useState(true);
   const [pending, startTransition] = React.useTransition();
@@ -99,7 +129,7 @@ export default function NotificationsSettingsPage() {
     return () => {
       cancelled = true;
     };
-  }, [activeProjectId]);
+  }, [activeProjectId, toast]);
 
   const persist = (patch: Partial<SabwaNotificationPrefs>, label: string) => {
     if (!activeProjectId) {
@@ -176,24 +206,28 @@ export default function NotificationsSettingsPage() {
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6">
-      <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-[var(--st-bg-muted)] p-3">
-          <Bell className="h-6 w-6" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Settings — Notifications</h1>
-          <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-            Control where SabWa pings you when new messages, calls, or system events come in.
-          </p>
-        </div>
-      </div>
+      <PageHeader bordered={false}>
+        <PageHeaderHeading>
+          <div className="flex items-start gap-3">
+            <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
+              <Bell className="h-6 w-6" aria-hidden="true" />
+            </span>
+            <div>
+              <PageTitle>Settings, Notifications</PageTitle>
+              <PageDescription>
+                Control where SabWa pings you when new messages, calls, or system events come in.
+              </PageDescription>
+            </div>
+          </div>
+        </PageHeaderHeading>
+      </PageHeader>
       <SettingsTabs />
 
       {/* Event triggers */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
+            <Bell className="h-4 w-4" aria-hidden="true" />
             Events to notify
           </CardTitle>
           <CardDescription>
@@ -248,6 +282,7 @@ export default function NotificationsSettingsPage() {
           <div className="flex justify-end">
             <Button
               size="sm"
+              variant="primary"
               onClick={() => persist({ events: prefs.events }, 'Events to notify')}
               disabled={pending}
             >
@@ -261,7 +296,7 @@ export default function NotificationsSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Monitor className="h-4 w-4" />
+            <Monitor className="h-4 w-4" aria-hidden="true" />
             Desktop notifications
           </CardTitle>
           <CardDescription>
@@ -298,13 +333,17 @@ export default function NotificationsSettingsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button variant="outline" onClick={previewSound} disabled={!prefs.desktop.enabled}>
-              <Play className="mr-2 h-4 w-4" />
+            <Button variant="outline" iconLeft={Play} onClick={previewSound} disabled={!prefs.desktop.enabled}>
               Preview
             </Button>
           </div>
           <div className="flex justify-end">
-            <Button size="sm" onClick={() => persist({ desktop: prefs.desktop }, 'Desktop notifications')} disabled={pending}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => persist({ desktop: prefs.desktop }, 'Desktop notifications')}
+              disabled={pending}
+            >
               Save
             </Button>
           </div>
@@ -315,7 +354,7 @@ export default function NotificationsSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
+            <Mail className="h-4 w-4" aria-hidden="true" />
             Email digests
           </CardTitle>
           <CardDescription>Periodic summary emails of SabWa activity.</CardDescription>
@@ -356,14 +395,12 @@ export default function NotificationsSettingsPage() {
               {prefs.email.recipients.map((r) => (
                 <Badge key={r} variant="secondary" className="gap-1.5">
                   {r}
-                  <button
-                    type="button"
+                  <IconButton
+                    label={`Remove ${r}`}
+                    icon={Trash2}
+                    size="sm"
                     onClick={() => removeRecipient(r)}
-                    aria-label={`Remove ${r}`}
-                    className="hover:text-[var(--st-text)]"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
+                  />
                 </Badge>
               ))}
             </div>
@@ -384,28 +421,33 @@ export default function NotificationsSettingsPage() {
               />
               <Button
                 variant="outline"
+                iconLeft={Plus}
                 onClick={addRecipient}
                 disabled={!prefs.email.enabled || loading || pending}
               >
-                <Plus className="mr-2 h-4 w-4" />
                 Add
               </Button>
             </div>
           </div>
 
           <div className="flex justify-end">
-            <Button size="sm" onClick={() => persist({ email: prefs.email }, 'Email digests')} disabled={pending}>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => persist({ email: prefs.email }, 'Email digests')}
+              disabled={pending}
+            >
               Save
             </Button>
           </div>
         </CardBody>
       </Card>
 
-      {/* Push (mobile) — coming soon */}
+      {/* Push (mobile), coming soon */}
       <Card className="opacity-70">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Smartphone className="h-4 w-4" />
+            <Smartphone className="h-4 w-4" aria-hidden="true" />
             Push (mobile app)
             <Badge variant="secondary">Coming soon</Badge>
           </CardTitle>
@@ -425,7 +467,7 @@ export default function NotificationsSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Volume2 className="h-4 w-4" />
+            <Volume2 className="h-4 w-4" aria-hidden="true" />
             Sound for incoming
           </CardTitle>
           <CardDescription>Picked sound plays whenever the SabWa tab is focused.</CardDescription>
@@ -453,6 +495,7 @@ export default function NotificationsSettingsPage() {
           <div className="flex justify-end">
             <Button
               size="sm"
+              variant="primary"
               onClick={() => persist({ incomingSound: prefs.incomingSound }, 'Incoming sound')}
               disabled={pending}
             >
@@ -471,14 +514,17 @@ export default function NotificationsSettingsPage() {
               Time windows during which SabWa silences notifications. Useful for quiet hours and weekends.
             </CardDescription>
           </div>
-          <Button size="sm" onClick={addMuteWindow} disabled={pending}>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button size="sm" variant="primary" iconLeft={Plus} onClick={addMuteWindow} disabled={pending}>
             Add window
           </Button>
         </CardHeader>
         <CardBody>
           {prefs.muteSchedules.length === 0 ? (
-            <p className="text-sm text-[var(--st-text-secondary)]">No mute schedules — notifications are always on.</p>
+            <EmptyState
+              icon={Bell}
+              title="No mute schedules"
+              description="Notifications are always on. Add a window to silence SabWa during quiet hours."
+            />
           ) : (
             <Table>
               <THead>
@@ -497,6 +543,7 @@ export default function NotificationsSettingsPage() {
                       <Input
                         value={w.label ?? ''}
                         onChange={(e) => updateMuteWindow(w.id, { label: e.target.value })}
+                        aria-label="Mute window label"
                         className="max-w-40"
                       />
                     </Td>
@@ -505,6 +552,7 @@ export default function NotificationsSettingsPage() {
                         type="time"
                         value={w.start}
                         onChange={(e) => updateMuteWindow(w.id, { start: e.target.value })}
+                        aria-label="Mute window start time"
                         className="max-w-32"
                       />
                     </Td>
@@ -513,6 +561,7 @@ export default function NotificationsSettingsPage() {
                         type="time"
                         value={w.end}
                         onChange={(e) => updateMuteWindow(w.id, { end: e.target.value })}
+                        aria-label="Mute window end time"
                         className="max-w-32"
                       />
                     </Td>
@@ -521,31 +570,26 @@ export default function NotificationsSettingsPage() {
                         {DAYS.map((d) => {
                           const active = w.days.includes(d.value);
                           return (
-                            <button
-                              type="button"
+                            <Button
                               key={d.value}
+                              size="sm"
+                              variant={active ? 'primary' : 'outline'}
+                              aria-pressed={active}
                               onClick={() => toggleDay(w.id, d.value)}
-                              className={
-                                active
-                                  ? 'rounded-md bg-[var(--st-text)] text-white px-2 py-1 text-xs font-medium'
-                                  : 'rounded-md border px-2 py-1 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]'
-                              }
                             >
                               {d.label}
-                            </button>
+                            </Button>
                           );
                         })}
                       </div>
                     </Td>
                     <Td>
-                      <Button
+                      <IconButton
+                        label={`Remove ${w.label || 'mute window'}`}
+                        icon={Trash2}
                         variant="ghost"
-                        size="icon"
                         onClick={() => removeMuteWindow(w.id)}
-                        aria-label={`Remove ${w.label || 'mute window'}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      />
                     </Td>
                   </Tr>
                 ))}
@@ -559,9 +603,8 @@ export default function NotificationsSettingsPage() {
 
       <div className="flex justify-end">
         <Button
-          onClick={() =>
-            persist({ muteSchedules: prefs.muteSchedules }, 'Mute schedules')
-          }
+          variant="primary"
+          onClick={() => persist({ muteSchedules: prefs.muteSchedules }, 'Mute schedules')}
           disabled={pending}
         >
           Save mute schedules

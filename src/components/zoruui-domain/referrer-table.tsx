@@ -1,7 +1,17 @@
 'use client';
 
-import { Card, Skeleton } from '@/components/sabcrm/20ui';
-import { ExternalLink } from 'lucide-react';
+import {
+  Card,
+  Skeleton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { ExternalLink, Inbox } from 'lucide-react';
 
 interface ReferrerTableProps {
   data: { domain: string; count: number }[];
@@ -56,38 +66,51 @@ export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
   return (
     <Card className="p-5">
       <div className="flex items-center gap-2 mb-4">
-        <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" />
+        <ExternalLink className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
         <span className="text-[13px] text-[var(--st-text)]">Referrer Sources</span>
       </div>
 
       {rows.length === 0 ? (
-        <div className="py-10 text-center text-[13px] text-[var(--st-text-secondary)]">No referrer data yet</div>
+        <EmptyState
+          size="sm"
+          icon={Inbox}
+          title="No referrer data yet"
+          description="Sources will appear here once your links start receiving traffic."
+        />
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-[12.5px]">
-            <thead>
-              <tr className="border-b border-[var(--st-border)] text-left">
-                <th className="pb-2 pr-4 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal">
+          <Table density="compact" hover={false} className="text-[12.5px]">
+            <THead>
+              <Tr>
+                <Th className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal">
                   Source
-                </th>
-                <th className="pb-2 pr-4 text-right text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal w-16">
+                </Th>
+                <Th
+                  align="right"
+                  width={64}
+                  className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal"
+                >
                   Clicks
-                </th>
-                <th className="pb-2 text-right text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal w-16">
+                </Th>
+                <Th
+                  align="right"
+                  width={64}
+                  className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] font-normal"
+                >
                   Share
-                </th>
-              </tr>
-            </thead>
-            <tbody>
+                </Th>
+              </Tr>
+            </THead>
+            <TBody>
               {rows.map((row, i) => {
                 const sharePct = effectiveTotal > 0 ? (row.count / effectiveTotal) * 100 : 0;
                 return (
-                  <tr key={i} className="border-b border-[var(--st-border)]/50 last:border-0">
-                    <td className="py-2 pr-4">
+                  <Tr key={i}>
+                    <Td>
                       <div className="flex items-center gap-2 min-w-0">
                         {row.isDirect ? (
                           <span className="h-4 w-4 shrink-0 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center text-[9px] text-[var(--st-text-secondary)]">
-                            —
+                            -
                           </span>
                         ) : (
                           <img
@@ -104,18 +127,18 @@ export function ReferrerTable({ data, total, isLoading }: ReferrerTableProps) {
                         <span className="truncate text-[var(--st-text)]">{row.domain}</span>
                       </div>
                       <ShareBar pct={sharePct} />
-                    </td>
-                    <td className="py-2 pr-4 text-right tabular-nums text-[var(--st-text)]">
+                    </Td>
+                    <Td align="right" className="tabular-nums text-[var(--st-text)]">
                       {row.count.toLocaleString()}
-                    </td>
-                    <td className="py-2 text-right tabular-nums text-[var(--st-text-secondary)]">
+                    </Td>
+                    <Td align="right" className="tabular-nums text-[var(--st-text-secondary)]">
                       {sharePct.toFixed(1)}%
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 );
               })}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </div>
       )}
     </Card>

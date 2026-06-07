@@ -1,6 +1,18 @@
 'use client';
 
-import { Badge, Collapsible, CollapsibleContent, CollapsibleTrigger, ScrollArea, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Select } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+    ScrollArea,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/sabcrm/20ui';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -28,6 +40,8 @@ import {
     Link as LinkIcon,
     QrCode,
     LayoutGrid,
+    ShoppingBag,
+    CreditCard,
 } from 'lucide-react';
 import {
     wachatMenuItems,
@@ -58,7 +72,7 @@ import { useProject } from '@/context/project-context';
 import { canView } from '@/lib/rbac';
 import { WhatsAppIcon, MetaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 
-/* ─── App metadata ───────────────────────────────────────────────────────────── */
+/* --- App metadata ---------------------------------------------------------- */
 
 const APP_META: Record<string, { label: string; icon: any }> = {
     home:             { label: 'Home',           icon: LayoutGrid },
@@ -84,10 +98,10 @@ const APP_META: Record<string, { label: string; icon: any }> = {
     sabsense:         { label: 'SabSense',       icon: Search },
 };
 
-/* ─── Project apps (those that require an active project) ──────────────────── */
+/* --- Project apps (those that require an active project) ------------------- */
 const PROJECT_SCOPED_APPS = ['whatsapp', 'facebook', 'instagram', 'ad-manager', 'sabflow', 'sabchat'];
 
-/* ─── Menu Item ──────────────────────────────────────────────────────────────── */
+/* --- Menu Item ------------------------------------------------------------- */
 
 const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
     const pathname = usePathname();
@@ -108,28 +122,28 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
         >
             {/* Left indicator */}
             {isActive && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
+                <span aria-hidden="true" className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
             )}
 
             {Icon && (
-                <Icon className="h-4 w-4 shrink-0 transition-colors" />
+                <Icon aria-hidden="true" className="h-4 w-4 shrink-0 transition-colors" />
             )}
 
             <span className="flex-1 truncate">{item.label}</span>
 
             {item.new && (
-                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-[var(--st-text)] text-[var(--st-bg-secondary)] border-0">
+                <Badge tone="accent" kind="solid" className="ml-auto text-[10px] h-4 px-1.5 font-semibold border-0">
                     New
                 </Badge>
             )}
             {item.beta && (
-                <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1.5">Beta</Badge>
+                <Badge tone="neutral" className="ml-auto text-[10px] h-4 px-1.5">Beta</Badge>
             )}
         </Link>
     );
 };
 
-/* ─── Collapsible group item ─────────────────────────────────────────────────── */
+/* --- Collapsible group item ------------------------------------------------ */
 
 const NavCollapsible = ({ item }: { item: MenuItem }) => {
     const pathname = usePathname();
@@ -140,19 +154,20 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
     return (
         <Collapsible open={open} onOpenChange={setOpen} className="w-full">
             <CollapsibleTrigger asChild>
-                <button
+                <Button
+                    variant="ghost"
                     className={cn(
-                        'group flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-sm font-medium transition-colors relative',
-                        isOpenPath ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
+                        '!justify-start group flex !w-full items-center gap-2.5 !rounded-lg !py-2 !pl-3 !pr-3 text-sm font-medium transition-colors relative',
+                        isOpenPath ? '!bg-[var(--st-bg-muted)] !text-[var(--st-text)]' : '!text-[var(--st-text-secondary)] hover:!text-[var(--st-text)] hover:!bg-[var(--st-bg-muted)]'
                     )}
                 >
                     {isOpenPath && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
+                        <span aria-hidden="true" className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-[60%] rounded-r-full bg-[var(--st-text)]" />
                     )}
-                    {Icon && <Icon className="h-4 w-4 shrink-0" />}
+                    {Icon && <Icon aria-hidden="true" className="h-4 w-4 shrink-0" />}
                     <span className="flex-1 text-left truncate">{item.label}</span>
-                    <ChevronRight className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-90')} />
-                </button>
+                    <ChevronRight aria-hidden="true" className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-90')} />
+                </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
                 <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-[var(--st-border)]">
@@ -169,7 +184,7 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
     );
 };
 
-/* ─── Group label ─────────────────────────────────────────────────────────────── */
+/* --- Group label ----------------------------------------------------------- */
 
 const GroupLabel = ({ title }: { title: string }) => (
     <div className="px-3 pt-5 pb-1.5">
@@ -179,7 +194,7 @@ const GroupLabel = ({ title }: { title: string }) => (
     </div>
 );
 
-/* ─── Project Switcher (inline, compact) ─────────────────────────────────────── */
+/* --- Project Switcher (inline, compact) ------------------------------------ */
 
 function InlineProjectSwitcher() {
     const { projects: allProjects, activeProject, setActiveProjectId } = useProject();
@@ -200,15 +215,18 @@ function InlineProjectSwitcher() {
         <div className="px-2 py-2">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[var(--st-bg-muted)] group border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                    <Button
+                        variant="ghost"
+                        className="!justify-start !w-full flex items-center gap-2.5 !px-3 !py-2 !rounded-lg text-sm font-medium transition-colors hover:!bg-[var(--st-bg-muted)] group !border !border-[var(--st-border)] !bg-[var(--st-bg-secondary)]"
+                    >
                         <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-[var(--st-text)] text-[var(--st-bg-secondary)] text-[10px] font-bold">
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
                         </div>
                         <span className="flex-1 text-left truncate text-[var(--st-text)]">
                             {activeProject?.name || 'Select project'}
                         </span>
-                        <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
-                    </button>
+                        <ChevronsUpDown aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]" />
+                    </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
                     <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-[var(--st-text-secondary)]/70 mb-1">
@@ -229,7 +247,7 @@ function InlineProjectSwitcher() {
                                     {(p.name?.[0] || 'P').toUpperCase()}
                                 </div>
                                 <span className="flex-1 truncate font-medium">{p.name}</span>
-                                {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />}
+                                {isSelected && <Check aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />}
                             </DropdownMenuItem>
                         );
                     })}
@@ -245,7 +263,7 @@ function InlineProjectSwitcher() {
     );
 }
 
-/* ─── App Header ─────────────────────────────────────────────────────────────── */
+/* --- App Header ------------------------------------------------------------ */
 
 function AppHeader({ activeApp }: { activeApp: string }) {
     const meta = APP_META[activeApp] ?? { label: 'Dashboard', icon: LayoutGrid };
@@ -254,10 +272,8 @@ function AppHeader({ activeApp }: { activeApp: string }) {
     return (
         <div className="px-3 pt-4 pb-3 shrink-0">
             <div className="flex items-center gap-2.5">
-                <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 bg-[var(--app-light)] shadow-[0_0_12px_var(--app-glow)]"
-                >
-                    <Icon className="h-4 w-4 text-[var(--app-text)]" />
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-500 bg-[var(--app-light)] shadow-[0_0_12px_var(--app-glow)]">
+                    <Icon aria-hidden="true" className="h-4 w-4 text-[var(--app-text)]" />
                 </div>
                 <div>
                     <p className="text-sm font-bold tracking-tight leading-none text-[var(--app-text)]">
@@ -270,7 +286,7 @@ function AppHeader({ activeApp }: { activeApp: string }) {
     );
 }
 
-/* ─── Main Component ─────────────────────────────────────────────────────────── */
+/* --- Main Component -------------------------------------------------------- */
 
 interface AppSidebarProps {
     activeApp: string;
@@ -414,7 +430,7 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
             <AppHeader activeApp={activeApp} />
 
             {/* Thin accent line under header */}
-            <div className="mx-3 h-px mb-1 bg-[var(--app-border)]" />
+            <div aria-hidden="true" className="mx-3 h-px mb-1 bg-[var(--app-border)]" />
 
             {/* Project switcher */}
             {showProjectSwitcher && <InlineProjectSwitcher />}

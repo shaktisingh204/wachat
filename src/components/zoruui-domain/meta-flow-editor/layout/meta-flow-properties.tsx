@@ -1,6 +1,20 @@
 "use client";
 
-import { Button, Input, Label, ScrollArea, Separator } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    EmptyState,
+    Field,
+    IconButton,
+    Input,
+    Label,
+    ScrollArea,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Separator,
+} from '@/components/sabcrm/20ui';
 import { Settings2, Trash2 } from "lucide-react";
 
 import { TextEditor } from "../dialogs/text-editor";
@@ -43,9 +57,12 @@ export function MetaFlowProperties({
 }: MetaFlowPropertiesProps) {
     if (!selectedScreen && !selectedComponent) {
         return (
-            <div className="flex h-full flex-col items-center justify-center p-4 text-center text-[var(--st-text-secondary)]">
-                <Settings2 className="mb-2 h-8 w-8 opacity-50" />
-                <p>Select a screen or component to edit its properties.</p>
+            <div className="flex h-full flex-col items-center justify-center p-4">
+                <EmptyState
+                    icon={Settings2}
+                    title="Nothing selected"
+                    description="Select a screen or component to edit its properties."
+                />
             </div>
         );
     }
@@ -72,7 +89,7 @@ export function MetaFlowProperties({
         if (!selectedComponent) return null;
 
         switch (selectedComponent.type) {
-            // Text family — v7.3 spec: keep concrete types, don't merge into a fake "Text".
+            // Text family, v7.3 spec: keep concrete types, do not merge into a fake "Text".
             case 'TextHeading':
             case 'TextSubheading':
             case 'TextBody':
@@ -178,7 +195,7 @@ export function MetaFlowProperties({
 
             default:
                 return (
-                    <div className="rounded-md border border-dashed p-3 text-xs text-[var(--st-text-secondary)]">
+                    <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-3 text-xs text-[var(--st-text-secondary)]">
                         No dedicated editor for <span className="font-mono">{selectedComponent.type}</span> yet.
                         Use the JSON tab to edit.
                     </div>
@@ -187,10 +204,10 @@ export function MetaFlowProperties({
     };
 
     return (
-        <div className="flex h-full flex-col border-l bg-[var(--st-bg-secondary)]">
-            <div className="border-b p-4">
-                <h3 className="flex items-center gap-2 text-sm font-semibold">
-                    <Settings2 className="h-4 w-4" /> Properties
+        <div className="flex h-full flex-col border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+            <div className="border-b border-[var(--st-border)] p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+                    <Settings2 className="h-4 w-4" aria-hidden="true" /> Properties
                 </h3>
             </div>
 
@@ -199,29 +216,32 @@ export function MetaFlowProperties({
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h4 className="text-sm font-medium text-[var(--st-text)]">{selectedComponent.type}</h4>
-                            <Button
-                                variant="ghost" size="icon"
-                                className="h-6 w-6 text-[var(--st-text)]"
+                            <IconButton
+                                label="Delete component"
+                                icon={Trash2}
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => onDeleteComponent(selectedComponent.name || selectedComponent)}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                            </Button>
+                            />
                         </div>
                         <Separator />
 
                         <div className="space-y-4">
                             {selectedComponent.name !== undefined ? (
-                                <div className="space-y-2">
-                                    <Label>Component name (ID)</Label>
+                                <Field
+                                    label="Component name (ID)"
+                                    help={
+                                        <>
+                                            Used in <code>data</code> payload and <code>${'{form.NAME}'}</code> references.
+                                        </>
+                                    }
+                                >
                                     <Input
                                         value={selectedComponent.name || ''}
                                         onChange={(e) => updateComponentField('name', e.target.value)}
                                         className="font-mono text-xs"
                                     />
-                                    <p className="text-[10px] text-[var(--st-text-secondary)]">
-                                        Used in <code>data</code> payload and <code>${'{form.NAME}'}</code> references.
-                                    </p>
-                                </div>
+                                </Field>
                             ) : null}
 
                             {renderComponentEditor()}
@@ -250,26 +270,28 @@ function ScreenSettings({
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium text-[var(--st-text)]">Screen settings</h4>
-                <Button variant="ghost" size="icon" className="h-6 w-6 text-[var(--st-text)]" onClick={() => onDeleteScreen(selectedScreen.id)}>
-                    <Trash2 className="h-4 w-4" />
-                </Button>
+                <IconButton
+                    label="Delete screen"
+                    icon={Trash2}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDeleteScreen(selectedScreen.id)}
+                />
             </div>
             <Separator />
 
             <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label>Screen ID</Label>
+                <Field label="Screen ID">
                     <Input disabled value={selectedScreen.id} className="bg-[var(--st-bg-muted)] font-mono text-xs" />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label>Screen title</Label>
+                <Field label="Screen title">
                     <Input
                         value={selectedScreen.title || ''}
                         onChange={(e) => onUpdateScreen({ ...selectedScreen, title: e.target.value })}
                         placeholder="Shown in the top nav of the screen"
                     />
-                </div>
+                </Field>
 
                 <Separator />
 
@@ -294,8 +316,10 @@ function ScreenSettings({
                     onChange={(v) => onUpdateScreen({ ...selectedScreen, refresh_on_back: v || undefined })}
                 />
 
-                <div className="space-y-2">
-                    <Label>Sensitive fields (comma-separated)</Label>
+                <Field
+                    label="Sensitive fields (comma-separated)"
+                    help="Values marked sensitive are not cached on the client for session restore."
+                >
                     <Input
                         value={Array.isArray(selectedScreen.sensitive) ? selectedScreen.sensitive.join(', ') : ''}
                         onChange={(e) => {
@@ -305,10 +329,7 @@ function ScreenSettings({
                         placeholder="ssn, card_number"
                         className="font-mono text-xs"
                     />
-                    <p className="text-[10px] text-[var(--st-text-secondary)]">
-                        Values marked sensitive aren't cached on the client for session restore.
-                    </p>
-                </div>
+                </Field>
             </div>
         </div>
     );
@@ -333,28 +354,34 @@ function ImageCarouselEditor({
     return (
         <div className="space-y-5">
             <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                    <Label>Aspect ratio</Label>
-                    <select
+                <Field label="Aspect ratio">
+                    <Select
                         value={component['aspect-ratio'] || '4:3'}
-                        onChange={(e) => updateField('aspect-ratio', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-[var(--st-bg-secondary)] px-2 text-xs"
+                        onValueChange={(v) => updateField('aspect-ratio', v)}
                     >
-                        <option value="4:3">4:3</option>
-                        <option value="16:9">16:9</option>
-                    </select>
-                </div>
-                <div className="space-y-1.5">
-                    <Label>Scale type</Label>
-                    <select
+                        <SelectTrigger aria-label="Aspect ratio">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="4:3">4:3</SelectItem>
+                            <SelectItem value="16:9">16:9</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
+                <Field label="Scale type">
+                    <Select
                         value={component['scale-type'] || 'cover'}
-                        onChange={(e) => updateField('scale-type', e.target.value)}
-                        className="h-9 w-full rounded-md border bg-[var(--st-bg-secondary)] px-2 text-xs"
+                        onValueChange={(v) => updateField('scale-type', v)}
                     >
-                        <option value="cover">cover</option>
-                        <option value="contain">contain</option>
-                    </select>
-                </div>
+                        <SelectTrigger aria-label="Scale type">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="cover">cover</SelectItem>
+                            <SelectItem value="contain">contain</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </Field>
             </div>
 
             <div className="space-y-2">
@@ -366,17 +393,21 @@ function ImageCarouselEditor({
                     <p className="text-[11px] text-[var(--st-text-secondary)]">Paste a base64 data URI in src for each image.</p>
                 ) : null}
                 {images.map((img, idx) => (
-                    <div key={idx} className="space-y-2 rounded-md border p-2">
+                    <div key={idx} className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2">
                         <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-semibold">Image {idx + 1}</span>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-[var(--st-text)]" onClick={() => removeImage(idx)}>
-                                <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <span className="text-[11px] font-semibold text-[var(--st-text)]">Image {idx + 1}</span>
+                            <IconButton
+                                label={`Remove image ${idx + 1}`}
+                                icon={Trash2}
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeImage(idx)}
+                            />
                         </div>
                         <Input
                             value={img.src || ''}
                             onChange={(e) => updateImage(idx, { src: e.target.value })}
-                            placeholder="Base64 data (no data:image/…; prefix)"
+                            placeholder="Base64 data (no data:image prefix)"
                             className="h-8 font-mono text-[10.5px]"
                         />
                         <Input

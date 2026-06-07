@@ -1,18 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { 
-  Network, 
-  Plus, 
-  Wand2, 
-  ArrowRightLeft, 
-  Activity, 
+import {
+  Network,
+  Plus,
+  Wand2,
+  ArrowRightLeft,
+  Activity,
   AlertTriangle,
   History,
-  Download,
   Upload,
-  Play,
-  GripVertical,
   ArrowUp,
   ArrowDown,
   X,
@@ -29,12 +26,27 @@ import { SabsmsSavedViews } from "@/components/sabsms/page-toolkit/sabsms-saved-
 import { SabsmsPagination } from "@/components/sabsms/page-toolkit/sabsms-pagination";
 import { SabsmsRefreshButton } from "@/components/sabsms/page-toolkit/sabsms-refresh-button";
 import { SabsmsExportMenu, rowsToCsv } from "@/components/sabsms/page-toolkit/sabsms-export-menu";
-import { SabsmsBulkActionsBar } from "@/components/sabsms/page-toolkit/sabsms-bulk-actions";
 import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-column-picker";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
-import { SabsmsTableSkeleton, SabsmsEmpty } from "@/components/sabsms/page-toolkit/sabsms-states";
 
-import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  IconButton,
+  Switch,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  Input,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/sabcrm/20ui';
 
 /** Mock data for Routing Rules */
 const MOCK_RULES = [
@@ -42,11 +54,6 @@ const MOCK_RULES = [
   { id: "r2", name: "UK OTP High Priority", priority: 2, destination: "UK (+44)", category: "OTP", timeOfDay: "Any", provider: "Vonage", status: "active", tags: ["uk", "otp"], costEst: "$0.0400", deliverabilityEst: "99.9%" },
   { id: "r3", name: "IN Promo Night Shift", priority: 3, destination: "IN (+91)", category: "Marketing", timeOfDay: "20:00 - 08:00", provider: "Plivo", status: "inactive", tags: ["in", "promo"], costEst: "$0.0020", deliverabilityEst: "95.0%" },
   { id: "r4", name: "Global Alert Fallback", priority: 4, destination: "Global", category: "Alert", timeOfDay: "Any", provider: "Sinch", status: "active", tags: ["fallback"], costEst: "$0.0150", deliverabilityEst: "98.5%" },
-];
-
-const SAVED_VIEWS = [
-  { id: "v1", name: "Marketing Rules", filters: { category: ["Marketing"] } },
-  { id: "v2", name: "Active Rules", filters: { status: ["active"] } },
 ];
 
 const SORT_OPTIONS: SabsmsSortOption[] = [
@@ -88,32 +95,43 @@ function FallbackFlowBuilder() {
   };
 
   return (
-    <div className="space-y-3 bg-[var(--st-bg-muted)]/50 p-4 rounded-lg border border-[var(--st-border)] mt-2">
+    <div className="space-y-3 bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] mt-2">
       {flow.map((node, i) => (
         <div key={node.id} className="relative flex items-center gap-3">
           {i > 0 && (
-            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-[var(--st-bg-muted)]" />
+            <div className="absolute left-[11px] -top-[16px] bottom-1/2 w-px bg-[var(--st-border)]" />
           )}
-          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border ${i === 0 ? "bg-[var(--st-bg-muted)] border-[var(--st-border)] text-[var(--st-text)]" : "bg-white border-[var(--st-border)] text-[var(--st-text)] shadow-sm"}`}>
+          <div className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium border bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text)] ${i === 0 ? "" : "shadow-sm"}`}>
             {i + 1}
           </div>
-          <div className={`flex-1 flex items-center justify-between p-2.5 border rounded-md shadow-sm transition-colors ${i === 0 ? "bg-[var(--st-bg-muted)]/50 border-[var(--st-border)]" : "bg-white border-[var(--st-border)] hover:border-[var(--st-border)]"}`}>
+          <div className="flex-1 flex items-center justify-between p-2.5 border rounded-[var(--st-radius)] shadow-sm bg-[var(--st-bg-secondary)] border-[var(--st-border)]">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-medium text-[var(--st-text)] uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
+              <span className="text-[10px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wider">{i === 0 ? "Primary Provider" : `Fallback ${i}`}</span>
               <span className="text-sm font-medium text-[var(--st-text)]">{node.provider}</span>
             </div>
             {i > 0 && (
               <div className="flex items-center gap-0.5">
-                <button onClick={() => moveUp(i)} disabled={i === 1} className="p-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30 rounded hover:bg-[var(--st-bg-muted)] transition-colors">
-                  <ArrowUp className="h-3.5 w-3.5" />
-                </button>
-                <button onClick={() => moveDown(i)} disabled={i === flow.length - 1} className="p-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30 rounded hover:bg-[var(--st-bg-muted)] transition-colors">
-                  <ArrowDown className="h-3.5 w-3.5" />
-                </button>
-                <div className="w-px h-4 bg-[var(--st-bg-muted)] mx-1" />
-                <button onClick={() => remove(i)} className="p-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] rounded hover:bg-[var(--st-bg-muted)] transition-colors">
-                  <X className="h-3.5 w-3.5" />
-                </button>
+                <IconButton
+                  label="Move provider up"
+                  icon={ArrowUp}
+                  size="sm"
+                  onClick={() => moveUp(i)}
+                  disabled={i === 1}
+                />
+                <IconButton
+                  label="Move provider down"
+                  icon={ArrowDown}
+                  size="sm"
+                  onClick={() => moveDown(i)}
+                  disabled={i === flow.length - 1}
+                />
+                <div className="w-px h-4 bg-[var(--st-border)] mx-1" />
+                <IconButton
+                  label="Remove fallback provider"
+                  icon={X}
+                  size="sm"
+                  onClick={() => remove(i)}
+                />
               </div>
             )}
           </div>
@@ -121,12 +139,12 @@ function FallbackFlowBuilder() {
       ))}
       <div className="relative flex items-center gap-3 pt-1">
         <div className="absolute left-[11px] -top-3 bottom-1/2 w-px border-l-2 border-dashed border-[var(--st-border)]" />
-        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white border-2 border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
-          <Plus className="h-3 w-3" />
+        <div className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] border-2 border-dashed border-[var(--st-border)] text-[var(--st-text-secondary)]">
+          <Plus className="h-3 w-3" aria-hidden="true" />
         </div>
-        <button onClick={addFallback} className="text-sm text-[var(--st-text)] hover:text-[var(--st-text)] font-medium flex items-center gap-1.5 transition-colors">
+        <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addFallback}>
           Add Fallback Route
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -162,7 +180,7 @@ function RouteTraceTool() {
           isMatch = false;
           mismatchReason = "Destination mismatch (Not IN)";
         }
-        
+
         if (isMatch && rule.category !== "Any" && category !== "Any" && rule.category !== category) {
           isMatch = false;
           mismatchReason = `Category mismatch (${category} != ${rule.category})`;
@@ -178,10 +196,10 @@ function RouteTraceTool() {
       }
 
       if (!matchedRule) {
-        logs.push({ 
-          rule: { name: "Global Fallback", provider: "Sinch", priority: 999 }, 
-          status: "matched", 
-          reason: "Fell back to default provider" 
+        logs.push({
+          rule: { name: "Global Fallback", provider: "Sinch", priority: 999 },
+          status: "matched",
+          reason: "Fell back to default provider"
         });
       }
 
@@ -194,35 +212,33 @@ function RouteTraceTool() {
     <Card>
       <CardHeader>
         <CardTitle className="text-base flex items-center gap-2">
-          <Search className="h-4 w-4" /> Routing Trace Tool
+          <Search className="h-4 w-4" aria-hidden="true" /> Routing Trace Tool
         </CardTitle>
         <CardDescription>Input a number to explain exactly which provider will be used and why.</CardDescription>
       </CardHeader>
       <CardBody className="space-y-4">
-        <div>
-          <label className="text-xs text-[var(--st-text)] mb-1 block">Test Number</label>
-          <input 
-            type="text" 
-            placeholder="+1 234 567 8900" 
-            className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
+        <Field label="Test Number">
+          <Input
+            type="text"
+            placeholder="+1 234 567 8900"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
           />
-        </div>
-        <div>
-          <label className="text-xs text-[var(--st-text)] mb-1 block">Message Category</label>
-          <select 
-            className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option>Any</option>
-            <option>Marketing</option>
-            <option>OTP</option>
-            <option>Alert</option>
-          </select>
-        </div>
-        <Button variant="outline" className="w-full" onClick={handleTrace} disabled={isTracing || !phoneNumber}>
+        </Field>
+        <Field label="Message Category">
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger aria-label="Message category">
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Any">Any</SelectItem>
+              <SelectItem value="Marketing">Marketing</SelectItem>
+              <SelectItem value="OTP">OTP</SelectItem>
+              <SelectItem value="Alert">Alert</SelectItem>
+            </SelectContent>
+          </Select>
+        </Field>
+        <Button variant="outline" block onClick={handleTrace} disabled={isTracing || !phoneNumber}>
           {isTracing ? "Tracing..." : "Run Trace"}
         </Button>
 
@@ -230,19 +246,19 @@ function RouteTraceTool() {
           <div className="mt-4 space-y-2 border-t border-[var(--st-border)] pt-4">
             <h4 className="text-sm font-semibold mb-3">Trace Results</h4>
             {traceLog.map((log, i) => (
-              <div key={i} className={`p-3 rounded-md text-sm border ${log.status === "matched" ? "bg-[var(--st-bg-muted)] border-[var(--st-border)]" : "bg-[var(--st-bg-muted)] border-[var(--st-border)] opacity-75"}`}>
+              <div key={i} className={`p-3 rounded-[var(--st-radius)] text-sm border bg-[var(--st-bg-secondary)] border-[var(--st-border)] ${log.status === "matched" ? "" : "opacity-75"}`}>
                 <div className="flex items-center gap-2 font-medium mb-1">
                   {log.status === "matched" ? (
-                    <CheckCircle2 className="h-4 w-4 text-[var(--st-text)]" />
+                    <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <XCircle className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                   )}
-                  <span className={log.status === "matched" ? "text-[var(--st-text)]" : "text-[var(--st-text)]"}>
+                  <span className="text-[var(--st-text)]">
                     {log.rule.name}
                   </span>
                   <Badge variant="outline" className="ml-auto text-[10px]">{log.rule.provider}</Badge>
                 </div>
-                <div className="text-xs text-[var(--st-text)] ml-6">
+                <div className="text-xs text-[var(--st-text-secondary)] ml-6">
                   {log.reason}
                 </div>
               </div>
@@ -263,7 +279,7 @@ export default function RoutingPage() {
   // F1: Rule Editor (mocked via detail drawer)
   // F2: Visual Rule Chain (represented by the table order)
   // F3: Conflict Detection (mocked alert in the UI)
-  // F4: Priority drag-reorder (represented by GripVertical icon on rows)
+  // F4: Priority drag-reorder (represented by a drag handle icon on rows)
   // F5: Per-rule cost preview (column in table)
   // F6: Per-rule deliverability simulation (column in table)
   // F7: Default fallback editor (mocked via secondary action)
@@ -285,7 +301,7 @@ export default function RoutingPage() {
     {
       id: "drag",
       header: "",
-      render: () => <GripVertical className="h-4 w-4 text-[var(--st-text-secondary)] cursor-move" />,
+      render: () => <Plus className="h-4 w-4 text-[var(--st-text-secondary)] rotate-45 cursor-move" aria-hidden="true" />,
       width: "40px"
     },
     {
@@ -294,7 +310,7 @@ export default function RoutingPage() {
       render: (row) => (
         <div>
           <div className="font-medium">{row.name}</div>
-          <div className="text-xs text-[var(--st-text)] flex gap-1 mt-1">
+          <div className="text-xs text-[var(--st-text-secondary)] flex gap-1 mt-1">
             {row.tags.map(t => <Badge key={t} variant="secondary" className="text-[10px] px-1 py-0">{t}</Badge>)}
           </div>
         </div>
@@ -305,9 +321,9 @@ export default function RoutingPage() {
       header: "Conditions",
       render: (row) => (
         <div className="text-sm">
-          <div><span className="text-[var(--st-text)]">Dest:</span> {row.destination}</div>
-          <div><span className="text-[var(--st-text)]">Cat:</span> {row.category}</div>
-          {row.timeOfDay !== "Any" && <div><span className="text-[var(--st-text)]">Time:</span> {row.timeOfDay}</div>}
+          <div><span className="text-[var(--st-text-secondary)]">Dest:</span> {row.destination}</div>
+          <div><span className="text-[var(--st-text-secondary)]">Cat:</span> {row.category}</div>
+          {row.timeOfDay !== "Any" && <div><span className="text-[var(--st-text-secondary)]">Time:</span> {row.timeOfDay}</div>}
         </div>
       )
     },
@@ -321,8 +337,8 @@ export default function RoutingPage() {
       header: "Simulation",
       render: (row) => (
         <div className="text-sm">
-          <div><span className="text-[var(--st-text)]">Cost:</span> {row.costEst}/msg</div>
-          <div><span className="text-[var(--st-text)]">DLR:</span> {row.deliverabilityEst}</div>
+          <div><span className="text-[var(--st-text-secondary)]">Cost:</span> {row.costEst}/msg</div>
+          <div><span className="text-[var(--st-text-secondary)]">DLR:</span> {row.deliverabilityEst}</div>
         </div>
       )
     },
@@ -330,9 +346,9 @@ export default function RoutingPage() {
       id: "status",
       header: "Status",
       render: (row) => (
-        <Switch 
-          checked={row.status === "active"} 
-          onCheckedChange={() => {}} 
+        <Switch
+          checked={row.status === "active"}
+          onCheckedChange={() => {}}
           aria-label="Toggle rule active status"
         />
       ),
@@ -351,11 +367,11 @@ export default function RoutingPage() {
       breadcrumbs={[{ label: "Infrastructure" }, { label: "Routing" }]}
       primaryAction={{ label: "Create Rule", onClick: () => setSelectedRuleId("new") }}
       secondaryActions={[
-        { label: "AI Optimization", icon: <Wand2 className="h-4 w-4" /> },
-        { label: "Import Rule Set", icon: <Upload className="h-4 w-4" /> },
-        { label: "Default Fallbacks", icon: <ArrowRightLeft className="h-4 w-4" /> },
-        { label: "Compare Configs", icon: <Network className="h-4 w-4" /> },
-        { label: "Audit Log", icon: <History className="h-4 w-4" /> },
+        { label: "AI Optimization", icon: <Wand2 className="h-4 w-4" aria-hidden="true" /> },
+        { label: "Import Rule Set", icon: <Upload className="h-4 w-4" aria-hidden="true" /> },
+        { label: "Default Fallbacks", icon: <ArrowRightLeft className="h-4 w-4" aria-hidden="true" /> },
+        { label: "Compare Configs", icon: <Network className="h-4 w-4" aria-hidden="true" /> },
+        { label: "Audit Log", icon: <History className="h-4 w-4" aria-hidden="true" /> },
       ]}
       helpTitle="About Routing Rules"
       helpBody="Routing rules allow you to define conditional logic for sending messages. Rules are evaluated top-to-bottom. The first matching rule determines the provider."
@@ -398,7 +414,7 @@ export default function RoutingPage() {
             onExportExcel={() => {}}
             onExportJson={() => {}}
           />
-          <SabsmsRefreshButton 
+          <SabsmsRefreshButton
             isRefreshing={false}
             onRefresh={() => {}}
           />
@@ -416,12 +432,12 @@ export default function RoutingPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 space-y-4">
           {/* F3: Conflict Detection Mock */}
-          <Card className="bg-[var(--st-bg-muted)] border-[var(--st-border)] shadow-none">
+          <Card className="bg-[var(--st-bg-secondary)] border-[var(--st-border)] shadow-none">
             <div className="flex items-start p-4 gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--st-text)] mt-0.5" />
+              <AlertTriangle className="h-5 w-5 text-[var(--st-warn)] mt-0.5" aria-hidden="true" />
               <div>
                 <h4 className="text-sm font-semibold text-[var(--st-text)]">Rule Conflict Detected</h4>
-                <p className="text-sm text-[var(--st-text)]">"US Marketing Primary" fully shadows "Global Alert Fallback" for US destinations.</p>
+                <p className="text-sm text-[var(--st-text-secondary)]">"US Marketing Primary" fully shadows "Global Alert Fallback" for US destinations.</p>
               </div>
             </div>
           </Card>
@@ -452,18 +468,19 @@ export default function RoutingPage() {
             />
             <div className="p-4 border-t border-[var(--st-border)] flex justify-between items-center">
               <div className="flex items-center gap-4">
-                <div className="text-sm text-[var(--st-text)]">Visual Rule Chain matches table order</div>
+                <div className="text-sm text-[var(--st-text-secondary)]">Visual Rule Chain matches table order</div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-[var(--st-text)]">Density:</span>
-                  <select 
-                    className="text-xs border-[var(--st-border)] rounded p-1"
-                    value={density}
-                    onChange={(e) => setDensity(e.target.value as any)}
-                  >
-                    <option value="compact">Compact</option>
-                    <option value="comfortable">Comfortable</option>
-                    <option value="cosy">Cosy</option>
-                  </select>
+                  <span className="text-xs text-[var(--st-text-secondary)]">Density:</span>
+                  <Select value={density} onValueChange={(v) => setDensity(v as "compact" | "comfortable" | "cosy")}>
+                    <SelectTrigger aria-label="Table density" className="h-8 w-36">
+                      <SelectValue placeholder="Density" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="compact">Compact</SelectItem>
+                      <SelectItem value="comfortable">Comfortable</SelectItem>
+                      <SelectItem value="cosy">Cosy</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <SabsmsPagination
@@ -483,12 +500,12 @@ export default function RoutingPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="h-4 w-4" /> Global Fallbacks
+                <Activity className="h-4 w-4" aria-hidden="true" /> Global Fallbacks
               </CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <div className="text-sm text-[var(--st-text)]">If no rules match, messages will route using default fallbacks.</div>
-              <Button variant="outline" className="w-full">Edit Fallbacks</Button>
+              <div className="text-sm text-[var(--st-text-secondary)]">If no rules match, messages will route using default fallbacks.</div>
+              <Button variant="outline" block>Edit Fallbacks</Button>
             </CardBody>
           </Card>
         </div>
@@ -509,41 +526,55 @@ export default function RoutingPage() {
         <div className="space-y-6 py-4">
           {/* Rule Editor fields mock */}
           <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Rule Name</label>
-              <input type="text" className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm shadow-sm transition-colors mt-1" defaultValue={selectedRuleId !== "new" ? MOCK_RULES.find(r => r.id === selectedRuleId)?.name : ""} />
-            </div>
-            
+            <Field label="Rule Name">
+              <Input
+                type="text"
+                defaultValue={selectedRuleId !== "new" ? MOCK_RULES.find(r => r.id === selectedRuleId)?.name : ""}
+              />
+            </Field>
+
             <div className="pt-4 border-t border-[var(--st-border)]">
               <h4 className="text-sm font-medium mb-3">Conditions</h4>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-[var(--st-text)]">Destination Country</label>
-                    <select className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm mt-1">
-                      <option>Any</option>
-                      <option>US (+1)</option>
-                      <option>UK (+44)</option>
-                      <option>IN (+91)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-[var(--st-text)]">Category</label>
-                    <select className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm mt-1">
-                      <option>Any</option>
-                      <option>Marketing</option>
-                      <option>OTP</option>
-                    </select>
-                  </div>
+                  <Field label="Destination Country">
+                    <Select defaultValue="Any">
+                      <SelectTrigger aria-label="Destination country">
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Any">Any</SelectItem>
+                        <SelectItem value="US (+1)">US (+1)</SelectItem>
+                        <SelectItem value="UK (+44)">UK (+44)</SelectItem>
+                        <SelectItem value="IN (+91)">IN (+91)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Category">
+                    <Select defaultValue="Any">
+                      <SelectTrigger aria-label="Category">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Any">Any</SelectItem>
+                        <SelectItem value="Marketing">Marketing</SelectItem>
+                        <SelectItem value="OTP">OTP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
                 </div>
-                <div>
-                  <label className="text-xs text-[var(--st-text)]">Time of Day (Sender TZ)</label>
-                  <select className="flex h-9 w-full rounded-md border border-[var(--st-border)] bg-transparent px-3 py-1 text-sm mt-1">
-                    <option>Any Time</option>
-                    <option>Business Hours (09:00 - 17:00)</option>
-                    <option>Night Shift (20:00 - 08:00)</option>
-                  </select>
-                </div>
+                <Field label="Time of Day (Sender TZ)">
+                  <Select defaultValue="Any Time">
+                    <SelectTrigger aria-label="Time of day">
+                      <SelectValue placeholder="Select a window" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Any Time">Any Time</SelectItem>
+                      <SelectItem value="Business Hours (09:00 - 17:00)">Business Hours (09:00 - 17:00)</SelectItem>
+                      <SelectItem value="Night Shift (20:00 - 08:00)">Night Shift (20:00 - 08:00)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
             </div>
 
@@ -551,7 +582,7 @@ export default function RoutingPage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h4 className="text-sm font-medium">Routing Flow</h4>
-                  <p className="text-xs text-[var(--st-text)] mt-1">Define primary and fallback providers visually.</p>
+                  <p className="text-xs text-[var(--st-text-secondary)] mt-1">Define primary and fallback providers visually.</p>
                 </div>
               </div>
               <FallbackFlowBuilder />

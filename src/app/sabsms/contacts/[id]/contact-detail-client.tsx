@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SabSMS contact detail — client surface.
+ * SabSMS contact detail - client surface.
  *
  * Renders the full message thread, consent timeline, engagement KPI row,
  * drip + campaign memberships, send-message mini composer, custom-field
@@ -23,12 +23,40 @@ import {
   MessageSquare,
   ShieldAlert,
   ShieldOff,
-  Tag,
+  Tag as TagIcon,
   Trash2,
   XCircle,
 } from "lucide-react";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, StatCard, Textarea } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  StatCard,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -78,7 +106,7 @@ const LOCALE_OPTIONS = [
 function consentBadge(c: ContactDetailView["consent"]) {
   switch (c) {
     case "double":
-      return <Badge variant="default">Double opt-in</Badge>;
+      return <Badge variant="success">Double opt-in</Badge>;
     case "single":
       return <Badge variant="secondary">Single opt-in</Badge>;
     case "opt_out":
@@ -89,23 +117,22 @@ function consentBadge(c: ContactDetailView["consent"]) {
 }
 
 function statusGlyph(status: string) {
-  if (status === "delivered") return <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-text)]" />;
-  if (status === "failed" || status === "rejected" || status === "undelivered") {
-    return <XCircle className="h-3.5 w-3.5 text-[var(--st-text)]" />;
+  if (status === "delivered") {
+    return <CheckCircle2 className="h-3.5 w-3.5 text-[var(--st-status-ok)]" aria-hidden />;
   }
-  return <Activity className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />;
+  if (status === "failed" || status === "rejected" || status === "undelivered") {
+    return <XCircle className="h-3.5 w-3.5 text-[var(--st-danger)]" aria-hidden />;
+  }
+  return <Activity className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden />;
 }
 
 export function ContactDetailClient({
   contact,
   isAdmin,
 }: ContactDetailClientProps) {
+  const { toast } = useToast();
   const [state, setState] = React.useState(contact);
   const [busy, setBusy] = React.useState<string | null>(null);
-  const [feedback, setFeedback] = React.useState<{
-    kind: "ok" | "err";
-    msg: string;
-  } | null>(null);
 
   const [composerBody, setComposerBody] = React.useState("");
   const [noteBody, setNoteBody] = React.useState("");
@@ -115,12 +142,6 @@ export function ContactDetailClient({
   const [suppressionReason, setSuppressionReason] = React.useState("");
   const [auditOpen, setAuditOpen] = React.useState(false);
   const [eraseConfirm, setEraseConfirm] = React.useState(false);
-
-  function flash(res: { ok: boolean; error?: string }, okMsg: string) {
-    if (res.ok) setFeedback({ kind: "ok", msg: okMsg });
-    else setFeedback({ kind: "err", msg: res.error ?? "Action failed" });
-    setTimeout(() => setFeedback(null), 4000);
-  }
 
   async function withBusy<T>(label: string, fn: () => Promise<T>): Promise<T> {
     setBusy(label);
@@ -140,10 +161,10 @@ export function ContactDetailClient({
         body: composerBody,
       });
       if (res.ok) {
-        flash({ ok: true }, "Message queued");
+        toast.success("Message queued");
         setComposerBody("");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -168,9 +189,9 @@ export function ContactDetailClient({
           ],
         }));
         setNoteBody("");
-        flash({ ok: true }, "Note added");
+        toast.success("Note added");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -181,9 +202,9 @@ export function ContactDetailClient({
       const res = await setDetailTags({ contactId: state.id, tags });
       if (res.ok) {
         setState((prev) => ({ ...prev, tags }));
-        flash({ ok: true }, "Tags saved");
+        toast.success("Tags saved");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -206,9 +227,9 @@ export function ContactDetailClient({
         }));
         setNewFieldKey("");
         setNewFieldValue("");
-        flash({ ok: true }, "Field saved");
+        toast.success("Field saved");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -222,9 +243,9 @@ export function ContactDetailClient({
           delete next[key];
           return { ...prev, customFields: next };
         });
-        flash({ ok: true }, "Field removed");
+        toast.success("Field removed");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -234,9 +255,9 @@ export function ContactDetailClient({
       const res = await setTimezone({ contactId: state.id, timezone: tz });
       if (res.ok) {
         setState((prev) => ({ ...prev, timezone: tz }));
-        flash({ ok: true }, "Time zone saved");
+        toast.success("Time zone saved");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -246,9 +267,9 @@ export function ContactDetailClient({
       const res = await setLocale({ contactId: state.id, locale: loc });
       if (res.ok) {
         setState((prev) => ({ ...prev, locale: loc }));
-        flash({ ok: true }, "Locale saved");
+        toast.success("Locale saved");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -260,10 +281,10 @@ export function ContactDetailClient({
         reason: suppressionReason,
       });
       if (res.ok) {
-        flash({ ok: true }, "Suppressed");
+        toast.success("Suppressed");
         setSuppressionReason("");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -272,9 +293,9 @@ export function ContactDetailClient({
     await withBusy("supp-del", async () => {
       const res = await removeContactFromSuppression({ phone: state.phone });
       if (res.ok) {
-        flash({ ok: true }, "Suppression removed");
+        toast.success("Suppression removed");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -294,9 +315,9 @@ export function ContactDetailClient({
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        flash({ ok: true }, "Export downloaded");
+        toast.success("Export downloaded");
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
@@ -306,29 +327,16 @@ export function ContactDetailClient({
     await withBusy("gdpr-erase", async () => {
       const res = await gdprDeleteContact({ contactId: state.id });
       if (res.ok) {
-        flash({ ok: true }, `Erased ${res.erased} record(s)`);
+        toast.success(`Erased ${res.erased} record(s)`);
         window.location.href = "/sabsms/contacts";
       } else {
-        flash({ ok: false, error: res.error }, "");
+        toast.error(res.error ?? "Action failed");
       }
     });
   }
 
   return (
     <div className="space-y-6">
-      {feedback && (
-        <div
-          className={
-            feedback.kind === "ok"
-              ? "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
-              : "rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]"
-          }
-          role="status"
-        >
-          {feedback.msg}
-        </div>
-      )}
-
       {/* KPI row */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <StatCard label="Sent" value={state.metrics.sent.toLocaleString()} />
@@ -347,12 +355,11 @@ export function ContactDetailClient({
         <StatCard
           label="Failed"
           value={state.metrics.failed.toLocaleString()}
-          invertDelta
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left column — conversation thread + composer */}
+        {/* Left column - conversation thread + composer */}
         <div className="space-y-4 lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -364,7 +371,8 @@ export function ContactDetailClient({
                       className="text-[var(--st-accent)] hover:underline"
                       href={`/sabsms/inbox?conversationId=${state.conversationId}`}
                     >
-                      Open in inbox <ExternalLink className="inline h-3 w-3" />
+                      Open in inbox{" "}
+                      <ExternalLink className="inline h-3 w-3" aria-hidden />
                     </Link>
                   )}
                 </CardDescription>
@@ -375,9 +383,12 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-2">
               {state.messages.length === 0 ? (
-                <div className="rounded-md border border-dashed border-[var(--st-border)] p-6 text-center text-sm text-[var(--st-text)]">
-                  No messages exchanged yet.
-                </div>
+                <EmptyState
+                  icon={MessageSquare}
+                  title="No messages exchanged yet"
+                  description="Outbound and inbound SMS will appear here as they are sent and received."
+                  size="sm"
+                />
               ) : (
                 <div className="max-h-[500px] space-y-2 overflow-y-auto">
                   {state.messages.map((m) => (
@@ -385,16 +396,16 @@ export function ContactDetailClient({
                       key={m.id}
                       className={
                         m.direction === "outbound"
-                          ? "ml-12 rounded-md bg-[var(--st-accent)]/10 p-3"
-                          : "mr-12 rounded-md bg-[var(--st-bg-muted)] p-3"
+                          ? "ml-12 rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] p-3"
+                          : "mr-12 rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3"
                       }
                     >
-                      <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
+                      <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                         <span className="inline-flex items-center gap-1">
                           {m.direction === "outbound" ? (
-                            <ArrowUpRight className="h-3 w-3" />
+                            <ArrowUpRight className="h-3 w-3" aria-hidden />
                           ) : (
-                            <ArrowDownLeft className="h-3 w-3" />
+                            <ArrowDownLeft className="h-3 w-3" aria-hidden />
                           )}
                           {m.direction}
                         </span>
@@ -402,15 +413,15 @@ export function ContactDetailClient({
                           {statusGlyph(m.status)}
                           {m.status}
                           {m.createdAt && (
-                            <span className="ml-2 text-[var(--st-text-secondary)]">
+                            <span className="ml-2 text-[var(--st-text-tertiary)]">
                               {new Date(m.createdAt).toLocaleString()}
                             </span>
                           )}
                         </span>
                       </div>
-                      <div className="mt-1 text-sm">{m.body}</div>
+                      <div className="mt-1 text-sm text-[var(--st-text)]">{m.body}</div>
                       {m.errorMessage && (
-                        <div className="mt-1 text-xs text-[var(--st-text)]">
+                        <div className="mt-1 text-xs text-[var(--st-danger)]">
                           {m.errorMessage}
                         </div>
                       )}
@@ -431,21 +442,25 @@ export function ContactDetailClient({
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-3">
-              <Textarea
-                value={composerBody}
-                onChange={(e) => setComposerBody(e.target.value)}
-                placeholder="Type your message…"
-                rows={3}
-              />
+              <Field label="Message" className="space-y-0">
+                <Textarea
+                  value={composerBody}
+                  onChange={(e) => setComposerBody(e.target.value)}
+                  placeholder="Type your message..."
+                  rows={3}
+                />
+              </Field>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-[var(--st-text)]">
+                <span className="text-xs text-[var(--st-text-secondary)]">
                   {composerBody.length} characters
                 </span>
                 <Button
+                  variant="primary"
                   onClick={handleSend}
-                  disabled={!composerBody.trim() || busy === "send"}
+                  disabled={!composerBody.trim()}
+                  loading={busy === "send"}
                 >
-                  {busy === "send" ? "Sending…" : "Send"}
+                  Send
                 </Button>
               </div>
             </CardBody>
@@ -461,22 +476,22 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody>
               {state.consentEvents.length === 0 ? (
-                <div className="text-sm text-[var(--st-text)]">No events.</div>
+                <EmptyState title="No consent events" size="sm" />
               ) : (
                 <ol className="space-y-2 text-sm">
                   {state.consentEvents.map((e) => (
                     <li
                       key={e.id}
-                      className="flex items-start justify-between rounded-md border border-[var(--st-border)] bg-white p-2"
+                      className="flex items-start justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
                     >
                       <div>
-                        <div className="font-medium">{e.kind}</div>
-                        <div className="text-xs text-[var(--st-text)]">
+                        <div className="font-medium text-[var(--st-text)]">{e.kind}</div>
+                        <div className="text-xs text-[var(--st-text-secondary)]">
                           captured via {e.captureMethod}
-                          {e.source && ` · ${e.source}`}
+                          {e.source && ` , ${e.source}`}
                         </div>
                       </div>
-                      <span className="text-xs text-[var(--st-text-secondary)]">
+                      <span className="text-xs text-[var(--st-text-tertiary)]">
                         {new Date(e.createdAt).toLocaleString()}
                       </span>
                     </li>
@@ -495,16 +510,20 @@ export function ContactDetailClient({
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-3">
-              <Textarea
-                value={noteBody}
-                onChange={(e) => setNoteBody(e.target.value)}
-                placeholder="Note for the team…"
-                rows={2}
-              />
+              <Field label="New note" className="space-y-0">
+                <Textarea
+                  value={noteBody}
+                  onChange={(e) => setNoteBody(e.target.value)}
+                  placeholder="Note for the team..."
+                  rows={2}
+                />
+              </Field>
               <Button
+                variant="secondary"
                 size="sm"
                 onClick={handleAddNote}
-                disabled={!noteBody.trim() || busy === "note"}
+                disabled={!noteBody.trim()}
+                loading={busy === "note"}
               >
                 Add note
               </Button>
@@ -512,12 +531,12 @@ export function ContactDetailClient({
                 {state.notes.map((n) => (
                   <li
                     key={n.id}
-                    className="rounded-md border border-[var(--st-border)] p-2"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                   >
-                    <div className="text-xs text-[var(--st-text)]">
+                    <div className="text-xs text-[var(--st-text-secondary)]">
                       {new Date(n.createdAt).toLocaleString()}
                     </div>
-                    <div>{n.body}</div>
+                    <div className="text-[var(--st-text)]">{n.body}</div>
                   </li>
                 ))}
               </ul>
@@ -525,7 +544,7 @@ export function ContactDetailClient({
           </Card>
         </div>
 
-        {/* Right column — meta + actions */}
+        {/* Right column - meta + actions */}
         <div className="space-y-4">
           <Card>
             <CardHeader>
@@ -536,36 +555,41 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-2 text-sm">
               <div>
-                <span className="text-[var(--st-text)]">Phone:</span>{" "}
-                <span className="font-mono">{state.phone}</span>
+                <span className="text-[var(--st-text-secondary)]">Phone:</span>{" "}
+                <span className="font-mono text-[var(--st-text)]">{state.phone}</span>
               </div>
               <div>
-                <span className="text-[var(--st-text)]">Country:</span> {state.country}
+                <span className="text-[var(--st-text-secondary)]">Country:</span>{" "}
+                <span className="text-[var(--st-text)]">{state.country}</span>
               </div>
               {state.name && (
                 <div>
-                  <span className="text-[var(--st-text)]">Name:</span> {state.name}
+                  <span className="text-[var(--st-text-secondary)]">Name:</span>{" "}
+                  <span className="text-[var(--st-text)]">{state.name}</span>
                 </div>
               )}
               {state.email && (
                 <div>
-                  <span className="text-[var(--st-text)]">Email:</span> {state.email}
+                  <span className="text-[var(--st-text-secondary)]">Email:</span>{" "}
+                  <span className="text-[var(--st-text)]">{state.email}</span>
                 </div>
               )}
               <div>
-                <span className="text-[var(--st-text)]">Engagement:</span>{" "}
-                {state.engagementScore}/100
+                <span className="text-[var(--st-text-secondary)]">Engagement:</span>{" "}
+                <span className="text-[var(--st-text)]">{state.engagementScore}/100</span>
               </div>
               <div>
-                <span className="text-[var(--st-text)]">Risk score:</span>{" "}
+                <span className="text-[var(--st-text-secondary)]">Risk score:</span>{" "}
                 <span
                   className={
                     state.riskScore >= 50
-                      ? "text-[var(--st-text)] inline-flex items-center gap-1"
+                      ? "inline-flex items-center gap-1 text-[var(--st-danger)]"
                       : "text-[var(--st-text)]"
                   }
                 >
-                  {state.riskScore >= 50 && <ShieldAlert className="h-3 w-3" />}
+                  {state.riskScore >= 50 && (
+                    <ShieldAlert className="h-3 w-3" aria-hidden />
+                  )}
                   {state.riskScore}/100
                 </span>
               </div>
@@ -580,16 +604,22 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-1 text-sm">
               <div>
-                <span className="text-[var(--st-text)]">Operator:</span>{" "}
-                {state.carrier?.operator ?? "—"}
+                <span className="text-[var(--st-text-secondary)]">Operator:</span>{" "}
+                <span className="text-[var(--st-text)]">
+                  {state.carrier?.operator ?? "Not set"}
+                </span>
               </div>
               <div>
-                <span className="text-[var(--st-text)]">Country:</span>{" "}
-                {state.carrier?.country ?? state.country}
+                <span className="text-[var(--st-text-secondary)]">Country:</span>{" "}
+                <span className="text-[var(--st-text)]">
+                  {state.carrier?.country ?? state.country}
+                </span>
               </div>
               <div>
-                <span className="text-[var(--st-text)]">Line type:</span>{" "}
-                {state.carrier?.lineType ?? "—"}
+                <span className="text-[var(--st-text-secondary)]">Line type:</span>{" "}
+                <span className="text-[var(--st-text)]">
+                  {state.carrier?.lineType ?? "Not set"}
+                </span>
               </div>
             </CardBody>
           </Card>
@@ -597,17 +627,25 @@ export function ContactDetailClient({
           {/* Tags */}
           <Card>
             <CardHeader>
-              <CardTitle>Tags & labels</CardTitle>
+              <CardTitle>Tags &amp; labels</CardTitle>
               <CardDescription>Comma-separated.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-2">
-              <Input
-                value={tagsDraft}
-                onChange={(e) => setTagsDraft(e.target.value)}
-                placeholder="vip, india-tier-1"
-              />
-              <Button size="sm" onClick={commitTags} disabled={busy === "tags"}>
-                <Tag className="mr-1.5 h-3.5 w-3.5" /> Save tags
+              <Field label="Tags" className="space-y-0">
+                <Input
+                  value={tagsDraft}
+                  onChange={(e) => setTagsDraft(e.target.value)}
+                  placeholder="vip, india-tier-1"
+                />
+              </Field>
+              <Button
+                variant="secondary"
+                size="sm"
+                iconLeft={TagIcon}
+                onClick={commitTags}
+                loading={busy === "tags"}
+              >
+                Save tags
               </Button>
               <div className="flex flex-wrap gap-1">
                 {state.tags.map((t) => (
@@ -628,10 +666,9 @@ export function ContactDetailClient({
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-3">
-              <div>
-                <Label>Time zone</Label>
+              <Field label="Time zone" className="space-y-0">
                 <Select value={state.timezone} onValueChange={changeTimezone}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Time zone">
                     <SelectValue placeholder="Pick a time zone" />
                   </SelectTrigger>
                   <SelectContent>
@@ -642,11 +679,10 @@ export function ContactDetailClient({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label>Locale</Label>
+              </Field>
+              <Field label="Locale" className="space-y-0">
                 <Select value={state.locale} onValueChange={changeLocale}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Locale">
                     <SelectValue placeholder="Pick a locale" />
                   </SelectTrigger>
                   <SelectContent>
@@ -657,7 +693,7 @@ export function ContactDetailClient({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </CardBody>
           </Card>
 
@@ -669,39 +705,47 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-2">
               <div className="flex gap-2">
-                <Input
-                  value={newFieldKey}
-                  onChange={(e) => setNewFieldKey(e.target.value)}
-                  placeholder="field key"
-                  className="flex-1"
-                />
-                <Input
-                  value={newFieldValue}
-                  onChange={(e) => setNewFieldValue(e.target.value)}
-                  placeholder="value"
-                  className="flex-1"
-                />
-                <Button size="sm" onClick={addField} disabled={busy === "field"}>
-                  Add
-                </Button>
+                <Field label="Field key" className="flex-1 space-y-0">
+                  <Input
+                    value={newFieldKey}
+                    onChange={(e) => setNewFieldKey(e.target.value)}
+                    placeholder="field key"
+                  />
+                </Field>
+                <Field label="Value" className="flex-1 space-y-0">
+                  <Input
+                    value={newFieldValue}
+                    onChange={(e) => setNewFieldValue(e.target.value)}
+                    placeholder="value"
+                  />
+                </Field>
               </div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={addField}
+                loading={busy === "field"}
+              >
+                Add
+              </Button>
               <ul className="space-y-1 text-sm">
                 {Object.entries(state.customFields).map(([k, v]) => (
                   <li
                     key={k}
-                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2"
+                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2"
                   >
-                    <span>
+                    <span className="text-[var(--st-text)]">
                       <span className="font-medium">{k}</span>:{" "}
-                      <span className="text-[var(--st-text)]">{v}</span>
+                      <span className="text-[var(--st-text-secondary)]">{v}</span>
                     </span>
-                    <button
-                      type="button"
-                      className="text-xs text-[var(--st-text)] hover:underline"
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeField(k)}
+                      loading={busy === "field-del"}
                     >
-                      remove
-                    </button>
+                      Remove
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -715,12 +759,14 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-2 text-sm">
               {state.drips.length === 0 ? (
-                <div className="text-[var(--st-text)]">Not enrolled in any drip.</div>
+                <p className="text-[var(--st-text-secondary)]">
+                  Not enrolled in any drip.
+                </p>
               ) : (
                 state.drips.map((d) => (
                   <div
                     key={d.id}
-                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2"
+                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)]"
                   >
                     <span>{d.dripName ?? d.dripId}</span>
                     <Badge variant="secondary">step {d.step}</Badge>
@@ -737,16 +783,18 @@ export function ContactDetailClient({
             </CardHeader>
             <CardBody className="space-y-2 text-sm">
               {state.campaigns.length === 0 ? (
-                <div className="text-[var(--st-text)]">No campaign memberships.</div>
+                <p className="text-[var(--st-text-secondary)]">
+                  No campaign memberships.
+                </p>
               ) : (
                 state.campaigns.map((c) => (
                   <Link
                     key={c.id}
                     href={`/sabsms/campaigns/${c.campaignId}`}
-                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2 hover:bg-[var(--st-bg-muted)]"
+                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                   >
                     <span>{c.campaignName ?? c.campaignId}</span>
-                    <Badge variant="outline">{c.status ?? "—"}</Badge>
+                    <Badge variant="outline">{c.status ?? "Unknown"}</Badge>
                   </Link>
                 ))
               )}
@@ -765,60 +813,60 @@ export function ContactDetailClient({
               {state.crmLeadId ? (
                 <Link
                   href={`/dashboard/crm/leads/${state.crmLeadId}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2 hover:bg-[var(--st-bg-muted)]"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   <span>CRM lead</span>
-                  <span className="text-xs text-[var(--st-text)] font-mono">
+                  <span className="font-mono text-xs text-[var(--st-text-secondary)]">
                     {state.crmLeadId}
                   </span>
                 </Link>
               ) : (
-                <div className="rounded-md border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
                   No linked CRM lead
                 </div>
               )}
               {state.crmDealId ? (
                 <Link
                   href={`/dashboard/crm/deals/${state.crmDealId}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2 hover:bg-[var(--st-bg-muted)]"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   <span>CRM deal</span>
-                  <span className="text-xs text-[var(--st-text)] font-mono">
+                  <span className="font-mono text-xs text-[var(--st-text-secondary)]">
                     {state.crmDealId}
                   </span>
                 </Link>
               ) : (
-                <div className="rounded-md border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
                   No linked CRM deal
                 </div>
               )}
               {state.sabwaContactId ? (
                 <Link
                   href={`/sabwa/contacts/${state.sabwaContactId}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2 hover:bg-[var(--st-bg-muted)]"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   <span>SabWa contact</span>
-                  <span className="text-xs text-[var(--st-text)] font-mono">
+                  <span className="font-mono text-xs text-[var(--st-text-secondary)]">
                     {state.sabwaContactId}
                   </span>
                 </Link>
               ) : (
-                <div className="rounded-md border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
                   No linked SabWa contact
                 </div>
               )}
               {state.wachatContactId ? (
                 <Link
                   href={`/dashboard/contacts/${state.wachatContactId}`}
-                  className="flex items-center justify-between rounded-md border border-[var(--st-border)] p-2 hover:bg-[var(--st-bg-muted)]"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
                 >
                   <span>Wachat contact</span>
-                  <span className="text-xs text-[var(--st-text)] font-mono">
+                  <span className="font-mono text-xs text-[var(--st-text-secondary)]">
                     {state.wachatContactId}
                   </span>
                 </Link>
               ) : (
-                <div className="rounded-md border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-secondary)]">
+                <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[var(--st-text-tertiary)]">
                   No linked Wachat contact
                 </div>
               )}
@@ -834,25 +882,28 @@ export function ContactDetailClient({
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-2">
-              <Input
-                value={suppressionReason}
-                onChange={(e) => setSuppressionReason(e.target.value)}
-                placeholder="reason (optional)"
-              />
+              <Field label="Reason" className="space-y-0">
+                <Input
+                  value={suppressionReason}
+                  onChange={(e) => setSuppressionReason(e.target.value)}
+                  placeholder="reason (optional)"
+                />
+              </Field>
               <Button
-                variant="destructive"
+                variant="danger"
                 size="sm"
+                iconLeft={ShieldOff}
                 onClick={addSuppression}
-                disabled={busy === "supp"}
+                loading={busy === "supp"}
               >
-                <ShieldOff className="mr-1.5 h-3.5 w-3.5" /> Add to suppression
+                Add to suppression
               </Button>
               {isAdmin && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={removeSuppression}
-                  disabled={busy === "supp-del"}
+                  loading={busy === "supp-del"}
                 >
                   Remove suppression (admin)
                 </Button>
@@ -870,25 +921,33 @@ export function ContactDetailClient({
               </CardDescription>
             </CardHeader>
             <CardBody className="space-y-2">
-              <Button size="sm" variant="outline" onClick={exportGdpr}>
-                <Download className="mr-1.5 h-3.5 w-3.5" /> GDPR export (JSON)
+              <Button
+                variant="outline"
+                size="sm"
+                iconLeft={Download}
+                onClick={exportGdpr}
+                loading={busy === "gdpr-export"}
+              >
+                GDPR export (JSON)
               </Button>
               <Button
-                size="sm"
                 variant="outline"
+                size="sm"
+                iconLeft={History}
                 onClick={() => setAuditOpen(true)}
               >
-                <History className="mr-1.5 h-3.5 w-3.5" /> View audit drawer
+                View audit drawer
               </Button>
               <Separator />
               <Button
+                variant="danger"
                 size="sm"
-                variant="destructive"
+                iconLeft={Trash2}
                 onClick={() => setEraseConfirm(true)}
               >
-                <Trash2 className="mr-1.5 h-3.5 w-3.5" /> GDPR delete request
+                GDPR delete request
               </Button>
-              <p className="text-xs text-[var(--st-text)]">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 Deletion erases PII but retains a hashed suppression entry so
                 future re-imports stay compliant.
               </p>
@@ -905,21 +964,27 @@ export function ContactDetailClient({
         description="Every consent + opt-in / opt-out event captured for this phone."
       >
         {state.consentEvents.length === 0 ? (
-          <div className="text-sm text-[var(--st-text)]">No audit entries yet.</div>
+          <EmptyState
+            icon={History}
+            title="No audit entries yet"
+            size="sm"
+          />
         ) : (
           <ul className="space-y-3 text-sm">
             {state.consentEvents.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-[var(--st-border)] bg-white p-3"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
               >
-                <div className="flex justify-between text-xs text-[var(--st-text)]">
+                <div className="flex justify-between text-xs text-[var(--st-text-secondary)]">
                   <span>{e.captureMethod}</span>
                   <span>{new Date(e.createdAt).toLocaleString()}</span>
                 </div>
-                <div className="mt-1 font-medium">{e.kind}</div>
+                <div className="mt-1 font-medium text-[var(--st-text)]">{e.kind}</div>
                 {e.source && (
-                  <div className="text-xs text-[var(--st-text)]">via {e.source}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    via {e.source}
+                  </div>
                 )}
               </li>
             ))}
@@ -943,14 +1008,11 @@ export function ContactDetailClient({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmErase}>
-              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" /> Erase
+              <AlertTriangle className="mr-1.5 h-3.5 w-3.5" aria-hidden /> Erase
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Tiny inline icon to silence the unused-symbol case */}
-      <MessageSquare className="hidden" aria-hidden />
     </div>
   );
 }

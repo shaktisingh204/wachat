@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Segment builder — visual AND/OR rule-group composer.
+ * Segment builder, a visual AND/OR rule-group composer.
  *
  * Persists via the existing `email-audience` Rust crate
  * (`actionCreateEmailSegment`); this component is the rule-builder UX
@@ -11,7 +11,30 @@
 import { useCallback, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, Sigma } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  IconButton,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import type {
   EmailFilterGroup,
   EmailFilterLeaf,
@@ -63,6 +86,7 @@ function newGroup(combinator: FilterCombinator = 'AND'): EmailFilterGroup {
 
 export function SegmentBuilderClient() {
   const router = useRouter();
+  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -88,10 +112,10 @@ export function SegmentBuilderClient() {
       toast.success('Segment created');
       router.push('/dashboard/email/audience/segments');
     });
-  }, [description, listId, name, router, tree]);
+  }, [description, listId, name, router, toast, tree]);
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>New segment</PageTitle>
@@ -101,59 +125,55 @@ export function SegmentBuilderClient() {
         </PageHeading>
       </PageHeader>
 
-      <Card className="space-y-4 p-6">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="segment-name">Name</Label>
-            <Input id="segment-name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Card className="p-6">
+        <CardBody className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Field label="Name">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Field>
+            <Field label="Scope to list (optional)">
+              <Input
+                placeholder="list_xxx"
+                value={listId}
+                onChange={(e) => setListId(e.target.value)}
+              />
+            </Field>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="segment-list">Scope to list (optional)</Label>
-            <Input
-              id="segment-list"
-              placeholder="list_xxx"
-              value={listId}
-              onChange={(e) => setListId(e.target.value)}
+          <Field label="Description">
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
             />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="segment-desc">Description</Label>
-          <Textarea
-            id="segment-desc"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-          />
-        </div>
+          </Field>
+        </CardBody>
       </Card>
 
-      <Card className="space-y-4 p-6">
-        <div className="flex items-center justify-between">
+      <Card className="p-6">
+        <CardHeader className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold">Filter rules</h2>
-            <p className="text-sm text-[color:var(--st-text-secondary)]">
-              Nest groups to combine AND with OR.
-            </p>
+            <CardTitle>Filter rules</CardTitle>
+            <CardDescription>Nest groups to combine AND with OR.</CardDescription>
           </div>
           <Badge variant="outline">
-            <Sigma className="mr-1 h-3 w-3" />
+            <Sigma className="mr-1 h-3 w-3" aria-hidden="true" />
             Live count refreshes on save
           </Badge>
-        </div>
-        <Separator />
-        <GroupNode
-          group={tree}
-          onChange={setTree}
-          depth={0}
-        />
+        </CardHeader>
+        <Separator className="my-4" />
+        <CardBody>
+          <GroupNode group={tree} onChange={setTree} depth={0} />
+        </CardBody>
       </Card>
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={() => router.back()} disabled={pending}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit} disabled={pending || !name.trim()}>
+        <Button variant="primary" onClick={handleSubmit} disabled={pending || !name.trim()}>
           Save segment
         </Button>
       </div>
@@ -193,13 +213,13 @@ function GroupNode({
 
   return (
     <div
-      className={`rounded-lg border p-4 ${
-        depth > 0 ? 'border-dashed bg-[color:var(--st-bg-muted)]/30' : ''
+      className={`rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 ${
+        depth > 0 ? 'border-dashed bg-[var(--st-bg-muted)]/30' : ''
       }`}
     >
       <div className="mb-3 flex items-center gap-2">
         <Select value={group.combinator} onValueChange={(v) => setCombinator(v as FilterCombinator)}>
-          <SelectTrigger className="w-24">
+          <SelectTrigger className="w-24" aria-label="Combinator">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -207,8 +227,10 @@ function GroupNode({
             <SelectItem value="OR">OR</SelectItem>
           </SelectContent>
         </Select>
-        <span className="text-xs text-[color:var(--st-text-secondary)]">
-          {group.combinator === 'AND' ? 'All of the following must match' : 'Any of the following can match'}
+        <span className="text-xs text-[var(--st-text-secondary)]">
+          {group.combinator === 'AND'
+            ? 'All of the following must match'
+            : 'Any of the following can match'}
         </span>
       </div>
 
@@ -219,9 +241,12 @@ function GroupNode({
               <div className="flex-1">
                 <GroupNode group={child} onChange={(g) => setChild(idx, g)} depth={depth + 1} />
               </div>
-              <Button variant="ghost" size="icon" onClick={() => removeChild(idx)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <IconButton
+                label="Remove group"
+                icon={Trash2}
+                variant="ghost"
+                onClick={() => removeChild(idx)}
+              />
             </div>
           ) : (
             <LeafRow
@@ -235,12 +260,10 @@ function GroupNode({
       </div>
 
       <div className="mt-3 flex gap-2">
-        <Button size="sm" variant="outline" onClick={addLeaf}>
-          <Plus className="mr-1 h-3 w-3" />
+        <Button size="sm" variant="outline" iconLeft={Plus} onClick={addLeaf}>
           Add rule
         </Button>
-        <Button size="sm" variant="ghost" onClick={addGroup}>
-          <Plus className="mr-1 h-3 w-3" />
+        <Button size="sm" variant="ghost" iconLeft={Plus} onClick={addGroup}>
           Add group
         </Button>
       </div>
@@ -260,9 +283,9 @@ function LeafRow({
   const noValueOps: EmailFilterOp[] = ['exists', 'not_exists'];
   const showValue = !noValueOps.includes(leaf.op);
   return (
-    <div className="flex items-center gap-2 rounded border bg-[color:var(--st-bg)] p-2">
+    <div className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2">
       <Select value={leaf.field} onValueChange={(v) => onChange({ ...leaf, field: v })}>
-        <SelectTrigger className="w-56">
+        <SelectTrigger className="w-56" aria-label="Field">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -274,7 +297,7 @@ function LeafRow({
         </SelectContent>
       </Select>
       <Select value={leaf.op} onValueChange={(v) => onChange({ ...leaf, op: v as EmailFilterOp })}>
-        <SelectTrigger className="w-40">
+        <SelectTrigger className="w-40" aria-label="Operator">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -293,9 +316,12 @@ function LeafRow({
           onChange={(e) => onChange({ ...leaf, value: e.target.value })}
         />
       )}
-      <Button variant="ghost" size="icon" onClick={onRemove}>
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <IconButton
+        label="Remove rule"
+        icon={Trash2}
+        variant="ghost"
+        onClick={onRemove}
+      />
     </div>
   );
 }

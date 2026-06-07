@@ -1,8 +1,25 @@
 "use client";
 
 import * as React from "react";
+import { FileText } from "lucide-react";
 
-import { Badge, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/sabcrm/20ui";
 import type { SabsmsMessageCategory } from "@/lib/sabsms/types";
 
 import type { CampaignDraft } from "../types";
@@ -52,24 +69,23 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
   return (
     <div className="space-y-5">
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="campaign-name">Campaign name</Label>
-          <Input
-            id="campaign-name"
-            placeholder="May newsletter"
-            value={draft.name}
-            onChange={(e) => onChange({ name: e.target.value })}
-          />
+        <div className="md:col-span-2">
+          <Field label="Campaign name">
+            <Input
+              placeholder="May newsletter"
+              value={draft.name}
+              onChange={(e) => onChange({ name: e.target.value })}
+            />
+          </Field>
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="campaign-category">Category</Label>
+        <Field label="Category">
           <Select
             value={draft.category}
             onValueChange={(v) =>
               onChange({ category: v as SabsmsMessageCategory })
             }
           >
-            <SelectTrigger id="campaign-category">
+            <SelectTrigger aria-label="Category">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -80,59 +96,63 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </Field>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="template-search">Search templates</Label>
+      <Field label="Search templates">
         <Input
-          id="template-search"
-          placeholder="Search by name or body…"
+          placeholder="Search by name or body"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-      </div>
+      </Field>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+          <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
             Templates ({filtered.length})
           </p>
-          <div className="max-h-80 space-y-2 overflow-y-auto rounded border border-[var(--st-border)] p-2">
+          <div className="max-h-80 space-y-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] p-2">
             {filtered.length === 0 ? (
-              <p className="p-4 text-sm text-[var(--st-text)]">
-                No templates yet. Create one at{" "}
-                <code>/sabsms/templates/new</code>.
-              </p>
+              <EmptyState
+                icon={FileText}
+                size="sm"
+                title="No templates yet"
+                description="Create one at /sabsms/templates/new to get started."
+              />
             ) : (
               filtered.map((t) => {
                 const active = t.id === draft.templateId;
                 return (
-                  <button
+                  <Button
                     key={t.id}
-                    type="button"
+                    variant={active ? "secondary" : "ghost"}
+                    block
+                    aria-pressed={active}
                     onClick={() =>
                       onChange({
                         templateId: t.id,
                         templateLocale: t.bodies[0]?.locale ?? "en",
                       })
                     }
-                    className={`w-full rounded border p-3 text-left transition ${
+                    className={`!h-auto !justify-start rounded-[var(--st-radius)] border p-3 text-left ${
                       active
-                        ? "border-[var(--st-border)] bg-[var(--st-bg-muted)]"
-                        : "border-[var(--st-border)] hover:border-[var(--st-border)]"
+                        ? "border-[var(--st-accent)] bg-[var(--st-bg-muted)]"
+                        : "border-[var(--st-border)]"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-[var(--st-text)]">
-                        {t.name}
+                    <span className="block w-full">
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-[var(--st-text)]">
+                          {t.name}
+                        </span>
+                        <Badge variant="secondary">{t.category}</Badge>
                       </span>
-                      <Badge variant="secondary">{t.category}</Badge>
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-[var(--st-text)]">
-                      {t.bodies[0]?.body}
-                    </p>
-                  </button>
+                      <span className="mt-1 line-clamp-2 block text-xs font-normal text-[var(--st-text-secondary)]">
+                        {t.bodies[0]?.body}
+                      </span>
+                    </span>
+                  </Button>
                 );
               })
             )}
@@ -144,32 +164,33 @@ export function StepTemplate({ draft, templates, onChange }: StepTemplateProps) 
             <CardTitle className="text-base">Preview</CardTitle>
             <CardDescription>
               {selected
-                ? `${selected.name} · ${selected.category}`
+                ? `${selected.name} - ${selected.category}`
                 : "Pick a template to preview its body."}
             </CardDescription>
           </CardHeader>
           <CardBody>
             {selected && selected.bodies.length > 1 && (
-              <div className="mb-3 space-y-2">
-                <Label htmlFor="locale-select">Locale</Label>
-                <Select
-                  value={draft.templateLocale ?? selected.bodies[0]?.locale}
-                  onValueChange={(v) => onChange({ templateLocale: v })}
-                >
-                  <SelectTrigger id="locale-select">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selected.bodies.map((b) => (
-                      <SelectItem key={b.locale} value={b.locale}>
-                        {b.locale}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="mb-3">
+                <Field label="Locale">
+                  <Select
+                    value={draft.templateLocale ?? selected.bodies[0]?.locale}
+                    onValueChange={(v) => onChange({ templateLocale: v })}
+                  >
+                    <SelectTrigger aria-label="Locale">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {selected.bodies.map((b) => (
+                        <SelectItem key={b.locale} value={b.locale}>
+                          {b.locale}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
             )}
-            <pre className="whitespace-pre-wrap rounded bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
+            <pre className="whitespace-pre-wrap rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
               {previewBody || "No template selected."}
             </pre>
             {selected?.variables && selected.variables.length > 0 && (

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Badge, ScrollArea, ScrollBar } from '@/components/sabcrm/20ui';
+import { Button, IconButton, Badge, ScrollArea, ScrollBar } from '@/components/sabcrm/20ui';
 import {
   Heart,
   MessageCircle,
@@ -16,8 +16,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Music2,
-  Play,
-  Volume2,
   } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -67,9 +65,12 @@ function PrimaryImage({ state, className }: { state: CreateFormState; className?
 
 function CtaButton({ state }: { state: CreateFormState }) {
     return (
-        <button type="button" className="shrink-0 bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] text-xs font-semibold px-3 py-1.5 rounded-md">
+        <Button
+            variant="ghost"
+            className="shrink-0 bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] text-xs font-semibold px-3 py-1.5 rounded-md"
+        >
             {state.callToAction.replace(/_/g, ' ')}
-        </button>
+        </Button>
     );
 }
 
@@ -85,10 +86,10 @@ function FacebookDesktopFeed({ state, page }: PreviewProps) {
                 <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[13px] truncate">{page?.name || 'Your Page'}</div>
                     <div className="text-[11px] text-[var(--st-text)] flex items-center gap-1">
-                        Sponsored · <Globe className="h-3 w-3" />
+                        Sponsored · <Globe className="h-3 w-3" aria-hidden="true" />
                     </div>
                 </div>
-                <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                <MoreHorizontal className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
             </div>
             <div className="px-3 pb-2 text-[13px] whitespace-pre-wrap line-clamp-3">
                 {state.primaryTexts[0] || 'Your ad copy will appear here.'}
@@ -107,15 +108,15 @@ function FacebookDesktopFeed({ state, page }: PreviewProps) {
                 <CtaButton state={state} />
             </div>
             <div className="flex items-center justify-around p-1 border-t text-[var(--st-text)]">
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
-                    <ThumbsUp className="h-4 w-4" /> Like
-                </button>
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
-                    <MessageCircle className="h-4 w-4" /> Comment
-                </button>
-                <button type="button" className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
-                    <Share2 className="h-4 w-4" /> Share
-                </button>
+                <Button variant="ghost" iconLeft={ThumbsUp} className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
+                    Like
+                </Button>
+                <Button variant="ghost" iconLeft={MessageCircle} className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
+                    Comment
+                </Button>
+                <Button variant="ghost" iconLeft={Share2} className="flex items-center gap-1 text-[12px] px-3 py-1 hover:bg-[var(--st-bg-muted)] rounded flex-1 justify-center">
+                    Share
+                </Button>
             </div>
         </div>
     );
@@ -178,7 +179,7 @@ function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: '
                 </div>
                 <div className="text-[11px] font-semibold flex-1 truncate">{handle}</div>
                 <span className="text-[9px] bg-white/20 px-1.5 py-0.5 rounded">Sponsored</span>
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             </div>
             <div className="absolute top-12 left-3 right-3 h-0.5 bg-white/30 rounded-full">
                 <div className="h-full w-1/3 bg-white rounded-full" />
@@ -186,10 +187,10 @@ function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: '
 
             {isReels && (
                 <div className="absolute right-3 bottom-20 flex flex-col items-center gap-4 text-white">
-                    <Heart className="h-6 w-6 fill-white/20" />
-                    <MessageCircle className="h-6 w-6" />
-                    <Send className="h-6 w-6" />
-                    <Bookmark className="h-6 w-6" />
+                    <Heart className="h-6 w-6 fill-white/20" aria-hidden="true" />
+                    <MessageCircle className="h-6 w-6" aria-hidden="true" />
+                    <Send className="h-6 w-6" aria-hidden="true" />
+                    <Bookmark className="h-6 w-6" aria-hidden="true" />
                 </div>
             )}
 
@@ -199,15 +200,19 @@ function VerticalStory({ state, page, ig, variant }: PreviewProps & { variant: '
                 </div>
                 {isReels && (
                     <div className="text-[10px] flex items-center gap-1 opacity-80">
-                        <Music2 className="h-3 w-3" /> Original audio
+                        <Music2 className="h-3 w-3" aria-hidden="true" /> Original audio
                     </div>
                 )}
             </div>
 
             <div className="absolute bottom-3 left-3 right-3">
-                <button className="w-full bg-white text-[var(--st-text)] text-xs font-semibold py-2 rounded-full">
+                <Button
+                    variant="ghost"
+                    block
+                    className="bg-white text-[var(--st-text)] text-xs font-semibold py-2 rounded-full justify-center"
+                >
                     {state.callToAction.replace(/_/g, ' ')}
-                </button>
+                </Button>
             </div>
         </div>
     );
@@ -219,10 +224,10 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
     return (
         <div className="w-full max-w-[280px] bg-white text-[13px] text-[var(--st-text)] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="bg-white px-3 py-2 flex items-center justify-between">
-                <Instagram className="h-5 w-5" />
+                <Instagram className="h-5 w-5" aria-hidden="true" />
                 <div className="flex items-center gap-3">
-                    <Heart className="h-5 w-5" />
-                    <MessageCircle className="h-5 w-5" />
+                    <Heart className="h-5 w-5" aria-hidden="true" />
+                    <MessageCircle className="h-5 w-5" aria-hidden="true" />
                 </div>
             </div>
             <div className="p-2.5 flex items-center gap-2 border-t">
@@ -237,16 +242,16 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
                     </div>
                     <div className="text-[10px] text-[var(--st-text)]">Sponsored</div>
                 </div>
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal className="h-4 w-4" aria-hidden="true" />
             </div>
             <div className="aspect-square bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
             <div className="p-2.5 flex items-center justify-between border-t">
                 <div className="flex items-center gap-3">
-                    <Heart className="h-5 w-5" />
-                    <MessageCircle className="h-5 w-5" />
-                    <Send className="h-5 w-5" />
+                    <Heart className="h-5 w-5" aria-hidden="true" />
+                    <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                    <Send className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <Bookmark className="h-5 w-5" />
+                <Bookmark className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="px-2.5 pb-2 text-[12px]">
                 <span className="font-semibold">{ig?.username || 'yourhandle'}</span>{' '}
@@ -255,9 +260,13 @@ function InstagramFeed({ state, ig, page }: PreviewProps) {
                 </span>
             </div>
             <div className="px-2.5 pb-2.5">
-                <button className="w-full border text-[11px] font-semibold py-1.5 rounded">
+                <Button
+                    variant="ghost"
+                    block
+                    className="border text-[11px] font-semibold py-1.5 rounded justify-center"
+                >
                     {state.callToAction.replace(/_/g, ' ')}
-                </button>
+                </Button>
             </div>
         </div>
     );
@@ -270,7 +279,7 @@ function InstagramGrid({ state, page, ig, label }: PreviewProps & { label: strin
         <div className="w-full max-w-[280px] rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans bg-white">
             <div className="bg-white px-3 py-2 flex items-center justify-between">
                 <div className="text-sm font-semibold">{label}</div>
-                <Instagram className="h-5 w-5" />
+                <Instagram className="h-5 w-5" aria-hidden="true" />
             </div>
             <div className="grid grid-cols-3 gap-px bg-[var(--st-bg-muted)] border-t">
                 {Array.from({ length: 9 }).map((_, i) => {
@@ -301,7 +310,7 @@ function FacebookMarketplace({ state, page }: PreviewProps) {
     return (
         <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="bg-[var(--st-text)] text-white px-3 py-2 text-sm font-bold flex items-center gap-2">
-                <Facebook className="h-4 w-4" /> Marketplace
+                <Facebook className="h-4 w-4" aria-hidden="true" /> Marketplace
             </div>
             <div className="p-3 space-y-2">
                 <div className="rounded-lg overflow-hidden border">
@@ -346,7 +355,7 @@ function MessengerInbox({ state, page }: PreviewProps) {
     return (
         <div className="w-full max-w-[280px] bg-white rounded-[32px] overflow-hidden border-4 border-[var(--st-border)] shadow-xl font-sans">
             <div className="px-3 py-2 flex items-center gap-2 border-b">
-                <MessageSquare className="h-5 w-5 text-[var(--st-text)]" />
+                <MessageSquare className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
                 <span className="text-sm font-bold">Chats</span>
             </div>
             <div className="space-y-1">
@@ -386,7 +395,7 @@ function AudienceNetwork({ state, page }: PreviewProps) {
         <div className="w-full max-w-[280px] bg-white rounded-lg overflow-hidden shadow-sm border font-sans">
             <div className="p-2 text-[10px] text-[var(--st-text)] border-b flex items-center justify-between">
                 <span>Inside a partner app</span>
-                <Globe className="h-3 w-3" />
+                <Globe className="h-3 w-3" aria-hidden="true" />
             </div>
             <div className="aspect-[1.91/1] bg-[var(--st-bg-muted)]"><PrimaryImage state={state} /></div>
             <div className="p-2 flex items-center justify-between gap-2">
@@ -498,13 +507,14 @@ export function AdPreviewSwitcher({
                             platform === 'messenger' ? MessageSquare : Globe;
                         return (
                             <div key={platform} className="flex items-center gap-1 pr-2 border-r last:border-0">
-                                <PlatformIcon className="h-3 w-3 text-[var(--st-text-secondary)] shrink-0" />
+                                <PlatformIcon className="h-3 w-3 text-[var(--st-text-secondary)] shrink-0" aria-hidden="true" />
                                 {variants.map((v) => {
                                     const active = v.id === activeId;
                                     return (
-                                        <button
+                                        <Button
                                             key={v.id}
-                                            type="button"
+                                            variant="ghost"
+                                            aria-pressed={active}
                                             onClick={() => setActiveId(v.id)}
                                             className={cn(
                                                 'text-[10px] px-2 py-1 rounded-full whitespace-nowrap transition-colors',
@@ -514,7 +524,7 @@ export function AdPreviewSwitcher({
                                             )}
                                         >
                                             {v.channel}
-                                        </button>
+                                        </Button>
                                     );
                                 })}
                             </div>
@@ -531,12 +541,22 @@ export function AdPreviewSwitcher({
                 </Badge>
                 <div className="text-xs font-medium">{activeVariant.label}</div>
                 <div className="flex gap-1">
-                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={prev}>
-                        <ChevronLeft className="h-3 w-3" />
-                    </Button>
-                    <Button variant="outline" size="icon" className="h-6 w-6" onClick={next}>
-                        <ChevronRight className="h-3 w-3" />
-                    </Button>
+                    <IconButton
+                        label="Previous placement"
+                        icon={ChevronLeft}
+                        variant="outline"
+                        size="sm"
+                        className="h-6 w-6"
+                        onClick={prev}
+                    />
+                    <IconButton
+                        label="Next placement"
+                        icon={ChevronRight}
+                        variant="outline"
+                        size="sm"
+                        className="h-6 w-6"
+                        onClick={next}
+                    />
                 </div>
             </div>
 

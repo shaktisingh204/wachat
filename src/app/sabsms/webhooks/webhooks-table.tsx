@@ -1,20 +1,15 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { fmtDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import {
   Activity,
-  History,
-  KeyRound,
-  PlayCircle,
   Power,
   PowerOff,
   Settings,
   Webhook,
   Upload,
-  FileJson,
 } from "lucide-react";
 
 import {
@@ -25,8 +20,30 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { SabFilePickerButton, fetchSabFilePickAsFile } from "@/components/sabfiles";
-import { Badge, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import {
   toggleWebhook,
@@ -73,13 +90,13 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
     okMessage: string,
   ) {
     if (res.ok) {
-      toast({ title: okMessage });
+      toast.success(okMessage);
       router.refresh();
     } else {
       toast({
         title: "Action failed",
         description: res.error,
-        variant: "destructive",
+        tone: "danger",
       });
     }
   }
@@ -105,7 +122,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
   }
 
   function handleImportFromText() {
-    toast({ title: "Imported config successfully" });
+    toast.success("Imported config successfully");
     setImportOpen(false);
     setImportJson("");
     router.refresh();
@@ -168,14 +185,14 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
       const { saveWebhook } = await import("./actions");
       const res = await saveWebhook(formData);
       if (res.ok) {
-        toast({ title: "Webhook saved successfully" });
+        toast.success("Webhook saved successfully");
         setDetailId(null);
         router.refresh();
       } else {
         toast({
           title: "Failed to save webhook",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       }
     } finally {
@@ -195,7 +212,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
   return (
     <div className="space-y-4">
       <SabsmsFilterBar
-        searchPlaceholder="Search endpoints by URL or alias…"
+        searchPlaceholder="Search endpoints by URL or alias..."
         facets={[
           { key: "status", label: "Status", options: STATUS_OPTIONS, multi: true },
           { key: "event", label: "Events", options: EVENT_OPTIONS, multi: true },
@@ -203,8 +220,7 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         trailing={
           <>
             <SabsmsSavedViews scope="webhooks.list" />
-            <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-              <Upload className="mr-1.5 h-3.5 w-3.5" />
+            <Button variant="outline" size="sm" iconLeft={Upload} onClick={() => setImportOpen(true)}>
               Import config
             </Button>
             <SabsmsExportMenu
@@ -232,75 +248,86 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
 
       <div className="grid grid-cols-1 gap-4">
         {initialRows.length === 0 ? (
-          <div className="py-12 text-center text-[var(--st-text)] border border-dashed rounded-lg">
-            No webhooks configured. Add an endpoint to start receiving real-time delivery and inbound messages.
-          </div>
+          <EmptyState
+            icon={Webhook}
+            title="No webhooks configured"
+            description="Add an endpoint to start receiving real-time delivery and inbound messages."
+            action={
+              <Button variant="primary" iconLeft={Webhook} onClick={() => setDetailId("new")}>
+                Add webhook
+              </Button>
+            }
+          />
         ) : (
           initialRows.map((row) => (
-            <Card key={row.id} className="overflow-hidden hover:shadow-md transition-shadow">
+            <Card key={row.id} variant="elevated" padding="none" className="overflow-hidden">
               <CardBody className="p-5 flex flex-col xl:flex-row xl:items-center gap-6">
                 <div className="flex-1 space-y-3">
                   <div className="flex items-center gap-3">
-                    <Badge variant={row.isActive ? "default" : "secondary"}>
+                    <Badge tone={row.isActive ? "success" : "neutral"} dot>
                       {row.isActive ? "Active" : "Disabled"}
                     </Badge>
                     <span className="font-semibold text-[var(--st-text)] text-lg truncate">
                       {row.url}
                     </span>
                     {row.urlAlias && (
-                      <Badge variant="outline" className="text-[var(--st-text)]">
+                      <Badge tone="neutral" kind="outline">
                         {row.urlAlias}
                       </Badge>
                     )}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-medium text-[var(--st-text)]">Events:</span>
+                    <span className="text-sm font-medium text-[var(--st-text-secondary)]">Events:</span>
                     {row.events.map((e) => (
-                      <Badge key={e} variant="secondary" className="text-xs font-mono">
+                      <Badge key={e} tone="neutral" className="text-xs font-mono">
                         {e}
                       </Badge>
                     ))}
                   </div>
-                  <div className="text-xs text-[var(--st-text)] font-mono">
-                    HMAC: {row.hmacAlgorithm} • Updated: {row.updatedAt ? fmtDate(row.updatedAt) : "—"}
+                  <div className="text-xs text-[var(--st-text-tertiary)] font-mono">
+                    HMAC: {row.hmacAlgorithm} . Updated: {row.updatedAt ? fmtDate(row.updatedAt) : "-"}
                   </div>
                 </div>
 
-                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center bg-[var(--st-bg-muted)] p-4 rounded-xl border">
+                <div className="flex flex-wrap md:flex-nowrap gap-4 items-center bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                   <StatCard
                     label="Success Rate"
                     value={row.lastDeliveryStatus === "failed" ? "82.4%" : "99.9%"}
-                    delta={row.lastDeliveryStatus === "failed" ? -5.2 : 0.1}
-                    className="min-w-[140px] shadow-sm bg-white"
+                    delta={
+                      row.lastDeliveryStatus === "failed"
+                        ? { value: "-5.2%", tone: "down" }
+                        : { value: "+0.1%", tone: "up" }
+                    }
+                    className="min-w-[140px]"
                   />
                   <StatCard
                     label="Avg Latency"
                     value="142ms"
-                    delta={-12}
-                    invertDelta
-                    className="min-w-[140px] shadow-sm bg-white"
+                    delta={{ value: "-12ms", tone: "up" }}
+                    className="min-w-[140px]"
                   />
                   <StatCard
                     label="Deliveries (24h)"
                     value={row.lastDeliveryStatus === "failed" ? "12k" : "145k"}
-                    className="min-w-[140px] shadow-sm bg-white"
+                    className="min-w-[140px]"
                   />
                 </div>
 
                 <div className="flex flex-row xl:flex-col gap-2 items-center xl:items-end justify-center xl:w-48 shrink-0">
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setDetailId(row.id)}>
-                    <Settings className="w-4 h-4 mr-2" /> Details & Config
+                  <Button variant="outline" size="sm" block iconLeft={Settings} className="justify-start" onClick={() => setDetailId(row.id)}>
+                    Details &amp; Config
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => handleTestFire(row)}>
-                    <Activity className="w-4 h-4 mr-2" /> Test Fire
+                  <Button variant="outline" size="sm" block iconLeft={Activity} className="justify-start" onClick={() => handleTestFire(row)}>
+                    Test Fire
                   </Button>
-                  <Button 
-                    variant={row.isActive ? "secondary" : "default"} 
-                    size="sm" 
-                    className="w-full justify-start" 
+                  <Button
+                    variant={row.isActive ? "secondary" : "primary"}
+                    size="sm"
+                    block
+                    iconLeft={row.isActive ? PowerOff : Power}
+                    className="justify-start"
                     onClick={() => handleToggle(row)}
                   >
-                    {row.isActive ? <PowerOff className="w-4 h-4 mr-2" /> : <Power className="w-4 h-4 mr-2" />}
                     {row.isActive ? "Disable" : "Enable"}
                   </Button>
                 </div>
@@ -319,60 +346,56 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
         {formData && (
           <form onSubmit={handleSave} className="space-y-6 flex flex-col h-full">
             <div className="space-y-4 flex-1 overflow-y-auto pb-4">
-              <div className="space-y-2">
-                <Label>Endpoint URL</Label>
+              <Field label="Endpoint URL" required>
                 <Input
                   value={formData.url || ""}
                   onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                   placeholder="https://api.example.com/webhooks/sabsms"
                   required
                 />
-              </div>
+              </Field>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Alias (e.g., Staging/Prod)</Label>
+                <Field label="Alias (e.g., Staging/Prod)">
                   <Input
                     value={formData.urlAlias || ""}
                     onChange={(e) => setFormData({ ...formData, urlAlias: e.target.value })}
                     placeholder="Production Endpoint"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>HMAC Algorithm</Label>
-                  <select
+                </Field>
+                <Field label="HMAC Algorithm">
+                  <Select
                     value={formData.hmacAlgorithm || "sha256"}
-                    onChange={(e) => setFormData({ ...formData, hmacAlgorithm: e.target.value })}
-                    className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onValueChange={(value) => setFormData({ ...formData, hmacAlgorithm: value })}
                   >
-                    <option value="sha256">HMAC-SHA256</option>
-                    <option value="sha512">HMAC-SHA512</option>
-                  </select>
-                </div>
+                    <SelectTrigger aria-label="HMAC Algorithm">
+                      <SelectValue placeholder="Select algorithm" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sha256">HMAC-SHA256</SelectItem>
+                      <SelectItem value="sha512">HMAC-SHA512</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
 
-              <div className="space-y-2">
-                <Label>Subscribed Events</Label>
+              <Field label="Subscribed Events">
                 <div className="grid grid-cols-2 gap-2 mt-2">
                   {EVENT_OPTIONS.map((opt) => (
-                    <label key={opt.value} className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        checked={(formData.events || []).includes(opt.value)}
-                        onChange={() => handleEventToggle(opt.value)}
-                        className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
-                      />
-                      <span className="text-sm">{opt.label}</span>
-                    </label>
+                    <Checkbox
+                      key={opt.value}
+                      checked={(formData.events || []).includes(opt.value)}
+                      onChange={() => handleEventToggle(opt.value)}
+                      label={opt.label}
+                    />
                   ))}
                 </div>
-              </div>
+              </Field>
 
-              <div className="space-y-4 border-t pt-4">
-                <h4 className="text-sm font-medium">Retry Policy & Error Handling</h4>
+              <div className="space-y-4 border-t border-[var(--st-border)] pt-4">
+                <h4 className="text-sm font-medium text-[var(--st-text)]">Retry Policy &amp; Error Handling</h4>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Max Retries</Label>
+                  <Field label="Max Retries">
                     <Input
                       type="number"
                       min={0}
@@ -383,55 +406,55 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
                         retryConfig: { ...formData.retryConfig, maxRetries: parseInt(e.target.value) }
                       })}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Backoff Strategy</Label>
-                    <select
+                  </Field>
+                  <Field label="Backoff Strategy">
+                    <Select
                       value={formData.retryConfig?.backoffStrategy || "exponential"}
-                      onChange={(e) => setFormData({
+                      onValueChange={(value) => setFormData({
                         ...formData,
-                        retryConfig: { ...formData.retryConfig, backoffStrategy: e.target.value }
+                        retryConfig: { ...formData.retryConfig, backoffStrategy: value }
                       })}
-                      className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2"
                     >
-                      <option value="exponential">Exponential</option>
-                      <option value="linear">Linear</option>
-                      <option value="fixed">Fixed</option>
-                    </select>
-                  </div>
+                      <SelectTrigger aria-label="Backoff Strategy">
+                        <SelectValue placeholder="Select strategy" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="exponential">Exponential</SelectItem>
+                        <SelectItem value="linear">Linear</SelectItem>
+                        <SelectItem value="fixed">Fixed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
                 </div>
-                <div className="space-y-2">
-                  <Label>Dead Letter Queue (DLQ) URL</Label>
+                <Field
+                  label="Dead Letter Queue (DLQ) URL"
+                  help="Failed events after max retries will be pushed here."
+                >
                   <Input
                     value={formData.dlqUrl || ""}
                     onChange={(e) => setFormData({ ...formData, dlqUrl: e.target.value })}
                     placeholder="https://api.example.com/webhooks/dlq"
                   />
-                  <p className="text-xs text-[var(--st-text)]">Failed events after max retries will be pushed here.</p>
-                </div>
+                </Field>
               </div>
 
-              <div className="space-y-2 border-t pt-4">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.skipValidation || false}
-                    onChange={(e) => setFormData({ ...formData, skipValidation: e.target.checked })}
-                    className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
-                  />
-                  <span className="text-sm font-medium">Skip endpoint validation</span>
-                </label>
-                <p className="text-xs text-[var(--st-text)] ml-6">
+              <div className="space-y-2 border-t border-[var(--st-border)] pt-4">
+                <Checkbox
+                  checked={formData.skipValidation || false}
+                  onChange={(e) => setFormData({ ...formData, skipValidation: e.target.checked })}
+                  label="Skip endpoint validation"
+                />
+                <p className="text-xs text-[var(--st-text-secondary)] ml-6">
                   Check this if your server is slow to respond or not fully deployed yet.
                 </p>
               </div>
             </div>
-            
-            <div className="pt-4 border-t flex justify-end gap-2">
+
+            <div className="pt-4 border-t border-[var(--st-border)] flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setDetailId(null)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSaving}>
+              <Button type="submit" variant="primary" loading={isSaving} disabled={isSaving}>
                 {isSaving ? "Saving..." : "Save Config"}
               </Button>
             </div>
@@ -447,17 +470,19 @@ export function WebhooksTable({ workspaceId, initialRows }: WebhooksTableProps) 
               Paste JSON containing endpoint definitions to import.
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            value={importJson}
-            onChange={(e) => setImportJson(e.target.value)}
-            placeholder='[{"url": "https://...", "events": ["message.delivered"]}]'
-            className="min-h-[200px] font-mono text-xs"
-          />
+          <Field label="Config JSON">
+            <Textarea
+              value={importJson}
+              onChange={(e) => setImportJson(e.target.value)}
+              placeholder='[{"url": "https://...", "events": ["message.delivered"]}]'
+              className="min-h-[200px] font-mono text-xs"
+            />
+          </Field>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleImportFromText} disabled={!importJson.trim()}>
+            <Button variant="primary" onClick={handleImportFromText} disabled={!importJson.trim()}>
               Import
             </Button>
           </DialogFooter>

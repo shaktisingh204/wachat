@@ -1,7 +1,41 @@
 
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, EmptyState, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, Input, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  EmptyState,
+  Field,
+  Input,
+  Label,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import {
   ArrowLeft,
   ArrowRight,
@@ -34,8 +68,8 @@ type StatusView = "my" | "friends";
 
 const AUDIENCE_OPTIONS: { id: Audience; label: string; icon: typeof Eye }[] = [
   { id: "everyone", label: "Everyone", icon: Users },
-  { id: "except", label: "Contacts except…", icon: EyeOff },
-  { id: "only", label: "Only share with…", icon: Lock },
+  { id: "except", label: "Contacts except", icon: EyeOff },
+  { id: "only", label: "Only share with", icon: Lock },
 ];
 
 const TEXT_BG_COLOURS: { label: string; value: string }[] = [
@@ -68,7 +102,7 @@ interface FriendStatusEntry {
 }
 
 function timeAgo(ts: Date | string): string {
-  const dateObj = typeof ts === 'string' ? new Date(ts) : ts;
+  const dateObj = typeof ts === "string" ? new Date(ts) : ts;
   const diff = Date.now() - dateObj.getTime();
   if (diff < 60_000) return "just now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`;
@@ -77,12 +111,12 @@ function timeAgo(ts: Date | string): string {
 }
 
 export default function SabWaStatusPage() {
-  const toast = useToast();
+  const { toast } = useToast();
   const { current: activeSession } = useSabwaSession();
-  const sessionId = activeSession?.id ?? '';
+  const sessionId = activeSession?.id ?? "";
   const { data: chats } = useChats(sessionId);
 
-  // ── Posted (from DB) ─────────────────────────────────────────────
+  // Posted (from DB)
   const [posted, setPosted] = React.useState<PostedStatus[]>([]);
   const [loadingStatuses, setLoadingStatuses] = React.useState(false);
 
@@ -100,10 +134,10 @@ export default function SabWaStatusPage() {
     fetchStatuses();
   }, [fetchStatuses]);
 
-  // ── Active view (segmented switcher) ───────────────────────────────
+  // Active view (segmented switcher)
   const [view, setView] = React.useState<StatusView>("my");
 
-  // ── Friends' statuses, sourced from `type === 'status'` chats ──────
+  // Friends' statuses, sourced from `type === 'status'` chats
   const friendStatuses: FriendStatusEntry[] = React.useMemo(() => {
     return (chats ?? [])
       .filter((c) => c.type === "status")
@@ -118,7 +152,7 @@ export default function SabWaStatusPage() {
       .sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
   }, [chats]);
 
-  // ── Composer ───────────────────────────────────────────────────────
+  // Composer
   const [composerOpen, setComposerOpen] = React.useState(false);
   const [composerMode, setComposerMode] = React.useState<"text" | "media">(
     "text",
@@ -142,14 +176,14 @@ export default function SabWaStatusPage() {
 
   const handlePost = React.useCallback(async () => {
     if (composerMode === "text" && !composerText.trim()) {
-      toast.toast({ title: "Type something to post", variant: "destructive" });
+      toast.error("Type something to post");
       return;
     }
     if (composerMode === "media" && !composerMedia) {
-      toast.toast({ title: "Pick media to post", variant: "destructive" });
+      toast.error("Pick media to post");
       return;
     }
-    
+
     setIsPosting(true);
     const data = {
       kind: composerMode,
@@ -159,21 +193,20 @@ export default function SabWaStatusPage() {
       mediaName: composerMode === "media" ? composerMedia?.name : undefined,
       audience: composerAudience,
     };
-    
+
     const res = await postMyStatus(sessionId, data);
     if (res.ok && res.data) {
       setPosted((prev) => [res.data, ...prev]);
-      toast.toast({
+      toast.success({
         title: "Status posted",
         description: "Your status has been updated.",
       });
       setComposerOpen(false);
       resetComposer();
     } else {
-      toast.toast({
+      toast.error({
         title: "Failed to post status",
         description: res.error || "Unknown error",
-        variant: "destructive",
       });
     }
     setIsPosting(false);
@@ -185,19 +218,20 @@ export default function SabWaStatusPage() {
     composerAudience,
     toast,
     resetComposer,
-    sessionId
+    sessionId,
   ]);
 
-  // ── Viewers List ───────────────────────────────────────────────────
+  // Viewers list
   const [viewersDialogOpen, setViewersDialogOpen] = React.useState(false);
-  const [activeStatusForViewers, setActiveStatusForViewers] = React.useState<PostedStatus | null>(null);
+  const [activeStatusForViewers, setActiveStatusForViewers] =
+    React.useState<PostedStatus | null>(null);
 
   const openViewers = React.useCallback((s: PostedStatus) => {
     setActiveStatusForViewers(s);
     setViewersDialogOpen(true);
   }, []);
 
-  // ── Friends viewer ─────────────────────────────────────────────────
+  // Friends viewer
   const [viewerIndex, setViewerIndex] = React.useState<number | null>(null);
   const viewerEntry =
     viewerIndex !== null ? friendStatuses[viewerIndex] ?? null : null;
@@ -230,17 +264,16 @@ export default function SabWaStatusPage() {
       body: replyText,
     });
     if (res.ok) {
-      toast.toast({
+      toast.success({
         title: "Reply sent",
         description: `Sent to ${viewerEntry.name}`,
       });
       setReplyText("");
       closeViewer();
     } else {
-      toast.toast({
+      toast.error({
         title: "Failed to send reply",
         description: res.error || "An error occurred",
-        variant: "destructive",
       });
     }
     setIsReplying(false);
@@ -250,7 +283,7 @@ export default function SabWaStatusPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
@@ -282,178 +315,192 @@ export default function SabWaStatusPage() {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start gap-3">
-        <div
-          aria-hidden
-          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
-        >
-          <CircleDot className="h-6 w-6" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-            Status / Stories
-          </h1>
-          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
-            Post text or media to your audience, and see what your contacts are
-            sharing.
-          </p>
-        </div>
-        <Dialog open={composerOpen} onOpenChange={setComposerOpen}>
-          <DialogTrigger asChild>
-            <Button type="button">
-              <Plus className="mr-2 h-4 w-4" /> Post new status
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>New status</DialogTitle>
-              <DialogDescription>
-                Pick a mode, set audience, and post.
-              </DialogDescription>
-            </DialogHeader>
-
-            {/* Composer mode switcher — segmented buttons (no tab UI) */}
-            <div
-              role="group"
-              aria-label="Composer mode"
-              className="inline-flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+      <PageHeader>
+        <PageHeaderHeading>
+          <div className="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
             >
-              <Button
-                type="button"
-                variant={composerMode === "text" ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
-                aria-pressed={composerMode === "text"}
-                onClick={() => setComposerMode("text")}
-              >
-                <TypeIcon className="mr-1.5 h-3.5 w-3.5" /> Text
-              </Button>
-              <Button
-                type="button"
-                variant={composerMode === "media" ? "default" : "ghost"}
-                size="sm"
-                className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
-                aria-pressed={composerMode === "media"}
-                onClick={() => setComposerMode("media")}
-              >
-                <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Media
-              </Button>
+              <CircleDot className="h-6 w-6" />
+            </span>
+            <div className="min-w-0">
+              <PageTitle>Status / Stories</PageTitle>
+              <PageDescription>
+                Post text or media to your audience, and see what your contacts
+                are sharing.
+              </PageDescription>
             </div>
+          </div>
+        </PageHeaderHeading>
+        <PageActions>
+          <Dialog open={composerOpen} onOpenChange={setComposerOpen}>
+            <DialogTrigger asChild>
+              <Button type="button" iconLeft={Plus}>
+                Post new status
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>New status</DialogTitle>
+                <DialogDescription>
+                  Pick a mode, set audience, and post.
+                </DialogDescription>
+              </DialogHeader>
 
-            {composerMode === "text" ? (
-              <div className="space-y-3 pt-4">
-                <div
-                  className="flex min-h-[160px] items-center justify-center rounded-[var(--st-radius)] p-6 text-center text-lg font-medium text-[var(--st-text-inverted)]"
-                  style={{ backgroundColor: composerBg }}
+              {/* Composer mode switcher - segmented buttons (no tab UI) */}
+              <div
+                role="group"
+                aria-label="Composer mode"
+                className="inline-flex w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1"
+              >
+                <Button
+                  type="button"
+                  variant={composerMode === "text" ? "primary" : "ghost"}
+                  size="sm"
+                  iconLeft={TypeIcon}
+                  className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
+                  aria-pressed={composerMode === "text"}
+                  onClick={() => setComposerMode("text")}
                 >
-                  {composerText || "Type your status..."}
-                </div>
-                <Textarea
-                  rows={3}
-                  placeholder="Type your status..."
-                  value={composerText}
-                  onChange={(e) => setComposerText(e.target.value)}
-                  maxLength={700}
-                />
-                <div>
-                  <Label className="text-xs font-medium">Background</Label>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {TEXT_BG_COLOURS.map((c) => (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setComposerBg(c.value)}
-                        className="h-7 w-7 rounded-full border-2"
-                        style={{
-                          backgroundColor: c.value,
-                          borderColor:
-                            composerBg === c.value
-                              ? "var(--st-text)"
-                              : "transparent",
-                        }}
-                        aria-label={c.label}
-                      />
-                    ))}
-                  </div>
-                </div>
+                  Text
+                </Button>
+                <Button
+                  type="button"
+                  variant={composerMode === "media" ? "primary" : "ghost"}
+                  size="sm"
+                  iconLeft={ImageIcon}
+                  className="flex-1 rounded-[calc(var(--st-radius)-2px)]"
+                  aria-pressed={composerMode === "media"}
+                  onClick={() => setComposerMode("media")}
+                >
+                  Media
+                </Button>
               </div>
-            ) : (
-              <div className="space-y-3 pt-4">
-                {composerMedia ? (
-                  <div className="space-y-2">
-                    <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={composerMedia.url}
-                        alt={composerMedia.name}
-                        className="block max-h-[260px] w-full object-cover"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
-                        {composerMedia.name}
-                      </span>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setComposerMedia(null)}
-                      >
-                        <X className="mr-1 h-3.5 w-3.5" /> Remove
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <SabFilePickerButton
-                    accept="image"
-                    onPick={(pick) => setComposerMedia(pick)}
+
+              {composerMode === "text" ? (
+                <div className="space-y-3 pt-4">
+                  <div
+                    className="flex min-h-[160px] items-center justify-center rounded-[var(--st-radius)] p-6 text-center text-lg font-medium text-[var(--st-text-inverted)]"
+                    style={{ backgroundColor: composerBg }}
                   >
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    Pick from SabFiles
-                  </SabFilePickerButton>
-                )}
-              </div>
-            )}
+                    {composerText || "Type your status."}
+                  </div>
+                  <Field label="Status text">
+                    <Textarea
+                      rows={3}
+                      placeholder="Type your status."
+                      value={composerText}
+                      onChange={(e) => setComposerText(e.target.value)}
+                      maxLength={700}
+                    />
+                  </Field>
+                  <div>
+                    <Label className="text-xs font-medium">Background</Label>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      {TEXT_BG_COLOURS.map((c) => (
+                        <Button
+                          key={c.value}
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setComposerBg(c.value)}
+                          aria-pressed={composerBg === c.value}
+                          aria-label={c.label}
+                          className={`h-7 w-7 rounded-full border-2 p-0 ${
+                            composerBg === c.value
+                              ? "border-[var(--st-text)]"
+                              : "border-transparent"
+                          }`}
+                          style={{ backgroundColor: c.value }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-4">
+                  {composerMedia ? (
+                    <div className="space-y-2">
+                      <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={composerMedia.url}
+                          alt={composerMedia.name}
+                          className="block max-h-[260px] w-full object-cover"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
+                          {composerMedia.name}
+                        </span>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          iconLeft={X}
+                          onClick={() => setComposerMedia(null)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <SabFilePickerButton
+                      accept="image"
+                      onPick={(pick) => setComposerMedia(pick)}
+                    >
+                      <ImageIcon className="mr-2 h-4 w-4" aria-hidden="true" />
+                      Pick from SabFiles
+                    </SabFilePickerButton>
+                  )}
+                </div>
+              )}
 
-            <div className="space-y-1">
-              <Label className="text-xs font-medium">Audience</Label>
-              <Select
-                value={composerAudience}
-                onValueChange={(v) => setComposerAudience(v as Audience)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {AUDIENCE_OPTIONS.map((o) => (
-                    <SelectItem key={o.id} value={o.id}>
-                      {o.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <Field label="Audience">
+                <Select
+                  value={composerAudience}
+                  onValueChange={(v) => setComposerAudience(v as Audience)}
+                >
+                  <SelectTrigger aria-label="Audience">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {AUDIENCE_OPTIONS.map((o) => (
+                      <SelectItem key={o.id} value={o.id}>
+                        {o.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setComposerOpen(false);
-                  resetComposer();
-                }}
-              >
-                Cancel
-              </Button>
-              <Button type="button" disabled={isPosting} onClick={handlePost}>
-                <Send className="mr-2 h-4 w-4" /> Post
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setComposerOpen(false);
+                    resetComposer();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  loading={isPosting}
+                  iconLeft={Send}
+                  onClick={handlePost}
+                >
+                  Post
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </PageActions>
+      </PageHeader>
 
-      {/* View switcher — segmented buttons (no tab UI) */}
+      {/* View switcher - segmented buttons (no tab UI) */}
       <div
         role="group"
         aria-label="Status view"
@@ -461,7 +508,7 @@ export default function SabWaStatusPage() {
       >
         <Button
           type="button"
-          variant={view === "my" ? "default" : "ghost"}
+          variant={view === "my" ? "primary" : "ghost"}
           size="sm"
           className="rounded-[calc(var(--st-radius)-2px)]"
           aria-pressed={view === "my"}
@@ -471,7 +518,7 @@ export default function SabWaStatusPage() {
         </Button>
         <Button
           type="button"
-          variant={view === "friends" ? "default" : "ghost"}
+          variant={view === "friends" ? "primary" : "ghost"}
           size="sm"
           className="rounded-[calc(var(--st-radius)-2px)]"
           aria-pressed={view === "friends"}
@@ -485,20 +532,15 @@ export default function SabWaStatusPage() {
       {view === "my" ? (
         <div className="space-y-3">
           {loadingStatuses ? (
-            <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">Loading statuses...</div>
+            <div className="py-10 text-center text-sm text-[var(--st-text-secondary)]">
+              Loading statuses.
+            </div>
           ) : posted.length === 0 ? (
-            <Card className="border-dashed">
-              <CardBody className="flex flex-col items-center gap-3 p-10 text-center">
-                <CircleDot className="h-7 w-7 text-[var(--st-text-secondary)]" />
-                <h3 className="text-sm font-semibold text-[var(--st-text)]">
-                  You haven&apos;t posted any status yet
-                </h3>
-                <p className="max-w-md text-[11.5px] text-[var(--st-text-secondary)]">
-                  Hit &ldquo;Post new status&rdquo; to share text with a
-                  coloured background or an image from your SabFiles library.
-                </p>
-              </CardBody>
-            </Card>
+            <EmptyState
+              icon={CircleDot}
+              title="You haven't posted any status yet"
+              description="Hit Post new status to share text with a coloured background or an image from your SabFiles library."
+            />
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2">
               {posted.map((s) => (
@@ -523,24 +565,23 @@ export default function SabWaStatusPage() {
                         </div>
                       ) : null}
                       <div className="flex flex-wrap items-center gap-2 text-[11.5px]">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Eye}
                           className="h-auto p-1 px-2"
                           onClick={() => openViewers(s)}
                         >
-                          <Eye className="mr-1 h-3 w-3" />
                           {s.viewers.length} views
                         </Button>
-                        <Badge variant="ghost">
-                          <Repeat2 className="mr-1 h-3 w-3" />
+                        <Badge tone="neutral">
+                          <Repeat2 className="mr-1 h-3 w-3" aria-hidden="true" />
                           {s.reposters.length} reposters
                         </Badge>
                         <Badge variant="outline">
                           {
-                            AUDIENCE_OPTIONS.find(
-                              (a) => a.id === s.audience,
-                            )?.label
+                            AUDIENCE_OPTIONS.find((a) => a.id === s.audience)
+                              ?.label
                           }
                         </Badge>
                         <span className="ml-auto text-[var(--st-text-secondary)]">
@@ -558,53 +599,53 @@ export default function SabWaStatusPage() {
         /* Friends */
         <div className="space-y-3">
           {friendStatuses.length === 0 ? (
-            <Card className="border-dashed">
-              <CardBody className="flex flex-col items-center gap-3 p-10 text-center">
-                <Users className="h-7 w-7 text-[var(--st-text-secondary)]" />
-                <h3 className="text-sm font-semibold text-[var(--st-text)]">
-                  No friends&apos; statuses
-                </h3>
-                <p className="max-w-md text-[11.5px] text-[var(--st-text-secondary)]">
-                  When your contacts post a status, you&apos;ll see them as
-                  cards here. Tap one to open the swipeable viewer.
-                </p>
-              </CardBody>
-            </Card>
+            <EmptyState
+              icon={Users}
+              title="No friends' statuses"
+              description="When your contacts post a status, you'll see them as cards here. Tap one to open the swipeable viewer."
+            />
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {friendStatuses.map((f, i) => (
                 <li key={f.jid}>
-                  <button
-                    type="button"
+                  <Card
+                    variant="interactive"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open status from ${f.name}`}
                     onClick={() => setViewerIndex(i)}
-                    className="w-full text-left"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setViewerIndex(i);
+                      }
+                    }}
+                    className="cursor-pointer"
                   >
-                    <Card className="transition hover:shadow-[var(--st-shadow-md)]">
-                      <CardBody className="space-y-2 p-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            aria-hidden
-                            className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-sm font-semibold text-[var(--st-text)]"
-                          >
-                            {f.name.slice(0, 1).toUpperCase()}
+                    <CardBody className="space-y-2 p-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          aria-hidden="true"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-sm font-semibold text-[var(--st-text)]"
+                        >
+                          {f.name.slice(0, 1).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-medium text-[var(--st-text)]">
+                            {f.name}
                           </div>
-                          <div className="min-w-0">
-                            <div className="truncate text-sm font-medium text-[var(--st-text)]">
-                              {f.name}
-                            </div>
-                            <div className="text-[11.5px] text-[var(--st-text-secondary)]">
-                              {timeAgo(f.postedAt)}
-                            </div>
+                          <div className="text-[11.5px] text-[var(--st-text-secondary)]">
+                            {timeAgo(f.postedAt)}
                           </div>
                         </div>
-                        {f.preview && (
-                          <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
-                            {f.preview}
-                          </p>
-                        )}
-                      </CardBody>
-                    </Card>
-                  </button>
+                      </div>
+                      {f.preview && (
+                        <p className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
+                          {f.preview}
+                        </p>
+                      )}
+                    </CardBody>
+                  </Card>
                 </li>
               ))}
             </ul>
@@ -626,14 +667,16 @@ export default function SabWaStatusPage() {
               People who have viewed this status.
             </DialogDescription>
           </DialogHeader>
-          <div className="max-h-[300px] overflow-y-auto pt-4 space-y-3">
+          <div className="max-h-[300px] space-y-3 overflow-y-auto pt-4">
             {activeStatusForViewers?.viewers.length === 0 ? (
-              <div className="py-4 text-center text-sm text-[var(--st-text-secondary)]">No viewers yet.</div>
+              <div className="py-4 text-center text-sm text-[var(--st-text-secondary)]">
+                No viewers yet.
+              </div>
             ) : (
               activeStatusForViewers?.viewers.map((v, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <div
-                    aria-hidden
+                    aria-hidden="true"
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-xs font-semibold text-[var(--st-text)]"
                   >
                     {v.name.slice(0, 1).toUpperCase()}
@@ -675,50 +718,50 @@ export default function SabWaStatusPage() {
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="sm"
+                iconLeft={ArrowLeft}
                 onClick={viewerPrev}
                 disabled={viewerIndex === 0}
                 aria-label="Previous status"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
+              />
             </div>
             <div className="absolute inset-y-0 right-0 flex items-center">
               <Button
                 type="button"
                 variant="ghost"
-                size="icon"
+                size="sm"
+                iconLeft={ArrowRight}
                 onClick={viewerNext}
                 disabled={
                   viewerIndex === null ||
                   viewerIndex >= friendStatuses.length - 1
                 }
                 aria-label="Next status"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              />
             </div>
           </div>
-          
+
           {/* Reply section */}
-          <div className="pt-4 mt-2 border-t border-[var(--st-border)] flex gap-2">
-            <Input 
-              placeholder="Reply to status..."
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleReply();
-              }}
-              className="flex-1"
-            />
-            <Button 
+          <div className="mt-2 flex gap-2 border-t border-[var(--st-border)] pt-4">
+            <Field className="flex-1" label="">
+              <Input
+                placeholder="Reply to status."
+                aria-label="Reply to status"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleReply();
+                }}
+              />
+            </Field>
+            <Button
               type="button"
-              disabled={isReplying || !replyText.trim()}
+              loading={isReplying}
+              disabled={!replyText.trim()}
               onClick={handleReply}
-              size="icon"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </Button>
+              iconLeft={MessageCircle}
+              aria-label="Send reply"
+            />
           </div>
         </DialogContent>
       </Dialog>

@@ -1,6 +1,31 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Checkbox, EmptyState, Input, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  EmptyState,
+  IconButton,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import {
   CheckCheck,
   CheckSquare,
@@ -13,10 +38,10 @@ import {
   Smartphone,
   Tag as TagIcon,
   X,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
- * /sabwa/chats — Individual chats view with bulk-action selection mode.
+ * /sabwa/chats - Individual chats view with bulk-action selection mode.
  *
  * Re-uses the inbox's `<ChatListRow>` and `useChats(sessionId, { type:
  * 'individual' })` from `@/lib/sabwa/use-sabwa-data`. Layered on top:
@@ -29,7 +54,7 @@ import {
  *  - Actions loop over selected jids and call `updateChatState`.
  *  - Tablet/mobile: toolbar collapses into a hamburger menu.
  *
- * The page does not re-render the SabWa rail — that comes from the
+ * The page does not re-render the SabWa rail, that comes from the
  * parent layout.
  */
 
@@ -71,7 +96,7 @@ function sortChats(chats: SabwaChat[], mode: SortMode): SabwaChat[] {
 }
 
 export default function SabWaChatsPage() {
-  const toast = useToast();
+  const { toast } = useToast();
   const { current: activeSession } = useSabwaSession();
   const sessionId = activeSession?.id ?? null;
   const resolve = useResolveJid(sessionId);
@@ -151,20 +176,22 @@ export default function SabWaChatsPage() {
           }),
         );
         if (failed === 0) {
-          toast.toast({
+          toast({
             title: label,
             description: `Applied to ${ok} chat${ok === 1 ? "" : "s"}.`,
+            tone: "success",
           });
         } else if (ok === 0) {
-          toast.toast({
+          toast({
             title: `Failed to ${label.toLowerCase()}`,
             description: `Couldn't reach the WhatsApp engine. 0 of ${jids.length} applied.`,
-            variant: "destructive",
+            tone: "danger",
           });
         } else {
-          toast.toast({
+          toast({
             title: `${label} (partial)`,
             description: `${ok} succeeded, ${failed} failed.`,
+            tone: "warning",
           });
         }
       } finally {
@@ -213,12 +240,14 @@ export default function SabWaChatsPage() {
         </Breadcrumb>
         <div className="mt-6">
           <EmptyState
-            icon={<Smartphone />}
+            icon={Smartphone}
             title="No active WhatsApp account"
             description="Pick a connected account on the SabWa overview to start using this page."
             action={
               <Link href="/sabwa/overview">
-                <Button size="md">Open accounts</Button>
+                <Button variant="primary" size="md">
+                  Open accounts
+                </Button>
               </Link>
             }
           />
@@ -229,7 +258,7 @@ export default function SabWaChatsPage() {
 
   return (
     <div className="flex h-full min-h-[60vh] flex-col bg-[var(--st-bg)]">
-      {/* ── Breadcrumb ─────────────────────────────────────────────── */}
+      {/* Breadcrumb */}
       <div className="shrink-0 border-b border-[var(--st-border)] px-4 py-2 md:px-6">
         <Breadcrumb>
           <BreadcrumbList>
@@ -248,20 +277,20 @@ export default function SabWaChatsPage() {
         </Breadcrumb>
       </div>
 
-      {/* ── Header ─────────────────────────────────────────────────── */}
+      {/* Header */}
       <header className="flex items-start gap-3 border-b border-[var(--st-border)] px-4 py-4 md:px-6">
-        <div
-          aria-hidden
+        <span
+          aria-hidden="true"
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
         >
           <MessageSquare className="h-5 w-5" />
-        </div>
+        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] font-semibold tracking-[-0.015em] text-[var(--st-text)] leading-[1.2] md:text-2xl">
+            <h1 className="text-[24px] font-semibold leading-[1.2] tracking-[-0.015em] text-[var(--st-text)] md:text-2xl">
               Chats
             </h1>
-            <Badge variant="secondary" className="text-xs">
+            <Badge tone="neutral">
               {filtered.length} of {chats?.length ?? 0}
             </Badge>
           </div>
@@ -271,7 +300,7 @@ export default function SabWaChatsPage() {
         </div>
       </header>
 
-      {/* ── Desktop toolbar ────────────────────────────────────────── */}
+      {/* Desktop toolbar */}
       <div className="hidden items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 md:flex md:px-6">
         <Toolbar
           query={query}
@@ -286,32 +315,30 @@ export default function SabWaChatsPage() {
         />
       </div>
 
-      {/* ── Mobile toolbar: hamburger collapses controls ───────────── */}
+      {/* Mobile toolbar: hamburger collapses controls */}
       <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-4 py-2 md:hidden">
-        <Button
-          type="button"
+        <IconButton
+          label="Toggle filters"
+          icon={MenuIcon}
           variant="outline"
-          size="icon"
-          aria-label="Toggle filters"
           aria-expanded={mobileToolbarOpen}
           onClick={() => setMobileToolbarOpen((v) => !v)}
-        >
-          <MenuIcon className="h-4 w-4" />
-        </Button>
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+        />
+        <div className="flex-1">
           <Input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search chats"
-            className="h-9 pl-8"
+            inputSize="sm"
+            iconLeft={Search}
+            aria-label="Search chats"
           />
         </div>
       </div>
       {mobileToolbarOpen ? (
         <div className="flex flex-col gap-2 border-b border-[var(--st-border)] px-4 py-2 md:hidden">
-          {/* Segmented filter — replaces Tabs UI */}
+          {/* Segmented filter, replaces Tabs UI */}
           <div
             role="group"
             aria-label="Filter chats"
@@ -320,8 +347,7 @@ export default function SabWaChatsPage() {
             {(["all", "unread", "read"] as const).map((value) => (
               <Button
                 key={value}
-                type="button"
-                variant={filter === value ? "default" : "ghost"}
+                variant={filter === value ? "primary" : "ghost"}
                 size="sm"
                 className="rounded-[calc(var(--st-radius)-2px)] capitalize"
                 onClick={() => setFilter(value)}
@@ -331,68 +357,66 @@ export default function SabWaChatsPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
-              <SelectTrigger className="h-9 flex-1">
-                <SelectValue placeholder="Sort" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Recent</SelectItem>
-                <SelectItem value="name">Name</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex-1">
+              <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+                <SelectTrigger aria-label="Sort chats">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Recent</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button
-              type="button"
-              variant={bulkMode ? "default" : "outline"}
+              variant={bulkMode ? "primary" : "outline"}
               size="sm"
+              iconLeft={CheckSquare}
               onClick={() => (bulkMode ? exitBulk() : setBulkMode(true))}
-              className="h-9"
             >
-              <CheckSquare className="mr-1 h-4 w-4" />
               {bulkMode ? "Exit" : "Bulk"}
             </Button>
           </div>
         </div>
       ) : null}
 
-      {/* ── Bulk header (visible when bulk mode is on) ─────────────── */}
+      {/* Bulk header (visible when bulk mode is on) */}
       {bulkMode ? (
-        <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/60 px-4 py-2 md:px-6">
+        <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-2 md:px-6">
           <Checkbox
-            id="select-all"
             checked={allVisibleSelected}
-            onCheckedChange={toggleSelectAllVisible}
+            onChange={toggleSelectAllVisible}
             aria-label="Select all visible chats"
+            label={
+              <span className="text-xs text-[var(--st-text-secondary)]">
+                {selectionCount > 0
+                  ? `${selectionCount} selected`
+                  : "Select all visible"}
+              </span>
+            }
           />
-          <label
-            htmlFor="select-all"
-            className="text-xs text-[var(--st-text-secondary)]"
-          >
-            {selectionCount > 0
-              ? `${selectionCount} selected`
-              : "Select all visible"}
-          </label>
           {selectionCount > 0 ? (
             <Button
-              type="button"
               variant="ghost"
               size="sm"
+              iconLeft={X}
               onClick={clearSelection}
-              className="ml-auto h-7 px-2"
+              className="ml-auto"
             >
-              <X className="mr-1 h-3.5 w-3.5" /> Clear
+              Clear
             </Button>
           ) : null}
         </div>
       ) : null}
 
-      {/* ── List ───────────────────────────────────────────────────── */}
+      {/* List */}
       <main className="flex-1 overflow-auto px-2 py-2 md:px-4">
         {loading ? (
           <ListSkeleton />
         ) : error ? (
           <ErrorState message={error} onRetry={refetch} />
         ) : filtered.length === 0 ? (
-          <EmptyState query={query} filter={filter} />
+          <ChatsEmptyState query={query} filter={filter} />
         ) : (
           <ul className="flex flex-col gap-0.5" aria-label="Chats">
             {filtered.map((chat) => {
@@ -403,7 +427,7 @@ export default function SabWaChatsPage() {
                   {bulkMode ? (
                     <Checkbox
                       checked={checked}
-                      onCheckedChange={() => toggleSelect(chat.jid)}
+                      onChange={() => toggleSelect(chat.jid)}
                       aria-label={`Select ${displayName}`}
                       className="ml-2"
                     />
@@ -425,15 +449,13 @@ export default function SabWaChatsPage() {
         )}
       </main>
 
-      {/* ── Sticky bulk footer ─────────────────────────────────────── */}
+      {/* Sticky bulk footer */}
       {bulkMode && selectionCount > 0 ? (
         <BulkFooter
           working={working}
           onMarkRead={() => runBulk("Marked read", { read: true })}
           onMarkUnread={() => runBulk("Marked unread", { read: false })}
-          onArchive={() =>
-            runBulk("Archived", { archived: true })
-          }
+          onArchive={() => runBulk("Archived", { archived: true })}
           onMute={(seconds) =>
             runBulk("Muted", {
               muted: seconds !== 0,
@@ -441,9 +463,7 @@ export default function SabWaChatsPage() {
             })
           }
           labels={labels}
-          onAddLabel={(labelId) =>
-            runBulk("Labelled", { labels: [labelId] })
-          }
+          onAddLabel={(labelId) => runBulk("Labelled", { labels: [labelId] })}
           selectionCount={selectionCount}
         />
       ) : null}
@@ -451,7 +471,7 @@ export default function SabWaChatsPage() {
   );
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+// Sub-components
 
 interface ToolbarProps {
   query: string;
@@ -478,19 +498,19 @@ function Toolbar({
 }: ToolbarProps) {
   return (
     <>
-      <div className="relative flex-1 max-w-md">
-        <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
+      <div className="relative max-w-md flex-1">
         <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search chats"
-          className="h-9 pl-8"
+          inputSize="sm"
+          iconLeft={Search}
           aria-label="Search chats"
         />
       </div>
 
-      {/* Segmented filter — replaces Tabs UI per ZoruUI no-tab rule */}
+      {/* Segmented filter, replaces Tabs UI per the no-tab rule */}
       <div
         role="group"
         aria-label="Filter chats"
@@ -499,8 +519,7 @@ function Toolbar({
         {(["all", "unread", "read"] as const).map((value) => (
           <Button
             key={value}
-            type="button"
-            variant={filter === value ? "default" : "ghost"}
+            variant={filter === value ? "primary" : "ghost"}
             size="sm"
             className="rounded-[calc(var(--st-radius)-2px)] capitalize"
             onClick={() => setFilter(value)}
@@ -510,24 +529,24 @@ function Toolbar({
         ))}
       </div>
 
-      <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
-        <SelectTrigger className="h-9 w-32">
-          <SelectValue placeholder="Sort" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="recent">Recent</SelectItem>
-          <SelectItem value="name">Name</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="w-32">
+        <Select value={sort} onValueChange={(v) => setSort(v as SortMode)}>
+          <SelectTrigger aria-label="Sort chats">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Recent</SelectItem>
+            <SelectItem value="name">Name</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <Button
-        type="button"
-        variant={bulkMode ? "default" : "outline"}
+        variant={bulkMode ? "primary" : "outline"}
         size="sm"
+        iconLeft={CheckSquare}
         onClick={() => (bulkMode ? onExitBulk() : setBulkMode(true))}
-        className="h-9"
       >
-        <CheckSquare className="mr-1 h-4 w-4" />
         {bulkMode ? "Exit bulk" : "Bulk select"}
       </Button>
     </>
@@ -556,69 +575,65 @@ function BulkFooter({
   labels,
 }: BulkFooterProps) {
   return (
-    <footer className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-2 backdrop-blur md:px-6">
+    <footer className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-2 md:px-6">
       <span className="text-xs font-medium text-[var(--st-text-secondary)]">
         {selectionCount} selected
       </span>
       <Button
-        type="button"
         size="sm"
         variant="outline"
+        iconLeft={CheckCheck}
         onClick={onMarkRead}
         disabled={working}
-        className="h-8"
       >
-        <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
         Mark read
       </Button>
       <Button
-        type="button"
         size="sm"
         variant="outline"
+        iconLeft={EyeOff}
         onClick={onMarkUnread}
         disabled={working}
-        className="h-8"
       >
-        <EyeOff className="mr-1.5 h-3.5 w-3.5" />
         Mark unread
       </Button>
       <Button
-        type="button"
         size="sm"
         variant="outline"
+        iconLeft={Archive}
         onClick={onArchive}
         disabled={working}
-        className="h-8"
       >
-        <Archive className="mr-1.5 h-3.5 w-3.5" />
         Archive
       </Button>
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            type="button"
             size="sm"
             variant="outline"
+            iconLeft={BellOff}
             disabled={working}
-            className="h-8"
           >
-            <BellOff className="mr-1.5 h-3.5 w-3.5" />
             Mute
           </Button>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-44 p-1">
-          <ul className="flex flex-col">
+          <ul className="flex flex-col gap-0.5">
             {MUTE_DURATIONS.map((d) => (
               <li key={d.label}>
-                <button
-                  type="button"
-                  className="w-full rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  block
+                  className="justify-start"
                   onClick={() =>
-                    onMute(d.seconds === null ? 100 * 365 * 24 * 3600 : d.seconds)
+                    onMute(
+                      d.seconds === null ? 100 * 365 * 24 * 3600 : d.seconds,
+                    )
                   }
                 >
                   {d.label}
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
@@ -627,13 +642,11 @@ function BulkFooter({
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            type="button"
             size="sm"
             variant="outline"
+            iconLeft={TagIcon}
             disabled={working}
-            className="h-8"
           >
-            <TagIcon className="mr-1.5 h-3.5 w-3.5" />
             Add label
           </Button>
         </PopoverTrigger>
@@ -643,21 +656,23 @@ function BulkFooter({
               No labels yet. Create one in Labels.
             </p>
           ) : (
-            <ul className="flex flex-col">
+            <ul className="flex flex-col gap-0.5">
               {labels.map((l) => (
                 <li key={l.id}>
-                  <button
-                    type="button"
-                    className="flex w-full items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    block
+                    className="justify-start gap-2"
                     onClick={() => onAddLabel(l.id)}
                   >
                     <span
-                      aria-hidden
-                      className="h-3 w-3 rounded-full"
+                      aria-hidden="true"
+                      className="h-3 w-3 shrink-0 rounded-full"
                       style={{ backgroundColor: l.color }}
                     />
                     <span className="truncate">{l.name}</span>
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -676,19 +691,19 @@ function ListSkeleton() {
           key={i}
           className="flex items-center gap-3 rounded-[var(--st-radius)] px-3 py-2"
         >
-          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton circle width={40} />
           <div className="flex-1 space-y-2">
-            <Skeleton className="h-3 w-1/3" />
-            <Skeleton className="h-3 w-2/3" />
+            <Skeleton height={12} width="33%" />
+            <Skeleton height={12} width="66%" />
           </div>
-          <Skeleton className="h-3 w-10" />
+          <Skeleton height={12} width={40} />
         </li>
       ))}
     </ul>
   );
 }
 
-function EmptyState({
+function ChatsEmptyState({
   query,
   filter,
 }: {
@@ -699,7 +714,7 @@ function EmptyState({
   return (
     <div className="m-4">
       <EmptyState
-        icon={<MessageSquare />}
+        icon={MessageSquare}
         title={isFiltered ? "No matching chats" : "No individual chats yet"}
         description={
           isFiltered
@@ -709,8 +724,7 @@ function EmptyState({
         action={
           isFiltered ? null : (
             <Link href="/sabwa/inbox">
-              <Button size="md">
-                <MessageSquare className="mr-1.5 h-4 w-4" />
+              <Button variant="primary" size="md" iconLeft={MessageSquare}>
                 Open inbox
               </Button>
             </Link>
@@ -729,13 +743,13 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <Card className="m-4 border-[var(--st-danger)]/50">
+    <Card className="m-4 border-[var(--st-danger)]">
       <CardBody className="flex flex-col items-start gap-2 py-6">
         <p className="text-sm font-semibold text-[var(--st-danger)]">
-          Couldn’t load chats
+          Couldn't load chats
         </p>
         <p className="text-xs text-[var(--st-text-secondary)]">{message}</p>
-        <Button type="button" size="sm" variant="outline" onClick={onRetry}>
+        <Button size="sm" variant="outline" onClick={onRetry}>
           Retry
         </Button>
       </CardBody>

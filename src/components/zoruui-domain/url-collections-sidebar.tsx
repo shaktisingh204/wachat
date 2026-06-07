@@ -1,8 +1,16 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
-import { Button, Input, cn, useToast } from '@/components/sabcrm/20ui';
-import { Folder, Plus, Trash2, LoaderCircle, FolderX } from 'lucide-react';
+import {
+    Button,
+    IconButton,
+    Input,
+    Field,
+    EmptyState,
+    cn,
+    useToast,
+} from '@/components/sabcrm/20ui';
+import { Folder, Plus, Trash2, FolderX, X } from 'lucide-react';
 import {
     getCollections, createCollection, deleteCollection,
     type UrlCollectionDoc
@@ -41,119 +49,149 @@ export function UrlCollectionsSidebar({ selectedCollectionId, onSelect, linkCoun
                 setNewName('');
                 setAdding(false);
                 load();
-                toast({ title: 'Collection created', variant: 'success' });
+                toast({ title: 'Collection created', tone: 'success' });
             } else {
-                toast({ title: result.error ?? 'Failed', variant: 'destructive' });
+                toast({ title: result.error ?? 'Failed to create collection', tone: 'danger' });
             }
         });
     };
 
-    const handleDelete = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
+    const handleDelete = (id: string) => {
         startTransition(async () => {
             const result = await deleteCollection(id);
             if (result.success) {
                 if (selectedCollectionId === id) onSelect(null);
                 load();
+            } else {
+                toast({ title: result.error ?? 'Failed to delete collection', tone: 'danger' });
             }
         });
     };
 
+    const rowClass = (active: boolean) =>
+        cn(
+            'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-[var(--st-radius)] mx-2 transition-colors text-left',
+            active
+                ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)] font-medium'
+                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)]'
+        );
+
     return (
         <div className="w-52 flex-shrink-0 border-r border-[var(--st-border)] flex flex-col py-3 gap-1">
             <div className="flex items-center justify-between px-3 pb-1">
-                <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)]/60">Collections</span>
-                <Button
-                    variant="ghost" size="icon-sm"
+                <span className="text-[11px] font-medium uppercase tracking-wider text-[var(--st-text-tertiary)]">Collections</span>
+                <IconButton
+                    label="New collection"
+                    icon={Plus}
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setAdding((v) => !v)}
-                    title="New collection"
-                >
-                    <Plus className="h-3.5 w-3.5" />
-                </Button>
+                />
             </div>
 
-            <button
+            <Button
+                variant="ghost"
                 onClick={() => onSelect(null)}
-                className={cn(
-                    'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
-                    selectedCollectionId === null
-                        ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] hover:text-[var(--st-text)]'
-                )}
+                aria-pressed={selectedCollectionId === null}
+                className={cn(rowClass(selectedCollectionId === null), 'w-auto justify-start')}
             >
-                <Folder className="h-3.5 w-3.5 flex-shrink-0" />
+                <Folder className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
                 <span className="truncate flex-1 text-left">All Links</span>
-            </button>
+            </Button>
 
             {adding && (
-                <div className="mx-2 p-2 rounded-md border border-[var(--st-border)] bg-[var(--st-text)] space-y-2">
-                    <Input
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        placeholder="Collection name"
-                        className="h-7 text-[12px]"
-                        onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') setAdding(false); }}
-                        autoFocus
-                    />
-                    <div className="flex flex-wrap gap-1">
+                <div className="mx-2 p-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] space-y-2">
+                    <Field label="Collection name">
+                        <Input
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            placeholder="e.g. Campaign links"
+                            inputSize="sm"
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') setAdding(false); }}
+                            autoFocus
+                        />
+                    </Field>
+                    <div className="flex flex-wrap gap-1" role="radiogroup" aria-label="Collection color">
                         {PALETTE.map((c) => (
-                            <button
+                            <Button
                                 key={c}
-                                type="button"
+                                variant="ghost"
+                                role="radio"
+                                aria-checked={newColor === c}
+                                aria-label={`Color ${c}`}
                                 onClick={() => setNewColor(c)}
                                 className={cn(
-                                    'h-4 w-4 rounded-full border-2 transition-transform',
-                                    newColor === c ? 'border-white scale-110' : 'border-transparent'
+                                    'h-4 w-4 min-w-0 p-0 rounded-full border-2 transition-transform',
+                                    newColor === c ? 'border-[var(--st-text)] scale-110' : 'border-transparent'
                                 )}
                                 style={{ backgroundColor: c }}
                             />
                         ))}
                     </div>
                     <div className="flex gap-1">
-                        <Button size="xs" onClick={handleCreate} disabled={isPending || !newName.trim()} className="flex-1">
-                            {isPending ? <LoaderCircle className="h-3 w-3 animate-spin" /> : 'Add'}
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={handleCreate}
+                            loading={isPending}
+                            disabled={!newName.trim()}
+                            block
+                        >
+                            Add
                         </Button>
-                        <Button size="xs" variant="ghost" onClick={() => setAdding(false)}>&#x2715;</Button>
+                        <IconButton
+                            label="Cancel"
+                            icon={X}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setAdding(false)}
+                        />
                     </div>
                 </div>
             )}
 
-            {collections.map((col) => (
-                <button
-                    key={col._id}
-                    onClick={() => onSelect(col._id)}
-                    className={cn(
-                        'group flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors',
-                        selectedCollectionId === col._id
-                            ? 'bg-[var(--st-text)] text-[var(--st-text)]'
-                            : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-text)] hover:text-[var(--st-text)]'
-                    )}
-                >
-                    <span
-                        className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: col.color }}
-                    />
-                    <span className="truncate flex-1 text-left">{col.name}</span>
-                    {linkCount && (
-                        <span className="text-[10px] text-[var(--st-text-secondary)]/60 flex-shrink-0">
-                            {linkCount(col._id)}
-                        </span>
-                    )}
-                    <span
-                        onClick={(e) => handleDelete(col._id, e)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)] hover:text-[var(--st-danger)] p-0.5 rounded"
-                        role="button"
-                        title="Delete collection"
-                    >
-                        <Trash2 className="h-3 w-3" />
-                    </span>
-                </button>
-            ))}
+            {collections.map((col) => {
+                const active = selectedCollectionId === col._id;
+                return (
+                    <div key={col._id} className={cn('group flex items-center', rowClass(active), 'gap-0 px-0 py-0')}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => onSelect(col._id)}
+                            aria-pressed={active}
+                            className="flex items-center gap-2 flex-1 min-w-0 px-3 py-1.5 justify-start bg-transparent hover:bg-transparent border-0 shadow-none h-auto text-inherit"
+                        >
+                            <span
+                                className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: col.color }}
+                                aria-hidden="true"
+                            />
+                            <span className="truncate flex-1 text-left">{col.name}</span>
+                            {linkCount && (
+                                <span className="text-[10px] text-[var(--st-text-tertiary)] flex-shrink-0">
+                                    {linkCount(col._id)}
+                                </span>
+                            )}
+                        </Button>
+                        <IconButton
+                            label={`Delete collection ${col.name}`}
+                            icon={Trash2}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(col._id)}
+                            className="mr-1 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)]"
+                        />
+                    </div>
+                );
+            })}
 
-            {collections.length === 0 && !adding && (
-                <div className="px-3 py-4 text-center">
-                    <FolderX className="h-5 w-5 mx-auto text-[var(--st-text-secondary)]/40 mb-1" />
-                    <p className="text-[11px] text-[var(--st-text-secondary)]/60">No collections yet</p>
+            {collections.length === 0 && !adding && !isPending && (
+                <div className="px-3 py-4">
+                    <EmptyState
+                        icon={FolderX}
+                        size="sm"
+                        title="No collections yet"
+                        description="Create one to group your links."
+                    />
                 </div>
             )}
         </div>

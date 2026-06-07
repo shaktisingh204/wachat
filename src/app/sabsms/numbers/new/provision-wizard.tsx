@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SabSMS — provisioning wizard (page 25).
+ * SabSMS - provisioning wizard (page 25).
  *
  * Single-page wizard that walks the user through provider, country,
  * type, capabilities, area-code search, multi-select of available
@@ -9,7 +9,7 @@
  *
  * Implements the 20 page-unique features listed in
  * `plans/sabsms-pages-catalog.md` §B.4 #25. The server side is in
- * `./actions.ts` — every mutation goes through a "use server" call.
+ * `./actions.ts` - every mutation goes through a "use server" call.
  */
 
 import * as React from "react";
@@ -25,7 +25,43 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, Input, Label, RadioCard, RadioGroup, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Radio,
+  RadioGroup,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Textarea,
+  Th,
+  Tr,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import type { SabsmsNumberType, SabsmsProviderId } from "@/lib/sabsms/types";
 
@@ -50,14 +86,14 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────
 
 const COUNTRIES: Array<{ value: string; label: string }> = [
-  { value: "US", label: "US — United States" },
-  { value: "CA", label: "CA — Canada" },
-  { value: "GB", label: "GB — United Kingdom" },
-  { value: "IN", label: "IN — India" },
-  { value: "AU", label: "AU — Australia" },
-  { value: "DE", label: "DE — Germany" },
-  { value: "FR", label: "FR — France" },
-  { value: "SG", label: "SG — Singapore" },
+  { value: "US", label: "US - United States" },
+  { value: "CA", label: "CA - Canada" },
+  { value: "GB", label: "GB - United Kingdom" },
+  { value: "IN", label: "IN - India" },
+  { value: "AU", label: "AU - Australia" },
+  { value: "DE", label: "DE - Germany" },
+  { value: "FR", label: "FR - France" },
+  { value: "SG", label: "SG - Singapore" },
 ];
 
 const USE_CASES: Array<{ value: string; label: string }> = [
@@ -94,6 +130,8 @@ const TYPE_OPTIONS: Array<{
     description: "Sender ID (one-way only). EU/IN where supported.",
   },
 ];
+
+const CAPS = ["sms", "mms", "rcs", "voice"] as const;
 
 // ─── Props ────────────────────────────────────────────────────────────────
 
@@ -182,7 +220,7 @@ export function ProvisionWizard({
     type: state.type,
     numbers: Array.from(state.selected),
     capabilities: state.capabilities,
-    campaignId: state.campaignId === '__none__' ? undefined : state.campaignId,
+    campaignId: state.campaignId === "__none__" ? undefined : state.campaignId,
     poolId: state.poolId || undefined,
     webhookUrlOverride: state.webhookUrlOverride || undefined,
     defaultFooter: state.defaultFooter || undefined,
@@ -239,6 +277,7 @@ export function ProvisionWizard({
       toast({
         title: "Registration submitted",
         description: `Your ${compliance.key?.toUpperCase()} registration is now active.`,
+        tone: "success",
       });
     }, 1500);
   }
@@ -256,7 +295,7 @@ export function ProvisionWizard({
         toast({
           title: "Search failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
         setAvailable([]);
         return;
@@ -269,7 +308,7 @@ export function ProvisionWizard({
           [...s.selected].filter((e) => res.numbers.some((n) => n.e164 === e)),
         ),
       }));
-      toast({ title: `${res.numbers.length} numbers available` });
+      toast({ title: `${res.numbers.length} numbers available`, tone: "info" });
     });
   }
 
@@ -278,7 +317,7 @@ export function ProvisionWizard({
       toast({
         title: "Cannot provision",
         description: validationIssues.map((i) => i.message).join("; "),
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -286,7 +325,7 @@ export function ProvisionWizard({
       toast({
         title: "Compliance missing",
         description: `${compliance.key?.toUpperCase()} registration is required before provisioning in ${state.country}.`,
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -296,7 +335,7 @@ export function ProvisionWizard({
         toast({
           title: "Provisioning failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
         return;
       }
@@ -304,6 +343,7 @@ export function ProvisionWizard({
         title: draft
           ? "Draft saved for admin approval"
           : `Provisioned ${res.ids.length} number${res.ids.length === 1 ? "" : "s"}`,
+        tone: "success",
       });
       // Optional test call after provisioning when voice is requested.
       if (
@@ -320,21 +360,24 @@ export function ProvisionWizard({
           toast({
             title: "Test call could not start",
             description: tc.error,
-            variant: "destructive",
+            tone: "danger",
           });
         } else {
-          toast({ title: "Test call queued (stub)" });
+          toast({ title: "Test call queued (stub)", tone: "info" });
         }
       }
       router.push("/sabsms/numbers");
     });
   }
 
+  const recommended = getRecommendedProvider(state.country);
+  const recommendedLabel = providers.find((p) => p.id === recommended.provider)?.label;
+
   // ─── Render ─────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
-      {/* Step 1 — Provider */}
+      {/* Step 1 - Provider */}
       <Card>
         <CardHeader>
           <CardTitle>Provider</CardTitle>
@@ -348,39 +391,51 @@ export function ProvisionWizard({
             <RadioGroup
               value={state.provider}
               onValueChange={(v) => patch({ provider: v as SabsmsProviderId })}
+              aria-label="Provider"
               className="grid gap-3 md:grid-cols-2 lg:grid-cols-3"
             >
               {providers.map((p) => (
-                <RadioCard
+                <label
                   key={p.id}
-                  value={p.id}
-                  label={
-                    <span className="flex items-center gap-2">
-                      {p.label}
-                      {!p.available && (
-                        <Badge variant="secondary">Phase 7</Badge>
-                      )}
-                    </span>
-                  }
-                  description={
+                  className={[
+                    "flex flex-col gap-1 rounded-[var(--st-radius)] border px-3 py-3 text-sm transition-colors",
                     p.available
+                      ? "cursor-pointer border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-accent)]"
+                      : "cursor-not-allowed border-[var(--st-border)] bg-[var(--st-bg-secondary)] opacity-60",
+                    state.provider === p.id ? "border-[var(--st-accent)]" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  <Radio
+                    value={p.id}
+                    disabled={!p.available}
+                    label={
+                      <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
+                        {p.label}
+                        {!p.available && (
+                          <Badge variant="secondary">Phase 7</Badge>
+                        )}
+                      </span>
+                    }
+                  />
+                  <span className="pl-6 text-xs text-[var(--st-text-secondary)]">
+                    {p.available
                       ? "Available now."
-                      : "Routing + provisioning ships in Phase 7."
-                  }
-                  disabled={!p.available}
-                />
+                      : "Routing + provisioning ships in Phase 7."}
+                  </span>
+                </label>
               ))}
             </RadioGroup>
-            <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]">
               <strong className="font-semibold">Auto-suggest: </strong>
-              {getRecommendedProvider(state.country).reason} (Recommended:{" "}
-              {providers.find(p => p.id === getRecommendedProvider(state.country).provider)?.label})
+              {recommended.reason} (Recommended: {recommendedLabel})
             </div>
           </div>
         </CardBody>
       </Card>
 
-      {/* Step 2 — Country + Type + Capabilities + Pattern */}
+      {/* Step 2 - Country + Type + Capabilities + Pattern */}
       <Card>
         <CardHeader>
           <CardTitle>Region and shape</CardTitle>
@@ -391,8 +446,7 @@ export function ProvisionWizard({
         </CardHeader>
         <CardBody className="space-y-5">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
+            <Field label="Country" id="country">
               <Select
                 value={state.country}
                 onValueChange={(v) => patch({ country: v })}
@@ -408,46 +462,58 @@ export function ProvisionWizard({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pattern">Area code / pattern</Label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-                <Input
-                  id="pattern"
-                  value={state.pattern}
-                  onChange={(e) => patch({ pattern: e.target.value })}
-                  placeholder="e.g. 415 or 1888"
-                  className="pl-8"
-                />
-              </div>
-            </div>
+            </Field>
+            <Field label="Area code / pattern" id="pattern">
+              <Input
+                id="pattern"
+                value={state.pattern}
+                onChange={(e) => patch({ pattern: e.target.value })}
+                placeholder="e.g. 415 or 1888"
+                iconLeft={Search}
+              />
+            </Field>
           </div>
 
           <RadioGroup
             value={state.type}
             onValueChange={(v) => patch({ type: v as SabsmsNumberType })}
+            aria-label="Number type"
             className="grid gap-3 md:grid-cols-2 lg:grid-cols-4"
           >
             {TYPE_OPTIONS.map((t) => (
-              <RadioCard
+              <label
                 key={t.value}
-                value={t.value}
-                label={t.label}
-                description={t.description}
-              />
+                className={[
+                  "flex cursor-pointer flex-col gap-1 rounded-[var(--st-radius)] border px-3 py-3 text-sm transition-colors hover:border-[var(--st-accent)]",
+                  state.type === t.value
+                    ? "border-[var(--st-accent)] bg-[var(--st-bg)]"
+                    : "border-[var(--st-border)] bg-[var(--st-bg)]",
+                ].join(" ")}
+              >
+                <Radio
+                  value={t.value}
+                  label={
+                    <span className="font-medium text-[var(--st-text)]">
+                      {t.label}
+                    </span>
+                  }
+                />
+                <span className="pl-6 text-xs text-[var(--st-text-secondary)]">
+                  {t.description}
+                </span>
+              </label>
             ))}
           </RadioGroup>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {(["sms", "mms", "rcs", "voice"] as const).map((cap) => (
+            {CAPS.map((cap) => (
               <label
                 key={cap}
-                className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm"
+                className="flex cursor-pointer items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 text-sm text-[var(--st-text)]"
               >
                 <Checkbox
                   checked={state.capabilities[cap]}
-                  onCheckedChange={() => toggleCapability(cap)}
+                  onChange={() => toggleCapability(cap)}
                   aria-label={`${cap} capability`}
                 />
                 <span className="uppercase tracking-wide">{cap}</span>
@@ -456,8 +522,11 @@ export function ProvisionWizard({
           </div>
 
           {state.type === "alphanumeric" && (
-            <div className="space-y-2">
-              <Label htmlFor="senderId">Default sender ID (alpha)</Label>
+            <Field
+              label="Default sender ID (alpha)"
+              id="senderId"
+              help="One-way only. Max 11 chars. Country support varies."
+            >
               <Input
                 id="senderId"
                 value={state.defaultSenderId}
@@ -465,22 +534,17 @@ export function ProvisionWizard({
                 placeholder="e.g. SABSMS"
                 maxLength={11}
               />
-              <p className="text-xs text-[var(--st-text)]">
-                One-way only. Max 11 chars. Country support varies.
-              </p>
-            </div>
+            </Field>
           )}
         </CardBody>
       </Card>
 
       {/* Compliance pre-check */}
       {compliance.required && (
-        <Alert variant={complianceMissing ? "destructive" : "success"}>
-          {complianceMissing ? (
-            <AlertTriangle aria-hidden />
-          ) : (
-            <ShieldCheck aria-hidden />
-          )}
+        <Alert
+          tone={complianceMissing ? "danger" : "success"}
+          icon={complianceMissing ? AlertTriangle : ShieldCheck}
+        >
           <AlertTitle>
             {compliance.key === "10dlc"
               ? "10DLC brand and campaign"
@@ -499,7 +563,7 @@ export function ProvisionWizard({
                   size="sm"
                   variant="outline"
                   onClick={() => setComplianceDialogOpen(true)}
-                  className="bg-white/50 w-fit"
+                  className="w-fit"
                 >
                   Start Registration
                 </Button>
@@ -509,13 +573,13 @@ export function ProvisionWizard({
         </Alert>
       )}
 
-      {/* Step 3 — Search results */}
+      {/* Step 3 - Search results */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div>
             <CardTitle>Available numbers</CardTitle>
             <CardDescription>
-              Phase 1 mock — the engine doesn{`’`}t expose
+              Phase 1 mock - the engine does not expose
               /v1/numbers/search yet. Results are deterministic per
               country + pattern.
             </CardDescription>
@@ -525,26 +589,23 @@ export function ProvisionWizard({
               type="button"
               variant="outline"
               onClick={runSearch}
-              disabled={searchPending}
+              loading={searchPending}
+              iconLeft={searchPending ? undefined : Search}
             >
-              {searchPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4" />
-              )}
-              <span className="ml-2">Search</span>
+              Search
             </Button>
           </div>
         </CardHeader>
         <CardBody>
           {available.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-[var(--st-text)]">
-              <Phone className="h-6 w-6 text-[var(--st-text-secondary)]" />
-              <div>No results yet — pick the shape above and search.</div>
-            </div>
+            <EmptyState
+              icon={Phone}
+              title="No results yet"
+              description="Pick the shape above and search."
+            />
           ) : (
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
+              <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
                 <div className="flex items-center gap-3">
                   <Button
                     type="button"
@@ -567,76 +628,70 @@ export function ProvisionWizard({
                   Selected {state.selected.size}/{available.length}
                 </div>
               </div>
-              <div className="overflow-hidden rounded-md border border-[var(--st-border)]">
-                <table className="w-full text-sm">
-                  <thead className="bg-[var(--st-bg-muted)] text-xs uppercase tracking-wide text-[var(--st-text)]">
-                    <tr>
-                      <th className="w-10 px-3 py-2"></th>
-                      <th className="px-3 py-2 text-left">Number</th>
-                      <th className="px-3 py-2 text-left">Country</th>
-                      <th className="px-3 py-2 text-left">Caps</th>
-                      <th className="px-3 py-2 text-right">Monthly cost</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+              <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th width={40} aria-label="Select" />
+                      <Th>Number</Th>
+                      <Th>Country</Th>
+                      <Th>Caps</Th>
+                      <Th align="right">Monthly cost</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {available.map((n) => {
                       const checked = state.selected.has(n.e164);
                       return (
-                        <tr
-                          key={n.e164}
-                          className={checked ? "bg-[var(--st-bg-muted)]/50" : undefined}
-                        >
-                          <td className="px-3 py-2">
+                        <Tr key={n.e164} selected={checked}>
+                          <Td>
                             <Checkbox
                               checked={checked}
-                              onCheckedChange={() => toggleSelected(n.e164)}
+                              onChange={() => toggleSelected(n.e164)}
                               aria-label={`Select ${n.e164}`}
                             />
-                          </td>
-                          <td className="px-3 py-2 font-mono">{n.e164}</td>
-                          <td className="px-3 py-2 text-xs">{n.country}</td>
-                          <td className="px-3 py-2">
+                          </Td>
+                          <Td className="font-mono">{n.e164}</Td>
+                          <Td className="text-xs">{n.country}</Td>
+                          <Td>
                             <div className="flex flex-wrap gap-1">
-                              {(["sms", "mms", "rcs", "voice"] as const)
-                                .filter((c) => n.capabilities[c])
-                                .map((c) => (
-                                  <Badge
-                                    key={c}
-                                    variant="secondary"
-                                    className="text-[10px] uppercase"
-                                  >
-                                    {c}
-                                  </Badge>
-                                ))}
+                              {CAPS.filter((c) => n.capabilities[c]).map((c) => (
+                                <Badge
+                                  key={c}
+                                  variant="secondary"
+                                  className="text-[10px] uppercase"
+                                >
+                                  {c}
+                                </Badge>
+                              ))}
                             </div>
-                          </td>
-                          <td className="px-3 py-2 text-right font-mono text-xs">
+                          </Td>
+                          <Td align="right" className="font-mono text-xs">
                             ${(n.monthlyCost / 100).toFixed(2)}/mo
-                          </td>
-                        </tr>
+                          </Td>
+                        </Tr>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TBody>
+                </Table>
               </div>
             </div>
           )}
         </CardBody>
       </Card>
 
-      {/* Step 4 — Assignment + webhook + footer + test call */}
+      {/* Step 4 - Assignment + webhook + footer + test call */}
       <Card>
         <CardHeader>
           <CardTitle>Assignment and defaults</CardTitle>
           <CardDescription>
-            Optional — these can be edited later from the number{`’`}s
-            detail page.
+            Optional - these can be edited later from the number detail
+            page.
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="campaign">Assign to campaign</Label>
+            <Field label="Assign to campaign" id="campaign">
               <Select
                 value={state.campaignId}
                 onValueChange={(v) => patch({ campaignId: v })}
@@ -653,9 +708,8 @@ export function ProvisionWizard({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="pool">Assign to sender pool</Label>
+            </Field>
+            <Field label="Assign to sender pool" id="pool">
               <Select
                 value={state.poolId}
                 onValueChange={(v) => patch({ poolId: v })}
@@ -671,33 +725,29 @@ export function ProvisionWizard({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="webhook">Webhook URL override</Label>
+          <Field label="Webhook URL override" id="webhook">
             <Input
               id="webhook"
               value={state.webhookUrlOverride}
-              onChange={(e) =>
-                patch({ webhookUrlOverride: e.target.value })
-              }
-              placeholder="https://… (leave blank to use workspace defaults)"
+              onChange={(e) => patch({ webhookUrlOverride: e.target.value })}
+              placeholder="https://... (leave blank to use workspace defaults)"
             />
-            <div className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text)]">
+            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text-secondary)]">
               <div className="font-medium text-[var(--st-text)]">
                 Auto-configured webhook preview
               </div>
               <ul className="mt-1 space-y-1 font-mono">
-                <li>Inbound — /api/sabsms/webhooks/twilio/inbound</li>
-                <li>DLR — /api/sabsms/webhooks/twilio/dlr</li>
-                <li>Voice — /api/sabsms/webhooks/twilio/voice (Phase 7)</li>
+                <li>Inbound - /api/sabsms/webhooks/twilio/inbound</li>
+                <li>DLR - /api/sabsms/webhooks/twilio/dlr</li>
+                <li>Voice - /api/sabsms/webhooks/twilio/voice (Phase 7)</li>
               </ul>
             </div>
-          </div>
+          </Field>
 
-          <div className="space-y-2">
-            <Label htmlFor="footer">Default footer policy</Label>
+          <Field label="Default footer policy" id="footer">
             <Textarea
               id="footer"
               rows={2}
@@ -705,37 +755,35 @@ export function ProvisionWizard({
               onChange={(e) => patch({ defaultFooter: e.target.value })}
               placeholder="Reply STOP to opt out. Msg&data rates may apply."
             />
-          </div>
+          </Field>
 
           {state.capabilities.voice && (
-            <div className="space-y-2">
-              <Label htmlFor="test-call">Test call (after provision)</Label>
+            <Field
+              label="Test call (after provision)"
+              id="test-call"
+              help="Engine does not support voice yet (Phase 7) - this queues an audit-log entry only."
+            >
               <Input
                 id="test-call"
                 value={state.testCallTarget}
                 onChange={(e) => patch({ testCallTarget: e.target.value })}
                 placeholder="+15555550100"
               />
-              <p className="text-xs text-[var(--st-text)]">
-                Engine doesn{`’`}t support voice yet (Phase 7) — this
-                queues an audit-log entry only.
-              </p>
-            </div>
+            </Field>
           )}
         </CardBody>
       </Card>
 
-      {/* Step 5 — Attestation */}
+      {/* Step 5 - Attestation */}
       <Card>
         <CardHeader>
           <CardTitle>Compliance attestation</CardTitle>
           <CardDescription>
-            Required — what is this number going to be used for?
+            Required - what is this number going to be used for?
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="usecase">Primary use case</Label>
+          <Field label="Primary use case" id="usecase">
             <Select
               value={state.useCase}
               onValueChange={(v) => patch({ useCase: v })}
@@ -751,11 +799,10 @@ export function ProvisionWizard({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </Field>
 
           {costCap && (
-            <Alert variant="destructive">
-              <AlertTriangle aria-hidden />
+            <Alert tone="danger" icon={AlertTriangle}>
               <AlertTitle>Cost cap warning</AlertTitle>
               <AlertDescription>
                 Estimated monthly cost{" "}
@@ -768,8 +815,7 @@ export function ProvisionWizard({
             </Alert>
           )}
 
-          <Alert variant="info">
-            <CheckCircle2 aria-hidden />
+          <Alert tone="info" icon={CheckCircle2}>
             <AlertTitle>Audit log</AlertTitle>
             <AlertDescription>
               Every provision (and every test call) writes an entry to{" "}
@@ -782,20 +828,20 @@ export function ProvisionWizard({
       </Card>
 
       {/* Sticky action bar */}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-md border border-[var(--st-border)] bg-white px-4 py-3 shadow-md">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3 shadow-md">
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <Badge variant="secondary">
-            <MapPin className="mr-1 h-3 w-3" />
+            <MapPin className="mr-1 h-3 w-3" aria-hidden="true" />
             {state.country} / {state.type}
           </Badge>
           <Badge variant="secondary">
             {state.selected.size} selected
           </Badge>
-          <span className="font-mono">
+          <span className="font-mono text-[var(--st-text)]">
             est. ${(monthlyCostEstimate / 100).toFixed(2)}/mo
           </span>
           {validationIssues.length > 0 && (
-            <span className="text-[var(--st-text)]">
+            <span className="text-[var(--st-danger)]">
               {validationIssues[0].message}
             </span>
           )}
@@ -813,13 +859,9 @@ export function ProvisionWizard({
             type="button"
             onClick={() => submitProvision(false)}
             disabled={!canProvision}
+            loading={provisionPending}
           >
-            {provisionPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : null}
-            <span className={provisionPending ? "ml-2" : undefined}>
-              Provision {state.selected.size > 0 ? state.selected.size : ""}
-            </span>
+            Provision {state.selected.size > 0 ? state.selected.size : ""}
           </Button>
         </div>
       </div>
@@ -833,15 +875,13 @@ export function ProvisionWizard({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Business Name</Label>
-              <Input placeholder="Acme Corp" />
-            </div>
-            <div className="space-y-2">
-              <Label>Tax ID / Registration Number</Label>
-              <Input placeholder="XX-XXXXXXX" />
-            </div>
-            <p className="text-xs text-[var(--st-text)]">
+            <Field label="Business Name" id="compliance-biz-name">
+              <Input id="compliance-biz-name" placeholder="Acme Corp" />
+            </Field>
+            <Field label="Tax ID / Registration Number" id="compliance-tax-id">
+              <Input id="compliance-tax-id" placeholder="XX-XXXXXXX" />
+            </Field>
+            <p className="text-xs text-[var(--st-text-secondary)]">
               This is a mock registration flow for Phase 1. Submitting will mark your workspace as compliant instantly.
             </p>
           </div>
@@ -853,8 +893,11 @@ export function ProvisionWizard({
             >
               Cancel
             </Button>
-            <Button onClick={handleRegisterCompliance} disabled={complianceMockLoading}>
-              {complianceMockLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button
+              onClick={handleRegisterCompliance}
+              disabled={complianceMockLoading}
+              loading={complianceMockLoading}
+            >
               Submit Registration
             </Button>
           </DialogFooter>

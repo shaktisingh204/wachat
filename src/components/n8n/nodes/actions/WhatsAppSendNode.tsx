@@ -1,8 +1,27 @@
 'use client';
 
-import { useState } from 'react';
-import { LuSend, LuPlus, LuX, LuImage, LuFileText, LuHash } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Send, Plus, X, Image as ImageIcon, FileText, Hash } from 'lucide-react';
+
+import {
+  Button,
+  IconButton,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
+  Input,
+  Textarea,
+  Switch,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  cn,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -73,103 +92,89 @@ const TEMPLATE_LANGUAGES = [
 ];
 
 const MESSAGE_TYPES: { type: WaMessageType; label: string; icon: React.ReactNode }[] = [
-  { type: 'text',        label: 'Text',        icon: <LuHash className="h-3.5 w-3.5" strokeWidth={2} /> },
-  { type: 'template',    label: 'Template',    icon: <LuFileText className="h-3.5 w-3.5" strokeWidth={2} /> },
-  { type: 'image',       label: 'Image',       icon: <LuImage className="h-3.5 w-3.5" strokeWidth={2} /> },
-  { type: 'document',    label: 'Document',    icon: <LuFileText className="h-3.5 w-3.5" strokeWidth={2} /> },
-  { type: 'audio',       label: 'Audio',       icon: <LuHash className="h-3.5 w-3.5" strokeWidth={2} /> },
-  { type: 'video',       label: 'Video',       icon: <LuImage className="h-3.5 w-3.5" strokeWidth={2} /> },
+  { type: 'text',        label: 'Text',        icon: <Hash className="h-3.5 w-3.5" aria-hidden="true" /> },
+  { type: 'template',    label: 'Template',    icon: <FileText className="h-3.5 w-3.5" aria-hidden="true" /> },
+  { type: 'image',       label: 'Image',       icon: <ImageIcon className="h-3.5 w-3.5" aria-hidden="true" /> },
+  { type: 'document',    label: 'Document',    icon: <FileText className="h-3.5 w-3.5" aria-hidden="true" /> },
+  { type: 'audio',       label: 'Audio',       icon: <Hash className="h-3.5 w-3.5" aria-hidden="true" /> },
+  { type: 'video',       label: 'Video',       icon: <ImageIcon className="h-3.5 w-3.5" aria-hidden="true" /> },
 ];
 
 /* ── Component ───────────────────────────────────────────── */
 
 export function WhatsAppSendNode({ config, onChange, className }: WhatsAppSendNodeProps) {
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('ui20 space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]">
-          <LuSend className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
+          <Send className="h-4 w-4" aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Send WhatsApp Message</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Send a message via WhatsApp Business API</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Send WhatsApp Message</p>
+          <p className="text-[11px] text-[var(--st-text-tertiary)]">Send a message via WhatsApp Business API</p>
         </div>
       </div>
 
       {/* To */}
-      <div className="space-y-1.5">
-        <Label>To (phone number)</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="To (phone number)" help="E.164 format or a variable referencing one">
+        <Input
           value={config.to}
           onChange={(e) => onChange({ ...config, to: e.target.value })}
           placeholder="+919876543210 or {{contact.phone}}"
         />
-        <p className="text-[11px] text-[var(--gray-9)]">
-          E.164 format or a variable referencing one
-        </p>
-      </div>
+      </Field>
 
       {/* From phone number ID */}
-      <div className="space-y-1.5">
-        <Label>From Phone Number ID (optional)</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="From Phone Number ID (optional)">
+        <Input
           value={config.fromPhoneNumberId}
           onChange={(e) => onChange({ ...config, fromPhoneNumberId: e.target.value })}
           placeholder="Leave empty to use default"
         />
-      </div>
+      </Field>
 
       {/* Message type */}
-      <div className="space-y-1.5">
-        <Label>Message Type</Label>
+      <Field label="Message Type">
         <div className="grid grid-cols-3 gap-1.5">
           {MESSAGE_TYPES.map(({ type, label, icon }) => (
-            <button
+            <Button
               key={type}
-              type="button"
+              variant={config.messageType === type ? 'primary' : 'outline'}
               onClick={() => onChange({ ...config, messageType: type })}
-              className={cn(
-                'flex flex-col items-center gap-1 rounded-lg border py-2 px-1 text-[11px] font-medium transition-colors',
-                config.messageType === type
-                  ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/8 text-[var(--st-text-secondary)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
-              )}
+              className="flex-col gap-1 py-2 text-[11px]"
             >
               {icon}
               {label}
-            </button>
+            </Button>
           ))}
         </div>
-      </div>
+      </Field>
 
       {/* Text message */}
       {config.messageType === 'text' && (
         <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label>Message Body</Label>
-            <textarea
-              className={cn(INPUT_CLS, 'min-h-[100px] resize-y')}
+          <Field
+            label="Message Body"
+            help="Use {{variable}} for dynamic values. Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~"
+          >
+            <Textarea
+              rows={4}
+              className="min-h-[100px] resize-y"
               value={config.text.body}
               onChange={(e) => onChange({ ...config, text: { ...config.text, body: e.target.value } })}
               placeholder="Hello {{contact.name}}, your order {{order.id}} is confirmed!"
             />
-            <p className="text-[11px] text-[var(--gray-9)]">
-              Use {`{{variable}}`} for dynamic values. Supports WhatsApp formatting: *bold*, _italic_, ~strikethrough~
-            </p>
-          </div>
-          <div className="flex items-center justify-between rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+          </Field>
+          <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
             <div>
-              <p className="text-[12.5px] font-medium text-[var(--gray-12)]">Preview URL</p>
-              <p className="text-[11px] text-[var(--gray-9)]">Show link preview if body contains a URL</p>
+              <p className="text-[12.5px] font-medium text-[var(--st-text)]">Preview URL</p>
+              <p className="text-[11px] text-[var(--st-text-tertiary)]">Show link preview if body contains a URL</p>
             </div>
-            <Toggle
+            <Switch
               checked={config.text.previewUrl}
-              onChange={(v) => onChange({ ...config, text: { ...config.text, previewUrl: v } })}
+              onCheckedChange={(v) => onChange({ ...config, text: { ...config.text, previewUrl: v } })}
+              aria-label="Toggle link preview"
             />
           </div>
         </div>
@@ -186,22 +191,19 @@ export function WhatsAppSendNode({ config, onChange, className }: WhatsAppSendNo
       )}
 
       {/* Output */}
-      <div className="space-y-1.5">
-        <Label>Save Result to Variable</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="Save Result to Variable">
+        <Input
           value={config.outputVariable}
           onChange={(e) => onChange({ ...config, outputVariable: e.target.value })}
           placeholder="{{waResult}}"
         />
-      </div>
+      </Field>
 
       <OutputSchema
-        accent="#25d366"
+        accent="var(--st-status-ok)"
         fields={[
           { key: 'messageId', type: 'string', description: 'Meta WABA message ID' },
-          { key: 'status',    type: 'string', description: 'sent | queued | failed' },
+          { key: 'status',    type: 'string', description: 'sent, queued, or failed' },
           { key: 'to',        type: 'string', description: 'Recipient phone number' },
           { key: 'timestamp', type: 'string', description: 'ISO-8601 send time' },
         ]}
@@ -250,81 +252,82 @@ function TemplateEditor({ config, onChange }: WhatsAppSendNodeProps) {
 
   return (
     <div className="space-y-3">
-      <div className="space-y-1.5">
-        <Label>Template Name</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="Template Name">
+        <Input
           value={tpl.name}
           onChange={(e) => onChange({ ...config, template: { ...tpl, name: e.target.value } })}
           placeholder="order_confirmation"
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label>Language</Label>
-        <select
-          className={INPUT_CLS}
+      <Field label="Language">
+        <Select
           value={tpl.languageCode}
-          onChange={(e) => onChange({ ...config, template: { ...tpl, languageCode: e.target.value } })}
+          onValueChange={(v) => onChange({ ...config, template: { ...tpl, languageCode: v } })}
         >
-          {TEMPLATE_LANGUAGES.map((l) => (
-            <option key={l.code} value={l.code}>{l.label} ({l.code})</option>
-          ))}
-        </select>
-      </div>
+          <SelectTrigger aria-label="Template language">
+            <SelectValue placeholder="Select a language" />
+          </SelectTrigger>
+          <SelectContent>
+            {TEMPLATE_LANGUAGES.map((l) => (
+              <SelectItem key={l.code} value={l.code}>{l.label} ({l.code})</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
 
       {/* Components */}
-      <div className="space-y-2">
-        <Label>Template Components</Label>
-        {tpl.components.map((comp, ci) => (
-          <div key={ci} className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] font-semibold text-[var(--gray-11)] capitalize">{comp.type}</span>
-              <button
-                type="button"
-                onClick={() => removeComponent(ci)}
-                className="flex h-5 w-5 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
+      <Field label="Template Components">
+        <div className="space-y-2">
+          {tpl.components.map((comp, ci) => (
+            <Card key={ci} variant="outlined" padding="sm" className="space-y-2 bg-[var(--st-bg-secondary)]">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-semibold capitalize text-[var(--st-text-secondary)]">{comp.type}</span>
+                <IconButton
+                  label={`Remove ${comp.type} component`}
+                  icon={X}
+                  size="sm"
+                  onClick={() => removeComponent(ci)}
+                />
+              </div>
+
+              {comp.parameters.map((p, pi) => (
+                <Input
+                  key={pi}
+                  value={p.text ?? ''}
+                  onChange={(e) => updateParamText(ci, pi, e.target.value)}
+                  placeholder={`{{param${pi + 1}}}`}
+                />
+              ))}
+
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={Plus}
+                onClick={() => addParam(ci)}
+                className="text-[11.5px]"
               >
-                <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-              </button>
-            </div>
-
-            {comp.parameters.map((p, pi) => (
-              <input
-                key={pi}
-                type="text"
-                className={INPUT_CLS}
-                value={p.text ?? ''}
-                onChange={(e) => updateParamText(ci, pi, e.target.value)}
-                placeholder={`{{param${pi + 1}}}`}
-              />
-            ))}
-
-            <button
-              type="button"
-              onClick={() => addParam(ci)}
-              className="flex items-center gap-1 text-[11.5px] text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-            >
-              <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
-              Add parameter
-            </button>
-          </div>
-        ))}
-
-        <div className="flex gap-1.5">
-          {(['header', 'body', 'button'] as TemplateComponent['type'][]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => addComponent(t)}
-              className="flex-1 rounded-lg border border-dashed border-[var(--gray-5)] py-1.5 text-[11.5px] text-[var(--gray-9)] hover:border-[var(--gray-7)] hover:text-[var(--gray-12)] transition-colors capitalize"
-            >
-              + {t}
-            </button>
+                Add parameter
+              </Button>
+            </Card>
           ))}
+
+          <div className="flex gap-1.5">
+            {(['header', 'body', 'button'] as TemplateComponent['type'][]).map((t) => (
+              <Button
+                key={t}
+                variant="outline"
+                size="sm"
+                block
+                onClick={() => addComponent(t)}
+                className="flex-1 capitalize"
+              >
+                + {t}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
+      </Field>
     </div>
   );
 }
@@ -335,91 +338,59 @@ function MediaEditor({ config, onChange }: WhatsAppSendNodeProps) {
   const media = config.media;
   return (
     <div className="space-y-3">
-      <div className="space-y-1.5">
-        <Label>Media URL or ID</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field label="Media File" help="Pick from your SabFiles library or upload a new file.">
+        <SabFileUrlInput
           value={media.source}
-          onChange={(e) => onChange({ ...config, media: { ...media, source: e.target.value } })}
-          placeholder="https://example.com/image.jpg or {{media.id}}"
+          onChange={(value) => onChange({ ...config, media: { ...media, source: value } })}
+          accept={config.messageType === 'document' ? 'document' : config.messageType === 'image' ? 'image' : config.messageType === 'video' ? 'video' : 'audio'}
+          pickerTitle="Choose media"
+          placeholder="No media chosen"
         />
-      </div>
+      </Field>
 
       {config.messageType !== 'audio' && (
-        <div className="space-y-1.5">
-          <Label>Caption (optional)</Label>
-          <input
-            type="text"
-            className={INPUT_CLS}
+        <Field label="Caption (optional)">
+          <Input
             value={media.caption}
             onChange={(e) => onChange({ ...config, media: { ...media, caption: e.target.value } })}
-            placeholder="Caption text…"
+            placeholder="Caption text..."
           />
-        </div>
+        </Field>
       )}
 
       {config.messageType === 'document' && (
-        <div className="space-y-1.5">
-          <Label>Filename</Label>
-          <input
-            type="text"
-            className={INPUT_CLS}
+        <Field label="Filename">
+          <Input
             value={media.filename}
             onChange={(e) => onChange({ ...config, media: { ...media, filename: e.target.value } })}
             placeholder="invoice.pdf"
           />
-        </div>
+        </Field>
       )}
     </div>
   );
 }
 
-/* ── Shared primitives ───────────────────────────────────── */
-
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-5 w-9 rounded-full transition-colors',
-        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-      )}
-    >
-      <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
-  );
-}
+/* ── Output schema preview ───────────────────────────────── */
 
 type OutputField = { key: string; type: string; description: string };
 
 function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[] }) {
   return (
-    <div className="space-y-1.5">
-      <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+    <Card variant="outlined" padding="none">
+      <CardHeader className="px-3 pt-3">
+        <CardTitle className="text-[12px]">Output</CardTitle>
+        <CardDescription className="text-[11px]">Fields written by this step.</CardDescription>
+      </CardHeader>
+      <CardBody className="divide-y divide-[var(--st-border)] p-0">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] text-[11.5px] font-mono font-medium" style={{ color: accent }}>{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
+            <code className="min-w-[90px] font-mono text-[11.5px] font-medium" style={{ color: accent }}>{f.key}</code>
+            <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text-tertiary)]">{f.type}</span>
+            <span className="flex-1 truncate text-[11px] text-[var(--st-text-tertiary)]">{f.description}</span>
           </div>
         ))}
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

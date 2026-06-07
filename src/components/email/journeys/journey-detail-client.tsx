@@ -5,14 +5,30 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
+  ArrowRight,
   BarChart3,
   GitBranch,
+  Inbox,
   Pause,
   Play,
   Save,
   Settings,
 } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, Skeleton, StatCard, Textarea, cn, toast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  SegmentedControl,
+  Skeleton,
+  StatCard,
+  Textarea,
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   actionActivateEmailJourney,
   actionGetEmailJourney,
@@ -31,12 +47,19 @@ import { InspectorPanel } from './canvas/inspector-panel';
 
 type TabKey = 'canvas' | 'settings' | 'report';
 
-const STATUS_VARIANTS: Record<EmailJourneyStatus, 'default' | 'secondary' | 'outline'> = {
-  draft:    'outline',
-  active:   'default',
-  paused:   'secondary',
-  archived: 'outline',
+// Status colour carries meaning: live (success), paused (warning), the rest neutral.
+const STATUS_TONES: Record<EmailJourneyStatus, BadgeTone> = {
+  draft: 'neutral',
+  active: 'success',
+  paused: 'warning',
+  archived: 'neutral',
 };
+
+const TAB_ITEMS = [
+  { value: 'canvas' as const, label: 'Canvas', icon: GitBranch },
+  { value: 'settings' as const, label: 'Settings', icon: Settings },
+  { value: 'report' as const, label: 'Report', icon: BarChart3 },
+];
 
 interface JourneyDetailClientProps {
   journeyId: string;
@@ -44,12 +67,13 @@ interface JourneyDetailClientProps {
 
 export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [journey, setJourney] = useState<EmailJourneyDoc | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<TabKey>('canvas');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // Local editable state — keeps the canvas snappy without round-tripping.
+  // Local editable state. Keeps the canvas snappy without round-tripping.
   const [nodes, setNodes] = useState<EmailJourneyNode[]>([]);
   const [edges, setEdges] = useState<EmailJourneyEdge[]>([]);
   const [name, setName] = useState('');
@@ -63,7 +87,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
     setLoading(true);
     const r = await actionGetEmailJourney(journeyId);
     if (!r.ok) {
-      toast({ title: 'Failed to load journey', description: r.error, variant: 'destructive' });
+      toast.error({ title: 'Failed to load journey', description: r.error });
       setLoading(false);
       return;
     }
@@ -75,7 +99,7 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
     setDirty(false);
     lastLoadedAt.current = Date.now();
     setLoading(false);
-  }, [journeyId]);
+  }, [journeyId, toast]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 
@@ -103,8 +127,8 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
         nodes,
         edges,
       });
-      if (!r.ok) { toast({ title: 'Save failed', description: r.error, variant: 'destructive' }); return; }
-      toast({ title: 'Journey saved' });
+      if (!r.ok) { toast.error({ title: 'Save failed', description: r.error }); return; }
+      toast.success('Journey saved');
       setJourney(r.data);
       setDirty(false);
     });
@@ -112,34 +136,36 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
 
   const activate = async () => {
     const r = await actionActivateEmailJourney(journeyId);
-    if (!r.ok) { toast({ title: 'Activate failed', description: r.error, variant: 'destructive' }); return; }
-    toast({ title: 'Journey activated' });
+    if (!r.ok) { toast.error({ title: 'Activate failed', description: r.error }); return; }
+    toast.success('Journey activated');
     setJourney(r.data);
   };
 
   const pause = async () => {
     const r = await actionPauseEmailJourney(journeyId);
-    if (!r.ok) { toast({ title: 'Pause failed', description: r.error, variant: 'destructive' }); return; }
-    toast({ title: 'Journey paused' });
+    if (!r.ok) { toast.error({ title: 'Pause failed', description: r.error }); return; }
+    toast.success('Journey paused');
     setJourney(r.data);
   };
 
   if (loading || !journey) {
-    return <Skeleton className="h-96 w-full" />;
+    return <Skeleton height="24rem" width="100%" />;
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/email/journeys')} aria-label="Back">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+          <IconButton
+            label="Back to journeys"
+            icon={ArrowLeft}
+            onClick={() => router.push('/dashboard/email/journeys')}
+          />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="truncate text-lg font-semibold">{journey.name}</h1>
-              <Badge variant={STATUS_VARIANTS[journey.status]}>{journey.status}</Badge>
-              {dirty ? <Badge variant="secondary">Unsaved</Badge> : null}
+              <h1 className="truncate text-lg font-semibold text-[var(--st-text)]">{journey.name}</h1>
+              <Badge tone={STATUS_TONES[journey.status]}>{journey.status}</Badge>
+              {dirty ? <Badge tone="accent">Unsaved</Badge> : null}
             </div>
             {journey.description ? (
               <p className="text-xs text-[var(--st-text-secondary)] line-clamp-1">{journey.description}</p>
@@ -148,40 +174,30 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
         </div>
         <div className="flex items-center gap-2">
           {journey.status === 'active' ? (
-            <Button variant="outline" onClick={pause}>
-              <Pause className="h-4 w-4" /> Pause
+            <Button variant="outline" iconLeft={Pause} onClick={pause}>
+              Pause
             </Button>
           ) : (
-            <Button variant="outline" onClick={activate}>
-              <Play className="h-4 w-4" /> Activate
+            <Button variant="outline" iconLeft={Play} onClick={activate}>
+              Activate
             </Button>
           )}
-          <Button onClick={save} disabled={saving || !dirty}>
-            <Save className="h-4 w-4" /> {saving ? 'Saving…' : 'Save'}
+          <Button variant="primary" iconLeft={Save} onClick={save} loading={saving} disabled={!dirty}>
+            {saving ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>
 
-      {/* Segmented button group — intentionally NOT the Tabs primitive. */}
-      <div
-        role="tablist"
+      <SegmentedControl
         aria-label="Journey view"
-        className="inline-flex items-center rounded-lg border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-1"
-      >
-        <SegmentedButton active={tab === 'canvas'}   onClick={() => setTab('canvas')}>
-          <GitBranch className="h-4 w-4" /> Canvas
-        </SegmentedButton>
-        <SegmentedButton active={tab === 'settings'} onClick={() => setTab('settings')}>
-          <Settings className="h-4 w-4" /> Settings
-        </SegmentedButton>
-        <SegmentedButton active={tab === 'report'}   onClick={() => setTab('report')}>
-          <BarChart3 className="h-4 w-4" /> Report
-        </SegmentedButton>
-      </div>
+        items={TAB_ITEMS}
+        value={tab}
+        onChange={setTab}
+      />
 
       {tab === 'canvas' ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <Card className="p-6 overflow-x-auto">
+          <Card padding="lg" className="overflow-x-auto">
             <JourneyCanvas
               nodes={nodes}
               edges={edges}
@@ -196,24 +212,30 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
       ) : null}
 
       {tab === 'settings' ? (
-        <Card className="p-6 space-y-4 max-w-xl">
-          <div className="space-y-1">
-            <Label htmlFor="j-name">Name</Label>
-            <Input id="j-name" value={name} onChange={(e) => { setName(e.target.value); setDirty(true); }} />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="j-desc">Description</Label>
-            <Textarea id="j-desc" rows={4} value={description} onChange={(e) => { setDescription(e.target.value); setDirty(true); }} />
-          </div>
+        <Card padding="lg" className="space-y-4 max-w-xl">
+          <Field label="Name">
+            <Input
+              value={name}
+              onChange={(e) => { setName(e.target.value); setDirty(true); }}
+            />
+          </Field>
+          <Field label="Description">
+            <Textarea
+              rows={4}
+              value={description}
+              onChange={(e) => { setDescription(e.target.value); setDirty(true); }}
+            />
+          </Field>
           <p className="text-xs text-[var(--st-text-secondary)]">
-            Re-entry policy and trigger detail edits live on the trigger node — open the Canvas tab and pick the trigger step.
+            Re-entry policy and trigger detail edits live on the trigger node. Open the Canvas tab and pick the trigger step.
           </p>
           <div>
             <Link
               href={`/dashboard/email/journeys/${journeyId}#runs`}
-              className="text-sm text-[var(--st-accent)] hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-[var(--st-accent)] hover:underline"
             >
-              View enrolment runs →
+              View enrolment runs
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
           </div>
         </Card>
@@ -224,34 +246,8 @@ export function JourneyDetailClient({ journeyId }: JourneyDetailClientProps) {
   );
 }
 
-function SegmentedButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onClick}
-      className={cn(
-        'inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition',
-        active
-          ? 'bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-sm'
-          : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
 function ReportTab({ journeyId }: { journeyId: string }) {
+  const { toast } = useToast();
   const [report, setReport] = useState<EmailJourneyReport | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -261,7 +257,7 @@ function ReportTab({ journeyId }: { journeyId: string }) {
       const r = await actionGetEmailJourneyReport(journeyId);
       if (cancelled) return;
       if (!r.ok) {
-        toast({ title: 'Failed to load report', description: r.error, variant: 'destructive' });
+        toast.error({ title: 'Failed to load report', description: r.error });
         setLoading(false);
         return;
       }
@@ -269,9 +265,9 @@ function ReportTab({ journeyId }: { journeyId: string }) {
       setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [journeyId]);
+  }, [journeyId, toast]);
 
-  if (loading) return <Skeleton className="h-48 w-full" />;
+  if (loading) return <Skeleton height="12rem" width="100%" />;
   if (!report) return null;
 
   return (
@@ -285,18 +281,23 @@ function ReportTab({ journeyId }: { journeyId: string }) {
         <StatCard label="Errored"   value={report.errored.toLocaleString()} />
       </div>
 
-      <Card className="p-4">
-        <p className="text-sm font-medium mb-3">Per-node breakdown</p>
+      <Card padding="md">
+        <p className="text-sm font-medium mb-3 text-[var(--st-text)]">Per-node breakdown</p>
         {Object.keys(report.perNode).length === 0 ? (
-          <p className="text-sm text-[var(--st-text-secondary)]">No node-level data yet — runs haven't accumulated.</p>
+          <EmptyState
+            icon={Inbox}
+            size="sm"
+            title="No node-level data yet"
+            description="Runs have not accumulated. Once contacts enter this journey, per-node counts appear here."
+          />
         ) : (
           <ul className="divide-y divide-[var(--st-border)]">
             {Object.entries(report.perNode).map(([nodeId, stats]) => (
               <li key={nodeId} className="flex items-center justify-between py-2 text-sm">
-                <span className="font-mono text-xs">{nodeId}</span>
+                <span className="font-mono text-xs text-[var(--st-text)]">{nodeId}</span>
                 <span className="text-[var(--st-text-secondary)]">
                   {stats.trueCount !== undefined || stats.falseCount !== undefined
-                    ? `true: ${stats.trueCount ?? 0} · false: ${stats.falseCount ?? 0}`
+                    ? `true: ${stats.trueCount ?? 0}, false: ${stats.falseCount ?? 0}`
                     : `count: ${stats.count ?? 0}`}
                 </span>
               </li>

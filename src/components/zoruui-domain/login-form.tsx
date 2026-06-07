@@ -1,19 +1,29 @@
 'use client';
 
-import { Button, Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Alert, AlertDescription, AlertTitle, useToast } from '@/components/sabcrm/20ui';
 import {
-  useRouter,
-  useSearchParams } from 'next/navigation';
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Field,
+  IconButton,
+  Input,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
-    signInWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  } from 'firebase/auth';
-import { AlertCircle,
-  Eye,
-  EyeOff,
-  LoaderCircle } from 'lucide-react';
+} from 'firebase/auth';
+import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
 import React from 'react';
 import Link from 'next/link';
@@ -23,7 +33,7 @@ import { consumePendingInviteToken } from '@/app/actions/team.actions';
 
 /**
  * Best-effort coarse location. We no longer BLOCK sign-in when the user
- * denies the prompt — location is useful for the admin analytics dashboard
+ * denies the prompt. Location is useful for the admin analytics dashboard
  * but not required to authenticate.
  */
 function useBestEffortLocation() {
@@ -110,9 +120,15 @@ async function postTwoFa(code: string): Promise<void> {
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
     return (
-        <Button type="submit" className="w-full h-11 text-base" disabled={isPending}>
+        <Button
+            type="submit"
+            variant="primary"
+            block
+            className="h-11 text-base"
+            disabled={isPending}
+        >
             {isPending ? (
-                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
             ) : null}
             Sign in
         </Button>
@@ -246,6 +262,7 @@ export function LoginForm() {
                                 toast({
                                     title: 'Code resent',
                                     description: 'Check your inbox for a new 6-digit code.',
+                                    tone: 'success',
                                 });
                             }
                         } catch (err) {
@@ -255,7 +272,7 @@ export function LoginForm() {
                                     err instanceof Error
                                         ? err.message
                                         : 'Please try again.',
-                                variant: 'destructive',
+                                tone: 'danger',
                             });
                         }
                     });
@@ -265,7 +282,10 @@ export function LoginForm() {
     }
 
     return (
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm">
+        <Card
+            variant="elevated"
+            className="w-full max-w-md rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm"
+        >
             <form onSubmit={handleLogin} noValidate>
                 <CardHeader className="space-y-2">
                     <CardTitle className="text-2xl font-bold font-headline">
@@ -279,15 +299,13 @@ export function LoginForm() {
 
                 <CardBody className="space-y-5">
                     {error && (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
+                        <Alert tone="danger" icon={AlertCircle}>
                             <AlertTitle>Sign-in failed</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
 
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                    <Field label="Email">
                         <Input
                             id="email"
                             name="email"
@@ -297,11 +315,16 @@ export function LoginForm() {
                             required
                             disabled={isPending}
                         />
-                    </div>
+                    </Field>
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password">Password</Label>
+                            <label
+                                htmlFor="password"
+                                className="text-sm font-medium text-[var(--st-text)]"
+                            >
+                                Password
+                            </label>
                             <Link
                                 href="/forgot-password"
                                 className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
@@ -314,28 +337,20 @@ export function LoginForm() {
                                 id="password"
                                 name="password"
                                 type={showPassword ? 'text' : 'password'}
-                                placeholder="••••••••"
+                                placeholder="Enter your password"
                                 autoComplete="current-password"
                                 required
                                 disabled={isPending}
                                 className="pr-10"
                             />
-                            <button
-                                type="button"
+                            <IconButton
+                                label={showPassword ? 'Hide password' : 'Show password'}
+                                icon={showPassword ? EyeOff : Eye}
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setShowPassword((v) => !v)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                                aria-label={
-                                    showPassword
-                                        ? 'Hide password'
-                                        : 'Show password'
-                                }
-                            >
-                                {showPassword ? (
-                                    <EyeOff className="h-4 w-4" />
-                                ) : (
-                                    <Eye className="h-4 w-4" />
-                                )}
-                            </button>
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2"
+                            />
                         </div>
                     </div>
 
@@ -343,7 +358,7 @@ export function LoginForm() {
 
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
+                            <span className="w-full border-t border-[var(--st-border)]" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-[var(--st-bg-secondary)] px-2 text-[var(--st-text-secondary)]">
@@ -466,7 +481,7 @@ function TwoFaPanel(props: {
     );
 
     // Auto-submit when the user has typed all 6 digits of a TOTP / email code.
-    // Backup codes are 10 chars and not numeric — require explicit submit.
+    // Backup codes are 10 chars and not numeric, so they require explicit submit.
     React.useEffect(() => {
         if (modeRef.current !== 'code') return;
         if (code.length === 6 && /^[0-9]{6}$/.test(code) && !isPending) {
@@ -493,7 +508,10 @@ function TwoFaPanel(props: {
               : 'Open your authenticator app and enter the 6-digit code.';
 
     return (
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm">
+        <Card
+            variant="elevated"
+            className="w-full max-w-md rounded-2xl border-[var(--st-border)]/40 backdrop-blur-sm"
+        >
             <form onSubmit={handleSubmit} noValidate>
                 <CardHeader className="space-y-2">
                     <CardTitle className="text-2xl font-bold font-headline">
@@ -504,17 +522,13 @@ function TwoFaPanel(props: {
 
                 <CardBody className="space-y-5">
                     {error && (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
+                        <Alert tone="danger" icon={AlertCircle}>
                             <AlertTitle>Verification failed</AlertTitle>
                             <AlertDescription>{error}</AlertDescription>
                         </Alert>
                     )}
 
-                    <div className="space-y-2">
-                        <Label htmlFor="two-fa-code">
-                            {mode === 'backup' ? 'Backup code' : 'Verification code'}
-                        </Label>
+                    <Field label={mode === 'backup' ? 'Backup code' : 'Verification code'}>
                         <Input
                             ref={inputRef}
                             id="two-fa-code"
@@ -537,23 +551,26 @@ function TwoFaPanel(props: {
                             required
                             className="text-center tracking-[0.4em] text-lg"
                         />
-                    </div>
+                    </Field>
 
                     <Button
                         type="submit"
-                        className="w-full h-11 text-base"
+                        variant="primary"
+                        block
+                        className="h-11 text-base"
                         disabled={isPending || code.trim().length === 0}
                     >
                         {isPending ? (
-                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                         ) : null}
                         Verify
                     </Button>
 
                     <div className="flex flex-col items-center gap-2 text-sm">
-                        <button
+                        <Button
                             type="button"
-                            className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] underline-offset-4 hover:underline"
+                            variant="ghost"
+                            size="sm"
                             onClick={() => {
                                 setMode((m) => (m === 'code' ? 'backup' : 'code'));
                                 setCode('');
@@ -564,30 +581,32 @@ function TwoFaPanel(props: {
                             {mode === 'code'
                                 ? 'Use backup code instead'
                                 : 'Use 6-digit code instead'}
-                        </button>
+                        </Button>
 
                         {challenge.method === 'email' && mode === 'code' && (
-                            <button
+                            <Button
                                 type="button"
-                                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] underline-offset-4 hover:underline"
+                                variant="ghost"
+                                size="sm"
                                 onClick={onResend}
                                 disabled={isPending}
                             >
                                 Resend email code
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </CardBody>
 
                 <CardFooter className="justify-center">
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={onCancel}
                         disabled={isPending}
-                        className="text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
                     >
                         Cancel and return to sign in
-                    </button>
+                    </Button>
                 </CardFooter>
             </form>
         </Card>
@@ -596,7 +615,7 @@ function TwoFaPanel(props: {
 
 function GoogleIcon() {
     return (
-        <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+        <svg role="img" aria-hidden="true" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
             <path
                 fill="currentColor"
                 d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.08-2.58 1.98-4.48 1.98-3.79 0-7.17-3.22-7.17-7.22s3.38-7.22 7.17-7.22c2.23 0 3.63.92 4.48 1.75l2.72-2.72C19.62 3.39 16.67 2 12.48 2 7.01 2 2.56 6.18 2.56 12s4.45 10 9.92 10c2.79 0 5.1-1 6.88-2.84 1.92-1.92 2.58-4.75 2.58-7.17 0-.66-.07-1.32-.19-1.98z"
@@ -607,7 +626,7 @@ function GoogleIcon() {
 
 function FacebookIcon() {
     return (
-        <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+        <svg role="img" aria-hidden="true" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
             <path
                 fill="currentColor"
                 d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.732 0 1.325-.593 1.325-1.325V1.325C24 .593 23.407 0 22.675 0z"

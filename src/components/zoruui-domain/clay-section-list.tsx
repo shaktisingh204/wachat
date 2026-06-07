@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { LuGripVertical } from 'react-icons/lu';
+import { GripVertical, ListTree } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 
 export interface ClaySectionListItem {
@@ -14,43 +16,60 @@ export interface ClaySectionListItem {
 export interface ClaySectionListProps
   extends React.HTMLAttributes<HTMLDivElement> {
   items: ClaySectionListItem[];
+  /** Copy shown when there are no items. */
+  emptyTitle?: React.ReactNode;
+  emptyDescription?: React.ReactNode;
 }
 
 /**
- * ClaySectionList — semantic <ul> of selectable section rows. Each
- * row uses shadcn surface classes (`bg-[var(--st-bg-secondary)]`, `hover:bg-[var(--st-bg-muted)]`)
- * and surfaces a drag-handle affordance on the right edge.
+ * ClaySectionList - a vertical list of selectable section rows built on the
+ * 20ui Button. Each row is a ghost, full-width pressable that lays out its
+ * title + optional meta on the left and surfaces a drag-handle affordance on
+ * the right edge. Falls back to a 20ui EmptyState when there are no items.
  */
 export function ClaySectionList({
   items,
+  emptyTitle = 'No sections yet',
+  emptyDescription = 'Add a section to start organizing this layout.',
   className,
   ...props
 }: ClaySectionListProps) {
+  if (items.length === 0) {
+    return (
+      <div className={cn('flex flex-col gap-2', className)} {...props}>
+        <EmptyState
+          size="sm"
+          icon={ListTree}
+          title={emptyTitle}
+          description={emptyDescription}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={cn('flex flex-col gap-2', className)} {...props}>
-      <ul className="flex flex-col gap-2 m-0 p-0 list-none">
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
         {items.map((item) => (
           <li key={item.key}>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              block
               onClick={item.onClick}
-              className="group flex w-full items-center justify-between gap-3 rounded-lg bg-[var(--st-bg-secondary)] px-3.5 py-3 text-left transition-colors hover:bg-[var(--st-bg-muted)]"
+              iconRight={GripVertical}
+              className="h-auto justify-between gap-3 whitespace-normal rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-3.5 py-3 text-left hover:bg-[var(--st-hover)]"
             >
-              <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-semibold text-[var(--st-text)] truncate">
+              <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
+                <span className="w-full truncate text-[13px] font-semibold text-[var(--st-text)]">
                   {item.title}
-                </div>
+                </span>
                 {item.meta ? (
-                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">
                     {item.meta}
-                  </div>
+                  </span>
                 ) : null}
-              </div>
-              <LuGripVertical
-                className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)]/70 group-hover:text-[var(--st-text-secondary)] transition-colors"
-                strokeWidth={1.75}
-              />
-            </button>
+              </span>
+            </Button>
           </li>
         ))}
       </ul>

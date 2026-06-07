@@ -2,7 +2,24 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Button } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Card,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    Checkbox,
+    Badge,
+    EmptyState,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/sabcrm/20ui';
 import { AdminUserSearch } from '@/components/zoruui-domain/admin-user-search';
 import { ApproveUserButton } from '@/components/zoruui-domain/approve-user-button';
 import { AdminAssignUserPlanDialog } from '@/components/zoruui-domain/admin-assign-user-plan-dialog';
@@ -34,6 +51,9 @@ export function AdminUsersTableView({
     const [bulkPlanId, setBulkPlanId] = useState<string>('');
     const { toast } = useToast();
 
+    const allSelected = plainUsers.length > 0 && selectedUserIds.length === plainUsers.length;
+    const someSelected = selectedUserIds.length > 0 && !allSelected;
+
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
             setSelectedUserIds(plainUsers.map(u => u._id.toString()));
@@ -43,7 +63,7 @@ export function AdminUsersTableView({
     };
 
     const handleSelectOne = (id: string) => {
-        setSelectedUserIds(prev => 
+        setSelectedUserIds(prev =>
             prev.includes(id) ? prev.filter(u => u !== id) : [...prev, id]
         );
     };
@@ -86,115 +106,106 @@ export function AdminUsersTableView({
     };
 
     return (
-        <div className="rounded-2xl border border-[var(--st-border)] bg-white overflow-hidden">
+        <Card padding="none" className="overflow-hidden">
             <div className="px-6 py-4 border-b border-[var(--st-border)] flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-[var(--st-text)]" />
+                    <Users className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     <span className="font-medium text-[var(--st-text)] text-sm">{total.toLocaleString()} users found</span>
                 </div>
                 <div className="flex items-center gap-3">
                     {selectedUserIds.length > 0 && (
-                        <div className="flex items-center gap-2 bg-[var(--st-bg-muted)] px-3 py-1.5 rounded-md border border-[var(--st-border)]">
+                        <div className="flex items-center gap-2 bg-[var(--st-bg-secondary)] px-3 py-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                             <span className="text-sm font-medium text-[var(--st-text)]">{selectedUserIds.length} selected</span>
                             <Button size="sm" variant="outline" onClick={handleBulkApprove} disabled={isApproving}>
-                                {isApproving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                {isApproving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
                                 Approve
                             </Button>
                             <div className="flex items-center gap-2 border-l border-[var(--st-border)] pl-2">
-                                <select 
-                                    className="text-sm border border-[var(--st-border)] rounded-md px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-[var(--st-border)]"
-                                    value={bulkPlanId}
-                                    onChange={(e) => setBulkPlanId(e.target.value)}
-                                >
-                                    <option value="">Select Plan...</option>
-                                    {allPlans.map(p => (
-                                        <option key={p._id.toString()} value={p._id.toString()}>{p.name}</option>
-                                    ))}
-                                </select>
-                                <Button size="sm" onClick={handleBulkAssignPlan} disabled={isAssigning || !bulkPlanId}>
-                                    {isAssigning && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                                <Select value={bulkPlanId} onValueChange={setBulkPlanId}>
+                                    <SelectTrigger aria-label="Bulk assign plan" className="min-w-[160px]">
+                                        <SelectValue placeholder="Select Plan..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {allPlans.map(p => (
+                                            <SelectItem key={p._id.toString()} value={p._id.toString()}>{p.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Button size="sm" variant="primary" onClick={handleBulkAssignPlan} disabled={isAssigning || !bulkPlanId}>
+                                    {isAssigning && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}
                                     Assign Plan
                                 </Button>
                             </div>
                         </div>
                     )}
                     <div className="w-72">
-                        <AdminUserSearch placeholder="Search by name or email…" />
+                        <AdminUserSearch placeholder="Search by name or email" />
                     </div>
                 </div>
             </div>
 
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-[var(--st-border)]">
-                            <th className="px-4 py-3 text-left w-12">
-                                <input 
-                                    type="checkbox" 
-                                    className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
-                                    checked={plainUsers.length > 0 && selectedUserIds.length === plainUsers.length}
+                <Table>
+                    <THead>
+                        <Tr>
+                            <Th align="center" width={48}>
+                                <Checkbox
+                                    aria-label="Select all users"
+                                    checked={allSelected}
+                                    indeterminate={someSelected}
                                     onChange={handleSelectAll}
                                 />
-                            </th>
-                            <th className="text-left px-6 py-3 text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">User</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Joined</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Plan</th>
-                            <th className="text-left px-4 py-3 text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Status</th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[var(--st-border)]">
+                            </Th>
+                            <Th>User</Th>
+                            <Th>Joined</Th>
+                            <Th>Plan</Th>
+                            <Th>Status</Th>
+                            <Th align="right">Actions</Th>
+                        </Tr>
+                    </THead>
+                    <TBody>
                         {plainUsers.length > 0 ? (
                             plainUsers.map((user) => (
-                                <tr key={user._id.toString()} className="hover:bg-[var(--st-bg-muted)] transition-colors">
-                                    <td className="px-4 py-3.5">
-                                        <input 
-                                            type="checkbox"
-                                            className="rounded border-[var(--st-border)] text-[var(--st-text)] focus:ring-[var(--st-border)]"
+                                <Tr key={user._id.toString()}>
+                                    <Td align="center">
+                                        <Checkbox
+                                            aria-label={`Select ${user.name}`}
                                             checked={selectedUserIds.includes(user._id.toString())}
                                             onChange={() => handleSelectOne(user._id.toString())}
                                         />
-                                    </td>
-                                    <td className="px-6 py-3.5">
+                                    </Td>
+                                    <Td>
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-[var(--st-bg-muted)] border border-[var(--st-border)] flex items-center justify-center shrink-0">
+                                            <div className="h-8 w-8 rounded-full bg-[var(--st-bg-secondary)] border border-[var(--st-border)] flex items-center justify-center shrink-0">
                                                 <span className="text-xs font-bold text-[var(--st-text)]">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </span>
                                             </div>
                                             <div>
                                                 <p className="font-medium text-[var(--st-text)]">{user.name}</p>
-                                                <p className="text-xs text-[var(--st-text)]">{user.email}</p>
+                                                <p className="text-xs text-[var(--st-text-secondary)]">{user.email}</p>
                                             </div>
                                         </div>
-                                    </td>
-                                    <td className="px-4 py-3.5 text-xs text-[var(--st-text)]">
+                                    </Td>
+                                    <Td className="text-xs text-[var(--st-text-secondary)]">
                                         {new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    </td>
-                                    <td className="px-4 py-3.5">
-                                        <span className="inline-flex items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
-                                            {user.plan?.name || 'N/A'}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-3.5">
+                                    </Td>
+                                    <Td>
+                                        <Badge tone="neutral">{user.plan?.name || 'N/A'}</Badge>
+                                    </Td>
+                                    <Td>
                                         {user.isSuspended ? (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
-                                                <Ban className="h-3 w-3" />
+                                            <Badge tone="danger">
+                                                <Ban className="h-3 w-3" aria-hidden="true" />
                                                 Suspended
-                                            </span>
+                                            </Badge>
                                         ) : user.isApproved ? (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-bg-muted)]" />
-                                                Approved
-                                            </span>
+                                            <Badge tone="success" dot>Approved</Badge>
                                         ) : (
-                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--st-text)]">
-                                                <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-bg-muted)] animate-pulse" />
-                                                Pending
-                                            </span>
+                                            <Badge tone="warning" dot>Pending</Badge>
                                         )}
-                                    </td>
-                                    <td className="px-4 py-3.5">
+                                    </Td>
+                                    <Td align="right">
                                         <div className="flex items-center justify-end gap-1">
                                             <ImpersonateUserButton userId={user._id.toString()} userName={user.name} />
                                             <AdminUserPermissionsDialog
@@ -217,34 +228,44 @@ export function AdminUsersTableView({
                                                 isSuspended={user.isSuspended}
                                             />
                                         </div>
-                                    </td>
-                                </tr>
+                                    </Td>
+                                </Tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={6} className="px-6 py-16 text-center text-[var(--st-text)]">
-                                    No users found matching your search.
+                                <td colSpan={6} className="px-6 py-12">
+                                    <EmptyState
+                                        icon={Users}
+                                        title="No users found"
+                                        description="No users match your search. Try a different name or email."
+                                    />
                                 </td>
                             </tr>
                         )}
-                    </tbody>
-                </table>
+                    </TBody>
+                </Table>
             </div>
 
             {/* Pagination */}
             <div className="px-6 py-3 border-t border-[var(--st-border)] flex items-center justify-between">
-                <span className="text-xs text-[var(--st-text)]">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
+                <span className="text-xs text-[var(--st-text-secondary)]">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                 <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild disabled={currentPage <= 1}
-                        className="border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40">
-                        <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
-                    </Button>
-                    <Button variant="outline" size="sm" asChild disabled={currentPage >= totalPages}
-                        className="border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] disabled:opacity-40">
-                        <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
-                    </Button>
+                    {currentPage > 1 ? (
+                        <Link href={`/admin/dashboard/users?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>
+                            <Button variant="outline" size="sm">Previous</Button>
+                        </Link>
+                    ) : (
+                        <Button variant="outline" size="sm" disabled>Previous</Button>
+                    )}
+                    {currentPage < totalPages ? (
+                        <Link href={`/admin/dashboard/users?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>
+                            <Button variant="outline" size="sm">Next</Button>
+                        </Link>
+                    ) : (
+                        <Button variant="outline" size="sm" disabled>Next</Button>
+                    )}
                 </div>
             </div>
-        </div>
+        </Card>
     );
 }

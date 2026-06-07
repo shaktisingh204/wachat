@@ -3,14 +3,36 @@
 /**
  * Customer-facing rewards storefront client. Shows the member's balance,
  * lets them redeem an active catalog item, and exposes a one-click
- * referral link generator. Everything is built on ZoruUI primitives;
+ * referral link generator. Everything is built on 20ui primitives;
  * no legacy clay/shadcn-default styling.
  */
 
 import * as React from 'react';
 import { Coins, Copy, Crown, Gift, Share2, Sparkles } from 'lucide-react';
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  useToast,
+} from '@/components/sabcrm/20ui';
 
 import {
   createRewardsRedemption,
@@ -57,7 +79,7 @@ export function RewardsPortalClient({
   const handleRedeem = React.useCallback(async () => {
     if (!member || !redeemTarget) return;
     if (balance < redeemTarget.pointsCost) {
-      toast({ title: 'Not enough points', variant: 'destructive' });
+      toast.error('Not enough points');
       return;
     }
     setBusy(true);
@@ -71,13 +93,14 @@ export function RewardsPortalClient({
       toast({
         title: 'Redemption requested',
         description: 'We will reach out once your reward is ready.',
+        tone: 'success',
       });
       setRedeemOpen(false);
     } catch (e) {
       toast({
         title: 'Redemption failed',
         description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setBusy(false);
@@ -105,12 +128,12 @@ export function RewardsPortalClient({
         rewardPoints: 0,
         active: true,
       });
-      toast({ title: 'Referral link ready' });
+      toast.success('Referral link ready');
     } catch (e) {
       toast({
         title: 'Could not generate link',
         description: e instanceof Error ? e.message : 'Unknown error',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setReferralBusy(false);
@@ -126,36 +149,36 @@ export function RewardsPortalClient({
   const handleCopy = React.useCallback(() => {
     if (!referralUrl) return;
     navigator.clipboard.writeText(referralUrl).then(
-      () => toast({ title: 'Link copied' }),
-      () => toast({ title: 'Copy failed', variant: 'destructive' }),
+      () => toast.success('Link copied'),
+      () => toast.error('Copy failed'),
     );
   }, [referralUrl, toast]);
 
   return (
-    <div className="zoruui min-h-screen bg-[var(--st-bg)] p-4 md:p-8">
+    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4 md:p-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
-        <header className="flex flex-col gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
-            Rewards
-          </p>
-          <h1 className="text-3xl font-semibold text-[var(--st-text)]">{programName}</h1>
-          {programDescription ? (
-            <p className="max-w-2xl text-sm text-[var(--st-text-secondary)]">{programDescription}</p>
-          ) : null}
-          {referrerCode ? (
-            <p className="text-[12px] text-[var(--st-text-secondary)]">
-              You arrived via referral code{' '}
-              <code className="font-mono text-[var(--st-text)]">{referrerCode}</code> — your inviter
-              will be credited when you qualify.
-            </p>
-          ) : null}
-        </header>
+        <PageHeader bordered={false}>
+          <PageHeaderHeading>
+            <PageEyebrow>Rewards</PageEyebrow>
+            <PageTitle>{programName}</PageTitle>
+            {programDescription ? (
+              <PageDescription>{programDescription}</PageDescription>
+            ) : null}
+            {referrerCode ? (
+              <p className="text-[12px] text-[var(--st-text-secondary)]">
+                You arrived via referral code{' '}
+                <code className="font-mono text-[var(--st-text)]">{referrerCode}</code>. Your
+                inviter will be credited when you qualify.
+              </p>
+            ) : null}
+          </PageHeaderHeading>
+        </PageHeader>
 
         <Card>
-          <CardBody className="flex flex-wrap items-center justify-between gap-3 p-6">
+          <CardBody className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-accent)]/10 text-[var(--st-accent)]">
-                <Coins className="h-6 w-6" />
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+                <Coins className="h-6 w-6" aria-hidden="true" />
               </span>
               <div>
                 <p className="text-[12px] text-[var(--st-text-secondary)]">Your balance</p>
@@ -166,16 +189,16 @@ export function RewardsPortalClient({
             </div>
             <div className="flex items-center gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                <Crown className="h-6 w-6" />
+                <Crown className="h-6 w-6" aria-hidden="true" />
               </span>
               <div>
                 <p className="text-[12px] text-[var(--st-text-secondary)]">Current tier</p>
-                <Badge variant="success">{tier}</Badge>
+                <Badge tone="success">{tier}</Badge>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                <Sparkles className="h-6 w-6" />
+                <Sparkles className="h-6 w-6" aria-hidden="true" />
               </span>
               <div>
                 <p className="text-[12px] text-[var(--st-text-secondary)]">Lifetime points</p>
@@ -191,17 +214,18 @@ export function RewardsPortalClient({
           <h2 className="text-lg font-semibold text-[var(--st-text)]">Available rewards</h2>
           {catalog.length === 0 ? (
             <EmptyState
+              icon={Gift}
               title="No rewards available yet"
-              description="Check back soon — we are adding redeemable items."
+              description="Check back soon. We are adding redeemable items."
             />
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {catalog.map((item) => {
                 const affordable = balance >= item.pointsCost;
                 return (
-                  <Card key={item._id} className="flex flex-col p-4">
-                    <div className="flex h-32 w-full items-center justify-center rounded-md bg-[var(--st-bg-muted)]">
-                      <Gift className="h-10 w-10 text-[var(--st-text-secondary)]" />
+                  <Card key={item._id} className="flex flex-col">
+                    <div className="flex h-32 w-full items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
+                      <Gift className="h-10 w-10 text-[var(--st-text-secondary)]" aria-hidden="true" />
                     </div>
                     <div className="mt-3 flex flex-col gap-1">
                       <h3 className="text-base font-semibold text-[var(--st-text)]">{item.name}</h3>
@@ -214,6 +238,7 @@ export function RewardsPortalClient({
                         {item.pointsCost.toLocaleString()} pts
                       </span>
                       <Button
+                        variant="primary"
                         size="sm"
                         disabled={!member || !affordable}
                         onClick={() => {
@@ -240,36 +265,41 @@ export function RewardsPortalClient({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Share2 className="h-4 w-4" /> Refer a friend
+                <Share2 className="h-4 w-4" aria-hidden="true" /> Refer a friend
               </CardTitle>
               <CardDescription>
-                Share your unique link — earn points when your friends qualify.
+                Share your unique link and earn points when your friends qualify.
               </CardDescription>
             </CardHeader>
             <CardBody className="flex flex-col gap-3">
               {referral ? (
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="referral-link">Your referral link</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="referral-link"
-                      readOnly
-                      value={referralUrl}
-                      className="font-mono text-[12px]"
-                    />
-                    <Button variant="outline" onClick={handleCopy}>
-                      <Copy className="h-4 w-4" /> Copy
-                    </Button>
-                  </div>
+                  <Field label="Your referral link">
+                    <div className="flex gap-2">
+                      <Input
+                        readOnly
+                        value={referralUrl}
+                        className="font-mono text-[12px]"
+                      />
+                      <Button variant="outline" iconLeft={Copy} onClick={handleCopy}>
+                        Copy
+                      </Button>
+                    </div>
+                  </Field>
                   <p className="text-[12px] text-[var(--st-text-secondary)]">
                     Conversions so far:{' '}
-                    <strong>{referral.conversions?.length ?? 0}</strong> · Points earned:{' '}
+                    <strong>{referral.conversions?.length ?? 0}</strong>, Points earned:{' '}
                     <strong>{(referral.rewardPoints ?? 0).toLocaleString()}</strong>
                   </p>
                 </div>
               ) : (
-                <Button onClick={generateLink} disabled={!member || referralBusy}>
-                  {referralBusy ? 'Generating…' : 'Generate my referral link'}
+                <Button
+                  variant="primary"
+                  onClick={generateLink}
+                  disabled={!member}
+                  loading={referralBusy}
+                >
+                  Generate my referral link
                 </Button>
               )}
             </CardBody>
@@ -294,8 +324,8 @@ export function RewardsPortalClient({
             <Button variant="ghost" onClick={() => setRedeemOpen(false)} disabled={busy}>
               Cancel
             </Button>
-            <Button onClick={handleRedeem} disabled={busy}>
-              {busy ? 'Redeeming…' : 'Redeem'}
+            <Button variant="primary" onClick={handleRedeem} loading={busy}>
+              Redeem
             </Button>
           </DialogFooter>
         </DialogContent>

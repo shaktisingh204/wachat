@@ -1,6 +1,6 @@
 'use client';
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Button, Switch, Select, Sheet } from '@/components/sabcrm/20ui';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator, Button } from '@/components/sabcrm/20ui';
 import {
   usePathname,
   useRouter } from 'next/navigation';
@@ -129,13 +129,13 @@ import {
 import { useProject } from '@/context/project-context';
 
 /**
- * ClayDashboardLayout — the shared Clay chrome used by every
+ * ClayDashboardLayout - the shared Clay chrome used by every
  * authenticated SabNode route. Holds the topbar, sidebar, and
  * a main slot for route children.
  *
  * Reused by:
  *   - /home/layout.tsx
- *   - (later) /dashboard/layout.tsx — which will swap out the old
+ *   - (later) /dashboard/layout.tsx - which will swap out the old
  *     AdminLayout in Phase 1 of the Clay rollout.
  */
 
@@ -178,8 +178,8 @@ export interface ClayDashboardLayoutProps {
   plan?: ClayLayoutPlan;
   /**
    * Which sidebar nav registry to render.
-   * - `sabnode` (default) — top-level cross-app nav for /home
-   * - `wachat` — WhatsApp module nav (Chat, Broadcasts, Templates, etc.)
+   * - `sabnode` (default) - top-level cross-app nav for /home
+   * - `wachat` - WhatsApp module nav (Chat, Broadcasts, Templates, etc.)
    */
   context?: ClayLayoutContext;
   children: React.ReactNode;
@@ -356,7 +356,7 @@ const appsNav: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Wachat nav registry — loaded when context="wachat".
+ *  Wachat nav registry - loaded when context="wachat".
  *  Mirrors src/config/dashboard-config.ts `wachatMenuItems` but
  *  structured into the Clay sidebar's (primary + sub-groups) pattern.
  * ══════════════════════════════════════════════════════════════════ */
@@ -500,7 +500,7 @@ const wachatPlatform: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Ad Manager nav registry — loaded when context="ad-manager".
+ *  Ad Manager nav registry - loaded when context="ad-manager".
  *  Dedicated sidebar for Meta Ads Manager (campaigns, audiences,
  *  pixels, insights, etc.). Separate from Meta Suite.
  * ══════════════════════════════════════════════════════════════════ */
@@ -551,7 +551,7 @@ const admSettings: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Meta Suite nav registry — loaded when context="meta-suite".
+ *  Meta Suite nav registry - loaded when context="meta-suite".
  *  Facebook pages, posts, messaging, broadcasts, subscribers,
  *  commerce + Instagram feed, stories, reels, DMs.
  * ══════════════════════════════════════════════════════════════════ */
@@ -609,7 +609,7 @@ const metaFbAdvanced: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Instagram nav registry — loaded when context="instagram".
+ *  Instagram nav registry - loaded when context="instagram".
  *  Dedicated module for Instagram Graph API: feed, stories, reels,
  *  DMs, discovery, hashtag search, and account connections.
  * ══════════════════════════════════════════════════════════════════ */
@@ -636,7 +636,7 @@ const igGrowth: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  SabFlow nav registry — loaded when context="sabflow".
+ *  SabFlow nav registry - loaded when context="sabflow".
  *  Mirrors the /dashboard/sabflow/* directory structure.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -682,7 +682,7 @@ const sabflowManage: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  n8n nav registry — loaded when context="n8n".
+ *  n8n nav registry - loaded when context="n8n".
  *  Mirrors the /dashboard/n8n/* directory structure.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -728,7 +728,7 @@ const n8nManage: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  URL Shortener nav registry — loaded when context="url-shortener".
+ *  URL Shortener nav registry - loaded when context="url-shortener".
  * ══════════════════════════════════════════════════════════════════ */
 
 const urlShortenerPrimary: NavEntry[] = [
@@ -752,7 +752,7 @@ const urlShortenerManage: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  QR Code Maker nav registry — loaded when context="qr-code-maker".
+ *  QR Code Maker nav registry - loaded when context="qr-code-maker".
  * ══════════════════════════════════════════════════════════════════ */
 
 const qrCodeMakerPrimary: NavEntry[] = [
@@ -776,7 +776,7 @@ const qrCodeMakerManage: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Telegram nav registry — loaded when context="telegram".
+ *  Telegram nav registry - loaded when context="telegram".
  *  Dedicated module for Telegram Bot API, Business API, Mini Apps,
  *  Channels, Stars payments, and MTProto-backed flows.
  * ══════════════════════════════════════════════════════════════════ */
@@ -820,7 +820,7 @@ const tgConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Team nav registry — loaded when context="team".
+ *  Team nav registry - loaded when context="team".
  *  Workspace-scoped module for members, roles, invites, tasks, audit,
  *  team chat, and notifications.
  * ══════════════════════════════════════════════════════════════════ */
@@ -901,7 +901,7 @@ const teamConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Settings nav registry — loaded when context="settings".
+ *  Settings nav registry - loaded when context="settings".
  *  Account- and project-level configuration: profile, billing, API
  *  keys, notifications, appearance, plus the legacy project-settings
  *  sub-pages (general, agents, attributes, canned messages).
@@ -947,7 +947,7 @@ const settingsPrimary: NavEntry[] = [
 
 // Project-scoped Wachat settings (General, Agents, Attributes, Canned
 // Messages) intentionally stay in the Wachat sidebar and are NOT
-// surfaced here — /dashboard/settings is the account-level SaaS
+// surfaced here - /dashboard/settings is the account-level SaaS
 // surface (profile, security, billing, credits, API keys).
 
 const settingsDeveloper: NavEntry[] = [
@@ -999,7 +999,7 @@ const settingsBilling: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  CRM nav registry — loaded when context="crm".
+ *  CRM nav registry - loaded when context="crm".
  *  Business-ops module: sales CRM, sales billing, contacts/deals/tasks,
  *  inventory, purchases, accounting, banking, HR-payroll, reports.
  * ══════════════════════════════════════════════════════════════════ */
@@ -1835,7 +1835,7 @@ const crmHr: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  HRM nav registry — loaded when context="hrm".
+ *  HRM nav registry - loaded when context="hrm".
  *  Standalone HR module: recruitment, people, payroll, compliance.
  * ══════════════════════════════════════════════════════════════════ */
 
@@ -2144,7 +2144,7 @@ const hrmConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  SabChat nav registry — loaded when context="sabchat".
+ *  SabChat nav registry - loaded when context="sabchat".
  * ══════════════════════════════════════════════════════════════════ */
 
 const sabchatPrimary: NavEntry[] = [
@@ -2166,7 +2166,7 @@ const sabchatConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  Email nav registry — loaded when context="email".
+ *  Email nav registry - loaded when context="email".
  * ══════════════════════════════════════════════════════════════════ */
 
 const emailPrimary: NavEntry[] = [
@@ -2184,7 +2184,7 @@ const emailConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  SabSMS nav registry — loaded when context="sabsms".
+ *  SabSMS nav registry - loaded when context="sabsms".
  * ══════════════════════════════════════════════════════════════════ */
 
 const smsPrimary: NavEntry[] = [
@@ -2671,7 +2671,7 @@ const crmConfigure: NavEntry[] = [
  * scrolling and need the full panel height to work properly.
  *
  * IMPORTANT: `/wachat/flow-builder` (the LIST) and
- * `/wachat/flow-builder/docs` stay padded — only the canvas
+ * `/wachat/flow-builder/docs` stay padded - only the canvas
  * routes `/wachat/flow-builder/<flowId>` are full-bleed.
  * SabFlow canvas `/dashboard/sabflow/flow-builder/<flowId>` is
  * likewise full-bleed, but the SabFlow list stays padded.
@@ -2697,11 +2697,11 @@ function formatCredits(n?: number): string {
 function isFullBleed(pathname: string | null): boolean {
   if (!pathname) return false;
 
-  // SabFlow canvas — only sub-routes of flow-builder, not list / new
+  // SabFlow canvas - only sub-routes of flow-builder, not list / new
   const sfb = pathname.match(/^\/dashboard\/sabflow\/flow-builder\/([^/]+)/);
   if (sfb && sfb[1] !== 'new') return true;
 
-  // Flow-builder canvas — only sub-routes, and never /docs
+  // Flow-builder canvas - only sub-routes, and never /docs
   const fb = pathname.match(/^\/dashboard\/flow-builder\/([^/]+)/);
   if (fb && fb[1] !== 'docs') return true;
 
@@ -2814,7 +2814,7 @@ export function ClayDashboardLayout({
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
-  /** Jump helper — closes search and navigates */
+  /** Jump helper - closes search and navigates */
   const jump = React.useCallback(
     (href: string) => {
       setSearchOpen(false);
@@ -2823,7 +2823,7 @@ export function ClayDashboardLayout({
     [router],
   );
 
-  /** Refresh — refetches the current route's server data */
+  /** Refresh - refetches the current route's server data */
   const refresh = React.useCallback(() => {
     router.refresh();
   }, [router]);
@@ -2858,35 +2858,41 @@ export function ClayDashboardLayout({
             <BrandGlyph />
             <div className="ml-3 flex items-center gap-2">
               <Button
-                variant="pill"
+                variant="ghost"
                 size="sm"
-                leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => setSearchOpen(true)}
               >
-                Search
+                <span className="inline-flex items-center gap-1.5">
+                  <LuSearch className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  Search
+                </span>
               </Button>
               <Button
-                variant="pill"
+                variant="ghost"
                 size="sm"
-                leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/wachat/contacts')}
               >
-                Add contact
+                <span className="inline-flex items-center gap-1.5">
+                  <LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  Add contact
+                </span>
               </Button>
               <Button
-                variant="pill"
+                variant="ghost"
                 size="sm"
-                leading={<LuBell className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/notifications')}
               >
-                Notifications
+                <span className="inline-flex items-center gap-1.5">
+                  <LuBell className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  Notifications
+                </span>
               </Button>
 
-              {/* More (…) dropdown — workspace shortcuts */}
+              {/* More dropdown - workspace shortcuts */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" aria-label="More">
-                    <LuEllipsis className="h-4 w-4" />
+                  <Button variant="outline" size="sm" aria-label="More">
+                    <LuEllipsis className="h-4 w-4" aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
@@ -2926,15 +2932,14 @@ export function ClayDashboardLayout({
         }
         right={
           <>
-            {/* Language dropdown (placeholder — real i18n not wired) */}
+            {/* Language dropdown (placeholder - real i18n not wired) */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="pill"
-                  size="sm"
-                  trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
-                >
-                  En
+                <Button variant="ghost" size="sm">
+                  <span className="inline-flex items-center gap-1.5">
+                    En
+                    <LuChevronDown className="h-3 w-3 opacity-60" aria-hidden />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -2957,58 +2962,60 @@ export function ClayDashboardLayout({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Date pill — click to refresh server data */}
+            {/* Date pill - click to refresh server data */}
             <Button
-              variant="pill"
+              variant="ghost"
               size="sm"
-              leading={<LuCalendar className="h-3.5 w-3.5" strokeWidth={2} />}
-              trailing={<LuRefreshCw className="h-3 w-3 opacity-60" />}
               onClick={refresh}
               aria-label="Refresh data"
             >
-              {currentDate}
+              <span className="inline-flex items-center gap-1.5">
+                <LuCalendar className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                {currentDate}
+                <LuRefreshCw className="h-3 w-3 opacity-60" aria-hidden />
+              </span>
             </Button>
 
-            {/* Plan badge — links to billing */}
-            <button
-              type="button"
+            {/* Plan badge - links to billing */}
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => router.push('/dashboard/settings/billing')}
               aria-label={`Plan: ${plan?.name || 'Free'}`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[linear-gradient(180deg,rgba(236,72,153,0.08)_0%,rgba(236,72,153,0.02)_100%)] pl-2 pr-3 text-[12px] font-medium text-[var(--st-text)] transition-colors hover:border-[var(--st-border)]"
             >
-              <span
-                className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-white"
-              >
-                <LuStar className="h-3 w-3" strokeWidth={2.5} />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-white">
+                  <LuStar className="h-3 w-3" strokeWidth={2.5} aria-hidden />
+                </span>
+                <span className="max-w-[90px] truncate">{plan?.name || 'Free'}</span>
+                <span className="hidden text-[var(--st-text-secondary)] sm:inline">plan</span>
               </span>
-              <span className="max-w-[90px] truncate">{plan?.name || 'Free'}</span>
-              <span className="hidden text-[var(--st-text-secondary)] sm:inline">plan</span>
-            </button>
+            </Button>
 
-            {/* Credits badge — links to credits page */}
-            <button
-              type="button"
+            {/* Credits badge - links to credits page */}
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => router.push('/dashboard/settings/credits')}
               aria-label={`Credits: ${plan?.credits ?? 0}`}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] pl-2 pr-3 text-[12px] font-medium text-[var(--st-text)] transition-colors hover:border-[var(--st-border)]"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-                <LuZap className="h-3 w-3" strokeWidth={2.5} />
+              <span className="inline-flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+                  <LuZap className="h-3 w-3" strokeWidth={2.5} aria-hidden />
+                </span>
+                <span>{formatCredits(plan?.credits)}</span>
+                <span className="hidden text-[var(--st-text-secondary)] sm:inline">credits</span>
               </span>
-              <span>{formatCredits(plan?.credits)}</span>
-              <span className="hidden text-[var(--st-text-secondary)] sm:inline">credits</span>
-            </button>
+            </Button>
 
-            {/* Create dropdown — one-click entry into every creator */}
+            {/* Create dropdown - one-click entry into every creator */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="obsidian"
-                  size="md"
-                  className="px-5"
-                  trailing={<LuChevronDown className="h-3.5 w-3.5 opacity-70" />}
-                >
-                  Create
+                <Button variant="primary" size="md" className="px-5">
+                  <span className="inline-flex items-center gap-1.5">
+                    Create
+                    <LuChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -3047,9 +3054,9 @@ export function ClayDashboardLayout({
         }
       />
 
-      {/* ZoruCommand palette — jump to any module from anywhere */}
+      {/* ZoruCommand palette - jump to any module from anywhere */}
       <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <CommandInput placeholder="Jump to…  broadcasts, CRM, flows, SMS, SEO" />
+        <CommandInput placeholder="Jump to...  broadcasts, CRM, flows, SMS, SEO" />
         <CommandList>
           <CommandEmpty>No results.</CommandEmpty>
           <CommandGroup heading="Primary">
@@ -3342,7 +3349,7 @@ export function ClayDashboardLayout({
               {children}
             </div>
           ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sabsms' || context === 'settings') ? (
-            // Wachat pages: full width AND full height — pages can fill
+            // Wachat pages: full width AND full height - pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
             // reveals keep working.
@@ -3381,7 +3388,7 @@ function BrandGlyph() {
   );
 }
 
-/* ── Wachat sidebar brand — back-link + project switcher dropdown ── */
+/* ── Wachat sidebar brand - back-link + project switcher dropdown ── */
 
 function WabaHealthDot({ status }: { status?: string }) {
   if (!status) return null;
@@ -3439,46 +3446,54 @@ function ClayWachatBrand() {
   return (
     <div className="flex flex-col gap-2.5">
       {/* Back to Apps */}
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
 
       {/* Project switcher */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            className="flex w-full items-center gap-2 rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-2 text-left hover:border-[var(--st-border)] hover:bg-[var(--st-bg-muted)] transition-colors"
+          <Button
+            variant="outline"
+            block
+            aria-label="Switch project"
+            className="h-auto justify-start rounded-[12px] px-2.5 py-2 text-left"
           >
-            <span
-              className={cn(
-                'flex h-7 w-7 items-center justify-center rounded-[8px] text-[10.5px] font-semibold uppercase',
-                activeProject
-                  ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                  : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
-              )}
-            >
-              {(activeProject?.name || '—').slice(0, 2)}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]/70 font-medium">
-                Project
-                <WabaHealthDot status={healthStatus} />
+            <span className="flex w-full items-center gap-2">
+              <span
+                className={cn(
+                  'flex h-7 w-7 items-center justify-center rounded-[8px] text-[10.5px] font-semibold uppercase',
+                  activeProject
+                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+                    : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
+                )}
+              >
+                {(activeProject?.name || '--').slice(0, 2)}
               </span>
-              <span className="block truncate text-[12.5px] font-semibold text-[var(--st-text)] leading-tight">
-                {activeProject?.name || 'Select a project'}
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-wide text-[var(--st-text-secondary)]/70 font-medium">
+                  Project
+                  <WabaHealthDot status={healthStatus} />
+                </span>
+                <span className="block truncate text-[12.5px] font-semibold text-[var(--st-text)] leading-tight">
+                  {activeProject?.name || 'Select a project'}
+                </span>
               </span>
+              <LuChevronDown
+                className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]/70"
+                strokeWidth={2}
+                aria-hidden
+              />
             </span>
-            <LuChevronDown
-              className="h-3.5 w-3.5 shrink-0 text-[var(--st-text-secondary)]/70"
-              strokeWidth={2}
-            />
-          </button>
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="start"
@@ -3525,14 +3540,17 @@ function ClayAdManagerBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3555,14 +3573,17 @@ function ClayInstagramBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3585,14 +3606,17 @@ function ClaySabFlowBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3615,14 +3639,17 @@ function ClaySettingsBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3643,14 +3670,17 @@ function ClayTeamBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3671,14 +3701,17 @@ function ClayTelegramBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3701,14 +3734,17 @@ function ClayMetaBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3731,14 +3767,17 @@ function ClayUrlShortenerBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3761,14 +3800,17 @@ function ClayCrmBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3791,14 +3833,17 @@ function ClaySabFlowExtraBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"
@@ -3821,14 +3866,17 @@ function ClayQrCodeMakerBrand() {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => router.push('/dashboard')}
-        className="inline-flex items-center gap-1.5 self-start rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2.5 py-1.5 text-[11.5px] font-medium text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:border-[var(--st-border)] transition-colors"
+        className="self-start rounded-full"
       >
-        <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
-        Back to Apps
-      </button>
+        <span className="inline-flex items-center gap-1.5">
+          <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden />
+          Back to Apps
+        </span>
+      </Button>
       <div className="flex items-center gap-2.5 px-1">
         <div
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--st-text)]"

@@ -14,6 +14,7 @@ import {
   GridIcon,
   HeadphonesIcon,
   ImageIcon,
+  InboxIcon,
   ListIcon,
   SearchIcon,
   SortAscIcon,
@@ -24,7 +25,28 @@ import {
   VideoIcon,
 } from "lucide-react";
 
-import { Button, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Button,
+  Card,
+  Checkbox,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TBody,
+  Table,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { useFileUpload, formatBytes, type FileMetadata } from "./use-file-upload";
 
 // ---------- Demo initial files (safe to remove) ----------
@@ -33,21 +55,21 @@ const initialFiles: FileMetadata[] = [
     name: "brochure.pdf",
     size: 528737,
     type: "application/pdf",
-    url: "https://originui.com",
+    url: "https://files.sabnode.com/library/brochure.pdf",
     id: "brochure.pdf-1744638436563-8u5xuls",
   },
   {
     name: "cover.png",
     size: 182873,
     type: "image/png",
-    url: "https://originui.com",
+    url: "https://files.sabnode.com/library/cover.png",
     id: "cover.png-1744638436563-8u5xuls",
   },
   {
     name: "report.xlsx",
     size: 352873,
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    url: "https://originui.com",
+    url: "https://files.sabnode.com/library/report.xlsx",
     id: "report.xlsx-1744638436563-8u5xuls",
   },
 ];
@@ -97,7 +119,7 @@ const getFileIcon = (entry: UploadEntry) => {
     ext === "txt" ||
     ext === "md"
   ) {
-    return <FileTextIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <FileTextIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
   if (
     type.includes("zip") ||
@@ -107,7 +129,7 @@ const getFileIcon = (entry: UploadEntry) => {
     ext === "7z" ||
     ext === "tar"
   ) {
-    return <FileArchiveIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <FileArchiveIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
   if (
     type.includes("excel") ||
@@ -115,24 +137,25 @@ const getFileIcon = (entry: UploadEntry) => {
     ext === "xlsx" ||
     ext === "csv"
   ) {
-    return <FileSpreadsheetIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <FileSpreadsheetIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
   if (type.startsWith("video/") || ["mp4", "mov", "webm", "mkv"].includes(ext)) {
-    return <VideoIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <VideoIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
   if (type.startsWith("audio/") || ["mp3", "wav", "flac", "m4a"].includes(ext)) {
-    return <HeadphonesIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <HeadphonesIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
   if (type.startsWith("image/") || ["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) {
-    return <ImageIcon className="size-4 opacity-60" aria-hidden="true" />;
+    return <ImageIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
   }
-  return <FileIcon className="size-4 opacity-60" aria-hidden="true" />;
+  return <FileIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />;
 };
 
 // ---------- Component ----------
 export default function FileUpload() {
   const maxSize = 20 * 1024 * 1024; // 20MB
   const maxFiles = 20;
+  const { toast } = useToast();
   const [view, setView] = React.useState<"list" | "grid">("list");
   const [query, setQuery] = React.useState("");
   const [sortBy, setSortBy] = React.useState<"name" | "type" | "size">("name");
@@ -243,17 +266,18 @@ export default function FileUpload() {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(entry.id);
+      toast.success("Link copied to clipboard");
     } catch {
-      // noop
+      toast.error("Could not copy the link");
     }
   };
 
   return (
-    <div className="flex flex-col gap-3 max-w-4xl mx-auto">
+    <div className="ui20 flex flex-col gap-3 max-w-4xl mx-auto">
       {/* Top toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <h3 className="text-sm font-medium">
+          <h3 className="text-sm font-medium text-[var(--st-text)]">
             Files <span className="text-[var(--st-text-secondary)]">({files.length})</span>
           </h3>
           <span className="text-[var(--st-text-secondary)] text-xs">
@@ -262,89 +286,71 @@ export default function FileUpload() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by name, type, or extension..."
-              className="bg-[var(--st-bg-secondary)] ring-offset-zoru-surface focus-visible:ring-[var(--st-border)] placeholder:text-[var(--st-text-secondary)] h-8 w-56 rounded-md px-7 text-[13px] outline-none focus-visible:ring-[2px] shadow-sm"
-              aria-label="Search files"
-            />
-            <SearchIcon
-              className="text-[var(--st-text-secondary)] pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 opacity-70"
-              aria-hidden="true"
-            />
+          <div className="w-56">
+            <Field>
+              <Input
+                inputSize="sm"
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, type, or extension..."
+                iconLeft={SearchIcon}
+                aria-label="Search files"
+              />
+            </Field>
           </div>
 
           <div className="flex items-center gap-1">
-            <label htmlFor="sortby" className="text-[var(--st-text-secondary)] sr-only">
-              Sort by
-            </label>
-            <select
-              id="sortby"
-              className="bg-[var(--st-bg-secondary)] h-8 rounded-md px-2 text-[13px] shadow-sm"
+            <Select
               value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              aria-label="Sort files"
+              onValueChange={(v) => setSortBy(v as typeof sortBy)}
             >
-              <option value="name">Name</option>
-              <option value="type">Type</option>
-              <option value="size">Size</option>
-            </select>
+              <SelectTrigger aria-label="Sort files" className="h-8 w-28">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="type">Type</SelectItem>
+                <SelectItem value="size">Size</SelectItem>
+              </SelectContent>
+            </Select>
 
-            <Button
+            <IconButton
               variant="outline"
-              size="icon"
-              className="size-8"
+              icon={sortDir === "asc" ? SortAscIcon : SortDescIcon}
               onClick={() => setSortDir((d) => (d === "asc" ? "desc" : "asc"))}
-              aria-label={`Toggle sort direction to ${sortDir === "asc" ? "descending" : "ascending"}`}
-            >
-              {sortDir === "asc" ? (
-                <SortAscIcon className="size-4" />
-              ) : (
-                <SortDescIcon className="size-4" />
-              )}
-            </Button>
+              label={`Toggle sort direction to ${sortDir === "asc" ? "descending" : "ascending"}`}
+            />
           </div>
 
           <div className="ms-1 flex items-center gap-1">
-            <Button
-              variant={view === "list" ? "default" : "outline"}
-              size="icon"
-              className="size-8"
+            <IconButton
+              variant={view === "list" ? "primary" : "outline"}
+              icon={ListIcon}
               onClick={() => setView("list")}
               aria-pressed={view === "list"}
-              aria-label="List view"
-              title="List view"
-            >
-              <ListIcon className="size-4" />
-            </Button>
-            <Button
-              variant={view === "grid" ? "default" : "outline"}
-              size="icon"
-              className="size-8"
+              label="List view"
+            />
+            <IconButton
+              variant={view === "grid" ? "primary" : "outline"}
+              icon={GridIcon}
               onClick={() => setView("grid")}
               aria-pressed={view === "grid"}
-              aria-label="Grid view"
-              title="Grid view"
-            >
-              <GridIcon className="size-4" />
-            </Button>
+              label="Grid view"
+            />
           </div>
 
           <div className="ms-2 hidden sm:flex gap-2">
-            <Button variant="outline" size="sm" onClick={openFileDialog}>
-              <UploadCloudIcon className="-ms-0.5 size-3.5 opacity-60" aria-hidden="true" />
+            <Button variant="outline" size="sm" iconLeft={UploadCloudIcon} onClick={openFileDialog}>
               Add files
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Trash2Icon}
               onClick={clearFiles}
               disabled={files.length === 0}
             >
-              <Trash2Icon className="-ms-0.5 size-3.5 opacity-60" aria-hidden="true" />
               Remove all
             </Button>
           </div>
@@ -358,7 +364,7 @@ export default function FileUpload() {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         data-dragging={isDragging || undefined}
-        className="bg-[var(--st-bg-secondary)] data-[dragging=true]:bg-[var(--st-bg-muted)]/50 has-[input:focus]:ring-[var(--st-border)]/50 rounded-xl border border-dashed border-[var(--st-border)] p-3 transition-colors has-[input:focus]:ring-[3px] shadow-sm"
+        className="bg-[var(--st-bg-secondary)] data-[dragging=true]:bg-[var(--st-bg-tertiary)] rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-3 transition-colors"
         aria-label="Drop files here or use the select button to upload"
       >
         <input
@@ -369,18 +375,17 @@ export default function FileUpload() {
         />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="bg-[var(--st-bg-secondary)] me-1 flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm">
-              <FileIcon className="size-4 opacity-60" aria-hidden="true" />
+            <div className="bg-[var(--st-bg)] border border-[var(--st-border)] me-1 flex size-9 shrink-0 items-center justify-center rounded-full">
+              <FileIcon className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
             </div>
             <div className="text-xs">
-              <p className="font-medium">Drop files to upload</p>
+              <p className="font-medium text-[var(--st-text)]">Drop files to upload</p>
               <p className="text-[var(--st-text-secondary)]">
-                Up to {maxFiles} files · {formatBytes(maxSize)} per file
+                Up to {maxFiles} files, {formatBytes(maxSize)} per file
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={openFileDialog}>
-            <UploadIcon className="-ms-1 size-3.5 opacity-60" aria-hidden="true" />
+          <Button variant="outline" size="sm" iconLeft={UploadIcon} onClick={openFileDialog}>
             Select files
           </Button>
         </div>
@@ -391,21 +396,19 @@ export default function FileUpload() {
           {/* Bulk actions bar */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-[13px]">
-              <label className="inline-flex cursor-pointer items-center gap-1">
-                <input
-                  type="checkbox"
-                  className="accent-foreground size-3.5"
-                  checked={allSelected}
-                  onChange={toggleAll}
-                  aria-label={allSelected ? "Unselect all" : "Select all"}
-                />
-                <span className="text-[var(--st-text-secondary)]">
-                  {selected.size}/{filtered.length} selected
-                </span>
-              </label>
+              <Checkbox
+                size="sm"
+                checked={allSelected}
+                onChange={toggleAll}
+                aria-label={allSelected ? "Unselect all" : "Select all"}
+              />
+              <span className="text-[var(--st-text-secondary)]">
+                {selected.size}/{filtered.length} selected
+              </span>
               {!noneSelected && (
                 <span className="text-[var(--st-text-secondary)] hidden sm:inline">
-                  • {formatBytes(
+                  ,{" "}
+                  {formatBytes(
                     filtered
                       .filter((f) => selected.has(f.id))
                       .reduce((acc, f) => acc + getSize(f as UploadEntry), 0)
@@ -418,43 +421,43 @@ export default function FileUpload() {
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={DownloadIcon}
                 onClick={downloadSelected}
                 disabled={noneSelected}
                 aria-disabled={noneSelected}
                 title={noneSelected ? "Select files to download" : "Download selected"}
               >
-                <DownloadIcon className="-ms-0.5 size-3.5 opacity-60" aria-hidden="true" />
                 Download selected
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={Trash2Icon}
                 onClick={removeSelected}
                 disabled={noneSelected}
                 aria-disabled={noneSelected}
                 title={noneSelected ? "Select files to remove" : "Remove selected"}
               >
-                <Trash2Icon className="-ms-0.5 size-3.5 opacity-60" aria-hidden="true" />
                 Remove selected
               </Button>
             </div>
           </div>
 
           {view === "list" ? (
-            <div className="bg-[var(--st-bg-secondary)] overflow-hidden rounded-md shadow-sm">
-              <Table>
-                <THead className="text-xs">
-                  <Tr className="bg-[var(--st-bg-muted)]/50">
-                    <Th className="h-9 w-10 py-2">
+            <div className="bg-[var(--st-bg-secondary)] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+              <Table density="compact">
+                <THead>
+                  <Tr>
+                    <Th width={40}>
                       <span className="sr-only">Select</span>
                     </Th>
-                    <Th className="h-9 py-2">Name</Th>
-                    <Th className="h-9 py-2">Type</Th>
-                    <Th className="h-9 py-2">Size</Th>
-                    <Th className="h-9 w-0 py-2 text-right">Actions</Th>
+                    <Th>Name</Th>
+                    <Th>Type</Th>
+                    <Th>Size</Th>
+                    <Th align="right">Actions</Th>
                   </Tr>
                 </THead>
-                <TableBody className="text-[13px]">
+                <TBody>
                   {filtered.map((entry: UploadEntry) => {
                     const name = getName(entry);
                     const type = getType(entry);
@@ -464,90 +467,75 @@ export default function FileUpload() {
                     const percentOfMax = Math.min(100, Math.round((size / maxSize) * 100));
 
                     return (
-                      <Tr key={entry.id} data-selected={isSelected || undefined}>
-                        <TableCell className="py-2">
-                          <input
-                            type="checkbox"
-                            className="accent-foreground size-3.5"
+                      <Tr key={entry.id} selected={isSelected}>
+                        <Td>
+                          <Checkbox
+                            size="sm"
                             checked={isSelected}
                             onChange={() => toggleOne(entry.id)}
                             aria-label={`Select ${name}`}
                           />
-                        </TableCell>
-                        <TableCell className="max-w-64 py-2 font-medium">
+                        </Td>
+                        <Td className="max-w-64 font-medium">
                           <span className="flex items-center gap-2">
                             <span className="shrink-0">{getFileIcon(entry)}</span>
-                            <span className="truncate">{name}</span>
+                            <span className="truncate text-[var(--st-text)]">{name}</span>
                           </span>
-                          <div className="mt-1 h-1.5 w-44 overflow-hidden rounded bg-[var(--st-bg-muted)]/50">
+                          <div className="mt-1 h-1.5 w-44 overflow-hidden rounded bg-[var(--st-bg-tertiary)]">
                             <div
-                              className="h-full bg-[var(--st-text)]/60"
+                              className="h-full bg-[var(--st-accent)]"
                               style={{ width: `${percentOfMax}%` }}
                               aria-hidden="true"
                             />
                           </div>
-                        </TableCell>
-                        <TableCell className="text-[var(--st-text-secondary)] py-2">
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">
                           {niceSubtype(type)}
-                        </TableCell>
-                        <TableCell className="text-[var(--st-text-secondary)] py-2">
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">
                           {formatBytes(size)}
-                        </TableCell>
-                        <TableCell className="py-2 text-right whitespace-nowrap">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
-                            aria-label={`Open ${name}`}
-                            onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
-                            title="Open preview"
-                          >
-                            <ExternalLinkIcon className="size-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
-                            aria-label={`Download ${name}`}
-                            onClick={() => downloadOne(entry)}
-                            title="Download"
-                          >
-                            <DownloadIcon className="size-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-[var(--st-text-secondary)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
-                            aria-label={`Copy link for ${name}`}
-                            onClick={() => copyLink(entry)}
-                            title="Copy link"
-                          >
-                            {copied === entry.id ? (
-                              <CheckIcon className="size-4" />
-                            ) : (
-                              <CopyIcon className="size-4" />
-                            )}
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-[var(--st-text)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
-                            aria-label={`Remove ${name}`}
-                            onClick={() => removeFile(entry.id)}
-                            title="Remove"
-                          >
-                            <Trash2Icon className="size-4" />
-                          </Button>
-                        </TableCell>
+                        </Td>
+                        <Td align="right" className="whitespace-nowrap">
+                          <span className="inline-flex items-center justify-end gap-1">
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              icon={ExternalLinkIcon}
+                              label={`Open ${name}`}
+                              onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
+                            />
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              icon={DownloadIcon}
+                              label={`Download ${name}`}
+                              onClick={() => downloadOne(entry)}
+                            />
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              icon={copied === entry.id ? CheckIcon : CopyIcon}
+                              label={`Copy link for ${name}`}
+                              onClick={() => copyLink(entry)}
+                            />
+                            <IconButton
+                              size="sm"
+                              variant="ghost"
+                              icon={Trash2Icon}
+                              label={`Remove ${name}`}
+                              onClick={() => removeFile(entry.id)}
+                            />
+                          </span>
+                        </Td>
                       </Tr>
                     );
                   })}
-                </TableBody>
+                </TBody>
               </Table>
             </div>
           ) : (
             <div
-              className="bg-[var(--st-bg-secondary)] grid grid-cols-2 gap-3 rounded-md p-3 sm:grid-cols-3 lg:grid-cols-4 shadow-sm"
+              className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
               role="list"
               aria-label="Files grid"
             >
@@ -560,23 +548,22 @@ export default function FileUpload() {
                 const isSelected = selected.has(entry.id);
 
                 return (
-                  <div
+                  <Card
                     key={entry.id}
+                    variant={isSelected ? "interactive" : "outlined"}
                     role="listitem"
-                    className="data-[selected=true]:ring-[var(--st-border)]/60 group relative flex flex-col overflow-hidden rounded-md bg-[var(--st-bg-secondary)] shadow-sm"
-                    data-selected={isSelected || undefined}
+                    className="group relative flex flex-col overflow-hidden p-0"
                   >
-                    <label className="bg-[var(--st-bg-secondary)]/80 absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded px-1.5 py-1">
-                      <input
-                        type="checkbox"
-                        className="accent-foreground size-3.5"
+                    <span className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] absolute left-2 top-2 z-10 inline-flex items-center gap-1 rounded-[var(--st-radius)] px-1.5 py-1">
+                      <Checkbox
+                        size="sm"
                         checked={isSelected}
                         onChange={() => toggleOne(entry.id)}
                         aria-label={`Select ${name}`}
                       />
-                    </label>
+                    </span>
 
-                    <div className="relative h-28 w-full overflow-hidden bg-[var(--st-bg-muted)]/40">
+                    <div className="relative h-28 w-full overflow-hidden bg-[var(--st-bg-tertiary)]">
                       {isImage && url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -593,80 +580,65 @@ export default function FileUpload() {
                     </div>
 
                     <div className="flex flex-1 flex-col gap-1 p-2">
-                      <div className="truncate text-[13px] font-medium" title={name}>
+                      <div className="truncate text-[13px] font-medium text-[var(--st-text)]" title={name}>
                         {name}
                       </div>
                       <div className="text-[var(--st-text-secondary)] text-[12px]">
-                        {niceSubtype(type)} · {formatBytes(size)}
+                        {niceSubtype(type)}, {formatBytes(size)}
                       </div>
                       <div className="mt-auto flex items-center justify-end gap-1">
-                        <Button
-                          size="icon"
+                        <IconButton
+                          size="sm"
                           variant="ghost"
-                          className="size-8"
-                          aria-label={`Open ${name}`}
+                          icon={ExternalLinkIcon}
+                          label={`Open ${name}`}
                           onClick={() => url && window.open(url, "_blank", "noopener,noreferrer")}
-                          title="Open"
-                        >
-                          <ExternalLinkIcon className="size-4" />
-                        </Button>
-                        <Button
-                          size="icon"
+                        />
+                        <IconButton
+                          size="sm"
                           variant="ghost"
-                          className="size-8"
-                          aria-label={`Download ${name}`}
+                          icon={DownloadIcon}
+                          label={`Download ${name}`}
                           onClick={() => downloadOne(entry)}
-                          title="Download"
-                        >
-                          <DownloadIcon className="size-4" />
-                        </Button>
-                        <Button
-                          size="icon"
+                        />
+                        <IconButton
+                          size="sm"
                           variant="ghost"
-                          className="size-8"
-                          aria-label={`Copy link for ${name}`}
+                          icon={copied === entry.id ? CheckIcon : CopyIcon}
+                          label={`Copy link for ${name}`}
                           onClick={() => copyLink(entry)}
-                          title="Copy link"
-                        >
-                          {copied === entry.id ? (
-                            <CheckIcon className="size-4" />
-                          ) : (
-                            <CopyIcon className="size-4" />
-                          )}
-                        </Button>
-                        <Button
-                          size="icon"
+                        />
+                        <IconButton
+                          size="sm"
                           variant="ghost"
-                          className="text-[var(--st-text)]/80 hover:text-[var(--st-text)] size-8 hover:bg-transparent"
-                          aria-label={`Remove ${name}`}
+                          icon={Trash2Icon}
+                          label={`Remove ${name}`}
                           onClick={() => removeFile(entry.id)}
-                          title="Remove"
-                        >
-                          <Trash2Icon className="size-4" />
-                        </Button>
+                        />
                       </div>
                     </div>
-                  </div>
+                  </Card>
                 );
               })}
             </div>
           )}
         </>
       ) : (
-        <p className="text-[var(--st-text-secondary)] text-center text-sm">
-          {files.length === 0 ? "No files yet. Add or drop files above." : "No files match your search."}
-        </p>
+        <EmptyState
+          icon={InboxIcon}
+          title={files.length === 0 ? "No files yet" : "No matches"}
+          description={
+            files.length === 0
+              ? "Add or drop files above to get started."
+              : "No files match your search."
+          }
+        />
       )}
 
       {errors.length > 0 && (
-        <div
-          className="text-[var(--st-text)] flex items-center gap-1 text-xs"
-          role="alert"
-          aria-live="assertive"
-        >
-          <AlertCircleIcon className="size-3 shrink-0" />
-          <span>{errors[0]}</span>
-        </div>
+        <Alert tone="danger" icon={AlertCircleIcon}>
+          {errors[0]}
+        </Alert>
       )}
     </div>
   );

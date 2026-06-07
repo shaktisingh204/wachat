@@ -111,7 +111,7 @@ export function QuickSendProgressDashboard({
       setError(res.error);
       return;
     }
-    // Caller decides what to do — for now we just note the new id.
+    // Caller decides what to do. For now we just note the new id.
     setError(`Re-attempt queued (runId ${res.runId})`);
   }
 
@@ -169,13 +169,13 @@ export function QuickSendProgressDashboard({
 
         <div>
           <Progress value={pct} />
-          <div className="mt-2 flex flex-wrap gap-4 text-xs text-[var(--st-text)]">
+          <div className="mt-2 flex flex-wrap gap-4 text-xs text-[var(--st-text-secondary)]">
             <span>
               {processed} / {run?.total ?? 0} processed
             </span>
             <span>queued: {run?.queued ?? 0}</span>
             <span>skipped: {run?.skipped ?? 0}</span>
-            <span className="text-[var(--st-text)]">failed: {run?.failed ?? 0}</span>
+            <span>failed: {run?.failed ?? 0}</span>
             <span>throttle: {run?.throttlePerSecond ?? 0}/s</span>
           </div>
         </div>
@@ -246,15 +246,16 @@ export function QuickSendProgressDashboard({
                       {r.status}
                     </Badge>
                   </Td>
-                  <Td className="max-w-[320px] truncate text-xs text-[var(--st-text)]">
+                  <Td className="max-w-[320px] truncate text-xs text-[var(--st-text-secondary)]">
                     {r.status === "failed" ? (
-                      <button
-                        type="button"
-                        className="text-[var(--st-text)] underline"
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="underline"
                         onClick={() => setDrawerRow(r)}
                       >
                         {r.error ?? "view"}
-                      </button>
+                      </Button>
                     ) : (
                       r.messageId ?? ""
                     )}
@@ -265,9 +266,9 @@ export function QuickSendProgressDashboard({
                 <Tr>
                   <Td
                     colSpan={4}
-                    className="py-8 text-center text-sm text-[var(--st-text)]"
+                    className="py-8 text-center text-sm text-[var(--st-text-secondary)]"
                   >
-                    Waiting for the first row to land…
+                    Waiting for the first row to land...
                   </Td>
                 </Tr>
               )}
@@ -284,25 +285,25 @@ export function QuickSendProgressDashboard({
           {drawerRow && (
             <div className="space-y-3 text-sm">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Source line
                 </div>
                 <div className="font-mono">{drawerRow.sourceLine}</div>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Phone
                 </div>
                 <div className="font-mono">{drawerRow.phone}</div>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Status
                 </div>
                 <Badge variant="destructive">{drawerRow.status}</Badge>
               </div>
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                <div className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
                   Error
                 </div>
                 <pre className="overflow-x-auto rounded bg-[var(--st-bg-muted)] p-2 text-xs">

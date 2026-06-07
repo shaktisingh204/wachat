@@ -1,20 +1,37 @@
 'use client';
 
-import { Button, Input, Popover, PopoverContent, PopoverTrigger, Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, ScrollArea, Select, Calendar, cn } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+  Avatar,
+  AvatarFallback,
+  Button,
+  IconButton,
+  Calendar,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Field,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  ScrollArea,
+  cn,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import {
-    ChevronsUpDown,
+  ChevronsUpDown,
   Search,
   Bell,
   HelpCircle,
   Facebook,
   Calendar as CalendarIcon,
   Plus,
-  } from 'lucide-react';
+} from 'lucide-react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-
 
 /**
  * Meta-style Ad Manager in-page toolbar.
@@ -25,7 +42,7 @@ import type { DateRange } from 'react-day-picker';
  * range, create, help) and a context provider that child pages use
  * to read the global search / date state.
  *
- * It does NOT use negative margins or force a fixed height — it
+ * It does NOT use negative margins or force a fixed height. It
  * lays out naturally inside the dashboard's main content area.
  */
 
@@ -41,26 +58,26 @@ function AccountSwitcher() {
         <Link href="/dashboard/ad-manager/ad-accounts" className="shrink-0 hidden sm:block">
             <Button
                 variant="outline"
-                className="h-10 justify-between gap-3 rounded-lg px-3 text-left text-sm font-medium w-[200px] lg:w-[240px] xl:w-[260px]"
+                className="h-10 justify-between gap-3 px-3 text-left text-sm font-medium w-[200px] lg:w-[240px] xl:w-[260px]"
             >
-                <div className="flex items-center gap-2 truncate">
-                    <Avatar className="h-6 w-6 border">
+                <span className="flex items-center gap-2 truncate">
+                    <Avatar className="h-6 w-6 border-[var(--st-border)]">
                         <AvatarFallback className="text-[10px] bg-[var(--st-text)] text-white">
                             {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
-                    <div className="truncate">
-                        <div className="truncate leading-tight">
+                    <span className="truncate">
+                        <span className="block truncate leading-tight">
                             {activeAccount?.name || 'Select ad account'}
-                        </div>
+                        </span>
                         {activeAccount?.account_id && (
-                            <div className="text-[10px] font-mono text-[var(--st-text-secondary)]">
+                            <span className="block text-[10px] font-mono text-[var(--st-text-secondary)]">
                                 {activeAccount.account_id}
-                            </div>
+                            </span>
                         )}
-                    </div>
-                </div>
-                <ChevronsUpDown className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" />
+                    </span>
+                </span>
+                <ChevronsUpDown className="h-4 w-4 text-[var(--st-text-secondary)] shrink-0" aria-hidden="true" />
             </Button>
         </Link>
     );
@@ -80,42 +97,42 @@ function DateRangeBar({
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10 rounded-lg">
-                    <CalendarIcon className="mr-2 h-4 w-4" />
+                <Button variant="outline" size="sm" className="h-10" iconLeft={CalendarIcon}>
                     {DATE_PRESETS.find((p) => p.id === preset)?.label ||
                         (date?.from
-                            ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
+                            ? `${format(date.from, 'LLL dd')} to ${date.to ? format(date.to, 'LLL dd') : ''}`
                             : 'Last 7 days')}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0 w-auto" align="end">
                 <div className="flex">
-                    <ScrollArea className="h-[340px] border-r w-40">
-                        <div className="p-2 flex flex-col">
+                    <ScrollArea className="h-[340px] border-r border-[var(--st-border)] w-40">
+                        <div className="p-2 flex flex-col gap-0.5">
                             {DATE_PRESETS.map((p) => (
-                                <button
+                                <Button
                                     key={p.id}
-                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() => setPreset(p.id)}
                                     className={cn(
-                                        'text-left text-sm px-2 py-1.5 rounded hover:bg-[var(--st-bg-muted)]',
+                                        'justify-start h-auto py-1.5 text-left text-sm',
                                         preset === p.id && 'bg-[var(--st-text)]/10 text-[var(--st-text)] font-medium',
                                     )}
                                 >
                                     {p.label}
-                                </button>
+                                </Button>
                             ))}
                         </div>
                     </ScrollArea>
                     <Calendar
                         mode="range"
-                        selected={date}
-                        onSelect={(d) => {
+                        value={date}
+                        onChange={(d) => {
                             setDate(d);
                             setPreset('custom');
                         }}
                         numberOfMonths={2}
-                        initialFocus
+                        autoFocus
                     />
                 </div>
             </PopoverContent>
@@ -140,6 +157,30 @@ export function useAdManagerShell() {
     return ctx;
 }
 
+function HelpMenu() {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <IconButton label="Help and resources" icon={HelpCircle} className="h-10 w-10" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Help and resources</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
+                        Meta Business Help Center
+                    </a>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                    <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
+                        Marketing API docs
+                    </a>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
 export function AdManagerShell({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const [search, setSearch] = React.useState('');
@@ -154,63 +195,45 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
     return (
         <AdManagerShellContext.Provider value={state}>
             <div className="flex flex-col gap-4">
-                {/* In-page Meta toolbar — two rows on narrow, one on wide */}
-                <div className="rounded-xl border bg-[var(--st-bg-secondary)] shadow-sm p-2 space-y-2 md:space-y-0">
+                {/* In-page Meta toolbar: two rows on narrow, one on wide */}
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm p-2 space-y-2 md:space-y-0">
                     {/* Row 1: logo + account + search (always on top on narrow) */}
                     <div className="flex items-center gap-2 md:flex-1 md:min-w-0">
-                        <div className="flex items-center gap-2 font-semibold text-[var(--st-text)] pr-2 border-r mr-1 shrink-0">
+                        <div className="flex items-center gap-2 font-semibold text-[var(--st-text)] pr-2 border-r border-[var(--st-border)] mr-1 shrink-0">
                             <div className="h-7 w-7 rounded-md bg-[var(--st-text)] text-white flex items-center justify-center">
-                                <Facebook className="h-4 w-4" />
+                                <Facebook className="h-4 w-4" aria-hidden="true" />
                             </div>
                             <span className="hidden md:inline text-sm tracking-tight">Ads Manager</span>
                         </div>
 
                         <AccountSwitcher />
 
-                        <div className="relative flex-1 min-w-0 max-w-xl">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
-                            <Input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search by name, ID or metric"
-                                className="h-10 pl-9 rounded-lg bg-[var(--st-bg-muted)]/60 border-0 focus-visible:ring-2 focus-visible:ring-[var(--st-border)]/40"
-                            />
+                        <div className="flex-1 min-w-0 max-w-xl">
+                            <Field className="!gap-0" label={<span className="sr-only">Search ads</span>}>
+                                <Input
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Search by name, ID or metric"
+                                    iconLeft={Search}
+                                    className="h-10"
+                                />
+                            </Field>
                         </div>
 
                         {/* Desktop-only controls (inline on md+) */}
                         <div className="hidden md:flex items-center gap-1.5 shrink-0">
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
                             <Button
+                                variant="primary"
                                 size="sm"
-                                className="h-10 bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white rounded-lg"
+                                className="h-10"
+                                iconLeft={Plus}
                                 onClick={() => router.push('/dashboard/ad-manager/create')}
                             >
-                                <Plus className="h-4 w-4 mr-1" /> Create
+                                Create
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                                <Bell className="h-4 w-4" />
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                                        <HelpCircle className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
-                                        <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
-                                            Meta Business Help Center
-                                        </a>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
-                                            Marketing API docs
-                                        </a>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <IconButton label="Notifications" icon={Bell} className="h-10 w-10" />
+                            <HelpMenu />
                         </div>
                     </div>
 
@@ -220,36 +243,16 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
                         </div>
                         <Button
+                            variant="primary"
                             size="sm"
-                            className="h-10 bg-[var(--st-text)] hover:bg-[var(--st-text)]/90 text-white rounded-lg"
+                            className="h-10"
+                            iconLeft={Plus}
                             onClick={() => router.push('/dashboard/ad-manager/create')}
                         >
-                            <Plus className="h-4 w-4 mr-1" /> Create
+                            Create
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                            <Bell className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                                    <HelpCircle className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
-                                    <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
-                                        Meta Business Help Center
-                                    </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
-                                    <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
-                                        Marketing API docs
-                                    </a>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        <IconButton label="Notifications" icon={Bell} className="h-10 w-10" />
+                        <HelpMenu />
                     </div>
                 </div>
 

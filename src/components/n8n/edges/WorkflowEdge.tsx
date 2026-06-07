@@ -1,7 +1,15 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { Trash2 } from 'lucide-react';
 import { roundCorners } from 'svg-round-corners';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/sabcrm/20ui';
+
 import type { N8NConnection } from '../types';
 
 /* ── Constants ───────────────────────────────────────────── */
@@ -66,14 +74,6 @@ export function WorkflowEdge({
   const src = getPortPosition(connection.sourceNodeId, 'output', connection.sourceOutputIndex);
   const tgt = getPortPosition(connection.targetNodeId, 'input', connection.targetInputIndex);
 
-  /* Close context menu on next outside click */
-  useEffect(() => {
-    if (!contextMenu) return;
-    const close = () => setContextMenu(null);
-    window.addEventListener('click', close, { once: true });
-    return () => window.removeEventListener('click', close);
-  }, [contextMenu]);
-
   /* Delete via keyboard while hovered */
   useEffect(() => {
     if (!isHovered || isReadOnly) return;
@@ -94,14 +94,15 @@ export function WorkflowEdge({
   return (
     <>
       <g>
-        {/* Wide transparent hit-area — 18 px stroke for easy clicking */}
+        {/* Wide transparent hit-area, 18 px stroke for easy clicking */}
         <path
           data-edge-id={connection.id}
           d={path}
           strokeWidth={18}
           stroke="transparent"
           fill="none"
-          style={{ cursor: isReadOnly ? 'default' : 'pointer', pointerEvents: 'stroke' }}
+          className={isReadOnly ? 'cursor-default' : 'cursor-pointer'}
+          pointerEvents="stroke"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={() => !isReadOnly && setIsHovered(true)}
@@ -117,35 +118,42 @@ export function WorkflowEdge({
         <path
           d={path}
           strokeWidth={2}
-          stroke={isActive ? '#f76808' : 'var(--gray-8)'}
+          stroke={isActive ? 'var(--st-accent)' : 'var(--st-border-strong)'}
           fill="none"
           markerEnd={isActive ? 'url(#n8n-orange-arrow)' : 'url(#n8n-arrow)'}
           pointerEvents="none"
-          style={{ transition: 'stroke 120ms ease' }}
+          className="transition-[stroke] duration-100 ease-out"
         />
       </g>
 
-      {/* Right-click context menu — portal to body */}
-      {contextMenu &&
-        createPortal(
-          <div
-            className="fixed z-[9999] min-w-[130px] rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] py-1 shadow-md"
+      {/* Right-click context menu, controlled DropdownMenu anchored at the cursor */}
+      {contextMenu ? (
+        <DropdownMenu
+          open
+          onOpenChange={(next) => {
+            if (!next) setContextMenu(null);
+          }}
+        >
+          <DropdownMenuTrigger
+            aria-hidden="true"
+            tabIndex={-1}
+            className="fixed h-0 w-0"
             style={{ left: contextMenu.x, top: contextMenu.y }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 px-3 py-1.5 text-[12px] text-[var(--st-text)] hover:bg-[var(--gray-3)] transition-colors"
-              onClick={() => {
+          />
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              variant="danger"
+              iconLeft={Trash2}
+              onSelect={() => {
                 onDelete?.(connection.id);
                 setContextMenu(null);
               }}
             >
               Delete connection
-            </button>
-          </div>,
-          document.body,
-        )}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
     </>
   );
 }

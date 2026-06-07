@@ -1,24 +1,31 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
-  LuArrowLeft,
-  LuSave,
-  LuCheck,
-  LuLoader,
-  LuZap,
-  LuZapOff,
-  LuCopy,
-} from 'react-icons/lu';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+  ArrowLeft,
+  Save,
+  Check,
+  Zap,
+  ZapOff,
+  Copy,
+} from 'lucide-react';
 import { WorkflowProvider, useWorkflow } from './WorkflowContext';
 import { WorkflowCanvas } from './canvas/WorkflowCanvas';
 import { N8NNodesList } from './nodes/N8NNodesList';
 import { N8NNodeRegistry } from './nodes/N8NNodeProperties';
 import type { N8NCanvasWorkflow, N8NCanvasNode } from './types';
 import { WORKFLOW_TEMPLATES, WorkflowTemplate } from './WorkflowTemplates';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Badge,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/sabcrm/20ui';
 import { createId } from '@paralleldrive/cuid2';
 
 type Props = {
@@ -34,6 +41,7 @@ function EditorContent({
   onSave,
   backHref = '/dashboard/n8n',
 }: Props) {
+  const router = useRouter();
   const [workflow, setWorkflow] = useState(initialWorkflow);
   const [isSaving, startSaving] = useTransition();
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -72,7 +80,7 @@ function EditorContent({
       let currentName = baseName;
       let counter = 1;
       const existingNames = new Set(workflow.nodes.map(n => n.name));
-      
+
       while (existingNames.has(currentName) || Array.from(nameMap.values()).includes(currentName)) {
         currentName = `${baseName} ${counter}`;
         counter++;
@@ -83,10 +91,10 @@ function EditorContent({
     const newNodes = template.nodes.map((n) => {
       const newName = getUniqueName(n.name);
       nameMap.set(n.name, newName);
-      
-      return { 
-        ...n, 
-        id: createId(), 
+
+      return {
+        ...n,
+        id: createId(),
         name: newName,
         // Offset position slightly so it doesn't perfectly overlap if dropped multiple times
         position: [n.position[0] + 50, n.position[1] + 50] as [number, number]
@@ -105,7 +113,7 @@ function EditorContent({
       nodes: [...workflow.nodes, ...newNodes],
       connections: [...workflow.connections, ...newConnections],
     };
-    
+
     setWorkflow(updated);
     startSaving(async () => {
       await onSave?.(updated);
@@ -113,26 +121,28 @@ function EditorContent({
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-clip bg-[var(--gray-2)]">
-      {/* ── Header ────────────────────────────────────────────────────────── */}
-      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--gray-5)] bg-[var(--gray-1)] px-4 z-30">
-        <Link
-          href={backHref}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-        >
-          <LuArrowLeft className="h-4 w-4" strokeWidth={2} />
-        </Link>
+    <div className="ui20 flex flex-col h-screen overflow-clip bg-[var(--st-bg)]">
+      {/* Header */}
+      <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 z-30">
+        <IconButton
+          label="Back"
+          icon={ArrowLeft}
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(backHref)}
+        />
 
-        <div className="h-5 w-px bg-[var(--gray-5)]" />
+        <div className="h-5 w-px bg-[var(--st-border)]" />
 
         {/* Workflow name */}
-        <input
-          type="text"
+        <Input
+          inputSize="sm"
+          aria-label="Workflow name"
           value={workflow.name}
           onChange={(e) =>
             setWorkflow((prev) => ({ ...prev, name: e.target.value }))
           }
-          className="text-[14px] font-semibold text-[var(--gray-12)] bg-transparent border-none outline-none focus:ring-0 w-[240px] truncate"
+          className="w-[240px] font-semibold"
         />
 
         <div className="flex-1" />
@@ -140,24 +150,21 @@ function EditorContent({
         {/* Templates */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-1.5 text-[12.5px] font-medium text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors"
-            >
-              <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
+            <Button variant="secondary" size="sm" iconLeft={Copy}>
               Templates
-            </button>
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-[var(--gray-1)] border-[var(--gray-5)]">
+          <DropdownMenuContent align="end" className="w-56">
             {WORKFLOW_TEMPLATES.map((template) => (
               <DropdownMenuItem
                 key={template.id}
                 onClick={() => handleApplyTemplate(template)}
-                className="flex flex-col items-start gap-1 p-2 cursor-pointer focus:bg-[var(--gray-3)]"
+                className="flex flex-col items-start gap-1"
               >
-                <span className="text-[13px] font-medium text-[var(--gray-12)]">
+                <span className="text-[13px] font-medium text-[var(--st-text)]">
                   {template.name}
                 </span>
-                <span className="text-[11.5px] text-[var(--gray-9)] line-clamp-2 leading-snug">
+                <span className="text-[11.5px] text-[var(--st-text-tertiary)] line-clamp-2 leading-snug">
                   {template.description}
                 </span>
               </DropdownMenuItem>
@@ -167,51 +174,35 @@ function EditorContent({
 
         {/* Saved indicator */}
         {lastSaved && (
-          <span className="text-[11.5px] text-[var(--gray-9)] flex items-center gap-1.5">
-            <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
+          <Badge tone="success" kind="soft">
+            <Check size={13} aria-hidden="true" />
             Saved
-          </span>
+          </Badge>
         )}
 
         {/* Save button */}
-        <button
+        <Button
+          variant="primary"
+          size="sm"
+          iconLeft={Save}
+          loading={isSaving}
           onClick={handleSave}
-          disabled={isSaving}
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            isSaving
-              ? 'bg-[var(--gray-4)] text-[var(--gray-9)] cursor-wait'
-              : 'bg-[var(--st-text)] text-white hover:bg-[var(--st-text)]',
-          )}
         >
-          {isSaving ? (
-            <LuLoader className="h-3.5 w-3.5 animate-spin" strokeWidth={2} />
-          ) : (
-            <LuSave className="h-3.5 w-3.5" strokeWidth={2} />
-          )}
-          {isSaving ? 'Saving…' : 'Save'}
-        </button>
+          {isSaving ? 'Saving' : 'Save'}
+        </Button>
 
         {/* Active toggle */}
-        <button
+        <Button
+          variant={workflow.active ? 'primary' : 'secondary'}
+          size="sm"
+          iconLeft={workflow.active ? Zap : ZapOff}
           onClick={handleToggleActive}
-          className={cn(
-            'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12.5px] font-medium transition-colors',
-            workflow.active
-              ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]'
-              : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-11)] hover:bg-[var(--gray-3)]',
-          )}
         >
-          {workflow.active ? (
-            <LuZap className="h-3.5 w-3.5" strokeWidth={2} />
-          ) : (
-            <LuZapOff className="h-3.5 w-3.5" strokeWidth={2} />
-          )}
           {workflow.active ? 'Active' : 'Inactive'}
-        </button>
+        </Button>
       </header>
 
-      {/* ── Main layout ───────────────────────────────────────────────────── */}
+      {/* Main layout */}
       <div className="flex flex-1 min-h-0 relative overflow-clip">
         {/* Left: node palette */}
         <N8NNodesList />
@@ -252,7 +243,7 @@ function EditorContent({
 }
 
 /**
- * WorkflowEditor — the public-facing n8n-style workflow editor.
+ * WorkflowEditor - the public-facing n8n-style workflow editor.
  *
  * Wraps EditorContent in WorkflowProvider so all children share
  * pan/zoom, draft-connection, and selection state.

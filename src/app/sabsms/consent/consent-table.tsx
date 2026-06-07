@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SabSMS consent log — interactive client surface.
+ * SabSMS consent log - interactive client surface.
  *
  * Renders the filter bar, data table, timeline drawer, jurisdiction
  * badge row, cohort retention chart, DSR + erasure dialogs, retroactive
@@ -17,7 +17,7 @@ import {
   ListPlus,
   Mail,
   ShieldCheck,
-  Tag,
+  Tag as TagIcon,
   Webhook,
 } from "lucide-react";
 
@@ -32,7 +32,34 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { CHART_PALETTE, Badge, Button, Card, CardBody, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
+import {
+  CHART_PALETTE,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+  toast,
+} from "@/components/sabcrm/20ui";
 
 import {
   type CohortPoint,
@@ -131,13 +158,14 @@ export function ConsentTable({
         id: "phoneHash",
         header: "Phone hash",
         render: (r) => (
-          <button
-            type="button"
-            className="font-mono text-xs text-[var(--st-text)] hover:text-[var(--st-text)]"
+          <Button
+            variant="ghost"
+            size="sm"
+            className="font-mono text-xs"
             onClick={() => openTimeline(r)}
           >
-            {r.phoneHash.slice(0, 12)}…{r.phoneHash.slice(-4)}
-          </button>
+            {r.phoneHash.slice(0, 12)}...{r.phoneHash.slice(-4)}
+          </Button>
         ),
         width: "200px",
       },
@@ -168,7 +196,7 @@ export function ConsentTable({
           r.source ? (
             <span className="truncate text-xs text-[var(--st-text)]">{r.source}</span>
           ) : (
-            <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+            <span className="text-xs text-[var(--st-text-secondary)]">-</span>
           ),
       },
       {
@@ -176,7 +204,7 @@ export function ConsentTable({
         header: "IP",
         render: (r) => (
           <span className="font-mono text-xs text-[var(--st-text)]">
-            {r.ip ?? "—"}
+            {r.ip ?? "-"}
           </span>
         ),
         width: "120px",
@@ -191,10 +219,10 @@ export function ConsentTable({
               title={r.userAgent}
             >
               {r.userAgent.slice(0, 36)}
-              {r.userAgent.length > 36 ? "…" : ""}
+              {r.userAgent.length > 36 ? "..." : ""}
             </span>
           ) : (
-            <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+            <span className="text-xs text-[var(--st-text-secondary)]">-</span>
           ),
         width: "200px",
         hideByDefault: true,
@@ -229,7 +257,7 @@ export function ConsentTable({
 
   async function runVerify() {
     if (!verifyHash.trim()) return;
-    setBusy("Verifying…");
+    setBusy("Verifying...");
     try {
       const res = await verifyDoubleOptInForPhone({
         phoneHash: verifyHash.trim(),
@@ -240,36 +268,16 @@ export function ConsentTable({
     }
   }
 
-  async function handleImport(picked: { url?: string }) {
-    if (!picked.url) return;
-    setBusy("Importing…");
-    try {
-      const res = await bulkImportRetroactiveConsents({
-        sabFileUrl: picked.url,
-        kind: importKind,
-        captureMethod: importCapture,
-      });
-      if (res.ok) {
-        setImportOpen(false);
-        refresh();
-      } else {
-        alert(res.error);
-      }
-    } finally {
-      setBusy(null);
-    }
-  }
-
   async function handleSaveTag() {
     if (!tagRow) return;
-    setBusy("Saving tag…");
+    setBusy("Saving tag...");
     try {
       const res = await tagConsentEvent({ id: tagRow.id, tag: tagValue });
       if (res.ok) {
         setTagRow(null);
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -278,13 +286,13 @@ export function ConsentTable({
 
   async function runDsr() {
     if (!dsrHash.trim()) return;
-    setBusy("Building DSR payload…");
+    setBusy("Building DSR payload...");
     try {
       const res = await subjectAccessRequest({ phoneHash: dsrHash.trim() });
       if (res.ok) {
         setDsrPayload(res.payload);
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -293,7 +301,7 @@ export function ConsentTable({
 
   async function runErasure() {
     if (!erasureHash.trim()) return;
-    setBusy("Running erasure…");
+    setBusy("Running erasure...");
     try {
       const res = await erasureRequest({ phoneHash: erasureHash.trim() });
       if (res.ok) {
@@ -301,7 +309,7 @@ export function ConsentTable({
         setErasureHash("");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -340,7 +348,7 @@ export function ConsentTable({
           {jurisdictions.map((j) => (
             <span
               key={j.code}
-              className="flex items-center gap-1.5 rounded-md border border-[var(--st-border)] px-2.5 py-1 text-xs"
+              className="flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] px-2.5 py-1 text-xs"
               title={j.note}
             >
               <Badge
@@ -425,16 +433,18 @@ export function ConsentTable({
             <Button
               variant="outline"
               size="sm"
+              iconLeft={BadgeCheck}
               onClick={() => setVerifyOpen(true)}
             >
-              <BadgeCheck className="mr-1.5 h-3.5 w-3.5" /> Verify double opt-in
+              Verify double opt-in
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={ListPlus}
               onClick={() => setImportOpen(true)}
             >
-              <ListPlus className="mr-1.5 h-3.5 w-3.5" /> Import
+              Import
             </Button>
             <SabsmsExportMenu
               filename={`sabsms-consent-${Date.now()}`}
@@ -446,7 +456,11 @@ export function ConsentTable({
               size="sm"
               onClick={async () => {
                 const r = await exportAuditTrailPdf();
-                alert(r.ok ? "ok" : r.error);
+                if (r.ok) {
+                  toast.success("Audit PDF exported");
+                } else {
+                  toast.error(r.error);
+                }
               }}
             >
               Audit PDF
@@ -454,28 +468,38 @@ export function ConsentTable({
             <Button
               variant="outline"
               size="sm"
+              iconLeft={ShieldCheck}
               onClick={() => setDsrOpen(true)}
             >
-              <ShieldCheck className="mr-1.5 h-3.5 w-3.5" /> DSR
+              DSR
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Eraser}
               onClick={() => setErasureOpen(true)}
             >
-              <Eraser className="mr-1.5 h-3.5 w-3.5" /> Erasure
+              Erasure
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={TagIcon}
               onClick={() => setTaxonomyOpen(true)}
             >
-              <Tag className="mr-1.5 h-3.5 w-3.5" /> Reasons
+              Reasons
             </Button>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/sabsms/webhooks">
-                <Webhook className="mr-1.5 h-3.5 w-3.5" /> Webhook
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              iconLeft={Webhook}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.href = "/sabsms/webhooks";
+                }
+              }}
+            >
+              Webhook
             </Button>
           </>
         }
@@ -491,12 +515,12 @@ export function ConsentTable({
         rowActions={[
           {
             label: "Open timeline",
-            icon: <History className="h-3.5 w-3.5" />,
+            icon: <History className="h-3.5 w-3.5" aria-hidden="true" />,
             onSelect: (r) => openTimeline(r),
           },
           {
             label: "Tag",
-            icon: <Tag className="h-3.5 w-3.5" />,
+            icon: <TagIcon className="h-3.5 w-3.5" aria-hidden="true" />,
             onSelect: (r) => {
               setTagRow(r);
               setTagValue(
@@ -506,10 +530,14 @@ export function ConsentTable({
           },
           {
             label: "Re-request consent",
-            icon: <Mail className="h-3.5 w-3.5" />,
+            icon: <Mail className="h-3.5 w-3.5" aria-hidden="true" />,
             onSelect: async (r) => {
               const res = await reRequestConsent({ phoneHash: r.phoneHash });
-              alert(res.ok ? "Sent" : res.error);
+              if (res.ok) {
+                toast.success("Sent");
+              } else {
+                toast.error(res.error);
+              }
             },
           },
         ]}
@@ -524,12 +552,12 @@ export function ConsentTable({
         title="Consent timeline"
         description={
           timelineFor
-            ? `Phone hash ${timelineFor.phoneHash.slice(0, 12)}…`
+            ? `Phone hash ${timelineFor.phoneHash.slice(0, 12)}...`
             : undefined
         }
       >
         {timelineLoading ? (
-          <p className="text-sm text-[var(--st-text)]">Loading…</p>
+          <p className="text-sm text-[var(--st-text)]">Loading...</p>
         ) : timelineRows.length === 0 ? (
           <p className="text-sm text-[var(--st-text)]">No events for this hash.</p>
         ) : (
@@ -537,7 +565,7 @@ export function ConsentTable({
             {timelineRows.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs"
               >
                 <div className="flex items-center justify-between">
                   <Badge
@@ -553,7 +581,7 @@ export function ConsentTable({
                 </div>
                 <p className="mt-1.5 text-[var(--st-text)]">
                   via {e.captureMethod}
-                  {e.source && ` · ${e.source}`}
+                  {e.source && `, ${e.source}`}
                 </p>
                 {e.ip && <p className="text-[var(--st-text)]">ip {e.ip}</p>}
               </li>
@@ -568,19 +596,19 @@ export function ConsentTable({
           <DialogHeader>
             <DialogTitle>Verify double opt-in</DialogTitle>
             <DialogDescription>
-              Checks the event timeline for an opt-in-single → opt-in-double
+              Checks the event timeline for an opt-in-single then opt-in-double
               sequence without an intervening opt-out.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            value={verifyHash}
-            onChange={(e) => setVerifyHash(e.target.value)}
-            placeholder="64-char phone hash"
-          />
+          <Field label="Phone hash">
+            <Input
+              value={verifyHash}
+              onChange={(e) => setVerifyHash(e.target.value)}
+              placeholder="64-char phone hash"
+            />
+          </Field>
           {verifyResult && (
-            <div
-              className={`rounded-md border p-3 text-sm ${verifyResult.verified ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]" : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"}`}
-            >
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm text-[var(--st-text)]">
               {verifyResult.verified
                 ? `Verified at ${verifyResult.verifiedAt}`
                 : "Not double-opt-in verified"}
@@ -603,19 +631,18 @@ export function ConsentTable({
           <DialogHeader>
             <DialogTitle>Import retroactive consents</DialogTitle>
             <DialogDescription>
-              CSV must have <code>phone_hash</code> + optional{" "}
+              CSV must have <code>phone_hash</code> plus optional{" "}
               <code>source</code> / <code>ip</code> / <code>user_agent</code> /
               <code>captured_at</code> columns.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label>Kind</Label>
+            <Field label="Kind">
               <Select
                 value={importKind}
                 onValueChange={(v) => setImportKind(v as ConsentRow["kind"])}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Kind">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -626,16 +653,15 @@ export function ConsentTable({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>Capture method</Label>
+            </Field>
+            <Field label="Capture method">
               <Select
                 value={importCapture}
                 onValueChange={(v) =>
                   setImportCapture(v as ConsentRow["captureMethod"])
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Capture method">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -646,7 +672,7 @@ export function ConsentTable({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportOpen(false)}>
@@ -654,7 +680,7 @@ export function ConsentTable({
             </Button>
             <Button
               onClick={() => {
-                // The SabFilePicker is rendered separately — opening the
+                // The SabFilePicker is rendered separately - opening the
                 // file picker requires its own state, so we close the
                 // outer dialog first then open the picker.
                 setImportOpen(false);
@@ -681,11 +707,13 @@ export function ConsentTable({
               Useful for grouping events by campaign or audit batch.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            value={tagValue}
-            onChange={(e) => setTagValue(e.target.value)}
-            placeholder="e.g. q4-audit"
-          />
+          <Field label="Tag">
+            <Input
+              value={tagValue}
+              onChange={(e) => setTagValue(e.target.value)}
+              placeholder="e.g. q4-audit"
+            />
+          </Field>
           {reasonTaxonomy.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
               {reasonTaxonomy.map((t) => (
@@ -721,18 +749,22 @@ export function ConsentTable({
               phone hash.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            value={dsrHash}
-            onChange={(e) => setDsrHash(e.target.value)}
-            placeholder="64-char phone hash"
-          />
-          {dsrPayload && (
-            <Textarea
-              rows={10}
-              value={dsrPayload}
-              readOnly
-              className="font-mono text-xs"
+          <Field label="Phone hash">
+            <Input
+              value={dsrHash}
+              onChange={(e) => setDsrHash(e.target.value)}
+              placeholder="64-char phone hash"
             />
+          </Field>
+          {dsrPayload && (
+            <Field label="DSR payload">
+              <Textarea
+                rows={10}
+                value={dsrPayload}
+                readOnly
+                className="font-mono text-xs"
+              />
+            </Field>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setDsrOpen(false)}>
@@ -751,15 +783,17 @@ export function ConsentTable({
           <DialogHeader>
             <DialogTitle>Erasure request</DialogTitle>
             <DialogDescription>
-              Hash-preserving — clears IP / UA / metadata but keeps the
+              Hash-preserving - clears IP / UA / metadata but keeps the
               hashed row so we still honour the opt-out forever.
             </DialogDescription>
           </DialogHeader>
-          <Input
-            value={erasureHash}
-            onChange={(e) => setErasureHash(e.target.value)}
-            placeholder="64-char phone hash"
-          />
+          <Field label="Phone hash">
+            <Input
+              value={erasureHash}
+              onChange={(e) => setErasureHash(e.target.value)}
+              placeholder="64-char phone hash"
+            />
+          </Field>
           <DialogFooter>
             <Button variant="outline" onClick={() => setErasureOpen(false)}>
               Cancel
@@ -797,7 +831,7 @@ export function ConsentTable({
     pickerCtl.current?.(true);
   }
 
-  // ── tied below ──
+  // -- tied below --
 }
 
 // We keep the import-picker logic in a small component so the SabFiles
@@ -839,7 +873,7 @@ function ConsentImportPicker({
         if (res.ok) {
           onComplete();
         } else {
-          alert(res.error);
+          toast.error(res.error);
         }
       }}
     />
@@ -864,7 +898,7 @@ function ConsentTaxonomyEditor({
       setDraft("");
       refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error);
     }
   }
   async function remove(l: string) {
@@ -881,21 +915,28 @@ function ConsentTaxonomyEditor({
         {labels.map((l) => (
           <li
             key={l}
-            className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-1.5 text-sm"
+            className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-1.5 text-sm"
           >
             <span>{l}</span>
-            <Button variant="ghost" size="sm" onClick={() => remove(l)}>
-              <Activity className="mr-1 h-3.5 w-3.5" /> Remove
+            <Button
+              variant="ghost"
+              size="sm"
+              iconLeft={Activity}
+              onClick={() => remove(l)}
+            >
+              Remove
             </Button>
           </li>
         ))}
       </ul>
       <div className="flex gap-2">
-        <Input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="New reason label"
-        />
+        <Field label="New reason label" className="flex-1">
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="New reason label"
+          />
+        </Field>
         <Button onClick={add} disabled={!draft.trim()}>
           Add
         </Button>

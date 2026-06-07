@@ -1,6 +1,51 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, ScrollBar, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  ScrollArea,
+  ScrollBar,
+  Skeleton,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
@@ -20,20 +65,20 @@ import {
   } from 'lucide-react';
 
 /**
- * SabWa Groups — list page client (SABWA_PLAN.md §6 page 6).
+ * SabWa Groups - list page client (SABWA_PLAN.md section 6 page 6).
  *
  * - Top toolbar: search + "New group".
  * - Category strip (horizontally scrollable) with "All" / "Uncategorised" /
  *   each user-defined category. Active pill drives `?category=` re-fetch.
  * - Grid of group cards with subject, member count, admin / announcement
  *   badges, mute icon, last-activity timestamp.
- * - Right-click / long-press → context menu (Open chat / Manage /
- *   Mute / Leave). Drag a card onto a category pill → setGroupCategory.
- * - "New group" dialog: subject + contact-searcher → createGroup.
+ * - Right-click / long-press opens a context menu (Open chat / Manage /
+ *   Mute / Leave). Drag a card onto a category pill calls setGroupCategory.
+ * - "New group" dialog: subject + contact-searcher calls createGroup.
  *
  * All server side-effects are routed through `@/app/actions/sabwa.actions`.
  *
- * ZoruUI migration — visual swap only; data flow, server actions and
+ * 20ui design system - pure 20ui primitives; data flow, server actions and
  * prop shapes are unchanged.
  */
 
@@ -51,7 +96,7 @@ import {
 import { useSabwaSession } from '@/lib/sabwa/session-context';
 import { useResolveJid, type JidResolver } from '@/lib/sabwa/format-jid';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// --- Helpers ----------------------------------------------------------------
 
 const UNCATEGORISED = '__uncategorised__';
 
@@ -79,7 +124,7 @@ function initials(name: string): string {
     .join('');
 }
 
-// ─── New group dialog ───────────────────────────────────────────────────────
+// --- New group dialog -------------------------------------------------------
 
 interface NewGroupDialogProps {
   open: boolean;
@@ -124,16 +169,16 @@ function NewGroupDialog({
       toast({
         title: 'No active SabWa session',
         description: 'Connect a WhatsApp device first.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
     if (!subject.trim()) {
-      toast({ title: 'Subject is required', variant: 'destructive' });
+      toast({ title: 'Subject is required', tone: 'danger' });
       return;
     }
     if (participants.length === 0) {
-      toast({ title: 'Add at least one participant', variant: 'destructive' });
+      toast({ title: 'Add at least one participant', tone: 'danger' });
       return;
     }
     setSubmitting(true);
@@ -144,21 +189,21 @@ function NewGroupDialog({
         participants,
       });
       if (res.ok) {
-        toast({ title: 'Group queued for creation' });
+        toast({ title: 'Group queued for creation', tone: 'success' });
         onCreated();
         onOpenChange(false);
       } else {
         toast({
           title: 'Failed to create group',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     } catch (err) {
       toast({
         title: 'Failed to create group',
         description: err instanceof Error ? err.message : 'Unknown error',
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setSubmitting(false);
@@ -175,18 +220,15 @@ function NewGroupDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="new-group-subject">Subject</Label>
+          <Field label="Subject">
             <Input
-              id="new-group-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Group name"
               maxLength={100}
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="new-group-participants">Participants</Label>
+          </Field>
+          <Field label="Participants">
             <Command className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <CommandInput
                 placeholder="Type a phone number (E.164) and press Enter"
@@ -204,7 +246,7 @@ function NewGroupDialog({
                 {phoneInput.trim().length > 0 && (
                   <CommandGroup heading="Add">
                     <CommandItem onSelect={addParticipant}>
-                      <Plus className="mr-2 h-4 w-4" />
+                      <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
                       Add {phoneInput.trim()}
                     </CommandItem>
                   </CommandGroup>
@@ -221,19 +263,19 @@ function NewGroupDialog({
                     onClick={() => removeParticipant(p)}
                   >
                     {p}
-                    <span className="ml-1 text-[var(--st-text-secondary)]">×</span>
+                    <span className="ml-1 text-[var(--st-text-secondary)]">x</span>
                   </Badge>
                 ))}
               </div>
             )}
-          </div>
+          </Field>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={onSubmit} disabled={submitting}>
-            {submitting ? 'Creating…' : 'Create group'}
+          <Button variant="primary" onClick={onSubmit} loading={submitting} disabled={submitting}>
+            {submitting ? 'Creating...' : 'Create group'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -241,7 +283,7 @@ function NewGroupDialog({
   );
 }
 
-// ─── Group card ─────────────────────────────────────────────────────────────
+// --- Group card -------------------------------------------------------------
 
 interface GroupCardProps {
   group: SabwaGroupSummary;
@@ -303,7 +345,10 @@ const GroupCard = React.memo(function GroupCard({
         onTouchEnd={handleTouchEnd}
         onTouchCancel={handleTouchEnd}
       >
-        <Card className="cursor-pointer transition hover:shadow-[var(--st-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]">
+        <Card
+          padding="none"
+          className="cursor-pointer transition hover:shadow-[var(--st-shadow-md)] focus-within:ring-2 focus-within:ring-[var(--st-text)]"
+        >
           <CardBody className="p-4">
             <div className="flex items-start gap-3">
               <Avatar className="h-12 w-12 shrink-0">
@@ -314,43 +359,42 @@ const GroupCard = React.memo(function GroupCard({
               </Avatar>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <button
-                    type="button"
-                    className="min-w-0 truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
+                  <Button
+                    variant="ghost"
+                    className="min-w-0 max-w-full truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
                     onClick={onOpenChat}
                     title={displayName}
                   >
                     {displayName}
-                  </button>
+                  </Button>
                   <DropdownMenuTrigger asChild>
-                    <Button
+                    <IconButton
+                      label="Group actions"
+                      icon={MoreHorizontal}
                       variant="ghost"
-                      size="icon-sm"
-                      aria-label="Group actions"
+                      size="sm"
                       onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    />
                   </DropdownMenuTrigger>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
                   <span className="inline-flex items-center gap-1">
-                    <Users className="h-3 w-3" />
+                    <Users className="h-3 w-3" aria-hidden="true" />
                     {group.participantCount}
                   </span>
                   {group.muted ? (
                     <span title="Muted" className="inline-flex items-center">
-                      <BellOff className="h-3 w-3" />
+                      <BellOff className="h-3 w-3" aria-hidden="true" />
                     </span>
                   ) : null}
                   {group.lastActivityAt ? (
-                    <span>· {formatRelative(group.lastActivityAt)}</span>
+                    <span>&middot; {formatRelative(group.lastActivityAt)}</span>
                   ) : null}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {group.isAdmin ? (
                     <Badge variant="secondary" className="gap-1">
-                      <ShieldCheck className="h-3 w-3" />
+                      <ShieldCheck className="h-3 w-3" aria-hidden="true" />
                       Admin
                     </Badge>
                   ) : null}
@@ -359,7 +403,7 @@ const GroupCard = React.memo(function GroupCard({
                   ) : null}
                   {group.category ? (
                     <Badge variant="outline" className="gap-1">
-                      <Tag className="h-3 w-3" />
+                      <Tag className="h-3 w-3" aria-hidden="true" />
                       {group.category}
                     </Badge>
                   ) : null}
@@ -371,24 +415,24 @@ const GroupCard = React.memo(function GroupCard({
       </div>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onSelect={() => onContextAction('open', group.jid)}>
-          <ExternalLink className="mr-2 h-4 w-4" />
+          <ExternalLink className="mr-2 h-4 w-4" aria-hidden="true" />
           Open chat
         </DropdownMenuItem>
         {group.isAdmin ? (
           <DropdownMenuItem onSelect={() => onContextAction('manage', group.jid)}>
-            <Settings className="mr-2 h-4 w-4" />
+            <Settings className="mr-2 h-4 w-4" aria-hidden="true" />
             Manage group
           </DropdownMenuItem>
         ) : null}
         <DropdownMenuItem onSelect={() => onContextAction('mute', group.jid)}>
           {group.muted ? (
             <>
-              <Volume2 className="mr-2 h-4 w-4" />
+              <Volume2 className="mr-2 h-4 w-4" aria-hidden="true" />
               Unmute
             </>
           ) : (
             <>
-              <BellOff className="mr-2 h-4 w-4" />
+              <BellOff className="mr-2 h-4 w-4" aria-hidden="true" />
               Mute
             </>
           )}
@@ -398,7 +442,7 @@ const GroupCard = React.memo(function GroupCard({
           className="text-[var(--st-danger)] focus:text-[var(--st-danger)]"
           onSelect={() => onContextAction('leave', group.jid)}
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
           Leave group
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -406,7 +450,7 @@ const GroupCard = React.memo(function GroupCard({
   );
 });
 
-// ─── Category pill ──────────────────────────────────────────────────────────
+// --- Category pill ----------------------------------------------------------
 
 interface CategoryPillProps {
   active: boolean;
@@ -428,8 +472,8 @@ function CategoryPill({
   const [isOver, setIsOver] = React.useState(false);
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onClick={onSelect}
       onDragOver={(e) => {
         if (!onDrop) return;
@@ -445,7 +489,7 @@ function CategoryPill({
         if (jid) onDrop(jid);
       }}
       className={cn(
-        'inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition',
+        'shrink-0 gap-2 rounded-full border px-3 py-1.5 text-xs',
         active
           ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
           : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
@@ -456,7 +500,7 @@ function CategoryPill({
         <span
           className="inline-block h-2 w-2 rounded-full"
           style={{ backgroundColor: color }}
-          aria-hidden
+          aria-hidden="true"
         />
       ) : null}
       <span>{label}</span>
@@ -472,11 +516,11 @@ function CategoryPill({
           {count}
         </span>
       ) : null}
-    </button>
+    </Button>
   );
 }
 
-// ─── Main client component ──────────────────────────────────────────────────
+// --- Main client component --------------------------------------------------
 
 export function GroupsPageClient() {
   const router = useRouter();
@@ -570,20 +614,20 @@ export function GroupsPageClient() {
           categoryId,
         });
         if (res.ok) {
-          toast({ title: 'Category updated' });
+          toast({ title: 'Category updated', tone: 'success' });
           fetchAll();
         } else {
           toast({
             title: 'Could not update category',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       } catch (err) {
         toast({
           title: 'Could not update category',
           description: err instanceof Error ? err.message : String(err),
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     },
@@ -635,45 +679,47 @@ export function GroupsPageClient() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-3">
-          <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
-            <Users className="h-6 w-6" />
+      <PageHeader className="mt-5">
+        <PageHeaderHeading>
+          <div className="flex items-center gap-3">
+            <span
+              className="inline-flex shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
+              aria-hidden="true"
+            >
+              <Users className="h-6 w-6" />
+            </span>
+            <div>
+              <PageTitle>Groups</PageTitle>
+              <PageDescription>
+                All WhatsApp groups linked to this session.
+              </PageDescription>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
-              Groups
-            </h1>
-            <p className="mt-0.5 text-[13px] text-[var(--st-text-secondary)]">
-              All WhatsApp groups linked to this session.
-            </p>
-          </div>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative">
-            <Input
-              leadingSlot={<Search />}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search groups…"
-              className="w-56"
-            />
-          </div>
+        </PageHeaderHeading>
+        <PageActions>
+          <Input
+            iconLeft={Search}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search groups..."
+            aria-label="Search groups"
+            className="w-56"
+          />
           <Button
+            variant="primary"
+            iconLeft={Plus}
             onClick={() => setNewGroupOpen(true)}
             disabled={!sessionId}
           >
-            <Plus />
             New group
           </Button>
-          <Button asChild variant="outline">
-            <Link href="/sabwa/groups/categories">
-              <Tag />
+          <Link href="/sabwa/groups/categories">
+            <Button variant="outline" iconLeft={Tag}>
               Categories
-            </Link>
-          </Button>
-        </div>
-      </div>
+            </Button>
+          </Link>
+        </PageActions>
+      </PageHeader>
 
       <ScrollArea className="mt-4 w-full whitespace-nowrap">
         <div className="flex items-center gap-2 pb-3">
@@ -702,31 +748,27 @@ export function GroupsPageClient() {
               onDrop={(jid) => handleDropOnCategory(cat.id, jid)}
             />
           ))}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="shrink-0"
-            asChild
-          >
-            <Link href="/sabwa/groups/categories">
+          <Link href="/sabwa/groups/categories" className="shrink-0">
+            <Button variant="ghost" size="sm" iconRight={ChevronRight}>
               Manage
-              <ChevronRight className="ml-1 h-3 w-3" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
         </div>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
       {!sessionId ? (
         <Card className="mt-4">
-          <CardBody className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              Connect a WhatsApp device to see your groups.
-            </p>
-            <Button asChild>
-              <Link href="/sabwa/connect">Connect now</Link>
-            </Button>
+          <CardBody>
+            <EmptyState
+              icon={Users}
+              title="Connect a WhatsApp device to see your groups."
+              action={
+                <Link href="/sabwa/connect">
+                  <Button variant="primary">Connect now</Button>
+                </Link>
+              }
+            />
           </CardBody>
         </Card>
       ) : loading ? (
@@ -737,11 +779,11 @@ export function GroupsPageClient() {
         </div>
       ) : filteredGroups.length === 0 ? (
         <Card className="mt-4">
-          <CardBody className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-            <Users className="h-8 w-8 text-[var(--st-text-secondary)]" />
-            <p className="text-sm text-[var(--st-text-secondary)]">
-              {search ? 'No groups match your search.' : 'No groups yet.'}
-            </p>
+          <CardBody>
+            <EmptyState
+              icon={Users}
+              title={search ? 'No groups match your search.' : 'No groups yet.'}
+            />
           </CardBody>
         </Card>
       ) : (

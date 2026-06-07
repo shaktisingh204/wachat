@@ -1,6 +1,46 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Popover, PopoverContent, PopoverTrigger, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, cn } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  Tag,
+  Textarea,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   BookCopy,
   Edit3,
@@ -15,22 +55,21 @@ import {
   Trash2,
   CalendarClock,
   Paperclip,
-  X,
   RefreshCw,
 } from 'lucide-react';
 
 /**
- * SabWa — Templates (Page 15)
+ * SabWa, Templates (Page 15)
  *
  * Folder-organised grid of reusable message templates with rich body,
  * variables, and a media attachment via SabFiles. The editor opens in a
  * Dialog. Each card exposes a "Use template" menu for insert / broadcast
  * / schedule, and search filters across name + body.
  *
- * Migrated to ZoruUI primitives. No behaviour changes — same server
+ * Built on pure 20ui primitives. No behaviour changes. Same server
  * actions, same prop shapes.
  *
- * Source of truth: SABWA_PLAN.md § 6 — Page 15.
+ * Source of truth: SABWA_PLAN.md section 6, Page 15.
  */
 
 import * as React from 'react';
@@ -91,10 +130,11 @@ function detectVariables(body: string): string[] {
   return Array.from(out);
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
+/* Page */
 
 export default function Page() {
   const { current: activeSession } = useSabwaSession();
+  const { toast } = useToast();
   const sessionId = activeSession?.id ?? null;
   const [templates, setTemplates] = React.useState<TemplateRow[]>([]);
   const [folders, setFolders] = React.useState<FolderRow[]>([
@@ -160,6 +200,7 @@ export default function Page() {
   const onDelete = async (id: string) => {
     setTemplates((prev) => prev.filter((t) => t.id !== id));
     await deleteTemplate(id);
+    toast.success('Template deleted');
   };
 
   const [syncing, setSyncing] = React.useState(false);
@@ -175,6 +216,7 @@ export default function Page() {
     await syncTemplates(sessionId);
     await refresh();
     setSyncing(false);
+    toast.success('Templates synced');
   };
 
   const addFolder = (name: string) => {
@@ -203,12 +245,12 @@ export default function Page() {
           </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <Button size="md">Open accounts</Button>
+              <Button>Open accounts</Button>
             </Link>
           }
         />
@@ -238,7 +280,10 @@ export default function Page() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <div
+            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+            aria-hidden="true"
+          >
             <BookCopy className="h-5 w-5" />
           </div>
           <div>
@@ -253,19 +298,22 @@ export default function Page() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={onSync} disabled={syncing}>
-            <RefreshCw className={cn("mr-2 h-4 w-4", syncing && "animate-spin")} /> 
+            <RefreshCw
+              className={cn('mr-2 h-4 w-4', syncing && 'animate-spin')}
+              aria-hidden="true"
+            />
             Sync API
           </Button>
-          <Button onClick={openNew}>
-            <Plus className="mr-2 h-4 w-4" /> New template
+          <Button variant="primary" onClick={openNew}>
+            <Plus className="mr-2 h-4 w-4" aria-hidden="true" /> New template
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[220px_1fr]">
         {/* Folder sidebar */}
-        <Card className="h-fit">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="h-fit" padding="none">
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle className="text-sm">Folders</CardTitle>
             <NewFolderButton onCreate={addFolder} />
           </CardHeader>
@@ -273,23 +321,26 @@ export default function Page() {
             <ul className="flex flex-col gap-0.5">
               {folders.map((f) => (
                 <li key={f.id}>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    block
                     onClick={() => setActiveFolder(f.id)}
                     className={cn(
-                      'flex w-full items-center gap-2 rounded-[var(--st-radius)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]',
-                      activeFolder === f.id &&
-                        'bg-[var(--st-bg-secondary)] font-medium',
+                      'justify-start',
+                      activeFolder === f.id && 'bg-[var(--st-bg-secondary)] font-medium',
                     )}
                   >
-                    <Folder className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                    <Folder
+                      className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                      aria-hidden="true"
+                    />
                     <span className="truncate">{f.name}</span>
                     <span className="ml-auto text-xs text-[var(--st-text-secondary)]">
                       {f.id === 'all'
                         ? templates.length
                         : templates.filter((t) => t.folder === f.id).length}
                     </span>
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -298,44 +349,42 @@ export default function Page() {
 
         {/* Right pane: search + grid */}
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search templates by name or body…"
-              className="pl-9"
-              aria-label="Search templates"
-            />
-          </div>
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search templates by name or body..."
+            iconLeft={Search}
+            aria-label="Search templates"
+          />
 
           {loading && filtered.length === 0 && (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton
                   key={`templates-skeleton-${i}`}
-                  className="h-[180px] rounded-[var(--st-radius-lg)]"
+                  height={180}
+                  radius="var(--st-radius-lg)"
                 />
               ))}
             </div>
           )}
           {!loading && filtered.length === 0 && (
             <EmptyState
-              icon={<MessageSquarePlus />}
-              title={search ? "No templates match your search" : "No templates yet"}
+              icon={MessageSquarePlus}
+              title={search ? 'No templates match your search' : 'No templates yet'}
               description={
                 search
-                  ? "Try a different keyword, or clear the search to see every template in this folder."
-                  : "Save reusable message blocks with variables and media — then pull them into the composer, scheduler, or broadcasts in one click."
+                  ? 'Try a different keyword, or clear the search to see every template in this folder.'
+                  : 'Save reusable message blocks with variables and media, then pull them into the composer, scheduler, or broadcasts in one click.'
               }
               action={
                 search ? (
-                  <Button variant="outline" onClick={() => setSearch("")}>
+                  <Button variant="outline" onClick={() => setSearch('')}>
                     Clear search
                   </Button>
                 ) : (
-                  <Button onClick={openNew}>
-                    <Plus className="mr-1.5 h-4 w-4" />
+                  <Button variant="primary" onClick={openNew}>
+                    <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
                     New template
                   </Button>
                 )
@@ -368,7 +417,7 @@ export default function Page() {
   );
 }
 
-// ─── Folder creator popover ────────────────────────────────────────────────
+/* Folder creator popover */
 
 function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
   const [open, setOpen] = React.useState(false);
@@ -376,25 +425,22 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button size="icon" variant="ghost" aria-label="New folder">
-          <FolderPlus className="h-4 w-4" />
-        </Button>
+        <IconButton label="New folder" icon={FolderPlus} variant="ghost" size="sm" />
       </PopoverTrigger>
       <PopoverContent className="w-56" align="end">
         <div className="space-y-2">
-          <Label htmlFor="folder-name" className="text-xs">
-            Folder name
-          </Label>
-          <Input
-            id="folder-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Onboarding"
-            className="h-8 text-sm"
-          />
+          <Field label="Folder name">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Onboarding"
+              inputSize="sm"
+            />
+          </Field>
           <Button
+            variant="primary"
             size="sm"
-            className="w-full"
+            block
             onClick={() => {
               if (name.trim()) {
                 onCreate(name.trim());
@@ -411,7 +457,7 @@ function NewFolderButton({ onCreate }: { onCreate: (name: string) => void }) {
   );
 }
 
-// ─── Template card ─────────────────────────────────────────────────────────
+/* Template card */
 
 interface TemplateCardProps {
   template: TemplateRow;
@@ -419,62 +465,53 @@ interface TemplateCardProps {
   onDelete: () => void;
 }
 
-const statusColorMap: Record<string, string> = {
-  APPROVED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
-  REJECTED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
-  PENDING: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
-  PAUSED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
-  UNMAPPED: 'bg-[var(--st-text)]/10 text-[var(--st-text)] border-[var(--st-border)]',
+const APPROVAL_TONE: Record<string, React.ComponentProps<typeof Badge>['tone']> = {
+  APPROVED: 'success',
+  REJECTED: 'danger',
+  PENDING: 'warning',
+  PAUSED: 'neutral',
+  UNMAPPED: 'neutral',
 };
 
 function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
-  const [actionsOpen, setActionsOpen] = React.useState(false);
+  const approvalTone =
+    (template.approvalStatus && APPROVAL_TONE[template.approvalStatus]) ?? 'neutral';
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader className="space-y-1 pb-2">
+    <Card variant="outlined" className="flex h-full flex-col">
+      <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <CardTitle className="truncate text-base">
-              {template.name}
-            </CardTitle>
+            <CardTitle className="truncate text-base">{template.name}</CardTitle>
             {(template.category || template.approvalStatus) && (
               <CardDescription className="flex items-center gap-1.5 flex-wrap mt-1">
                 {template.category && (
-                  <Badge variant="outline" className="text-[10px]">
+                  <Badge tone="neutral" kind="outline" className="text-[10px]">
                     {template.category}
                   </Badge>
                 )}
                 {template.approvalStatus && (
-                  <Badge variant="outline" className={cn("text-[10px]", statusColorMap[template.approvalStatus])}>
+                  <Badge tone={approvalTone} className="text-[10px]">
                     {template.approvalStatus}
                   </Badge>
                 )}
               </CardDescription>
             )}
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button size="icon" variant="ghost" aria-label="More actions">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-44 p-1">
-              <button
-                type="button"
-                onClick={onEdit}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
-              >
-                <Edit3 className="h-3.5 w-3.5" /> Edit
-              </button>
-              <button
-                type="button"
-                onClick={onDelete}
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-danger)] hover:bg-[var(--st-bg-secondary)]"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </button>
-            </PopoverContent>
-          </Popover>
+          <Menu
+            label="Template actions"
+            align="end"
+            trigger={
+              <IconButton label="More actions" icon={MoreHorizontal} variant="ghost" size="sm" />
+            }
+          >
+            <MenuItem icon={Edit3} onSelect={onEdit}>
+              Edit
+            </MenuItem>
+            <MenuSeparator />
+            <MenuItem icon={Trash2} danger onSelect={onDelete}>
+              Delete
+            </MenuItem>
+          </Menu>
         </div>
       </CardHeader>
       <CardBody className="flex flex-1 flex-col gap-3 pb-3">
@@ -484,51 +521,40 @@ function TemplateCard({ template, onEdit, onDelete }: TemplateCardProps) {
         {template.variables.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {template.variables.map((v) => (
-              <Badge key={v} variant="secondary" className="text-[10px]">
+              <Badge key={v} tone="neutral" className="text-[10px]">
                 {`{{${v}}}`}
               </Badge>
             ))}
           </div>
         )}
         <div className="mt-auto flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
-          <span>Used {template.usageCount}×</span>
-          <Popover open={actionsOpen} onOpenChange={setActionsOpen}>
-            <PopoverTrigger asChild>
+          <span>Used {template.usageCount} times</span>
+          <Menu
+            label="Use template"
+            align="end"
+            trigger={
               <Button size="sm" variant="outline">
                 Use template
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-52 p-1" align="end">
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
-                onClick={() => setActionsOpen(false)}
-              >
-                <MessageSquarePlus className="h-3.5 w-3.5" /> Insert into chat
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
-                onClick={() => setActionsOpen(false)}
-              >
-                <Send className="h-3.5 w-3.5" /> Send to broadcast
-              </button>
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
-                onClick={() => setActionsOpen(false)}
-              >
-                <CalendarClock className="h-3.5 w-3.5" /> Schedule
-              </button>
-            </PopoverContent>
-          </Popover>
+            }
+          >
+            <MenuItem icon={MessageSquarePlus} onSelect={() => {}}>
+              Insert into chat
+            </MenuItem>
+            <MenuItem icon={Send} onSelect={() => {}}>
+              Send to broadcast
+            </MenuItem>
+            <MenuItem icon={CalendarClock} onSelect={() => {}}>
+              Schedule
+            </MenuItem>
+          </Menu>
         </div>
       </CardBody>
     </Card>
   );
 }
 
-// ─── Editor dialog ─────────────────────────────────────────────────────────
+/* Editor dialog */
 
 interface TemplateEditorDialogProps {
   sessionId: string;
@@ -547,6 +573,7 @@ function TemplateEditorDialog({
   folders,
   onSaved,
 }: TemplateEditorDialogProps) {
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [category, setCategory] = React.useState<string>('Uncategorised');
   const [body, setBody] = React.useState('');
@@ -596,6 +623,7 @@ function TemplateEditorDialog({
       mediaSabFileId,
     });
     setSaving(false);
+    toast.success(initial ? 'Template updated' : 'Template created');
     onSaved();
   };
 
@@ -614,19 +642,16 @@ function TemplateEditorDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="tpl-name">Name</Label>
+          <Field label="Name">
             <Input
-              id="tpl-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Welcome back"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="tpl-folder">Folder</Label>
+          </Field>
+          <Field label="Folder">
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger id="tpl-folder">
+              <SelectTrigger aria-label="Folder">
                 <SelectValue placeholder="Uncategorised" />
               </SelectTrigger>
               <SelectContent>
@@ -640,20 +665,18 @@ function TemplateEditorDialog({
                   ))}
               </SelectContent>
             </Select>
-          </div>
+          </Field>
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="tpl-body">Body</Label>
+        <Field label="Body">
           <Textarea
-            id="tpl-body"
             ref={bodyRef}
             rows={8}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder={`Hi {{firstName}},\n\nThanks for reaching out!`}
           />
-        </div>
+        </Field>
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-[var(--st-text-secondary)]">Insert variable:</span>
@@ -662,7 +685,6 @@ function TemplateEditorDialog({
               key={v}
               size="sm"
               variant="outline"
-              type="button"
               onClick={() => insertVar(v)}
               className="h-7 text-[11px]"
             >
@@ -680,23 +702,19 @@ function TemplateEditorDialog({
               setMediaName(fname);
             }}
           >
-            <Paperclip className="mr-1.5 h-3.5 w-3.5" />
+            <Paperclip className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
             {mediaSabFileId ? 'Replace media' : 'Attach media'}
           </SabFilePickerButton>
           {mediaSabFileId && (
-            <Badge variant="secondary" className="gap-1">
+            <Tag
+              onRemove={() => {
+                setMediaSabFileId(undefined);
+                setMediaName('');
+              }}
+              removeLabel="Remove media"
+            >
               {mediaName || mediaSabFileId}
-              <button
-                type="button"
-                aria-label="Remove media"
-                onClick={() => {
-                  setMediaSabFileId(undefined);
-                  setMediaName('');
-                }}
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
+            </Tag>
           )}
           {detected.length > 0 && (
             <span className="ml-auto text-xs text-[var(--st-text-secondary)]">
@@ -710,10 +728,12 @@ function TemplateEditorDialog({
             Cancel
           </Button>
           <Button
+            variant="primary"
             onClick={() => void onSubmit()}
             disabled={saving || !name.trim() || !body.trim()}
+            loading={saving}
           >
-            {saving ? 'Saving…' : initial ? 'Save changes' : 'Create template'}
+            {saving ? 'Saving' : initial ? 'Save changes' : 'Create template'}
           </Button>
         </DialogFooter>
       </DialogContent>

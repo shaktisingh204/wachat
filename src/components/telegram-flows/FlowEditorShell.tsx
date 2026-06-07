@@ -1,6 +1,20 @@
 'use client';
 
-import { Badge, Button, Input, Label, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Field,
+  IconButton,
+  Input,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -59,7 +73,6 @@ import { FlowCanvas } from './FlowCanvas';
 import { FlowInspectorPanel } from './FlowInspectorPanel';
 import { FlowRunLogPanel } from './FlowRunLogPanel';
 
-const ACCENT = '#229ED9';
 const SAVE_DEBOUNCE_MS = 1000;
 
 type SaveState = 'saved' | 'saving' | 'unsaved';
@@ -86,7 +99,7 @@ export function FlowEditorShell({ flowId }: Props) {
   flowRef.current = flow;
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* ── initial load ────────────────────────────────────────────────────── */
+  /* -- initial load ----------------------------------------------------- */
 
   useEffect(() => {
     if (!activeProjectId) return;
@@ -100,7 +113,7 @@ export function FlowEditorShell({ flowId }: Props) {
     });
   }, [activeProjectId, flowId]);
 
-  /* ── auto-save plumbing ──────────────────────────────────────────────── */
+  /* -- auto-save plumbing ----------------------------------------------- */
 
   const scheduleSave = useCallback(() => {
     if (!activeProjectId) return;
@@ -137,7 +150,7 @@ export function FlowEditorShell({ flowId }: Props) {
     };
   }, []);
 
-  /* ── mutators (every patch schedules a save) ─────────────────────────── */
+  /* -- mutators (every patch schedules a save) -------------------------- */
 
   const patchFlow = useCallback(
     (p: Partial<FlowRow>) => {
@@ -166,7 +179,7 @@ export function FlowEditorShell({ flowId }: Props) {
     setSelectedNodeId(null);
   };
 
-  /* ── publish ─────────────────────────────────────────────────────────── */
+  /* -- publish ---------------------------------------------------------- */
 
   const [isPublishing, startPublishing] = useTransition();
   const handlePublish = () => {
@@ -190,7 +203,7 @@ export function FlowEditorShell({ flowId }: Props) {
     });
   };
 
-  /* ── test ────────────────────────────────────────────────────────────── */
+  /* -- test ------------------------------------------------------------- */
 
   const handleTest = (simulated: { text?: string; command?: string; callbackData?: string }) => {
     if (!flow || !activeProjectId) return;
@@ -212,7 +225,7 @@ export function FlowEditorShell({ flowId }: Props) {
     });
   };
 
-  /* ── derived ─────────────────────────────────────────────────────────── */
+  /* -- derived ---------------------------------------------------------- */
 
   const selectedNode = useMemo(
     () => flow?.nodes.find((n) => n.id === selectedNodeId) ?? null,
@@ -221,12 +234,12 @@ export function FlowEditorShell({ flowId }: Props) {
 
   const readOnly = flow?.status === 'published';
 
-  /* ── render ──────────────────────────────────────────────────────────── */
+  /* -- render ----------------------------------------------------------- */
 
   if (isLoading && !flow) {
     return (
       <div className="flex h-screen items-center justify-center text-sm text-[var(--st-text-secondary)]">
-        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Loading flow…
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> Loading flow.
       </div>
     );
   }
@@ -234,10 +247,14 @@ export function FlowEditorShell({ flowId }: Props) {
   if (loadError) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-3 p-6 text-center">
-        <Workflow className="h-8 w-8 text-[var(--st-text-secondary)]" />
-        <p className="text-sm font-medium">{loadError}</p>
-        <Button variant="secondary" onClick={() => router.push('/dashboard/telegram/flows')}>
-          <ArrowLeft className="h-4 w-4" /> Back to flows
+        <Workflow className="h-8 w-8 text-[var(--st-text-secondary)]" aria-hidden="true" />
+        <p className="text-sm font-medium text-[var(--st-text)]">{loadError}</p>
+        <Button
+          variant="secondary"
+          iconLeft={ArrowLeft}
+          onClick={() => router.push('/dashboard/telegram/flows')}
+        >
+          Back to flows
         </Button>
       </div>
     );
@@ -248,19 +265,16 @@ export function FlowEditorShell({ flowId }: Props) {
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Top bar */}
-      <header className="flex flex-wrap items-center gap-3 border-b bg-[var(--st-bg-secondary)] px-4 py-3">
-        <Button
-          variant="ghost"
-          size="icon"
+      <header className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-3">
+        <IconButton
+          label="Back to flows"
+          icon={ArrowLeft}
           onClick={() => router.push('/dashboard/telegram/flows')}
-          aria-label="Back"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <Workflow className="h-5 w-5" style={{ color: ACCENT }} />
-        <input
+        />
+        <Workflow className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
+        <Input
           aria-label="Flow name"
-          className="rounded border border-transparent bg-transparent px-2 py-1 text-base font-semibold outline-none hover:border-[var(--st-border)] focus:border-primary"
+          className="max-w-xs text-base font-semibold"
           value={flow.name}
           onChange={(e) => patchFlow({ name: e.target.value })}
           disabled={readOnly}
@@ -268,20 +282,26 @@ export function FlowEditorShell({ flowId }: Props) {
         <Badge variant={readOnly ? 'default' : 'secondary'}>{flow.status}</Badge>
         <span className="text-xs text-[var(--st-text-secondary)]">
           v{flow.version}
-          {flow.latestPublishedVersion > 0 ? ` · published v${flow.latestPublishedVersion}` : ''}
+          {flow.latestPublishedVersion > 0 ? `, published v${flow.latestPublishedVersion}` : ''}
         </span>
         <SaveIndicator state={saveState} readOnly={readOnly} />
 
         <div className="ml-auto flex items-center gap-2">
-          <Button variant="secondary" onClick={() => setTestOpen(true)} disabled={isPublishing}>
-            <PlayCircle className="h-4 w-4" /> Test
+          <Button
+            variant="secondary"
+            iconLeft={PlayCircle}
+            onClick={() => setTestOpen(true)}
+            disabled={isPublishing}
+          >
+            Test
           </Button>
-          <Button onClick={handlePublish} disabled={isPublishing || readOnly}>
-            {isPublishing ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Rocket className="h-4 w-4" />
-            )}
+          <Button
+            variant="primary"
+            iconLeft={Rocket}
+            loading={isPublishing}
+            onClick={handlePublish}
+            disabled={isPublishing || readOnly}
+          >
             Publish
           </Button>
         </div>
@@ -289,8 +309,8 @@ export function FlowEditorShell({ flowId }: Props) {
 
       {/* Validation banner */}
       {validationErrors.length > 0 ? (
-        <div className="border-b bg-[var(--st-text)]/10 px-4 py-2 text-xs text-[var(--st-text)]">
-          <p className="font-semibold">Cannot publish — fix the following:</p>
+        <div className="border-b border-[var(--st-border)] bg-[var(--st-danger-soft)] px-4 py-2 text-xs text-[var(--st-danger)]">
+          <p className="font-semibold">Cannot publish. Fix the following:</p>
           <ul className="ml-4 list-disc">
             {validationErrors.map((e, i) => (
               <li key={`${e.field}-${i}`}>
@@ -302,14 +322,14 @@ export function FlowEditorShell({ flowId }: Props) {
       ) : null}
 
       {/* Description */}
-      <div className="border-b bg-[var(--st-bg-muted)]/30 px-4 py-2">
+      <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-4 py-2">
         <Input
           aria-label="Flow description"
+          inputSize="sm"
           placeholder="Description (optional)"
           value={flow.description}
           onChange={(e) => patchFlow({ description: e.target.value })}
           disabled={readOnly}
-          className="border-transparent bg-transparent text-xs focus:border-[var(--st-border)]"
         />
       </div>
 
@@ -327,7 +347,7 @@ export function FlowEditorShell({ flowId }: Props) {
             disabled={readOnly}
           />
         </div>
-        <aside className="overflow-y-auto border-l bg-[var(--st-bg-secondary)]">
+        <aside className="overflow-y-auto border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
           <FlowInspectorPanel
             selectedNode={selectedNode}
             trigger={flow.trigger}
@@ -340,7 +360,7 @@ export function FlowEditorShell({ flowId }: Props) {
       </div>
 
       {/* Run log */}
-      <div className="border-t p-3">
+      <div className="border-t border-[var(--st-border)] p-3">
         <FlowRunLogPanel
           flowId={flow._id}
           projectId={activeProjectId ?? ''}
@@ -359,39 +379,39 @@ export function FlowEditorShell({ flowId }: Props) {
   );
 }
 
-/* ── save indicator ────────────────────────────────────────────────────── */
+/* -- save indicator --------------------------------------------------------- */
 
 function SaveIndicator({ state, readOnly }: { state: SaveState; readOnly?: boolean }) {
   if (readOnly) {
     return (
       <span className="ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
-        <CloudOff className="h-3 w-3" /> Read-only
+        <CloudOff className="h-3 w-3" aria-hidden="true" /> Read-only
       </span>
     );
   }
   if (state === 'saving') {
     return (
       <span className="ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
-        <LoaderCircle className="h-3 w-3 animate-spin" /> Saving…
+        <LoaderCircle className="h-3 w-3 animate-spin" aria-hidden="true" /> Saving.
       </span>
     );
   }
   if (state === 'unsaved') {
     return (
-      <span className="ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-text)]">
-        <CloudOff className="h-3 w-3" /> Unsaved
+      <span className="ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-warn)]">
+        <CloudOff className="h-3 w-3" aria-hidden="true" /> Unsaved
       </span>
     );
   }
   return (
-    <span className={cn('ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-text)]')}>
-      <Cloud className="h-3 w-3" /> Saved
-      <CheckCircle2 className="h-3 w-3" />
+    <span className={cn('ml-2 inline-flex items-center gap-1 text-xs text-[var(--st-status-ok)]')}>
+      <Cloud className="h-3 w-3" aria-hidden="true" /> Saved
+      <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
     </span>
   );
 }
 
-/* ── test drawer ───────────────────────────────────────────────────────── */
+/* -- test drawer ------------------------------------------------------------ */
 
 function TestDrawer({
   open,
@@ -414,39 +434,33 @@ function TestDrawer({
         <SheetHeader>
           <SheetTitle>Test flow</SheetTitle>
           <SheetDescription>
-            Simulates a message against this flow — no Telegram side effects. The trace
+            Simulates a message against this flow, with no Telegram side effects. The trace
             shows which nodes would run.
           </SheetDescription>
         </SheetHeader>
 
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="td-text">Message text</Label>
+          <Field label="Message text">
             <Textarea
-              id="td-text"
               rows={3}
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="td-command">Command (without /)</Label>
+          </Field>
+          <Field label="Command (without /)">
             <Input
-              id="td-command"
               value={command}
               onChange={(e) => setCommand(e.target.value)}
               placeholder="start"
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="td-callback">Callback data</Label>
+          </Field>
+          <Field label="Callback data">
             <Input
-              id="td-callback"
               value={callback}
               onChange={(e) => setCallback(e.target.value)}
               placeholder="opt_a"
             />
-          </div>
+          </Field>
         </div>
 
         <SheetFooter>
@@ -454,6 +468,9 @@ function TestDrawer({
             Close
           </Button>
           <Button
+            variant="primary"
+            iconLeft={PlayCircle}
+            loading={isRunning}
             onClick={() =>
               onRun({
                 text: text || undefined,
@@ -463,7 +480,6 @@ function TestDrawer({
             }
             disabled={isRunning}
           >
-            {isRunning ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <PlayCircle className="h-4 w-4" />}
             Run test
           </Button>
         </SheetFooter>
@@ -471,4 +487,3 @@ function TestDrawer({
     </Sheet>
   );
 }
-

@@ -1,8 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { LuVariable, LuPlus, LuX, LuGripVertical, LuCode } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Variable, Plus, X, GripVertical, Code } from 'lucide-react';
+
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  Label,
+  Input,
+  Textarea,
+  Badge,
+  EmptyState,
+  SegmentedControl,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  cn,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -48,7 +65,15 @@ const VALUE_TYPE_LABELS: Record<SetDataValueType, string> = {
   expression: 'Expression',
 };
 
-const BOOL_OPTIONS = ['true', 'false'];
+const MODE_ITEMS: ReadonlyArray<{ value: SetDataMode; label: string }> = [
+  { value: 'merge', label: 'Merge' },
+  { value: 'replace', label: 'Replace' },
+];
+
+const BOOL_ITEMS: ReadonlyArray<{ value: string; label: string }> = [
+  { value: 'true', label: 'true' },
+  { value: 'false', label: 'false' },
+];
 
 /* ── Component ───────────────────────────────────────────── */
 
@@ -69,38 +94,28 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text-secondary)]">
-          <LuVariable className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+          <Variable className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Set Data</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Set or overwrite key-value pairs in item data</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Set Data</p>
+          <p className="text-[11px] text-[var(--st-text-tertiary)]">Set or overwrite key-value pairs in item data</p>
         </div>
       </div>
 
       {/* Mode */}
       <div className="space-y-1.5">
         <Label>Mode</Label>
-        <div className="flex gap-1 rounded-lg bg-[var(--gray-3)] p-1">
-          {(['merge', 'replace'] as SetDataMode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onChange({ ...config, mode: m })}
-              className={cn(
-                'flex-1 rounded-md py-1.5 text-[12px] font-medium transition-colors capitalize',
-                config.mode === m
-                  ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                  : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-              )}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-        <p className="text-[11px] text-[var(--gray-9)]">
+        <SegmentedControl
+          aria-label="Set data mode"
+          fullWidth
+          items={MODE_ITEMS}
+          value={config.mode}
+          onChange={(m) => onChange({ ...config, mode: m })}
+        />
+        <p className="text-[11px] text-[var(--st-text-tertiary)]">
           {config.mode === 'merge'
-            ? 'Merge these keys into the item — existing keys not listed here are kept.'
+            ? 'Merge these keys into the item. Existing keys not listed here are kept.'
             : 'Replace all item data with only these keys.'}
         </p>
       </div>
@@ -110,10 +125,12 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
         <Label>Key-Value Pairs</Label>
 
         {config.entries.length === 0 && (
-          <div className="rounded-lg border border-dashed border-[var(--gray-5)] py-6 text-center text-[12px] text-[var(--gray-9)]">
-            <LuVariable className="mx-auto mb-2 h-5 w-5 opacity-30" strokeWidth={1.5} />
-            No entries — click Add below
-          </div>
+          <EmptyState
+            size="sm"
+            icon={Variable}
+            title="No entries yet"
+            description="Click Add entry below to define your first key."
+          />
         )}
 
         {config.entries.map((entry, idx) => (
@@ -126,21 +143,16 @@ export function SetDataNode({ config, onChange, className }: SetDataNodeProps) {
           />
         ))}
 
-        <button
-          type="button"
-          onClick={addEntry}
-          className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-        >
-          <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+        <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addEntry}>
           Add entry
-        </button>
+        </Button>
       </div>
 
       {/* Preview */}
       {config.entries.length > 0 && (
         <div className="space-y-1.5">
           <Label>Preview</Label>
-          <pre className="overflow-x-auto rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 text-[11.5px] font-mono text-[var(--gray-11)]">
+          <pre className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-[11.5px] font-mono text-[var(--st-text-secondary)]">
             {buildPreview(config.entries)}
           </pre>
         </div>
@@ -170,89 +182,84 @@ function EntryRow({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-2">
-      {/* Header row */}
-      <div className="flex items-center gap-2">
-        <LuGripVertical className="h-3.5 w-3.5 text-[var(--gray-7)] shrink-0 cursor-grab" strokeWidth={2} />
-        <span className="text-[10.5px] font-mono text-[var(--gray-8)] shrink-0">{String(index + 1).padStart(2, '0')}</span>
-        <div className="flex-1 min-w-0">
-          <input
-            type="text"
-            className={cn(INPUT_CLS, 'py-1.5 text-[12px] font-mono')}
-            value={entry.key}
-            onChange={(e) => onChange(entry.id, 'key', e.target.value)}
-            placeholder="key_name"
+    <Card variant="outlined" padding="sm">
+      <CardBody className="space-y-2">
+        {/* Header row */}
+        <div className="flex items-center gap-2">
+          <GripVertical className="h-3.5 w-3.5 text-[var(--st-text-tertiary)] shrink-0 cursor-grab" strokeWidth={2} aria-hidden="true" />
+          <span className="text-[10.5px] font-mono text-[var(--st-text-tertiary)] shrink-0">{String(index + 1).padStart(2, '0')}</span>
+          <div className="flex-1 min-w-0">
+            <Input
+              inputSize="sm"
+              className="font-mono"
+              aria-label={`Key for entry ${index + 1}`}
+              value={entry.key}
+              onChange={(e) => onChange(entry.id, 'key', e.target.value)}
+              placeholder="key_name"
+            />
+          </div>
+          {/* Type select */}
+          <Select
+            value={entry.valueType}
+            onValueChange={(v) => onChange(entry.id, 'valueType', v)}
+          >
+            <SelectTrigger aria-label={`Value type for entry ${index + 1}`} className="shrink-0 w-[112px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(VALUE_TYPE_LABELS) as SetDataValueType[]).map((t) => (
+                <SelectItem key={t} value={t}>{VALUE_TYPE_LABELS[t]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <IconButton
+            label={`Remove entry ${index + 1}`}
+            icon={X}
+            variant="ghost"
+            size="sm"
+            onClick={() => onRemove(entry.id)}
           />
         </div>
-        {/* Type badge */}
-        <select
-          className="rounded-md border border-[var(--gray-5)] bg-[var(--gray-3)] px-2 py-1 text-[11px] text-[var(--gray-10)] outline-none focus:border-[var(--st-border)] shrink-0"
-          value={entry.valueType}
-          onChange={(e) => onChange(entry.id, 'valueType', e.target.value)}
-        >
-          {(Object.keys(VALUE_TYPE_LABELS) as SetDataValueType[]).map((t) => (
-            <option key={t} value={t}>{VALUE_TYPE_LABELS[t]}</option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={() => onRemove(entry.id)}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
-        >
-          <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
-      </div>
 
-      {/* Value input */}
-      {entry.valueType === 'boolean' ? (
-        <div className="flex gap-2">
-          {BOOL_OPTIONS.map((b) => (
-            <button
-              key={b}
-              type="button"
-              onClick={() => onChange(entry.id, 'value', b)}
-              className={cn(
-                'flex-1 rounded-md border py-1.5 text-[12px] font-semibold transition-colors',
-                entry.value === b
-                  ? b === 'true'
-                    ? 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                    : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
-              )}
-            >
-              {b}
-            </button>
-          ))}
-        </div>
-      ) : entry.valueType === 'json' ? (
-        <textarea
-          className={cn(INPUT_CLS, 'min-h-[80px] font-mono text-[12px] resize-y')}
-          value={entry.value}
-          onChange={(e) => onChange(entry.id, 'value', e.target.value)}
-          placeholder='{ "key": "value" }'
-          spellCheck={false}
-        />
-      ) : entry.valueType === 'expression' ? (
-        <div className="relative">
-          <LuCode className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-8)]" strokeWidth={2} />
-          <input
-            type="text"
-            className={cn(INPUT_CLS, 'pl-9 font-mono text-[12px]')}
+        {/* Value input */}
+        {entry.valueType === 'boolean' ? (
+          <SegmentedControl
+            aria-label={`Boolean value for entry ${index + 1}`}
+            fullWidth
+            items={BOOL_ITEMS}
+            value={entry.value === 'true' ? 'true' : entry.value === 'false' ? 'false' : ''}
+            onChange={(b) => onChange(entry.id, 'value', b)}
+          />
+        ) : entry.valueType === 'json' ? (
+          <Textarea
+            rows={4}
+            className="font-mono text-[12px] resize-y"
+            aria-label={`JSON value for entry ${index + 1}`}
+            value={entry.value}
+            onChange={(e) => onChange(entry.id, 'value', e.target.value)}
+            placeholder='{ "key": "value" }'
+            spellCheck={false}
+          />
+        ) : entry.valueType === 'expression' ? (
+          <Input
+            iconLeft={Code}
+            className="font-mono text-[12px]"
+            aria-label={`Expression value for entry ${index + 1}`}
             value={entry.value}
             onChange={(e) => onChange(entry.id, 'value', e.target.value)}
             placeholder="{{ $json.field + '_suffix' }}"
           />
-        </div>
-      ) : (
-        <input
-          type={entry.valueType === 'number' ? 'number' : 'text'}
-          className={INPUT_CLS}
-          value={entry.value}
-          onChange={(e) => onChange(entry.id, 'value', e.target.value)}
-          placeholder={entry.valueType === 'number' ? '42' : 'value or {{variable}}'}
-        />
-      )}
-    </div>
+        ) : (
+          <Input
+            type={entry.valueType === 'number' ? 'number' : 'text'}
+            aria-label={`Value for entry ${index + 1}`}
+            value={entry.value}
+            onChange={(e) => onChange(entry.id, 'value', e.target.value)}
+            placeholder={entry.valueType === 'number' ? '42' : 'value or {{variable}}'}
+          />
+        )}
+      </CardBody>
+    </Card>
   );
 }
 
@@ -272,15 +279,7 @@ function buildPreview(entries: DataEntry[]): string {
   return JSON.stringify(obj, null, 2);
 }
 
-/* ── Shared primitives ───────────────────────────────────── */
-
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
+/* ── Output schema ───────────────────────────────────────── */
 
 type OutputField = { key: string; type: string; description: string };
 
@@ -288,18 +287,15 @@ function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[
   return (
     <div className="space-y-1.5">
       <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+      <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] divide-y divide-[var(--st-border)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
             <code className="min-w-[70px] text-[11.5px] font-mono font-medium" style={{ color: accent }}>{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
+            <Badge tone="neutral" kind="soft" className="font-mono text-[10px]">{f.type}</Badge>
+            <span className="flex-1 text-[11px] text-[var(--st-text-tertiary)] truncate">{f.description}</span>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

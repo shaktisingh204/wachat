@@ -1,21 +1,30 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
-import { Pin, UsersRound, VolumeX } from "lucide-react";
-
 /**
- * ChatListRow — single row in the SabWa chat list.
+ * ChatListRow - single row in the SabWa chat list.
  *
  * Renders avatar + name + last-message preview on the left, and
  * timestamp / unread / pinned / muted indicators on the right. Group
  * chats get an overlay icon on the avatar.
+ *
+ * The row is a pure-20ui pressable: a ghost `Button` whose fixed geometry is
+ * reset so it stretches to a full-height, two-line list item. Press scale and
+ * the focus ring come from the 20ui button (motion is built in, never
+ * hand-rolled).
  *
  * @example
  *   <ChatListRow chat={chat} selected={chat.jid === activeJid} onClick={() => setActive(chat.jid)} />
  */
 
 import * as React from "react";
+import { Pin, UsersRound, VolumeX } from "lucide-react";
 
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+} from "@/components/sabcrm/20ui";
 import { cn } from "@/lib/utils";
 import { useResolveJid, type JidResolver } from "@/lib/sabwa/format-jid";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
@@ -34,7 +43,7 @@ export interface ChatListRowProps {
   resolve?: JidResolver;
 }
 
-// Shared formatter instance — avoid allocating on every render.
+// Shared formatter instance - avoid allocating on every render.
 const RELATIVE = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
 
 function formatRelative(ts: Date | string | number | undefined): string {
@@ -66,7 +75,7 @@ export function ChatListRow({
   resolve,
 }: ChatListRowProps) {
   const { current } = useSabwaSession();
-  // Always call the hook so React's hook rules stay satisfied — the inner
+  // Always call the hook so React's hook rules stay satisfied - the inner
   // SWR triple is cheap when the parent already pulled the same data.
   const ownResolver = useResolveJid(current?.id);
   const resolver = resolve ?? ownResolver;
@@ -78,18 +87,21 @@ export function ChatListRow({
   const unread = chat.unreadCount ?? 0;
 
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      block
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-[var(--st-radius)] px-3 py-2 text-left transition-colors",
-        "hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
+        // Reset the button's fixed pill geometry into a full-height, two-line
+        // list row. The ghost variant keeps the press scale + focus ring.
+        "group h-auto items-center justify-start gap-3 rounded-[var(--st-radius)] border-transparent px-3 py-2 text-left",
+        "[&_.u-btn__label]:flex [&_.u-btn__label]:w-full [&_.u-btn__label]:items-center [&_.u-btn__label]:gap-3 [&_.u-btn__label]:overflow-visible",
         selected && "bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         className,
       )}
     >
-      <div className="relative shrink-0">
+      <span className="relative shrink-0">
         <Avatar className="h-10 w-10">
           {chat.profilePicUrl ? (
             <AvatarImage src={chat.profilePicUrl} alt={name} />
@@ -104,10 +116,10 @@ export function ChatListRow({
             <UsersRound className="h-3 w-3" />
           </span>
         ) : null}
-      </div>
+      </span>
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
           <span className="truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
           {chat.muted ? (
             <VolumeX
@@ -115,14 +127,14 @@ export function ChatListRow({
               aria-label="Muted"
             />
           ) : null}
-        </div>
-        <p className="truncate text-xs text-[var(--st-text-secondary)]">
+        </span>
+        <span className="block truncate text-xs text-[var(--st-text-secondary)]">
           {previewPrefix}
           {previewBody}
-        </p>
-      </div>
+        </span>
+      </span>
 
-      <div className="flex shrink-0 flex-col items-end gap-1">
+      <span className="flex shrink-0 flex-col items-end gap-1">
         <span
           className={cn(
             "text-[10px] tabular-nums",
@@ -131,7 +143,7 @@ export function ChatListRow({
         >
           {tsLabel}
         </span>
-        <div className="flex items-center gap-1">
+        <span className="flex items-center gap-1">
           {chat.pinned ? (
             <Pin
               className="h-3 w-3 text-[var(--st-text-secondary)]"
@@ -146,9 +158,9 @@ export function ChatListRow({
               {unread > 99 ? "99+" : unread}
             </span>
           ) : null}
-        </div>
-      </div>
-    </button>
+        </span>
+      </span>
+    </Button>
   );
 }
 

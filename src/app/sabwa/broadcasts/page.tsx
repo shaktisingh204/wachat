@@ -1,29 +1,72 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Separator, Skeleton, Table, TBody, Td, Th, THead, Tr, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Separator,
+  Skeleton,
+  Spinner,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Textarea,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   ArrowLeft,
   ChevronRight,
-  Loader2,
   Paperclip,
   Plus,
   Send,
   Trash2,
   Users,
   X,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * /sabwa/broadcasts — Broadcast lists (ZoruUI).
+ * /sabwa/broadcasts - Broadcast lists (20ui).
  *
- * Per SABWA_PLAN.md §6 page 9: WhatsApp's native broadcast lists (1:1 fan-out,
- * no cross-recipient visibility). CRUD broadcast lists, send composer, history.
+ * Per SABWA_PLAN.md section 6 page 9: WhatsApp's native broadcast lists (1:1
+ * fan-out, no cross-recipient visibility). CRUD broadcast lists, send composer,
+ * history.
  *
  * Two-pane layout on md+: left = list of broadcasts, right = selected detail.
- * On mobile we collapse to a list → detail navigation.
+ * On mobile we collapse to a list, then detail navigation.
  *
- * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
- * surface, prop shapes and data flow are unchanged.
+ * Pure 20ui: design-system pieces come only from `@/components/sabcrm/20ui`,
+ * file picking from `@/components/sabfiles`. Server-action surface, prop shapes
+ * and data flow are unchanged.
  */
 
 import * as React from 'react';
@@ -43,7 +86,7 @@ import type {
   SabwaScheduledPayload,
 } from '@/lib/sabwa/types';
 
-// ─── Local model ────────────────────────────────────────────────────────────
+// --- Local model ------------------------------------------------------------
 // Shape mirrors `SabwaBroadcast` from `@/lib/sabwa/types`, but uses string ids
 // (server actions return ObjectId-as-string when crossing the wire).
 
@@ -72,7 +115,7 @@ interface Broadcast {
   lastSentAt?: Date;
 }
 
-// ─── Wire mapping ───────────────────────────────────────────────────────────
+// --- Wire mapping -----------------------------------------------------------
 // The engine row carries `_id`/`projectId`/`sessionId` as `ObjectId` typed
 // fields but serialises them as strings across the server-action boundary, and
 // returns `recipients` as `SabwaBroadcastRecipientStatus[]` (no `displayName`).
@@ -88,7 +131,7 @@ function recipientStatusToUi(
   s: SabwaBroadcastRecipientStatus['status'],
 ): RecipientStatus | undefined {
   if (s === 'queued' || s === 'sent' || s === 'failed' || s === 'skipped') return s;
-  // map SabwaMessageStatus → UI status
+  // map SabwaMessageStatus to UI status
   if (s === 'delivered' || s === 'read' || s === 'sending') return 'sent';
   return undefined;
 }
@@ -127,7 +170,7 @@ function mapWireToBroadcast(b: BroadcastWire): Broadcast {
 }
 
 function fmtTimeAgo(d?: Date): string {
-  if (!d) return '—';
+  if (!d) return '-';
   const diff = Date.now() - d.getTime();
   const m = Math.floor(diff / 60000);
   if (m < 1) return 'just now';
@@ -138,7 +181,7 @@ function fmtTimeAgo(d?: Date): string {
   return `${days}d ago`;
 }
 
-// ─── List pane ──────────────────────────────────────────────────────────────
+// --- List pane --------------------------------------------------------------
 
 interface BroadcastListPaneProps {
   broadcasts: Broadcast[];
@@ -159,8 +202,7 @@ function BroadcastListPane({
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-2">
         <h2 className="text-sm font-semibold text-[var(--st-text)]">Broadcast lists</h2>
-        <Button size="sm" onClick={onNew} className="gap-1">
-          <Plus className="h-4 w-4" />
+        <Button size="sm" variant="primary" iconLeft={Plus} onClick={onNew}>
           New
         </Button>
       </div>
@@ -168,12 +210,11 @@ function BroadcastListPane({
         {broadcasts.length === 0 ? (
           <div className="p-6">
             <EmptyState
-              icon={<Users />}
+              icon={Users}
               title="No broadcast lists yet"
-              description="Create a list to fan out a single message to many contacts as 1:1 sends — recipients can't see each other."
+              description="Create a list to fan out a single message to many contacts as 1:1 sends. Recipients can't see each other."
               action={
-                <Button size="md" onClick={onNew}>
-                  <Plus className="mr-1.5 h-4 w-4" />
+                <Button variant="primary" iconLeft={Plus} onClick={onNew}>
                   Compose first broadcast
                 </Button>
               }
@@ -185,16 +226,23 @@ function BroadcastListPane({
               const isActive = b.id === selectedId;
               return (
                 <li key={b.id}>
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSelect(b.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelect(b.id);
+                      }
+                    }}
                     className={cn(
-                      'group flex w-full items-center gap-3 px-3 py-3 text-left transition hover:bg-[var(--st-bg-secondary)]',
+                      'group flex w-full cursor-pointer items-center gap-3 px-3 py-3 text-left outline-none transition hover:bg-[var(--st-bg-secondary)] focus-visible:bg-[var(--st-bg-secondary)]',
                       isActive && 'bg-[var(--st-bg-secondary)]',
                     )}
                   >
                     <div
-                      aria-hidden
+                      aria-hidden="true"
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
                     >
                       <Users className="h-4 w-4" />
@@ -213,19 +261,23 @@ function BroadcastListPane({
                         {b.recipients.length === 1 ? '' : 's'}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      aria-label={`Delete ${b.name}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(b.id);
-                      }}
-                      className="rounded-[var(--st-radius)] p-1 text-[var(--st-text-secondary)] opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] md:hidden" />
-                  </button>
+                    <span className="opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+                      <IconButton
+                        label={`Delete ${b.name}`}
+                        icon={Trash2}
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(b.id);
+                        }}
+                      />
+                    </span>
+                    <ChevronRight
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0 text-[var(--st-text-secondary)] md:hidden"
+                    />
+                  </div>
                 </li>
               );
             })}
@@ -236,7 +288,7 @@ function BroadcastListPane({
   );
 }
 
-// ─── Detail pane ────────────────────────────────────────────────────────────
+// --- Detail pane ------------------------------------------------------------
 
 interface BroadcastDetailPaneProps {
   broadcast: Broadcast;
@@ -326,19 +378,20 @@ function BroadcastDetailPane({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center gap-2 border-b border-[var(--st-border)] px-3 py-2 md:px-4">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          className="md:hidden"
-          onClick={onBack}
-          aria-label="Back to list"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+        <span className="md:hidden">
+          <IconButton
+            label="Back to list"
+            icon={ArrowLeft}
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+          />
+        </span>
         {editingName ? (
           <div className="flex flex-1 items-center gap-2">
             <Input
               autoFocus
+              inputSize="sm"
               value={nameDraft}
               onChange={(e) => setNameDraft(e.target.value)}
               onBlur={() => {
@@ -354,20 +407,20 @@ function BroadcastDetailPane({
                   setEditingName(false);
                 }
               }}
-              className="h-8"
             />
           </div>
         ) : (
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setEditingName(true)}
-            className="flex-1 truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
+            className="min-w-0 flex-1 justify-start truncate text-left text-base font-semibold text-[var(--st-text)] hover:underline"
             title="Click to rename"
           >
             {broadcast.name}
-          </button>
+          </Button>
         )}
-        <Badge variant="secondary" className="shrink-0">
+        <Badge tone="neutral" className="shrink-0">
           {broadcast.recipients.length} recipients
         </Badge>
       </div>
@@ -375,10 +428,10 @@ function BroadcastDetailPane({
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3 md:p-4">
         {/* Recipients */}
         <Card>
-          <CardHeader className="flex flex-row items-start justify-between gap-2 space-y-0">
+          <CardHeader className="flex flex-row items-start justify-between gap-2">
             <div>
-              <CardTitle className="text-sm">Recipients</CardTitle>
-              <CardDescription className="text-xs">
+              <CardTitle>Recipients</CardTitle>
+              <CardDescription>
                 Each recipient receives the message as a 1:1 chat.
               </CardDescription>
             </div>
@@ -387,23 +440,22 @@ function BroadcastDetailPane({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1 text-[var(--st-danger)]"
+                  iconLeft={Trash2}
+                  className="text-[var(--st-danger)]"
                   onClick={() => {
                     onRemoveRecipients(broadcast.id, Array.from(selected));
                     setSelected(new Set());
                   }}
                 >
-                  <Trash2 className="h-3.5 w-3.5" />
                   Remove ({selected.size})
                 </Button>
               )}
               <Button
                 size="sm"
                 variant="outline"
-                className="gap-1"
+                iconLeft={Plus}
                 onClick={() => setAddOpen(true)}
               >
-                <Plus className="h-3.5 w-3.5" />
                 Add recipient
               </Button>
             </div>
@@ -417,16 +469,16 @@ function BroadcastDetailPane({
               <Table>
                 <THead>
                   <Tr>
-                    <Th className="w-10">
+                    <Th width={40}>
                       <Checkbox
                         aria-label="Select all"
                         checked={allSelected}
-                        onCheckedChange={toggleAll}
+                        onChange={toggleAll}
                       />
                     </Th>
                     <Th>Name</Th>
                     <Th>JID</Th>
-                    <Th className="w-10" />
+                    <Th width={40} />
                   </Tr>
                 </THead>
                 <TBody>
@@ -438,7 +490,7 @@ function BroadcastDetailPane({
                           <Checkbox
                             aria-label={`Select ${resolvedName}`}
                             checked={selected.has(r.jid)}
-                            onCheckedChange={() => toggleOne(r.jid)}
+                            onChange={() => toggleOne(r.jid)}
                           />
                         </Td>
                         <Td className="font-medium text-[var(--st-text)]">
@@ -448,16 +500,15 @@ function BroadcastDetailPane({
                           {formatJid(r.jid)}
                         </Td>
                         <Td>
-                          <button
-                            type="button"
-                            aria-label={`Remove ${resolvedName}`}
+                          <IconButton
+                            label={`Remove ${resolvedName}`}
+                            icon={X}
+                            variant="ghost"
+                            size="sm"
                             onClick={() =>
                               onRemoveRecipients(broadcast.id, [r.jid])
                             }
-                            className="rounded-[var(--st-radius)] p-1 text-[var(--st-text-secondary)] hover:bg-[var(--st-danger)]/10 hover:text-[var(--st-danger)]"
-                          >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
+                          />
                         </Td>
                       </Tr>
                     );
@@ -471,19 +522,21 @@ function BroadcastDetailPane({
         {/* Composer */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">Compose &amp; send</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle>Compose and send</CardTitle>
+            <CardDescription>
               Sent to all {broadcast.recipients.length} recipient
               {broadcast.recipients.length === 1 ? '' : 's'} as 1:1.
             </CardDescription>
           </CardHeader>
           <CardBody className="space-y-3">
-            <Textarea
-              placeholder="Type your message…"
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={4}
-            />
+            <Field label="Message">
+              <Textarea
+                placeholder="Type your message..."
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+                rows={4}
+              />
+            </Field>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <SabFilePickerButton
@@ -498,32 +551,28 @@ function BroadcastDetailPane({
                 {media && (
                   <div className="flex items-center gap-1 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-xs text-[var(--st-text)]">
                     <span className="max-w-[180px] truncate">{media.name}</span>
-                    <button
-                      type="button"
+                    <IconButton
+                      label="Remove attachment"
+                      icon={X}
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setMedia(null)}
-                      aria-label="Remove attachment"
-                      className="rounded p-0.5 hover:bg-[var(--st-bg)]"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
+                    />
                   </div>
                 )}
               </div>
               <Button
                 size="sm"
+                variant="primary"
+                iconLeft={sending ? undefined : Send}
+                loading={sending}
                 onClick={handleSend}
                 disabled={
                   sending ||
                   broadcast.recipients.length === 0 ||
                   (!body.trim() && !media)
                 }
-                className="gap-1"
               >
-                {sending ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Send className="h-3.5 w-3.5" />
-                )}
                 Send
               </Button>
             </div>
@@ -533,8 +582,8 @@ function BroadcastDetailPane({
         {/* History */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm">History</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle>History</CardTitle>
+            <CardDescription>
               Past sends from this list with delivery counts.
             </CardDescription>
           </CardHeader>
@@ -549,10 +598,10 @@ function BroadcastDetailPane({
                   <Tr>
                     <Th>Sent</Th>
                     <Th>Body</Th>
-                    <Th className="w-24 text-right">
+                    <Th align="right" width={96}>
                       Delivered
                     </Th>
-                    <Th className="w-20 text-right">
+                    <Th align="right" width={80}>
                       Failed
                     </Th>
                   </Tr>
@@ -563,13 +612,13 @@ function BroadcastDetailPane({
                       <Td className="whitespace-nowrap text-xs text-[var(--st-text-secondary)]">
                         {h.sentAt.toLocaleString()}
                       </Td>
-                      <Td className="max-w-[280px] truncate text-xs">
-                        {h.body || '—'}
+                      <Td truncate className="max-w-[280px] text-xs">
+                        {h.body || '-'}
                       </Td>
-                      <Td className="text-right text-xs">
+                      <Td align="right" className="text-xs">
                         {h.sentCount}/{h.totalCount}
                       </Td>
-                      <Td className="text-right text-xs text-[var(--st-danger)]">
+                      <Td align="right" className="text-xs text-[var(--st-danger)]">
                         {h.failedCount}
                       </Td>
                     </Tr>
@@ -590,30 +639,27 @@ function BroadcastDetailPane({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="space-y-1">
-              <Label htmlFor="add-jid">Phone or JID</Label>
+            <Field label="Phone or JID">
               <Input
-                id="add-jid"
                 value={newJid}
                 onChange={(e) => setNewJid(e.target.value)}
                 placeholder="e.g. 919876543210 or 919876543210@s.whatsapp.net"
               />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="add-name">Display name (optional)</Label>
+            </Field>
+            <Field label="Display name (optional)">
               <Input
-                id="add-name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="e.g. Asha Khan"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={handleAddRecipient}
               disabled={!newJid.trim()}
             >
@@ -626,10 +672,10 @@ function BroadcastDetailPane({
   );
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
+// --- Page -------------------------------------------------------------------
 
 export default function BroadcastsPage() {
-  const toaster = useToast();
+  const { toast } = useToast();
   const { current: currentSession } = useSabwaSession();
   const sessionId = currentSession?.id;
   const resolve = useResolveJid(sessionId ?? '');
@@ -687,10 +733,10 @@ export default function BroadcastsPage() {
     const name = newName.trim();
     if (!name) return;
     if (!sessionId) {
-      toaster.toast({
+      toast({
         title: 'Pick a session first',
         description: 'Connect or select a SabWa session to create broadcasts.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -698,20 +744,20 @@ export default function BroadcastsPage() {
     setNewOpen(false);
     const res = await upsertBroadcast({ sessionId, name, recipients: [] });
     if (!res.ok) {
-      toaster.toast({
+      toast({
         title: 'Could not create broadcast list',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
-    toaster.toast({ title: 'Broadcast list created', description: name });
+    toast({ title: 'Broadcast list created', description: name, tone: 'success' });
     await reload();
     setSelectedId(res.broadcastId);
   };
 
   const handleDelete = async (id: string) => {
-    // Optimistic remove — drop from local state before the engine round-trip.
+    // Optimistic remove. Drop from local state before the engine round-trip.
     const snapshot = broadcasts;
     setBroadcasts((prev) => prev.filter((b) => b.id !== id));
     setSelectedId((curr) => (curr === id ? null : curr));
@@ -719,14 +765,14 @@ export default function BroadcastsPage() {
     if (!res.ok) {
       // Revert and surface the error.
       setBroadcasts(snapshot);
-      toaster.toast({
+      toast({
         title: 'Failed to delete broadcast',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
-    toaster.toast({ title: 'Broadcast deleted' });
+    toast({ title: 'Broadcast deleted', tone: 'success' });
   };
 
   const handleRename = async (id: string, name: string) => {
@@ -743,10 +789,10 @@ export default function BroadcastsPage() {
       recipients: target.recipients.map((r) => r.jid),
     });
     if (!res.ok) {
-      toaster.toast({
+      toast({
         title: 'Rename failed',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       await reload();
     }
@@ -768,10 +814,10 @@ export default function BroadcastsPage() {
       recipients: nextRecipients.map((r) => r.jid),
     });
     if (!res.ok) {
-      toaster.toast({
+      toast({
         title: 'Could not update recipients',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       await reload();
     }
@@ -793,10 +839,10 @@ export default function BroadcastsPage() {
       recipients: nextRecipients.map((r) => r.jid),
     });
     if (!res.ok) {
-      toaster.toast({
+      toast({
         title: 'Could not add recipient',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       await reload();
     }
@@ -808,9 +854,9 @@ export default function BroadcastsPage() {
     media: SabFilePick | null,
   ) => {
     if (!sessionId) {
-      toaster.toast({
+      toast({
         title: 'Pick a session first',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -819,7 +865,7 @@ export default function BroadcastsPage() {
 
     const payload: SabwaScheduledPayload = media
       ? {
-          // Best-effort message type — engine inspects the file MIME to refine.
+          // Best-effort message type. The engine inspects the file MIME to refine.
           type: media.mime?.startsWith('image/')
             ? 'image'
             : media.mime?.startsWith('video/')
@@ -834,18 +880,19 @@ export default function BroadcastsPage() {
 
     const res = await sendBroadcast(sessionId, id, payload);
     if (!res.ok) {
-      toaster.toast({
+      toast({
         title: 'Send failed',
         description: res.error ?? 'Engine returned an error.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
-    toaster.toast({
+    toast({
       title: 'Broadcast queued',
       description: `${target.recipients.length} recipient${
         target.recipients.length === 1 ? '' : 's'
       }`,
+      tone: 'success',
     });
     // Refresh so updated counts / lastSentAt land in the UI.
     await reload();
@@ -854,7 +901,7 @@ export default function BroadcastsPage() {
   return (
     <div className="flex h-[calc(100vh-3.5rem)] min-h-0 flex-col bg-[var(--st-bg)]">
       {/* Breadcrumb + heading */}
-      <div className="border-b border-[var(--st-border)] p-3 md:p-4">
+      <div className="p-3 md:p-4">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -871,27 +918,28 @@ export default function BroadcastsPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="mt-3 flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-              <Send className="h-5 w-5" />
+        <PageHeader className="mt-3">
+          <PageHeaderHeading>
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+                <Send aria-hidden="true" className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <PageTitle>Broadcasts</PageTitle>
+                <PageDescription>
+                  Native WhatsApp broadcast lists. Recipients receive as 1:1, no
+                  cross-visibility.
+                </PageDescription>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h1 className="text-[20px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-                Broadcasts
-              </h1>
-              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
-                Native WhatsApp broadcast lists — recipients receive as 1:1, no
-                cross-visibility.
-              </p>
-            </div>
-          </div>
-          <Button onClick={() => setNewOpen(true)} className="gap-1">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">New broadcast list</span>
-            <span className="sm:hidden">New</span>
-          </Button>
-        </div>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button variant="primary" iconLeft={Plus} onClick={() => setNewOpen(true)}>
+              <span className="hidden sm:inline">New broadcast list</span>
+              <span className="sm:hidden">New</span>
+            </Button>
+          </PageActions>
+        </PageHeader>
       </div>
 
       {loadError && (
@@ -907,15 +955,16 @@ export default function BroadcastsPage() {
         {loading ? (
           <div className="grid h-full md:grid-cols-[320px_1fr] md:divide-x md:divide-[var(--st-border)]">
             <div className="space-y-2 p-3">
-              <Skeleton className="h-8 w-full" />
-              <Skeleton className="h-14 w-full" />
-              <Skeleton className="h-14 w-full" />
-              <Skeleton className="h-14 w-full" />
+              <Skeleton height={32} width="100%" />
+              <Skeleton height={56} width="100%" />
+              <Skeleton height={56} width="100%" />
+              <Skeleton height={56} width="100%" />
             </div>
-            <div className="hidden space-y-3 p-4 md:block">
-              <Skeleton className="h-8 w-1/3" />
-              <Skeleton className="h-40 w-full" />
-              <Skeleton className="h-32 w-full" />
+            <div className="hidden flex-col items-center justify-center gap-2 p-4 md:flex">
+              <Spinner size="lg" label="Loading broadcasts" />
+              <p className="text-xs text-[var(--st-text-secondary)]">
+                Loading broadcasts...
+              </p>
             </div>
           </div>
         ) : (
@@ -941,20 +990,15 @@ export default function BroadcastsPage() {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center p-6">
-                  <div className="max-w-sm text-center">
-                    <Users className="mx-auto h-8 w-8 text-[var(--st-text-secondary)]" />
-                    <p className="mt-3 text-sm font-medium text-[var(--st-text)]">
-                      Select or create a broadcast list
-                    </p>
-                    <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-                      Broadcast lists let you fan out a message to many contacts,
-                      while keeping each thread 1:1.
-                    </p>
-                  </div>
+                  <EmptyState
+                    icon={Users}
+                    title="Select or create a broadcast list"
+                    description="Broadcast lists let you fan out a message to many contacts, while keeping each thread 1:1."
+                  />
                 </div>
               )}
             </div>
-            {/* Mobile: list ⇄ detail navigation */}
+            {/* Mobile: list and detail navigation */}
             <div className="h-full md:hidden">
               {selected ? (
                 <BroadcastDetailPane
@@ -989,10 +1033,8 @@ export default function BroadcastsPage() {
               creating it.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-1">
-            <Label htmlFor="new-broadcast-name">Name</Label>
+          <Field label="Name">
             <Input
-              id="new-broadcast-name"
               autoFocus
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
@@ -1001,13 +1043,14 @@ export default function BroadcastsPage() {
                 if (e.key === 'Enter') void handleCreate();
               }}
             />
-          </div>
+          </Field>
           <Separator />
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => void handleCreate()}
               disabled={!newName.trim() || !sessionId}
             >

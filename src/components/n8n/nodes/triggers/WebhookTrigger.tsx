@@ -1,8 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { LuWebhook, LuCopy, LuCheck, LuShieldCheck, LuChevronDown } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Webhook, Copy, Check, ShieldCheck, ChevronDown } from 'lucide-react';
+
+import {
+  cn,
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Label,
+  Switch,
+  Badge,
+  SegmentedControl,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ──────────────────────────────────────────────── */
 
@@ -44,14 +67,7 @@ export type WebhookTriggerProps = {
 
 const METHODS: WebhookTriggerMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'ANY'];
 
-const METHOD_COLORS: Record<WebhookTriggerMethod, string> = {
-  GET:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-  POST:   'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-  PUT:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-  PATCH:  'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-  DELETE: 'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-  ANY:    'text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]',
-};
+const METHOD_ITEMS = METHODS.map((m) => ({ value: m, label: m }));
 
 /* ── Component ───────────────────────────────────────────── */
 
@@ -75,192 +91,168 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
     <div className={cn('space-y-4', className)}>
       {/* Node header chip */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
-          <LuWebhook className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent)]/10 text-[var(--st-accent)]">
+          <Webhook className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Webhook Trigger</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Receives incoming HTTP requests</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Webhook Trigger</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Receives incoming HTTP requests</p>
         </div>
       </div>
 
       {/* Webhook URL display */}
       <div className="space-y-1.5">
         <Label>Webhook URL</Label>
-        <div className="flex items-center gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2">
-          <code className="flex-1 min-w-0 truncate text-[12px] font-mono text-[var(--gray-11)]">
+        <div className="flex items-center gap-1 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
+          <code className="flex-1 min-w-0 truncate text-[12px] font-mono text-[var(--st-text)]">
             {fullUrl}
           </code>
-          <button
-            type="button"
+          <IconButton
+            label="Copy URL"
+            icon={copied ? Check : Copy}
+            size="sm"
             onClick={copyUrl}
-            className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[var(--gray-9)] hover:text-[var(--gray-12)] transition-colors"
-            title="Copy URL"
-          >
-            {copied
-              ? <LuCheck className="h-3.5 w-3.5 text-[var(--st-text)]" strokeWidth={2} />
-              : <LuCopy className="h-3.5 w-3.5" strokeWidth={2} />
-            }
-          </button>
+          />
         </div>
       </div>
 
       {/* URL path */}
-      <div className="space-y-1.5">
-        <Label>Path</Label>
-        <input
+      <Field label="Path">
+        <Input
           type="text"
-          className={INPUT_CLS}
           value={config.path}
           onChange={(e) => onChange({ ...config, path: e.target.value })}
           placeholder="my-webhook"
         />
-      </div>
+      </Field>
 
       {/* HTTP Method */}
       <div className="space-y-1.5">
         <Label>Method</Label>
-        <div className="flex flex-wrap gap-1.5">
-          {METHODS.map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => onChange({ ...config, method: m })}
-              className={cn(
-                'rounded-md border px-2.5 py-1 text-[11.5px] font-semibold transition-colors',
-                config.method === m
-                  ? METHOD_COLORS[m]
-                  : 'border-[var(--gray-4)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
-              )}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          aria-label="HTTP method"
+          items={METHOD_ITEMS}
+          value={config.method}
+          onChange={(m) => onChange({ ...config, method: m as WebhookTriggerMethod })}
+        />
       </div>
 
       {/* Authentication */}
       <div className="space-y-1.5">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          block
           onClick={() => setAuthOpen((v) => !v)}
-          className="flex w-full items-center gap-2 text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide"
+          aria-expanded={authOpen}
+          iconLeft={ShieldCheck}
+          iconRight={ChevronDown}
+          className="justify-start text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-secondary)]"
         >
-          <LuShieldCheck className="h-3.5 w-3.5" strokeWidth={2} />
           Authentication
-          <LuChevronDown
-            className={cn(
-              'ml-auto h-3.5 w-3.5 transition-transform',
-              authOpen ? 'rotate-180' : '',
-            )}
-            strokeWidth={2}
-          />
-        </button>
+        </Button>
 
         {authOpen && (
-          <div className="space-y-3 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3">
+          <Card variant="outlined" padding="sm" className="space-y-3">
             {/* Auth type selector */}
-            <div className="space-y-1.5">
-              <Label>Type</Label>
-              <select
-                className={INPUT_CLS}
+            <Field label="Type">
+              <Select
                 value={config.auth.type}
-                onChange={(e) => {
-                  const t = e.target.value as WebhookTriggerAuth['type'];
-                  if (t === 'none') setAuth({ type: 'none' });
-                  else if (t === 'basic') setAuth({ type: 'basic', username: '', password: '' });
-                  else if (t === 'bearer') setAuth({ type: 'bearer', token: '' });
+                onValueChange={(t) => {
+                  const type = t as WebhookTriggerAuth['type'];
+                  if (type === 'none') setAuth({ type: 'none' });
+                  else if (type === 'basic') setAuth({ type: 'basic', username: '', password: '' });
+                  else if (type === 'bearer') setAuth({ type: 'bearer', token: '' });
                   else setAuth({ type: 'header', name: '', value: '' });
                 }}
               >
-                <option value="none">None</option>
-                <option value="basic">Basic Auth</option>
-                <option value="bearer">Bearer Token</option>
-                <option value="header">Custom Header</option>
-              </select>
-            </div>
+                <SelectTrigger aria-label="Authentication type">
+                  <SelectValue placeholder="Select a type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="basic">Basic Auth</SelectItem>
+                  <SelectItem value="bearer">Bearer Token</SelectItem>
+                  <SelectItem value="header">Custom Header</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
 
             {config.auth.type === 'basic' && (
               <>
-                <div className="space-y-1.5">
-                  <Label>Username</Label>
-                  <input
+                <Field label="Username">
+                  <Input
                     type="text"
-                    className={INPUT_CLS}
                     value={config.auth.username}
                     onChange={(e) => setAuth({ ...config.auth, username: e.target.value } as WebhookTriggerAuth)}
                     placeholder="username"
                     autoComplete="off"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Password</Label>
-                  <input
+                </Field>
+                <Field label="Password">
+                  <Input
                     type="password"
-                    className={INPUT_CLS}
                     value={config.auth.password}
                     onChange={(e) => setAuth({ ...config.auth, password: e.target.value } as WebhookTriggerAuth)}
-                    placeholder="••••••••"
+                    placeholder="Enter a password"
                     autoComplete="off"
                   />
-                </div>
+                </Field>
               </>
             )}
 
             {config.auth.type === 'bearer' && (
-              <div className="space-y-1.5">
-                <Label>Token</Label>
-                <input
+              <Field label="Token">
+                <Input
                   type="password"
-                  className={INPUT_CLS}
                   value={config.auth.token}
                   onChange={(e) => setAuth({ type: 'bearer', token: e.target.value })}
                   placeholder="Bearer token"
                   autoComplete="off"
                 />
-              </div>
+              </Field>
             )}
 
             {config.auth.type === 'header' && (
               <>
-                <div className="space-y-1.5">
-                  <Label>Header Name</Label>
-                  <input
+                <Field label="Header Name">
+                  <Input
                     type="text"
-                    className={INPUT_CLS}
                     value={config.auth.name}
                     onChange={(e) => setAuth({ ...config.auth, name: e.target.value } as WebhookTriggerAuth)}
                     placeholder="X-Api-Key"
                   />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Header Value</Label>
-                  <input
+                </Field>
+                <Field label="Header Value">
+                  <Input
                     type="password"
-                    className={INPUT_CLS}
                     value={config.auth.value}
                     onChange={(e) => setAuth({ ...config.auth, value: e.target.value } as WebhookTriggerAuth)}
                     placeholder="secret-value"
                     autoComplete="off"
                   />
-                </div>
+                </Field>
               </>
             )}
-          </div>
+          </Card>
         )}
       </div>
 
       {/* Respond immediately toggle */}
-      <div className="flex items-center justify-between rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+      <Card
+        variant="outlined"
+        padding="sm"
+        className="flex items-center justify-between gap-3"
+      >
         <div>
-          <p className="text-[12.5px] font-medium text-[var(--gray-12)]">Respond immediately</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Return 200 without waiting for the flow to finish</p>
+          <p className="text-[12.5px] font-medium text-[var(--st-text)]">Respond immediately</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Return 200 without waiting for the flow to finish</p>
         </div>
-        <Toggle
+        <Switch
+          aria-label="Respond immediately"
           checked={config.respondImmediately}
-          onChange={(v) => onChange({ ...config, respondImmediately: v })}
+          onCheckedChange={(v) => onChange({ ...config, respondImmediately: v })}
         />
-      </div>
+      </Card>
 
       {/* Output schema preview */}
       <OutputSchema
@@ -278,56 +270,38 @@ export function WebhookTrigger({ config, baseUrl = '', onChange, className }: We
 
 /* ── Shared sub-components (internal) ───────────────────── */
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)]',
-        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-      )}
-    >
-      <span
-        className={cn(
-          'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-          checked ? 'translate-x-4' : 'translate-x-0.5',
-        )}
-      />
-    </button>
-  );
-}
-
 type OutputField = { key: string; type: string; description: string };
 
 function OutputSchema({ fields }: { fields: OutputField[] }) {
   return (
     <div className="space-y-1.5">
       <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
-        {fields.map((f) => (
-          <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[80px] text-[11.5px] font-mono font-medium text-[var(--st-text)]">{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
-          </div>
-        ))}
-      </div>
+      <Card variant="outlined" padding="none">
+        <Table density="compact" hover={false}>
+          <THead>
+            <Tr>
+              <Th>Field</Th>
+              <Th>Type</Th>
+              <Th>Description</Th>
+            </Tr>
+          </THead>
+          <TBody>
+            {fields.map((f) => (
+              <Tr key={f.key}>
+                <Td>
+                  <code className="text-[11.5px] font-mono font-medium text-[var(--st-accent)]">{f.key}</code>
+                </Td>
+                <Td>
+                  <Badge tone="neutral" kind="soft">{f.type}</Badge>
+                </Td>
+                <Td truncate>
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">{f.description}</span>
+                </Td>
+              </Tr>
+            ))}
+          </TBody>
+        </Table>
+      </Card>
     </div>
   );
 }
-
-/* ── Shared class strings ────────────────────────────────── */
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

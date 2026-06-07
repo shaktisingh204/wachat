@@ -2,8 +2,18 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { KeyRound, Network, Plus } from 'lucide-react';
-import { Button, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Skeleton, toast } from '@/components/sabcrm/20ui';
-import { cn } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  SegmentedControl,
+  Skeleton,
+  toast,
+} from '@/components/sabcrm/20ui';
 import {
   actionListEmailApiKeys,
   actionListEmailWebhooks,
@@ -30,7 +40,7 @@ export function IntegrationsClient() {
   const fetchKeys = useCallback(async () => {
     const result = await actionListEmailApiKeys();
     if (!result.ok) {
-      toast({ title: 'Failed to load API keys', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load API keys', description: result.error, tone: 'danger' });
       return;
     }
     setKeys(result.data);
@@ -39,7 +49,7 @@ export function IntegrationsClient() {
   const fetchWebhooks = useCallback(async () => {
     const result = await actionListEmailWebhooks();
     if (!result.ok) {
-      toast({ title: 'Failed to load webhooks', description: result.error, variant: 'destructive' });
+      toast({ title: 'Failed to load webhooks', description: result.error, tone: 'danger' });
       return;
     }
     setWebhooks(result.data);
@@ -55,7 +65,7 @@ export function IntegrationsClient() {
         <PageHeading>
           <PageTitle>
             <span className="inline-flex items-center gap-3">
-              <Network className="h-6 w-6" /> Integrations
+              <Network className="h-6 w-6" aria-hidden="true" /> Integrations
             </span>
           </PageTitle>
           <PageDescription>
@@ -65,7 +75,7 @@ export function IntegrationsClient() {
         <PageActions>
           {pane === 'keys' ? (
             <Button onClick={() => setKeyDialogOpen(true)}>
-              <Plus className="h-4 w-4" /> New API key
+              <Plus className="h-4 w-4" aria-hidden="true" /> New API key
             </Button>
           ) : (
             <Button
@@ -74,52 +84,39 @@ export function IntegrationsClient() {
                 setHookFormOpen(true);
               }}
             >
-              <Plus className="h-4 w-4" /> New webhook
+              <Plus className="h-4 w-4" aria-hidden="true" /> New webhook
             </Button>
           )}
         </PageActions>
       </PageHeader>
 
-      {/* Segmented control — not tabs, per zoruui directive. */}
-      <div
-        role="tablist"
+      <SegmentedControl<Pane>
         aria-label="Integrations sections"
-        className="inline-flex rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-1"
-      >
-        {([
-          { key: 'keys', label: 'API keys', icon: KeyRound, count: keys.length },
-          { key: 'webhooks', label: 'Webhooks', icon: Network, count: webhooks.length },
-        ] as const).map((seg) => {
-          const Icon = seg.icon;
-          const isActive = pane === seg.key;
-          return (
-            <button
-              key={seg.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setPane(seg.key)}
-              className={cn(
-                'inline-flex items-center gap-2 rounded-[var(--st-radius-sm)] px-3 py-1.5 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-[var(--st-bg)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]'
-                  : 'text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {seg.label}
-              <span
-                className={cn(
-                  'rounded-full px-1.5 py-0.5 text-xs',
-                  isActive ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]' : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]',
-                )}
-              >
-                {seg.count}
+        value={pane}
+        onChange={setPane}
+        items={[
+          {
+            value: 'keys',
+            icon: KeyRound,
+            label: (
+              <span className="inline-flex items-center gap-2">
+                API keys
+                <Badge tone="neutral">{keys.length}</Badge>
               </span>
-            </button>
-          );
-        })}
-      </div>
+            ),
+          },
+          {
+            value: 'webhooks',
+            icon: Network,
+            label: (
+              <span className="inline-flex items-center gap-2">
+                Webhooks
+                <Badge tone="neutral">{webhooks.length}</Badge>
+              </span>
+            ),
+          },
+        ]}
+      />
 
       {loading ? (
         <div className="space-y-2">

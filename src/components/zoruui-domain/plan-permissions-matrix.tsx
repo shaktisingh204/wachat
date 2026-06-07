@@ -1,6 +1,14 @@
 'use client';
 
-import { Input, Button, Switch, Badge, Label } from '@/components/sabcrm/20ui';
+import {
+    Input,
+    Button,
+    Switch,
+    Badge,
+    Checkbox,
+    Card,
+    EmptyState,
+} from '@/components/sabcrm/20ui';
 import {
   moduleCategories,
   permissionActions } from '@/lib/permission-modules';
@@ -17,6 +25,7 @@ import {
     Pencil,
     Trash2,
     ShieldCheck,
+    SearchX,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -151,42 +160,39 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
     return (
         <div className="space-y-4">
             {/* Toolbar */}
-            <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-[var(--st-bg-secondary)]/70 border-b border-white/10">
+            <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-[var(--st-bg-secondary)]/70 border-b border-[var(--st-border)]">
                 <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
+                    <div className="flex-1">
                         <Input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search module or category…"
-                            className="pl-9 rounded-xl bg-white/5 border-white/10 backdrop-blur"
+                            placeholder="Search module or category"
+                            iconLeft={Search}
+                            aria-label="Search module or category"
                         />
                     </div>
                     <div className="flex items-center gap-2">
-                        <Badge
-                            variant="outline"
-                            className="rounded-full border-white/10 bg-white/5 font-normal"
-                        >
-                            <ShieldCheck className="h-3 w-3 mr-1 text-[var(--st-text)]" />
+                        <Badge tone="neutral" kind="outline" className="font-normal">
+                            <ShieldCheck className="h-3 w-3 mr-1 text-[var(--st-text)]" aria-hidden="true" />
                             {globalStats.enabled}/{globalStats.total}
                         </Badge>
                         <Button
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="rounded-xl gap-1 border-white/10 bg-white/5 hover:bg-white/10"
+                            iconLeft={Check}
                             onClick={() => setAllGlobal(true)}
                         >
-                            <Check className="h-3.5 w-3.5" /> All
+                            All
                         </Button>
                         <Button
                             type="button"
                             size="sm"
                             variant="outline"
-                            className="rounded-xl gap-1 border-white/10 bg-white/5 hover:bg-white/10"
+                            iconLeft={X}
                             onClick={() => setAllGlobal(false)}
                         >
-                            <X className="h-3.5 w-3.5" /> None
+                            None
                         </Button>
                     </div>
                 </div>
@@ -201,49 +207,49 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                     const isOpen = openCategories[category] ?? true;
 
                     return (
-                        <div
+                        <Card
                             key={category}
-                            className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-sm overflow-hidden"
+                            variant="outlined"
+                            padding="none"
+                            className="overflow-hidden"
                         >
                             {/* Category header */}
-                            <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-gradient-to-r from-white/5 to-transparent">
-                                <button
+                            <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                                <Button
                                     type="button"
+                                    variant="ghost"
+                                    size="sm"
                                     onClick={() =>
                                         setOpenCategories((prev) => ({
                                             ...prev,
                                             [category]: !isOpen,
                                         }))
                                     }
-                                    className="flex items-center gap-2 flex-1 text-left hover:opacity-80 transition"
+                                    aria-expanded={isOpen}
+                                    aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${category}`}
+                                    className="flex-1 justify-start gap-2 text-left"
                                 >
                                     <ChevronDown
                                         className={cn(
                                             'h-4 w-4 transition-transform',
                                             !isOpen && '-rotate-90',
                                         )}
+                                        aria-hidden="true"
                                     />
-                                    <span className="font-semibold text-sm">{category}</span>
+                                    <span className="font-semibold text-sm text-[var(--st-text)]">{category}</span>
                                     <Badge
-                                        variant="outline"
-                                        className={cn(
-                                            'rounded-full text-[10px] font-normal border-white/10',
-                                            allEnabled
-                                                ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
-                                                : noneEnabled
-                                                  ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20'
-                                                  : 'bg-white/5',
-                                        )}
+                                        tone={allEnabled ? 'accent' : 'neutral'}
+                                        kind={noneEnabled ? 'outline' : 'soft'}
+                                        className="text-[10px] font-normal"
                                     >
                                         {stats.enabled}/{stats.total}
                                     </Badge>
-                                </button>
+                                </Button>
                                 <div className="flex items-center gap-1.5">
                                     <Button
                                         type="button"
                                         size="sm"
                                         variant="ghost"
-                                        className="h-7 px-2 text-xs hover:bg-white/10 rounded-lg"
                                         onClick={() => setAllOnCategory(category, true)}
                                     >
                                         Enable all
@@ -252,7 +258,6 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                         type="button"
                                         size="sm"
                                         variant="ghost"
-                                        className="h-7 px-2 text-xs hover:bg-white/10 rounded-lg"
                                         onClick={() => setAllOnCategory(category, false)}
                                     >
                                         Clear
@@ -262,7 +267,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
 
                             {/* Modules */}
                             {isOpen && (
-                                <div className="divide-y divide-white/5">
+                                <div className="divide-y divide-[var(--st-border)]">
                                     {modules.map((moduleKey) => {
                                         const modulePerms =
                                             normalized[moduleKey] || {};
@@ -273,7 +278,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                             <div
                                                 key={moduleKey}
                                                 className={cn(
-                                                    'flex flex-col md:flex-row gap-3 md:items-center px-4 py-3 hover:bg-white/[0.03] transition',
+                                                    'flex flex-col md:flex-row gap-3 md:items-center px-4 py-3 transition hover:bg-[var(--st-bg-secondary)]',
                                                     compact && 'py-2',
                                                 )}
                                             >
@@ -284,9 +289,10 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                         onCheckedChange={(c) =>
                                                             setAllOnModule(moduleKey, !!c)
                                                         }
+                                                        aria-label={`Toggle all permissions for ${prettyModule(moduleKey)}`}
                                                     />
                                                     <div className="min-w-0">
-                                                        <div className="text-sm font-medium truncate">
+                                                        <div className="text-sm font-medium truncate text-[var(--st-text)]">
                                                             {prettyModule(moduleKey)}
                                                         </div>
                                                         <div className="text-[10px] text-[var(--st-text-secondary)] font-mono truncate">
@@ -305,14 +311,14 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                             <label
                                                                 key={action}
                                                                 className={cn(
-                                                                    'cursor-pointer select-none inline-flex items-center gap-1.5 px-3 h-8 rounded-lg border text-xs transition',
+                                                                    'cursor-pointer select-none inline-flex items-center gap-1.5 px-3 h-8 rounded-[var(--st-radius)] border text-xs transition',
                                                                     checked
-                                                                        ? 'border-primary/40 bg-[var(--st-text)]/15 text-[var(--st-text)] shadow-inner'
-                                                                        : 'border-white/10 bg-white/5 text-[var(--st-text-secondary)] hover:bg-white/10',
+                                                                        ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                                                                        : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]',
                                                                 )}
                                                             >
-                                                                <input
-                                                                    type="checkbox"
+                                                                <Checkbox
+                                                                    size="sm"
                                                                     className="sr-only"
                                                                     checked={checked}
                                                                     onChange={(e) =>
@@ -322,6 +328,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                                             e.target.checked,
                                                                         )
                                                                     }
+                                                                    aria-label={`${action} permission for ${prettyModule(moduleKey)}`}
                                                                 />
                                                                 {Icon && (
                                                                     <Icon
@@ -331,6 +338,7 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                                                                 ? meta.color
                                                                                 : '',
                                                                         )}
+                                                                        aria-hidden="true"
                                                                     />
                                                                 )}
                                                                 <span className="capitalize">
@@ -345,19 +353,21 @@ export function PlanPermissionsMatrix({ value, onChange, compact = false }: Plan
                                     })}
                                 </div>
                             )}
-                        </div>
+                        </Card>
                     );
                 })}
 
                 {Object.keys(filteredCategories).length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-[var(--st-text-secondary)]">
-                        No modules match &ldquo;{search}&rdquo;.
-                    </div>
+                    <EmptyState
+                        icon={SearchX}
+                        title="No modules found"
+                        description={`No modules match "${search}".`}
+                    />
                 )}
             </div>
 
             <p className="text-xs text-[var(--st-text-secondary)] text-center pt-2">
-                Tip: disabling <span className="font-medium">View</span> on a module blocks access to
+                Tip: disabling <span className="font-medium text-[var(--st-text)]">View</span> on a module blocks access to
                 the entire page regardless of other actions.
             </p>
         </div>

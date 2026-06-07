@@ -1,10 +1,10 @@
 'use client';
 
-import { Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
+import { Field, Input, Label, Button, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import { GitBranch } from 'lucide-react';
 
 /**
- * Meta Flow JSON v7.3 Switch — a control-flow component, not a UI toggle.
+ * Meta Flow JSON v7.3 Switch, a control-flow component, not a UI toggle.
  *
  *   { type: "Switch", value: "<expr>", cases: { "<v1>": [...], default: [...] } }
  *
@@ -39,8 +39,11 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
 
     return (
         <div className="space-y-6">
-            <div className="space-y-2">
-                <Label htmlFor="value">Value expression</Label>
+            <Field
+                label="Value expression"
+                required
+                help="Dynamic expression resolved against screen/form data. Meta matches its string value against the keys below; falls back to the default case."
+            >
                 <Input
                     id="value"
                     value={component.value || ''}
@@ -49,46 +52,43 @@ export function SwitchEditor({ component, updateField }: SwitchEditorProps) {
                     placeholder="${form.plan}"
                     className="font-mono text-xs"
                 />
-                <p className="text-[10.5px] text-[var(--st-text-secondary)]">
-                    Dynamic expression resolved against screen/form data. Meta matches its
-                    string value against the keys below; falls back to <code>default</code>.
-                </p>
-            </div>
+            </Field>
 
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <Label>Cases ({caseKeys.length})</Label>
-                    <button type="button" onClick={addCase} className="text-[11px] font-medium text-[var(--st-text)] hover:underline">
+                    <Button type="button" variant="ghost" size="sm" onClick={addCase}>
                         + Add case
-                    </button>
+                    </Button>
                 </div>
                 {caseKeys.length === 0 ? (
-                    <p className="rounded-md border border-dashed p-2 text-[11px] text-[var(--st-text-secondary)]">
-                        No cases. Add at least one plus a <code>default</code>.
+                    <p className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-[11px] text-[var(--st-text-secondary)]">
+                        No cases. Add at least one plus a default case.
                     </p>
                 ) : caseKeys.map((k) => (
                     <div key={k} className="flex items-center gap-2">
                         <Input
                             value={k}
                             onChange={(e) => renameCase(k, e.target.value)}
+                            aria-label={`Case key for ${k}`}
                             className="font-mono text-xs"
                         />
                         <span className="text-[10.5px] text-[var(--st-text-secondary)]">{cases[k]?.length ?? 0} child</span>
                         {k === 'default' ? null : (
-                            <button
+                            <Button
                                 type="button"
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => removeCase(k)}
-                                className="text-[11px] text-[var(--st-text)] hover:underline"
                             >
                                 remove
-                            </button>
+                            </Button>
                         )}
                     </div>
                 ))}
             </div>
 
-            <Alert>
-                <GitBranch className="h-4 w-4" />
+            <Alert icon={GitBranch}>
                 <AlertTitle>Edit branch children in JSON</AlertTitle>
                 <AlertDescription>
                     Components inside each case branch are edited in the Raw JSON tab.

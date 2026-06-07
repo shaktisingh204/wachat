@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { LuSearch, LuPin, LuPinOff } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Search, Pin, PinOff } from 'lucide-react';
+import { Input, IconButton, EmptyState, cn } from '@/components/sabcrm/20ui';
 import { N8N_NODE_CATEGORIES, N8N_NODE_REGISTRY } from '../registry';
 import { useWorkflow } from '../WorkflowContext';
 import type { N8NNodeType } from '../types';
-import type { N8NNodeMeta } from '../registry';
 
 export function N8NNodesList() {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,34 +44,32 @@ export function N8NNodesList() {
       <div
         className={cn(
           'absolute left-0 top-0 h-full w-[320px] flex flex-col',
-          'bg-[var(--gray-1)] border-r border-[var(--gray-5)] shadow-lg',
+          'bg-[var(--st-bg)] border-r border-[var(--st-border)] shadow-lg',
           'transition-transform duration-200 ease-out',
           isOpen || isLocked ? 'translate-x-0' : '-translate-x-[310px]',
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--gray-4)]">
-          <span className="text-[13px] font-semibold text-[var(--gray-12)]">Nodes</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--st-border)]">
+          <span className="text-[13px] font-semibold text-[var(--st-text)]">Nodes</span>
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <LuSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--gray-9)]" strokeWidth={2} />
-              <input
-                type="text"
-                placeholder="Search…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                className="w-[130px] pl-8 pr-3 py-1.5 text-[12px] bg-[var(--gray-3)] border border-[var(--gray-5)] rounded-lg outline-none focus:border-[var(--st-border)]"
-              />
-            </div>
-            <button
+            <Input
+              inputSize="sm"
+              iconLeft={Search}
+              type="text"
+              placeholder="Search"
+              aria-label="Search nodes"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-[150px]"
+            />
+            <IconButton
+              label={isLocked ? 'Unpin sidebar' : 'Pin sidebar'}
+              icon={isLocked ? Pin : PinOff}
+              size="sm"
               onClick={toggleLock}
-              title={isLocked ? 'Unpin sidebar' : 'Pin sidebar'}
-              className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--gray-9)] hover:bg-[var(--gray-3)] hover:text-[var(--gray-12)] transition-colors"
-            >
-              {isLocked
-                ? <LuPin className="h-3.5 w-3.5" strokeWidth={2} />
-                : <LuPinOff className="h-3.5 w-3.5" strokeWidth={2} />}
-            </button>
+              aria-pressed={isLocked}
+            />
           </div>
         </div>
 
@@ -92,11 +89,13 @@ export function N8NNodesList() {
             return (
               <div key={catKey}>
                 <div className="flex items-center gap-2 px-1 mb-2">
-                  <div
+                  {/* Runtime-computed category color */}
+                  <span
                     className="h-1.5 w-1.5 rounded-full"
                     style={{ background: cat.color }}
+                    aria-hidden="true"
                   />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--gray-9)]">
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                     {cat.label}
                   </span>
                 </div>
@@ -124,9 +123,12 @@ export function N8NNodesList() {
                 );
               }),
             ) && (
-              <div className="py-8 text-center text-[12px] text-[var(--gray-9)]">
-                No nodes matched &ldquo;{query}&rdquo;
-              </div>
+              <EmptyState
+                size="sm"
+                icon={Search}
+                title="No nodes found"
+                description={`Nothing matched "${query}".`}
+              />
             )}
         </div>
       </div>
@@ -158,22 +160,23 @@ function NodeCard({
         onDragEnd();
       }}
       className={cn(
-        'flex items-start gap-2.5 rounded-lg border border-[var(--gray-5)] px-3 py-2.5',
-        'bg-[var(--gray-2)] hover:bg-[var(--gray-1)] hover:shadow-md',
+        'flex items-start gap-2.5 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2.5',
+        'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg)] hover:shadow-md',
         'cursor-grab transition-[box-shadow,background-color]',
         isDown ? 'opacity-40 cursor-grabbing' : 'opacity-100',
       )}
       title={meta.description}
     >
+      {/* Runtime-computed node color */}
       <div
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg mt-0.5"
         style={{ background: meta.color, color: 'var(--st-text-inverted)' }}
       >
-        <Icon className="h-3.5 w-3.5" />
+        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[12px] font-medium text-[var(--gray-12)]">{meta.label}</div>
-        <div className="text-[10.5px] text-[var(--gray-9)] truncate leading-tight mt-0.5">
+        <div className="text-[12px] font-medium text-[var(--st-text)]">{meta.label}</div>
+        <div className="text-[10.5px] text-[var(--st-text-secondary)] truncate leading-tight mt-0.5">
           {meta.description}
         </div>
       </div>

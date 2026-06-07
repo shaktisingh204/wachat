@@ -3,6 +3,8 @@
 import { useRef, useCallback } from 'react';
 import { useGesture } from '@use-gesture/react';
 import { createId } from '@paralleldrive/cuid2';
+import { MousePointerSquareDashed, ZoomIn, ZoomOut } from 'lucide-react';
+import { Button, IconButton, EmptyState } from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
 import { useWorkflow } from '../WorkflowContext';
 import { N8NNode, NODE_WIDTH, NODE_HEADER_HEIGHT, NODE_BODY_HEIGHT } from '../nodes/N8NNode';
@@ -17,7 +19,7 @@ const MAX_SCALE = 2;
 const MIN_SCALE = 0.2;
 const ZOOM_STEP = 0.15;
 
-/** Port anchor in canvas-space.
+/* Port anchor in canvas-space.
  *  side: 'output' = right edge, 'input' = left edge
  */
 function portAnchor(
@@ -34,7 +36,7 @@ function portAnchor(
   return { x, y };
 }
 
-/** SVG cubic bezier path between two canvas points. */
+/* SVG cubic bezier path between two canvas points. */
 function edgePath(sx: number, sy: number, tx: number, ty: number): string {
   const cp = Math.abs(tx - sx) * 0.5;
   return `M ${sx} ${sy} C ${sx + cp} ${sy}, ${tx - cp} ${ty}, ${tx} ${ty}`;
@@ -59,7 +61,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const mousePosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  /* ── screen → canvas coords ────────────────────────────────────────────── */
+  /* screen to canvas coords */
   const toCanvas = useCallback(
     (clientX: number, clientY: number) => {
       if (!canvasRef.current) return { x: 0, y: 0 };
@@ -72,7 +74,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [graphPosition],
   );
 
-  /* ── Live mouse tracking for draft edge ────────────────────────────────── */
+  /* Live mouse tracking for draft edge */
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       const pos = toCanvas(e.clientX, e.clientY);
@@ -86,7 +88,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [draftConnection, setDraftConnection, toCanvas],
   );
 
-  /* ── Drop new node from palette ─────────────────────────────────────────── */
+  /* Drop new node from palette */
   const handleMouseUp = useCallback(
     (e: React.MouseEvent) => {
       if (draftConnection) {
@@ -130,7 +132,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     ],
   );
 
-  /* ── Node move (by name, since name is the connection key in n8n) ───────── */
+  /* Node move (by name, since name is the connection key in n8n) */
   const handleNodeMove = useCallback(
     (name: string, x: number, y: number) => {
       onChange({
@@ -142,7 +144,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [workflow.nodes, onChange],
   );
 
-  /* ── Connection start ───────────────────────────────────────────────────── */
+  /* Connection start */
   const handleConnectionStart = useCallback(
     (nodeName: string, outputIndex: number) => {
       setDraftConnection({
@@ -155,7 +157,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [setDraftConnection],
   );
 
-  /* ── Connection end ─────────────────────────────────────────────────────── */
+  /* Connection end */
   const handleConnectionEnd = useCallback(
     (targetNodeName: string, targetInputIndex: number) => {
       if (!draftConnection) return;
@@ -185,7 +187,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [draftConnection, workflow.connections, onChange, setDraftConnection],
   );
 
-  /* ── Delete connection (double-click on edge) ───────────────────────────── */
+  /* Delete connection (double-click on edge) */
   const handleConnectionDelete = useCallback(
     (connId: string) => {
       onChange({
@@ -195,7 +197,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     [workflow.connections, onChange],
   );
 
-  /* ── Canvas pan + zoom ──────────────────────────────────────────────────── */
+  /* Canvas pan + zoom */
   useGesture(
     {
       onDrag: ({ delta: [dx, dy], first, last }) => {
@@ -244,7 +246,7 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     });
   };
 
-  /* ── Build SVG edge paths ───────────────────────────────────────────────── */
+  /* Build SVG edge paths */
   const nodeMap = new Map(workflow.nodes.map((n) => [n.name, n]));
 
   const edgePaths = workflow.connections.map((conn) => {
@@ -286,69 +288,60 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
     <div
       ref={canvasRef}
       className={cn(
-        'relative flex-1 overflow-hidden',
+        'ui20 relative flex-1 overflow-hidden touch-none',
+        'bg-[var(--st-bg-secondary)]',
+        '[background-image:radial-gradient(var(--st-border-strong)_1px,transparent_0)]',
+        '[background-size:32px_32px] [background-position:-15px_-15px]',
         draggedNodeType ? 'cursor-crosshair' : 'cursor-default',
       )}
-      style={{
-        touchAction: 'none',
-        backgroundColor: 'var(--gray-3)',
-        backgroundImage: 'radial-gradient(var(--gray-7) 1px, transparent 0)',
-        backgroundSize: '32px 32px',
-        backgroundPosition: '-15px -15px',
-      }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onClick={(e) => {
         if (e.target === canvasRef.current) setSelectedNodeId(null);
       }}
     >
-      {/* ── Transformed layer ──────────────────────────────────────────────── */}
+      {/* Transformed layer (transform is runtime-computed from pan/zoom state) */}
       <div
-        className="absolute will-change-transform w-full h-full"
+        className="absolute will-change-transform w-full h-full origin-top-left"
         style={{
           transform: `translate(${graphPosition.x}px,${graphPosition.y}px) scale(${graphPosition.scale})`,
-          transformOrigin: '0 0',
         }}
       >
         {/* SVG edges rendered under nodes */}
-        <svg
-          className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
-          style={{ zIndex: 0 }}
-        >
+        <svg className="absolute inset-0 w-full h-full overflow-visible pointer-events-none z-0">
           <defs>
             <marker id="n8n-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L8,3 z" fill="var(--gray-8)" />
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--st-border-strong)" />
             </marker>
             <marker id="n8n-arrow-hover" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L8,3 z" fill="#f76808" />
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--st-accent)" />
             </marker>
             <marker id="n8n-arrow-draft" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L8,3 z" fill="#3b82f6" />
+              <path d="M0,0 L0,6 L8,3 z" fill="var(--st-accent)" />
             </marker>
           </defs>
 
           {edgePaths.map((ep) => {
             if (!ep) return null;
             return (
-              <g key={ep.conn.id} className="group" style={{ pointerEvents: 'all' }}>
+              <g key={ep.conn.id} className="group [pointer-events:all]">
                 {/* Wide invisible hit target */}
                 <path
                   d={ep.path}
                   stroke="transparent"
                   strokeWidth={14}
                   fill="none"
-                  style={{ cursor: 'pointer', pointerEvents: 'stroke' }}
+                  className="cursor-pointer [pointer-events:stroke]"
                   onDoubleClick={() => handleConnectionDelete(ep.conn.id)}
                 />
-                {/* Visible line — turns orange on hover */}
+                {/* Visible line, turns accent on hover */}
                 <path
                   d={ep.path}
-                  stroke="var(--gray-8)"
+                  stroke="var(--st-border-strong)"
                   strokeWidth={2}
                   fill="none"
                   markerEnd="url(#n8n-arrow)"
-                  className="group-hover:stroke-[var(--st-text)]"
-                  style={{ pointerEvents: 'none', transition: 'stroke 0.1s' }}
+                  className="[pointer-events:none] transition-[stroke] duration-100 group-hover:stroke-[var(--st-accent)]"
                 />
               </g>
             );
@@ -358,12 +351,12 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
           {draftPath && (
             <path
               d={draftPath}
-              stroke="#3b82f6"
+              stroke="var(--st-accent)"
               strokeWidth={2}
               strokeDasharray="6 3"
               fill="none"
               markerEnd="url(#n8n-arrow-draft)"
-              style={{ pointerEvents: 'none' }}
+              className="[pointer-events:none]"
             />
           )}
         </svg>
@@ -381,44 +374,42 @@ export function WorkflowCanvas({ workflow, onChange }: Props) {
         ))}
       </div>
 
-      {/* ── Zoom controls ──────────────────────────────────────────────────── */}
-      <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-1)] p-1.5 shadow-sm z-10">
-        <button
+      {/* Zoom controls */}
+      <div className="absolute top-4 right-4 flex items-stretch gap-1 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1.5 shadow-sm z-10">
+        <IconButton
+          label="Zoom in"
+          icon={ZoomIn}
+          size="sm"
           onClick={() => handleZoom('in')}
-          className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
-          title="Zoom in"
-        >
-          +
-        </button>
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
-        <button
+        />
+        <div className="w-px self-stretch bg-[var(--st-border)]" />
+        <IconButton
+          label="Zoom out"
+          icon={ZoomOut}
+          size="sm"
           onClick={() => handleZoom('out')}
-          className="flex h-7 w-7 items-center justify-center rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors font-medium text-base"
-          title="Zoom out"
-        >
-          −
-        </button>
-        <div className="w-px bg-[var(--gray-5)] self-stretch" />
-        <button
-          onClick={() => setGraphPosition({ x: 0, y: 0, scale: 1 })}
-          className="px-2 h-7 text-[11px] rounded text-[var(--gray-11)] hover:bg-[var(--gray-3)] transition-colors tabular-nums"
+        />
+        <div className="w-px self-stretch bg-[var(--st-border)]" />
+        <Button
+          variant="ghost"
+          size="sm"
+          className="tabular-nums"
           title="Reset zoom"
+          onClick={() => setGraphPosition({ x: 0, y: 0, scale: 1 })}
         >
           {Math.round(graphPosition.scale * 100)}%
-        </button>
+        </Button>
       </div>
 
-      {/* ── Empty-state hint ───────────────────────────────────────────────── */}
+      {/* Empty-state hint */}
       {workflow.nodes.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="rounded-xl border border-dashed border-[var(--gray-6)] bg-[var(--gray-1)]/60 px-8 py-6 text-center backdrop-blur-sm">
-            <div className="text-[13px] font-medium text-[var(--gray-10)]">
-              Drag a node from the left sidebar
-            </div>
-            <div className="mt-1 text-[11.5px] text-[var(--gray-9)]">
-              or hover the left edge to open the node palette
-            </div>
-          </div>
+          <EmptyState
+            icon={MousePointerSquareDashed}
+            title="Drag a node from the left sidebar"
+            description="or hover the left edge to open the node palette"
+            className="rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border-strong)] bg-[color-mix(in_srgb,var(--st-bg)_60%,transparent)] backdrop-blur-sm"
+          />
         </div>
       )}
     </div>

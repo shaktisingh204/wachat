@@ -1,8 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { LuGlobe, LuPlus, LuX, LuChevronDown, LuLock } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Globe, Plus, X, Lock } from 'lucide-react';
+import {
+  Field,
+  Input,
+  Textarea,
+  Button,
+  IconButton,
+  Checkbox,
+  Switch,
+  SegmentedControl,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  cn,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -62,15 +77,13 @@ type ActiveTab = 'params' | 'headers' | 'body' | 'auth' | 'settings';
 const METHODS: HttpMethod[] = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 const BODY_FORMATS: BodyFormat[] = ['json', 'form-data', 'form-urlencoded', 'raw', 'none'];
 
-const METHOD_COLORS: Record<HttpMethod, string> = {
-  GET:     'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  POST:    'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  PUT:     'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  PATCH:   'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  DELETE:  'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  HEAD:    'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-  OPTIONS: 'text-[var(--st-text)] bg-[var(--st-bg-muted)]',
-};
+const TABS: { value: ActiveTab; label: string }[] = [
+  { value: 'params', label: 'Params' },
+  { value: 'headers', label: 'Headers' },
+  { value: 'body', label: 'Body' },
+  { value: 'auth', label: 'Auth' },
+  { value: 'settings', label: 'Settings' },
+];
 
 let _idCounter = 0;
 export function makeKv(key = '', value = ''): KeyValuePair {
@@ -82,66 +95,58 @@ export function makeKv(key = '', value = ''): KeyValuePair {
 export function HttpRequestNode({ config, onChange, className }: HttpRequestNodeProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>('params');
 
-  const tabs: { id: ActiveTab; label: string }[] = [
-    { id: 'params',   label: 'Params' },
-    { id: 'headers',  label: 'Headers' },
-    { id: 'body',     label: 'Body' },
-    { id: 'auth',     label: 'Auth' },
-    { id: 'settings', label: 'Settings' },
-  ];
-
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('ui20 space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
-          <LuGlobe className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+          <Globe className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">HTTP Request</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Make an HTTP/HTTPS request</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">HTTP Request</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Make an HTTP/HTTPS request</p>
         </div>
       </div>
 
       {/* Method + URL */}
       <div className="flex gap-2">
-        <select
-          className={cn(
-            'rounded-lg border border-[var(--gray-5)] px-2.5 py-2 text-[12.5px] font-semibold outline-none focus:border-[var(--st-border)] transition-colors shrink-0',
-            METHOD_COLORS[config.method],
-          )}
-          value={config.method}
-          onChange={(e) => onChange({ ...config, method: e.target.value as HttpMethod })}
-        >
-          {METHODS.map((m) => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <input
-          type="url"
-          className={cn(INPUT_CLS, 'flex-1')}
-          value={config.url}
-          onChange={(e) => onChange({ ...config, url: e.target.value })}
-          placeholder="https://api.example.com/v1/resource"
-        />
+        <div className="w-[112px] shrink-0">
+          <Select
+            value={config.method}
+            onValueChange={(method) => onChange({ ...config, method: method as HttpMethod })}
+          >
+            <SelectTrigger aria-label="HTTP method">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {METHODS.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex-1">
+          <Input
+            type="url"
+            aria-label="Request URL"
+            value={config.url}
+            onChange={(e) => onChange({ ...config, url: e.target.value })}
+            placeholder="https://api.example.com/v1/resource"
+          />
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0.5 overflow-x-auto rounded-lg bg-[var(--gray-3)] p-1 scrollbar-none">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setActiveTab(t.id)}
-            className={cn(
-              'shrink-0 rounded-md px-3 py-1.5 text-[11.5px] font-medium transition-colors',
-              activeTab === t.id
-                ? 'bg-[var(--gray-1)] text-[var(--gray-12)] shadow-sm'
-                : 'text-[var(--gray-9)] hover:text-[var(--gray-12)]',
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        aria-label="HTTP request sections"
+        fullWidth
+        size="sm"
+        items={TABS}
+        value={activeTab}
+        onChange={setActiveTab}
+      />
 
       {/* Tab content */}
       {activeTab === 'params' && (
@@ -164,37 +169,29 @@ export function HttpRequestNode({ config, onChange, className }: HttpRequestNode
         />
       )}
 
-      {activeTab === 'body' && (
-        <BodyEditor config={config} onChange={onChange} />
-      )}
+      {activeTab === 'body' && <BodyEditor config={config} onChange={onChange} />}
 
-      {activeTab === 'auth' && (
-        <AuthEditor config={config} onChange={onChange} />
-      )}
+      {activeTab === 'auth' && <AuthEditor config={config} onChange={onChange} />}
 
-      {activeTab === 'settings' && (
-        <SettingsEditor config={config} onChange={onChange} />
-      )}
+      {activeTab === 'settings' && <SettingsEditor config={config} onChange={onChange} />}
 
       {/* Output */}
-      <div className="space-y-1.5">
-        <Label>Save Response to Variable</Label>
-        <input
+      <Field label="Save Response to Variable">
+        <Input
           type="text"
-          className={INPUT_CLS}
           value={config.outputVariable}
           onChange={(e) => onChange({ ...config, outputVariable: e.target.value })}
           placeholder="{{httpResponse}}"
         />
-      </div>
+      </Field>
 
       <OutputSchema
         accent="#ec4899"
         fields={[
-          { key: 'statusCode',   type: 'number',  description: 'HTTP response status code' },
-          { key: 'body',         type: 'unknown', description: 'Parsed response body' },
-          { key: 'headers',      type: 'object',  description: 'Response headers' },
-          { key: 'responseTime', type: 'number',  description: 'Round-trip time in ms' },
+          { key: 'statusCode', type: 'number', description: 'HTTP response status code' },
+          { key: 'body', type: 'unknown', description: 'Parsed response body' },
+          { key: 'headers', type: 'object', description: 'Response headers' },
+          { key: 'responseTime', type: 'number', description: 'Round-trip time in ms' },
         ]}
       />
     </div>
@@ -222,57 +219,48 @@ function KvEditor({
   const remove = (id: string) => onChange(pairs.filter((p) => p.id !== id));
   const add = () => onChange([...pairs, makeKv()]);
 
+  const noun = label.split(' ')[0].toLowerCase();
+
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      <SectionLabel>{label}</SectionLabel>
       {pairs.map((pair) => (
         <div key={pair.id} className="flex items-center gap-1.5">
-          {/* Enabled toggle */}
-          <button
-            type="button"
-            onClick={() => update(pair.id, 'enabled', !pair.enabled)}
-            className={cn(
-              'h-3.5 w-3.5 rounded border-2 flex shrink-0 items-center justify-center transition-colors',
-              pair.enabled ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--gray-5)]',
-            )}
-          >
-            {pair.enabled && (
-              <svg viewBox="0 0 10 10" className="h-2 w-2 fill-none stroke-white" strokeWidth="1.8" strokeLinecap="round">
-                <path d="M1.5 5L4 7.5L8.5 2" />
-              </svg>
-            )}
-          </button>
-          <input
-            type="text"
-            className={cn(INPUT_CLS, 'flex-1', !pair.enabled && 'opacity-50')}
-            value={pair.key}
-            onChange={(e) => update(pair.id, 'key', e.target.value)}
-            placeholder={keyPlaceholder}
+          <Checkbox
+            size="sm"
+            checked={pair.enabled}
+            onChange={(e) => update(pair.id, 'enabled', e.target.checked)}
+            aria-label={pair.enabled ? `Disable ${pair.key || noun}` : `Enable ${pair.key || noun}`}
           />
-          <input
-            type="text"
-            className={cn(INPUT_CLS, 'flex-1', !pair.enabled && 'opacity-50')}
-            value={pair.value}
-            onChange={(e) => update(pair.id, 'value', e.target.value)}
-            placeholder={valuePlaceholder}
-          />
-          <button
-            type="button"
+          <div className={cn('flex-1', !pair.enabled && 'opacity-50')}>
+            <Input
+              type="text"
+              aria-label={`${label} key`}
+              value={pair.key}
+              onChange={(e) => update(pair.id, 'key', e.target.value)}
+              placeholder={keyPlaceholder}
+            />
+          </div>
+          <div className={cn('flex-1', !pair.enabled && 'opacity-50')}>
+            <Input
+              type="text"
+              aria-label={`${label} value`}
+              value={pair.value}
+              onChange={(e) => update(pair.id, 'value', e.target.value)}
+              placeholder={valuePlaceholder}
+            />
+          </div>
+          <IconButton
+            label={`Remove ${pair.key || noun}`}
+            icon={X}
+            size="sm"
             onClick={() => remove(pair.id)}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
-          >
-            <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-          </button>
+          />
         </div>
       ))}
-      <button
-        type="button"
-        onClick={add}
-        className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-      >
-        <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
-        Add {label.split(' ')[0].toLowerCase()}
-      </button>
+      <Button variant="ghost" size="sm" iconLeft={Plus} onClick={add}>
+        Add {noun}
+      </Button>
     </div>
   );
 }
@@ -283,37 +271,26 @@ function BodyEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 
   return (
     <div className="space-y-3">
       <div className="space-y-1.5">
-        <Label>Body Format</Label>
-        <div className="flex flex-wrap gap-1">
-          {BODY_FORMATS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => onChange({ ...config, bodyFormat: f })}
-              className={cn(
-                'rounded-md border px-2.5 py-1 text-[11.5px] font-medium transition-colors',
-                config.bodyFormat === f
-                  ? 'border-[var(--st-border)]/40 bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                  : 'border-[var(--gray-5)] bg-[var(--gray-2)] text-[var(--gray-9)] hover:border-[var(--gray-6)]',
-              )}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
+        <SectionLabel>Body Format</SectionLabel>
+        <SegmentedControl
+          aria-label="Body format"
+          size="sm"
+          items={BODY_FORMATS.map((f) => ({ value: f, label: f }))}
+          value={config.bodyFormat}
+          onChange={(bodyFormat) => onChange({ ...config, bodyFormat })}
+        />
       </div>
 
       {(config.bodyFormat === 'json' || config.bodyFormat === 'raw') && (
-        <div className="space-y-1.5">
-          <Label>{config.bodyFormat === 'json' ? 'JSON Body' : 'Raw Body'}</Label>
-          <textarea
-            className={cn(INPUT_CLS, 'min-h-[120px] font-mono text-[12px] resize-y')}
+        <Field label={config.bodyFormat === 'json' ? 'JSON Body' : 'Raw Body'}>
+          <Textarea
+            className="min-h-[120px] resize-y font-mono text-[12px]"
             value={config.body}
             onChange={(e) => onChange({ ...config, body: e.target.value })}
             placeholder={config.bodyFormat === 'json' ? '{\n  "key": "{{variable}}"\n}' : 'Raw request body'}
             spellCheck={false}
           />
-        </div>
+        </Field>
       )}
 
       {(config.bodyFormat === 'form-data' || config.bodyFormat === 'form-urlencoded') && (
@@ -327,7 +304,9 @@ function BodyEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 
       )}
 
       {config.bodyFormat === 'none' && (
-        <p className="text-center text-[12px] text-[var(--gray-9)] italic">No body will be sent</p>
+        <p className="text-center text-[12px] italic text-[var(--st-text-secondary)]">
+          No body will be sent
+        </p>
       )}
     </div>
   );
@@ -340,100 +319,133 @@ function AuthEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 
 
   return (
     <div className="space-y-3">
-      <div className="space-y-1.5">
-        <Label>
+      <Field
+        label={
           <span className="flex items-center gap-1.5">
-            <LuLock className="h-3.5 w-3.5" strokeWidth={2} />
+            <Lock className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             Authentication Mode
           </span>
-        </Label>
-        <select
-          className={INPUT_CLS}
+        }
+      >
+        <Select
           value={auth.mode}
-          onChange={(e) => {
-            const mode = e.target.value as AuthMode;
-            onChange({ ...config, auth: { mode } });
-          }}
+          onValueChange={(value) => onChange({ ...config, auth: { mode: value as AuthMode } })}
         >
-          <option value="none">None</option>
-          <option value="basic">Basic Auth</option>
-          <option value="bearer">Bearer Token</option>
-          <option value="api-key">API Key</option>
-        </select>
-      </div>
+          <SelectTrigger aria-label="Authentication mode">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">None</SelectItem>
+            <SelectItem value="basic">Basic Auth</SelectItem>
+            <SelectItem value="bearer">Bearer Token</SelectItem>
+            <SelectItem value="api-key">API Key</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
 
       {auth.mode === 'basic' && (
         <>
-          <div className="space-y-1.5">
-            <Label>Username</Label>
-            <input
+          <Field label="Username">
+            <Input
               type="text"
-              className={INPUT_CLS}
               value={auth.basic?.username ?? ''}
-              onChange={(e) => onChange({ ...config, auth: { ...auth, basic: { username: e.target.value, password: auth.basic?.password ?? '' } } })}
+              onChange={(e) =>
+                onChange({
+                  ...config,
+                  auth: { ...auth, basic: { username: e.target.value, password: auth.basic?.password ?? '' } },
+                })
+              }
               autoComplete="off"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Password</Label>
-            <input
+          </Field>
+          <Field label="Password">
+            <Input
               type="password"
-              className={INPUT_CLS}
               value={auth.basic?.password ?? ''}
-              onChange={(e) => onChange({ ...config, auth: { ...auth, basic: { username: auth.basic?.username ?? '', password: e.target.value } } })}
+              onChange={(e) =>
+                onChange({
+                  ...config,
+                  auth: { ...auth, basic: { username: auth.basic?.username ?? '', password: e.target.value } },
+                })
+              }
               autoComplete="off"
             />
-          </div>
+          </Field>
         </>
       )}
 
       {auth.mode === 'bearer' && (
-        <div className="space-y-1.5">
-          <Label>Bearer Token</Label>
-          <input
+        <Field label="Bearer Token">
+          <Input
             type="password"
-            className={INPUT_CLS}
             value={auth.bearer?.token ?? ''}
             onChange={(e) => onChange({ ...config, auth: { ...auth, bearer: { token: e.target.value } } })}
-            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp…"
+            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..."
             autoComplete="off"
           />
-        </div>
+        </Field>
       )}
 
       {auth.mode === 'api-key' && (
         <>
-          <div className="space-y-1.5">
-            <Label>Key Name</Label>
-            <input
+          <Field label="Key Name">
+            <Input
               type="text"
-              className={INPUT_CLS}
               value={auth.apiKey?.name ?? ''}
-              onChange={(e) => onChange({ ...config, auth: { ...auth, apiKey: { name: e.target.value, value: auth.apiKey?.value ?? '', in: auth.apiKey?.in ?? 'header' } } })}
+              onChange={(e) =>
+                onChange({
+                  ...config,
+                  auth: {
+                    ...auth,
+                    apiKey: { name: e.target.value, value: auth.apiKey?.value ?? '', in: auth.apiKey?.in ?? 'header' },
+                  },
+                })
+              }
               placeholder="X-Api-Key"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Key Value</Label>
-            <input
+          </Field>
+          <Field label="Key Value">
+            <Input
               type="password"
-              className={INPUT_CLS}
               value={auth.apiKey?.value ?? ''}
-              onChange={(e) => onChange({ ...config, auth: { ...auth, apiKey: { name: auth.apiKey?.name ?? '', value: e.target.value, in: auth.apiKey?.in ?? 'header' } } })}
+              onChange={(e) =>
+                onChange({
+                  ...config,
+                  auth: {
+                    ...auth,
+                    apiKey: { name: auth.apiKey?.name ?? '', value: e.target.value, in: auth.apiKey?.in ?? 'header' },
+                  },
+                })
+              }
               autoComplete="off"
             />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Send In</Label>
-            <select
-              className={INPUT_CLS}
+          </Field>
+          <Field label="Send In">
+            <Select
               value={auth.apiKey?.in ?? 'header'}
-              onChange={(e) => onChange({ ...config, auth: { ...auth, apiKey: { name: auth.apiKey?.name ?? '', value: auth.apiKey?.value ?? '', in: e.target.value as 'header' | 'query' } } })}
+              onValueChange={(value) =>
+                onChange({
+                  ...config,
+                  auth: {
+                    ...auth,
+                    apiKey: {
+                      name: auth.apiKey?.name ?? '',
+                      value: auth.apiKey?.value ?? '',
+                      in: value as 'header' | 'query',
+                    },
+                  },
+                })
+              }
             >
-              <option value="header">Header</option>
-              <option value="query">Query Parameter</option>
-            </select>
-          </div>
+              <SelectTrigger aria-label="Send API key in">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="header">Header</SelectItem>
+                <SelectItem value="query">Query Parameter</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
         </>
       )}
     </div>
@@ -445,27 +457,26 @@ function AuthEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 
 function SettingsEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config' | 'onChange'>) {
   return (
     <div className="space-y-3">
-      <div className="space-y-1.5">
-        <Label>Timeout (ms)</Label>
-        <input
+      <Field label="Timeout (ms)">
+        <Input
           type="number"
           min={100}
           max={300_000}
           step={100}
-          className={INPUT_CLS}
           value={config.timeoutMs}
           onChange={(e) => onChange({ ...config, timeoutMs: Number(e.target.value) })}
         />
-      </div>
+      </Field>
 
-      <div className="flex items-center justify-between rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] px-3 py-2.5">
+      <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
         <div>
-          <p className="text-[12.5px] font-medium text-[var(--gray-12)]">Follow Redirects</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Automatically follow 3xx responses</p>
+          <p className="text-[12.5px] font-medium text-[var(--st-text)]">Follow Redirects</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Automatically follow 3xx responses</p>
         </div>
-        <Toggle
+        <Switch
           checked={config.followRedirects}
-          onChange={(v) => onChange({ ...config, followRedirects: v })}
+          onCheckedChange={(v) => onChange({ ...config, followRedirects: v })}
+          aria-label="Follow redirects"
         />
       </div>
     </div>
@@ -474,28 +485,11 @@ function SettingsEditor({ config, onChange }: Pick<HttpRequestNodeProps, 'config
 
 /* ── Shared primitives ───────────────────────────────────── */
 
-function Label({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
+    <p className="text-[11.5px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
       {children}
-    </label>
-  );
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-5 w-9 rounded-full transition-colors focus-visible:outline-none',
-        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-      )}
-    >
-      <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
+    </p>
   );
 }
 
@@ -504,19 +498,23 @@ type OutputField = { key: string; type: string; description: string };
 function OutputSchema({ accent, fields }: { accent: string; fields: OutputField[] }) {
   return (
     <div className="space-y-1.5">
-      <Label>Output</Label>
-      <div className="rounded-lg border border-dashed border-[var(--gray-5)] bg-[var(--gray-2)] divide-y divide-[var(--gray-4)]">
+      <SectionLabel>Output</SectionLabel>
+      <div className="divide-y divide-[var(--st-border)] rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         {fields.map((f) => (
           <div key={f.key} className="flex items-center gap-2 px-3 py-1.5">
-            <code className="min-w-[90px] text-[11.5px] font-mono font-medium" style={{ color: accent }}>{f.key}</code>
-            <span className="rounded bg-[var(--gray-4)] px-1 py-0.5 text-[10px] font-mono text-[var(--gray-9)]">{f.type}</span>
-            <span className="flex-1 text-[11px] text-[var(--gray-9)] truncate">{f.description}</span>
+            {/* accent is a caller-picked colour, so it stays a runtime style */}
+            <code className="min-w-[90px] font-mono text-[11.5px] font-medium" style={{ color: accent }}>
+              {f.key}
+            </code>
+            <span className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1 py-0.5 font-mono text-[10px] text-[var(--st-text-secondary)]">
+              {f.type}
+            </span>
+            <span className="flex-1 truncate text-[11px] text-[var(--st-text-secondary)]">
+              {f.description}
+            </span>
           </div>
         ))}
       </div>
     </div>
   );
 }
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

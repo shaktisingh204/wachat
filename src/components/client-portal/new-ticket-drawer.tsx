@@ -14,11 +14,23 @@ import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Textarea } from '@/components/sabcrm/20ui';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Field,
+    Input,
+    Textarea,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerDescription,
+    DrawerFooter,
+} from '@/components/sabcrm/20ui';
 import { createClientTicket } from '@/app/actions/client-portal.actions';
 
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const;
@@ -70,7 +82,7 @@ export function NewTicketDrawer() {
     return (
         <>
             <Button onClick={() => setOpen(true)}>
-                <Plus className="mr-1 h-4 w-4" /> New Ticket
+                <Plus className="mr-1 h-4 w-4" aria-hidden="true" /> New Ticket
             </Button>
             <Drawer open={open} onOpenChange={handleOpenChange}>
                 <DrawerContent>
@@ -82,43 +94,39 @@ export function NewTicketDrawer() {
                             </DrawerDescription>
                         </DrawerHeader>
                         <div className="flex flex-col gap-4 px-4">
-                            <div className="flex flex-col gap-1.5">
-                                <Label htmlFor="ct-subject">Subject</Label>
+                            <Field label="Subject" id="ct-subject" required>
                                 <Input
-                                    id="ct-subject"
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
                                     placeholder="Short summary"
-                                    required
                                     maxLength={200}
                                 />
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <Label htmlFor="ct-priority">Priority</Label>
-                                <select
-                                    id="ct-priority"
+                            </Field>
+                            <Field label="Priority" id="ct-priority">
+                                <Select
                                     value={priority}
-                                    onChange={(e) => setPriority(e.target.value as Priority)}
-                                    className="h-9 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 text-sm text-[var(--st-text)]"
+                                    onValueChange={(value) => setPriority(value as Priority)}
                                 >
-                                    {PRIORITIES.map((p) => (
-                                        <option key={p} value={p}>
-                                            {p.charAt(0).toUpperCase() + p.slice(1)}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <Label htmlFor="ct-desc">Description</Label>
+                                    <SelectTrigger id="ct-priority" aria-label="Priority">
+                                        <SelectValue placeholder="Select priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {PRIORITIES.map((p) => (
+                                            <SelectItem key={p} value={p}>
+                                                {p.charAt(0).toUpperCase() + p.slice(1)}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </Field>
+                            <Field label="Description" id="ct-desc" required>
                                 <Textarea
-                                    id="ct-desc"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     rows={5}
                                     placeholder="What's going on?"
-                                    required
                                 />
-                            </div>
+                            </Field>
                             {error ? (
                                 <div className="text-sm text-[var(--st-danger)]" role="alert">
                                     {error}
@@ -127,7 +135,7 @@ export function NewTicketDrawer() {
                         </div>
                         <DrawerFooter>
                             <Button type="submit" disabled={submitting}>
-                                {submitting ? 'Submitting…' : 'Submit ticket'}
+                                {submitting ? 'Submitting...' : 'Submit ticket'}
                             </Button>
                             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
                                 Cancel

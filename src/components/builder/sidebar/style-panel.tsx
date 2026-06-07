@@ -1,241 +1,234 @@
 "use client";
 
-import { Input, Label, Button, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Select } from '@/components/sabcrm/20ui';
-import {
-  useEditor } from '@/components/builder/editor-provider';
-
 import React from 'react';
 
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  ColorPicker,
+  Field,
+  Input,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
+import { useEditor } from '@/components/builder/editor-provider';
+
+const ALIGN_ITEMS = [
+  { value: 'left', label: 'Left' },
+  { value: 'center', label: 'Center' },
+  { value: 'right', label: 'Right' },
+] as const;
+
+const BORDER_STYLES = [
+  { value: 'solid', label: 'Solid' },
+  { value: 'dashed', label: 'Dashed' },
+  { value: 'dotted', label: 'Dotted' },
+  { value: 'none', label: 'None' },
+] as const;
+
 export const StylePanel = () => {
-    const { state, dispatch } = useEditor();
+  const { state, dispatch } = useEditor();
 
-    // Helper to find the selected element to get current values
-    const findElement = (elements: any[], id: string): any => {
-        for (const el of elements) {
-            if (el.id === id) return el;
-            if (el.children) {
-                const found = findElement(el.children, id);
-                if (found) return found;
-            }
-        }
-        return null;
-    };
-
-    const selectedElement = state.selectedElementId
-        ? findElement(state.page.elements, state.selectedElementId)
-        : null;
-
-    if (!selectedElement) {
-        return <div className="p-4 text-center text-[var(--st-text)]">Select an element to edit styles</div>;
+  // Helper to find the selected element to get current values
+  const findElement = (elements: any[], id: string): any => {
+    for (const el of elements) {
+      if (el.id === id) return el;
+      if (el.children) {
+        const found = findElement(el.children, id);
+        if (found) return found;
+      }
     }
+    return null;
+  };
 
-    const handleUpdate = (styleProp: string, value: string) => {
-        dispatch({
-            type: 'UPDATE_ELEMENT',
-            payload: {
-                id: selectedElement.id,
-                style: { [styleProp]: value }
-            }
-        });
-    };
+  const selectedElement = state.selectedElementId
+    ? findElement(state.page.elements, state.selectedElementId)
+    : null;
 
-    // Helper to get current style value safely
-    const getStyle = (prop: string) => selectedElement.style?.[prop] || '';
-
+  if (!selectedElement) {
     return (
-        <div className="h-full overflow-y-auto pr-2">
-            <div className="mb-4 pb-4 border-b">
-                <h3 className="font-semibold text-lg">{selectedElement.type} Styles</h3>
-                <p className="text-xs text-[var(--st-text)]">ID: {selectedElement.id.slice(0, 8)}</p>
-            </div>
-
-            <Accordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
-
-                {/* TYPOGRAPHY */}
-                <AccordionItem value="typography">
-                    <AccordionTrigger>Typography</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">Color</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="color"
-                                        className="w-8 h-8 p-0 border-0"
-                                        value={getStyle('color') || '#000000'}
-                                        onChange={(e) => handleUpdate('color', e.target.value)}
-                                    />
-                                    <Input
-                                        className="h-8 text-xs"
-                                        value={getStyle('color')}
-                                        onChange={(e) => handleUpdate('color', e.target.value)}
-                                        placeholder="#000000"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <Label className="text-xs">Font Size</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('fontSize')}
-                                    onChange={(e) => handleUpdate('fontSize', e.target.value)}
-                                    placeholder="16px"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Font Weight</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('fontWeight')}
-                                    onChange={(e) => handleUpdate('fontWeight', e.target.value)}
-                                    placeholder="400"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Align</Label>
-                                <div className="flex border rounded overflow-hidden h-8">
-                                    {['left', 'center', 'right'].map(align => (
-                                        <button
-                                            key={align}
-                                            onClick={() => handleUpdate('textAlign', align)}
-                                            className={`flex-1 hover:bg-[var(--st-bg-muted)] text-xs ${getStyle('textAlign') === align ? 'bg-[var(--st-bg-muted)]' : ''}`}
-                                        >
-                                            {align[0].toUpperCase()}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                {/* BACKGROUND */}
-                <AccordionItem value="background">
-                    <AccordionTrigger>Background</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
-                        <div>
-                            <Label className="text-xs">Background Color</Label>
-                            <div className="flex gap-2">
-                                <Input
-                                    type="color"
-                                    className="w-8 h-8 p-0 border-0"
-                                    value={getStyle('backgroundColor') || '#ffffff'}
-                                    onChange={(e) => handleUpdate('backgroundColor', e.target.value)}
-                                />
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('backgroundColor')}
-                                    onChange={(e) => handleUpdate('backgroundColor', e.target.value)}
-                                    placeholder="#ffffff"
-                                />
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                {/* LAYOUT */}
-                <AccordionItem value="layout">
-                    <AccordionTrigger>Layout & Spacing</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">Padding</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('padding')}
-                                    onChange={(e) => handleUpdate('padding', e.target.value)}
-                                    placeholder="10px"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Margin</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('margin')}
-                                    onChange={(e) => handleUpdate('margin', e.target.value)}
-                                    placeholder="0px"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Height</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('height')}
-                                    onChange={(e) => handleUpdate('height', e.target.value)}
-                                    placeholder="auto"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Width</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('width')}
-                                    onChange={(e) => handleUpdate('width', e.target.value)}
-                                    placeholder="100%"
-                                />
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-                {/* BORDER */}
-                <AccordionItem value="border">
-                    <AccordionTrigger>Border</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div>
-                                <Label className="text-xs">Radius</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('borderRadius')}
-                                    onChange={(e) => handleUpdate('borderRadius', e.target.value)}
-                                    placeholder="4px"
-                                />
-                            </div>
-                            <div>
-                                <Label className="text-xs">Width</Label>
-                                <Input
-                                    className="h-8 text-xs"
-                                    value={getStyle('borderWidth')}
-                                    onChange={(e) => handleUpdate('borderWidth', e.target.value)}
-                                    placeholder="1px"
-                                />
-                            </div>
-                            <div className="col-span-2">
-                                <Label className="text-xs">Color</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="color"
-                                        className="w-8 h-8 p-0 border-0"
-                                        value={getStyle('borderColor') || '#000000'}
-                                        onChange={(e) => handleUpdate('borderColor', e.target.value)}
-                                    />
-                                    <Input
-                                        className="h-8 text-xs"
-                                        value={getStyle('borderColor')}
-                                        onChange={(e) => handleUpdate('borderColor', e.target.value)}
-                                        placeholder="#000000"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <Label className="text-xs">Style</Label>
-                                <select
-                                    className="h-8 text-xs w-full border rounded px-2"
-                                    value={getStyle('borderStyle') || 'solid'}
-                                    onChange={(e) => handleUpdate('borderStyle', e.target.value)}
-                                >
-                                    <option value="solid">Solid</option>
-                                    <option value="dashed">Dashed</option>
-                                    <option value="dotted">Dotted</option>
-                                    <option value="none">None</option>
-                                </select>
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionItem>
-
-            </Accordion>
-        </div>
+      <div className="p-4 text-center text-sm text-[var(--st-text-secondary)]">
+        Select an element to edit styles
+      </div>
     );
+  }
+
+  const handleUpdate = (styleProp: string, value: string) => {
+    dispatch({
+      type: 'UPDATE_ELEMENT',
+      payload: {
+        id: selectedElement.id,
+        style: { [styleProp]: value },
+      },
+    });
+  };
+
+  // Helper to get current style value safely
+  const getStyle = (prop: string) => selectedElement.style?.[prop] || '';
+
+  return (
+    <div className="h-full overflow-y-auto pr-2">
+      <div className="mb-4 border-b border-[var(--st-border)] pb-4">
+        <h3 className="text-lg font-semibold text-[var(--st-text)]">
+          {selectedElement.type} Styles
+        </h3>
+        <p className="text-xs text-[var(--st-text-secondary)]">
+          ID: {selectedElement.id.slice(0, 8)}
+        </p>
+      </div>
+
+      <Accordion type="multiple" defaultValue={['typography', 'background', 'layout']}>
+        {/* TYPOGRAPHY */}
+        <AccordionItem value="typography">
+          <AccordionTrigger>Typography</AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Color">
+                <ColorPicker
+                  value={getStyle('color') || '#000000'}
+                  onChange={(color) => handleUpdate('color', color)}
+                />
+              </Field>
+              <Field label="Font Size">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('fontSize')}
+                  onChange={(e) => handleUpdate('fontSize', e.target.value)}
+                  placeholder="16px"
+                />
+              </Field>
+              <Field label="Font Weight">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('fontWeight')}
+                  onChange={(e) => handleUpdate('fontWeight', e.target.value)}
+                  placeholder="400"
+                />
+              </Field>
+              <Field label="Align">
+                <SegmentedControl
+                  aria-label="Text align"
+                  size="sm"
+                  fullWidth
+                  value={getStyle('textAlign') || 'left'}
+                  onChange={(value) => handleUpdate('textAlign', value)}
+                  items={ALIGN_ITEMS}
+                />
+              </Field>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* BACKGROUND */}
+        <AccordionItem value="background">
+          <AccordionTrigger>Background</AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <Field label="Background Color">
+              <ColorPicker
+                value={getStyle('backgroundColor') || '#ffffff'}
+                onChange={(color) => handleUpdate('backgroundColor', color)}
+              />
+            </Field>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* LAYOUT */}
+        <AccordionItem value="layout">
+          <AccordionTrigger>Layout &amp; Spacing</AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Padding">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('padding')}
+                  onChange={(e) => handleUpdate('padding', e.target.value)}
+                  placeholder="10px"
+                />
+              </Field>
+              <Field label="Margin">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('margin')}
+                  onChange={(e) => handleUpdate('margin', e.target.value)}
+                  placeholder="0px"
+                />
+              </Field>
+              <Field label="Height">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('height')}
+                  onChange={(e) => handleUpdate('height', e.target.value)}
+                  placeholder="auto"
+                />
+              </Field>
+              <Field label="Width">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('width')}
+                  onChange={(e) => handleUpdate('width', e.target.value)}
+                  placeholder="100%"
+                />
+              </Field>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* BORDER */}
+        <AccordionItem value="border">
+          <AccordionTrigger>Border</AccordionTrigger>
+          <AccordionContent className="space-y-4 pt-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Radius">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('borderRadius')}
+                  onChange={(e) => handleUpdate('borderRadius', e.target.value)}
+                  placeholder="4px"
+                />
+              </Field>
+              <Field label="Width">
+                <Input
+                  inputSize="sm"
+                  value={getStyle('borderWidth')}
+                  onChange={(e) => handleUpdate('borderWidth', e.target.value)}
+                  placeholder="1px"
+                />
+              </Field>
+              <div className="col-span-2">
+                <Field label="Color">
+                  <ColorPicker
+                    value={getStyle('borderColor') || '#000000'}
+                    onChange={(color) => handleUpdate('borderColor', color)}
+                  />
+                </Field>
+              </div>
+              <Field label="Style">
+                <Select
+                  value={getStyle('borderStyle') || 'solid'}
+                  onValueChange={(value) => handleUpdate('borderStyle', value)}
+                >
+                  <SelectTrigger aria-label="Border style">
+                    <SelectValue placeholder="Solid" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {BORDER_STYLES.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
 };

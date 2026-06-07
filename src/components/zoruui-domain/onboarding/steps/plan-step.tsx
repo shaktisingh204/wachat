@@ -1,19 +1,27 @@
 'use client';
 
-import { Button, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  Check,
-  LoaderCircle,
-  Sparkles,
-  ShieldCheck,
-  } from 'lucide-react';
+    Button,
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    Badge,
+    RadioGroup,
+    Radio,
+    cn,
+} from '@/components/sabcrm/20ui';
+import {
+    AlertCircle,
+    Check,
+    LoaderCircle,
+    Sparkles,
+    ShieldCheck,
+} from 'lucide-react';
 
 import type { Plan } from '@/lib/definitions';
 
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
 import { createPayuPlanCheckout } from '@/app/actions/payu.actions';
 import {
     completeOnboarding,
@@ -41,13 +49,13 @@ const PAYMENT_REASON_LABELS: Record<string, string> = {
         'PayU payments are not configured. Please contact support.',
     'bad-request': 'Malformed response from PayU.',
     'server-error':
-        'We hit an error while finalizing your payment — if money was deducted please contact support with your txn id.',
+        'We hit an error while finalizing your payment. If money was deducted please contact support with your txn id.',
 };
 
 /**
  * Submits a PayU checkout payload as a hidden HTML form. PayU's
- * standard integration has no JS SDK — the browser must POST to their
- * hosted payment page, so we append a form to the document body and
+ * standard integration has no JS SDK, so the browser must POST to their
+ * hosted payment page. We append a form to the document body and
  * .submit() it.
  */
 function submitPayuForm(action: string, params: Record<string, string | undefined>) {
@@ -69,7 +77,7 @@ function submitPayuForm(action: string, params: Record<string, string | undefine
 
 /**
  * Scores a plan against the user's selected modules. We show relevance
- * hints in the UI (eg. "fits 5 of 6 of your modules"), and recommend
+ * hints in the UI (eg. "covers 5 of 6 of your modules"), and recommend
  * the cheapest plan that covers everything the user asked for.
  */
 function scorePlan(plan: HydratedPlan, modules: string[]): number {
@@ -255,22 +263,22 @@ export function PlanStep({
     if (plans.length === 0) {
         return (
             <div className="space-y-6">
-                <Alert>
-                    <Sparkles className="h-4 w-4" />
-                    <AlertTitle>No plans configured yet</AlertTitle>
+                <Alert tone="info" icon={Sparkles} title="No plans configured yet">
                     <AlertDescription>
                         Your workspace will start on the default account tier.
-                        You can upgrade anytime from Settings → Billing.
+                        You can upgrade anytime from Settings, Billing.
                     </AlertDescription>
                 </Alert>
                 <div className="flex justify-between">
                     <Button variant="ghost" onClick={onBack}>
                         Back
                     </Button>
-                    <Button onClick={skip} disabled={isPending}>
-                        {isPending ? (
-                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                        ) : null}
+                    <Button
+                        variant="primary"
+                        onClick={skip}
+                        loading={isPending}
+                        iconLeft={isPending ? LoaderCircle : undefined}
+                    >
                         Continue to dashboard
                     </Button>
                 </div>
@@ -279,167 +287,169 @@ export function PlanStep({
     }
 
     return (
-        <>
-            <div className="space-y-6">
-                {paymentStatus === 'success' && !error && (
-                    <Alert>
-                        <ShieldCheck className="h-4 w-4" />
-                        <AlertTitle>Payment received</AlertTitle>
-                        <AlertDescription>
-                            Thanks — we verified your PayU payment. Finalizing
-                            your workspace now.
-                        </AlertDescription>
-                    </Alert>
-                )}
-                {error && (
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Payment issue</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                )}
+        <div className="space-y-6">
+            {paymentStatus === 'success' && !error && (
+                <Alert tone="success" icon={ShieldCheck} title="Payment received">
+                    <AlertDescription>
+                        Thanks, we verified your PayU payment. Finalizing your
+                        workspace now.
+                    </AlertDescription>
+                </Alert>
+            )}
+            {error && (
+                <Alert tone="danger" icon={AlertCircle} title="Payment issue">
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {ranked.map(({ plan, score }) => {
-                        const active = chosen === plan._id;
-                        const recommended = plan._id === recommendedId;
-                        const { main, suffix } = formatPrice(plan);
-                        return (
-                            <button
-                                type="button"
-                                key={plan._id}
-                                onClick={() => setChosen(plan._id)}
-                                disabled={isPending}
-                                className={cn(
-                                    'relative flex flex-col rounded-2xl border border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-left transition',
-                                    active
-                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5 shadow-md'
-                                        : 'hover:border-[var(--st-text)]/60 hover:shadow-sm'
-                                )}
-                            >
-                                {recommended && (
-                                    <span className="absolute -top-3 left-4 inline-flex items-center gap-1 rounded-full bg-[var(--st-text)] px-3 py-1 text-xs font-semibold text-[var(--st-text-inverted)]">
-                                        <Sparkles className="h-3 w-3" />
+            <RadioGroup
+                aria-label="Choose a plan"
+                value={chosen ?? undefined}
+                onValueChange={(value) => setChosen(value)}
+                disabled={isPending}
+                className="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+            >
+                {ranked.map(({ plan, score }) => {
+                    const active = chosen === plan._id;
+                    const recommended = plan._id === recommendedId;
+                    const { main, suffix } = formatPrice(plan);
+                    return (
+                        <label
+                            key={plan._id}
+                            className={cn(
+                                'relative flex cursor-pointer flex-col rounded-[var(--st-radius)] border bg-[var(--st-bg)] p-6 text-left transition',
+                                active
+                                    ? 'border-[var(--st-accent)] shadow-md ring-1 ring-[var(--st-accent)]'
+                                    : 'border-[var(--st-border)] hover:border-[var(--st-accent)]/60 hover:shadow-sm',
+                                isPending && 'cursor-not-allowed opacity-70'
+                            )}
+                        >
+                            {recommended && (
+                                <span className="absolute -top-3 left-4">
+                                    <Badge tone="accent" kind="solid">
+                                        <Sparkles
+                                            className="mr-1 h-3 w-3"
+                                            aria-hidden="true"
+                                        />
                                         Recommended
-                                    </span>
-                                )}
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <h3 className="text-lg font-bold text-[var(--st-text)]">
-                                            {plan.name}
-                                        </h3>
-                                        {plan.appCategory && (
-                                            <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
-                                                {plan.appCategory}
-                                            </p>
-                                        )}
-                                    </div>
-                                    {active && (
-                                        <Check className="h-5 w-5 text-[var(--st-text)]" />
+                                    </Badge>
+                                </span>
+                            )}
+                            <div className="flex items-start justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-[var(--st-text)]">
+                                        {plan.name}
+                                    </h3>
+                                    {plan.appCategory && (
+                                        <p className="text-xs uppercase tracking-wider text-[var(--st-text-secondary)]">
+                                            {plan.appCategory}
+                                        </p>
                                     )}
                                 </div>
+                                <Radio
+                                    value={plan._id}
+                                    aria-label={`Select the ${plan.name} plan`}
+                                />
+                            </div>
 
-                                <div className="mt-4 flex items-baseline gap-1">
-                                    <span className="text-3xl font-bold text-[var(--st-text)]">
-                                        {main}
-                                    </span>
-                                    <span className="text-xs text-[var(--st-text-secondary)]">
-                                        {suffix}
-                                    </span>
-                                </div>
+                            <div className="mt-4 flex items-baseline gap-1">
+                                <span className="text-3xl font-bold text-[var(--st-text)]">
+                                    {main}
+                                </span>
+                                <span className="text-xs text-[var(--st-text-secondary)]">
+                                    {suffix}
+                                </span>
+                            </div>
 
-                                {selectedModules.length > 0 && (
-                                    <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
-                                        Covers{' '}
-                                        <span className="font-semibold text-[var(--st-text)]">
-                                            {score}
-                                        </span>{' '}
-                                        of {selectedModules.length} modules you
-                                        picked.
-                                    </p>
-                                )}
+                            {selectedModules.length > 0 && (
+                                <p className="mt-2 text-xs text-[var(--st-text-secondary)]">
+                                    Covers{' '}
+                                    <span className="font-semibold text-[var(--st-text)]">
+                                        {score}
+                                    </span>{' '}
+                                    of {selectedModules.length} modules you
+                                    picked.
+                                </p>
+                            )}
 
-                                <ul className="mt-4 space-y-1.5 text-sm">
-                                    <PlanFeatureLine
-                                        enabled
-                                        label={`Up to ${plan.projectLimit ?? 1} project(s)`}
-                                    />
-                                    <PlanFeatureLine
-                                        enabled
-                                        label={`${plan.agentLimit ?? 1} agent seat(s)`}
-                                    />
-                                    <PlanFeatureLine
-                                        enabled={!!plan.features?.crmDashboard}
-                                        label="Full CRM"
-                                    />
-                                    <PlanFeatureLine
-                                        enabled={!!plan.features?.seo}
-                                        label="SEO suite"
-                                    />
-                                    <PlanFeatureLine
-                                        enabled={!!plan.features?.chatbot}
-                                        label="AI chatbot (SabChat)"
-                                    />
-                                    <PlanFeatureLine
-                                        enabled={
-                                            !!plan.features?.websiteBuilder
-                                        }
-                                        label="Website builder"
-                                    />
-                                </ul>
-                            </button>
-                        );
-                    })}
-                </div>
+                            <ul className="mt-4 space-y-1.5 text-sm">
+                                <PlanFeatureLine
+                                    enabled
+                                    label={`Up to ${plan.projectLimit ?? 1} project(s)`}
+                                />
+                                <PlanFeatureLine
+                                    enabled
+                                    label={`${plan.agentLimit ?? 1} agent seat(s)`}
+                                />
+                                <PlanFeatureLine
+                                    enabled={!!plan.features?.crmDashboard}
+                                    label="Full CRM"
+                                />
+                                <PlanFeatureLine
+                                    enabled={!!plan.features?.seo}
+                                    label="SEO suite"
+                                />
+                                <PlanFeatureLine
+                                    enabled={!!plan.features?.chatbot}
+                                    label="AI chatbot (SabChat)"
+                                />
+                                <PlanFeatureLine
+                                    enabled={!!plan.features?.websiteBuilder}
+                                    label="Website builder"
+                                />
+                            </ul>
+                        </label>
+                    );
+                })}
+            </RadioGroup>
 
-                <div className="rounded-xl border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-sm">
-                    <div className="flex items-start gap-3">
-                        <ShieldCheck className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-                        <p className="text-[var(--st-text-secondary)]">
-                            Payments are processed securely via PayU — the
-                            next screen is PayU's hosted checkout. You can
-                            upgrade, downgrade, or cancel anytime from{' '}
-                            <span className="font-medium text-[var(--st-text)]">
-                                Settings → Billing
-                            </span>
-                            .
-                        </p>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={onBack}
-                        disabled={isPending}
-                    >
-                        Back
-                    </Button>
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={skip}
-                            disabled={isPending}
-                        >
-                            Skip for now
-                        </Button>
-                        <Button
-                            type="button"
-                            onClick={submit}
-                            disabled={isPending || !chosen}
-                            className="h-11 px-6 text-base"
-                        >
-                            {isPending ? (
-                                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                            ) : null}
-                            Activate plan
-                        </Button>
-                    </div>
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-4 text-sm">
+                <div className="flex items-start gap-3">
+                    <ShieldCheck
+                        className="mt-0.5 h-4 w-4 text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                    />
+                    <p className="text-[var(--st-text-secondary)]">
+                        Payments are processed securely via PayU. The next
+                        screen is PayU's hosted checkout. You can upgrade,
+                        downgrade, or cancel anytime from{' '}
+                        <span className="font-medium text-[var(--st-text)]">
+                            Settings, Billing
+                        </span>
+                        .
+                    </p>
                 </div>
             </div>
-        </>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <Button
+                    variant="ghost"
+                    onClick={onBack}
+                    disabled={isPending}
+                >
+                    Back
+                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={skip}
+                        disabled={isPending}
+                    >
+                        Skip for now
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={submit}
+                        loading={isPending}
+                        iconLeft={isPending ? LoaderCircle : undefined}
+                        disabled={!chosen}
+                    >
+                        Activate plan
+                    </Button>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -454,14 +464,19 @@ function PlanFeatureLine({
         <li
             className={cn(
                 'flex items-center gap-2',
-                enabled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]/60 line-through'
+                enabled
+                    ? 'text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)]/60 line-through'
             )}
         >
             <Check
                 className={cn(
                     'h-3.5 w-3.5',
-                    enabled ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]/40'
+                    enabled
+                        ? 'text-[var(--st-accent)]'
+                        : 'text-[var(--st-text-secondary)]/40'
                 )}
+                aria-hidden="true"
             />
             {label}
         </li>

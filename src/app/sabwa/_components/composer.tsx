@@ -1,6 +1,14 @@
 "use client";
 
-import { Button, Input, Popover, PopoverContent, PopoverTrigger, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import {
   CalendarClock,
   Loader2,
@@ -13,23 +21,23 @@ import {
   } from "lucide-react";
 
 /**
- * Composer — bottom-of-conversation input used by SabWa Inbox / Chats /
+ * Composer - bottom-of-conversation input used by SabWa Inbox / Chats /
  * Groups.
  *
  * Features:
- *   • Auto-growing textarea (manual height sync — no extra dep)
- *   • Emoji popover (inline 80-emoji grid)
- *   • Attachment via `<SabFilePickerButton>` (SabFiles policy: never
+ *   . Auto-growing textarea (manual height sync, no extra dep)
+ *   . Emoji popover (inline 80-emoji grid)
+ *   . Attachment via `<SabFilePickerButton>` (SabFiles policy: never
  *     accept raw URLs)
- *   • Voice note recorder (MediaRecorder → opus blob)
- *   • Schedule send (date/time popover → `onSchedule` instead of
+ *   . Voice note recorder (MediaRecorder to opus blob)
+ *   . Schedule send (date/time popover to `onSchedule` instead of
  *     `onSend`)
- *   • Reply-context strip when `replyTo` is supplied
- *   • Enter submits, Shift+Enter inserts newline
- *   • Disabled state covers read-only chats and disconnected sessions
+ *   . Reply-context strip when `replyTo` is supplied
+ *   . Enter submits, Shift+Enter inserts newline
+ *   . Disabled state covers read-only chats and disconnected sessions
  *
  * The actual server call to `sendMessage` is performed by `onSend`'s
- * caller — keeping the composer pure makes it easy to add optimistic
+ * caller. Keeping the composer pure makes it easy to add optimistic
  * UI in the parent.
  */
 
@@ -59,7 +67,7 @@ const QUICK_EMOJIS = [
 
 export interface ComposerReplyTo {
   message: SabwaMessage;
-  /** Display name for the original sender — caller-resolved. */
+  /** Display name for the original sender, caller-resolved. */
   authorName?: string;
 }
 
@@ -75,7 +83,7 @@ export interface ComposerProps {
   ) => void | Promise<void>;
   /** Disable the whole composer (read-only chats, disconnected sessions). */
   disabled?: boolean;
-  /** Reply target — when set, renders the reply-context strip above. */
+  /** Reply target. When set, renders the reply-context strip above. */
   replyTo?: ComposerReplyTo | null;
   /** Cancel the active reply. */
   onCancelReply?: () => void;
@@ -110,7 +118,7 @@ export function Composer({
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  // Manual auto-grow — no external dep. Cap at ~6 lines.
+  // Manual auto-grow, no external dep. Cap at ~6 lines.
   React.useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
@@ -208,7 +216,7 @@ export function Composer({
     });
   };
 
-  // ─── Voice recording ─────────────────────────────────────────────────
+  // Voice recording.
   const startRecording = async () => {
     if (disabled || recording) return;
     if (typeof navigator === "undefined" || !navigator.mediaDevices) return;
@@ -229,7 +237,7 @@ export function Composer({
         });
         // The blob would be uploaded to SabFiles by the parent. For
         // now we just hand it back via `onSend` as a voice payload
-        // with a synthetic mediaSabFileId — wiring lives outside.
+        // with a synthetic mediaSabFileId. Wiring lives outside.
         void doSend({
           type: "voice",
           mediaSabFileId: `pending-voice:${URL.createObjectURL(blob)}`,
@@ -240,7 +248,7 @@ export function Composer({
       mediaRecorderRef.current = mr;
       setRecording(true);
     } catch {
-      // Permission denied or unsupported — silently ignore. The UI's
+      // Permission denied or unsupported, silently ignore. The UI's
       // disabled state will reflect the failure on next attempt.
     }
   };
@@ -271,7 +279,7 @@ export function Composer({
         className,
       )}
       // sessionId / chatJid are part of the public API for callers
-      // that wire optimistic state — surface them on the DOM for
+      // that wire optimistic state. Surface them on the DOM for
       // debugging without exporting them outwards.
       data-session-id={sessionId}
       data-chat-jid={chatJid}
@@ -296,7 +304,7 @@ export function Composer({
             onClick={onCancelReply}
             aria-label="Cancel reply"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       ) : null}
@@ -311,23 +319,26 @@ export function Composer({
               disabled={disabled}
               aria-label="Insert emoji"
             >
-              <Smile className="h-5 w-5" />
+              <Smile className="h-5 w-5" aria-hidden="true" />
             </Button>
           </PopoverTrigger>
           <PopoverContent side="top" align="start" className="w-72 p-2">
             <div className="grid grid-cols-8 gap-1">
               {QUICK_EMOJIS.map((emoji) => (
-                <button
+                <Button
                   key={emoji}
                   type="button"
-                  className="rounded p-1 text-xl hover:bg-[var(--st-bg-muted)]"
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 p-0 text-xl"
+                  aria-label={`Insert ${emoji} emoji`}
                   onClick={() => {
                     insertEmoji(emoji);
                     setEmojiOpen(false);
                   }}
                 >
                   {emoji}
-                </button>
+                </Button>
               ))}
             </div>
           </PopoverContent>
@@ -338,7 +349,7 @@ export function Composer({
           className="h-9 w-9 p-0"
           onPick={onPick}
         >
-          <Paperclip className="h-5 w-5" />
+          <Paperclip className="h-5 w-5" aria-hidden="true" />
         </SabFilePickerButton>
 
         <Textarea
@@ -349,6 +360,7 @@ export function Composer({
           placeholder={disabled ? (disabledReason ?? "Chat unavailable") : placeholder}
           disabled={disabled || recording}
           rows={1}
+          aria-label="Message"
           className="min-h-[40px] flex-1 resize-none py-2"
         />
 
@@ -362,26 +374,22 @@ export function Composer({
                 disabled={disabled || text.trim().length === 0}
                 aria-label="Schedule message"
               >
-                <CalendarClock className="h-5 w-5" />
+                <CalendarClock className="h-5 w-5" aria-hidden="true" />
               </Button>
             </PopoverTrigger>
             <PopoverContent side="top" align="end" className="w-72 p-3">
               <div className="space-y-2">
-                <label
-                  htmlFor="composer-schedule-at"
-                  className="text-xs font-medium text-[var(--st-text)]"
-                >
-                  Send at
-                </label>
-                <Input
-                  id="composer-schedule-at"
-                  type="datetime-local"
-                  value={scheduledFor}
-                  onChange={(e) => setScheduledFor(e.target.value)}
-                />
+                <Field label="Send at">
+                  <Input
+                    type="datetime-local"
+                    value={scheduledFor}
+                    onChange={(e) => setScheduledFor(e.target.value)}
+                  />
+                </Field>
                 <Button
                   type="button"
-                  className="w-full"
+                  variant="primary"
+                  block
                   disabled={!scheduledFor || busy}
                   onClick={() => void doSchedule()}
                 >
@@ -395,12 +403,12 @@ export function Composer({
         {recording ? (
           <Button
             type="button"
-            variant="destructive"
+            variant="danger"
             size="icon"
             onClick={stopRecording}
             aria-label="Stop recording"
           >
-            <Square className="h-5 w-5" />
+            <Square className="h-5 w-5" aria-hidden="true" />
           </Button>
         ) : text.trim().length === 0 ? (
           <Button
@@ -411,20 +419,21 @@ export function Composer({
             onClick={() => void startRecording()}
             aria-label="Record voice note"
           >
-            <Mic className="h-5 w-5" />
+            <Mic className="h-5 w-5" aria-hidden="true" />
           </Button>
         ) : (
           <Button
             type="button"
+            variant="primary"
             size="icon"
             disabled={!canSend}
             onClick={() => void doSend()}
             aria-label="Send"
           >
             {busy ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
             ) : (
-              <Send className="h-5 w-5" />
+              <Send className="h-5 w-5" aria-hidden="true" />
             )}
           </Button>
         )}

@@ -1,6 +1,16 @@
 'use client';
 
-import { Badge, Button, Card, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  EmptyState,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -8,6 +18,7 @@ import {
   useTransition } from 'react';
 import { ChevronDown,
   ChevronRight,
+  History,
   LoaderCircle,
   RefreshCw } from 'lucide-react';
 
@@ -15,23 +26,21 @@ import { listTelegramFlowRuns } from '@/app/actions/telegram-flows.actions';
 import type { RunRow } from '@/lib/rust-client/telegram-flows';
 
 /**
- * Bottom-strip run log. Paginated via cursor — each entry expands to show the
+ * Bottom-strip run log. Paginated via cursor. Each entry expands to show the
  * per-step trace produced by the test endpoint (or by a future runtime).
  */
-
-import { cn } from '@/lib/utils';
 
 type Props = {
   flowId: string;
   projectId: string;
-  /** Bumping this counter re-loads the run log — used after running "Test". */
+  /** Bumping this counter re-loads the run log, used after running "Test". */
   refreshKey?: number;
 };
 
 function fmt(iso?: string): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
+  if (Number.isNaN(d.getTime())) return '-';
   return d.toLocaleString();
 }
 
@@ -61,7 +70,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
           toast({
             title: 'Run log',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
           return;
         }
@@ -78,16 +87,16 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
     setRuns([]);
     setNextCursor(undefined);
     reload(false);
-    // We intentionally omit `reload` from deps — it would loop on the cursor
+    // We intentionally omit `reload` from deps, it would loop on the cursor
     // state it reads. Only `flowId` / `refreshKey` should re-trigger here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flowId, refreshKey]);
 
   return (
-    <Card className="flex flex-col">
-      <header className="flex items-center justify-between border-b p-3">
+    <Card padding="none" className="flex flex-col">
+      <CardHeader className="flex items-center justify-between border-b border-[var(--st-border)] p-3">
         <div>
-          <h3 className="text-sm font-semibold">Run log</h3>
+          <h3 className="text-sm font-semibold text-[var(--st-text)]">Run log</h3>
           <p className="text-xs text-[var(--st-text-secondary)]">
             Includes simulated runs from the Test panel.
           </p>
@@ -95,40 +104,45 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
         <Button
           variant="ghost"
           size="sm"
+          iconLeft={isLoading ? undefined : RefreshCw}
           onClick={() => reload(false)}
           disabled={isLoading}
         >
           {isLoading ? (
-            <LoaderCircle className="h-3 w-3 animate-spin" />
-          ) : (
-            <RefreshCw className="h-3 w-3" />
-          )}
+            <LoaderCircle className="h-3 w-3 animate-spin" aria-hidden="true" />
+          ) : null}
           Refresh
         </Button>
-      </header>
+      </CardHeader>
 
-      <div className="max-h-64 overflow-y-auto">
+      <CardBody className="max-h-64 overflow-y-auto p-0">
         {runs.length === 0 ? (
-          <p className="p-4 text-center text-xs text-[var(--st-text-secondary)]">
-            No runs yet. Press <strong>Test</strong> to simulate a message.
-          </p>
+          <EmptyState
+            size="sm"
+            icon={History}
+            title="No runs yet"
+            description="Press Test to simulate a message."
+            className="py-8"
+          />
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-[var(--st-border)]">
             {runs.map((r) => {
               const isOpen = expanded === r._id;
               return (
                 <li key={r._id}>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    block
                     onClick={() => setExpanded(isOpen ? null : r._id)}
+                    aria-expanded={isOpen}
                     className={cn(
-                      'flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[var(--st-bg-muted)]/50',
+                      'justify-start gap-2 rounded-none px-3 py-2 text-left text-sm font-normal',
                     )}
                   >
                     {isOpen ? (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
                     ) : (
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
                     )}
                     <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
                     <span className="font-mono text-xs text-[var(--st-text-secondary)]">
@@ -138,7 +152,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                     <span className="ml-auto text-xs text-[var(--st-text-secondary)]">
                       {r.steps.length} step{r.steps.length === 1 ? '' : 's'}
                     </span>
-                  </button>
+                  </Button>
                   {isOpen ? (
                     <ol className="space-y-1 px-10 pb-3 text-xs">
                       {r.steps.map((s, i) => (
@@ -147,7 +161,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
                             {s.status}
                           </Badge>
                           <span className="font-mono text-[var(--st-text-secondary)]">{s.nodeType}</span>
-                          <span>{s.message}</span>
+                          <span className="text-[var(--st-text)]">{s.message}</span>
                         </li>
                       ))}
                       {r.error ? (
@@ -160,13 +174,14 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
             })}
           </ul>
         )}
-      </div>
+      </CardBody>
 
       {nextCursor ? (
-        <footer className="border-t p-2 text-center">
+        <CardFooter className="border-t border-[var(--st-border)] p-2 text-center">
           <Button
             variant="ghost"
             size="sm"
+            block
             disabled={isLoading}
             onClick={() => {
               setCursor(nextCursor);
@@ -175,7 +190,7 @@ export function FlowRunLogPanel({ flowId, projectId, refreshKey = 0 }: Props) {
           >
             Load more
           </Button>
-        </footer>
+        </CardFooter>
       ) : null}
     </Card>
   );

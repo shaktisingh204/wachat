@@ -1,28 +1,53 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
-import { ChevronRight,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
+import {
+  ChevronRight,
   Loader2,
   MessageSquare,
   Plus,
   Search,
-  Sparkles } from 'lucide-react';
+  Sparkles,
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { addSabwaProject } from '@/app/actions/sabwa.actions';
 
 /**
- * AllProjectsClient — `/sabwa` clean projects landing.
+ * AllProjectsClient. The `/sabwa` clean projects landing.
  *
  * Just two things:
  *   1. List of SabWa workspaces (filtered to `kind === 'sabwa'`).
- *   2. "New SabWa project" button → inline create dialog.
+ *   2. "New SabWa project" button that opens an inline create dialog.
  *
  * Clicking a workspace activates it and navigates to /sabwa/overview,
- * which is the accounts hub (linked WhatsApp numbers + connect-more
- * CTA + active-session picker). The legal/connect details all live on
+ * which is the accounts hub (linked WhatsApp numbers, connect-more
+ * CTA, active-session picker). The legal/connect details all live on
  * that page.
  */
 
@@ -44,7 +69,7 @@ export interface AllProjectsClientProps {
   bootstrap: AllProjectsBootstrap;
 }
 
-/* ── create-project dialog ─────────────────────────────────────── */
+/* create-project dialog */
 
 function CreateSabwaProjectDialog({
   open,
@@ -55,7 +80,7 @@ function CreateSabwaProjectDialog({
   onOpenChange: (next: boolean) => void;
   onCreated: (projectId: string) => void;
 }) {
-  const toast = useToast();
+  const { toast } = useToast();
   const [name, setName] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -70,16 +95,15 @@ function CreateSabwaProjectDialog({
     startTransition(async () => {
       const res = await addSabwaProject({ name: trimmed });
       if (!res.ok) {
-        toast.toast({
+        toast.error({
           title: 'Could not create project',
           description: res.error,
-          variant: 'destructive',
         });
         return;
       }
-      toast.toast({
+      toast.success({
         title: 'SabWa project created',
-        description: `“${res.name}” is ready.`,
+        description: `"${res.name}" is ready.`,
       });
       onCreated(res.projectId);
       onOpenChange(false);
@@ -97,17 +121,15 @@ function CreateSabwaProjectDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="sabwa-new-project-name">Name</Label>
+          <Field label="Name" id="sabwa-new-project-name">
             <Input
-              id="sabwa-new-project-name"
               autoFocus
               maxLength={120}
               placeholder="e.g. Personal, Field team, Outreach"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </div>
+          </Field>
           <DialogFooter>
             <Button
               type="button"
@@ -117,8 +139,12 @@ function CreateSabwaProjectDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={pending || !name.trim()}>
-              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus />}
+            <Button type="submit" variant="primary" disabled={pending || !name.trim()}>
+              {pending ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Plus aria-hidden="true" />
+              )}
               Create
             </Button>
           </DialogFooter>
@@ -128,7 +154,7 @@ function CreateSabwaProjectDialog({
   );
 }
 
-/* ── project row ───────────────────────────────────────────────── */
+/* project row */
 
 function ProjectRow({
   project,
@@ -138,30 +164,39 @@ function ProjectRow({
   onOpen: (id: string) => void;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onClick={() => onOpen(project.id)}
       className={cn(
-        'group flex w-full items-center gap-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4 text-left transition',
-        'hover:border-[var(--st-border-strong)] hover:shadow-[var(--st-shadow-sm)]',
+        'group !h-auto w-full justify-start gap-4 rounded-[var(--st-radius-lg)]',
+        'border border-[var(--st-border)] bg-[var(--st-bg)] !p-4 text-left',
+        'hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg)]',
+        'hover:shadow-[var(--st-shadow-sm)]',
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-        <MessageSquare className="h-4 w-4" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-[14px] text-[var(--st-text)]">{project.name}</p>
-        <p className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]">
-          SabWa workspace
-          {project.groupName ? ` · ${project.groupName}` : ''}
-        </p>
-      </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-[var(--st-text-tertiary)] transition group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]" />
-    </button>
+      <span className="flex w-full items-center gap-4">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+          <MessageSquare className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] text-[var(--st-text)]">
+            {project.name}
+          </span>
+          <span className="mt-0.5 block truncate text-[12px] text-[var(--st-text-secondary)]">
+            SabWa workspace
+            {project.groupName ? ` , ${project.groupName}` : ''}
+          </span>
+        </span>
+        <ChevronRight
+          className="h-4 w-4 shrink-0 text-[var(--st-text-tertiary)] transition group-hover:translate-x-0.5 group-hover:text-[var(--st-text)]"
+          aria-hidden="true"
+        />
+      </span>
+    </Button>
   );
 }
 
-/* ── page ──────────────────────────────────────────────────────── */
+/* page */
 
 export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
   const router = useRouter();
@@ -205,25 +240,26 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-[26px] leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
-            Your SabWa projects
-          </h1>
-          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
+      <PageHeader className="mt-5" bordered={false}>
+        <PageHeaderHeading>
+          <PageTitle>Your SabWa projects</PageTitle>
+          <PageDescription>
             Open a project to link WhatsApp accounts and start chatting.
-          </p>
-        </div>
-        <Button size="md" onClick={() => setCreateOpen(true)}>
-          <Plus />
-          New SabWa project
-        </Button>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button size="md" variant="primary" onClick={() => setCreateOpen(true)}>
+            <Plus aria-hidden="true" />
+            New SabWa project
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {sabwaProjects.length >= 5 && (
         <div className="mt-5 max-w-md">
           <Input
-            leadingSlot={<Search />}
+            iconLeft={Search}
+            aria-label="Search projects"
             placeholder="Search projects..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -234,19 +270,19 @@ export function AllProjectsClient({ bootstrap }: AllProjectsClientProps) {
       <div className="mt-6">
         {sabwaProjects.length === 0 ? (
           <EmptyState
-            icon={<Sparkles />}
+            icon={Sparkles}
             title="No SabWa projects yet"
             description="Create one to link your first personal WhatsApp number."
             action={
-              <Button size="md" onClick={() => setCreateOpen(true)}>
-                <Plus />
+              <Button size="md" variant="primary" onClick={() => setCreateOpen(true)}>
+                <Plus aria-hidden="true" />
                 New SabWa project
               </Button>
             }
           />
         ) : filtered.length === 0 ? (
           <EmptyState
-            icon={<Search />}
+            icon={Search}
             title="No projects matched"
             description="Try a different search term."
           />

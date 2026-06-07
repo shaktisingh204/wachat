@@ -18,7 +18,7 @@ import {
   LogOut,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Separator } from '@/components/sabcrm/20ui';
+import { Alert, Badge, Button, Field, Input, Separator } from "@/components/sabcrm/20ui";
 import {
   SabsmsDataTable,
   SabsmsDetailDrawer,
@@ -156,7 +156,7 @@ export function SegmentsTable({
     setTotal(initialTotal);
   }, [initialRows, initialTotal]);
 
-  // ─── Per-row actions ────────────────────────────────────────────────────
+  // --- Per-row actions ----------------------------------------------------
 
   async function handleRefresh(row: SegmentListRow) {
     setBusy(`refresh:${row.id}`);
@@ -170,7 +170,7 @@ export function SegmentsTable({
           : x,
       ),
     );
-    setBanner({ kind: "ok", message: `Re-evaluated "${row.name}" — ${res.size} members.` });
+    setBanner({ kind: "ok", message: `Re-evaluated "${row.name}", ${res.size} members.` });
   }
 
   async function handleExportToCrm(row: SegmentListRow) {
@@ -271,7 +271,7 @@ export function SegmentsTable({
     setBanner({ kind: "ok", message: "Tags updated." });
   }
 
-  // ─── Bulk actions ───────────────────────────────────────────────────────
+  // --- Bulk actions -------------------------------------------------------
 
   async function handleArchive(selectedRows: SegmentListRow[]) {
     const ids = selectedRows.map((r) => r.id);
@@ -306,7 +306,7 @@ export function SegmentsTable({
     });
   }
 
-  // ─── Columns ────────────────────────────────────────────────────────────
+  // --- Columns ------------------------------------------------------------
 
   const columns: SabsmsColumn<SegmentListRow>[] = [
     {
@@ -323,13 +323,13 @@ export function SegmentsTable({
               {row.name}
             </Link>
             {row.tags?.includes("crm") && (
-              <Badge variant="secondary" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] text-[9px] hover:bg-[var(--st-bg-muted)] px-1 py-0 h-4">
+              <Badge variant="secondary" className="text-[9px] h-4 px-1 py-0">
                 CRM
               </Badge>
             )}
           </div>
           {row.description && (
-            <div className="line-clamp-1 text-xs text-[var(--st-text)]">
+            <div className="line-clamp-1 text-xs text-[var(--st-text-secondary)]">
               {row.description}
             </div>
           )}
@@ -350,7 +350,7 @@ export function SegmentsTable({
       header: "Kind",
       render: (row) => (
         <Badge
-          variant={row.kind === "dynamic" ? "default" : "secondary"}
+          variant={row.kind === "dynamic" ? "accent" : "secondary"}
           className="text-[10px] uppercase"
         >
           {row.kind}
@@ -392,7 +392,7 @@ export function SegmentsTable({
             {formatRelative(row.lastRefreshedAt)}
           </span>
           {row.autoRefreshSeconds ? (
-            <span className="text-[11px] text-[var(--st-text)]">
+            <span className="text-[11px] text-[var(--st-text-secondary)]">
               auto: {row.autoRefreshSeconds}s
             </span>
           ) : null}
@@ -424,15 +424,16 @@ export function SegmentsTable({
           >
             <RefreshCcw
               className={`h-3.5 w-3.5 ${busy === `refresh:${row.id}` ? "animate-spin" : ""}`}
+              aria-hidden="true"
             />
           </Button>
-          <Button variant="ghost" size="sm" asChild>
-            <Link
-              href={`/sabsms/send?segmentId=${row.id}`}
-              aria-label="Send to segment"
-            >
-              <Send className="h-3.5 w-3.5" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(`/sabsms/send?segmentId=${row.id}`)}
+            aria-label="Send to segment"
+          >
+            <Send className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -440,7 +441,7 @@ export function SegmentsTable({
             onClick={() => handleCost(row)}
             aria-label="Cost estimate"
           >
-            <DollarSign className="h-3.5 w-3.5" />
+            <DollarSign className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -448,7 +449,7 @@ export function SegmentsTable({
             onClick={() => handleHistory(row)}
             aria-label="Membership history"
           >
-            <History className="h-3.5 w-3.5" />
+            <History className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
           <Button
             variant="ghost"
@@ -456,7 +457,7 @@ export function SegmentsTable({
             onClick={() => handleActivity(row)}
             aria-label="Activity feed"
           >
-            <Activity className="h-3.5 w-3.5" />
+            <Activity className="h-3.5 w-3.5" aria-hidden="true" />
           </Button>
         </div>
       ),
@@ -466,37 +467,37 @@ export function SegmentsTable({
   const rowActions: SabsmsRowAction<SegmentListRow>[] = [
     {
       label: "Refresh now",
-      icon: <RefreshCcw className="h-3.5 w-3.5" />,
+      icon: <RefreshCcw className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleRefresh,
     },
     {
       label: "Duplicate",
-      icon: <Copy className="h-3.5 w-3.5" />,
+      icon: <Copy className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleDuplicate,
     },
     {
       label: "Tag / label",
-      icon: <Tag className="h-3.5 w-3.5" />,
+      icon: <Tag className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: openTagDialog,
     },
     {
       label: "Export to CRM",
-      icon: <LogOut className="h-3.5 w-3.5" />,
+      icon: <LogOut className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleExportToCrm,
     },
     {
       label: "Convert to suppressions",
-      icon: <ShieldOff className="h-3.5 w-3.5" />,
+      icon: <ShieldOff className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleConvertSuppression,
     },
     {
       label: "View audit log",
-      icon: <History className="h-3.5 w-3.5" />,
+      icon: <History className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => router.push(`/sabsms/logs?resource=${r.id}`),
     },
     {
       label: "Archive",
-      icon: <Trash2 className="h-3.5 w-3.5" />,
+      icon: <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />,
       destructive: true,
       onSelect: (r) => handleArchive([r]),
     },
@@ -505,12 +506,12 @@ export function SegmentsTable({
   const bulkActions: SabsmsBulkAction<SegmentListRow>[] = [
     {
       label: "Compare overlap",
-      icon: <GitCompare className="h-3.5 w-3.5" />,
+      icon: <GitCompare className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleCompare,
     },
     {
       label: "Archive selected",
-      icon: <Archive className="h-3.5 w-3.5" />,
+      icon: <Archive className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: handleArchive,
       destructive: true,
     },
@@ -544,12 +545,12 @@ export function SegmentsTable({
     return `${header}\n${body}`;
   }, [rows]);
 
-  // ─── Render ─────────────────────────────────────────────────────────────
+  // --- Render -------------------------------------------------------------
 
   return (
     <div className="space-y-4">
       <SabsmsFilterBar
-        searchPlaceholder="Search by name, description, predicate text…"
+        searchPlaceholder="Search by name, description, predicate text..."
         facets={[
           {
             key: "kind",
@@ -568,8 +569,8 @@ export function SegmentsTable({
         sortOptions={[
           { value: "updatedAt:desc", label: "Recently updated" },
           { value: "updatedAt:asc", label: "Oldest first" },
-          { value: "name:asc", label: "Name A→Z" },
-          { value: "name:desc", label: "Name Z→A" },
+          { value: "name:asc", label: "Name A to Z" },
+          { value: "name:desc", label: "Name Z to A" },
           { value: "size:desc", label: "Largest first" },
           { value: "size:asc", label: "Smallest first" },
         ]}
@@ -597,22 +598,12 @@ export function SegmentsTable({
       />
 
       {banner && (
-        <div
-          className={`rounded-md border px-3 py-2 text-sm ${
-            banner.kind === "ok"
-              ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-              : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-          }`}
+        <Alert
+          tone={banner.kind === "ok" ? "success" : "danger"}
+          onClose={() => setBanner(null)}
         >
           {banner.message}
-          <button
-            type="button"
-            className="float-right text-xs underline"
-            onClick={() => setBanner(null)}
-          >
-            dismiss
-          </button>
-        </div>
+        </Alert>
       )}
 
       <SabsmsDataTable<SegmentListRow>
@@ -636,29 +627,29 @@ export function SegmentsTable({
       <SabsmsDetailDrawer
         open={!!activity}
         onOpenChange={(o) => !o && setActivity(null)}
-        title={activity ? `Activity — ${activity.segmentName}` : "Activity"}
+        title={activity ? `Activity: ${activity.segmentName}` : "Activity"}
         description="Recent membership and metadata changes."
       >
         {activity && (
           <ul className="space-y-3">
             {activity.entries.length === 0 ? (
-              <li className="text-sm text-[var(--st-text)]">No activity yet.</li>
+              <li className="text-sm text-[var(--st-text-secondary)]">No activity yet.</li>
             ) : (
               activity.entries.map((e, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 rounded-md border border-[var(--st-border)] p-3"
+                  className="flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-3"
                 >
                   <Badge variant="outline" className="mt-0.5 text-[10px]">
                     {e.kind}
                   </Badge>
                   <div className="flex-1">
                     <div className="text-sm text-[var(--st-text)]">{e.message}</div>
-                    <div className="text-[11px] text-[var(--st-text)]">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                       {new Date(e.at).toLocaleString()}
                     </div>
                     {e.delta && (
-                      <div className="mt-1 text-[11px] text-[var(--st-text)]">
+                      <div className="mt-1 text-[11px] text-[var(--st-text-secondary)]">
                         +{e.delta.added ?? 0} / -{e.delta.removed ?? 0}
                       </div>
                     )}
@@ -676,7 +667,7 @@ export function SegmentsTable({
         onOpenChange={(o) => !o && setHistoryState(null)}
         title={
           historyState
-            ? `Membership history — ${historyState.segmentName}`
+            ? `Membership history: ${historyState.segmentName}`
             : "History"
         }
         description="Member count over the last 30 days."
@@ -688,7 +679,7 @@ export function SegmentsTable({
       <SabsmsDetailDrawer
         open={!!costState}
         onOpenChange={(o) => !o && setCostState(null)}
-        title={costState ? `Cost forecast — ${costState.segmentName}` : "Cost"}
+        title={costState ? `Cost forecast: ${costState.segmentName}` : "Cost"}
         description="Estimated cost to send one SMS to every member."
       >
         {costState && (
@@ -704,7 +695,7 @@ export function SegmentsTable({
               value={formatCents(costState.totalCents)}
               emphasised
             />
-            <p className="text-xs text-[var(--st-text)]">
+            <p className="text-xs text-[var(--st-text-secondary)]">
               Estimate uses the workspace default price. Final billed cost
               varies by destination country and provider tier.
             </p>
@@ -737,20 +728,18 @@ export function SegmentsTable({
       <SabsmsDetailDrawer
         open={!!tagDialog}
         onOpenChange={(o) => !o && setTagDialog(null)}
-        title={tagDialog ? `Tag — ${tagDialog.segmentName}` : "Tag"}
+        title={tagDialog ? `Tag: ${tagDialog.segmentName}` : "Tag"}
         description="Comma-separated labels for grouping and search."
       >
         {tagDialog && (
           <div className="space-y-3">
-            <div>
-              <Label htmlFor="seg-tags">Tags</Label>
+            <Field label="Tags" id="seg-tags">
               <Input
-                id="seg-tags"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 placeholder="e.g. vip, holiday-2026"
               />
-            </div>
+            </Field>
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -758,7 +747,11 @@ export function SegmentsTable({
               >
                 Cancel
               </Button>
-              <Button onClick={commitTags} disabled={busy?.startsWith("tag:")}>
+              <Button
+                variant="primary"
+                onClick={commitTags}
+                disabled={busy?.startsWith("tag:")}
+              >
                 Save tags
               </Button>
             </div>
@@ -766,7 +759,7 @@ export function SegmentsTable({
         )}
       </SabsmsDetailDrawer>
 
-      <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
+      <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
         <div>
           {selected.length > 0 ? (
             <span>{selected.length} selected of {total.toLocaleString()}</span>
@@ -793,7 +786,7 @@ function Row({
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-[var(--st-text)]">{label}</span>
+      <span className="text-sm text-[var(--st-text-secondary)]">{label}</span>
       <span
         className={`text-sm tabular-nums ${
           emphasised ? "font-semibold text-[var(--st-text)]" : "text-[var(--st-text)]"
@@ -849,12 +842,13 @@ function ExportSelectedButton({
 }
 
 /**
- * Lightweight inline sparkline. We avoid pulling `ZoruChart` here to keep
- * the bundle for the list page small — a 30-day history reads fine as
+ * Lightweight inline sparkline. We avoid pulling a full chart here to keep
+ * the bundle for the list page small. A 30-day history reads fine as
  * an SVG polyline.
  */
 function MembershipChart({ points }: { points: { date: string; size: number }[] }) {
-  if (points.length === 0) return <p className="text-sm text-[var(--st-text)]">No data.</p>;
+  if (points.length === 0)
+    return <p className="text-sm text-[var(--st-text-secondary)]">No data.</p>;
   const max = Math.max(...points.map((p) => p.size), 1);
   const width = 480;
   const height = 140;
@@ -870,14 +864,14 @@ function MembershipChart({ points }: { points: { date: string; size: number }[] 
     <div className="space-y-3">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+        className="w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]"
         role="img"
         aria-label="Segment size over time"
       >
         <path
           d={path}
           fill="none"
-          stroke="rgb(14, 165, 233)"
+          stroke="var(--st-accent)"
           strokeWidth={2}
         />
         {points.map((p, i) => {
@@ -889,12 +883,12 @@ function MembershipChart({ points }: { points: { date: string; size: number }[] 
               cx={x}
               cy={y}
               r={2}
-              fill="rgb(14, 165, 233)"
+              fill="var(--st-accent)"
             />
           );
         })}
       </svg>
-      <div className="flex items-center justify-between text-xs text-[var(--st-text)]">
+      <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
         <span>{points[0].date}</span>
         <span>peak: {max.toLocaleString()}</span>
         <span>{points[points.length - 1].date}</span>

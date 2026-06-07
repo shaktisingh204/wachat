@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, Input, Label, Separator, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Separator,
+  EmptyState,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { useEffect, useState, useTransition } from 'react';
 import {
   Folder,
@@ -11,6 +19,7 @@ import {
   Search,
   Filter,
   Tag as TagIcon,
+  X,
 } from 'lucide-react';
 import {
   createCollection,
@@ -37,8 +46,16 @@ const SORT_OPTIONS: Array<{ value: SortKey; label: string }> = [
   { value: 'oldest', label: 'Oldest first' },
   { value: 'most-clicks', label: 'Most clicks' },
   { value: 'least-clicks', label: 'Least clicks' },
-  { value: 'alpha', label: 'Alias A–Z' },
+  { value: 'alpha', label: 'Alias A-Z' },
 ];
+
+// Shared visual recipe for a left-aligned filter row rendered as a ghost Button.
+const ROW_BASE =
+  'w-[calc(100%-1rem)] mx-2 justify-start gap-2 px-3 text-[12.5px] font-normal';
+const rowState = (active: boolean) =>
+  active
+    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
+    : 'text-[var(--st-text-secondary)]';
 
 interface Props {
   search: string;
@@ -93,15 +110,14 @@ export function UrlShortenerSidebar({
         setNewName('');
         setAdding(false);
         load();
-        toast({ title: 'Collection created' });
+        toast({ title: 'Collection created', tone: 'success' });
       } else {
-        toast({ title: result.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: result.error ?? 'Failed', tone: 'danger' });
       }
     });
   };
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = (id: string) => {
     startTransition(async () => {
       const result = await deleteCollection(id);
       if (result.success) {
@@ -140,44 +156,43 @@ export function UrlShortenerSidebar({
       <div className="px-1">
         <Input
           placeholder="Search links..."
-          leadingSlot={<Search />}
+          iconLeft={Search}
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="text-[12.5px]"
+          aria-label="Search links"
         />
       </div>
 
       {/* Status */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-tertiary)]">
           Status
         </div>
         <nav className="flex flex-col gap-0.5">
           {STATUS_OPTIONS.map((opt) => {
             const active = statusFilter === opt.value;
             return (
-              <button
+              <Button
                 key={opt.value}
-                type="button"
+                variant="ghost"
+                size="sm"
+                block
                 onClick={() => onStatusChange(opt.value)}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
-                  active
-                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-                )}
+                aria-pressed={active}
+                className={cn(ROW_BASE, rowState(active))}
               >
                 <span
+                  aria-hidden="true"
                   className={cn(
                     'inline-block h-1.5 w-1.5 rounded-full',
-                    opt.value === 'all' && 'bg-[var(--st-text-secondary)]/40',
+                    opt.value === 'all' && 'bg-[var(--st-text-tertiary)]',
                     opt.value === 'active' && 'bg-[var(--st-status-ok)]',
                     opt.value === 'expiring-soon' && 'bg-[var(--st-warn)]',
                     opt.value === 'expired' && 'bg-[var(--st-danger)]',
                   )}
                 />
                 {opt.label}
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -187,26 +202,24 @@ export function UrlShortenerSidebar({
 
       {/* Sort */}
       <div className="space-y-1.5">
-        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
+        <div className="px-3 text-[11px] uppercase tracking-wider text-[var(--st-text-tertiary)]">
           Sort by
         </div>
         <nav className="flex flex-col gap-0.5">
           {SORT_OPTIONS.map((opt) => {
             const active = sortKey === opt.value;
             return (
-              <button
+              <Button
                 key={opt.value}
-                type="button"
+                variant="ghost"
+                size="sm"
+                block
                 onClick={() => onSortChange(opt.value)}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
-                  active
-                    ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                    : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-                )}
+                aria-pressed={active}
+                className={cn(ROW_BASE, rowState(active))}
               >
                 {opt.label}
-              </button>
+              </Button>
             );
           })}
         </nav>
@@ -218,41 +231,43 @@ export function UrlShortenerSidebar({
           <Separator />
           <div className="space-y-1.5">
             <div className="flex items-center justify-between px-3">
-              <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
+              <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-tertiary)]">
                 Tags
               </span>
               {filterTagIds.length > 0 ? (
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => onFilterTagsChange([])}
-                  className="text-[10.5px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                  className="h-auto px-1 py-0 text-[10.5px] font-normal text-[var(--st-text-secondary)]"
                 >
                   Clear
-                </button>
+                </Button>
               ) : null}
             </div>
             <nav className="flex flex-col gap-0.5">
               {userTags.map((tag) => {
                 const active = filterTagIds.includes(tag._id);
                 return (
-                  <button
+                  <Button
                     key={tag._id}
-                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    block
                     onClick={() => toggleTag(tag._id)}
-                    className={cn(
-                      'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left',
-                      active
-                        ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                        : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-                    )}
+                    aria-pressed={active}
+                    className={cn(ROW_BASE, rowState(active))}
                   >
                     <span
+                      aria-hidden="true"
                       className="h-2.5 w-2.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: tag.color }}
                     />
-                    <span className="truncate flex-1">{tag.name}</span>
-                    {active ? <TagIcon className="h-3 w-3 flex-shrink-0" /> : null}
-                  </button>
+                    <span className="truncate flex-1 text-left">{tag.name}</span>
+                    {active ? (
+                      <TagIcon className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
+                    ) : null}
+                  </Button>
                 );
               })}
             </nav>
@@ -265,40 +280,38 @@ export function UrlShortenerSidebar({
       {/* Collections */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between px-3">
-          <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]/60">
+          <span className="text-[11px] uppercase tracking-wider text-[var(--st-text-tertiary)]">
             Collections
           </span>
-          <Button
+          <IconButton
+            icon={Plus}
+            label="New collection"
             variant="ghost"
-            size="icon-sm"
+            size="sm"
             onClick={() => setAdding((v) => !v)}
-            title="New collection"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </Button>
+          />
         </div>
 
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="sm"
+          block
           onClick={() => onSelectCollection(null)}
-          className={cn(
-            'flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left w-[calc(100%-1rem)]',
-            selectedCollectionId === null
-              ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-              : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-          )}
+          aria-pressed={selectedCollectionId === null}
+          className={cn(ROW_BASE, rowState(selectedCollectionId === null))}
         >
-          <Folder className="h-3.5 w-3.5 flex-shrink-0" />
+          <Folder className="h-3.5 w-3.5 flex-shrink-0" aria-hidden="true" />
           <span className="truncate flex-1 text-left">All Links</span>
-        </button>
+        </Button>
 
         {adding ? (
-          <div className="mx-2 p-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] space-y-2">
+          <div className="mx-2 p-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] space-y-2">
             <Input
+              inputSize="sm"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Collection name"
-              className="h-7 text-[12px]"
+              aria-label="Collection name"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleCreate();
                 if (e.key === 'Escape') setAdding(false);
@@ -307,12 +320,15 @@ export function UrlShortenerSidebar({
             />
             <div className="flex flex-wrap gap-1">
               {PALETTE.map((c) => (
-                <button
+                <Button
                   key={c}
-                  type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setNewColor(c)}
+                  aria-label={`Use color ${c}`}
+                  aria-pressed={newColor === c}
                   className={cn(
-                    'h-4 w-4 rounded-full border-2 transition-transform',
+                    'h-4 w-4 min-w-0 p-0 rounded-full border-2',
                     newColor === c ? 'border-[var(--st-text)] scale-110' : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
@@ -322,52 +338,73 @@ export function UrlShortenerSidebar({
             <div className="flex gap-1">
               <Button
                 size="sm"
+                variant="primary"
                 onClick={handleCreate}
                 disabled={isPending || !newName.trim()}
-                className="flex-1"
+                block
               >
-                {isPending ? <LoaderCircle className="h-3 w-3 animate-spin" /> : 'Add'}
+                {isPending ? (
+                  <LoaderCircle className="h-3 w-3 animate-spin" aria-hidden="true" />
+                ) : (
+                  'Add'
+                )}
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => setAdding(false)}>
-                ✕
-              </Button>
+              <IconButton
+                icon={X}
+                label="Cancel"
+                variant="ghost"
+                size="sm"
+                onClick={() => setAdding(false)}
+              />
             </div>
           </div>
         ) : null}
 
         {collections.map((col) => (
-          <button
+          <div
             key={col._id}
-            type="button"
-            onClick={() => onSelectCollection(col._id)}
             className={cn(
-              'group flex items-center gap-2 px-3 py-1.5 text-[12.5px] rounded-md mx-2 transition-colors text-left w-[calc(100%-1rem)]',
-              selectedCollectionId === col._id
-                ? 'bg-[var(--st-bg-muted)] text-[var(--st-text)]'
-                : 'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
+              'group flex items-center rounded-[var(--st-radius)] mx-2',
+              selectedCollectionId === col._id && 'bg-[var(--st-bg-muted)]',
             )}
           >
-            <span
-              className="h-2.5 w-2.5 rounded-full flex-shrink-0"
-              style={{ backgroundColor: col.color }}
-            />
-            <span className="truncate flex-1 text-left">{col.name}</span>
-            <span
-              onClick={(e) => handleDelete(col._id, e)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)] hover:text-[var(--st-danger)] p-0.5 rounded"
-              role="button"
-              title="Delete collection"
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              onClick={() => onSelectCollection(col._id)}
+              aria-pressed={selectedCollectionId === col._id}
+              className={cn(
+                'mx-0 justify-start gap-2 px-3 text-[12.5px] font-normal',
+                selectedCollectionId === col._id
+                  ? 'bg-transparent text-[var(--st-text)]'
+                  : 'text-[var(--st-text-secondary)]',
+              )}
             >
-              <Trash2 className="h-3 w-3" />
-            </span>
-          </button>
+              <span
+                aria-hidden="true"
+                className="h-2.5 w-2.5 rounded-full flex-shrink-0"
+                style={{ backgroundColor: col.color }}
+              />
+              <span className="truncate flex-1 text-left">{col.name}</span>
+            </Button>
+            <IconButton
+              icon={Trash2}
+              label={`Delete collection ${col.name}`}
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(col._id)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-danger)]"
+            />
+          </div>
         ))}
 
         {collections.length === 0 && !adding ? (
-          <div className="px-3 py-4 text-center">
-            <FolderX className="h-5 w-5 mx-auto text-[var(--st-text-secondary)]/40 mb-1" />
-            <p className="text-[11px] text-[var(--st-text-secondary)]/60">No collections yet</p>
-          </div>
+          <EmptyState
+            size="sm"
+            icon={FolderX}
+            title="No collections yet"
+          />
         ) : null}
       </div>
 
@@ -375,8 +412,14 @@ export function UrlShortenerSidebar({
         <>
           <Separator />
           <div className="px-2">
-            <Button variant="ghost" size="sm" onClick={clearAll} className="w-full justify-start">
-              <Filter className="h-3.5 w-3.5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              block
+              onClick={clearAll}
+              iconLeft={Filter}
+              className="justify-start"
+            >
               Reset filters
             </Button>
           </div>

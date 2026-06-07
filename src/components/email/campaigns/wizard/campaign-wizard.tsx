@@ -4,11 +4,11 @@
  * Multi-step Zoho-style campaign creation wizard.
  *
  * Steps:
- *   1. Type      — marketing | transactional (required discriminator)
- *   2. Audience  — pick segments/lists
- *   3. Content   — subject + visual / HTML body editor
- *   4. Schedule  — send now / later / recurring
- *   5. Preview   — last-mile review + send button
+ *   1. Type      - marketing | transactional (required discriminator)
+ *   2. Audience  - pick segments/lists
+ *   3. Content   - subject + visual / HTML body editor
+ *   4. Schedule  - send now / later / recurring
+ *   5. Preview   - last-mile review + send button
  *
  * Talks to the existing `email-campaigns` server actions; type field is
  * persisted as the campaign `type` discriminator.
@@ -17,7 +17,29 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check, Send } from 'lucide-react';
-import { Badge, Button, Card, Input, Label, PageDescription, PageHeader, PageHeading, PageTitle, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, toast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  Field,
+  Input,
+  Radio,
+  RadioGroup,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
+import {
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   actionCreateEmailCampaign,
@@ -48,6 +70,7 @@ const STEP_LABELS = ['Type', 'Audience', 'Content', 'Schedule', 'Preview'] as co
 
 export function CampaignWizard() {
   const router = useRouter();
+  const { toast } = useToast();
   const [pending, startTransition] = useTransition();
   const [state, setState] = useState<WizardState>({
     step: 1,
@@ -130,15 +153,15 @@ export function CampaignWizard() {
       }
       router.push('/dashboard/email/campaigns');
     });
-  }, [router, state]);
+  }, [router, state, toast]);
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>New email campaign</PageTitle>
           <PageDescription>
-            Step {state.step} of 5 — {STEP_LABELS[state.step - 1]}
+            Step {state.step} of 5, {STEP_LABELS[state.step - 1]}
           </PageDescription>
         </PageHeading>
       </PageHeader>
@@ -154,18 +177,25 @@ export function CampaignWizard() {
       </Card>
 
       <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={goBack} disabled={state.step === 1 || pending}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
+        <Button
+          variant="outline"
+          iconLeft={ArrowLeft}
+          onClick={goBack}
+          disabled={state.step === 1 || pending}
+        >
           Back
         </Button>
         {state.step < 5 ? (
-          <Button onClick={goNext} disabled={!canAdvance || pending}>
+          <Button
+            variant="primary"
+            iconRight={ArrowRight}
+            onClick={goNext}
+            disabled={!canAdvance || pending}
+          >
             Next
-            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (
-          <Button onClick={handleFinish} disabled={pending}>
-            <Send className="mr-2 h-4 w-4" />
+          <Button variant="primary" iconLeft={Send} onClick={handleFinish} loading={pending}>
             {state.scheduleMode === 'now' ? 'Create and send' : 'Create and schedule'}
           </Button>
         )}
@@ -188,19 +218,19 @@ function StepperBar({ current }: { current: WizardState['step'] }) {
         return (
           <div key={label} className="flex flex-1 items-center gap-2">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full border text-sm font-medium ${
+              className={`flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] border text-sm font-medium ${
                 isDone
-                  ? 'border-transparent bg-[color:var(--st-accent)] text-[color:var(--st-text-inverted)]'
+                  ? 'border-transparent bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                   : isActive
-                    ? 'border-[color:var(--st-accent)] text-[color:var(--st-accent)]'
-                    : 'border-[color:var(--st-border)] text-[color:var(--st-text-secondary)]'
+                    ? 'border-[var(--st-accent)] text-[var(--st-accent)]'
+                    : 'border-[var(--st-border)] text-[var(--st-text-secondary)]'
               }`}
             >
-              {isDone ? <Check className="h-4 w-4" /> : num}
+              {isDone ? <Check className="h-4 w-4" aria-hidden="true" /> : num}
             </div>
             <span
               className={`text-sm font-medium ${
-                isActive ? 'text-[color:var(--st-text)]' : 'text-[color:var(--st-text-secondary)]'
+                isActive ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'
               }`}
             >
               {label}
@@ -216,7 +246,7 @@ function StepperBar({ current }: { current: WizardState['step'] }) {
 }
 
 // ---------------------------------------------------------------------------
-// Step 1 — Type + name
+// Step 1 - Type + name
 // ---------------------------------------------------------------------------
 
 function StepType({
@@ -228,17 +258,14 @@ function StepType({
 }) {
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="campaign-name">Campaign name</Label>
+      <Field label="Campaign name">
         <Input
-          id="campaign-name"
           placeholder="Spring 2026 newsletter"
           value={state.name}
           onChange={(e) => set('name', e.target.value)}
         />
-      </div>
-      <div className="space-y-3">
-        <Label>Campaign type</Label>
+      </Field>
+      <Field label="Campaign type">
         <RadioGroup
           value={state.type}
           onValueChange={(v) => set('type', v as CampaignType)}
@@ -248,16 +275,16 @@ function StepType({
             value="regular"
             current={state.type}
             title="Marketing"
-            description="Bulk send to a segment — newsletters, promotions, announcements."
+            description="Bulk send to a segment: newsletters, promotions, announcements."
           />
           <TypeChoice
             value="transactional"
             current={state.type}
             title="Transactional"
-            description="Triggered, per-user — order confirmations, password resets, OTPs."
+            description="Triggered, per-user: order confirmations, password resets, OTPs."
           />
         </RadioGroup>
-      </div>
+      </Field>
     </div>
   );
 }
@@ -275,26 +302,24 @@ function TypeChoice({
 }) {
   const selected = value === current;
   return (
-    <Label
-      htmlFor={`type-${value}`}
-      className={`flex cursor-pointer flex-col gap-2 rounded-lg border p-4 ${
+    <div
+      className={`flex flex-col gap-2 rounded-[var(--st-radius)] border p-4 ${
         selected
-          ? 'border-[color:var(--st-accent)] bg-[color:var(--st-accent)]/5'
-          : 'border-[color:var(--st-border)]'
+          ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+          : 'border-[var(--st-border)]'
       }`}
     >
       <div className="flex items-center gap-2">
-        <RadioGroupItem value={value} id={`type-${value}`} />
-        <span className="font-semibold">{title}</span>
-        {selected && <Badge variant="default">Selected</Badge>}
+        <Radio value={value} label={<span className="font-semibold">{title}</span>} />
+        {selected && <Badge tone="accent">Selected</Badge>}
       </div>
-      <p className="text-sm text-[color:var(--st-text-secondary)]">{description}</p>
-    </Label>
+      <p className="text-sm text-[var(--st-text-secondary)]">{description}</p>
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Step 2 — Audience
+// Step 2 - Audience
 // ---------------------------------------------------------------------------
 
 function StepAudience({
@@ -322,39 +347,42 @@ function StepAudience({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="segments">Segments</Label>
+      <Field
+        label="Segments"
+        help={
+          <>
+            Build new segments under{' '}
+            <a
+              className="text-[var(--st-accent)] underline"
+              href="/dashboard/email/audience/segments/new"
+            >
+              /audience/segments/new
+            </a>
+            .
+          </>
+        }
+      >
         <Input
-          id="segments"
           placeholder="seg_xxx, seg_yyy"
           value={segmentInput}
           onChange={(e) => setSegmentInput(e.target.value)}
           onBlur={commitSegments}
         />
-        <p className="text-xs text-[color:var(--st-text-secondary)]">
-          Build new segments under{' '}
-          <a className="underline" href="/dashboard/email/audience/segments/new">
-            /audience/segments/new
-          </a>
-          .
-        </p>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="lists">Lists</Label>
+      </Field>
+      <Field label="Lists">
         <Input
-          id="lists"
           placeholder="list_xxx, list_yyy"
           value={listInput}
           onChange={(e) => setListInput(e.target.value)}
           onBlur={commitLists}
         />
-      </div>
+      </Field>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Step 3 — Content
+// Step 3 - Content
 // ---------------------------------------------------------------------------
 
 function StepContent({
@@ -367,31 +395,26 @@ function StepContent({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="from-name">From name</Label>
-          <Input id="from-name" value={state.fromName} onChange={(e) => set('fromName', e.target.value)} />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="from-email">From email</Label>
+        <Field label="From name">
+          <Input value={state.fromName} onChange={(e) => set('fromName', e.target.value)} />
+        </Field>
+        <Field label="From email">
           <Input
-            id="from-email"
             type="email"
             value={state.fromEmail}
             onChange={(e) => set('fromEmail', e.target.value)}
           />
-        </div>
+        </Field>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="subject">Subject</Label>
-        <Input id="subject" value={state.subject} onChange={(e) => set('subject', e.target.value)} />
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="preheader">Preheader</Label>
-        <Input id="preheader" value={state.preheader} onChange={(e) => set('preheader', e.target.value)} />
-      </div>
+      <Field label="Subject">
+        <Input value={state.subject} onChange={(e) => set('subject', e.target.value)} />
+      </Field>
+      <Field label="Preheader">
+        <Input value={state.preheader} onChange={(e) => set('preheader', e.target.value)} />
+      </Field>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="body">HTML body</Label>
+          <span className="text-sm font-medium text-[var(--st-text)]">HTML body</span>
           <SabFilePickerButton
             accept="image"
             onPick={(pick) => {
@@ -404,7 +427,6 @@ function StepContent({
           </SabFilePickerButton>
         </div>
         <Textarea
-          id="body"
           rows={14}
           value={state.body}
           onChange={(e) => set('body', e.target.value)}
@@ -416,7 +438,7 @@ function StepContent({
 }
 
 // ---------------------------------------------------------------------------
-// Step 4 — Schedule
+// Step 4 - Schedule
 // ---------------------------------------------------------------------------
 
 function StepSchedule({
@@ -428,43 +450,41 @@ function StepSchedule({
 }) {
   return (
     <div className="space-y-4">
-      <Label>When should this send?</Label>
-      <RadioGroup
-        value={state.scheduleMode}
-        onValueChange={(v) => set('scheduleMode', v as ScheduleMode)}
-        className="space-y-2"
-      >
-        <Label htmlFor="sched-now" className="flex items-center gap-2 rounded border p-3">
-          <RadioGroupItem id="sched-now" value="now" />
-          <span>Send now</span>
-        </Label>
-        <Label htmlFor="sched-later" className="flex items-center gap-2 rounded border p-3">
-          <RadioGroupItem id="sched-later" value="later" />
-          <span>Send at a specific time</span>
-        </Label>
-        <Label htmlFor="sched-recurring" className="flex items-center gap-2 rounded border p-3">
-          <RadioGroupItem id="sched-recurring" value="recurring" />
-          <span>Send on a recurring schedule</span>
-        </Label>
-      </RadioGroup>
+      <Field label="When should this send?">
+        <RadioGroup
+          value={state.scheduleMode}
+          onValueChange={(v) => set('scheduleMode', v as ScheduleMode)}
+          className="space-y-2"
+        >
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+            <Radio value="now" label="Send now" />
+          </div>
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+            <Radio value="later" label="Send at a specific time" />
+          </div>
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] p-3">
+            <Radio value="recurring" label="Send on a recurring schedule" />
+          </div>
+        </RadioGroup>
+      </Field>
 
       {state.scheduleMode === 'later' && (
-        <div className="space-y-2">
-          <Label htmlFor="scheduled-at">Scheduled at</Label>
+        <Field label="Scheduled at">
           <Input
-            id="scheduled-at"
             type="datetime-local"
             value={state.scheduledAt}
             onChange={(e) => set('scheduledAt', e.target.value)}
           />
-        </div>
+        </Field>
       )}
 
       {state.scheduleMode === 'recurring' && (
-        <div className="space-y-2">
-          <Label htmlFor="recurring-rule">Cadence</Label>
+        <Field
+          label="Cadence"
+          help="Recurring schedules persist on the campaign and run via the email-sender worker."
+        >
           <Select value={state.recurringRule} onValueChange={(v) => set('recurringRule', v)}>
-            <SelectTrigger id="recurring-rule">
+            <SelectTrigger aria-label="Cadence">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -473,17 +493,14 @@ function StepSchedule({
               <SelectItem value="monthly">Monthly</SelectItem>
             </SelectContent>
           </Select>
-          <p className="text-xs text-[color:var(--st-text-secondary)]">
-            Recurring schedules persist on the campaign and run via the email-sender worker.
-          </p>
-        </div>
+        </Field>
       )}
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Step 5 — Preview
+// Step 5 - Preview
 // ---------------------------------------------------------------------------
 
 function StepPreview({ state }: { state: WizardState }) {
@@ -494,17 +511,17 @@ function StepPreview({ state }: { state: WizardState }) {
         <Row label="Name" value={state.name} />
         <Row label="From" value={`${state.fromName} <${state.fromEmail}>`} />
         <Row label="Subject" value={state.subject} />
-        <Row label="Segments" value={state.segmentIds.join(', ') || '—'} />
-        <Row label="Lists" value={state.listIds.join(', ') || '—'} />
+        <Row label="Segments" value={state.segmentIds.join(', ') || '-'} />
+        <Row label="Lists" value={state.listIds.join(', ') || '-'} />
         <Row label="Schedule" value={state.scheduleMode === 'now' ? 'Send now' : state.scheduledAt} />
       </div>
       <Separator />
-      <Label>Body preview</Label>
-      <div className="rounded border bg-[color:var(--st-bg)] p-4">
+      <p className="text-sm font-medium text-[var(--st-text)]">Body preview</p>
+      <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
         <iframe
           title="Campaign HTML preview"
           srcDoc={state.body}
-          className="h-96 w-full rounded border-0"
+          className="h-96 w-full rounded-[var(--st-radius)] border-0"
           sandbox=""
         />
       </div>
@@ -515,8 +532,8 @@ function StepPreview({ state }: { state: WizardState }) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs uppercase text-[color:var(--st-text-secondary)]">{label}</div>
-      <div className="font-medium">{value || '—'}</div>
+      <div className="text-xs uppercase text-[var(--st-text-secondary)]">{label}</div>
+      <div className="font-medium text-[var(--st-text)]">{value || '-'}</div>
     </div>
   );
 }

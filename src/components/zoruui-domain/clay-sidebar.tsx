@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { LuPlus } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import { Plus } from 'lucide-react';
+import { Button, IconButton, cn } from '@/components/sabcrm/20ui';
 
 export interface ClayNavItem {
   key: string;
@@ -29,12 +29,13 @@ export interface ClaySidebarProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 /**
- * ClaySidebar — left column for the dashboard. Active-state and nav
- * item rendering logic is preserved verbatim; only the styling tokens
- * have been migrated to shadcn (`bg-sidebar`, `bg-[var(--st-bg-muted)]`, etc.)
- * The shadcn `Sidebar` primitive is intentionally not used here
- * because its built-in collapsible/provider chrome would diverge
- * from the simple props this component exposes.
+ * ClaySidebar - left column for the dashboard. Active-state and nav
+ * item rendering logic is preserved verbatim; the styling tokens have
+ * been migrated to the 20ui design system (`--st-*` tokens, 20ui
+ * `Button`/`IconButton` primitives). The 20ui `Sidebar` primitive is
+ * intentionally not used here because its collapsible/provider chrome
+ * (and required `SidebarProvider` context) would diverge from the simple
+ * props this component exposes.
  */
 export function ClaySidebar({
   brand,
@@ -51,8 +52,7 @@ export function ClaySidebar({
       className={cn(
         'sticky top-0 flex h-full max-h-full shrink-0 flex-col pb-5',
         'w-[244px] px-4 pt-6',
-        // Use the sidebar token if defined; fall back to muted background.
-        'bg-[var(--st-text)]',
+        'bg-[var(--st-bg-secondary)]',
         className,
       )}
       {...props}
@@ -85,14 +85,13 @@ export function ClaySidebar({
                     {group.title}
                   </span>
                   {group.addable ? (
-                    <button
-                      type="button"
+                    <IconButton
+                      label={`Add ${group.title}`}
+                      icon={Plus}
+                      size="sm"
                       onClick={group.onAdd}
-                      aria-label={`Add ${group.title}`}
-                      className="flex h-5 w-5 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] transition-colors"
-                    >
-                      <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
-                    </button>
+                      className="!h-5 !w-5 text-[var(--st-text-secondary)]"
+                    />
                   ) : null}
                 </div>
               ) : null}
@@ -113,17 +112,24 @@ export function ClaySidebar({
   );
 }
 
+// Shared layout for a nav row. Tailwind overrides (with `!`) reset the 20ui
+// `u-btn` base chrome (fixed height, centered content, border) so a nav item
+// reads as a full-width, left-aligned, compact row with a custom active state.
 const navItemClass = cn(
-  'flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium leading-tight transition-colors',
-  'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
-  'data-[active=true]:bg-[var(--st-text)] data-[active=true]:text-white data-[active=true]:hover:bg-[var(--st-text)]',
+  '!w-full !justify-start !gap-2.5 !rounded-[var(--st-radius)] !px-2.5 !py-1.5 !h-auto',
+  '!text-[13px] !font-medium !leading-tight !border-0 !bg-transparent',
+  '!text-[var(--st-text-secondary)] hover:!bg-[var(--st-bg-muted)] hover:!text-[var(--st-text)]',
+  'data-[active=true]:!bg-[var(--st-text)] data-[active=true]:!text-white data-[active=true]:hover:!bg-[var(--st-text)]',
 );
 
 function NavItem({ item }: { item: ClayNavItem }) {
   const content = (
     <>
       {item.icon ? (
-        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+        <span
+          className="flex h-4 w-4 shrink-0 items-center justify-center"
+          aria-hidden="true"
+        >
           {item.icon}
         </span>
       ) : null}
@@ -131,27 +137,38 @@ function NavItem({ item }: { item: ClayNavItem }) {
     </>
   );
 
-  // Use next/link for client-side navigation — no full page reload.
-  // Falls back to <button> for purely interactive (no-href) nav items.
+  // Use next/link for client-side navigation, no full page reload. The 20ui
+  // Button cannot render as a link, so href items wrap the row content in a
+  // Link styled to match the nav-item appearance.
   if (item.href) {
     return (
       <Link
         href={item.href}
         data-active={item.active ? 'true' : 'false'}
-        className={navItemClass}
+        aria-current={item.active ? 'page' : undefined}
+        className={cn(
+          'flex w-full items-center gap-2.5 rounded-[var(--st-radius)] px-2.5 py-1.5 text-[13px] font-medium leading-tight transition-colors',
+          'text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]',
+          'data-[active=true]:bg-[var(--st-text)] data-[active=true]:text-white data-[active=true]:hover:bg-[var(--st-text)]',
+        )}
       >
         {content}
       </Link>
     );
   }
+
+  // Purely interactive (no-href) nav rows use the 20ui Button (ghost) so we
+  // never render a raw <button>.
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      block
       onClick={item.onClick}
       data-active={item.active ? 'true' : 'false'}
+      aria-current={item.active ? 'page' : undefined}
       className={navItemClass}
     >
       {content}
-    </button>
+    </Button>
   );
 }

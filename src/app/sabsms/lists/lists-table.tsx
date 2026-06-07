@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * SabSMS lists — main table client component.
+ * SabSMS lists - main table client component.
  *
  * Owns the 20 page-unique features for /sabsms/lists:
  *   - Create / duplicate / delete / tag
  *   - Add / remove contacts (paste + search)
- *   - Convert list → segment / suppression
+ *   - Convert list to segment / suppression
  *   - Auto-expire + read-only share link
  *   - Compare overlap (select 2)
  *   - Cross-link to campaigns using the list
@@ -15,12 +15,12 @@
  */
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Copy,
   ListChecks,
   ListPlus,
+  Lock,
   Send,
   Share2,
   ShieldBan,
@@ -41,7 +41,30 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Alert, AlertDescription, AlertTitle, Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, StatCard, Textarea, toast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Textarea,
+  toast,
+} from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 
 import {
@@ -128,13 +151,14 @@ export function ListsTable({
       id: "name",
       header: "Name",
       render: (r) => (
-        <button
-          type="button"
-          className="text-left font-medium text-[var(--st-text)] hover:underline"
+        <Button
+          variant="ghost"
+          size="sm"
+          className="justify-start px-0 font-medium hover:underline"
           onClick={() => setDrawerList(r)}
         >
           {r.name}
-        </button>
+        </Button>
       ),
     },
     {
@@ -146,7 +170,10 @@ export function ListsTable({
             {r.kind || "Static"}
           </Badge>
           {r.isLocked && (
-            <Lock className="h-3 w-3 text-[var(--st-text)]" title="Locked" />
+            <Lock
+              className="h-3 w-3 text-[var(--st-text)]"
+              aria-label="Locked"
+            />
           )}
         </div>
       ),
@@ -179,7 +206,7 @@ export function ListsTable({
             )}
           </div>
         ) : (
-          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">-</span>
         ),
     },
     {
@@ -201,7 +228,7 @@ export function ListsTable({
             {new Date(r.expiresAt).toLocaleDateString()}
           </span>
         ) : (
-          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">-</span>
         ),
     },
     {
@@ -209,7 +236,7 @@ export function ListsTable({
       header: "Updated",
       render: (r) => (
         <span className="text-xs text-[var(--st-text)]">
-          {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : "—"}
+          {r.updatedAt ? new Date(r.updatedAt).toLocaleString() : "-"}
         </span>
       ),
     },
@@ -252,7 +279,7 @@ export function ListsTable({
       onSelect: (r) => openDialog("share", r),
     },
     {
-      label: "Convert → suppression",
+      label: "Convert to suppression",
       icon: <ShieldBan className="h-3.5 w-3.5" />,
       onSelect: (r) =>
         withToast("Convert to suppression", () => convertListToSuppression(r.id)),
@@ -278,7 +305,7 @@ export function ListsTable({
       helpTitle="About lists"
       helpBody={
         <ul className="list-disc space-y-1 pl-4 text-xs">
-          <li>Lists are static — to grow with criteria, convert one to a segment.</li>
+          <li>Lists are static. To grow with criteria, convert one to a segment.</li>
           <li>
             Phone numbers are stored in E.164 form; duplicates are deduped
             automatically.
@@ -289,7 +316,7 @@ export function ListsTable({
       secondaryActions={[
         { label: "Mapping templates", icon: <ListChecks className="h-3.5 w-3.5" /> },
         {
-          label: "Compare two lists…",
+          label: "Compare two lists",
           icon: <Users className="h-3.5 w-3.5" />,
           onSelectAction: () => openDialog("compare"),
         },
@@ -300,12 +327,12 @@ export function ListsTable({
             <StatCard
               label="Lists"
               value={analytics.totalLists.toLocaleString()}
-              icon={<ListPlus className="h-4 w-4" />}
+              icon={ListPlus}
             />
             <StatCard
               label="Total members"
               value={analytics.totalMembers.toLocaleString()}
-              icon={<Users className="h-4 w-4" />}
+              icon={Users}
             />
             <StatCard
               label="Average size"
@@ -314,17 +341,17 @@ export function ListsTable({
             <StatCard
               label="Fresh / stale"
               value={`${analytics.freshLists} / ${analytics.staleLists}`}
-              period="vs 30-day window"
+              delta={{ value: "vs 30-day window", tone: "neutral" }}
             />
           </div>
 
           <SabsmsFilterBar
-            searchPlaceholder="Search lists by name…"
+            searchPlaceholder="Search lists by name"
             sortOptions={[
               { value: "newest", label: "Newest first" },
               { value: "oldest", label: "Oldest first" },
               { value: "largest", label: "Largest first" },
-              { value: "name", label: "Name A→Z" },
+              { value: "name", label: "Name A to Z" },
             ]}
             defaultSort="newest"
             trailing={
@@ -389,7 +416,7 @@ export function ListsTable({
         }}
       />
 
-            <EditListDialog
+      <EditListDialog
         open={dialog === "edit"}
         list={activeList}
         onOpenChange={(o) => !o && setDialog(null)}
@@ -449,7 +476,7 @@ export function ListsTable({
   );
 }
 
-// ─── Dialogs ──────────────────────────────────────────────────────────────
+// --- Dialogs ---------------------------------------------------------------
 
 function CreateListDialog({
   open,
@@ -533,74 +560,73 @@ function CreateListDialog({
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
+            <Field label="Name">
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="VIP customers"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Kind</Label>
-              <select
+            </Field>
+            <Field label="Kind">
+              <Select
                 value={kind}
-                onChange={(e) => setKind(e.target.value as "static" | "dynamic")}
-                className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
+                onValueChange={(v) => setKind(v as "static" | "dynamic")}
               >
-                <option value="static">Static (manual members)</option>
-                <option value="dynamic">Dynamic (filters)</option>
-              </select>
-            </div>
+                <SelectTrigger aria-label="Kind">
+                  <SelectValue placeholder="Select a kind" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="static">Static (manual members)</SelectItem>
+                  <SelectItem value="dynamic">Dynamic (filters)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
-          
-          <div className="space-y-1.5">
-            <Label>Description</Label>
+
+          <Field label="Description">
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What this list represents."
               rows={2}
             />
-          </div>
+          </Field>
 
           {kind === "dynamic" && (
-            <div className="space-y-3 rounded-md border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
-              <div className="flex justify-between items-center mb-2">
-                <Label className="block">Dynamic Filters</Label>
+            <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--st-text)]">
+                  Dynamic filters
+                </span>
                 <div className="text-xs font-medium text-[var(--st-text)]">
-                  {estimating ? (
-                    "Estimating..."
-                  ) : estimate ? (
-                    `Matches ${estimate.matched.toLocaleString()} of ${estimate.scanned.toLocaleString()} contacts`
-                  ) : (
-                    ""
-                  )}
+                  {estimating
+                    ? "Estimating..."
+                    : estimate
+                      ? `Matches ${estimate.matched.toLocaleString()} of ${estimate.scanned.toLocaleString()} contacts`
+                      : ""}
                 </div>
               </div>
-              <div className="bg-white rounded-md border border-[var(--st-border)] p-3">
+              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                 <PredicateCanvas predicate={predicate} onChange={setPredicate} />
               </div>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Tags (comma-separated)</Label>
+            <Field label="Tags (comma-separated)">
               <Input
                 value={tagsRaw}
                 onChange={(e) => setTagsRaw(e.target.value)}
                 placeholder="vip, q1-promo"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Auto-expire (optional)</Label>
+            </Field>
+            <Field label="Auto-expire (optional)">
               <Input
                 type="date"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
               />
-            </div>
+            </Field>
           </div>
           {error && (
             <Alert variant="destructive">
@@ -614,8 +640,8 @@ function CreateListDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={busy || !name.trim()}>
-            {busy ? "Creating…" : "Create list"}
+          <Button variant="primary" onClick={handleSubmit} disabled={busy || !name.trim()}>
+            {busy ? "Creating..." : "Create list"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -705,38 +731,36 @@ function AddContactsDialog({
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label>Search existing contacts</Label>
+          <Field
+            label="Search existing contacts"
+            help="TODO(follow-up): wire to /sabsms/contacts search."
+          >
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="By name or phone…"
+              placeholder="By name or phone"
             />
-            <p className="text-[11px] text-[var(--st-text)]">
-              TODO(follow-up): wire to /sabsms/contacts search.
-            </p>
-          </div>
+          </Field>
 
-          <div className="space-y-1.5">
-            <Label>Paste phones</Label>
+          <Field
+            label="Paste phones"
+            help={`${parsed.valid.length} valid, ${parsed.invalid.length} invalid.`}
+          >
             <Textarea
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
               placeholder={"+15550001111\n+15550002222"}
               rows={6}
             />
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] text-[var(--st-text)]">
-                {parsed.valid.length} valid, {parsed.invalid.length} invalid.
-              </p>
-              <SabFilePickerButton
-                accept="document"
-                variant="ghost"
-                onPick={handleCsvPick}
-              >
-                Or import CSV
-              </SabFilePickerButton>
-            </div>
+          </Field>
+          <div className="flex items-center justify-end">
+            <SabFilePickerButton
+              accept="document"
+              variant="ghost"
+              onPick={handleCsvPick}
+            >
+              Or import CSV
+            </SabFilePickerButton>
           </div>
 
           {error && (
@@ -752,10 +776,11 @@ function AddContactsDialog({
             Cancel
           </Button>
           <Button
+            variant="primary"
             onClick={handleAdd}
             disabled={busy || parsed.valid.length === 0}
           >
-            {busy ? "Adding…" : `Add ${parsed.valid.length}`}
+            {busy ? "Adding..." : `Add ${parsed.valid.length}`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -801,16 +826,18 @@ function TagDialog({
         <DialogHeader>
           <DialogTitle>Tag {list?.name}</DialogTitle>
         </DialogHeader>
-        <Input
-          value={tagsRaw}
-          onChange={(e) => setTagsRaw(e.target.value)}
-          placeholder="vip, q1-promo"
-        />
+        <Field label="Tags (comma-separated)">
+          <Input
+            value={tagsRaw}
+            onChange={(e) => setTagsRaw(e.target.value)}
+            placeholder="vip, q1-promo"
+          />
+        </Field>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button variant="primary" onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -858,17 +885,19 @@ function ShareDialog({
         </DialogHeader>
         {url ? (
           <div className="space-y-2">
-            <Input value={url} readOnly />
+            <Field label="Read-only link">
+              <Input value={url} readOnly />
+            </Field>
             <Button
               variant="outline"
               onClick={() => handleEnable(false)}
-              className="w-full"
+              block
             >
               Revoke link
             </Button>
           </div>
         ) : (
-          <Button onClick={() => handleEnable(true)}>
+          <Button variant="primary" onClick={() => handleEnable(true)}>
             Generate share link
           </Button>
         )}
@@ -934,47 +963,45 @@ function CompareDialog({
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label>List A</Label>
-            <select
-              value={a}
-              onChange={(e) => setA(e.target.value)}
-              className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-            >
-              <option value="">— Select —</option>
-              {lists.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>List B</Label>
-            <select
-              value={b}
-              onChange={(e) => setB(e.target.value)}
-              className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
-            >
-              <option value="">— Select —</option>
-              {lists.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Field label="List A">
+            <Select value={a} onValueChange={setA}>
+              <SelectTrigger aria-label="List A">
+                <SelectValue placeholder="Select a list" />
+              </SelectTrigger>
+              <SelectContent>
+                {lists.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="List B">
+            <Select value={b} onValueChange={setB}>
+              <SelectTrigger aria-label="List B">
+                <SelectValue placeholder="Select a list" />
+              </SelectTrigger>
+              <SelectContent>
+                {lists.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
           {result && (
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+              <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2">
                 <div className="font-semibold text-[var(--st-text)]">{result.onlyA}</div>
                 <div className="text-[var(--st-text)]">Only in A</div>
               </div>
-              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+              <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2">
                 <div className="font-semibold text-[var(--st-text)]">{result.both}</div>
                 <div className="text-[var(--st-text)]">In both</div>
               </div>
-              <div className="rounded-md bg-[var(--st-bg-muted)] p-2">
+              <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2">
                 <div className="font-semibold text-[var(--st-text)]">{result.onlyB}</div>
                 <div className="text-[var(--st-text)]">Only in B</div>
               </div>
@@ -986,8 +1013,8 @@ function CompareDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-          <Button onClick={handleRun} disabled={!a || !b || a === b || busy}>
-            {busy ? "Comparing…" : "Compare"}
+          <Button variant="primary" onClick={handleRun} disabled={!a || !b || a === b || busy}>
+            {busy ? "Comparing..." : "Compare"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -995,7 +1022,7 @@ function CompareDialog({
   );
 }
 
-// ─── Drawer ───────────────────────────────────────────────────────────────
+// --- Drawer ----------------------------------------------------------------
 
 function ListDetail({
   workspaceId,
@@ -1006,6 +1033,7 @@ function ListDetail({
   list: ListRecord;
   onRemove: (phones: string[]) => Promise<void>;
 }) {
+  const router = useRouter();
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
 
   function toggle(phone: string) {
@@ -1025,22 +1053,22 @@ function ListDetail({
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Kind" value={<span className="capitalize">{list.kind || "static"}</span>} />
-        <Field label="Members" value={list.memberCount.toLocaleString()} />
-        <Field
+        <DetailField label="Kind" value={<span className="capitalize">{list.kind || "static"}</span>} />
+        <DetailField label="Members" value={list.memberCount.toLocaleString()} />
+        <DetailField
           label="Estimated cost"
           value={`$${(list.memberCount * DEFAULT_COST_PER_MESSAGE).toFixed(2)}`}
         />
-        <Field
+        <DetailField
           label="Created"
-          value={list.createdAt ? new Date(list.createdAt).toLocaleDateString() : "—"}
+          value={list.createdAt ? new Date(list.createdAt).toLocaleDateString() : "-"}
         />
-        <Field
+        <DetailField
           label="Updated"
-          value={list.updatedAt ? new Date(list.updatedAt).toLocaleDateString() : "—"}
+          value={list.updatedAt ? new Date(list.updatedAt).toLocaleDateString() : "-"}
         />
         {list.expiresAt && (
-          <Field
+          <DetailField
             label="Expires"
             value={new Date(list.expiresAt).toLocaleDateString()}
           />
@@ -1048,11 +1076,13 @@ function ListDetail({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" asChild>
-          <Link href={`/sabsms/send?listId=${list.id}`}>
-            <Send className="mr-1.5 h-3.5 w-3.5" />
-            Send to list
-          </Link>
+        <Button
+          size="sm"
+          variant="primary"
+          iconLeft={Send}
+          onClick={() => router.push(`/sabsms/send?listId=${list.id}`)}
+        >
+          Send to list
         </Button>
         <SabsmsExportMenu
           filename={`sabsms-list-${list.id}`}
@@ -1065,7 +1095,7 @@ function ListDetail({
           <h3 className="text-sm font-medium text-[var(--st-text)]">Members</h3>
           {selected.size > 0 && (
             <Button
-              variant="destructive"
+              variant="danger"
               size="sm"
               onClick={handleRemoveSelected}
             >
@@ -1073,7 +1103,7 @@ function ListDetail({
             </Button>
           )}
         </div>
-        <div className="max-h-[280px] overflow-y-auto rounded-md border border-[var(--st-border)]">
+        <div className="max-h-[280px] overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
           {list.members.length === 0 ? (
             <p className="px-3 py-4 text-xs text-[var(--st-text)]">
               This list has no members yet.
@@ -1085,8 +1115,8 @@ function ListDetail({
                   key={p}
                   className="flex items-center gap-2 px-3 py-1.5 text-xs"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
+                    size="sm"
                     checked={selected.has(p)}
                     onChange={() => toggle(p)}
                     aria-label={`Select ${p}`}
@@ -1099,7 +1129,7 @@ function ListDetail({
         </div>
         {list.members.length > 200 && (
           <p className="text-[11px] text-[var(--st-text)]">
-            Showing 200 of {list.memberCount.toLocaleString()} — export to see all.
+            Showing 200 of {list.memberCount.toLocaleString()}. Export to see all.
           </p>
         )}
       </div>
@@ -1110,7 +1140,7 @@ function ListDetail({
           {list.audit.map((evt, i) => (
             <li
               key={i}
-              className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs"
+              className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs"
             >
               <div className="font-medium text-[var(--st-text)]">{evt.kind}</div>
               {evt.message && (
@@ -1127,7 +1157,7 @@ function ListDetail({
   );
 }
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailField({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text)]">
@@ -1226,31 +1256,32 @@ function EditListDialog({
 
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
+            <Field label="Name">
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={locked}
                 placeholder="VIP customers"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Kind</Label>
-              <select
+            </Field>
+            <Field label="Kind">
+              <Select
                 value={kind}
-                onChange={(e) => setKind(e.target.value as "static" | "dynamic")}
+                onValueChange={(v) => setKind(v as "static" | "dynamic")}
                 disabled={locked}
-                className="w-full rounded-md border border-[var(--st-border)] px-3 py-2 text-sm disabled:opacity-50"
               >
-                <option value="static">Static (manual members)</option>
-                <option value="dynamic">Dynamic (filters)</option>
-              </select>
-            </div>
+                <SelectTrigger aria-label="Kind">
+                  <SelectValue placeholder="Select a kind" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="static">Static (manual members)</SelectItem>
+                  <SelectItem value="dynamic">Dynamic (filters)</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
-          
-          <div className="space-y-1.5">
-            <Label>Description</Label>
+
+          <Field label="Description">
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -1258,23 +1289,23 @@ function EditListDialog({
               placeholder="What this list represents."
               rows={2}
             />
-          </div>
+          </Field>
 
           {kind === "dynamic" && (
-            <div className="space-y-3 rounded-md border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
-              <div className="flex justify-between items-center mb-2">
-                <Label className="block">Dynamic Filters</Label>
+            <div className="space-y-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 bg-[var(--st-bg-muted)]">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--st-text)]">
+                  Dynamic filters
+                </span>
                 <div className="text-xs font-medium text-[var(--st-text)]">
-                  {estimating ? (
-                    "Estimating..."
-                  ) : estimate ? (
-                    `Matches ${estimate.matched.toLocaleString()} of ${estimate.scanned.toLocaleString()} contacts`
-                  ) : (
-                    ""
-                  )}
+                  {estimating
+                    ? "Estimating..."
+                    : estimate
+                      ? `Matches ${estimate.matched.toLocaleString()} of ${estimate.scanned.toLocaleString()} contacts`
+                      : ""}
                 </div>
               </div>
-              <div className="bg-white rounded-md border border-[var(--st-border)] p-3">
+              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
                 {locked ? (
                   <div className="p-4 text-center text-sm text-[var(--st-text)]">Filters are locked</div>
                 ) : (
@@ -1285,24 +1316,22 @@ function EditListDialog({
           )}
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Tags (comma-separated)</Label>
+            <Field label="Tags (comma-separated)">
               <Input
                 value={tagsRaw}
                 onChange={(e) => setTagsRaw(e.target.value)}
                 disabled={locked}
                 placeholder="vip, q1-promo"
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Auto-expire (optional)</Label>
+            </Field>
+            <Field label="Auto-expire (optional)">
               <Input
                 type="date"
                 value={expiresAt}
                 onChange={(e) => setExpiresAt(e.target.value)}
                 disabled={locked}
               />
-            </div>
+            </Field>
           </div>
           {error && (
             <Alert variant="destructive">
@@ -1317,8 +1346,8 @@ function EditListDialog({
             Close
           </Button>
           {!locked && (
-            <Button onClick={handleSubmit} disabled={busy || !name.trim()}>
-              {busy ? "Saving…" : "Save changes"}
+            <Button variant="primary" onClick={handleSubmit} disabled={busy || !name.trim()}>
+              {busy ? "Saving..." : "Save changes"}
             </Button>
           )}
         </DialogFooter>

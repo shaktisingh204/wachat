@@ -1,18 +1,18 @@
 "use client";
 
 import * as React from "react";
-import { 
+import {
 
-  Key, 
-  Plus, 
-  RefreshCw, 
-  XCircle, 
-  History, 
-  Download, 
-  Terminal, 
-  Activity, 
-  AlertTriangle, 
-  UserCog, 
+  Key,
+  Plus,
+  RefreshCw,
+  XCircle,
+  History,
+  Download,
+  Terminal,
+  Activity,
+  AlertTriangle,
+  UserCog,
   Calendar,
   Code,
   Copy,
@@ -21,7 +21,8 @@ import {
   Eye,
   EyeOff,
   Clock,
-  Server
+  Server,
+  Inbox
 } from "lucide-react";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 import { SabsmsFilterBar, type SabsmsSortOption } from "@/components/sabsms/page-toolkit/sabsms-filter-bar";
@@ -35,7 +36,33 @@ import { SabsmsExportMenu, rowsToCsv } from "@/components/sabsms/page-toolkit/sa
 import { SabsmsColumnPicker } from "@/components/sabsms/page-toolkit/sabsms-column-picker";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit/sabsms-kbd-hint";
 
-import { Badge, Button, Switch, Card, CardBody, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  IconButton,
+  Switch,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Field,
+  Input,
+  Textarea,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import { getApiKeys, getExecutionLogs, createApiKey, updateApiKey, revokeApiKey, type SabsmsApiKey, type SabsmsExecutionLog } from "./actions";
 
@@ -51,14 +78,8 @@ const SORT_OPTIONS: SabsmsSortOption[] = [
   { id: "expiry_asc", label: "Expiry Date", field: "expiryDate", direction: "asc" },
 ];
 
-const SCOPE_COLORS: Record<string, string> = {
-  "read-only": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-  "send-only": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-  "admin": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-  "full": "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]",
-};
-
 function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
+  const { toast } = useToast();
   const [copied, setCopied] = React.useState(false);
   const [revealed, setRevealed] = React.useState(false);
 
@@ -66,31 +87,30 @@ function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
     e.stopPropagation();
     navigator.clipboard.writeText(keyValue);
     setCopied(true);
+    toast.success("API key copied to clipboard");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const masked = keyValue.substring(0, 8) + "••••••••••••••••";
+  const masked = keyValue.substring(0, 8) + "................";
 
   return (
-    <div className="flex items-center justify-between gap-1.5 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-md px-2 py-1 w-[220px]">
+    <div className="flex items-center justify-between gap-1.5 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] px-2 py-1 w-[220px]">
       <span className="font-mono text-xs text-[var(--st-text)] truncate">
         {revealed ? keyValue : masked}
       </span>
       <div className="flex items-center gap-0.5 border-l border-[var(--st-border)] pl-1.5 ml-1 shrink-0">
-        <button 
+        <IconButton
+          size="sm"
+          label={revealed ? "Hide key" : "Reveal key"}
+          icon={revealed ? EyeOff : Eye}
           onClick={(e) => { e.stopPropagation(); setRevealed(!revealed); }}
-          className="p-1 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
-          title={revealed ? "Hide key" : "Reveal key"}
-        >
-          {revealed ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-        </button>
-        <button 
+        />
+        <IconButton
+          size="sm"
+          label="Copy key"
+          icon={copied ? Check : Copy}
           onClick={handleCopy}
-          className="p-1 hover:bg-[var(--st-bg-muted)] rounded text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
-          title="Copy key"
-        >
-          {copied ? <Check className="h-3 w-3 text-[var(--st-text)]" /> : <Copy className="h-3 w-3" />}
-        </button>
+        />
       </div>
     </div>
   );
@@ -98,10 +118,11 @@ function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
 
 function ApiKeysPageContent() {
   const urlState = useSabsmsUrlState();
+  const { toast } = useToast();
 
   const [selectedKeyId, setSelectedKeyId] = React.useState<string | null>(null);
   const [selectedRows, setSelectedRows] = React.useState<Set<string>>(new Set());
-  
+
   const [keys, setKeys] = React.useState<SabsmsApiKey[]>([]);
   const [logs, setLogs] = React.useState<SabsmsExecutionLog[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -123,12 +144,14 @@ function ApiKeysPageContent() {
 
   const handleCreate = async () => {
     await createApiKey({ name: "New Key" });
+    toast.success("API key created");
     fetchData();
     setSelectedKeyId(null);
   };
 
   const handleRevoke = async (id: string) => {
     await revokeApiKey(id);
+    toast.success("API key revoked");
     fetchData();
   };
 
@@ -139,16 +162,16 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div>
           <div className="font-semibold text-[var(--st-text)] flex items-center gap-2">
-            <Key className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+            <Key className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
             {row.name}
           </div>
           <div className="text-xs text-[var(--st-text)] mt-1.5 flex gap-1.5 flex-wrap">
             {row.scopes.map(s => (
-              <Badge key={s} variant="outline" className={`text-[10px] px-1.5 py-0 font-medium ${SCOPE_COLORS[s] || "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)]"}`}>
+              <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0 font-medium">
                 {s}
               </Badge>
             ))}
-            {row.isWebhookOnly && <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium text-[var(--st-text)] border-[var(--st-border)] bg-[var(--st-bg-muted)]">webhook-only</Badge>}
+            {row.isWebhookOnly && <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium">webhook-only</Badge>}
           </div>
         </div>
       )
@@ -162,7 +185,7 @@ function ApiKeysPageContent() {
       id: "status",
       header: "Status",
       render: (row) => (
-        <Badge variant={row.status === "active" ? "default" : "destructive"} className="shadow-sm">
+        <Badge variant={row.status === "active" ? "success" : "destructive"}>
           {row.status === "active" ? "Active" : "Revoked"}
         </Badge>
       )
@@ -173,10 +196,10 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div className="text-sm">
           <div className="font-medium text-[var(--st-text)] flex items-center gap-1.5">
-            <Clock className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <Clock className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
             {row.lastUsedAt !== "Never" ? new Date(row.lastUsedAt).toLocaleDateString() : "Never"}
           </div>
-          <div className="text-xs text-[var(--st-text)] mt-0.5">IP: {row.lastUsedIp}</div>
+          <div className="text-xs text-[var(--st-text-secondary)] mt-0.5">IP: {row.lastUsedIp}</div>
         </div>
       )
     },
@@ -186,11 +209,11 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div className="text-sm space-y-1">
           <div className="flex items-center gap-1.5">
-            <Shield className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <Shield className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="text-[var(--st-text)] truncate max-w-[120px]">{row.ipAllowlist.join(", ")}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <UserCog className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <UserCog className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="text-[var(--st-text)] truncate max-w-[120px]">{row.owner}</span>
           </div>
         </div>
@@ -202,11 +225,11 @@ function ApiKeysPageContent() {
       render: (row) => (
         <div className="text-sm space-y-1">
           <div className="flex items-center gap-1.5">
-            <Activity className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <Activity className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="text-[var(--st-text)]">{row.rateLimit}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" />
+            <Calendar className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <span className="text-[var(--st-text)]">{row.expiryDate}</span>
           </div>
         </div>
@@ -218,16 +241,18 @@ function ApiKeysPageContent() {
   const [visibleCols, setVisibleCols] = React.useState(columns.map(c => c.id));
   const [density, setDensity] = React.useState<"compact" | "comfortable" | "cosy">("comfortable");
 
+  const selectedKey = selectedKeyId ? keys.find(k => k.id === selectedKeyId) : undefined;
+
   return (
     <SabsmsPageShell
       title="API Keys"
       eyebrow="Developer"
       description="Manage API keys, scopes, IP whitelists, and monitor execution logs securely."
       breadcrumbs={[{ label: "Developer" }, { label: "API Keys" }]}
-      primaryAction={{ label: "Create API Key", onClick: () => setSelectedKeyId("new"), icon: <Plus className="h-4 w-4" /> }}
+      primaryAction={{ label: "Create API Key", onClick: () => setSelectedKeyId("new"), icon: <Plus className="h-4 w-4" aria-hidden="true" /> }}
       secondaryActions={[
-        { label: "Postman Collection", icon: <Download className="h-4 w-4" /> },
-        { label: "Audit Log", icon: <History className="h-4 w-4" /> },
+        { label: "Postman Collection", icon: <Download className="h-4 w-4" aria-hidden="true" /> },
+        { label: "Audit Log", icon: <History className="h-4 w-4" aria-hidden="true" /> },
       ]}
       helpTitle="About API Keys"
       helpBody="API keys authenticate your requests to the SabSMS engine. Use scopes and IP allowlists to limit their access. Keys should be rotated periodically."
@@ -271,7 +296,7 @@ function ApiKeysPageContent() {
             onExportExcel={() => {}}
             onExportJson={() => {}}
           />
-          <SabsmsRefreshButton 
+          <SabsmsRefreshButton
             isRefreshing={loading}
             onRefresh={fetchData}
           />
@@ -288,7 +313,7 @@ function ApiKeysPageContent() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="md:col-span-3 space-y-6">
-          <Card className="shadow-sm border-[var(--st-border)] overflow-hidden">
+          <Card padding="none" className="overflow-hidden">
             <SabsmsDataTable
               columns={columns}
               visibleColumnIds={visibleCols}
@@ -311,19 +336,20 @@ function ApiKeysPageContent() {
                 { label: "Revoke Key", onSelect: (r) => handleRevoke(r.id), destructive: true }
               ]}
             />
-            <div className="p-4 border-t border-[var(--st-border)] flex justify-between items-center bg-[var(--st-bg-muted)]/50">
+            <div className="p-4 border-t border-[var(--st-border)] flex justify-between items-center bg-[var(--st-bg-secondary)]">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-[var(--st-text)]">Density:</span>
-                  <select 
-                    className="text-xs border-[var(--st-border)] rounded p-1.5 bg-white shadow-sm"
-                    value={density}
-                    onChange={(e) => setDensity(e.target.value as any)}
-                  >
-                    <option value="compact">Compact</option>
-                    <option value="comfortable">Comfortable</option>
-                    <option value="cosy">Cosy</option>
-                  </select>
+                  <Select value={density} onValueChange={(v) => setDensity(v as "compact" | "comfortable" | "cosy")}>
+                    <SelectTrigger aria-label="Table density" className="h-8 w-[150px] text-xs">
+                      <SelectValue placeholder="Density" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="compact">Compact</SelectItem>
+                      <SelectItem value="comfortable">Comfortable</SelectItem>
+                      <SelectItem value="cosy">Cosy</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <SabsmsPagination
@@ -336,59 +362,73 @@ function ApiKeysPageContent() {
             </div>
           </Card>
 
-          <Card className="shadow-sm border-[var(--st-border)]">
-            <CardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
+          <Card padding="none">
+            <CardHeader className="border-b border-[var(--st-border)] py-4 px-5">
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base font-semibold flex items-center gap-2 text-[var(--st-text)]">
-                    <Server className="h-4 w-4 text-[var(--st-text)]" /> Recent Executions
+                    <Server className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" /> Recent Executions
                   </CardTitle>
                   <CardDescription className="text-xs mt-1">Real-time view of API requests made across all your keys.</CardDescription>
                 </div>
-                <Button variant="outline" size="sm" className="h-8 text-xs shadow-sm">View Full Logs</Button>
+                <Button variant="outline" size="sm">View Full Logs</Button>
               </div>
             </CardHeader>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-[var(--st-text)] bg-white border-b border-[var(--st-border)]">
-                  <tr>
-                    <th className="px-5 py-3 font-medium">Timestamp</th>
-                    <th className="px-5 py-3 font-medium">Endpoint</th>
-                    <th className="px-5 py-3 font-medium">Key Used</th>
-                    <th className="px-5 py-3 font-medium">Status</th>
-                    <th className="px-5 py-3 font-medium">Latency</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--st-border)]">
-                  {logs.map(log => (
-                    <tr key={log.id} className="hover:bg-[var(--st-bg-muted)]/50 transition-colors group">
-                      <td className="px-5 py-3 font-mono text-xs text-[var(--st-text)]">{new Date(log.timestamp).toLocaleTimeString()}</td>
-                      <td className="px-5 py-3 font-mono text-xs text-[var(--st-text)] font-medium group-hover:text-[var(--st-text)] transition-colors">{log.endpoint}</td>
-                      <td className="px-5 py-3 text-[var(--st-text)] text-xs flex items-center gap-1.5"><Key className="h-3 w-3 text-[var(--st-text-secondary)]" /> {log.keyName}</td>
-                      <td className="px-5 py-3">
-                        <Badge variant={log.status === 200 ? "outline" : "destructive"} className={log.status === 200 ? "bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] text-[10px] px-2 py-0.5" : "text-[10px] px-2 py-0.5"}>
-                          {log.status}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-3 text-[var(--st-text)] text-xs">{log.latency}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {logs.length === 0 ? (
+                <div className="p-8">
+                  <EmptyState
+                    icon={Inbox}
+                    title="No recent executions"
+                    description="API requests across your keys will appear here as they happen."
+                  />
+                </div>
+              ) : (
+                <Table density="compact">
+                  <THead>
+                    <Tr>
+                      <Th>Timestamp</Th>
+                      <Th>Endpoint</Th>
+                      <Th>Key Used</Th>
+                      <Th>Status</Th>
+                      <Th>Latency</Th>
+                    </Tr>
+                  </THead>
+                  <TBody>
+                    {logs.map(log => (
+                      <Tr key={log.id}>
+                        <Td className="font-mono text-xs text-[var(--st-text-secondary)]">{new Date(log.timestamp).toLocaleTimeString()}</Td>
+                        <Td className="font-mono text-xs text-[var(--st-text)] font-medium">{log.endpoint}</Td>
+                        <Td className="text-[var(--st-text)] text-xs">
+                          <span className="flex items-center gap-1.5">
+                            <Key className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" /> {log.keyName}
+                          </span>
+                        </Td>
+                        <Td>
+                          <Badge variant={log.status === 200 ? "outline" : "destructive"} className="text-[10px] px-2 py-0.5">
+                            {log.status}
+                          </Badge>
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)] text-xs">{log.latency}</Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              )}
             </div>
           </Card>
         </div>
 
         <div className="space-y-6">
-          <Card className="shadow-sm border-[var(--st-border)]">
-            <CardHeader className="bg-[var(--st-bg-muted)]/80 border-b border-[var(--st-border)] py-4 px-5">
+          <Card padding="none">
+            <CardHeader className="border-b border-[var(--st-border)] py-4 px-5">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Terminal className="h-4 w-4 text-[var(--st-text)]" /> CLI Tools
+                <Terminal className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" /> CLI Tools
               </CardTitle>
             </CardHeader>
             <CardBody className="space-y-4 p-5">
-              <div className="text-sm text-[var(--st-text)]">Generate CLI snippets or configure your local environment instantly.</div>
-              <Button variant="outline" className="w-full shadow-sm text-xs font-medium">Generate Configuration</Button>
+              <div className="text-sm text-[var(--st-text-secondary)]">Generate CLI snippets or configure your local environment instantly.</div>
+              <Button variant="outline" block className="text-xs font-medium">Generate Configuration</Button>
             </CardBody>
           </Card>
         </div>
@@ -402,114 +442,138 @@ function ApiKeysPageContent() {
         footer={
           <div className="flex gap-2 justify-end w-full border-t border-[var(--st-border)] pt-4">
             <Button variant="outline" onClick={() => setSelectedKeyId(null)}>Cancel</Button>
-            <Button onClick={selectedKeyId === "new" ? handleCreate : () => setSelectedKeyId(null)} className="shadow-sm">{selectedKeyId === "new" ? "Create Key" : "Save Changes"}</Button>
+            <Button variant="primary" onClick={selectedKeyId === "new" ? handleCreate : () => setSelectedKeyId(null)}>{selectedKeyId === "new" ? "Create Key" : "Save Changes"}</Button>
           </div>
         }
       >
         <div className="space-y-6 py-4">
           <div className="space-y-4">
             {selectedKeyId !== "new" && (
-              <div className="p-4 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg flex flex-col gap-2">
+              <div className="p-4 bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-[var(--st-radius)] flex flex-col gap-2">
                 <span className="text-xs font-medium text-[var(--st-text)] uppercase tracking-wider">Secret Key</span>
-                <CopyableKeyDisplay keyValue={keys.find(k => k.id === selectedKeyId)?.keyValue || ""} />
+                <CopyableKeyDisplay keyValue={selectedKey?.keyValue || ""} />
                 <p className="text-[10px] text-[var(--st-text-secondary)] mt-1">This key grants access based on its assigned scopes. Keep it secure.</p>
               </div>
             )}
-            <div>
-              <label className="text-sm font-medium text-[var(--st-text)]">Key Name</label>
-              <input type="text" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent mt-1.5" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.name : ""} placeholder="e.g. Production Webhook Integration" />
-            </div>
-            
-            <div className="pt-5 border-t border-[var(--st-border)]">
-              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Shield className="h-4 w-4 text-[var(--st-text-secondary)]" /> Scopes & Permissions</h4>
-              <div className="space-y-3">
-                <select className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent">
-                  <option value="read-only">Read-Only</option>
-                  <option value="send-only">Send-Only</option>
-                  <option value="full">Full Access</option>
-                  <option value="admin">Admin</option>
-                </select>
+            <Field label="Key Name">
+              <Input
+                type="text"
+                defaultValue={selectedKeyId !== "new" ? selectedKey?.name : ""}
+                placeholder="e.g. Production Webhook Integration"
+              />
+            </Field>
 
-                <div className="flex items-center gap-3 mt-4 p-3 border border-[var(--st-border)] rounded-md bg-[var(--st-bg-muted)]/50">
-                  <Switch id="webhook-only" checked={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.isWebhookOnly : false} onCheckedChange={() => {}} />
+            <div className="pt-5 border-t border-[var(--st-border)]">
+              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Shield className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Scopes & Permissions</h4>
+              <div className="space-y-3">
+                <Field label="Scope">
+                  <Select defaultValue="read-only">
+                    <SelectTrigger aria-label="Scope">
+                      <SelectValue placeholder="Select a scope" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="read-only">Read-Only</SelectItem>
+                      <SelectItem value="send-only">Send-Only</SelectItem>
+                      <SelectItem value="full">Full Access</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <div className="flex items-center gap-3 mt-4 p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                  <Switch
+                    aria-label="Restrict to webhooks only"
+                    checked={selectedKeyId !== "new" ? selectedKey?.isWebhookOnly : false}
+                    onCheckedChange={() => {}}
+                  />
                   <div className="flex flex-col">
-                    <label htmlFor="webhook-only" className="text-sm font-medium text-[var(--st-text)]">Restrict to webhooks only</label>
-                    <span className="text-xs text-[var(--st-text)]">Key will only be valid for webhook subscriptions.</span>
+                    <span className="text-sm font-medium text-[var(--st-text)]">Restrict to webhooks only</span>
+                    <span className="text-xs text-[var(--st-text-secondary)]">Key will only be valid for webhook subscriptions.</span>
                   </div>
                 </div>
               </div>
 
               {selectedKeyId !== "new" && (
-                <div className="mt-4 p-3 bg-[var(--st-bg-muted)] rounded-md border border-[var(--st-border)]">
+                <div className="mt-4 p-3 bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)] border border-[var(--st-border)]">
                   <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)] mb-1">
-                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                     Permission Diff vs Role
                   </div>
-                  <p className="text-xs text-[var(--st-text)]/80">This key has fewer privileges than your user account (missing: billing_write, team_write).</p>
+                  <p className="text-xs text-[var(--st-text-secondary)]">This key has fewer privileges than your user account (missing: billing_write, team_write).</p>
                 </div>
               )}
             </div>
 
             <div className="pt-5 border-t border-[var(--st-border)]">
-              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><UserCog className="h-4 w-4 text-[var(--st-text-secondary)]" /> Security & Limits</h4>
-              
+              <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><UserCog className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Security & Limits</h4>
+
               <div className="space-y-4">
-                <div>
-                  <label className="text-xs font-medium text-[var(--st-text)]">IP Allow-list (CIDR notation)</label>
-                  <textarea className="flex min-h-[80px] w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={selectedKeyId !== "new" ? keys.find(k => k.id === selectedKeyId)?.ipAllowlist.join("\n") : ""} placeholder="0.0.0.0/0 (Any)" />
-                  <p className="text-[10px] text-[var(--st-text-secondary)] mt-1">One IP or CIDR per line.</p>
-                </div>
-                
+                <Field label="IP Allow-list (CIDR notation)" help="One IP or CIDR per line.">
+                  <Textarea
+                    rows={4}
+                    defaultValue={selectedKeyId !== "new" ? selectedKey?.ipAllowlist.join("\n") : ""}
+                    placeholder="0.0.0.0/0 (Any)"
+                  />
+                </Field>
+
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-medium text-[var(--st-text)]">Rate Limit Override (req/s)</label>
-                    <input type="number" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" placeholder="Default (100)" defaultValue={selectedKeyId !== "new" ? parseInt(keys.find(k => k.id === selectedKeyId)?.rateLimit.replace('/s', '') || "100") : ""} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-[var(--st-text)]">Expiry Date</label>
-                    <input type="date" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm mt-1.5 focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={selectedKeyId !== "new" && keys.find(k => k.id === selectedKeyId)?.expiryDate !== "Never" ? keys.find(k => k.id === selectedKeyId)?.expiryDate : ""} />
-                  </div>
+                  <Field label="Rate Limit Override (req/s)">
+                    <Input
+                      type="number"
+                      placeholder="Default (100)"
+                      defaultValue={selectedKeyId !== "new" ? parseInt(selectedKey?.rateLimit.replace('/s', '') || "100") : ""}
+                    />
+                  </Field>
+                  <Field label="Expiry Date">
+                    <Input
+                      type="date"
+                      defaultValue={selectedKeyId !== "new" && selectedKey?.expiryDate !== "Never" ? selectedKey?.expiryDate : ""}
+                    />
+                  </Field>
                 </div>
 
                 {selectedKeyId !== "new" && (
-                  <div>
-                    <label className="text-xs font-medium text-[var(--st-text)]">Owner Reassignment</label>
-                    <div className="flex gap-2 mt-1.5">
-                      <input type="email" className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--st-border)] focus:border-transparent" defaultValue={keys.find(k => k.id === selectedKeyId)?.owner} />
-                      <Button variant="outline" size="sm" className="h-10 px-4">Transfer</Button>
+                  <Field label="Owner Reassignment">
+                    <div className="flex gap-2">
+                      <Input
+                        type="email"
+                        defaultValue={selectedKey?.owner}
+                        className="flex-1"
+                      />
+                      <Button variant="outline" size="sm">Transfer</Button>
                     </div>
-                  </div>
+                  </Field>
                 )}
               </div>
             </div>
 
             {selectedKeyId !== "new" && (
               <div className="pt-5 border-t border-[var(--st-border)]">
-                <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-[var(--st-text-secondary)]" /> Analytics & Usage</h4>
+                <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2"><Activity className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Analytics & Usage</h4>
                 <div className="grid grid-cols-3 gap-3 mb-5">
-                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-2 flex items-center gap-1.5"><Activity className="h-3 w-3" /> Usage (24h)</div>
-                    <div className="h-12 bg-[var(--st-bg-muted)] flex items-end gap-1 px-1.5 pb-1 pt-2 rounded-md border border-[var(--st-border)]">
+                  <div className="p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)] mb-2 flex items-center gap-1.5"><Activity className="h-3 w-3" aria-hidden="true" /> Usage (24h)</div>
+                    <div className="h-12 bg-[var(--st-bg)] flex items-end gap-1 px-1.5 pb-1 pt-2 rounded-[var(--st-radius)] border border-[var(--st-border)]">
                       {[4, 7, 3, 8, 2, 9, 5].map((h, i) => (
-                        <div key={i} className="flex-1 bg-[var(--st-bg-muted)] rounded-sm hover:bg-[var(--st-text)] transition-colors cursor-pointer" style={{ height: `${h * 10}%` }}></div>
+                        <div key={i} className="flex-1 bg-[var(--st-accent)] rounded-sm" style={{ height: `${h * 10}%` }} aria-hidden="true"></div>
                       ))}
                     </div>
                   </div>
-                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm flex flex-col justify-center">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-1 flex items-center gap-1.5"><XCircle className="h-3 w-3" /> Errors (24h)</div>
+                  <div className="p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] flex flex-col justify-center">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)] mb-1 flex items-center gap-1.5"><XCircle className="h-3 w-3" aria-hidden="true" /> Errors (24h)</div>
                     <div className="text-xl font-bold text-[var(--st-text)]">0.05%</div>
                     <div className="text-[10px] text-[var(--st-text-secondary)] mt-1">Avg 4xx/5xx</div>
                   </div>
-                  <div className="p-3 border border-[var(--st-border)] rounded-lg bg-white shadow-sm flex flex-col justify-center">
-                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text)] mb-1 flex items-center gap-1.5"><Code className="h-3 w-3" /> Idempotency</div>
-                    <div className="text-xl font-bold text-[var(--st-text)]">{keys.find(k => k.id === selectedKeyId)?.idempotencySize}</div>
+                  <div className="p-3 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] flex flex-col justify-center">
+                    <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--st-text-secondary)] mb-1 flex items-center gap-1.5"><Code className="h-3 w-3" aria-hidden="true" /> Idempotency</div>
+                    <div className="text-xl font-bold text-[var(--st-text)]">{selectedKey?.idempotencySize}</div>
                     <div className="text-[10px] text-[var(--st-text-secondary)] mt-1">Store size</div>
                   </div>
                 </div>
 
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm" className="w-full shadow-sm"><Terminal className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" /> CLI Snippet</Button>
-                  <Button variant="outline" size="sm" className="w-full shadow-sm"><History className="h-4 w-4 mr-2 text-[var(--st-text-secondary)]" /> Key Audit</Button>
+                  <Button variant="outline" size="sm" block iconLeft={Terminal}>CLI Snippet</Button>
+                  <Button variant="outline" size="sm" block iconLeft={History}>Key Audit</Button>
                 </div>
               </div>
             )}
@@ -521,7 +585,7 @@ function ApiKeysPageContent() {
 }
 
 export default function ApiKeysPage() {
-  // ApiKeysPageContent reads `useSearchParams()` (via useSabsmsUrlState) — it
+  // ApiKeysPageContent reads `useSearchParams()` (via useSabsmsUrlState), so it
   // must sit under a Suspense boundary or Next.js bails the route to an error.
   return (
     <React.Suspense fallback={null}>

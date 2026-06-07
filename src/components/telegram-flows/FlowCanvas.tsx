@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/sabcrm/20ui';
+import { Button, IconButton, EmptyState } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -11,7 +11,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   } from 'react';
 
-import { Trash2 } from 'lucide-react';
+import { Trash2, LayoutTemplate } from 'lucide-react';
 
 import {
   TELEGRAM_NODE_TYPES,
@@ -27,7 +27,7 @@ import type {
 /**
  * Lightweight Telegram-flow canvas. Renders nodes as draggable cards on an
  * SVG-backed surface and the edges as straight connectors. Intentionally
- * minimal — the spec permits a placeholder canvas when the full SabFlow
+ * minimal: the spec permits a placeholder canvas when the full SabFlow
  * editor cannot be easily reused (it speaks a different graph shape).
  *
  * The canvas is self-contained: positions live on each `FlowNode.position`,
@@ -41,6 +41,9 @@ import { cn } from '@/lib/utils';
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 88;
 const SNAP = 8;
+
+/** Telegram brand blue, used for the flow connectors and arrowheads. */
+const EDGE_COLOR = '#229ED9';
 
 type Props = {
   nodes: FlowNode[];
@@ -198,7 +201,7 @@ export function FlowCanvas({
         setPointer(null);
       }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
-        // Only react when the focus is NOT on a form control — otherwise
+        // Only react when the focus is NOT on a form control, otherwise
         // backspace in the inspector wipes the canvas.
         const target = e.target as HTMLElement | null;
         if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
@@ -211,37 +214,39 @@ export function FlowCanvas({
   }, [deleteNode, selectedId]);
 
   return (
-    <div className="flex h-full w-full">
+    <div className="ui20 flex h-full w-full">
       {/* Node palette */}
-      <aside className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r bg-[var(--st-bg-muted)]/30 p-3">
+      <aside className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]/30 p-3">
         <p className="px-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
           Nodes
         </p>
         {TELEGRAM_NODE_TYPES.filter((m) => m.type !== 'trigger').map((m) => {
           const Icon = m.icon;
           return (
-            <button
+            <Button
               key={m.type}
-              type="button"
+              variant="ghost"
+              block
               onClick={() => addNode(m)}
-              className={cn(
-                'group flex items-start gap-2 rounded-lg border bg-[var(--st-bg-secondary)] p-2 text-left text-sm shadow-sm transition',
-                'hover:border-primary hover:bg-[var(--st-bg-muted)] disabled:opacity-50',
-              )}
               disabled={disabled}
+              className="group !h-auto !justify-start gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] !p-2 text-left shadow-sm hover:border-[var(--st-accent)] hover:bg-[var(--st-bg-secondary)]"
             >
-              <span
-                aria-hidden
-                className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-md text-white"
-                style={{ background: m.accent }}
-              >
-                <Icon className="h-4 w-4" />
+              <span className="flex items-start gap-2">
+                <span
+                  aria-hidden
+                  className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-[var(--st-radius-sm)] text-[var(--st-text-inverted)]"
+                  style={{ background: m.accent }}
+                >
+                  <Icon className="h-4 w-4" aria-hidden />
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-medium text-[var(--st-text)]">{m.label}</span>
+                  <span className="text-xs font-normal text-[var(--st-text-secondary)]">
+                    {m.subtitle}
+                  </span>
+                </span>
               </span>
-              <span className="flex flex-col">
-                <span className="font-medium">{m.label}</span>
-                <span className="text-xs text-[var(--st-text-secondary)]">{m.subtitle}</span>
-              </span>
-            </button>
+            </Button>
           );
         })}
       </aside>
@@ -249,11 +254,10 @@ export function FlowCanvas({
       {/* Canvas surface */}
       <div
         ref={surfaceRef}
-        className="relative flex-1 overflow-auto bg-[linear-gradient(0deg,transparent_24%,rgba(0,0,0,0.04)_25%,rgba(0,0,0,0.04)_26%,transparent_27%,transparent_74%,rgba(0,0,0,0.04)_75%,rgba(0,0,0,0.04)_76%,transparent_77%,transparent),linear-gradient(90deg,transparent_24%,rgba(0,0,0,0.04)_25%,rgba(0,0,0,0.04)_26%,transparent_27%,transparent_74%,rgba(0,0,0,0.04)_75%,rgba(0,0,0,0.04)_76%,transparent_77%,transparent)] bg-[length:24px_24px]"
+        className="relative min-h-[480px] flex-1 overflow-auto bg-[linear-gradient(0deg,transparent_24%,rgba(0,0,0,0.04)_25%,rgba(0,0,0,0.04)_26%,transparent_27%,transparent_74%,rgba(0,0,0,0.04)_75%,rgba(0,0,0,0.04)_76%,transparent_77%,transparent),linear-gradient(90deg,transparent_24%,rgba(0,0,0,0.04)_25%,rgba(0,0,0,0.04)_26%,transparent_27%,transparent_74%,rgba(0,0,0,0.04)_75%,rgba(0,0,0,0.04)_76%,transparent_77%,transparent)] bg-[length:24px_24px]"
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         onClick={() => onSelectNode(null)}
-        style={{ minHeight: 480 }}
       >
         {/* Edge layer */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full">
@@ -267,7 +271,7 @@ export function FlowCanvas({
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#229ED9" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill={EDGE_COLOR} />
             </marker>
           </defs>
           {edges.map((e) => {
@@ -289,7 +293,7 @@ export function FlowCanvas({
               <g key={e.id} className="pointer-events-auto">
                 <path
                   d={`M ${aPoint.x} ${aPoint.y} C ${aPoint.x + 60} ${aPoint.y}, ${bPoint.x - 60} ${bPoint.y}, ${bPoint.x} ${bPoint.y}`}
-                  stroke="#229ED9"
+                  stroke={EDGE_COLOR}
                   strokeWidth={2}
                   fill="none"
                   markerEnd="url(#tg-flow-arrow)"
@@ -299,11 +303,11 @@ export function FlowCanvas({
                   stroke="transparent"
                   strokeWidth={14}
                   fill="none"
+                  className="cursor-pointer"
                   onClick={(ev) => {
                     ev.stopPropagation();
                     deleteEdge(e.id);
                   }}
-                  style={{ cursor: 'pointer' }}
                   aria-label="Delete edge"
                 />
               </g>
@@ -330,7 +334,7 @@ export function FlowCanvas({
                 return (
                   <path
                     d={`M ${src.x} ${src.y} L ${pointer.x} ${pointer.y}`}
-                    stroke="#229ED9"
+                    stroke={EDGE_COLOR}
                     strokeDasharray="4 4"
                     strokeWidth={2}
                     fill="none"
@@ -342,7 +346,7 @@ export function FlowCanvas({
 
         {/* Trigger card */}
         <div
-          className="absolute rounded-lg border-2 border-[var(--st-border)] bg-white shadow-md"
+          className="absolute rounded-[var(--st-radius)] border-2 border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-md"
           style={cardStyle(triggerCard.position.x, triggerCard.position.y, NODE_WIDTH, NODE_HEIGHT)}
           onClick={(e) => {
             e.stopPropagation();
@@ -353,7 +357,9 @@ export function FlowCanvas({
             <span className="text-[10px] font-semibold uppercase tracking-wide text-[var(--st-text)]">
               Trigger
             </span>
-            <span className="truncate text-sm font-medium">{trigger?.kind ?? 'incoming_message'}</span>
+            <span className="truncate text-sm font-medium text-[var(--st-text)]">
+              {trigger?.kind ?? 'incoming_message'}
+            </span>
           </div>
           <PortButton
             onPointerDown={(e) => startLink(e, 'trigger')}
@@ -371,7 +377,7 @@ export function FlowCanvas({
             <div
               key={node.id}
               className={cn(
-                'absolute rounded-lg border bg-[var(--st-bg-secondary)] shadow-sm transition',
+                'absolute rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-sm transition',
                 selected ? 'ring-2 ring-offset-2' : 'hover:shadow-md',
               )}
               style={{
@@ -388,30 +394,31 @@ export function FlowCanvas({
               <div className="flex h-full items-stretch gap-2">
                 <span
                   aria-hidden
-                  className="w-1.5 shrink-0 rounded-l-lg"
+                  className="w-1.5 shrink-0 rounded-l-[var(--st-radius)]"
                   style={{ background: meta.accent }}
                 />
                 <div className="flex flex-1 flex-col justify-center gap-0.5 py-2 pr-2">
                   <div className="flex items-center gap-2">
-                    <Icon className="h-4 w-4" style={{ color: meta.accent }} />
-                    <span className="truncate text-sm font-medium">{meta.label}</span>
+                    <Icon className="h-4 w-4" style={{ color: meta.accent }} aria-hidden />
+                    <span className="truncate text-sm font-medium text-[var(--st-text)]">
+                      {meta.label}
+                    </span>
                   </div>
                   <span className="truncate text-xs text-[var(--st-text-secondary)]">
                     {summariseNode(node)}
                   </span>
                 </div>
                 {selected && !disabled ? (
-                  <button
-                    type="button"
-                    aria-label="Delete node"
+                  <IconButton
+                    icon={Trash2}
+                    label="Delete node"
+                    size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       deleteNode(node.id);
                     }}
-                    className="absolute -right-2 -top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-text)] text-white shadow"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </button>
+                    className="absolute -right-2 -top-2 !h-6 !w-6 rounded-full border-none bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow hover:bg-[var(--st-text)]"
+                  />
                 ) : null}
               </div>
               <PortButton
@@ -430,19 +437,16 @@ export function FlowCanvas({
         })}
 
         {nodes.length === 0 ? (
-          <div className="absolute inset-0 flex items-center justify-center text-sm text-[var(--st-text-secondary)]">
-            <div className="rounded-lg border border-dashed bg-[var(--st-bg-secondary)]/80 p-6 text-center">
-              <p className="font-medium">Empty canvas</p>
-              <p className="mt-1 text-xs">
-                Click a node in the palette to add it. Drag the right edge of a card to
-                connect it to the next step.
-              </p>
-              {disabled ? (
-                <p className="mt-2 text-xs">
-                  Published flows are read-only. Disable the flow to edit it.
-                </p>
-              ) : null}
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <EmptyState
+              icon={LayoutTemplate}
+              title="Empty canvas"
+              description={
+                disabled
+                  ? 'Click a node in the palette to add it. Drag the right edge of a card to connect it to the next step. Published flows are read-only, disable the flow to edit it.'
+                  : 'Click a node in the palette to add it. Drag the right edge of a card to connect it to the next step.'
+              }
+            />
           </div>
         ) : null}
       </div>
@@ -516,14 +520,16 @@ function PortButton({
   inbound?: boolean;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       aria-label={label}
       className={cn(
-        'absolute inline-flex h-4 w-4 items-center justify-center rounded-full border-2 border-white shadow ring-1 ring-border',
-        inbound ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-text)]',
+        'absolute inline-flex !h-4 !w-4 items-center justify-center rounded-full border-2 border-[var(--st-bg-secondary)] !p-0 shadow ring-1 ring-[var(--st-border)]',
+        inbound
+          ? 'bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-secondary)]'
+          : 'bg-[var(--st-text)] hover:bg-[var(--st-text)]',
       )}
       style={style}
     />

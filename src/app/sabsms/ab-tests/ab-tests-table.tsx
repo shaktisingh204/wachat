@@ -1,47 +1,84 @@
 "use client";
 
 /**
- * SabSMS A/B tests — interactive client table.
+ * SabSMS A/B tests - interactive client table.
  *
  * Server entry hands us the already-projected `AbTestRow[]`; we render
  * the 20 page-unique features here on top of the shared toolkit:
- *  1.  List active tests              → SabsmsDataTable rows
- *  2.  Variant table                  → row drill-in / detail drawer
- *  3.  Statistical significance       → `computeSignificance()` per row
- *  4.  Confidence interval column     → Wilson CI rendered as `[lo, hi]`
- *  5.  Auto-promote winner toggle     → Switch in detail drawer
- *  6.  Min-sample threshold field     → Input in detail drawer
- *  7.  Conversion metric picker       → Select in detail drawer
- *  8.  Stop test early                → row action
- *  9.  Force-pick winner              → row action (confirm dialog)
- *  10. Per-variant CTR/reply/conv     → inline mini-table in drawer
- *  11. Funnel comparison              → inline Recharts per row
- *  12. Cost comparison                → StatCard pair
- *  13. Export raw event log           → SabsmsExportMenu per detail
- *  14. Clone test                     → row action
- *  15. Schedule next test             → row action (date dialog)
- *  16. Test history archive           → status filter chip + archived facet
- *  17. Significance simulation graph  → Recharts line
- *  18. Per-segment lift analysis      → `computeSegmentLifts` table
- *  19. Bayesian vs frequentist mode   → Switch in drawer (flag-only)
- *  20. Audit trail                    → "Audit" tab in drawer
+ *  1.  List active tests              -> SabsmsDataTable rows
+ *  2.  Variant table                  -> row drill-in / detail drawer
+ *  3.  Statistical significance       -> `computeSignificance()` per row
+ *  4.  Confidence interval column     -> Wilson CI rendered as `[lo, hi]`
+ *  5.  Auto-promote winner toggle     -> Switch in detail drawer
+ *  6.  Min-sample threshold field     -> Input in detail drawer
+ *  7.  Conversion metric picker       -> Select in detail drawer
+ *  8.  Stop test early                -> row action
+ *  9.  Force-pick winner              -> row action (confirm dialog)
+ *  10. Per-variant CTR/reply/conv     -> inline mini-table in drawer
+ *  11. Funnel comparison              -> inline Recharts per row
+ *  12. Cost comparison                -> StatCard pair
+ *  13. Export raw event log           -> SabsmsExportMenu per detail
+ *  14. Clone test                     -> row action
+ *  15. Schedule next test             -> row action (date dialog)
+ *  16. Test history archive           -> status filter chip + archived facet
+ *  17. Significance simulation graph  -> Recharts line
+ *  18. Per-segment lift analysis      -> `computeSegmentLifts` table
+ *  19. Bayesian vs frequentist mode   -> Switch in drawer (flag-only)
+ *  20. Audit trail                    -> "Audit" tab in drawer
  */
 
 import * as React from "react";
 import {
   Activity,
-  AlertCircle,
   CalendarClock,
   Copy as CopyIcon,
   Crown,
-  Pause as PauseIcon,
   ScrollText,
   Sigma,
   StopCircle,
-  TrendingUp,
 } from "lucide-react";
 
-import { CHART_PALETTE, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Recharts, ChartContainer, ChartTooltip, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Switch, Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
+import {
+  CHART_PALETTE,
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Label,
+  Progress,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Switch,
+  Table,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
 
 import {
   SabsmsDataTable,
@@ -100,7 +137,7 @@ const METRIC_LABELS: Record<AbConversionMetric, string> = {
 };
 
 function fmtPct(n: number): string {
-  if (!Number.isFinite(n)) return "—";
+  if (!Number.isFinite(n)) return "-";
   return `${(n * 100).toFixed(2)}%`;
 }
 
@@ -116,7 +153,7 @@ function fmtP(p: number): string {
 }
 
 /**
- * Per-row significance — uses control (variant[0]) vs the best
+ * Per-row significance - uses control (variant[0]) vs the best
  * non-control arm, which matches how the page rendered "did B beat A?"
  */
 function computeRowSignificance(row: AbTestRow) {
@@ -156,7 +193,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
   const [error, setError] = React.useState<string | null>(null);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
-  // Filter — drives features #1 (list active) + #16 (archive). Reads
+  // Filter - drives features #1 (list active) + #16 (archive). Reads
   // status query directly off the URL (the shared `SabsmsFilterBar`
   // writes it).
   const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
@@ -202,8 +239,8 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         render: (r) => (
           <div className="flex flex-col">
             <span className="font-medium text-[var(--st-text)]">{r.name}</span>
-            <span className="text-xs text-[var(--st-text)]">
-              {KIND_LABELS[r.kind]} · {METRIC_LABELS[r.metric]}
+            <span className="text-xs text-[var(--st-text-secondary)]">
+              {KIND_LABELS[r.kind]} &middot; {METRIC_LABELS[r.metric]}
             </span>
           </div>
         ),
@@ -252,7 +289,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         render: (r) => {
           const sig = computeRowSignificance(r);
           if (!sig)
-            return <span className="text-xs text-[var(--st-text-secondary)]">—</span>;
+            return <span className="text-xs text-[var(--st-text-secondary)]">-</span>;
           return (
             <div className="flex items-center gap-2">
               <Badge
@@ -273,7 +310,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         render: (r) => {
           const sig = computeRowSignificance(r);
           if (!sig)
-            return <span className="text-xs text-[var(--st-text-secondary)]">—</span>;
+            return <span className="text-xs text-[var(--st-text-secondary)]">-</span>;
           return (
             <span className="font-mono text-xs tabular-nums text-[var(--st-text)]">
               [{fmtPct(sig.result.ciLow)}, {fmtPct(sig.result.ciHigh)}]
@@ -292,7 +329,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
           return (
             <div className="flex w-32 flex-col gap-1">
               <Progress value={pct} className="h-1.5" />
-              <span className="text-[11px] text-[var(--st-text)] tabular-nums">
+              <span className="text-[11px] text-[var(--st-text-secondary)] tabular-nums">
                 {total.toLocaleString()} / {r.minSample.toLocaleString()}
               </span>
             </div>
@@ -304,11 +341,11 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         header: "Winner",
         render: (r) => {
           if (!r.winnerVariantId)
-            return <span className="text-xs text-[var(--st-text-secondary)]">—</span>;
+            return <span className="text-xs text-[var(--st-text-secondary)]">-</span>;
           const w = r.variants.find((v) => v.id === r.winnerVariantId);
           return (
             <span className="flex items-center gap-1.5 text-xs text-[var(--st-text)]">
-              <Crown className="h-3.5 w-3.5" />
+              <Crown className="h-3.5 w-3.5" aria-hidden="true" />
               {w?.label ?? r.winnerVariantId}
             </span>
           );
@@ -322,17 +359,17 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
     () => [
       {
         label: "View details",
-        icon: <Activity className="h-3.5 w-3.5" />,
+        icon: <Activity className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: (r) => setSelected(r),
       },
       {
         label: "Stop test",
-        icon: <StopCircle className="h-3.5 w-3.5" />,
+        icon: <StopCircle className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: (r) => setConfirm({ kind: "stop", row: r }),
       },
       {
-        label: "Force pick winner…",
-        icon: <Crown className="h-3.5 w-3.5" />,
+        label: "Force pick winner...",
+        icon: <Crown className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: (r) => {
           const first = r.variants.find((v) => v.id !== "ctrl");
           if (first)
@@ -342,11 +379,11 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
       },
       {
         label: "Clone",
-        icon: <CopyIcon className="h-3.5 w-3.5" />,
+        icon: <CopyIcon className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: async (r) => {
           const res = await runWithToast("clone-" + r.id, () => cloneTest(r.id));
           if (res) {
-            // Optimistic insert with the seed shape — the server has
+            // Optimistic insert with the seed shape - the server has
             // persisted a fresh row, the next refresh re-loads.
             setRows((prev) => [
               { ...r, id: res.newId, name: `${r.name} (clone)`, status: "running" },
@@ -356,8 +393,8 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
         },
       },
       {
-        label: "Schedule next test…",
-        icon: <CalendarClock className="h-3.5 w-3.5" />,
+        label: "Schedule next test...",
+        icon: <CalendarClock className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: (r) => {
           setScheduleAt(new Date(Date.now() + 24 * 3600_000).toISOString().slice(0, 16));
           setConfirm({ kind: "schedule", row: r });
@@ -367,10 +404,22 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
     [],
   );
 
+  function toggleStatus(s: AbTestRow["status"]) {
+    setStatusFilter((cur) =>
+      cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s],
+    );
+  }
+
+  function toggleKind(k: AbTestRow["kind"]) {
+    setKindFilter((cur) =>
+      cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k],
+    );
+  }
+
   return (
     <div className="space-y-4">
       <SabsmsFilterBar
-        searchPlaceholder="Search tests by name…"
+        searchPlaceholder="Search tests by name..."
         facets={[
           {
             key: "status",
@@ -418,57 +467,41 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
           stays interactive without a router round-trip. The toolkit
           version sits inside `SabsmsFilterBar` and writes the URL; this
           pair re-renders the visible rows. */}
-      <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text)]">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
         <span>Quick:</span>
         {(["running", "completed", "archived"] as const).map((s) => (
-          <button
+          <Button
             key={s}
-            type="button"
-            onClick={() =>
-              setStatusFilter((cur) =>
-                cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s],
-              )
-            }
-            className={
-              "rounded-full border px-2 py-0.5 " +
-              (statusFilter.includes(s)
-                ? "border-[var(--st-border)] bg-[var(--st-text)] text-white"
-                : "border-[var(--st-border)]")
-            }
+            size="sm"
+            variant={statusFilter.includes(s) ? "primary" : "outline"}
+            onClick={() => toggleStatus(s)}
+            aria-pressed={statusFilter.includes(s)}
           >
             {STATUS_LABELS[s]}
-          </button>
+          </Button>
         ))}
         {(["body", "sender", "send_time"] as const).map((k) => (
-          <button
+          <Button
             key={k}
-            type="button"
-            onClick={() =>
-              setKindFilter((cur) =>
-                cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k],
-              )
-            }
-            className={
-              "rounded-full border px-2 py-0.5 " +
-              (kindFilter.includes(k)
-                ? "border-[var(--st-border)] bg-[var(--st-text)] text-white"
-                : "border-[var(--st-border)]")
-            }
+            size="sm"
+            variant={kindFilter.includes(k) ? "primary" : "outline"}
+            onClick={() => toggleKind(k)}
+            aria-pressed={kindFilter.includes(k)}
           >
             {KIND_LABELS[k]}
-          </button>
+          </Button>
         ))}
         {refreshTick > 0 && (
-          <span className="text-[11px] text-[var(--st-text-secondary)]">
+          <span className="text-[11px] text-[var(--st-text-tertiary)]">
             (refresh #{refreshTick})
           </span>
         )}
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm text-[var(--st-text)]">
-          <AlertCircle className="h-4 w-4" /> {error}
-        </div>
+        <Alert tone="danger" onClose={() => setError(null)}>
+          {error}
+        </Alert>
       )}
 
       <SabsmsDataTable<AbTestRow>
@@ -541,7 +574,7 @@ export function AbTestsTable({ rows: initialRows }: AbTestsTableProps) {
   );
 }
 
-// ─── Detail drawer ────────────────────────────────────────────────────────
+// --- Detail drawer ---------------------------------------------------------
 
 interface AbTestDetailDrawerProps {
   row: AbTestRow;
@@ -590,31 +623,21 @@ function AbTestDetailDrawer({
       open={open}
       onOpenChange={onOpenChange}
       title={row.name}
-      description={`${KIND_LABELS[row.kind]} · ${METRIC_LABELS[row.metric]}`}
+      description={`${KIND_LABELS[row.kind]} - ${METRIC_LABELS[row.metric]}`}
     >
       <div className="flex flex-col gap-6">
-        {/* Tabs (Zoru lacks a tabs primitive in this build — use buttons.) */}
-        <div className="flex gap-2 border-b border-[var(--st-border)] pb-1 text-sm">
-          {(["summary", "segments", "audit"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={
-                "rounded-md px-3 py-1.5 " +
-                (tab === t
-                  ? "bg-[var(--st-text)] text-white"
-                  : "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]")
-              }
-            >
-              {t === "summary"
-                ? "Summary"
-                : t === "segments"
-                  ? "Segment lift"
-                  : "Audit"}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          value={tab}
+          onValueChange={(v) =>
+            setTab(v as "summary" | "segments" | "audit")
+          }
+        >
+          <TabsList>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="segments">Segment lift</TabsTrigger>
+            <TabsTrigger value="audit">Audit</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         {tab === "summary" && (
           <>
@@ -630,7 +653,7 @@ function AbTestDetailDrawer({
               />
               <StatCard
                 label="p-value"
-                value={sig ? fmtP(sig.result.pValue) : "—"}
+                value={sig ? fmtP(sig.result.pValue) : "-"}
               />
               <StatCard
                 label="Min-sample reached"
@@ -642,7 +665,7 @@ function AbTestDetailDrawer({
               />
             </div>
 
-            {/* Per-variant table — features #10 + #12 */}
+            {/* Per-variant table - features #10 + #12 */}
             <Card>
               <CardHeader>
                 <CardTitle>Variants</CardTitle>
@@ -674,7 +697,7 @@ function AbTestDetailDrawer({
                           <Td>
                             <div className="flex items-center gap-1.5">
                               {isWinner && (
-                                <Crown className="h-3.5 w-3.5 text-[var(--st-text)]" />
+                                <Crown className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
                               )}
                               {v.label}
                             </div>
@@ -716,7 +739,7 @@ function AbTestDetailDrawer({
               <CardHeader>
                 <CardTitle>Funnel comparison</CardTitle>
                 <CardDescription>
-                  Sent → clicked → replied per variant.
+                  Sent, clicked, replied per variant.
                 </CardDescription>
               </CardHeader>
               <CardBody>
@@ -807,7 +830,7 @@ function AbTestDetailDrawer({
               </Card>
             )}
 
-            {/* Settings — features #5 / #6 / #7 / #19 */}
+            {/* Settings - features #5 / #6 / #7 / #19 */}
             <Card>
               <CardHeader>
                 <CardTitle>Test settings</CardTitle>
@@ -817,10 +840,10 @@ function AbTestDetailDrawer({
                 </CardDescription>
               </CardHeader>
               <CardBody className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-3 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2">
                   <div className="flex flex-col">
                     <Label>Auto-promote winner</Label>
-                    <span className="text-xs text-[var(--st-text)]">
+                    <span className="text-xs text-[var(--st-text-secondary)]">
                       Promote when p&lt;0.05 + min-sample reached.
                     </span>
                   </div>
@@ -828,13 +851,11 @@ function AbTestDetailDrawer({
                     checked={row.autoPromote}
                     onCheckedChange={(v) => void onPatch({ autoPromote: v })}
                     disabled={pending?.startsWith("autoPromote")}
+                    aria-label="Auto-promote winner"
                   />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <Label htmlFor={`minSample-${row.id}`}>
-                    Min-sample threshold
-                  </Label>
+                <Field label="Min-sample threshold">
                   <Input
                     id={`minSample-${row.id}`}
                     type="number"
@@ -847,10 +868,9 @@ function AbTestDetailDrawer({
                       }
                     }}
                   />
-                </div>
+                </Field>
 
-                <div className="flex flex-col gap-1">
-                  <Label>Conversion metric</Label>
+                <Field label="Conversion metric">
                   <Select
                     value={row.metric}
                     onValueChange={(v) =>
@@ -871,13 +891,13 @@ function AbTestDetailDrawer({
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </Field>
 
-                <div className="flex items-center justify-between gap-2 rounded-md border border-[var(--st-border)] px-3 py-2">
+                <div className="flex items-center justify-between gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2">
                   <div className="flex flex-col">
                     <Label>Bayesian stats</Label>
-                    <span className="text-xs text-[var(--st-text)]">
-                      Off = frequentist χ² (default). On = beta-binomial
+                    <span className="text-xs text-[var(--st-text-secondary)]">
+                      Off = frequentist chi-square (default). On = beta-binomial
                       posterior; faster decisions, smoother peeks.
                     </span>
                   </div>
@@ -888,6 +908,7 @@ function AbTestDetailDrawer({
                         statsMode: (v ? "bayesian" : "frequentist") as AbStatsMode,
                       })
                     }
+                    aria-label="Bayesian stats"
                   />
                 </div>
               </CardBody>
@@ -921,7 +942,7 @@ function AbTestDetailDrawer({
                     <Tr>
                       <Td
                         colSpan={5}
-                        className="px-6 py-6 text-center text-sm text-[var(--st-text)]"
+                        className="px-6 py-6 text-center text-sm text-[var(--st-text-secondary)]"
                       >
                         Need at least one non-control variant to compute
                         lift.
@@ -941,9 +962,9 @@ function AbTestDetailDrawer({
                           className={
                             "text-right tabular-nums " +
                             (s.lift > 0
-                              ? "text-[var(--st-text)]"
+                              ? "text-[var(--st-status-ok)]"
                               : s.lift < 0
-                                ? "text-[var(--st-text)]"
+                                ? "text-[var(--st-danger)]"
                                 : "")
                           }
                         >
@@ -975,17 +996,15 @@ function AbTestDetailDrawer({
             </CardHeader>
             <CardBody>
               {audit === null ? (
-                <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                  <ScrollText className="h-4 w-4" /> Loading…
+                <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                  <ScrollText className="h-4 w-4" aria-hidden="true" /> Loading...
                 </div>
               ) : audit.length === 0 ? (
-                <p className="text-sm text-[var(--st-text)]">
-                  No audit entries yet.{" "}
-                  <span className="text-[var(--st-text-secondary)]">
-                    Writes to <code>sabsms_ab_audit</code> are best-effort and
-                    fall back to <code>console.warn</code>.
-                  </span>
-                </p>
+                <EmptyState
+                  icon={ScrollText}
+                  title="No audit entries yet"
+                  description="Writes to sabsms_ab_audit are best-effort and fall back to console.warn."
+                />
               ) : (
                 <ul className="space-y-2 text-sm">
                   {audit.map((a) => (
@@ -997,7 +1016,7 @@ function AbTestDetailDrawer({
                         {a.action}
                       </span>
                       {a.meta && (
-                        <span className="text-xs text-[var(--st-text)]">
+                        <span className="text-xs text-[var(--st-text-secondary)]">
                           {JSON.stringify(a.meta)}
                         </span>
                       )}
@@ -1013,7 +1032,7 @@ function AbTestDetailDrawer({
   );
 }
 
-// ─── Confirm dialog ───────────────────────────────────────────────────────
+// --- Confirm dialog --------------------------------------------------------
 
 interface ConfirmDialogProps {
   confirm:
@@ -1059,14 +1078,13 @@ function ConfirmDialog({
   } else if (confirm?.kind === "schedule") {
     title = "Schedule a follow-up test";
     body = (
-      <div className="flex flex-col gap-2">
-        <Label>Send at (local)</Label>
+      <Field label="Send at (local)">
         <Input
           type="datetime-local"
           value={scheduleAt}
           onChange={(e) => onScheduleAtChange(e.target.value)}
         />
-      </div>
+      </Field>
     );
     cta = "Schedule";
   }
@@ -1081,7 +1099,7 @@ function ConfirmDialog({
           <Button variant="ghost" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>
+          <Button variant="primary" onClick={onConfirm}>
             {cta}
           </Button>
         </DialogFooter>

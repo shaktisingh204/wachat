@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Loader2, Paperclip, Send, X } from 'lucide-react';
 
-import { Button, Textarea, cn } from '@/components/sabcrm/20ui';
+import { Button, IconButton, Textarea, cn } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import type { EmailAttachment } from '@/lib/rust-client/email-inbox';
 
@@ -114,7 +114,7 @@ export function ReplyComposer({
       <Textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="Write a reply…"
+        placeholder="Write a reply..."
         rows={4}
         disabled={disabled || pending}
       />
@@ -124,18 +124,17 @@ export function ReplyComposer({
           {attachments.map((a) => (
             <li
               key={a._key}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
+              className="inline-flex items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[11px] text-[var(--st-text)]"
             >
-              <Paperclip className="h-3 w-3" />
+              <Paperclip className="h-3 w-3" aria-hidden="true" />
               <span className="max-w-[10rem] truncate">{a.filename}</span>
-              <button
-                type="button"
+              <IconButton
+                size="sm"
+                variant="ghost"
+                icon={X}
+                label={`Remove ${a.filename}`}
                 onClick={() => removeAttachment(a._key)}
-                aria-label={`Remove ${a.filename}`}
-                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-              >
-                <X className="h-3 w-3" />
-              </button>
+              />
             </li>
           ))}
         </ul>
@@ -147,11 +146,15 @@ export function ReplyComposer({
           onPick={onPick}
           title="Attach a file"
         >
-          <Paperclip /> Attach
+          <Paperclip aria-hidden="true" /> Attach
         </SabFilePickerButton>
         <Button type="submit" disabled={!canSend}>
-          {pending ? <Loader2 className="animate-spin" /> : <Send />}
-          {pending ? 'Sending…' : 'Send reply'}
+          {pending ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : (
+            <Send aria-hidden="true" />
+          )}
+          {pending ? 'Sending...' : 'Send reply'}
         </Button>
       </div>
     </form>

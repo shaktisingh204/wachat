@@ -103,7 +103,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
         <span className="text-[13px] text-[var(--st-text)]">Device Breakdown</span>
       </div>
 
-      {/* Device Type — Donut */}
+      {/* Device Type - Donut */}
       <div>
         <SectionLabel>Device Type</SectionLabel>
         {deviceTypes.length === 0 ? (
@@ -138,7 +138,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
         )}
       </div>
 
-      {/* Browsers — Horizontal Bar */}
+      {/* Browsers - Horizontal Bar */}
       <div>
         <SectionLabel>Top Browsers</SectionLabel>
         {browsers.length === 0 ? (
@@ -150,12 +150,12 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
               layout="vertical"
               margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--zoru-line, #27272a)" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--st-border, #2a2a2a)" />
               <XAxis
                 type="number"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: 'var(--zoru-ink-muted, #71717a)' }}
+                tick={{ fontSize: 11, fill: 'var(--st-text-secondary, #9a9a9a)' }}
                 allowDecimals={false}
               />
               <YAxis
@@ -163,7 +163,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
                 dataKey="browser"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: 'var(--zoru-ink-muted, #71717a)' }}
+                tick={{ fontSize: 11, fill: 'var(--st-text-secondary, #9a9a9a)' }}
                 width={72}
               />
               <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(99,102,241,0.06)' }} />
@@ -177,7 +177,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
         )}
       </div>
 
-      {/* OS — Horizontal Bar */}
+      {/* OS - Horizontal Bar */}
       <div>
         <SectionLabel>Top OS</SectionLabel>
         {os.length === 0 ? (
@@ -189,12 +189,12 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
               layout="vertical"
               margin={{ top: 0, right: 8, left: 0, bottom: 0 }}
             >
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--zoru-line, #27272a)" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--st-border, #2a2a2a)" />
               <XAxis
                 type="number"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: 'var(--zoru-ink-muted, #71717a)' }}
+                tick={{ fontSize: 11, fill: 'var(--st-text-secondary, #9a9a9a)' }}
                 allowDecimals={false}
               />
               <YAxis
@@ -202,7 +202,7 @@ export function DeviceBreakdownChart({ data, isLoading }: DeviceBreakdownChartPr
                 dataKey="os"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: 'var(--zoru-ink-muted, #71717a)' }}
+                tick={{ fontSize: 11, fill: 'var(--st-text-secondary, #9a9a9a)' }}
                 width={72}
               />
               <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(99,102,241,0.06)' }} />

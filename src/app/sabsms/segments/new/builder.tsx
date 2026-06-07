@@ -15,7 +15,30 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Input, Label, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  EmptyState,
+  Field,
+  Input,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Textarea,
+} from "@/components/sabcrm/20ui";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -115,7 +138,7 @@ export function SegmentBuilder({
     setDraft((d) => ({ ...d, ...patch }));
   }
 
-  // ─── Debounced live count + sample (features 3 + 4) ─────────────────────
+  // --- Debounced live count + sample (features 3 + 4) ---------------------
 
   React.useEffect(() => {
     const handle = setTimeout(async () => {
@@ -136,7 +159,7 @@ export function SegmentBuilder({
     return () => clearTimeout(handle);
   }, [draft.predicate]);
 
-  // ─── Save / import / share / version diff / AI / cost ────────────────────
+  // --- Save / import / share / version diff / AI / cost --------------------
 
   async function handleSave() {
     setBusy("save");
@@ -149,7 +172,7 @@ export function SegmentBuilder({
     setSavedId(res.id);
     setBanner({
       kind: "ok",
-      message: `Saved — ${res.size.toLocaleString()} members in segment.`,
+      message: `Saved. ${res.size.toLocaleString()} members in segment.`,
     });
     // Update the URL so reload returns to this segment.
     router.replace(`/sabsms/segments/new?id=${res.id}`);
@@ -272,36 +295,23 @@ export function SegmentBuilder({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-      {/* ─── Left column: form + canvas ─────────────────────────────── */}
+      {/* --- Left column: form + canvas --------------------------------- */}
       <div className="space-y-6">
         {banner && (
-          <div
-            className={`rounded-md border px-3 py-2 text-sm ${
-              banner.kind === "ok"
-                ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-            }`}
+          <Alert
+            tone={banner.kind === "ok" ? "success" : "danger"}
+            onClose={() => setBanner(null)}
+            closeLabel="Dismiss notification"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div>{banner.message}</div>
-                {banner.kind === "err" && banner.issues && banner.issues.length > 0 && (
-                  <ul className="mt-1 list-inside list-disc text-xs">
-                    {banner.issues.map((i) => (
-                      <li key={i}>{i}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <button
-                type="button"
-                className="text-xs underline"
-                onClick={() => setBanner(null)}
-              >
-                dismiss
-              </button>
-            </div>
-          </div>
+            <div>{banner.message}</div>
+            {banner.kind === "err" && banner.issues && banner.issues.length > 0 && (
+              <ul className="mt-1 list-inside list-disc text-xs">
+                {banner.issues.map((i) => (
+                  <li key={i}>{i}</li>
+                ))}
+              </ul>
+            )}
+          </Alert>
         )}
 
         <Card>
@@ -314,27 +324,23 @@ export function SegmentBuilder({
           </CardHeader>
           <CardBody className="space-y-4">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="seg-name">Name</Label>
+              <Field label="Name">
                 <Input
-                  id="seg-name"
                   value={draft.name}
                   onChange={(e) => patchDraft({ name: e.target.value })}
                   placeholder="e.g. India VIPs"
                 />
-              </div>
-              <div>
-                <Label htmlFor="seg-category">Category</Label>
+              </Field>
+              <Field label="Category">
                 <Select
                   value={draft.category}
                   onValueChange={(v) =>
                     patchDraft({
-                      category:
-                        v as SegmentBuilderDraft["category"],
+                      category: v as SegmentBuilderDraft["category"],
                     })
                   }
                 >
-                  <SelectTrigger id="seg-category">
+                  <SelectTrigger aria-label="Category">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -345,18 +351,16 @@ export function SegmentBuilder({
                     <SelectItem value="service">Service</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             </div>
-            <div>
-              <Label htmlFor="seg-desc">Description</Label>
+            <Field label="Description">
               <Textarea
-                id="seg-desc"
                 value={draft.description ?? ""}
                 onChange={(e) => patchDraft({ description: e.target.value })}
                 placeholder="Why does this segment exist?"
                 rows={2}
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <Label>Mode</Label>
@@ -365,34 +369,44 @@ export function SegmentBuilder({
                   onValueChange={(v) =>
                     patchDraft({ kind: v as "static" | "dynamic" })
                   }
-                  className="flex gap-3"
+                  orientation="horizontal"
+                  aria-label="Segment mode"
+                  className="mt-1.5 flex gap-3"
                 >
-                  <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                    <RadioGroupItem value="dynamic" id="kind-dynamic" />
-                    <div>
-                      <div className="font-medium">Dynamic</div>
-                      <div className="text-xs text-[var(--st-text)]">
-                        Re-evaluated on read.
-                      </div>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-2 rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                    <RadioGroupItem value="static" id="kind-static" />
-                    <div>
-                      <div className="font-medium">Static</div>
-                      <div className="text-xs text-[var(--st-text)]">
-                        Frozen list at save time.
-                      </div>
-                    </div>
-                  </label>
+                  <RadioGroupItem
+                    value="dynamic"
+                    id="kind-dynamic"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2"
+                    label={
+                      <span className="block">
+                        <span className="block font-medium text-[var(--st-text)]">
+                          Dynamic
+                        </span>
+                        <span className="block text-xs text-[var(--st-text-secondary)]">
+                          Re-evaluated on read.
+                        </span>
+                      </span>
+                    }
+                  />
+                  <RadioGroupItem
+                    value="static"
+                    id="kind-static"
+                    className="rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2"
+                    label={
+                      <span className="block">
+                        <span className="block font-medium text-[var(--st-text)]">
+                          Static
+                        </span>
+                        <span className="block text-xs text-[var(--st-text-secondary)]">
+                          Frozen list at save time.
+                        </span>
+                      </span>
+                    }
+                  />
                 </RadioGroup>
               </div>
-              <div>
-                <Label htmlFor="seg-cron">
-                  Auto re-evaluation (seconds)
-                </Label>
+              <Field label="Auto re-evaluation (seconds)">
                 <Input
-                  id="seg-cron"
                   type="number"
                   value={
                     draft.autoRefreshSeconds === undefined
@@ -408,12 +422,10 @@ export function SegmentBuilder({
                   }
                   placeholder="leave blank to skip"
                 />
-              </div>
+              </Field>
             </div>
-            <div>
-              <Label htmlFor="seg-tags">Tags</Label>
+            <Field label="Tags">
               <Input
-                id="seg-tags"
                 value={(draft.tags ?? []).join(", ")}
                 onChange={(e) =>
                   patchDraft({
@@ -425,7 +437,7 @@ export function SegmentBuilder({
                 }
                 placeholder="comma-separated"
               />
-            </div>
+            </Field>
           </CardBody>
         </Card>
 
@@ -437,13 +449,13 @@ export function SegmentBuilder({
                 <CardDescription>
                   Combine rules with AND / OR groups.
                   {leafCount > 0 && (
-                    <Badge variant="secondary" className="ml-2 text-[10px]">
+                    <Badge tone="neutral" className="ml-2 text-[10px]">
                       {leafCount} rule{leafCount === 1 ? "" : "s"}
                     </Badge>
                   )}
                   {draft.category === "marketing" && (
                     <Badge
-                      variant={consentOk ? "default" : "destructive"}
+                      tone={consentOk ? "success" : "danger"}
                       className="ml-1 text-[10px]"
                     >
                       {consentOk ? "Consent gate OK" : "Consent gate missing"}
@@ -452,8 +464,8 @@ export function SegmentBuilder({
                 </CardDescription>
               </div>
               {matchedCount !== null && (
-                <Badge variant="outline" className="text-[var(--st-text)] bg-[var(--st-bg-muted)] border-[var(--st-border)]">
-                  <Calculator className="mr-1 h-3 w-3" />
+                <Badge tone="neutral" kind="outline">
+                  <Calculator className="mr-1 h-3 w-3" aria-hidden="true" />
                   ~{matchedCount.toLocaleString()} matching
                 </Badge>
               )}
@@ -475,18 +487,16 @@ export function SegmentBuilder({
             </CardDescription>
           </CardHeader>
           <CardBody>
-            <pre className="overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs">
+            <pre className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-xs">
               <code>{`SELECT * FROM contacts WHERE\n  ${sql}`}</code>
             </pre>
           </CardBody>
         </Card>
 
         {draft.category === "marketing" && (
-          <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-[var(--st-text)]">
-                Marketing attestation
-              </CardTitle>
+              <CardTitle>Marketing attestation</CardTitle>
               <CardDescription>
                 Required for marketing segments. By checking this box you
                 confirm every contact in this segment has given consent to
@@ -494,72 +504,65 @@ export function SegmentBuilder({
               </CardDescription>
             </CardHeader>
             <CardBody>
-              <label className="flex items-start gap-2 text-sm">
-                <Checkbox
-                  checked={draft.attestation}
-                  onCheckedChange={(c) =>
-                    patchDraft({ attestation: c === true })
-                  }
-                />
-                <span>
-                  I confirm every recipient in this segment has opted in to
-                  marketing messages.
-                </span>
-              </label>
+              <Checkbox
+                checked={draft.attestation}
+                onChange={(e) =>
+                  patchDraft({ attestation: e.target.checked })
+                }
+                label="I confirm every recipient in this segment has opted in to marketing messages."
+              />
             </CardBody>
           </Card>
         )}
 
-        <div className="flex flex-wrap items-center gap-2 sticky bottom-0 rounded-md border border-[var(--st-border)] bg-white p-3 shadow-sm">
-          <Button onClick={handleSave} disabled={busy === "save"}>
-            <Save className="mr-1.5 h-3.5 w-3.5" />
-            {busy === "save" ? "Saving…" : "Save segment"}
+        <div className="sticky bottom-0 flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 shadow-sm">
+          <Button variant="primary" onClick={handleSave} loading={busy === "save"} iconLeft={Save}>
+            {busy === "save" ? "Saving..." : "Save segment"}
           </Button>
-          <Button variant="outline" onClick={handleCost} disabled={busy === "cost"}>
-            <Calculator className="mr-1.5 h-3.5 w-3.5" />
+          <Button variant="outline" onClick={handleCost} loading={busy === "cost"} iconLeft={Calculator}>
             Forecast cost
           </Button>
           <Button
             variant="outline"
             onClick={() => setAiOpen(true)}
             disabled={aiBusy}
+            iconLeft={Sparkles}
           >
-            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
             Build from prompt
+          </Button>
+          <Button variant="outline" onClick={exportPredicateJson} iconLeft={Download}>
+            Export JSON
           </Button>
           <Button
             variant="outline"
-            onClick={exportPredicateJson}
+            onClick={handleShare}
+            disabled={!savedId || busy === "share"}
+            iconLeft={Share2}
           >
-            <Download className="mr-1.5 h-3.5 w-3.5" />
-            Export JSON
-          </Button>
-          <Button variant="outline" onClick={handleShare} disabled={!savedId || busy === "share"}>
-            <Share2 className="mr-1.5 h-3.5 w-3.5" />
             Share
           </Button>
-          <Button variant="outline" onClick={handleVersions} disabled={!savedId}>
-            <GitCompare className="mr-1.5 h-3.5 w-3.5" />
+          <Button variant="outline" onClick={handleVersions} disabled={!savedId} iconLeft={GitCompare}>
             Diff versions
           </Button>
           {savedId && (
-            <Button asChild variant="ghost">
-              <Link href={`/sabsms/drips/new?segmentId=${savedId}`}>
-                Convert to drip trigger
-              </Link>
+            <Button
+              variant="ghost"
+              onClick={() => router.push(`/sabsms/drips/new?segmentId=${savedId}`)}
+            >
+              Convert to drip trigger
             </Button>
           )}
         </div>
       </div>
 
-      {/* ─── Right column: live preview, import, test ──────────────── */}
+      {/* --- Right column: live preview, import, test ------------------- */}
       <aside className="space-y-4">
         <Card>
           <CardHeader>
             <CardTitle>Live preview</CardTitle>
             <CardDescription>
               {previewBusy
-                ? "Evaluating…"
+                ? "Evaluating..."
                 : matchedCount !== null
                   ? `Matches ${matchedCount.toLocaleString()} of ${scannedCount?.toLocaleString() ?? "?"} contacts.`
                   : "Add a rule to see matches."}
@@ -567,19 +570,21 @@ export function SegmentBuilder({
           </CardHeader>
           <CardBody>
             {sample.length === 0 ? (
-              <p className="text-xs text-[var(--st-text)]">
-                No matching contacts yet.
-              </p>
+              <EmptyState
+                title="No matching contacts yet"
+                description="Add a rule to the predicate to preview matches."
+                size="sm"
+              />
             ) : (
               <ul className="space-y-2">
                 {sample.map((c) => (
                   <li
                     key={c.id || c.phone}
-                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-2 py-1.5 text-sm"
+                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-2 py-1.5 text-sm"
                   >
                     <span className="font-mono text-xs">{c.phone}</span>
-                    <span className="text-[11px] text-[var(--st-text)]">
-                      {c.country ?? "—"}
+                    <span className="text-[11px] text-[var(--st-text-secondary)]">
+                      {c.country ?? "-"}
                     </span>
                   </li>
                 ))}
@@ -597,13 +602,13 @@ export function SegmentBuilder({
           </CardHeader>
           <CardBody className="space-y-2">
             {importableSegments.length === 0 ? (
-              <p className="text-xs text-[var(--st-text)]">
+              <p className="text-xs text-[var(--st-text-secondary)]">
                 No saved segments to import from yet.
               </p>
             ) : (
               <Select onValueChange={(v) => handleImport(v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Pick a segment…" />
+                <SelectTrigger aria-label="Import predicate from segment">
+                  <SelectValue placeholder="Pick a segment..." />
                 </SelectTrigger>
                 <SelectContent>
                   {importableSegments.map((s) => (
@@ -614,8 +619,8 @@ export function SegmentBuilder({
                 </SelectContent>
               </Select>
             )}
-            <p className="text-[11px] text-[var(--st-text)]">
-              <Import className="mr-1 inline h-3 w-3" />
+            <p className="text-[11px] text-[var(--st-text-secondary)]">
+              <Import className="mr-1 inline h-3 w-3" aria-hidden="true" />
               Imports replace the current predicate.
             </p>
           </CardBody>
@@ -630,36 +635,35 @@ export function SegmentBuilder({
           </CardHeader>
           <CardBody className="space-y-2">
             <div className="flex gap-2">
-              <Input
-                value={testPhone}
-                onChange={(e) => setTestPhone(e.target.value)}
-                placeholder="+1 415…"
-              />
+              <Field label="Phone number" className="flex-1">
+                <Input
+                  value={testPhone}
+                  onChange={(e) => setTestPhone(e.target.value)}
+                  placeholder="+1 415..."
+                />
+              </Field>
               <Button
+                variant="primary"
                 onClick={handleTestPhone}
-                disabled={busy === "test" || !testPhone.trim()}
+                loading={busy === "test"}
+                disabled={!testPhone.trim()}
+                iconLeft={Phone}
+                className="self-end"
               >
-                <Phone className="mr-1 h-3.5 w-3.5" />
                 Test
               </Button>
             </div>
             {testResult && (
-              <div
-                className={`rounded-md border px-3 py-2 text-xs ${
-                  testResult.matched
-                    ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                    : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-                }`}
-              >
+              <Alert tone={testResult.matched ? "success" : "neutral"} icon={null}>
                 {testResult.matched
                   ? "Matches the predicate."
                   : "Does not match the predicate."}
                 {!testResult.contactFound && (
-                  <span className="ml-1 text-[var(--st-text)]">
-                    (no contact in your DB — evaluated against the phone only)
+                  <span className="ml-1 text-[var(--st-text-secondary)]">
+                    (no contact in your DB, evaluated against the phone only)
                   </span>
                 )}
-              </div>
+              </Alert>
             )}
           </CardBody>
         </Card>
@@ -698,14 +702,12 @@ export function SegmentBuilder({
         )}
 
         {shareToken && (
-          <Card className="border-[var(--st-border)] bg-[var(--st-bg-muted)]">
+          <Card>
             <CardHeader>
-              <CardTitle className="text-[var(--st-text)] text-sm">
-                Share link
-              </CardTitle>
+              <CardTitle className="text-sm">Share link</CardTitle>
             </CardHeader>
             <CardBody>
-              <code className="block break-all rounded bg-white px-2 py-1 text-[11px]">
+              <code className="block break-all rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-2 py-1 text-[11px]">
                 /sabsms/segments/share/{shareToken}
               </code>
             </CardBody>
@@ -718,25 +720,32 @@ export function SegmentBuilder({
         open={aiOpen}
         onOpenChange={setAiOpen}
         title="Build segment from prompt"
-        description="Describe the audience in plain English — the AI returns a predicate you can edit."
+        description="Describe the audience in plain English. The AI returns a predicate you can edit."
       >
         <div className="space-y-3">
-          <Textarea
-            value={aiPrompt}
-            onChange={(e) => setAiPrompt(e.target.value)}
-            placeholder="e.g. People in the US who clicked in the last 30 days and aren't unsubscribed"
-            rows={4}
-          />
+          <Field label="Audience description">
+            <Textarea
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="e.g. People in the US who clicked in the last 30 days and aren't unsubscribed"
+              rows={4}
+            />
+          </Field>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setAiOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAi} disabled={aiBusy || !aiPrompt.trim()}>
-              <Bot className="mr-1 h-3.5 w-3.5" />
-              {aiBusy ? "Thinking…" : "Generate"}
+            <Button
+              variant="primary"
+              onClick={handleAi}
+              loading={aiBusy}
+              disabled={!aiPrompt.trim()}
+              iconLeft={Bot}
+            >
+              {aiBusy ? "Thinking..." : "Generate"}
             </Button>
           </div>
-          <p className="text-[11px] text-[var(--st-text)]">
+          <p className="text-[11px] text-[var(--st-text-secondary)]">
             Stub: returns a placeholder predicate until the SabSMS LLM
             gateway lands.
           </p>
@@ -754,12 +763,12 @@ export function SegmentBuilder({
           <div className="space-y-3 text-xs">
             <div>
               <div className="mb-1 font-semibold">Current</div>
-              <pre className="overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+              <pre className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
                 {JSON.stringify(versionsState.current, null, 2)}
               </pre>
             </div>
             {versionsState.versions.length === 0 ? (
-              <p className="text-[var(--st-text)]">
+              <p className="text-[var(--st-text-secondary)]">
                 No prior versions yet. Every save records a snapshot here.
               </p>
             ) : (
@@ -769,9 +778,9 @@ export function SegmentBuilder({
                 .map((v, i) => (
                   <div key={i}>
                     <div className="mb-1 font-semibold">
-                      {new Date(v.at).toLocaleString()} — {v.note ?? "save"}
+                      {new Date(v.at).toLocaleString()}, {v.note ?? "save"}
                     </div>
-                    <pre className="overflow-auto rounded border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2">
+                    <pre className="overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
                       {JSON.stringify(v.predicate, null, 2)}
                     </pre>
                   </div>

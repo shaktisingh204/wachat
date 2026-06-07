@@ -1,25 +1,25 @@
 "use client";
 
 /**
- * SabSMS suppressions — interactive client surface.
+ * SabSMS suppressions - interactive client surface.
  *
  * Renders the filter bar, data table, bulk actions, import flow, audit
  * drawer, campaign-overlap modal, auto-rules editor, and reason
- * taxonomy editor — all hanging off the data the server page passes in.
+ * taxonomy editor, all hanging off the data the server page passes in.
  *
  * Every mutation routes through a server action exported from
  * `./actions.ts`.
  */
 
 import * as React from "react";
-import { fmtDate, formatUTC, fmtQty, fmtINR } from "@/lib/utils";
+import { formatUTC, fmtQty, fmtINR } from "@/lib/utils";
 import {
   Edit3,
   History,
   ListPlus,
   Settings2,
   ShieldOff,
-  Tag,
+  Tag as TagIcon,
   Target,
   Trash2,
   Webhook,
@@ -37,7 +37,30 @@ import {
   SabsmsSavedViews,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, StatCard, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Textarea,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import {
   type AuditTrailEntry,
@@ -100,6 +123,7 @@ export function SuppressionsTable({
   reasonTaxonomy,
   isAdmin,
 }: SuppressionsTableProps) {
+  const { toast } = useToast();
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [addBlockOpen, setAddBlockOpen] = React.useState(false);
   const [addPhone, setAddPhone] = React.useState("");
@@ -140,7 +164,7 @@ export function SuppressionsTable({
         header: "Phone hash",
         render: (r) => (
           <span className="font-mono text-xs text-[var(--st-text)]">
-            {r.phoneHash.slice(0, 12)}…{r.phoneHash.slice(-4)}
+            {r.phoneHash.slice(0, 12)}...{r.phoneHash.slice(-4)}
           </span>
         ),
         width: "200px",
@@ -155,33 +179,37 @@ export function SuppressionsTable({
         id: "reason",
         header: "Reason",
         render: (r) => (
-          <button
-            type="button"
-            className="text-left text-sm text-[var(--st-text)] hover:text-[var(--st-text)]"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconRight={Edit3}
             onClick={() => {
               setEditingRow(r);
               setEditingReason(r.reason ?? "");
             }}
           >
-            {r.reason ?? <span className="italic text-[var(--st-text-secondary)]">add reason…</span>}
-            <Edit3 className="ml-1.5 inline h-3 w-3 text-[var(--st-text-secondary)]" />
-          </button>
+            {r.reason ?? (
+              <span className="italic text-[var(--st-text-secondary)]">add reason</span>
+            )}
+          </Button>
         ),
       },
       {
         id: "tag",
         header: "Tag",
         render: (r) => (
-          <button
-            type="button"
-            className="text-xs text-[var(--st-text)] hover:text-[var(--st-text)]"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
               setTagRow(r);
               setTagValue(r.tag ?? "");
             }}
           >
-            {r.tag ?? <span className="italic text-[var(--st-text-secondary)]">+ tag</span>}
-          </button>
+            {r.tag ?? (
+              <span className="italic text-[var(--st-text-secondary)]">+ tag</span>
+            )}
+          </Button>
         ),
         width: "140px",
       },
@@ -190,11 +218,9 @@ export function SuppressionsTable({
         header: "Added",
         render: (r) => (
           <div>
-            <div>
-              {formatUTC(r.createdAt, true)}
-            </div>
+            <div>{formatUTC(r.createdAt, true)}</div>
             {r.expiresAt && (
-              <div className="text-xs text-[var(--st-text)] mt-0.5">
+              <div className="text-xs text-[var(--st-text-secondary)] mt-0.5">
                 Expires: {formatUTC(r.expiresAt, true)}
               </div>
             )}
@@ -206,9 +232,7 @@ export function SuppressionsTable({
         id: "lastTouchedAt",
         header: "Last touched",
         render: (r) =>
-          r.lastTouchedAt
-            ? formatUTC(r.lastTouchedAt, true)
-            : "—",
+          r.lastTouchedAt ? formatUTC(r.lastTouchedAt, true) : "-",
         width: "150px",
       },
     ],
@@ -219,13 +243,13 @@ export function SuppressionsTable({
     () => [
       {
         label: "Unsuppress (admin)",
-        icon: <ShieldOff className="h-3.5 w-3.5" />,
+        icon: <ShieldOff className="h-3.5 w-3.5" aria-hidden="true" />,
         destructive: true,
         onSelect: () => setBulkUnsupOpen(true),
       },
       {
         label: "Export selection",
-        icon: <ListPlus className="h-3.5 w-3.5" />,
+        icon: <ListPlus className="h-3.5 w-3.5" aria-hidden="true" />,
         onSelect: (selected) => {
           const csv = rowsToCsv(
             selected as unknown as Array<Record<string, unknown>>,
@@ -246,14 +270,15 @@ export function SuppressionsTable({
 
   async function handleImport(picked: { url?: string; name: string }) {
     if (!picked.url) return;
-    setBusy("Importing…");
+    setBusy("Importing...");
     try {
       const res = await bulkImportSuppressions({ sabFileUrl: picked.url });
       if (res.ok) {
         setImportOpen(false);
+        toast.success("Suppressions imported");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -262,7 +287,7 @@ export function SuppressionsTable({
 
   async function handleAddBlock() {
     if (!addPhone.trim()) return;
-    setBusy("Adding…");
+    setBusy("Adding...");
     try {
       const res = await addSuppression({
         phone: addPhone,
@@ -275,9 +300,10 @@ export function SuppressionsTable({
         setAddPhone("");
         setAddReason("");
         setAddExpiresIn("");
+        toast.success("Block added");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -286,7 +312,7 @@ export function SuppressionsTable({
 
   async function handleSaveReason() {
     if (!editingRow) return;
-    setBusy("Saving reason…");
+    setBusy("Saving reason...");
     try {
       const res = await updateSuppressionReason({
         id: editingRow.id,
@@ -294,9 +320,10 @@ export function SuppressionsTable({
       });
       if (res.ok) {
         setEditingRow(null);
+        toast.success("Reason saved");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -305,14 +332,15 @@ export function SuppressionsTable({
 
   async function handleSaveTag() {
     if (!tagRow) return;
-    setBusy("Saving tag…");
+    setBusy("Saving tag...");
     try {
       const res = await tagSuppression({ id: tagRow.id, tag: tagValue });
       if (res.ok) {
         setTagRow(null);
+        toast.success("Tag saved");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -321,7 +349,7 @@ export function SuppressionsTable({
 
   async function handleUnsupOne() {
     if (!unsupRow) return;
-    setBusy("Unsuppressing…");
+    setBusy("Unsuppressing...");
     try {
       const res = await unsuppressOne({
         id: unsupRow.id,
@@ -330,9 +358,10 @@ export function SuppressionsTable({
       if (res.ok) {
         setUnsupRow(null);
         setUnsupReason("");
+        toast.success("Entry unsuppressed");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -340,7 +369,7 @@ export function SuppressionsTable({
   }
 
   async function handleBulkUnsup() {
-    setBusy("Unsuppressing selection…");
+    setBusy("Unsuppressing selection...");
     try {
       const res = await bulkUnsuppress({
         ids: selectedIds,
@@ -350,9 +379,10 @@ export function SuppressionsTable({
         setBulkUnsupOpen(false);
         setBulkUnsupReason("");
         setSelectedIds([]);
+        toast.success("Selection unsuppressed");
         refresh();
       } else {
-        alert(res.error);
+        toast.error(res.error);
       }
     } finally {
       setBusy(null);
@@ -372,7 +402,7 @@ export function SuppressionsTable({
 
   async function runOverlap() {
     if (!overlapCampaignId) return;
-    setBusy("Computing overlap…");
+    setBusy("Computing overlap...");
     try {
       const r = await computeCampaignOverlap("", overlapCampaignId);
       setOverlapResult(r);
@@ -397,7 +427,7 @@ export function SuppressionsTable({
   }, [rows]);
 
   const exportHashOnlyCsv = React.useCallback(async () => {
-    // Privacy-safe export — only the hash column, no reasons / tags.
+    // Privacy-safe export, only the hash column, no reasons / tags.
     const out = ["phone_hash"];
     for (const r of rows) out.push(r.phoneHash);
     return out.join("\n");
@@ -410,17 +440,20 @@ export function SuppressionsTable({
         <StatCard
           label="Suppression coverage"
           value={`${coverage.coveragePct.toFixed(1)}%`}
-          period={`${fmtQty(coverage.suppressed)} of ${fmtQty(coverage.workspaceContacts)} contacts`}
+          delta={{
+            value: `${fmtQty(coverage.suppressed)} of ${fmtQty(coverage.workspaceContacts)} contacts`,
+            tone: "neutral",
+          }}
         />
         <StatCard
           label="Total suppressed"
           value={fmtQty(total)}
-          period="all sources"
+          delta={{ value: "all sources", tone: "neutral" }}
         />
         <StatCard
           label="Cost avoided 24h"
           value={fmtINR(costAvoidedUsd, "USD")}
-          period="messages auto-blocked"
+          delta={{ value: "messages auto-blocked", tone: "neutral" }}
         />
       </div>
 
@@ -454,9 +487,10 @@ export function SuppressionsTable({
             <Button
               variant="outline"
               size="sm"
+              iconLeft={ListPlus}
               onClick={() => setImportOpen(true)}
             >
-              <ListPlus className="mr-1.5 h-3.5 w-3.5" /> Import
+              Import
             </Button>
             <SabsmsExportMenu
               filename="sabsms-suppressions"
@@ -478,7 +512,8 @@ export function SuppressionsTable({
               size="sm"
               onClick={async () => {
                 const r = await exportCompliancePdf();
-                alert(r.ok ? "ok" : r.error);
+                if (r.ok) toast.success("Compliance PDF ready");
+                else toast.error(r.error);
               }}
             >
               Compliance PDF
@@ -486,28 +521,38 @@ export function SuppressionsTable({
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Target}
               onClick={() => setOverlapOpen(true)}
             >
-              <Target className="mr-1.5 h-3.5 w-3.5" /> Campaign overlap
+              Campaign overlap
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={Settings2}
               onClick={() => setAutoRulesOpen(true)}
             >
-              <Settings2 className="mr-1.5 h-3.5 w-3.5" /> Auto-rules
+              Auto-rules
             </Button>
             <Button
               variant="outline"
               size="sm"
+              iconLeft={TagIcon}
               onClick={() => setTaxonomyOpen(true)}
             >
-              <Tag className="mr-1.5 h-3.5 w-3.5" /> Reasons
+              Reasons
             </Button>
-            <Button variant="outline" size="sm" asChild>
-              <a href="/sabsms/webhooks">
-                <Webhook className="mr-1.5 h-3.5 w-3.5" /> Webhook
-              </a>
+            <Button
+              variant="outline"
+              size="sm"
+              iconLeft={Webhook}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.href = "/sabsms/webhooks";
+                }
+              }}
+            >
+              Webhook
             </Button>
             {isAdmin && (
               <Button
@@ -515,7 +560,8 @@ export function SuppressionsTable({
                 size="sm"
                 onClick={async () => {
                   const r = await requestSharedSuppressionList();
-                  alert(r.ok ? "ok" : r.error);
+                  if (r.ok) toast.success("Shared list requested");
+                  else toast.error(r.error);
                 }}
               >
                 Shared list
@@ -539,16 +585,16 @@ export function SuppressionsTable({
         rowActions={[
           {
             label: "Audit trail",
-            icon: <History className="h-3.5 w-3.5" />,
+            icon: <History className="h-3.5 w-3.5" aria-hidden="true" />,
             onSelect: (row) => openAudit(row),
           },
           {
             label: isAdmin ? "Unsuppress" : "Unsuppress (admin only)",
-            icon: <Trash2 className="h-3.5 w-3.5" />,
+            icon: <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />,
             destructive: true,
             onSelect: (row) => {
               if (!isAdmin) {
-                alert("Only admins can unsuppress entries");
+                toast.error("Only admins can unsuppress entries");
                 return;
               }
               setUnsupRow(row);
@@ -566,31 +612,30 @@ export function SuppressionsTable({
             <DialogTitle>Add manual block</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div>
-              <Label>Phone number</Label>
+            <Field label="Phone number">
               <Input
                 value={addPhone}
                 onChange={(e) => setAddPhone(e.target.value)}
                 placeholder="+1234567890"
               />
-            </div>
-            <div>
-              <Label>Reason (optional)</Label>
+            </Field>
+            <Field label="Reason (optional)">
               <Input
                 value={addReason}
                 onChange={(e) => setAddReason(e.target.value)}
                 placeholder="e.g. user requested via email"
               />
-            </div>
-            <div>
-              <Label>Auto-expire (days, optional)</Label>
+            </Field>
+            <Field label="Auto-expire (days, optional)">
               <Input
                 type="number"
                 value={addExpiresIn}
-                onChange={(e) => setAddExpiresIn(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) =>
+                  setAddExpiresIn(e.target.value ? Number(e.target.value) : "")
+                }
                 placeholder="e.g. 30"
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setAddBlockOpen(false)}>
@@ -603,7 +648,7 @@ export function SuppressionsTable({
         </DialogContent>
       </Dialog>
 
-      {/* Import dialog — SabFiles picker only (no external URLs). */}
+      {/* Import dialog, SabFiles picker only (no external URLs). */}
       <SabFilePicker
         open={importOpen}
         onOpenChange={setImportOpen}
@@ -615,10 +660,7 @@ export function SuppressionsTable({
       />
 
       {/* Inline reason editor */}
-      <Dialog
-        open={!!editingRow}
-        onOpenChange={(o) => !o && setEditingRow(null)}
-      >
+      <Dialog open={!!editingRow} onOpenChange={(o) => !o && setEditingRow(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit reason</DialogTitle>
@@ -663,11 +705,13 @@ export function SuppressionsTable({
           <DialogHeader>
             <DialogTitle>Set tag</DialogTitle>
           </DialogHeader>
-          <Input
-            value={tagValue}
-            onChange={(e) => setTagValue(e.target.value)}
-            placeholder="e.g. high-risk"
-          />
+          <Field label="Tag">
+            <Input
+              value={tagValue}
+              onChange={(e) => setTagValue(e.target.value)}
+              placeholder="e.g. high-risk"
+            />
+          </Field>
           <DialogFooter>
             <Button variant="outline" onClick={() => setTagRow(null)}>
               Cancel
@@ -680,15 +724,12 @@ export function SuppressionsTable({
       </Dialog>
 
       {/* Per-row unsuppress */}
-      <Dialog
-        open={!!unsupRow}
-        onOpenChange={(o) => !o && setUnsupRow(null)}
-      >
+      <Dialog open={!!unsupRow} onOpenChange={(o) => !o && setUnsupRow(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Unsuppress entry</DialogTitle>
             <DialogDescription>
-              Audit-trailed — written to the consent log as `opt_in_restart`.
+              Audit-trailed, written to the consent log as `opt_in_restart`.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -716,11 +757,9 @@ export function SuppressionsTable({
       <Dialog open={bulkUnsupOpen} onOpenChange={setBulkUnsupOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              Bulk unsuppress {selectedIds.length} entries
-            </DialogTitle>
+            <DialogTitle>Bulk unsuppress {selectedIds.length} entries</DialogTitle>
             <DialogDescription>
-              Reason is required and written to every entry's audit log.
+              Reason is required and written to every entry&apos;s audit log.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -730,10 +769,7 @@ export function SuppressionsTable({
             rows={3}
           />
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setBulkUnsupOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setBulkUnsupOpen(false)}>
               Cancel
             </Button>
             <Button
@@ -753,31 +789,35 @@ export function SuppressionsTable({
         onOpenChange={(o) => !o && setAuditFor(null)}
         title="Audit trail"
         description={
-          auditFor
-            ? `Phone hash ${auditFor.phoneHash.slice(0, 12)}…`
-            : undefined
+          auditFor ? `Phone hash ${auditFor.phoneHash.slice(0, 12)}...` : undefined
         }
       >
         {auditLoading ? (
-          <p className="text-sm text-[var(--st-text)]">Loading…</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">Loading...</p>
         ) : auditEntries.length === 0 ? (
-          <p className="text-sm text-[var(--st-text)]">No events recorded yet.</p>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            No events recorded yet.
+          </p>
         ) : (
           <ol className="space-y-3">
             {auditEntries.map((e) => (
               <li
                 key={e.id}
-                className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-xs"
               >
                 <div className="flex items-center justify-between">
                   <Badge variant="secondary">{e.kind}</Badge>
-                  <span className="text-[var(--st-text)]">
+                  <span className="text-[var(--st-text-secondary)]">
                     {formatUTC(e.at, true)}
                   </span>
                 </div>
-                {e.reason && <p className="mt-1.5 text-[var(--st-text)]">{e.reason}</p>}
+                {e.reason && (
+                  <p className="mt-1.5 text-[var(--st-text)]">{e.reason}</p>
+                )}
                 {e.source && (
-                  <p className="mt-0.5 text-[var(--st-text)]">source: {e.source}</p>
+                  <p className="mt-0.5 text-[var(--st-text-secondary)]">
+                    source: {e.source}
+                  </p>
                 )}
               </li>
             ))}
@@ -794,11 +834,8 @@ export function SuppressionsTable({
               How many recipients in a past campaign are currently suppressed.
             </DialogDescription>
           </DialogHeader>
-          <Select
-            value={overlapCampaignId}
-            onValueChange={setOverlapCampaignId}
-          >
-            <SelectTrigger>
+          <Select value={overlapCampaignId} onValueChange={setOverlapCampaignId}>
+            <SelectTrigger aria-label="Campaign">
               <SelectValue placeholder="Pick a campaign" />
             </SelectTrigger>
             <SelectContent>
@@ -810,10 +847,10 @@ export function SuppressionsTable({
             </SelectContent>
           </Select>
           {overlapResult && (
-            <div className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-sm">
+            <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
               <p>
-                <span className="font-medium">{overlapResult.suppressed}</span>{" "}
-                of {overlapResult.recipients} recipients are suppressed (
+                <span className="font-medium">{overlapResult.suppressed}</span> of{" "}
+                {overlapResult.recipients} recipients are suppressed (
                 {overlapResult.pct}%).
               </p>
             </div>
@@ -858,7 +895,7 @@ export function SuppressionsTable({
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────
+// --- Helpers --------------------------------------------------------------
 
 function downloadText(filename: string, contents: string) {
   if (typeof document === "undefined") return;
@@ -880,6 +917,7 @@ function AutoRulesEditor({
   initial: AutoSuppressRule[];
   refresh: () => void;
 }) {
+  const { toast } = useToast();
   const [rules, setRules] = React.useState<AutoSuppressRule[]>(initial);
   const [draft, setDraft] = React.useState<{
     metric: AutoSuppressRule["metric"];
@@ -895,9 +933,10 @@ function AutoRulesEditor({
         ...prev,
         { id: `tmp-${Math.random()}`, enabled: true, ...draft },
       ]);
+      toast.success("Rule added");
       refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error);
     }
   }
 
@@ -905,31 +944,30 @@ function AutoRulesEditor({
     const res = await deleteAutoSuppressRule({ id });
     if (res.ok) {
       setRules((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Rule deleted");
       refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error);
     }
   }
 
   return (
     <div className="space-y-3">
       {rules.length === 0 ? (
-        <p className="text-sm text-[var(--st-text)]">No rules configured.</p>
+        <p className="text-sm text-[var(--st-text-secondary)]">
+          No rules configured.
+        </p>
       ) : (
         <ul className="space-y-1.5">
           {rules.map((r) => (
             <li
               key={r.id}
-              className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2 text-sm"
+              className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]"
             >
               <span>
                 {r.metric} {r.op} {r.threshold} in last {r.windowDays}d
               </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => remove(r.id)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => remove(r.id)}>
                 Delete
               </Button>
             </li>
@@ -941,28 +979,24 @@ function AutoRulesEditor({
           <CardTitle className="text-sm">Add a new rule</CardTitle>
         </CardHeader>
         <CardBody className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <Label>Metric</Label>
+          <Field label="Metric">
             <Select
               value={draft.metric}
               onValueChange={(v) =>
                 setDraft({ ...draft, metric: v as AutoSuppressRule["metric"] })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger aria-label="Metric">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="failure_count">Failures</SelectItem>
-                <SelectItem value="complaint_count">
-                  Complaints
-                </SelectItem>
+                <SelectItem value="complaint_count">Complaints</SelectItem>
                 <SelectItem value="stop_count">STOP replies</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-          <div>
-            <Label>Threshold</Label>
+          </Field>
+          <Field label="Threshold">
             <Input
               type="number"
               value={draft.threshold}
@@ -970,9 +1004,8 @@ function AutoRulesEditor({
                 setDraft({ ...draft, threshold: Number(e.target.value) })
               }
             />
-          </div>
-          <div>
-            <Label>Window (days)</Label>
+          </Field>
+          <Field label="Window (days)">
             <Input
               type="number"
               value={draft.windowDays}
@@ -980,9 +1013,9 @@ function AutoRulesEditor({
                 setDraft({ ...draft, windowDays: Number(e.target.value) })
               }
             />
-          </div>
+          </Field>
           <div className="col-span-2">
-            <Button onClick={save} className="w-full">
+            <Button onClick={save} block>
               Add rule
             </Button>
           </div>
@@ -999,6 +1032,7 @@ function TaxonomyEditor({
   initial: string[];
   refresh: () => void;
 }) {
+  const { toast } = useToast();
   const [labels, setLabels] = React.useState<string[]>(initial);
   const [draft, setDraft] = React.useState("");
 
@@ -1008,9 +1042,10 @@ function TaxonomyEditor({
     if (res.ok) {
       setLabels((p) => Array.from(new Set([...p, draft.trim()])));
       setDraft("");
+      toast.success("Reason added");
       refresh();
     } else {
-      alert(res.error);
+      toast.error(res.error);
     }
   }
 
@@ -1018,6 +1053,7 @@ function TaxonomyEditor({
     const res = await removeReasonTaxonomy({ label: l });
     if (res.ok) {
       setLabels((p) => p.filter((x) => x !== l));
+      toast.success("Reason removed");
       refresh();
     }
   }
@@ -1028,7 +1064,7 @@ function TaxonomyEditor({
         {labels.map((l) => (
           <li
             key={l}
-            className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-1.5 text-sm"
+            className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-1.5 text-sm text-[var(--st-text)]"
           >
             <span>{l}</span>
             <Button variant="ghost" size="sm" onClick={() => remove(l)}>
@@ -1038,11 +1074,13 @@ function TaxonomyEditor({
         ))}
       </ul>
       <div className="flex gap-2">
-        <Input
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="New reason label"
-        />
+        <Field label="New reason label" className="flex-1">
+          <Input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="New reason label"
+          />
+        </Field>
         <Button onClick={add} disabled={!draft.trim()}>
           Add
         </Button>

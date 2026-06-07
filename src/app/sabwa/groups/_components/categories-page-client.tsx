@@ -1,6 +1,46 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Checkbox, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, ScrollArea, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Label,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  ScrollArea,
+  Skeleton,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Award,
   Bell,
@@ -20,19 +60,19 @@ import {
   Tag,
   Trash2,
   Users,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * SabWa Group Categories — management page (SABWA_PLAN.md §6 page 7).
+ * SabWa Group Categories - management page (SABWA_PLAN.md section 6 page 7).
  *
- * - List existing categories with name + colour + icon + group-count.
+ * - List existing categories with name, colour, icon and group-count.
  * - Reorder via up / down arrows (kept dependency-free; @dnd-kit is not a
  *   guaranteed install in this monorepo).
  * - Edit dialog: name, colour picker, curated lucide-icon picker.
  * - Bulk-assign mode: pick uncategorised groups and assign them to a
  *   category in one call.
  *
- * ZoruUI migration — visual swap only; data flow, server actions and
+ * 20ui design system: pure 20ui primitives; data flow, server actions and
  * prop shapes are unchanged.
  */
 
@@ -49,7 +89,7 @@ import {
 } from '@/app/actions/sabwa.actions';
 import { useSabwaSession } from '@/lib/sabwa/session-context';
 
-// ─── Static config (hoisted out of render) ──────────────────────────────────
+// --- Static config (hoisted out of render) ----------------------------------
 
 const CURATED_ICONS: ReadonlyArray<{
   name: string;
@@ -71,7 +111,7 @@ const ICON_BY_NAME = new Map(
   CURATED_ICONS.map(({ name, Icon }) => [name, Icon] as const),
 );
 
-// Neutral, theme-aligned palette — drops the previous rainbow accents.
+// Neutral, theme-aligned palette - drops the previous rainbow accents.
 const PRESET_COLORS: readonly string[] = [
   '#0f172a',
   '#334155',
@@ -84,7 +124,7 @@ const PRESET_COLORS: readonly string[] = [
   '#525252',
 ];
 
-// ─── Edit dialog ────────────────────────────────────────────────────────────
+// --- Edit dialog ------------------------------------------------------------
 
 interface EditCategoryDialogProps {
   open: boolean;
@@ -116,11 +156,11 @@ function EditCategoryDialog({
 
   const onSave = React.useCallback(async () => {
     if (!sessionId) {
-      toast({ title: 'No active session', variant: 'destructive' });
+      toast({ title: 'No active session', tone: 'danger' });
       return;
     }
     if (!name.trim()) {
-      toast({ title: 'Name is required', variant: 'destructive' });
+      toast({ title: 'Name is required', tone: 'danger' });
       return;
     }
     setSubmitting(true);
@@ -140,14 +180,14 @@ function EditCategoryDialog({
         toast({
           title: 'Could not save category',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     } catch (err) {
       toast({
         title: 'Could not save category',
         description: err instanceof Error ? err.message : String(err),
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setSubmitting(false);
@@ -164,29 +204,29 @@ function EditCategoryDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="cat-name">Name</Label>
+          <Field label="Name">
             <Input
-              id="cat-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={50}
               autoFocus
             />
-          </div>
+          </Field>
 
           <div className="space-y-1.5">
             <Label>Colour</Label>
             <div className="flex flex-wrap gap-2">
               {PRESET_COLORS.map((c) => (
-                <button
-                  type="button"
+                <Button
                   key={c}
+                  variant="ghost"
                   onClick={() => setColor(c)}
                   aria-label={`Use ${c}`}
                   className={cn(
-                    'h-8 w-8 rounded-full border-2 transition',
-                    color === c ? 'border-[var(--st-text)]' : 'border-transparent',
+                    'h-8 w-8 rounded-full border-2 p-0',
+                    color === c
+                      ? 'border-[var(--st-text)]'
+                      : 'border-transparent',
                   )}
                   style={{ backgroundColor: c }}
                 />
@@ -198,20 +238,15 @@ function EditCategoryDialog({
             <Label>Icon</Label>
             <div className="grid grid-cols-5 gap-2">
               {CURATED_ICONS.map(({ name: n, Icon }) => (
-                <button
-                  type="button"
+                <Button
                   key={n}
+                  variant={icon === n ? 'secondary' : 'outline'}
                   onClick={() => setIcon(n)}
                   aria-label={n}
-                  className={cn(
-                    'flex h-10 items-center justify-center rounded-[var(--st-radius)] border transition',
-                    icon === n
-                      ? 'border-[var(--st-text)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
-                      : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
-                  )}
+                  className="h-10 p-0"
                 >
                   <Icon className="h-4 w-4" />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -220,8 +255,8 @@ function EditCategoryDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={onSave} disabled={submitting}>
-            {submitting ? 'Saving…' : 'Save'}
+          <Button variant="primary" onClick={onSave} disabled={submitting}>
+            {submitting ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -229,7 +264,7 @@ function EditCategoryDialog({
   );
 }
 
-// ─── Category row ───────────────────────────────────────────────────────────
+// --- Category row -----------------------------------------------------------
 
 interface CategoryRowProps {
   category: SabwaGroupCategory;
@@ -254,8 +289,7 @@ const CategoryRow = React.memo(function CategoryRow({
       <div className="flex flex-col">
         <Button
           variant="ghost"
-          size="icon-sm"
-          className="h-6 w-6"
+          className="h-6 w-6 p-0"
           onClick={() => onMove(-1)}
           disabled={isFirst}
           aria-label="Move up"
@@ -264,8 +298,7 @@ const CategoryRow = React.memo(function CategoryRow({
         </Button>
         <Button
           variant="ghost"
-          size="icon-sm"
-          className="h-6 w-6"
+          className="h-6 w-6 p-0"
           onClick={() => onMove(1)}
           disabled={isLast}
           aria-label="Move down"
@@ -291,18 +324,17 @@ const CategoryRow = React.memo(function CategoryRow({
         <div className="text-xs text-[var(--st-text-secondary)]">
           {typeof category.groupCount === 'number'
             ? `${category.groupCount} group${category.groupCount === 1 ? '' : 's'}`
-            : '— groups'}
+            : 'No groups'}
         </div>
       </div>
-      <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Edit category">
+      <Button variant="ghost" className="p-0" onClick={onEdit} aria-label="Edit category">
         <Edit className="h-4 w-4" />
       </Button>
       <Button
         variant="ghost"
-        size="icon"
         onClick={onDelete}
         aria-label="Delete category"
-        className="text-[var(--st-danger)] hover:text-[var(--st-danger)]"
+        className="p-0 text-[var(--st-danger)] hover:text-[var(--st-danger)]"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -310,7 +342,7 @@ const CategoryRow = React.memo(function CategoryRow({
   );
 });
 
-// ─── Bulk-assign drawer ─────────────────────────────────────────────────────
+// --- Bulk-assign drawer -----------------------------------------------------
 
 interface BulkAssignDialogProps {
   open: boolean;
@@ -399,7 +431,7 @@ function BulkAssignDialog({
         toast({
           title: 'Some assignments failed',
           description: `${results.length - failed} succeeded, ${failed} failed.`,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     } finally {
@@ -429,7 +461,7 @@ function BulkAssignDialog({
                 categories.map((c) => (
                   <Button
                     key={c.id}
-                    variant={targetCategoryId === c.id ? 'default' : 'outline'}
+                    variant={targetCategoryId === c.id ? 'primary' : 'outline'}
                     size="sm"
                     onClick={() => setTargetCategoryId(c.id)}
                   >
@@ -464,7 +496,7 @@ function BulkAssignDialog({
                     >
                       <Checkbox
                         checked={selected.has(g.jid)}
-                        onCheckedChange={() => toggle(g.jid)}
+                        onChange={() => toggle(g.jid)}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium text-[var(--st-text)]">{g.subject}</div>
@@ -485,10 +517,11 @@ function BulkAssignDialog({
             Cancel
           </Button>
           <Button
+            variant="primary"
             onClick={onApply}
             disabled={submitting || !targetCategoryId || selected.size === 0}
           >
-            {submitting ? 'Assigning…' : `Assign (${selected.size})`}
+            {submitting ? 'Assigning...' : `Assign (${selected.size})`}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -496,7 +529,7 @@ function BulkAssignDialog({
   );
 }
 
-// ─── Main client ────────────────────────────────────────────────────────────
+// --- Main client ------------------------------------------------------------
 
 export function CategoriesPageClient() {
   const { toast } = useToast();
@@ -582,14 +615,14 @@ export function CategoriesPageClient() {
         toast({
           title: 'Could not delete',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     } catch (err) {
       toast({
         title: 'Could not delete',
         description: err instanceof Error ? err.message : String(err),
-        variant: 'destructive',
+        tone: 'danger',
       });
     } finally {
       setPendingDelete(null);
@@ -618,35 +651,39 @@ export function CategoriesPageClient() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-3">
-          <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
-            <FolderTree className="h-6 w-6" />
+      <PageHeader className="mt-5">
+        <PageHeaderHeading>
+          <div className="flex items-center gap-3">
+            <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]">
+              <FolderTree className="h-6 w-6" aria-hidden />
+            </div>
+            <div>
+              <PageTitle>Group categories</PageTitle>
+              <PageDescription>
+                Curate the buckets your groups live in.
+              </PageDescription>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[26px] font-semibold leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
-              Group categories
-            </h1>
-            <p className="mt-0.5 text-[13px] text-[var(--st-text-secondary)]">
-              Curate the buckets your groups live in.
-            </p>
-          </div>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
+        </PageHeaderHeading>
+        <PageActions>
           <Button
             variant="outline"
             onClick={() => setBulkOpen(true)}
             disabled={!sessionId}
+            iconLeft={CheckSquare}
           >
-            <CheckSquare />
             Bulk assign
           </Button>
-          <Button onClick={() => onEdit(null)} disabled={!sessionId}>
-            <Plus />
+          <Button
+            variant="primary"
+            onClick={() => onEdit(null)}
+            disabled={!sessionId}
+            iconLeft={Plus}
+          >
             New category
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       <Card className="mt-4">
         <CardHeader>
@@ -662,16 +699,16 @@ export function CategoriesPageClient() {
               <Skeleton key={i} className="h-14 w-full" />
             ))
           ) : categories.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center">
-              <Tag className="h-8 w-8 text-[var(--st-text-secondary)]" />
-              <p className="text-sm text-[var(--st-text-secondary)]">
-                No categories yet. Create one to get started.
-              </p>
-              <Button onClick={() => onEdit(null)}>
-                <Plus />
-                New category
-              </Button>
-            </div>
+            <EmptyState
+              icon={Tag}
+              title="No categories yet"
+              description="Create one to get started."
+              action={
+                <Button variant="primary" onClick={() => onEdit(null)} iconLeft={Plus}>
+                  New category
+                </Button>
+              }
+            />
           ) : (
             categories.map((cat, i) => (
               <CategoryRow

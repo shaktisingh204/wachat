@@ -1,6 +1,39 @@
 'use client';
 
-import { Button, Input, Label, Switch, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Accordion, AccordionContent, AccordionItem, AccordionTrigger, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Card, Slider, Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Input,
+  Field,
+  Label,
+  Switch,
+  Textarea,
+  ColorPicker,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Card,
+  Slider,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent } from '@/components/sabcrm/20ui';
 import {
   DndContext,
   DragEndEvent,
@@ -13,7 +46,7 @@ import { SortableContext,
   verticalListSortingStrategy,
   arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, ArrowLeft, Save, LoaderCircle, Eye, Code2, GripVertical, X, ChevronRight } from 'lucide-react';
+import { Plus, ArrowLeft, Save, Eye, Code2, GripVertical, X, ChevronRight } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 import { CrmFormFieldEditor } from '@/components/zoruui-domain/crm-form-field-editor';
@@ -76,7 +109,7 @@ function CodeEmbedDialog({ embedScript }: { embedScript: string }) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline"><Code2 className="mr-2 h-4 w-4"/> Embed</Button>
+                <Button variant="outline" iconLeft={Code2}>Embed</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl overflow-hidden">
                  <DialogHeader>
@@ -139,21 +172,20 @@ function SortableFieldItem({ field, isSelected, onClick, onMove, canMove }: {
     return (
         <div ref={setNodeRef} style={style}>
             <Card
-                variant="soft"
-                padded={false}
-                className={`p-3 cursor-pointer hover:bg-[var(--st-bg-muted)] flex items-center gap-2 ${isSelected ? 'ring-2 ring-primary' : ''}`}
+                variant="outlined"
+                padding="none"
+                className={`p-3 cursor-pointer hover:bg-[var(--st-bg-secondary)] flex items-center gap-2 ${isSelected ? 'ring-2 ring-[var(--st-accent)]' : ''}`}
                 onClick={onClick}
             >
-                <button
-                    type="button"
-                    className="cursor-grab touch-none text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+                <IconButton
+                    label="Drag to reorder"
+                    icon={GripVertical}
+                    size="sm"
+                    className="cursor-grab touch-none"
                     {...attributes}
                     {...listeners}
-                    aria-label="Drag to reorder"
                     onClick={(e) => e.stopPropagation()}
-                >
-                    <GripVertical className="h-4 w-4" />
-                </button>
+                />
                 <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm text-[var(--st-text)] truncate">
                         {field.label || 'Untitled Field'} {field.required && '*'}
@@ -161,14 +193,12 @@ function SortableFieldItem({ field, isSelected, onClick, onMove, canMove }: {
                     <p className="text-xs text-[var(--st-text-secondary)]">{field.type}</p>
                 </div>
                 {canMove && onMove && (
-                    <button
-                        type="button"
+                    <IconButton
+                        label="Move to next page"
+                        icon={ChevronRight}
+                        size="sm"
                         onClick={(e) => { e.stopPropagation(); onMove(); }}
-                        className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                        aria-label="Move to next page"
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </button>
+                    />
                 )}
             </Card>
         </div>
@@ -387,25 +417,27 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
         <div className="h-full flex flex-col">
             <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Input value={formName} onChange={e => setFormName(e.target.value)} className="text-lg font-semibold text-[var(--st-text)] border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
+                    <IconButton label="Go back" icon={ArrowLeft} variant="ghost" onClick={() => router.back()} />
+                    <Input value={formName} onChange={e => setFormName(e.target.value)} aria-label="Form name" className="text-lg font-semibold text-[var(--st-text)] border-none shadow-none focus-visible:ring-0 p-1 h-auto" />
                 </div>
                 <div className="flex items-center gap-2">
                     {initialForm?._id && (
                         <>
-                            <Button variant="outline" asChild>
-                                <a href={`/embed/crm-form/${initialForm._id.toString()}`} target="_blank" rel="noopener noreferrer"><Eye className="mr-2 h-4 w-4"/> Preview</a>
+                            <Button
+                                variant="outline"
+                                iconLeft={Eye}
+                                onClick={() => window.open(`/embed/crm-form/${initialForm._id.toString()}`, '_blank', 'noopener,noreferrer')}
+                            >
+                                Preview
                             </Button>
                             <CodeEmbedDialog embedScript={embedScript} />
                         </>
                     )}
                     <Button
-                        variant="obsidian"
+                        variant="primary"
                         onClick={handleSave}
-                        disabled={isSaving}
-                        leading={isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        loading={isSaving}
+                        iconLeft={Save}
                     >
                         Save Form
                     </Button>
@@ -418,15 +450,15 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-sm font-semibold text-[var(--st-text)]">Pages</h2>
-                                <Button variant="ghost" size="sm" onClick={addPage}>
-                                    <Plus className="h-3 w-3 mr-1" /> Add
+                                <Button variant="ghost" size="sm" onClick={addPage} iconLeft={Plus}>
+                                    Add
                                 </Button>
                             </div>
                             <div className="space-y-1">
                                 {pages.map((p, i) => (
                                     <div
                                         key={p.id}
-                                        className={`flex items-center gap-2 rounded-md border px-2 py-1.5 cursor-pointer ${i === activePageIndex ? 'border-primary bg-[var(--st-bg-muted)]' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]/50'}`}
+                                        className={`flex items-center gap-2 rounded-[var(--st-radius)] border px-2 py-1.5 cursor-pointer ${i === activePageIndex ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]' : 'border-[var(--st-border)] hover:bg-[var(--st-bg-secondary)]'}`}
                                         onClick={() => { setActivePageIndex(i); setSelectedFieldId(null); }}
                                     >
                                         <span className="text-xs font-mono text-[var(--st-text-secondary)]">{i + 1}</span>
@@ -434,32 +466,32 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                             value={p.title}
                                             onChange={(e) => updatePage(i, { title: e.target.value })}
                                             onClick={(e) => e.stopPropagation()}
+                                            aria-label={`Page ${i + 1} title`}
+                                            inputSize="sm"
                                             className="h-7 text-xs flex-1 border-none shadow-none focus-visible:ring-0 bg-transparent p-0"
                                         />
                                         <span className="text-xs text-[var(--st-text-secondary)]">{p.fields.length}</span>
                                         {pages.length > 1 && (
-                                            <button
-                                                type="button"
+                                            <IconButton
+                                                label="Remove page"
+                                                icon={X}
+                                                size="sm"
                                                 onClick={(e) => { e.stopPropagation(); removePage(i); }}
-                                                aria-label="Remove page"
-                                                className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                                            >
-                                                <X className="h-3 w-3" />
-                                            </button>
+                                            />
                                         )}
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="h-px bg-border" />
+                        <div className="h-px bg-[var(--st-border)]" />
 
                         <h2 className="text-sm font-semibold text-[var(--st-text)]">Fields on this page</h2>
                         <p className="text-xs text-[var(--st-text-secondary)]">Drag to reorder. Use the chevron to push a field to the next page.</p>
                          <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="w-full">
-                                    <Plus className="mr-2 h-4 w-4"/>Add Field
+                                <Button variant="outline" size="sm" block iconLeft={Plus}>
+                                    Add Field
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
@@ -488,15 +520,15 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                         </DndContext>
                     </div>
                 </div>
-                <main className="col-span-6 bg-[var(--st-bg-muted)] overflow-y-auto p-4 md:p-8">
+                <main className="col-span-6 bg-[var(--st-bg-secondary)] overflow-y-auto p-4 md:p-8">
                     {pages.length > 1 && (
                         <div className="mb-4 flex items-center justify-center gap-2">
                             {pages.map((p, i) => (
                                 <div key={p.id} className="flex items-center gap-2">
-                                    <span className={`text-xs px-2 py-1 rounded-full ${i === activePageIndex ? 'bg-[var(--st-text)] text-white' : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]'}`}>
+                                    <span className={`text-xs px-2 py-1 rounded-full ${i === activePageIndex ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]' : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]'}`}>
                                         {i + 1}. {p.title}
                                     </span>
-                                    {i < pages.length - 1 && <ChevronRight className="h-3 w-3 text-[var(--st-text-secondary)]" />}
+                                    {i < pages.length - 1 && <ChevronRight className="h-3 w-3 text-[var(--st-text-secondary)]" aria-hidden="true" />}
                                 </div>
                             ))}
                         </div>
@@ -507,8 +539,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-[var(--st-text)]">Properties</h2>
                          {selectedFieldId && (
-                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
+                            <Button variant="ghost" size="sm" onClick={() => setSelectedFieldId(null)} iconLeft={ArrowLeft}>
                                 Form Settings
                             </Button>
                         )}
@@ -533,10 +564,10 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                     <AccordionItem value="general_settings">
                                         <AccordionTrigger>General Settings</AccordionTrigger>
                                         <AccordionContent className="space-y-4 pt-2">
-                                            <div className="space-y-2"><Label>Form Title</Label><Input value={(settings.title as string) || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Form Description</Label><Textarea value={(settings.description as string) || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Submit Button Text</Label><Input value={(settings.submitButtonText as string) || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></div>
-                                            <div className="space-y-2"><Label>Footer Text (HTML allowed)</Label><Textarea value={(settings.footerText as string) || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></div>
+                                            <Field label="Form Title"><Input value={(settings.title as string) || 'Contact Us'} onChange={(e) => setSettings({...settings, title: e.target.value})} /></Field>
+                                            <Field label="Form Description"><Textarea value={(settings.description as string) || ''} onChange={(e) => setSettings({...settings, description: e.target.value})} /></Field>
+                                            <Field label="Submit Button Text"><Input value={(settings.submitButtonText as string) || 'Send Message'} onChange={(e) => setSettings({...settings, submitButtonText: e.target.value})} /></Field>
+                                            <Field label="Footer Text (HTML allowed)"><Textarea value={(settings.footerText as string) || ''} onChange={(e) => setSettings({...settings, footerText: e.target.value})} /></Field>
                                         </AccordionContent>
                                     </AccordionItem>
                                 </Accordion>
@@ -546,25 +577,13 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             </TabsContent>
                             <TabsContent value="theme" className="mt-4">
                                 <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Primary color</Label>
-                                        <div className="flex items-center gap-2">
-                                            <input
-                                                type="color"
-                                                value={theme.primaryColor || '#2563eb'}
-                                                onChange={(e) => setTheme({ primaryColor: e.target.value })}
-                                                className="h-9 w-12 rounded border border-[var(--st-border)] bg-transparent"
-                                                aria-label="Primary color"
-                                            />
-                                            <Input
-                                                value={theme.primaryColor || ''}
-                                                onChange={(e) => setTheme({ primaryColor: e.target.value })}
-                                                placeholder="#2563eb"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Font family</Label>
+                                    <Field label="Primary color">
+                                        <ColorPicker
+                                            value={theme.primaryColor || '#2563eb'}
+                                            onChange={(color) => setTheme({ primaryColor: color })}
+                                        />
+                                    </Field>
+                                    <Field label="Font family">
                                         <Select
                                             value={theme.fontFamily || 'system'}
                                             onValueChange={(v) => setTheme({ fontFamily: v as ThemeSettings['fontFamily'] })}
@@ -577,17 +596,17 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                 <SelectItem value="serif">Serif</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Border radius ({theme.borderRadius ?? 8}px)</Label>
+                                    </Field>
+                                    <Field label={`Border radius (${theme.borderRadius ?? 8}px)`}>
                                         <Slider
                                             min={0}
                                             max={24}
                                             step={1}
                                             value={[theme.borderRadius ?? 8]}
-                                            onValueChange={(v: number[]) => setTheme({ borderRadius: v[0] })}
+                                            ariaLabel="Border radius"
+                                            onValueChange={(v) => setTheme({ borderRadius: Array.isArray(v) ? v[0] : v })}
                                         />
-                                    </div>
+                                    </Field>
                                     <div className="space-y-2">
                                         <Label>Logo</Label>
                                         {theme.logoFileUrl && (
@@ -622,104 +641,89 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                             </TabsContent>
                             <TabsContent value="post" className="mt-4">
                                 <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label>Success message</Label>
+                                    <Field label="Success message">
                                         <Textarea
                                             value={postSubmit.successMessage || (settings.successMessage as string) || 'Thank you! Your submission has been received.'}
                                             onChange={(e) => setPostSubmit({ successMessage: e.target.value })}
                                         />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>Redirect URL (optional)</Label>
+                                    </Field>
+                                    <Field label="Redirect URL (optional)">
                                         <Input
                                             value={postSubmit.redirectUrl || ''}
                                             onChange={(e) => setPostSubmit({ redirectUrl: e.target.value })}
                                             placeholder="https://example.com/thanks"
                                         />
-                                    </div>
+                                    </Field>
 
                                     <Accordion type="multiple">
                                         <AccordionItem value="email">
                                             <AccordionTrigger>Email notifications</AccordionTrigger>
                                             <AccordionContent className="space-y-3 pt-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        checked={emailNotifications.enabled}
-                                                        onCheckedChange={(v) => setPostSubmit({ emailNotifications: { ...emailNotifications, enabled: v } })}
-                                                    />
-                                                    <Label>Send email on submit</Label>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label>To (comma-separated)</Label>
+                                                <Switch
+                                                    checked={emailNotifications.enabled}
+                                                    onCheckedChange={(v) => setPostSubmit({ emailNotifications: { ...emailNotifications, enabled: v } })}
+                                                    label="Send email on submit"
+                                                />
+                                                <Field label="To (comma-separated)">
                                                     <Input
                                                         value={emailNotifications.toEmails.join(', ')}
                                                         onChange={(e) => setPostSubmit({ emailNotifications: { ...emailNotifications, toEmails: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } })}
                                                     />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label>Subject</Label>
+                                                </Field>
+                                                <Field label="Subject">
                                                     <Input
                                                         value={emailNotifications.subject}
                                                         onChange={(e) => setPostSubmit({ emailNotifications: { ...emailNotifications, subject: e.target.value } })}
                                                     />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label>Body template</Label>
+                                                </Field>
+                                                <Field label="Body template">
                                                     <Textarea
                                                         value={emailNotifications.bodyTemplate}
                                                         onChange={(e) => setPostSubmit({ emailNotifications: { ...emailNotifications, bodyTemplate: e.target.value } })}
                                                         placeholder="Use {{fieldId}} for placeholders, e.g. New lead from {{name}} ({{email}})"
                                                     />
-                                                </div>
+                                                </Field>
                                             </AccordionContent>
                                         </AccordionItem>
                                         <AccordionItem value="webhook">
                                             <AccordionTrigger>Webhook</AccordionTrigger>
                                             <AccordionContent className="space-y-3 pt-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        checked={webhook.enabled}
-                                                        onCheckedChange={(v) => setPostSubmit({ webhook: { ...webhook, enabled: v } })}
-                                                    />
-                                                    <Label>POST on submit</Label>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label>URL</Label>
+                                                <Switch
+                                                    checked={webhook.enabled}
+                                                    onCheckedChange={(v) => setPostSubmit({ webhook: { ...webhook, enabled: v } })}
+                                                    label="POST on submit"
+                                                />
+                                                <Field label="URL">
                                                     <Input
                                                         value={webhook.url}
                                                         onChange={(e) => setPostSubmit({ webhook: { ...webhook, url: e.target.value } })}
                                                         placeholder="https://your-app.com/hook"
                                                     />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <Label>Signing secret</Label>
+                                                </Field>
+                                                <Field label="Signing secret">
                                                     <Input
                                                         value={webhook.secret}
                                                         onChange={(e) => setPostSubmit({ webhook: { ...webhook, secret: e.target.value } })}
                                                         placeholder="Used for HMAC-SHA256 in X-Form-Webhook-Signature"
                                                     />
-                                                </div>
+                                                </Field>
                                             </AccordionContent>
                                         </AccordionItem>
                                         <AccordionItem value="auto">
                                             <AccordionTrigger>Auto-create in CRM</AccordionTrigger>
                                             <AccordionContent className="space-y-3 pt-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        checked={autoCreate.lead}
-                                                        onCheckedChange={(v) => setPostSubmit({ autoCreate: { ...autoCreate, lead: v } })}
-                                                    />
-                                                    <Label>Create lead/deal</Label>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        checked={autoCreate.contact}
-                                                        onCheckedChange={(v) => setPostSubmit({ autoCreate: { ...autoCreate, contact: v } })}
-                                                    />
-                                                    <Label>Create contact</Label>
-                                                </div>
+                                                <Switch
+                                                    checked={autoCreate.lead}
+                                                    onCheckedChange={(v) => setPostSubmit({ autoCreate: { ...autoCreate, lead: v } })}
+                                                    label="Create lead/deal"
+                                                />
+                                                <Switch
+                                                    checked={autoCreate.contact}
+                                                    onCheckedChange={(v) => setPostSubmit({ autoCreate: { ...autoCreate, contact: v } })}
+                                                    label="Create contact"
+                                                />
                                                 <div className="space-y-2 pt-2 border-t border-[var(--st-border)]">
-                                                    <p className="text-xs text-[var(--st-text-secondary)]">Field mapping (CRM field → form field ID)</p>
+                                                    <p className="text-xs text-[var(--st-text-secondary)]">Field mapping (CRM field to form field ID)</p>
                                                     {mappingTargets.map(target => (
                                                         <div key={target} className="grid grid-cols-2 gap-2 items-center">
                                                             <span className="text-xs font-mono">{target}</span>
@@ -732,7 +736,7 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                                                                     },
                                                                 })}
                                                             >
-                                                                <SelectTrigger className="h-8"><SelectValue placeholder="Auto"/></SelectTrigger>
+                                                                <SelectTrigger className="h-8" aria-label={`Map ${target}`}><SelectValue placeholder="Auto"/></SelectTrigger>
                                                                 <SelectContent>
                                                                     <SelectItem value="__auto__">Auto (use same name)</SelectItem>
                                                                     {flatFields.map(f => (

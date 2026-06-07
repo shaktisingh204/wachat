@@ -3,7 +3,24 @@
 import * as React from "react";
 import { ArrowDownUp, RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 
-import { Badge, Button, DateRangePicker, DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  DateRangePicker,
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  IconButton,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/sabcrm/20ui";
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 
@@ -43,7 +60,7 @@ const DEBOUNCE_MS = 300;
 
 export function SabsmsFilterBar({
   searchKey = "q",
-  searchPlaceholder = "Search…",
+  searchPlaceholder = "Search...",
   facets = [],
   sortOptions,
   defaultSort,
@@ -81,26 +98,24 @@ export function SabsmsFilterBar({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-2 rounded-md border border-[var(--st-border)] bg-white p-2 ${className ?? ""}`}
+      className={`flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 ${className ?? ""}`}
     >
       <div className="relative flex min-w-[220px] flex-1 items-center">
-        <Search className="pointer-events-none absolute left-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
         <Input
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder={searchPlaceholder}
-          className="pl-8"
+          iconLeft={Search}
           aria-label={searchPlaceholder}
         />
         {searchInput && (
-          <button
-            type="button"
+          <IconButton
+            label="Clear search"
+            icon={X}
+            size="sm"
             onClick={() => setSearchInput("")}
-            className="absolute right-2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-            aria-label="Clear search"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
+            className="absolute right-1"
+          />
         )}
       </div>
 
@@ -128,12 +143,9 @@ export function SabsmsFilterBar({
       )}
 
       {sortOptions && sortOptions.length > 0 && (
-        <Select
-          value={sortValue}
-          onValueChange={(v) => url.setOne("sort", v)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <ArrowDownUp className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" />
+        <Select value={sortValue} onValueChange={(v) => url.setOne("sort", v)}>
+          <SelectTrigger className="w-[180px]" aria-label="Sort">
+            <ArrowDownUp className="mr-1.5 h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
           <SelectContent>
@@ -147,15 +159,15 @@ export function SabsmsFilterBar({
       )}
 
       {activeFilterCount > 0 && (
-        <Badge variant="secondary">
+        <Badge tone="neutral">
           {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"}
         </Badge>
       )}
 
       <div className="ml-auto flex items-center gap-2">
         {trailing}
-        <Button variant="ghost" size="sm" onClick={clearAll}>
-          <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
+        <Button variant="ghost" size="sm" iconLeft={RotateCcw} onClick={clearAll}>
+          Reset
         </Button>
       </div>
     </div>
@@ -176,11 +188,10 @@ function FacetChip({ facet }: { facet: SabsmsFacet }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5">
-          <SlidersHorizontal className="h-3.5 w-3.5" />
+        <Button variant="outline" size="sm" iconLeft={SlidersHorizontal} className="gap-1.5">
           {facet.label}
           {selectedLabels.length > 0 && (
-            <Badge variant="secondary" className="ml-1 text-[10px]">
+            <Badge tone="neutral" className="ml-1 text-[10px]">
               {selectedLabels.length}
             </Badge>
           )}

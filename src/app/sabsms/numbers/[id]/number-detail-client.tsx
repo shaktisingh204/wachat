@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SabSMS — number detail right pane (page 26).
+ * SabSMS - number detail right pane (page 26).
  *
  * Composes the 20 page-unique features for the number-detail screen:
  * health/volume/cost charts, send + inbound history tables, per-country
@@ -21,14 +21,55 @@ import {
   AlertTriangle,
   ArrowUpRight,
   History,
-  Loader2,
   PhoneOff,
   Send,
   ShieldCheck,
   Webhook,
 } from "lucide-react";
 
-import { CHART_PALETTE, Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, Recharts, ChartContainer, ChartTooltip, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  CHART_PALETTE,
+  Alert,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  Recharts,
+  ChartContainer,
+  ChartTooltip,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  StatCard,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Textarea,
+  Th,
+  Tr,
+  useToast,
+} from "@/components/sabcrm/20ui";
 
 import {
   SabsmsDataTable,
@@ -64,7 +105,7 @@ export function NumberDetailClient({ detail }: Props) {
   const { toast } = useToast();
   const router = useRouter();
 
-  // ─── Override form state ────────────────────────────────────────────────
+  // --- Override form state -------------------------------------------------
   const [throttle, setThrottle] = React.useState<ThrottleConfig>(detail.throttle);
   const [quietHours, setQuietHours] = React.useState<QuietHoursConfig>(
     detail.quietHours,
@@ -76,7 +117,7 @@ export function NumberDetailClient({ detail }: Props) {
   const [poolId, setPoolId] = React.useState(detail.poolId ?? "default");
   const [savePending, startSave] = useTransition();
 
-  // ─── Action state ───────────────────────────────────────────────────────
+  // --- Action state --------------------------------------------------------
   const [releaseOpen, setReleaseOpen] = React.useState(false);
   const [portOutOpen, setPortOutOpen] = React.useState(false);
   const [auditOpen, setAuditOpen] = React.useState(false);
@@ -87,7 +128,7 @@ export function NumberDetailClient({ detail }: Props) {
   });
   const [actionPending, startAction] = useTransition();
 
-  // ─── Mini composer state ────────────────────────────────────────────────
+  // --- Mini composer state -------------------------------------------------
   const [composerTo, setComposerTo] = React.useState("");
   const [composerBody, setComposerBody] = React.useState(
     "This is a test send from your SabSMS number.",
@@ -108,10 +149,10 @@ export function NumberDetailClient({ detail }: Props) {
         toast({
           title: "Save failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
-        toast({ title: "Overrides saved" });
+        toast({ title: "Overrides saved", tone: "success" });
       }
     });
   }
@@ -126,12 +167,13 @@ export function NumberDetailClient({ detail }: Props) {
         toast({
           title: "Release failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
         toast({
           title: "Release scheduled",
-          description: `${graceHours}h grace — number will be released after that window.`,
+          description: `${graceHours}h grace, number will be released after that window.`,
+          tone: "success",
         });
         setReleaseOpen(false);
       }
@@ -148,10 +190,10 @@ export function NumberDetailClient({ detail }: Props) {
         toast({
           title: "Port-out failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
-        toast({ title: "Port-out request filed (stub)" });
+        toast({ title: "Port-out request filed (stub)", tone: "success" });
         setPortOutOpen(false);
       }
     });
@@ -168,18 +210,19 @@ export function NumberDetailClient({ detail }: Props) {
         toast({
           title: "Test send failed",
           description: res.error,
-          variant: "destructive",
+          tone: "danger",
         });
       } else {
         toast({
           title: "Test queued",
           description: `Message id: ${res.messageId || "(engine disabled)"}`,
+          tone: "success",
         });
       }
     });
   }
 
-  // ─── Send / inbound history table column defs ───────────────────────────
+  // --- Send / inbound history table column defs ----------------------------
   const historyColumns: SabsmsColumn<SendHistoryRow>[] = [
     {
       id: "createdAt",
@@ -200,7 +243,7 @@ export function NumberDetailClient({ detail }: Props) {
       id: "status",
       header: "Status",
       render: (r) => (
-        <Badge variant={r.status === "delivered" ? "default" : "secondary"}>
+        <Badge variant={r.status === "delivered" ? "success" : "secondary"}>
           {r.status}
         </Badge>
       ),
@@ -209,7 +252,7 @@ export function NumberDetailClient({ detail }: Props) {
     {
       id: "segments",
       header: "Segs",
-      render: (r) => <span className="text-xs">{r.segments ?? "—"}</span>,
+      render: (r) => <span className="text-xs">{r.segments ?? "-"}</span>,
       width: "60px",
       align: "right",
     },
@@ -246,15 +289,13 @@ export function NumberDetailClient({ detail }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Top action row — refresh + export + kbd hint */}
+      {/* Top action row - refresh + export + kbd hint */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="default">{detail.provider}</Badge>
+          <Badge variant="accent">{detail.provider}</Badge>
           <Badge variant="secondary">{detail.country}</Badge>
           <Badge variant="secondary">{detail.type}</Badge>
-          <Badge
-            variant={detail.status === "active" ? "default" : "secondary"}
-          >
+          <Badge variant={detail.status === "active" ? "success" : "secondary"}>
             {detail.status}
           </Badge>
           <span className="font-mono text-sm">{detail.e164}</span>
@@ -282,11 +323,10 @@ export function NumberDetailClient({ detail }: Props) {
           />
           <Button
             variant="outline"
+            iconLeft={History}
             onClick={() => setAuditOpen(true)}
-            aria-label="Open audit log"
           >
-            <History className="h-4 w-4" />
-            <span className="ml-2">Audit</span>
+            Audit
           </Button>
           <SabsmsKbdHint
             shortcuts={[
@@ -297,16 +337,16 @@ export function NumberDetailClient({ detail }: Props) {
           />
         </div>
       </div>
-      
+
       {/* Predictive billing alerting */}
       {detail.projectedUsageCost > 50 && (
-        <Alert variant="default" className="border-[var(--st-border)] bg-[var(--st-bg-muted)]/50">
-          <AlertTriangle className="h-4 w-4 text-[var(--st-text)]" />
-          <AlertTitle className="text-[var(--st-text)]">High projected volume cost</AlertTitle>
-          <AlertDescription className="text-[var(--st-text)]">
-            Based on the last 30 days of traffic, this number is projected to incur an additional{" "}
-            <span className="font-semibold">${detail.projectedUsageCost.toFixed(2)}</span> in usage charges this month.
-          </AlertDescription>
+        <Alert tone="warning" title="High projected volume cost">
+          Based on the last 30 days of traffic, this number is projected to
+          incur an additional{" "}
+          <span className="font-semibold">
+            ${detail.projectedUsageCost.toFixed(2)}
+          </span>{" "}
+          in usage charges this month.
         </Alert>
       )}
 
@@ -324,28 +364,22 @@ export function NumberDetailClient({ detail }: Props) {
             <Badge
               variant={
                 detail.compliance.tendlc === "registered"
-                  ? "default"
-                  : detail.compliance.tendlc === "n/a"
-                    ? "secondary"
-                    : "secondary"
+                  ? "success"
+                  : "secondary"
               }
             >
               10DLC: {detail.compliance.tendlc}
             </Badge>
             <Badge
               variant={
-                detail.compliance.dlt === "registered"
-                  ? "default"
-                  : detail.compliance.dlt === "n/a"
-                    ? "secondary"
-                    : "secondary"
+                detail.compliance.dlt === "registered" ? "success" : "secondary"
               }
             >
               DLT: {detail.compliance.dlt}
             </Badge>
             <Badge
               variant={
-                detail.compliance.consentLog === "ok" ? "default" : "secondary"
+                detail.compliance.consentLog === "ok" ? "success" : "secondary"
               }
             >
               Consent log: {detail.compliance.consentLog}
@@ -358,14 +392,14 @@ export function NumberDetailClient({ detail }: Props) {
                 </Badge>
               ))}
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 text-sm md:grid-cols-4">
-            <Stat label="Carrier (HLR)" value={detail.carrier.operator} sub="stub" />
-            <Stat label="Line type" value={detail.carrier.lineType} />
-            <Stat
+          <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatCard label="Carrier (HLR)" value={detail.carrier.operator} />
+            <StatCard label="Line type" value={detail.carrier.lineType} />
+            <StatCard
               label="Monthly cost"
               value={`$${(detail.monthlyCost / 100).toFixed(2)}`}
             />
-            <Stat
+            <StatCard
               label="Provisioned"
               value={new Date(detail.createdAt).toLocaleDateString()}
             />
@@ -497,7 +531,9 @@ export function NumberDetailClient({ detail }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>Deliverability (30d)</CardTitle>
-            <CardDescription>Percentage of messages successfully delivered.</CardDescription>
+            <CardDescription>
+              Percentage of messages successfully delivered.
+            </CardDescription>
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
@@ -525,7 +561,9 @@ export function NumberDetailClient({ detail }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>Bounce Rate (30d)</CardTitle>
-            <CardDescription>Percentage of messages that failed to deliver.</CardDescription>
+            <CardDescription>
+              Percentage of messages that failed to deliver.
+            </CardDescription>
           </CardHeader>
           <CardBody>
             <ChartContainer height={220}>
@@ -561,46 +599,47 @@ export function NumberDetailClient({ detail }: Props) {
               Top destinations sent from this number.
             </CardDescription>
           </CardHeader>
-          <CardBody className="p-0">
-            <table className="w-full text-sm">
-              <thead className="bg-[var(--st-bg-muted)] text-xs text-[var(--st-text)]">
-                <tr>
-                  <th className="px-3 py-2 text-left">Country</th>
-                  <th className="px-3 py-2 text-right">Sent</th>
-                  <th className="px-3 py-2 text-right">Delivered</th>
-                  <th className="px-3 py-2 text-right">DLR %</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.countries.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-3 py-8 text-center text-xs text-[var(--st-text)]"
-                    >
-                      No traffic in the last 30 days.
-                    </td>
-                  </tr>
-                ) : (
-                  detail.countries.slice(0, 15).map((c) => (
-                    <tr key={c.country}>
-                      <td className="px-3 py-2 font-mono text-xs">{c.country}</td>
-                      <td className="px-3 py-2 text-right text-xs">{c.sent}</td>
-                      <td className="px-3 py-2 text-right text-xs">
-                        {c.delivered}
-                      </td>
-                      <td className="px-3 py-2 text-right text-xs">
+          <CardBody padding="none">
+            {detail.countries.length === 0 ? (
+              <EmptyState
+                title="No traffic"
+                description="No traffic in the last 30 days."
+                size="sm"
+              />
+            ) : (
+              <Table density="compact">
+                <THead>
+                  <Tr>
+                    <Th>Country</Th>
+                    <Th align="right">Sent</Th>
+                    <Th align="right">Delivered</Th>
+                    <Th align="right">DLR %</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {detail.countries.slice(0, 15).map((c) => (
+                    <Tr key={c.country}>
+                      <Td>
+                        <span className="font-mono text-xs">{c.country}</span>
+                      </Td>
+                      <Td align="right">
+                        <span className="text-xs">{c.sent}</span>
+                      </Td>
+                      <Td align="right">
+                        <span className="text-xs">{c.delivered}</span>
+                      </Td>
+                      <Td align="right">
                         <Badge
-                          variant={c.deliveryRate >= 95 ? "default" : "secondary"}
+                          variant={c.deliveryRate >= 95 ? "success" : "secondary"}
                         >
                           {c.deliveryRate}%
                         </Badge>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
           </CardBody>
         </Card>
         <Card>
@@ -610,40 +649,43 @@ export function NumberDetailClient({ detail }: Props) {
               Top templates by send volume from this number.
             </CardDescription>
           </CardHeader>
-          <CardBody className="p-0">
-            <table className="w-full text-sm">
-              <thead className="bg-[var(--st-bg-muted)] text-xs text-[var(--st-text)]">
-                <tr>
-                  <th className="px-3 py-2 text-left">Template</th>
-                  <th className="px-3 py-2 text-right">Sent</th>
-                  <th className="px-3 py-2 text-right">Delivered</th>
-                  <th className="px-3 py-2 text-right">Replied</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.templatePerformance.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-3 py-8 text-center text-xs text-[var(--st-text)]"
-                    >
-                      No template traffic yet.
-                    </td>
-                  </tr>
-                ) : (
-                  detail.templatePerformance.slice(0, 15).map((t) => (
-                    <tr key={t.templateId}>
-                      <td className="px-3 py-2 text-xs">{t.templateName}</td>
-                      <td className="px-3 py-2 text-right text-xs">{t.sent}</td>
-                      <td className="px-3 py-2 text-right text-xs">
-                        {t.delivered}
-                      </td>
-                      <td className="px-3 py-2 text-right text-xs">{t.replied}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+          <CardBody padding="none">
+            {detail.templatePerformance.length === 0 ? (
+              <EmptyState
+                title="No template traffic"
+                description="No template traffic yet."
+                size="sm"
+              />
+            ) : (
+              <Table density="compact">
+                <THead>
+                  <Tr>
+                    <Th>Template</Th>
+                    <Th align="right">Sent</Th>
+                    <Th align="right">Delivered</Th>
+                    <Th align="right">Replied</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {detail.templatePerformance.slice(0, 15).map((t) => (
+                    <Tr key={t.templateId}>
+                      <Td>
+                        <span className="text-xs">{t.templateName}</span>
+                      </Td>
+                      <Td align="right">
+                        <span className="text-xs">{t.sent}</span>
+                      </Td>
+                      <Td align="right">
+                        <span className="text-xs">{t.delivered}</span>
+                      </Td>
+                      <Td align="right">
+                        <span className="text-xs">{t.replied}</span>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
           </CardBody>
         </Card>
       </div>
@@ -652,28 +694,29 @@ export function NumberDetailClient({ detail }: Props) {
       <Card>
         <CardHeader>
           <CardTitle>Assignments</CardTitle>
-          <CardDescription>
-            Where this number is being used.
-          </CardDescription>
+          <CardDescription>Where this number is being used.</CardDescription>
         </CardHeader>
         <CardBody>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Campaigns
               </div>
               <ul className="mt-2 space-y-1 text-sm">
                 {detail.campaigns.length === 0 ? (
-                  <li className="text-[var(--st-text)]">
+                  <li className="text-[var(--st-text-secondary)]">
                     Not assigned to any campaigns.
                   </li>
                 ) : (
                   detail.campaigns.map((c) => (
                     <li key={c.id} className="flex items-center gap-2">
-                      <ArrowUpRight className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+                      <ArrowUpRight
+                        className="h-3.5 w-3.5 text-[var(--st-text-secondary)]"
+                        aria-hidden
+                      />
                       <a
                         href={`/sabsms/campaigns/${c.id}`}
-                        className="hover:underline"
+                        className="text-[var(--st-text)] hover:underline"
                       >
                         {c.name}
                       </a>
@@ -683,11 +726,11 @@ export function NumberDetailClient({ detail }: Props) {
               </ul>
             </div>
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Sender pool
               </div>
               <Select value={poolId} onValueChange={setPoolId}>
-                <SelectTrigger className="mt-2">
+                <SelectTrigger className="mt-2" aria-label="Sender pool">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -717,14 +760,12 @@ export function NumberDetailClient({ detail }: Props) {
         </CardHeader>
         <CardBody className="space-y-5">
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Throttle
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-2">
-              <div className="space-y-1">
-                <Label htmlFor="rps">Per second</Label>
+              <Field label="Per second">
                 <Input
-                  id="rps"
                   type="number"
                   min={1}
                   value={throttle.perSecond}
@@ -735,11 +776,9 @@ export function NumberDetailClient({ detail }: Props) {
                     }))
                   }
                 />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="rpm">Per minute</Label>
+              </Field>
+              <Field label="Per minute">
                 <Input
-                  id="rpm"
                   type="number"
                   min={1}
                   value={throttle.perMinute}
@@ -750,7 +789,7 @@ export function NumberDetailClient({ detail }: Props) {
                     }))
                   }
                 />
-              </div>
+              </Field>
             </div>
           </div>
 
@@ -758,34 +797,31 @@ export function NumberDetailClient({ detail }: Props) {
 
           <div>
             <div className="flex items-center justify-between">
-              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+              <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
                 Quiet hours
               </div>
-              <label className="flex items-center gap-2 text-xs">
-                <Checkbox
-                  checked={quietHours.enabled}
-                  onCheckedChange={(v) =>
-                    setQuietHours((q) => ({ ...q, enabled: Boolean(v) }))
-                  }
-                />
-                Enabled
-              </label>
+              <Checkbox
+                label="Enabled"
+                checked={quietHours.enabled}
+                onChange={(e) =>
+                  setQuietHours((q) => ({
+                    ...q,
+                    enabled: e.target.checked,
+                  }))
+                }
+              />
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="tz">Timezone</Label>
+              <Field label="Timezone">
                 <Input
-                  id="tz"
                   value={quietHours.timezone}
                   onChange={(e) =>
                     setQuietHours((q) => ({ ...q, timezone: e.target.value }))
                   }
                 />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="qh-start">Start hour</Label>
+              </Field>
+              <Field label="Start hour">
                 <Input
-                  id="qh-start"
                   type="number"
                   min={0}
                   max={23}
@@ -800,11 +836,9 @@ export function NumberDetailClient({ detail }: Props) {
                     }))
                   }
                 />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="qh-end">End hour</Label>
+              </Field>
+              <Field label="End hour">
                 <Input
-                  id="qh-end"
                   type="number"
                   min={0}
                   max={23}
@@ -819,81 +853,67 @@ export function NumberDetailClient({ detail }: Props) {
                     }))
                   }
                 />
-              </div>
+              </Field>
             </div>
           </div>
 
           <Separator />
 
           <div>
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
-              <Webhook className="h-3.5 w-3.5" /> Webhooks
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              <Webhook className="h-3.5 w-3.5" aria-hidden /> Webhooks
             </div>
             <div className="mt-2 grid gap-3 md:grid-cols-3">
-              <div className="space-y-1">
-                <Label htmlFor="hook-in">Inbound URL</Label>
+              <Field label="Inbound URL">
                 <Input
-                  id="hook-in"
                   value={webhooks.inboundUrl ?? ""}
                   onChange={(e) =>
                     setWebhooks((w) => ({ ...w, inboundUrl: e.target.value }))
                   }
-                  placeholder="https://…"
+                  placeholder="https://..."
                 />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="hook-dlr">DLR URL</Label>
+              </Field>
+              <Field label="DLR URL">
                 <Input
-                  id="hook-dlr"
                   value={webhooks.dlrUrl ?? ""}
                   onChange={(e) =>
                     setWebhooks((w) => ({ ...w, dlrUrl: e.target.value }))
                   }
-                  placeholder="https://…"
+                  placeholder="https://..."
                 />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="hook-voice">Voice URL (Phase 7)</Label>
+              </Field>
+              <Field label="Voice URL (Phase 7)">
                 <Input
-                  id="hook-voice"
                   value={webhooks.voiceUrl ?? ""}
                   onChange={(e) =>
                     setWebhooks((w) => ({ ...w, voiceUrl: e.target.value }))
                   }
-                  placeholder="https://… (stub)"
+                  placeholder="https://... (stub)"
                 />
-              </div>
+              </Field>
             </div>
           </div>
 
           {detail.type === "alphanumeric" && (
             <>
               <Separator />
-              <div className="space-y-1">
-                <Label htmlFor="alpha">Sender ID (alpha override)</Label>
+              <Field
+                label="Sender ID (alpha override)"
+                help="Per-country support varies; for unsupported routes the engine falls back to the workspace default."
+              >
                 <Input
-                  id="alpha"
                   value={senderIdAlpha}
                   onChange={(e) => setSenderIdAlpha(e.target.value)}
                   placeholder="e.g. SABSMS"
                   maxLength={11}
                 />
-                <p className="text-xs text-[var(--st-text)]">
-                  Per-country support varies; for unsupported routes the engine
-                  falls back to the workspace default.
-                </p>
-              </div>
+              </Field>
             </>
           )}
 
           <div className="flex justify-end">
-            <Button onClick={persistOverrides} disabled={savePending}>
-              {savePending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : null}
-              <span className={savePending ? "ml-2" : undefined}>
-                Save overrides
-              </span>
+            <Button onClick={persistOverrides} loading={savePending}>
+              Save overrides
             </Button>
           </div>
         </CardBody>
@@ -918,7 +938,7 @@ export function NumberDetailClient({ detail }: Props) {
             defaultSort="newest"
           />
           <div className="space-y-2">
-            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Outbound
             </div>
             <SabsmsDataTable<SendHistoryRow>
@@ -931,7 +951,7 @@ export function NumberDetailClient({ detail }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text)]">
+            <div className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
               Inbound
             </div>
             <SabsmsDataTable<SendHistoryRow>
@@ -957,33 +977,24 @@ export function NumberDetailClient({ detail }: Props) {
         </CardHeader>
         <CardBody>
           <div className="grid gap-3 md:grid-cols-3">
-            <div className="space-y-1">
-              <Label htmlFor="composer-to">To (E.164)</Label>
+            <Field label="To (E.164)">
               <Input
-                id="composer-to"
                 value={composerTo}
                 onChange={(e) => setComposerTo(e.target.value)}
                 placeholder="+15555550100"
               />
-            </div>
-            <div className="space-y-1 md:col-span-2">
-              <Label htmlFor="composer-body">Body</Label>
+            </Field>
+            <Field label="Body" className="md:col-span-2">
               <Textarea
-                id="composer-body"
                 rows={2}
                 value={composerBody}
                 onChange={(e) => setComposerBody(e.target.value)}
               />
-            </div>
+            </Field>
           </div>
           <div className="mt-3 flex justify-end">
-            <Button onClick={doTestSend} disabled={composerPending}>
-              {composerPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-              <span className="ml-2">Send test</span>
+            <Button onClick={doTestSend} loading={composerPending} iconLeft={Send}>
+              Send test
             </Button>
           </div>
         </CardBody>
@@ -994,37 +1005,32 @@ export function NumberDetailClient({ detail }: Props) {
         <CardHeader>
           <CardTitle>Danger zone</CardTitle>
           <CardDescription>
-            Release the number or move it to another carrier. Both go
-            through audit.
+            Release the number or move it to another carrier. Both go through
+            audit.
           </CardDescription>
         </CardHeader>
         <CardBody>
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
+              iconLeft={PhoneOff}
               onClick={() => setReleaseOpen(true)}
             >
-              <PhoneOff className="h-4 w-4" />
-              <span className="ml-2">Release with grace</span>
+              Release with grace
             </Button>
             <Button
               variant="outline"
+              iconLeft={ShieldCheck}
               onClick={() => setPortOutOpen(true)}
             >
-              <ShieldCheck className="h-4 w-4" />
-              <span className="ml-2">Port-out (stub)</span>
+              Port-out (stub)
             </Button>
           </div>
-          <Alert className="mt-3" variant="info">
-            <AlertTriangle aria-hidden />
-            <AlertTitle>Heads-up</AlertTitle>
-            <AlertDescription>
-              Release transitions status to{" "}
-              <span className="font-mono">releasing</span> immediately and
-              schedules the final release after the grace window. Port-out
-              files a stub audit entry — the engine doesn{`’`}t support
-              carrier ports yet.
-            </AlertDescription>
+          <Alert className="mt-3" tone="info" title="Heads-up">
+            Release transitions status to{" "}
+            <span className="font-mono">releasing</span> immediately and
+            schedules the final release after the grace window. Port-out files a
+            stub audit entry, the engine does not support carrier ports yet.
           </Alert>
         </CardBody>
       </Card>
@@ -1039,30 +1045,25 @@ export function NumberDetailClient({ detail }: Props) {
               {detail.provider}. Inbound traffic will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="space-y-1 py-2">
-            <Label htmlFor="grace">Grace period (hours)</Label>
-            <Input
-              id="grace"
-              type="number"
-              min={0}
-              max={720}
-              value={graceHours}
-              onChange={(e) =>
-                setGraceHours(
-                  Math.max(0, Math.min(720, Number(e.target.value) || 0)),
-                )
-              }
-            />
+          <div className="py-2">
+            <Field label="Grace period (hours)">
+              <Input
+                type="number"
+                min={0}
+                max={720}
+                value={graceHours}
+                onChange={(e) =>
+                  setGraceHours(
+                    Math.max(0, Math.min(720, Number(e.target.value) || 0)),
+                  )
+                }
+              />
+            </Field>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionPending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={doRelease}
-              disabled={actionPending}
-            >
-              {actionPending ? "Releasing…" : "Release"}
+            <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={doRelease} disabled={actionPending}>
+              {actionPending ? "Releasing..." : "Release"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1074,26 +1075,22 @@ export function NumberDetailClient({ detail }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle>Request port-out</AlertDialogTitle>
             <AlertDialogDescription>
-              Files a stub request for carrier support. The engine
-              doesn{`’`}t support automated port-outs yet (Phase 7+).
+              Files a stub request for carrier support. The engine does not
+              support automated port-outs yet (Phase 7+).
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-3 py-2">
-            <div className="space-y-1">
-              <Label htmlFor="port-carrier">Target carrier</Label>
+            <Field label="Target carrier">
               <Input
-                id="port-carrier"
                 value={portTarget.newCarrier}
                 onChange={(e) =>
                   setPortTarget((p) => ({ ...p, newCarrier: e.target.value }))
                 }
                 placeholder="e.g. Telnyx"
               />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="port-email">Contact email</Label>
+            </Field>
+            <Field label="Contact email">
               <Input
-                id="port-email"
                 type="email"
                 value={portTarget.contactEmail}
                 onChange={(e) =>
@@ -1104,17 +1101,12 @@ export function NumberDetailClient({ detail }: Props) {
                 }
                 placeholder="ops@yourcorp.com"
               />
-            </div>
+            </Field>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionPending}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={doPortOut}
-              disabled={actionPending}
-            >
-              {actionPending ? "Filing…" : "File request"}
+            <AlertDialogCancel disabled={actionPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={doPortOut} disabled={actionPending}>
+              {actionPending ? "Filing..." : "File request"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1128,7 +1120,7 @@ export function NumberDetailClient({ detail }: Props) {
         description={`Last ${detail.audit.length} entries scoped to ${detail.e164}.`}
       >
         {detail.audit.length === 0 ? (
-          <p className="text-sm text-[var(--st-text)]">
+          <p className="text-sm text-[var(--st-text-secondary)]">
             No audit entries yet for this number.
           </p>
         ) : (
@@ -1136,15 +1128,17 @@ export function NumberDetailClient({ detail }: Props) {
             {detail.audit.map((a, i) => (
               <li
                 key={`${a.action}-${i}`}
-                className="rounded-md border border-[var(--st-border)] bg-white p-3"
+                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3"
               >
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-medium">{a.action}</span>
-                  <span className="font-mono text-[var(--st-text)]">
+                  <span className="font-medium text-[var(--st-text)]">
+                    {a.action}
+                  </span>
+                  <span className="font-mono text-[var(--st-text-secondary)]">
                     {new Date(a.createdAt).toLocaleString()}
                   </span>
                 </div>
-                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-[11px] text-[var(--st-text)]">
+                <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words text-[11px] text-[var(--st-text-secondary)]">
                   {JSON.stringify(a.detail, null, 2)}
                 </pre>
               </li>
@@ -1152,24 +1146,6 @@ export function NumberDetailClient({ detail }: Props) {
           </ul>
         )}
       </SabsmsDetailDrawer>
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: React.ReactNode;
-  sub?: string;
-}) {
-  return (
-    <div className="rounded-md border border-[var(--st-border)] bg-white p-3">
-      <div className="text-xs uppercase tracking-wide text-[var(--st-text)]">{label}</div>
-      <div className="mt-1 text-sm font-medium">{value}</div>
-      {sub && <div className="text-[10px] text-[var(--st-text-secondary)]">{sub}</div>}
     </div>
   );
 }

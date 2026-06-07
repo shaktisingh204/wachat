@@ -1,29 +1,34 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Button } from '@/components/sabcrm/20ui';
 import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState } from 'react';
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/sabcrm/20ui';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LuDownload,
-  LuFileUp,
-  LuUpload,
-  LuLoader } from 'react-icons/lu';
+import { Download, FileUp, Upload } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
 import { handleImportContacts } from '@/app/actions/contact.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { Project } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 
 /**
- * ImportContactsDialog — Clay-styled CSV/XLSX contact importer.
+ * ImportContactsDialog - 20ui CSV/XLSX contact importer.
  */
-
-import * as React from 'react';
-
-import { cn } from '@/lib/utils';
 
 const initialState = {
   message: null,
@@ -33,18 +38,8 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button
-      type="submit"
-      variant="rose"
-      size="md"
-      disabled={pending}
-      leading={
-        pending ? (
-          <LuLoader className="h-3.5 w-3.5 animate-spin" />
-        ) : undefined
-      }
-    >
-      {pending ? 'Importing…' : 'Import contacts'}
+    <Button type="submit" variant="danger" size="md" loading={pending}>
+      {pending ? 'Importing...' : 'Import contacts'}
     </Button>
   );
 }
@@ -101,21 +96,17 @@ export function ImportContactsDialog({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast({ title: 'Sample file downloading…' });
+    toast({ title: 'Sample file downloading...' });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="pill"
-          size="md"
-          leading={<LuFileUp className="h-3.5 w-3.5" strokeWidth={2} />}
-        >
+        <Button variant="secondary" size="md" iconLeft={FileUp}>
           Import
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[520px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
+      <DialogContent className="max-w-[520px] p-0">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input
@@ -125,17 +116,17 @@ export function ImportContactsDialog({
           />
 
           <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-              <LuFileUp className="h-5 w-5" strokeWidth={2} />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+              <FileUp className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold leading-tight text-[var(--st-text)]">
                 Import contacts
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
+              <DialogDescription className="mt-0.5 text-[12px] leading-snug text-[var(--st-text-secondary)]">
                 Upload a CSV or XLSX file to add or update contacts. First
-                column must be the phone number (WhatsApp ID); second should
-                be the name.
+                column must be the phone number (WhatsApp ID); second should be
+                the name.
               </DialogDescription>
             </div>
           </DialogHeader>
@@ -143,15 +134,21 @@ export function ImportContactsDialog({
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
+              <Label
+                htmlFor="import-phone-number"
+                className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
+              >
                 Associate with number
               </Label>
               <Select
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a number…" />
+                <SelectTrigger
+                  id="import-phone-number"
+                  aria-label="Associate with number"
+                >
+                  <SelectValue placeholder="Choose a number..." />
                 </SelectTrigger>
                 <SelectContent>
                   {(project?.phoneNumbers || []).map((phone) => (
@@ -166,33 +163,42 @@ export function ImportContactsDialog({
             {/* File drop */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
-                  Contact file <span className="ml-1 text-[var(--st-text)]">*</span>
-                </Label>
-                <button
-                  type="button"
-                  onClick={handleDownloadSample}
-                  className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
+                <Label
+                  htmlFor="contactFile"
+                  required
+                  className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
                 >
-                  <LuDownload className="h-3 w-3" strokeWidth={2} />
+                  Contact file
+                </Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Download}
+                  onClick={handleDownloadSample}
+                >
                   Sample CSV
-                </button>
+                </Button>
               </div>
 
               <label
+                htmlFor="contactFile"
                 className={cn(
-                  'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border-2 border-dashed px-4 py-8 text-center transition-colors',
+                  'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border-2 border-dashed px-4 py-8 text-center transition-colors',
                   fileName
-                    ? 'border-primary bg-[var(--st-bg-muted)]/60'
-                    : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]',
+                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                    : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:border-[var(--st-accent)]',
                 )}
               >
-                <LuUpload
+                <Upload
                   className={cn(
                     'h-6 w-6 transition-colors',
-                    fileName ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
+                    fileName
+                      ? 'text-[var(--st-text)]'
+                      : 'text-[var(--st-text-secondary)]',
                   )}
                   strokeWidth={1.75}
+                  aria-hidden="true"
                 />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[13px] font-medium text-[var(--st-text)]">
@@ -217,10 +223,10 @@ export function ImportContactsDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="gap-2 border-t border-[var(--st-border)] px-6 py-4 sm:justify-end">
             <Button
               type="button"
-              variant="pill"
+              variant="secondary"
               size="md"
               onClick={() => setOpen(false)}
             >

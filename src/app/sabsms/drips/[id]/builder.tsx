@@ -1,17 +1,16 @@
 "use client";
 
 /**
- * Drip builder — interactive canvas.
+ * Drip builder - interactive canvas.
  *
- * Page 13 §B.2 of `plans/sabsms-pages-catalog.md`. Implements all
+ * Page 13 of `plans/sabsms-pages-catalog.md`. Implements all
  * twenty page-specific features alongside the toolkit-supplied shared
- * features. Persistence + dry-run + AI-suggest + clone go through the
+ * features. Persistence, dry-run, AI-suggest and clone go through the
  * server actions in `./actions.ts`. Validation is a pure call into
  * `./validate.ts` so it can also run in `node:test`.
  */
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -31,7 +30,43 @@ import {
   Users,
 } from "lucide-react";
 
-import { Alert, AlertDescription, AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertTitle, Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Kbd, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Kbd,
+  ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Switch,
+} from "@/components/sabcrm/20ui";
 import {
   SabsmsKbdHint,
   SabsmsRefreshButton,
@@ -84,7 +119,7 @@ function appendAfter(
   node: DraftDripNode,
 ): DraftDrip {
   // The existing edge from `afterId` to its successor (if any) is
-  // re-routed: afterId → newNode → successor.
+  // re-routed: afterId -> newNode -> successor.
   const outgoing = draft.edges.find((e) => e.from === afterId && !e.branchValue);
   const nodes = [...draft.nodes, node];
   const edges: DraftDripEdge[] = draft.edges.filter(
@@ -133,7 +168,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
 
   const validation = React.useMemo(() => validateDrip(draft), [draft]);
 
-  // ─── Per-node error mapping ────────────────────────────────────────────
+  // Per-node error mapping
   const errorsByNode = React.useMemo(() => {
     const map = new Map<string, string[]>();
     for (const err of validation.errors) {
@@ -149,7 +184,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
 
   const globalErrors = validation.errors.filter((e) => !/"([^"]+)"/.test(e));
 
-  // ─── Cmd+S save ────────────────────────────────────────────────────────
+  // Cmd+S save
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -187,7 +222,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
     if (res.ok) setEnrolCount(res.count);
   }
 
-  // ─── Add step ──────────────────────────────────────────────────────────
+  // Add step
   function addNode(kind: DraftDripNode["kind"], afterId: string) {
     const id = genId(kind);
     let node: DraftDripNode = { id, kind };
@@ -221,13 +256,13 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
     setAddOpen(null);
   }
 
-  // ─── Suggest next step ────────────────────────────────────────────────
+  // Suggest next step
   async function handleSuggest(afterId: string) {
     const res = await suggestNextStep(draft);
     addNode(res.kind, afterId);
   }
 
-  // ─── Clone ─────────────────────────────────────────────────────────────
+  // Clone
   async function handleClone(sourceId: string) {
     const res = await cloneStepsFromDrip(drip.id, sourceId, draft);
     if (res.ok && res.draft) {
@@ -236,7 +271,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
     }
   }
 
-  // ─── Export ────────────────────────────────────────────────────────────
+  // Export
   function handleExport() {
     const blob = new Blob([JSON.stringify(draft, null, 2)], {
       type: "application/json",
@@ -251,28 +286,28 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
     URL.revokeObjectURL(url);
   }
 
-  // ─── Render: traverse trunk in order ──────────────────────────────────
+  // Render: traverse trunk in order.
   // For visual simplicity we render the trunk top-down. Branches get
   // rendered as two horizontally-stacked sub-columns underneath.
   const start = draft.nodes.find((n) => n.kind === "start");
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      {/* ── Canvas ─────────────────────────────────────────────── */}
+      {/* Canvas */}
       <div className="space-y-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
             <div>
               <CardTitle>Canvas</CardTitle>
               <CardDescription>
-                Vertical flow — each card is a step. Add waits, branches, or
+                Vertical flow, each card is a step. Add waits, branches, or
                 messages between any two nodes.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <SabsmsKbdHint
                 shortcuts={[
-                  { keys: ["⌘", "S"], description: "Save drip" },
+                  { keys: ["Cmd", "S"], description: "Save drip" },
                   { keys: ["?"], description: "Open this dialog" },
                 ]}
               />
@@ -299,9 +334,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                     onSuggest={handleSuggest}
                   />
                 ) : (
-                  <Alert>
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Empty drip</AlertTitle>
+                  <Alert tone="warning" icon={AlertTriangle} title="Empty drip">
                     <AlertDescription>
                       No start node. Reset the drip JSON or import a valid
                       definition.
@@ -314,23 +347,20 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
         </Card>
       </div>
 
-      {/* ── Side rail ─────────────────────────────────────────── */}
+      {/* Side rail */}
       <aside className="space-y-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Drip settings</CardTitle>
           </CardHeader>
           <CardBody className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="drip-name">Name</Label>
+            <Field label="Name" id="drip-name">
               <Input
-                id="drip-name"
                 value={draft.name}
                 onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Entry trigger</Label>
+            </Field>
+            <Field label="Entry trigger" id="drip-entry-trigger">
               <Select
                 value={draft.entryTrigger.kind}
                 onValueChange={(v) => {
@@ -349,7 +379,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                   }
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger aria-label="Entry trigger">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -358,7 +388,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                   <SelectItem value="event">Custom event</SelectItem>
                 </SelectContent>
               </Select>
-              {draft.entryTrigger.kind === "segment_join" && (
+            </Field>
+            {draft.entryTrigger.kind === "segment_join" && (
+              <Field label="Segment" id="drip-segment-id">
                 <Input
                   placeholder="segmentId"
                   value={draft.entryTrigger.segmentId}
@@ -369,8 +401,10 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                     })
                   }
                 />
-              )}
-              {draft.entryTrigger.kind === "event" && (
+              </Field>
+            )}
+            {draft.entryTrigger.kind === "event" && (
+              <Field label="Event key" id="drip-event-key">
                 <Input
                   placeholder="event_key e.g. checkout.completed"
                   value={draft.entryTrigger.eventKey}
@@ -381,23 +415,27 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                     })
                   }
                 />
-              )}
-            </div>
+              </Field>
+            )}
             <Separator />
-            <label className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-1.5 text-[var(--st-text)]">
                 {enabled ? (
-                  <PlayCircle className="h-3.5 w-3.5 text-[var(--st-text)]" />
+                  <PlayCircle className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
                 ) : (
-                  <PauseCircle className="h-3.5 w-3.5 text-[var(--st-text)]" />
+                  <PauseCircle className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
                 )}
                 {enabled ? "Running" : "Paused"}
               </span>
-              <Switch checked={enabled} onCheckedChange={handleToggleEnabled} />
-            </label>
-            <div className="flex items-center justify-between rounded-md bg-[var(--st-bg-muted)] px-3 py-2 text-xs">
+              <Switch
+                checked={enabled}
+                onCheckedChange={handleToggleEnabled}
+                aria-label={enabled ? "Pause drip" : "Resume drip"}
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] px-3 py-2 text-xs">
               <span className="flex items-center gap-1.5 text-[var(--st-text)]">
-                <Users className="h-3 w-3" /> Live enrolments
+                <Users className="h-3 w-3" aria-hidden="true" /> Live enrolments
               </span>
               <span className="font-semibold text-[var(--st-text)]">{enrolCount}</span>
             </div>
@@ -421,11 +459,11 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 ["unsubscribed", "When contact unsubscribes"],
               ] as const
             ).map(([key, label]) => (
-              <label
+              <div
                 key={key}
                 className="flex items-center justify-between text-xs text-[var(--st-text)]"
               >
-                {label}
+                <span>{label}</span>
                 <Switch
                   checked={!!draft.exitConditions?.[key]}
                   onCheckedChange={(v) =>
@@ -434,8 +472,9 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                       exitConditions: { ...(draft.exitConditions ?? {}), [key]: !!v },
                     })
                   }
+                  aria-label={label}
                 />
-              </label>
+              </div>
             ))}
           </CardBody>
         </Card>
@@ -447,12 +486,12 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           <CardBody>
             {validation.ok ? (
               <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                <CheckCircle2 className="h-4 w-4" /> No issues.
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> No issues.
               </div>
             ) : (
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-sm font-medium text-[var(--st-text)]">
-                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   {validation.errors.length} issue{validation.errors.length === 1 ? "" : "s"}
                 </div>
                 <ul className="ml-2 list-disc space-y-0.5 text-[11px] text-[var(--st-text)]">
@@ -462,7 +501,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 </ul>
                 {globalErrors.length === 0 && validation.errors.length > 6 && (
                   <div className="text-[11px] text-[var(--st-text)]">
-                    …and {validation.errors.length - 6} more (see node cards).
+                    and {validation.errors.length - 6} more (see node cards).
                   </div>
                 )}
               </div>
@@ -474,41 +513,53 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           <Button
             variant="outline"
             size="sm"
+            iconLeft={History}
             onClick={() => setHistoryOpen(true)}
           >
-            <History className="mr-1.5 h-3.5 w-3.5" /> History
+            History
           </Button>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={FlaskConical}
             onClick={() => setDryRunOpen(true)}
           >
-            <FlaskConical className="mr-1.5 h-3.5 w-3.5" /> Dry-run
+            Dry-run
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setCloneOpen(true)}>
-            <Copy className="mr-1.5 h-3.5 w-3.5" /> Clone from
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Copy}
+            onClick={() => setCloneOpen(true)}
+          >
+            Clone from
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-1.5 h-3.5 w-3.5" /> Export JSON
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Download}
+            onClick={handleExport}
+          >
+            Export JSON
           </Button>
         </div>
 
-        <div className="flex items-center justify-between rounded-md border border-[var(--st-border)] bg-white p-3 text-xs text-[var(--st-text)]">
+        <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 text-xs text-[var(--st-text)]">
           <span>
             Last saved{" "}
-            {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "—"}
+            {lastSavedAt ? new Date(lastSavedAt).toLocaleString() : "never"}
           </span>
           <Button size="sm" onClick={handleSave} disabled={saving || !validation.ok}>
-            {saving ? "Saving…" : "Save"}
+            {saving ? "Saving..." : "Save"}
           </Button>
         </div>
         <div className="text-[11px] text-[var(--st-text)]">
-          Tip: press <Kbd>⌘</Kbd>
+          Tip: press <Kbd>Cmd</Kbd>
           <Kbd>S</Kbd> to save without leaving the canvas.
         </div>
       </aside>
 
-      {/* ── Add step dialog ───────────────────────────────────── */}
+      {/* Add step dialog */}
       <Dialog open={!!addOpen} onOpenChange={(o) => !o && setAddOpen(null)}>
         <DialogContent>
           <DialogHeader>
@@ -519,25 +570,25 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
           </DialogHeader>
           <div className="grid grid-cols-1 gap-2">
             <AddOptionButton
-              icon={<Mail className="h-4 w-4" />}
+              icon={<Mail className="h-4 w-4" aria-hidden="true" />}
               label="Send message"
               description="Send a template-driven SMS / MMS."
               onClick={() => addOpen && addNode("message", addOpen.afterId)}
             />
             <AddOptionButton
-              icon={<Clock className="h-4 w-4" />}
+              icon={<Clock className="h-4 w-4" aria-hidden="true" />}
               label="Wait"
               description="Wait a relative duration or an absolute timestamp."
               onClick={() => addOpen && addNode("wait", addOpen.afterId)}
             />
             <AddOptionButton
-              icon={<GitBranch className="h-4 w-4" />}
+              icon={<GitBranch className="h-4 w-4" aria-hidden="true" />}
               label="Branch"
               description="Split the path based on replied / clicked / opened."
               onClick={() => addOpen && addNode("branch", addOpen.afterId)}
             />
             <AddOptionButton
-              icon={<Sparkles className="h-4 w-4" />}
+              icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
               label="Let AI suggest"
               description="Pick the most likely next step."
               onClick={() => addOpen && handleSuggest(addOpen.afterId)}
@@ -546,20 +597,23 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
         </DialogContent>
       </Dialog>
 
-      {/* ── History dialog ────────────────────────────────────── */}
+      {/* History dialog */}
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Version history</DialogTitle>
             <DialogDescription>
-              Rolling back creates a fresh save — you can roll forward again.
+              Rolling back creates a fresh save, you can roll forward again.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[55vh] space-y-2 overflow-y-auto">
             {drip.versions.length === 0 ? (
-              <div className="text-sm text-[var(--st-text)]">
-                No prior versions yet. Save once to create the first snapshot.
-              </div>
+              <EmptyState
+                icon={History}
+                title="No prior versions yet"
+                description="Save once to create the first snapshot."
+                size="sm"
+              />
             ) : (
               drip.versions
                 .slice()
@@ -567,14 +621,14 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
                 .map((v) => (
                   <div
                     key={v.versionId}
-                    className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm"
+                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2 text-sm"
                   >
                     <div className="space-y-0.5">
                       <div className="font-medium text-[var(--st-text)]">
                         {new Date(v.savedAt).toLocaleString()}
                       </div>
-                      <div className="text-[11px] text-[var(--st-text)]">
-                        {v.draft.nodes.length} nodes · {v.draft.edges.length} edges
+                      <div className="text-[11px] text-[var(--st-text-secondary)]">
+                        {v.draft.nodes.length} nodes, {v.draft.edges.length} edges
                       </div>
                     </div>
                     <Button
@@ -595,7 +649,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
         </DialogContent>
       </Dialog>
 
-      {/* ── Dry-run dialog ────────────────────────────────────── */}
+      {/* Dry-run dialog */}
       <DryRunDialog
         open={dryRunOpen}
         onOpenChange={setDryRunOpen}
@@ -603,29 +657,34 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
         templates={templates}
       />
 
-      {/* ── Clone dialog ──────────────────────────────────────── */}
+      {/* Clone dialog */}
       <Dialog open={cloneOpen} onOpenChange={setCloneOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Clone steps from another drip</DialogTitle>
             <DialogDescription>
-              Pick a source drip — its middle steps are appended after the
+              Pick a source drip, its middle steps are appended after the
               current ones with a fresh id prefix.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
             {otherDrips.length === 0 ? (
-              <div className="text-sm text-[var(--st-text)]">No other drips to clone from.</div>
+              <EmptyState
+                icon={Copy}
+                title="No other drips to clone from"
+                size="sm"
+              />
             ) : (
               otherDrips.map((d) => (
                 <Button
                   key={d.id}
                   variant="outline"
-                  className="w-full justify-between"
+                  block
+                  iconRight={ArrowDown}
+                  className="justify-between"
                   onClick={() => handleClone(d.id)}
                 >
-                  <span>{d.name}</span>
-                  <ArrowDown className="h-3.5 w-3.5" />
+                  {d.name}
                 </Button>
               ))
             )}
@@ -633,7 +692,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
         </DialogContent>
       </Dialog>
 
-      {/* ── Confirm delete ────────────────────────────────────── */}
+      {/* Confirm delete */}
       <AlertDialog
         open={!!confirmDelete}
         onOpenChange={(o) => !o && setConfirmDelete(null)}
@@ -664,7 +723,7 @@ export function DripBuilder({ drip, templates, otherDrips }: DripBuilderProps) {
   );
 }
 
-// ─── Subcomponents ──────────────────────────────────────────────────────
+// Subcomponents
 
 function AddOptionButton({
   icon,
@@ -678,17 +737,20 @@ function AddOptionButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
+      block
       onClick={onClick}
-      className="flex items-start gap-3 rounded-md border border-[var(--st-border)] px-3 py-3 text-left transition hover:border-[var(--st-border)]"
+      className="h-auto items-start gap-3 px-3 py-3 text-left [&>.u-btn__label]:flex [&>.u-btn__label]:items-start [&>.u-btn__label]:gap-3"
     >
-      <span className="rounded-md bg-[var(--st-bg-muted)] p-1.5 text-[var(--st-text)]">{icon}</span>
+      <span className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-1.5 text-[var(--st-text)]">
+        {icon}
+      </span>
       <span className="space-y-0.5">
         <span className="block text-sm font-medium text-[var(--st-text)]">{label}</span>
-        <span className="block text-xs text-[var(--st-text)]">{description}</span>
+        <span className="block text-xs text-[var(--st-text-secondary)]">{description}</span>
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -735,16 +797,17 @@ function CanvasTrunk({
         />
         {node.kind !== "exit" && (
           <div className="flex flex-col items-center gap-1 py-1">
-            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
             <Button
               variant="outline"
               size="sm"
-              className="h-7 gap-1 text-[11px]"
+              iconLeft={Plus}
+              className="h-7 text-[11px]"
               onClick={() => onAdd(node.id)}
             >
-              <Plus className="h-3 w-3" /> Add step
+              Add step
             </Button>
-            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" />
+            <ArrowDown className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
           </div>
         )}
       </React.Fragment>,
@@ -755,17 +818,17 @@ function CanvasTrunk({
       elements.push(
         <div
           key={`${node.id}-branch`}
-          className="grid grid-cols-2 gap-3 rounded-md border border-dashed border-[var(--st-border)] p-2"
+          className="grid grid-cols-2 gap-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2"
         >
           <div>
             <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-[var(--st-text)]">
-              <Badge variant="default" className="h-4 px-1 text-[9px]">YES</Badge>
+              <Badge tone="success" className="h-4 px-1 text-[9px]">YES</Badge>
             </div>
             {tEdge && <CanvasSub edgeTo={tEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
           </div>
           <div>
             <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-[var(--st-text)]">
-              <Badge variant="secondary" className="h-4 px-1 text-[9px]">NO</Badge>
+              <Badge tone="neutral" className="h-4 px-1 text-[9px]">NO</Badge>
             </div>
             {fEdge && <CanvasSub edgeTo={fEdge.to} draft={draft} templates={templates} errorsByNode={errorsByNode} dripId={dripId} onChange={onChange} onDelete={onDelete} onAdd={onAdd} onSuggest={onSuggest} seen={seen} />}
           </div>
@@ -848,35 +911,35 @@ function DryRunDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-1.5">
-            <Label>Phone (E.164)</Label>
+          <Field label="Phone (E.164)" id="dryrun-phone">
             <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>First name</Label>
+          </Field>
+          <Field label="First name" id="dryrun-first-name">
             <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          </div>
+          </Field>
         </div>
         {steps && (
-          <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs">
-            {steps.length === 0 && <div className="text-[var(--st-text)]">No steps simulated.</div>}
+          <div className="mt-3 max-h-72 space-y-1.5 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs">
+            {steps.length === 0 && (
+              <div className="text-[var(--st-text-secondary)]">No steps simulated.</div>
+            )}
             {steps.map((s) => {
               const tpl = templates.find((t) => t.id === s.templateId);
               return (
                 <div
                   key={`${s.index}-${s.templateId}`}
-                  className="flex items-center justify-between rounded-md bg-white px-2 py-1.5 shadow-sm"
+                  className="flex items-center justify-between rounded-[var(--st-radius)] bg-[var(--st-bg)] px-2 py-1.5 shadow-sm"
                 >
                   <div>
                     <div className="font-medium text-[var(--st-text)]">
                       #{s.index + 1} {tpl?.name ?? s.templateId}
                     </div>
-                    <div className="text-[11px] text-[var(--st-text)]">
+                    <div className="text-[11px] text-[var(--st-text-secondary)]">
                       Scheduled {new Date(s.scheduledAt).toLocaleString()}
                     </div>
                   </div>
                   {s.skipped && (
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge tone="neutral" className="text-[10px]">
                       skipped
                     </Badge>
                   )}
@@ -890,7 +953,7 @@ function DryRunDialog({
             Close
           </Button>
           <Button onClick={run} disabled={busy}>
-            {busy ? "Simulating…" : "Run"}
+            {busy ? "Simulating..." : "Run"}
           </Button>
         </DialogFooter>
       </DialogContent>

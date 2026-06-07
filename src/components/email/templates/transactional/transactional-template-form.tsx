@@ -10,8 +10,35 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, Send, Trash2, Eye } from 'lucide-react';
-import { Badge, Button, Card, Checkbox, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Skeleton, Textarea, toast } from '@/components/sabcrm/20ui';
+import { ArrowLeft, Plus, Send, Trash2, Eye, Braces } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Skeleton,
+  Textarea,
+  toast,
+} from '@/components/sabcrm/20ui';
 import {
   actionCreateTransactionalTemplate,
   actionGetTransactionalTemplate,
@@ -172,114 +199,109 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
   const declaredNames = useMemo(() => vars.map((v) => v.name), [vars]);
 
   if (loading) {
-    return <Skeleton className="h-96 w-full" />;
+    return <Skeleton height={384} className="w-full" />;
   }
 
   return (
-    <div className="zoruui space-y-6">
+    <div className="ui20 space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>
             {mode === 'create' ? 'New transactional template' : `Edit: ${name || 'Template'}`}
           </PageTitle>
           <PageDescription>
-            Define a `key`, declare merge variables, and write the HTML body. The key is what
+            Define a key, declare merge variables, and write the HTML body. The key is what
             dispatching code uses to address this template.
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+          <Button variant="outline" iconLeft={ArrowLeft} onClick={() => router.back()}>
             Back
           </Button>
-          <Button onClick={handleSave} disabled={pending}>
+          <Button variant="primary" onClick={handleSave} loading={pending}>
             Save
           </Button>
         </PageActions>
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card className="space-y-4 p-6">
-          <h2 className="text-base font-semibold">Identity</h2>
-          <div className="space-y-2">
-            <Label htmlFor="t-name">Name</Label>
-            <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="t-key">Key</Label>
-            <Input
-              id="t-key"
-              value={key}
-              onChange={(e) => setKey(e.target.value.replace(/[^a-z0-9_]/g, ''))}
-              placeholder="order_confirmation"
-            />
-            <p className="text-xs text-[color:var(--st-text-secondary)]">
-              Lowercase identifier; used by dispatchers. Must be unique per workspace.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-2">
-              <Label htmlFor="t-from-name">From name</Label>
-              <Input id="t-from-name" value={fromName} onChange={(e) => setFromName(e.target.value)} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="t-from-email">From email</Label>
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle>Identity</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <Field label="Name">
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
+            </Field>
+            <Field
+              label="Key"
+              help="Lowercase identifier; used by dispatchers. Must be unique per workspace."
+            >
               <Input
-                id="t-from-email"
-                type="email"
-                value={fromEmail}
-                onChange={(e) => setFromEmail(e.target.value)}
+                value={key}
+                onChange={(e) => setKey(e.target.value.replace(/[^a-z0-9_]/g, ''))}
+                placeholder="order_confirmation"
               />
+            </Field>
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="From name">
+                <Input value={fromName} onChange={(e) => setFromName(e.target.value)} />
+              </Field>
+              <Field label="From email">
+                <Input
+                  type="email"
+                  value={fromEmail}
+                  onChange={(e) => setFromEmail(e.target.value)}
+                />
+              </Field>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="t-reply-to">Reply-to</Label>
-            <Input id="t-reply-to" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} />
-          </div>
+            <Field label="Reply-to">
+              <Input value={replyTo} onChange={(e) => setReplyTo(e.target.value)} />
+            </Field>
+          </CardBody>
         </Card>
 
-        <Card className="space-y-4 p-6">
-          <h2 className="text-base font-semibold">Content</h2>
-          <div className="space-y-2">
-            <Label htmlFor="t-subject">Subject</Label>
-            <Input id="t-subject" value={subject} onChange={(e) => setSubject(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="t-preheader">Preheader</Label>
-            <Input id="t-preheader" value={preheader} onChange={(e) => setPreheader(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="t-html">HTML body</Label>
-            <Textarea
-              id="t-html"
-              rows={10}
-              value={htmlBody}
-              onChange={(e) => setHtmlBody(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="t-text">Plain-text body (optional)</Label>
-            <Textarea
-              id="t-text"
-              rows={4}
-              value={textBody}
-              onChange={(e) => setTextBody(e.target.value)}
-            />
-          </div>
+        <Card padding="lg">
+          <CardHeader>
+            <CardTitle>Content</CardTitle>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <Field label="Subject">
+              <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+            </Field>
+            <Field label="Preheader">
+              <Input value={preheader} onChange={(e) => setPreheader(e.target.value)} />
+            </Field>
+            <Field label="HTML body">
+              <Textarea
+                rows={10}
+                value={htmlBody}
+                onChange={(e) => setHtmlBody(e.target.value)}
+              />
+            </Field>
+            <Field label="Plain-text body (optional)">
+              <Textarea
+                rows={4}
+                value={textBody}
+                onChange={(e) => setTextBody(e.target.value)}
+              />
+            </Field>
+          </CardBody>
         </Card>
       </div>
 
-      <Card className="space-y-4 p-6">
-        <div className="flex items-center justify-between">
+      <Card padding="lg">
+        <CardHeader className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-base font-semibold">Variables schema</h2>
-            <p className="text-sm text-[color:var(--st-text-secondary)]">
-              Declare merge variables referenced in the body via `{`{{name}}`}`.
-            </p>
+            <CardTitle>Variables schema</CardTitle>
+            <CardDescription>
+              Declare merge variables referenced in the body via {'{{name}}'}.
+            </CardDescription>
           </div>
           <Button
             size="sm"
             variant="outline"
+            iconLeft={Plus}
             onClick={() =>
               setVars((prev) => [
                 ...prev,
@@ -287,175 +309,180 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
               ])
             }
           >
-            <Plus className="mr-1 h-3 w-3" />
             Add variable
           </Button>
-        </div>
-        <Separator />
-        {vars.length === 0 ? (
-          <p className="text-sm text-[color:var(--st-text-secondary)]">No variables declared.</p>
-        ) : (
-          <div className="space-y-2">
-            {vars.map((v, idx) => (
-              <div key={idx} className="grid grid-cols-12 items-center gap-2">
-                <Input
-                  className="col-span-3"
-                  placeholder="firstName"
-                  value={v.name}
-                  onChange={(e) =>
-                    setVars((prev) => {
-                      const copy = prev.slice();
-                      copy[idx] = { ...copy[idx], name: e.target.value };
-                      return copy;
-                    })
-                  }
-                />
-                <div className="col-span-2">
-                  <Select
-                    value={v.kind}
-                    onValueChange={(val) =>
+        </CardHeader>
+        <CardBody>
+          <Separator />
+          {vars.length === 0 ? (
+            <EmptyState
+              icon={Braces}
+              title="No variables declared"
+              description="Add a variable to merge dynamic values into the subject and body."
+              size="sm"
+              className="py-6"
+            />
+          ) : (
+            <div className="space-y-2 pt-4">
+              {vars.map((v, idx) => (
+                <div key={idx} className="grid grid-cols-12 items-center gap-2">
+                  <Input
+                    className="col-span-3"
+                    placeholder="firstName"
+                    aria-label={`Variable ${idx + 1} name`}
+                    value={v.name}
+                    onChange={(e) =>
                       setVars((prev) => {
                         const copy = prev.slice();
-                        copy[idx] = { ...copy[idx], kind: val as TransactionalVarKind };
-                        return copy;
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {KIND_OPTIONS.map((k) => (
-                        <SelectItem key={k} value={k}>
-                          {k}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Input
-                  className="col-span-3"
-                  placeholder="default value"
-                  value={typeof v.default === 'string' ? v.default : ''}
-                  onChange={(e) =>
-                    setVars((prev) => {
-                      const copy = prev.slice();
-                      copy[idx] = { ...copy[idx], default: e.target.value };
-                      return copy;
-                    })
-                  }
-                />
-                <Input
-                  className="col-span-3"
-                  placeholder="description"
-                  value={v.description ?? ''}
-                  onChange={(e) =>
-                    setVars((prev) => {
-                      const copy = prev.slice();
-                      copy[idx] = { ...copy[idx], description: e.target.value };
-                      return copy;
-                    })
-                  }
-                />
-                <div className="col-span-1 flex items-center gap-2">
-                  <Checkbox
-                    id={`var-req-${idx}`}
-                    checked={v.required ?? false}
-                    onCheckedChange={(b) =>
-                      setVars((prev) => {
-                        const copy = prev.slice();
-                        copy[idx] = { ...copy[idx], required: !!b };
+                        copy[idx] = { ...copy[idx], name: e.target.value };
                         return copy;
                       })
                     }
                   />
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() =>
+                  <div className="col-span-2">
+                    <Select
+                      value={v.kind}
+                      onValueChange={(val) =>
+                        setVars((prev) => {
+                          const copy = prev.slice();
+                          copy[idx] = { ...copy[idx], kind: val as TransactionalVarKind };
+                          return copy;
+                        })
+                      }
+                    >
+                      <SelectTrigger aria-label={`Variable ${idx + 1} kind`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {KIND_OPTIONS.map((k) => (
+                          <SelectItem key={k} value={k}>
+                            {k}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Input
+                    className="col-span-3"
+                    placeholder="default value"
+                    aria-label={`Variable ${idx + 1} default`}
+                    value={typeof v.default === 'string' ? v.default : ''}
+                    onChange={(e) =>
                       setVars((prev) => {
                         const copy = prev.slice();
-                        copy.splice(idx, 1);
+                        copy[idx] = { ...copy[idx], default: e.target.value };
                         return copy;
                       })
                     }
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {mode === 'edit' && (
-        <Card className="space-y-4 p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold">Live preview &amp; test send</h2>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePreview} disabled={pending}>
-                <Eye className="mr-2 h-4 w-4" />
-                Render
-              </Button>
-              <Button onClick={handleTestSend} disabled={pending}>
-                <Send className="mr-2 h-4 w-4" />
-                Test send
-              </Button>
-            </div>
-          </div>
-          <Separator />
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Variables payload</Label>
-              {declaredNames.length === 0 ? (
-                <p className="text-sm text-[color:var(--st-text-secondary)]">
-                  Declare variables above to render with merge values.
-                </p>
-              ) : (
-                declaredNames.map((n) => (
-                  <div key={n} className="flex items-center gap-2">
-                    <Label className="w-32 text-xs" htmlFor={`pv-${n}`}>
-                      {n}
-                    </Label>
-                    <Input
-                      id={`pv-${n}`}
-                      value={previewVars[n] ?? ''}
+                  />
+                  <Input
+                    className="col-span-3"
+                    placeholder="description"
+                    aria-label={`Variable ${idx + 1} description`}
+                    value={v.description ?? ''}
+                    onChange={(e) =>
+                      setVars((prev) => {
+                        const copy = prev.slice();
+                        copy[idx] = { ...copy[idx], description: e.target.value };
+                        return copy;
+                      })
+                    }
+                  />
+                  <div className="col-span-1 flex items-center gap-2">
+                    <Checkbox
+                      aria-label={`Variable ${idx + 1} required`}
+                      checked={v.required ?? false}
                       onChange={(e) =>
-                        setPreviewVars((prev) => ({ ...prev, [n]: e.target.value }))
+                        setVars((prev) => {
+                          const copy = prev.slice();
+                          copy[idx] = { ...copy[idx], required: e.target.checked };
+                          return copy;
+                        })
+                      }
+                    />
+                    <IconButton
+                      label="Remove variable"
+                      icon={Trash2}
+                      variant="ghost"
+                      onClick={() =>
+                        setVars((prev) => {
+                          const copy = prev.slice();
+                          copy.splice(idx, 1);
+                          return copy;
+                        })
                       }
                     />
                   </div>
-                ))
-              )}
-              <Separator />
-              <Label htmlFor="test-emails">Test recipients</Label>
-              <Input
-                id="test-emails"
-                placeholder="alice@example.com, bob@example.com"
-                value={testEmails}
-                onChange={(e) => setTestEmails(e.target.value)}
-              />
-              {missing.length > 0 && (
-                <div className="text-xs text-[color:var(--st-danger)]">
-                  Missing variables: {missing.join(', ')}
                 </div>
-              )}
+              ))}
             </div>
-            <div className="space-y-2">
-              <Label>Rendered subject</Label>
-              <div className="rounded border bg-[color:var(--st-bg)] p-3 font-medium">
-                {previewSubject || <Badge variant="outline">Render to see output</Badge>}
+          )}
+        </CardBody>
+      </Card>
+
+      {mode === 'edit' && (
+        <Card padding="lg">
+          <CardHeader className="flex items-center justify-between gap-4">
+            <CardTitle>Live preview &amp; test send</CardTitle>
+            <div className="flex gap-2">
+              <Button variant="outline" iconLeft={Eye} onClick={handlePreview} loading={pending}>
+                Render
+              </Button>
+              <Button variant="primary" iconLeft={Send} onClick={handleTestSend} loading={pending}>
+                Test send
+              </Button>
+            </div>
+          </CardHeader>
+          <CardBody>
+            <Separator />
+            <div className="grid grid-cols-1 gap-4 pt-4 lg:grid-cols-2">
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-[var(--st-text)]">Variables payload</p>
+                {declaredNames.length === 0 ? (
+                  <p className="text-sm text-[var(--st-text-secondary)]">
+                    Declare variables above to render with merge values.
+                  </p>
+                ) : (
+                  declaredNames.map((n) => (
+                    <Field key={n} label={n} className="flex-row items-center gap-2">
+                      <Input
+                        value={previewVars[n] ?? ''}
+                        onChange={(e) =>
+                          setPreviewVars((prev) => ({ ...prev, [n]: e.target.value }))
+                        }
+                      />
+                    </Field>
+                  ))
+                )}
+                <Separator />
+                <Field label="Test recipients">
+                  <Input
+                    placeholder="alice@example.com, bob@example.com"
+                    value={testEmails}
+                    onChange={(e) => setTestEmails(e.target.value)}
+                  />
+                </Field>
+                {missing.length > 0 && (
+                  <p className="text-xs text-[var(--st-danger)]">
+                    Missing variables: {missing.join(', ')}
+                  </p>
+                )}
               </div>
-              <Label>Rendered HTML</Label>
-              <iframe
-                title="Transactional preview"
-                srcDoc={previewHtml || '<p>Render to see output.</p>'}
-                className="h-80 w-full rounded border bg-white"
-                sandbox=""
-              />
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-[var(--st-text)]">Rendered subject</p>
+                <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 font-medium text-[var(--st-text)]">
+                  {previewSubject || <Badge variant="outline">Render to see output</Badge>}
+                </div>
+                <p className="text-sm font-medium text-[var(--st-text)]">Rendered HTML</p>
+                <iframe
+                  title="Transactional preview"
+                  srcDoc={previewHtml || '<p>Render to see output.</p>'}
+                  className="h-80 w-full rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white"
+                  sandbox=""
+                />
+              </div>
             </div>
-          </div>
+          </CardBody>
         </Card>
       )}
     </div>

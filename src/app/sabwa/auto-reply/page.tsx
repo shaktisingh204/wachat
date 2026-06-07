@@ -1,6 +1,43 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, CardTitle, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, Textarea, cn } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  IconButton,
+  Input,
+  Label,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Switch,
+  Textarea,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   Beaker,
   Clock,
@@ -17,10 +54,10 @@ import {
   CheckCircle2,
   Workflow,
   MailWarning,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * SabWa — Auto-Reply (Page 17)
+ * SabWa - Auto-Reply (Page 17)
  *
  * Priority-ordered rule builder. Each rule binds one or more triggers
  * (keyword/contains/regex/time-window/contact-label/outside-business-hours/
@@ -28,14 +65,13 @@ import {
  * send-message / forward-to-flow / set-label / set-away-message).
  *
  * Rules are drag-to-reorder; first match wins. The page also embeds a
- * client-side **test sandbox** that runs the same matching logic over a
- * pasted message + sender, so users can verify their rules before going
- * live.
+ * client-side test sandbox that runs the same matching logic over a pasted
+ * message + sender, so users can verify their rules before going live.
  *
- * Source of truth: SABWA_PLAN.md § 6 — Page 17.
+ * Source of truth: SABWA_PLAN.md section 6, Page 17.
  *
- * Rebuilt on ZoruUI primitives. Neutral zoru-* tokens only — no rainbow
- * accent colors. No tab UI per the ZoruUI design rules.
+ * Built on the 20ui design system. Neutral --st-* tokens only, no rainbow
+ * accent colors.
  */
 
 import * as React from 'react';
@@ -51,7 +87,7 @@ import {
 import { useSabwaSession } from '@/lib/sabwa/session-context';
 import type { SabwaAutoReply } from '@/lib/sabwa/types';
 
-// ─── Client-side rule model ────────────────────────────────────────────────
+// --- Client-side rule model ------------------------------------------------
 
 type TriggerKind =
   | 'keyword'
@@ -152,7 +188,7 @@ function summariseTriggers(triggers: UiTrigger[]): string {
         case 'regex':
           return `regex /${t.value ?? ''}/`;
         case 'time_window':
-          return `between ${t.start ?? '?'}–${t.end ?? '?'}`;
+          return `between ${t.start ?? '?'}-${t.end ?? '?'}`;
         case 'contact_label':
           return `label:${t.value ?? ''}`;
         case 'first_message_from_new_contact':
@@ -163,7 +199,7 @@ function summariseTriggers(triggers: UiTrigger[]): string {
           return t.kind;
       }
     })
-    .join(' • ');
+    .join(', ');
 }
 
 function summariseActions(actions: UiAction[]): string {
@@ -172,23 +208,23 @@ function summariseActions(actions: UiAction[]): string {
     .map((a) => {
       switch (a.kind) {
         case 'send_template':
-          return `→ template:${a.templateId ?? '?'}`;
+          return `-> template:${a.templateId ?? '?'}`;
         case 'send_message':
-          return `→ "${(a.message ?? '').slice(0, 24)}…"`;
+          return `-> "${(a.message ?? '').slice(0, 24)}..."`;
         case 'forward_to_flow':
-          return `→ flow:${a.flowId ?? '?'}`;
+          return `-> flow:${a.flowId ?? '?'}`;
         case 'set_label':
-          return `→ label:${a.labelId ?? '?'}`;
+          return `-> label:${a.labelId ?? '?'}`;
         case 'set_away_message':
-          return `→ away "${(a.message ?? '').slice(0, 16)}…"`;
+          return `-> away "${(a.message ?? '').slice(0, 16)}..."`;
         default:
           return a.kind;
       }
     })
-    .join(' • ');
+    .join(', ');
 }
 
-// ─── Trigger evaluator (test sandbox) ──────────────────────────────────────
+// --- Trigger evaluator (test sandbox) --------------------------------------
 
 interface SandboxContext {
   message: string;
@@ -268,11 +304,11 @@ function evaluateTrigger(t: UiTrigger, ctx: SandboxContext): boolean {
 function evaluateRule(rule: RuleRow, ctx: SandboxContext): boolean {
   if (!rule.enabled) return false;
   if (rule.triggers.length === 0) return false;
-  // AND across triggers — fires only when every trigger matches.
+  // AND across triggers, fires only when every trigger matches.
   return rule.triggers.every((t) => evaluateTrigger(t, ctx));
 }
 
-// ─── Page ──────────────────────────────────────────────────────────────────
+// --- Page ------------------------------------------------------------------
 
 export default function Page() {
   const { current: activeSession } = useSabwaSession();
@@ -416,25 +452,27 @@ export default function Page() {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-            <MessageSquareDashed className="h-5 w-5" />
+      <PageHeader>
+        <PageHeaderHeading>
+          <div className="flex items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+              <MessageSquareDashed className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <div>
+              <PageTitle>Auto-reply</PageTitle>
+              <PageDescription>
+                Match inbound messages on triggers, then run actions. Drag rules
+                to set priority, first match wins.
+              </PageDescription>
+            </div>
           </div>
-          <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-              Auto-reply
-            </h1>
-            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
-              Match inbound messages on triggers, then run actions. Drag rules
-              to set priority — first match wins.
-            </p>
-          </div>
-        </div>
-        <Button onClick={openNew}>
-          <Plus className="mr-2 h-4 w-4" /> New rule
-        </Button>
-      </div>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button onClick={openNew} iconLeft={Plus}>
+            New rule
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       <Card>
         <CardHeader>
@@ -443,7 +481,7 @@ export default function Page() {
         <CardBody className="p-0">
           {loading && rules.length === 0 && (
             <p className="px-6 py-10 text-center text-[13px] text-[var(--st-text-secondary)]">
-              Loading rules…
+              Loading rules...
             </p>
           )}
           {!loading && rules.length === 0 && (
@@ -451,10 +489,9 @@ export default function Page() {
               <EmptyState
                 icon={<MessageSquareDashed />}
                 title="No auto-reply rules yet"
-                description="Match inbound messages on keywords, regex, or sender — then reply, label, or forward automatically. First matching rule wins, so order matters."
+                description="Match inbound messages on keywords, regex, or sender, then reply, label, or forward automatically. First matching rule wins, so order matters."
                 action={
-                  <Button onClick={openNew}>
-                    <Plus className="mr-1.5 h-4 w-4" />
+                  <Button onClick={openNew} iconLeft={Plus}>
                     Create first rule
                   </Button>
                 }
@@ -474,13 +511,12 @@ export default function Page() {
                   dragIndex === i && 'opacity-50',
                 )}
               >
-                <button
-                  type="button"
-                  aria-label="Drag to reorder"
+                <IconButton
+                  label="Drag to reorder"
+                  icon={GripVertical}
+                  size="sm"
                   className="cursor-grab text-[var(--st-text-secondary)]"
-                >
-                  <GripVertical className="h-4 w-4" />
-                </button>
+                />
                 <Badge variant="outline" className="font-mono text-[10px]">
                   #{i + 1}
                 </Badge>
@@ -503,31 +539,25 @@ export default function Page() {
                 <span className="hidden text-[11.5px] text-[var(--st-text-secondary)] sm:inline">
                   {r.lastFiredAt ? 'Fired' : 'Never fired'}
                 </span>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label={`Duplicate ${r.name}`}
+                <IconButton
+                  label={`Duplicate ${r.name}`}
+                  icon={Copy}
+                  size="sm"
                   onClick={() => void onDuplicate(r)}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label={`Edit ${r.name}`}
+                />
+                <IconButton
+                  label={`Edit ${r.name}`}
+                  icon={Edit3}
+                  size="sm"
                   onClick={() => openEdit(r)}
-                >
-                  <Edit3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
+                />
+                <IconButton
+                  label={`Delete ${r.name}`}
+                  icon={Trash2}
+                  size="sm"
                   className="text-[var(--st-danger)]"
-                  aria-label={`Delete ${r.name}`}
                   onClick={() => void onDelete(r.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                />
               </li>
             ))}
           </ul>
@@ -551,7 +581,7 @@ export default function Page() {
   );
 }
 
-// ─── Test sandbox ──────────────────────────────────────────────────────────
+// --- Test sandbox ----------------------------------------------------------
 
 function TestSandbox({ rules }: { rules: RuleRow[] }) {
   const [message, setMessage] = React.useState('Hey, can you help me track order #42?');
@@ -583,10 +613,10 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-[14px]">
-          <Beaker className="h-4 w-4" /> Test sandbox
+          <Beaker className="h-4 w-4" aria-hidden="true" /> Test sandbox
         </CardTitle>
         <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-          Pure client-side simulation — no message is sent. Verify which rules
+          Pure client-side simulation, no message is sent. Verify which rules
           would fire for a given inbound.
         </p>
       </CardHeader>
@@ -624,16 +654,18 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
             </Label>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11.5px]">Business hours start</Label>
+            <Label htmlFor="sb-biz-start" className="text-[11.5px]">Business hours start</Label>
             <Input
+              id="sb-biz-start"
               type="time"
               value={bizStart}
               onChange={(e) => setBizStart(e.target.value)}
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11.5px]">Business hours end</Label>
+            <Label htmlFor="sb-biz-end" className="text-[11.5px]">Business hours end</Label>
             <Input
+              id="sb-biz-end"
               type="time"
               value={bizEnd}
               onChange={(e) => setBizEnd(e.target.value)}
@@ -649,21 +681,21 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
             onChange={(e) => setMessage(e.target.value)}
           />
         </div>
-        <Button onClick={runTest}>
-          <Beaker className="mr-2 h-4 w-4" /> Run test
+        <Button onClick={runTest} iconLeft={Beaker}>
+          Run test
         </Button>
 
         {results && (
           <div className="space-y-2 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
             {results.matches.length === 0 ? (
               <p className="flex items-center gap-2 text-[13px] text-[var(--st-text)]">
-                <MailWarning className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                <MailWarning className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                 No rules matched. Nothing would fire.
               </p>
             ) : (
               <>
                 <p className="flex items-center gap-2 text-[13px] font-medium text-[var(--st-text)]">
-                  <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
+                  <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" aria-hidden="true" />
                   First match wins:{' '}
                   <Badge variant="success" className="text-[10px]">
                     {results.firstMatch?.name}
@@ -687,7 +719,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
                   <>
                     <Separator />
                     <p className="text-[11.5px] text-[var(--st-text-secondary)]">
-                      Other rules that also matched (but won&apos;t run):
+                      Other rules that also matched (but will not run):
                     </p>
                     <ul className="space-y-1 text-[11.5px]">
                       {results.matches.slice(1).map((m) => (
@@ -709,7 +741,7 @@ function TestSandbox({ rules }: { rules: RuleRow[] }) {
   );
 }
 
-// ─── Rule editor ───────────────────────────────────────────────────────────
+// --- Rule editor -----------------------------------------------------------
 
 interface RuleEditorDialogProps {
   sessionId: string;
@@ -829,8 +861,8 @@ function RuleEditorDialog({
                 <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Triggers (AND)
                 </h3>
-                <Button size="sm" variant="ghost" onClick={addTrigger}>
-                  <Plus className="mr-1 h-3.5 w-3.5" /> Add
+                <Button size="sm" variant="ghost" onClick={addTrigger} iconLeft={Plus}>
+                  Add
                 </Button>
               </div>
               <Separator />
@@ -857,8 +889,8 @@ function RuleEditorDialog({
                 <h3 className="text-[13px] font-semibold text-[var(--st-text)]">
                   Actions
                 </h3>
-                <Button size="sm" variant="ghost" onClick={addAction}>
-                  <Plus className="mr-1 h-3.5 w-3.5" /> Add
+                <Button size="sm" variant="ghost" onClick={addAction} iconLeft={Plus}>
+                  Add
                 </Button>
               </div>
               <Separator />
@@ -886,7 +918,7 @@ function RuleEditorDialog({
             Cancel
           </Button>
           <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
-            {saving ? 'Saving…' : initial ? 'Save changes' : 'Create rule'}
+            {saving ? 'Saving...' : initial ? 'Save changes' : 'Create rule'}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -894,7 +926,7 @@ function RuleEditorDialog({
   );
 }
 
-// ─── Trigger / Action editors ──────────────────────────────────────────────
+// --- Trigger / Action editors ----------------------------------------------
 
 interface TriggerEditorProps {
   trigger: UiTrigger;
@@ -928,14 +960,12 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
             ))}
           </SelectContent>
         </Select>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Remove trigger"
+        <IconButton
+          label="Remove trigger"
+          icon={X}
+          size="sm"
           onClick={onRemove}
-        >
-          <X className="h-3.5 w-3.5" />
-        </Button>
+        />
       </div>
       {needsValue && (
         <Input
@@ -952,13 +982,13 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
         />
       )}
       {trigger.kind === 'regex' && (
-        <label className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
-          <Switch
-            checked={trigger.caseSensitive ?? false}
-            onCheckedChange={(v) => onChange({ caseSensitive: v })}
-          />
-          Case-sensitive
-        </label>
+        <Switch
+          checked={trigger.caseSensitive ?? false}
+          onCheckedChange={(v) => onChange({ caseSensitive: v })}
+          size="sm"
+          label="Case-sensitive"
+          className="text-[11.5px] text-[var(--st-text-secondary)]"
+        />
       )}
       {needsTimeRange && (
         <div className="grid grid-cols-2 gap-2">
@@ -966,19 +996,21 @@ function TriggerEditor({ trigger, onChange, onRemove }: TriggerEditorProps) {
             type="time"
             value={trigger.start ?? '09:00'}
             onChange={(e) => onChange({ start: e.target.value })}
+            aria-label="Window start time"
             className="h-8 text-[13px]"
           />
           <Input
             type="time"
             value={trigger.end ?? '18:00'}
             onChange={(e) => onChange({ end: e.target.value })}
+            aria-label="Window end time"
             className="h-8 text-[13px]"
           />
         </div>
       )}
       {trigger.kind === 'outside_business_hours' && (
         <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Clock className="h-3 w-3" /> Uses sandbox business-hours window.
+          <Clock className="h-3 w-3" aria-hidden="true" /> Uses sandbox business-hours window.
         </p>
       )}
     </div>
@@ -1010,21 +1042,20 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
             ))}
           </SelectContent>
         </Select>
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Remove action"
+        <IconButton
+          label="Remove action"
+          icon={X}
+          size="sm"
           onClick={onRemove}
-        >
-          <X className="h-3.5 w-3.5" />
-        </Button>
+        />
       </div>
 
       {action.kind === 'send_template' && (
         <Input
           value={action.templateId ?? ''}
           onChange={(e) => onChange({ templateId: e.target.value })}
-          placeholder="Template ID — TODO: template picker"
+          placeholder="Template ID"
+          aria-label="Template ID"
           className="h-8 text-[13px]"
         />
       )}
@@ -1034,10 +1065,13 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
           rows={2}
           value={action.message ?? ''}
           onChange={(e) => onChange({ message: e.target.value })}
+          aria-label={
+            action.kind === 'set_away_message' ? 'Away message' : 'Reply message'
+          }
           placeholder={
             action.kind === 'set_away_message'
-              ? 'We’re away — we’ll reply tomorrow at 9 AM.'
-              : 'Free-form reply…'
+              ? "We are away, we will reply tomorrow at 9 AM."
+              : 'Free-form reply...'
           }
           className="text-[13px]"
         />
@@ -1048,10 +1082,11 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
             value={action.flowId ?? ''}
             onChange={(e) => onChange({ flowId: e.target.value })}
             placeholder="SabFlow ID"
+            aria-label="SabFlow ID"
             className="h-8 text-[13px]"
           />
           <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
-            <Workflow className="h-3 w-3" /> Hand off to a SabFlow chatbot.
+            <Workflow className="h-3 w-3" aria-hidden="true" /> Hand off to a SabFlow chatbot.
           </p>
         </div>
       )}
@@ -1061,16 +1096,17 @@ function ActionEditor({ action, onChange, onRemove }: ActionEditorProps) {
             value={action.labelId ?? ''}
             onChange={(e) => onChange({ labelId: e.target.value })}
             placeholder="Label ID"
+            aria-label="Label ID"
             className="h-8 text-[13px]"
           />
           <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
-            <TagIcon className="h-3 w-3" /> Tag the chat after the rule fires.
+            <TagIcon className="h-3 w-3" aria-hidden="true" /> Tag the chat after the rule fires.
           </p>
         </div>
       )}
       {action.kind === 'send_message' && (
         <p className="flex items-center gap-1 text-[11px] text-[var(--st-text-secondary)]">
-          <Send className="h-3 w-3" /> Sent immediately on the active session.
+          <Send className="h-3 w-3" aria-hidden="true" /> Sent immediately on the active session.
         </p>
       )}
     </div>

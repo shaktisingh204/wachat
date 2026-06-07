@@ -1,10 +1,8 @@
 'use client';
 
-import { Input, Button, Popover, PopoverAnchor, PopoverContent, PopoverTrigger, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Select } from '@/components/sabcrm/20ui';
+import { Input, Button, Popover, PopoverAnchor, PopoverContent, ScrollArea, Dialog, DialogContent, DialogHeader, DialogTitle, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/sabcrm/20ui';
 import {
-  useActionState,
   useEffect,
-  useRef,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getCannedMessages } from '@/app/actions/project.actions';
@@ -14,15 +12,13 @@ import type { CannedMessage,
   Contact,
   Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Send, LoaderCircle, Star } from 'lucide-react';
+import { Send, LoaderCircle, Star, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { SendTemplateDialog } from './send-template-dialog';
 import { RequestPaymentDialog } from './request-payment-dialog';
 import { RequestWhatsAppPaymentDialog } from './request-whatsapp-payment-dialog';
 import { SendCatalogDialog } from './send-catalog-dialog';
 import { ChatAttachmentMenu } from './chat-attachment-menu';
-
-import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
@@ -42,9 +38,15 @@ const sendInitialState = {
 function SubmitButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
-            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            <span className="sr-only">Send Message</span>
+        <Button
+            type="button"
+            variant="primary"
+            size="md"
+            aria-label="Send message"
+            onClick={onClick}
+            disabled={pending || disabled}
+        >
+            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
         </Button>
     );
 }
@@ -235,7 +237,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                             setIsTemplateSelectorOpen(false);
                                         }}
                                     >
-                                        <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
+                                        <Check className={cn("mr-2 h-4 w-4 opacity-0")} aria-hidden="true" />
                                         {template.name}
                                     </CommandItem>
                                 ))}
@@ -265,17 +267,12 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                     SabFiles
                 </SabFileToFileButton>
 
-                {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
-                {/* For now, I will use a simple logical trick:
-                    If the user clicks "Template", I'll show a ZoruCommandDialog to pick a template.
-                    Then clicking one sets `templateToSend`.
-                */}
-
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                     <PopoverAnchor asChild>
-                        <div className="flex-1 bg-[var(--st-bg-muted)]/50 focus-within:bg-[var(--st-bg-muted)] rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
+                        <div className="flex-1 bg-[var(--st-bg-muted)]/50 focus-within:bg-[var(--st-bg-muted)] rounded-2xl transition-colors border border-transparent focus-within:border-[var(--st-accent)]/20">
                             <Input
                                 name="messageText"
+                                aria-label="Type a message"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
                                 autoComplete="off"
                                 className="border-none shadow-none focus-visible:ring-0 bg-transparent min-h-[44px] py-3"
@@ -298,18 +295,22 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                             <div className="p-1">
                                 {filteredCannedMessages.length > 0 ? (
                                     filteredCannedMessages.map(msg => (
-                                        <button
+                                        <Button
                                             key={msg._id.toString()}
                                             type="button"
-                                            className="w-full text-left p-2 rounded-sm hover:bg-[var(--st-bg-muted)] flex flex-col"
+                                            variant="ghost"
+                                            block
+                                            className="w-full justify-start text-left p-2 h-auto rounded-[var(--st-radius)] hover:bg-[var(--st-bg-muted)]"
                                             onClick={() => handleSelectCanned(msg)}
                                         >
-                                            <div className="flex justify-between items-center">
-                                                <p className="font-semibold">{msg.name}</p>
-                                                {msg.isFavourite && <Star className="h-4 w-4 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" />}
-                                            </div>
-                                            <p className="text-[var(--st-text-secondary)] truncate text-xs">{msg.content.text}</p>
-                                        </button>
+                                            <span className="flex w-full flex-col">
+                                                <span className="flex justify-between items-center">
+                                                    <span className="font-semibold">{msg.name}</span>
+                                                    {msg.isFavourite && <Star className="h-4 w-4 text-[var(--st-text-secondary)] fill-[var(--st-text-secondary)]" aria-hidden="true" />}
+                                                </span>
+                                                <span className="text-[var(--st-text-secondary)] truncate text-xs">{msg.content.text}</span>
+                                            </span>
+                                        </Button>
                                     ))
                                 ) : (
                                     <p className="p-4 text-center text-sm text-[var(--st-text-secondary)]">

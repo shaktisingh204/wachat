@@ -3,7 +3,24 @@
 import * as React from "react";
 import { Bookmark, BookmarkPlus, Pin, PinOff, Trash2 } from "lucide-react";
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  Field,
+  Input,
+} from "@/components/sabcrm/20ui";
 
 import { useSabsmsUrlState } from "./use-sabsms-url-state";
 
@@ -106,11 +123,10 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Bookmark className="mr-1.5 h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" iconLeft={Bookmark}>
             Views
             {pinned.length > 0 && (
-              <span className="ml-1.5 text-xs text-[var(--st-text)]">
+              <span className="ml-1.5 text-xs text-[var(--st-text-secondary)]">
                 ({pinned.length} pinned)
               </span>
             )}
@@ -120,7 +136,7 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
           <DropdownMenuLabel>Saved views</DropdownMenuLabel>
           <DropdownMenuSeparator />
           {views.length === 0 && (
-            <div className="px-2 py-1.5 text-xs text-[var(--st-text)]">
+            <div className="px-2 py-1.5 text-xs text-[var(--st-text-secondary)]">
               No views saved yet.
             </div>
           )}
@@ -144,8 +160,8 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
             />
           ))}
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setSaveOpen(true)}>
-            <BookmarkPlus className="mr-2 h-4 w-4" /> Save current view…
+          <DropdownMenuItem iconLeft={BookmarkPlus} onSelect={() => setSaveOpen(true)}>
+            Save current view
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -158,21 +174,19 @@ export function SabsmsSavedViews({ scope }: SabsmsSavedViewsProps) {
               Captures every filter, sort, and date range in the URL.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="sabsms-view-name">Name</Label>
+          <Field label="Name" id="sabsms-view-name">
             <Input
-              id="sabsms-view-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="High-priority failures last 24h"
               autoFocus
             />
-          </div>
+          </Field>
           <DialogFooter>
             <Button variant="outline" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={saveCurrent} disabled={!name.trim()}>
+            <Button variant="primary" onClick={saveCurrent} disabled={!name.trim()}>
               Save
             </Button>
           </DialogFooter>
@@ -194,40 +208,37 @@ function ViewRow({
   onRemove: (id: string) => void;
 }) {
   return (
-    <div className="group flex items-center gap-1 px-2 py-1.5 text-sm hover:bg-[var(--st-bg-muted)]">
-      <button
-        type="button"
-        className="flex-1 truncate text-left"
+    <div className="group flex items-center gap-1 px-2 py-1.5 text-sm hover:bg-[var(--st-bg-secondary)]">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="flex-1 justify-start truncate text-left"
         onClick={() => onApply(view)}
       >
         {view.name}
-      </button>
-      <button
-        type="button"
+      </Button>
+      <IconButton
+        variant="ghost"
+        size="sm"
+        icon={view.pinned ? PinOff : Pin}
+        label={view.pinned ? "Unpin view" : "Pin view"}
         className="opacity-0 group-hover:opacity-100"
         onClick={(e) => {
           e.stopPropagation();
           onTogglePin(view.id);
         }}
-        aria-label={view.pinned ? "Unpin view" : "Pin view"}
-      >
-        {view.pinned ? (
-          <PinOff className="h-3.5 w-3.5 text-[var(--st-text)]" />
-        ) : (
-          <Pin className="h-3.5 w-3.5 text-[var(--st-text)]" />
-        )}
-      </button>
-      <button
-        type="button"
+      />
+      <IconButton
+        variant="ghost"
+        size="sm"
+        icon={Trash2}
+        label="Delete view"
         className="opacity-0 group-hover:opacity-100"
         onClick={(e) => {
           e.stopPropagation();
           onRemove(view.id);
         }}
-        aria-label="Delete view"
-      >
-        <Trash2 className="h-3.5 w-3.5 text-[var(--st-text)]" />
-      </button>
+      />
     </div>
   );
 }

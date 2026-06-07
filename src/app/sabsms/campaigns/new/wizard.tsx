@@ -3,7 +3,20 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Kbd, Label, Separator } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  Input,
+  Kbd,
+  Separator,
+} from "@/components/sabcrm/20ui";
 import { SabsmsKbdHint } from "@/components/sabsms/page-toolkit";
 
 import {
@@ -259,12 +272,9 @@ export function CampaignWizard({
       <Stepper stepId={stepId} steps={steps} setSteps={setSteps} onJump={goTo} />
 
       {banner && (
-        <div
-          className={`rounded border p-3 text-sm ${
-            banner.kind === "ok"
-              ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-              : "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
-          }`}
+        <Alert
+          tone={banner.kind === "ok" ? "success" : "danger"}
+          onClose={() => setBanner(null)}
         >
           <div>{banner.message}</div>
           {banner.kind === "err" && banner.issues && (
@@ -274,7 +284,7 @@ export function CampaignWizard({
               ))}
             </ul>
           )}
-        </div>
+        </Alert>
       )}
 
       <Card>
@@ -336,22 +346,21 @@ export function CampaignWizard({
         </CardHeader>
         <CardBody>
           <div className="flex flex-wrap items-end gap-3">
-            <div className="flex-1 space-y-1">
-              <Label htmlFor="test-to">Recipient (E.164)</Label>
+            <Field label="Recipient (E.164)" className="flex-1">
               <Input
-                id="test-to"
                 placeholder="+15551234567"
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
               />
-            </div>
+            </Field>
             <Button
               type="button"
               variant="outline"
               onClick={handleTestSend}
+              loading={busy === "test"}
               disabled={busy === "test" || !draft.templateId || !testTo}
             >
-              {busy === "test" ? "Sending…" : "Send test"}
+              {busy === "test" ? "Sending..." : "Send test"}
             </Button>
           </div>
         </CardBody>
@@ -377,11 +386,13 @@ export function CampaignWizard({
           >
             Next
           </Button>
-          <span className="text-xs text-[var(--st-text)]">
+          <span className="flex items-center gap-1 text-xs text-[var(--st-text-secondary)]">
             <Kbd>⌘</Kbd>
-            <Kbd>←</Kbd> /
+            <Kbd>←</Kbd>
+            <span aria-hidden="true">/</span>
             <Kbd>⌘</Kbd>
-            <Kbd>→</Kbd> to navigate
+            <Kbd>→</Kbd>
+            <span>to navigate</span>
           </span>
           <SabsmsKbdHint
             shortcuts={[
@@ -400,25 +411,29 @@ export function CampaignWizard({
             type="button"
             variant="ghost"
             onClick={handleAbort}
+            loading={busy === "abort"}
             disabled={busy === "abort"}
           >
-            {busy === "abort" ? "Aborting…" : "Abort"}
+            {busy === "abort" ? "Aborting..." : "Abort"}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={handleSaveDraft}
+            loading={busy === "save"}
             disabled={busy === "save"}
           >
-            {busy === "save" ? "Saving…" : "Save draft"}
+            {busy === "save" ? "Saving..." : "Save draft"}
           </Button>
           <Button
             type="button"
+            variant="primary"
             onClick={handleLaunch}
+            loading={busy === "launch"}
             disabled={busy === "launch" || issues.length > 0}
           >
             {busy === "launch"
-              ? "Launching…"
+              ? "Launching..."
               : draft.schedule?.kind === "immediate" || !draft.schedule
                 ? "Launch"
                 : "Schedule"}
@@ -447,39 +462,46 @@ function SortableStep({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: s.id });
+  // Runtime-computed drag transform from dnd-kit.
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="flex items-center gap-2">
-      <button
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex items-center gap-2"
+    >
+      <Button
         type="button"
+        variant={active ? "primary" : "outline"}
+        size="sm"
         onClick={(e) => {
           e.preventDefault();
           onJump(s.id);
         }}
-        className={`flex items-center gap-2 rounded border px-3 py-1.5 text-sm transition ${
-          active
-            ? "border-[var(--st-border)] bg-[var(--st-text)] text-white"
-            : "border-[var(--st-border)] bg-white text-[var(--st-text)] hover:border-[var(--st-border)]"
-        } cursor-grab active:cursor-grabbing`}
+        className="cursor-grab active:cursor-grabbing"
         aria-current={active ? "step" : undefined}
       >
         <span
           className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-            active ? "bg-white text-[var(--st-text)]" : "bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+            active
+              ? "bg-[var(--st-bg)] text-[var(--st-text)]"
+              : "bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
           }`}
         >
           {s.index}
         </span>
         <span>{s.label}</span>
         {active && (
-          <Badge variant="secondary" className="ml-1 text-[10px]">
+          <Badge tone="neutral" className="ml-1 text-[10px]">
             current
           </Badge>
         )}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -520,7 +542,7 @@ function Stepper({ stepId, steps, setSteps, onJump }: StepperProps) {
               return (
                 <React.Fragment key={s.id}>
                   {i > 0 && (
-                    <span aria-hidden className="h-px w-6 bg-[var(--st-bg-muted)]" />
+                    <span aria-hidden className="h-px w-6 bg-[var(--st-border)]" />
                   )}
                   <SortableStep s={s} active={isActive} onJump={onJump} />
                 </React.Fragment>

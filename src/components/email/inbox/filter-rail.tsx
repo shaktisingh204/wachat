@@ -11,7 +11,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Input, cn } from '@/components/sabcrm/20ui';
+import { Badge, Button, Input, cn } from '@/components/sabcrm/20ui';
 
 export type InboxQuickFilter =
   | 'all'
@@ -65,47 +65,39 @@ export function FilterRail({
 
   return (
     <div className="flex h-full flex-col gap-4 border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]/40 p-3">
-      <nav className="flex flex-col gap-0.5">
+      <nav className="flex flex-col gap-0.5" aria-label="Inbox filters">
         {QUICK_FILTERS.map((f) => {
-          const Icon = f.icon;
           const isActive = active === f.id;
           const count = counts?.[f.id];
           return (
-            <button
+            <Button
               key={f.id}
-              type="button"
+              variant={isActive ? 'primary' : 'ghost'}
+              block
+              iconLeft={f.icon}
               onClick={() => onActiveChange(f.id)}
-              className={cn(
-                'flex items-center gap-2 rounded-[var(--st-radius)] px-3 py-2 text-sm text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg)] hover:text-[var(--st-text)]',
-                isActive &&
-                  'bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)] hover:text-[var(--st-text-inverted)]',
-              )}
               aria-pressed={isActive}
+              className="justify-start"
             >
-              <Icon className="h-4 w-4" />
-              <span className="flex-1 text-left">{f.label}</span>
-              {count != null && count > 0 && (
-                <span
-                  className={cn(
-                    'inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-[10px] font-semibold',
-                    isActive
-                      ? 'bg-[var(--st-text-inverted)] text-[var(--st-text)]'
-                      : 'bg-[var(--st-bg)] text-[var(--st-text)]',
-                  )}
-                >
-                  {count}
-                </span>
-              )}
-            </button>
+              <span className="flex w-full items-center gap-2">
+                <span className="flex-1 text-left">{f.label}</span>
+                {count != null && count > 0 && (
+                  <Badge tone={isActive ? 'accent' : 'neutral'} kind="soft">
+                    {count}
+                  </Badge>
+                )}
+              </span>
+            </Button>
           );
         })}
       </nav>
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
-          <Tag className="h-3 w-3" /> Label
+          <Tag className="h-3 w-3" aria-hidden="true" /> Label
         </div>
         <Input
+          aria-label="Filter by label"
           value={labelDraft}
           onChange={(e) => setLabelDraft(e.target.value)}
           onBlur={() => commitLabel(labelDraft)}
@@ -115,24 +107,25 @@ export function FilterRail({
               commitLabel(labelDraft);
             }
           }}
-          placeholder="Filter by label…"
+          placeholder="Filter by label"
         />
         {labels.length > 0 && (
           <div className="flex flex-wrap gap-1 px-0.5">
-            {labels.slice(0, 12).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => onLabelChange(label === l ? null : l)}
-                className={cn(
-                  'rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-0.5 text-[11px] text-[var(--st-text-secondary)] transition-colors hover:border-[var(--st-text)]/30 hover:text-[var(--st-text)]',
-                  label === l &&
-                    'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]',
-                )}
-              >
-                {l}
-              </button>
-            ))}
+            {labels.slice(0, 12).map((l) => {
+              const isSelected = label === l;
+              return (
+                <Button
+                  key={l}
+                  size="sm"
+                  variant={isSelected ? 'primary' : 'outline'}
+                  onClick={() => onLabelChange(isSelected ? null : l)}
+                  aria-pressed={isSelected}
+                  className={cn('rounded-full', !isSelected && 'border-[var(--st-border)] text-[var(--st-text-secondary)]')}
+                >
+                  {l}
+                </Button>
+              );
+            })}
           </div>
         )}
       </div>

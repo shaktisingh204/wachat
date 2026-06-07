@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * SabSMS inbox — right pane.
+ * SabSMS inbox - right pane.
  *
  * Renders the selected thread's message history plus the composer,
  * assignment dropdown, snooze / close controls, label editor, canned
  * responses, reaction picker, and the merge / suppress / segment side
  * actions. The 20 page-unique features all wire through this component
- * or the conversation list — see the README block at the top of
+ * or the conversation list, see the README block at the top of
  * `inbox-layout.tsx`.
  */
 
@@ -19,6 +19,7 @@ import {
   CheckCircle2,
   Circle,
   Clock,
+  Inbox,
   Loader2,
   Merge,
   Paperclip,
@@ -27,11 +28,41 @@ import {
   StickyNote,
   Trash2,
   UserPlus,
-  X,
+  Search,
   Sparkles,
 } from "lucide-react";
 
-import { Badge, Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Input, Label, ScrollArea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Tag,
+  Textarea,
+  cn,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import { SabsmsDetailDrawer } from "@/components/sabsms/page-toolkit";
 
@@ -77,7 +108,7 @@ export interface ThreadViewProps {
   templates: InboxTemplateView[];
   agents: InboxAgent[];
   allConversations: InboxConversationView[];
-  /** Re-render trigger — bumped after server actions to refetch. */
+  /** Re-render trigger, bumped after server actions to refetch. */
   onMutate: () => void;
   registerComposerFocus: (fn: () => void) => void;
   registerNoteFocus: (fn: () => void) => void;
@@ -153,8 +184,12 @@ export function ThreadView({
 
   if (!thread) {
     return (
-      <div className="flex h-full items-center justify-center p-10 text-center text-sm text-[var(--st-text)]">
-        Select a conversation to view the thread.
+      <div className="flex h-full items-center justify-center p-10">
+        <EmptyState
+          icon={Inbox}
+          title="No conversation selected"
+          description="Select a conversation to view the thread."
+        />
       </div>
     );
   }
@@ -177,10 +212,10 @@ export function ThreadView({
     if (res.ok) {
       setComposerBody("");
       setAttachments([]);
-      toast({ title: "Reply queued" });
+      toast.success("Reply queued");
       onMutate();
     } else {
-      toast({ title: "Reply failed", description: res.error, variant: "destructive" });
+      toast({ title: "Reply failed", description: res.error, tone: "danger" });
     }
   }
 
@@ -194,10 +229,10 @@ export function ThreadView({
     setBusy(false);
     if (res.ok) {
       setNoteBody("");
-      toast({ title: "Note saved" });
+      toast.success("Note saved");
       onMutate();
     } else {
-      toast({ title: "Note failed", description: res.error, variant: "destructive" });
+      toast({ title: "Note failed", description: res.error, tone: "danger" });
     }
   }
 
@@ -209,10 +244,10 @@ export function ThreadView({
     });
     setBusy(false);
     if (res.ok) {
-      toast({ title: "Canned response sent" });
+      toast.success("Canned response sent");
       onMutate();
     } else {
-      toast({ title: "Send failed", description: res.error, variant: "destructive" });
+      toast({ title: "Send failed", description: res.error, tone: "danger" });
     }
   }
 
@@ -222,16 +257,20 @@ export function ThreadView({
     setBusy(false);
     if (res.ok) {
       setComposerBody(res.suggestion);
-      toast({ title: "AI Suggestion applied" });
+      toast.success("AI suggestion applied");
     } else {
-      toast({ title: "Failed to generate AI suggestion", description: res.error, variant: "destructive" });
+      toast({
+        title: "Failed to generate AI suggestion",
+        description: res.error,
+        tone: "danger",
+      });
     }
   }
 
   async function pickAgent(agentId: string | null) {
     const res = await assignTo({ conversationId: conversation.id, agentId });
     if (res.ok) onMutate();
-    else toast({ title: "Assignment failed", description: res.error, variant: "destructive" });
+    else toast({ title: "Assignment failed", description: res.error, tone: "danger" });
   }
 
   async function applySnooze() {
@@ -244,10 +283,10 @@ export function ThreadView({
     });
     setSnoozeOpen(false);
     if (res.ok) {
-      toast({ title: "Snoozed" });
+      toast.success("Snoozed");
       onMutate();
     } else {
-      toast({ title: "Snooze failed", description: res.error, variant: "destructive" });
+      toast({ title: "Snooze failed", description: res.error, tone: "danger" });
     }
   }
 
@@ -258,17 +297,17 @@ export function ThreadView({
     });
     setCloseOpen(false);
     if (res.ok) {
-      toast({ title: "Conversation closed" });
+      toast.success("Conversation closed");
       onMutate();
     } else {
-      toast({ title: "Close failed", description: res.error, variant: "destructive" });
+      toast({ title: "Close failed", description: res.error, tone: "danger" });
     }
   }
 
   async function applyReopen() {
     const res = await reopenConversation({ conversationId: conversation.id });
     if (res.ok) {
-      toast({ title: "Reopened" });
+      toast.success("Reopened");
       onMutate();
     }
   }
@@ -281,10 +320,10 @@ export function ThreadView({
     });
     setMergeOpen(false);
     if (res.ok) {
-      toast({ title: "Conversations merged" });
+      toast.success("Conversations merged");
       onMutate();
     } else {
-      toast({ title: "Merge failed", description: res.error, variant: "destructive" });
+      toast({ title: "Merge failed", description: res.error, tone: "danger" });
     }
   }
 
@@ -315,7 +354,7 @@ export function ThreadView({
       toast({
         title: "Suppress failed",
         description: "No inbound number to suppress",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -323,17 +362,17 @@ export function ThreadView({
       phone: lastInbound.from,
       reason: "Suppressed from inbox",
     });
-    if (res.ok) toast({ title: "Sender suppressed" });
+    if (res.ok) toast.success("Sender suppressed");
     else
       toast({
         title: "Suppress failed",
         description: res.error,
-        variant: "destructive",
+        tone: "danger",
       });
   }
 
   async function applyAddToSegment() {
-    // Phase 18 stub — surface the message so the user knows why nothing
+    // Phase 18 stub, surface the message so the user knows why nothing
     // happened.
     const res = await addToSegment({
       contactId: conversation.contactId,
@@ -343,7 +382,7 @@ export function ThreadView({
       toast({
         title: "Add to segment",
         description: res.error,
-        variant: "destructive",
+        tone: "danger",
       });
   }
 
@@ -371,17 +410,13 @@ export function ThreadView({
 
       <div className="flex flex-wrap items-center gap-1.5 border-b border-[var(--st-border)] px-3 py-2">
         {conversation.labels.map((l) => (
-          <Badge key={l} variant="secondary" className="gap-1 text-[10px]">
+          <Tag
+            key={l}
+            onRemove={() => void applyRemoveLabel(l)}
+            removeLabel={`Remove label ${l}`}
+          >
             {l}
-            <button
-              type="button"
-              onClick={() => applyRemoveLabel(l)}
-              aria-label={`Remove label ${l}`}
-              className="text-[var(--st-text)] hover:text-[var(--st-text)]"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          </Badge>
+          </Tag>
         ))}
         <div className="flex items-center gap-1">
           <Input
@@ -394,7 +429,9 @@ export function ThreadView({
               }
             }}
             placeholder="add label"
-            className="h-7 w-32 text-xs"
+            inputSize="sm"
+            className="w-32"
+            aria-label="Add label"
           />
           <Button size="sm" variant="ghost" onClick={applyAddLabel}>
             Add
@@ -402,10 +439,10 @@ export function ThreadView({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 bg-[var(--st-bg-muted)]/50">
+      <ScrollArea className="flex-1 bg-[var(--st-bg-secondary)]">
         <div className="space-y-3 px-4 py-4">
           {visibleMessages.length === 0 ? (
-            <div className="rounded-md border border-dashed border-[var(--st-border)] bg-white p-6 text-center text-sm text-[var(--st-text)]">
+            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg)] p-6 text-center text-sm text-[var(--st-text-secondary)]">
               No messages in this conversation yet.
             </div>
           ) : (
@@ -421,27 +458,35 @@ export function ThreadView({
         </div>
       </ScrollArea>
 
-      <div className="border-t border-[var(--st-border)] bg-white">
+      <div className="border-t border-[var(--st-border)] bg-[var(--st-bg)]">
         <div className="flex items-center justify-between border-b border-[var(--st-border)] px-3 py-1.5 text-xs">
           <div className="flex gap-1">
             <Button
               size="sm"
-              variant={tab === "reply" ? "default" : "ghost"}
+              variant={tab === "reply" ? "primary" : "ghost"}
               onClick={() => setTab("reply")}
+              iconLeft={Send}
             >
-              <Send className="mr-1 h-3.5 w-3.5" /> Reply
+              Reply
             </Button>
             <Button
               size="sm"
-              variant={tab === "note" ? "default" : "ghost"}
+              variant={tab === "note" ? "primary" : "ghost"}
               onClick={() => setTab("note")}
+              iconLeft={StickyNote}
             >
-              <StickyNote className="mr-1 h-3.5 w-3.5" /> Internal note
+              Internal note
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={getAiSuggestion} disabled={busy} className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
-              <Sparkles className="mr-1 h-3.5 w-3.5" /> AI Suggest
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={getAiSuggestion}
+              disabled={busy}
+              iconLeft={Sparkles}
+            >
+              AI Suggest
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -491,32 +536,26 @@ export function ThreadView({
               ref={composerRef}
               value={composerBody}
               onChange={(e) => setComposerBody(e.target.value)}
-              placeholder="Type a reply…"
+              placeholder="Type a reply..."
               rows={3}
               className="resize-none"
+              aria-label="Reply body"
             />
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {attachments.map((a) => (
-                  <Badge
+                  <Tag
                     key={a.id}
-                    variant="secondary"
-                    className="gap-1 text-[10px]"
+                    onRemove={() =>
+                      setAttachments((prev) =>
+                        prev.filter((p) => p.id !== a.id),
+                      )
+                    }
+                    removeLabel={`Remove attachment ${a.name}`}
                   >
-                    <Paperclip className="h-3 w-3" />
+                    <Paperclip className="h-3 w-3" aria-hidden="true" />
                     {a.name}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAttachments((prev) =>
-                          prev.filter((p) => p.id !== a.id),
-                        )
-                      }
-                      aria-label="Remove attachment"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
+                  </Tag>
                 ))}
               </div>
             )}
@@ -527,14 +566,16 @@ export function ThreadView({
                   setAttachments((prev) => [...prev, pick])
                 }
               >
-                <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Attach
+                <Paperclip className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" /> Attach
               </SabFilePickerButton>
-              <Button onClick={send} disabled={busy || !composerBody.trim()}>
+              <Button
+                onClick={send}
+                disabled={busy || !composerBody.trim()}
+                iconLeft={busy ? undefined : Send}
+              >
                 {busy ? (
-                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Send className="mr-1.5 h-3.5 w-3.5" />
-                )}
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : null}
                 Send
               </Button>
             </div>
@@ -545,13 +586,18 @@ export function ThreadView({
               ref={noteRef}
               value={noteBody}
               onChange={(e) => setNoteBody(e.target.value)}
-              placeholder="Internal note — visible to your team only"
+              placeholder="Internal note, visible to your team only"
               rows={3}
-              className="resize-none border-[var(--st-border)] bg-[var(--st-bg-muted)]/40"
+              className="resize-none bg-[var(--st-bg-secondary)]"
+              aria-label="Internal note body"
             />
             <div className="flex items-center justify-end">
-              <Button onClick={postNote} disabled={busy || !noteBody.trim()}>
-                <StickyNote className="mr-1.5 h-3.5 w-3.5" /> Save note
+              <Button
+                onClick={postNote}
+                disabled={busy || !noteBody.trim()}
+                iconLeft={StickyNote}
+              >
+                Save note
               </Button>
             </div>
           </div>
@@ -569,17 +615,18 @@ export function ThreadView({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Label htmlFor="snooze-mins">Wake in (minutes)</Label>
-            <Input
-              id="snooze-mins"
-              value={snoozeMins}
-              onChange={(e) => setSnoozeMins(e.target.value)}
-              type="number"
-              min="1"
-            />
-            <p className="text-xs text-[var(--st-text)]">
-              Tip: when set to 0 the thread waits indefinitely for a reply.
-            </p>
+            <Field
+              label="Wake in (minutes)"
+              help="Tip: when set to 0 the thread waits indefinitely for a reply."
+            >
+              <Input
+                id="snooze-mins"
+                value={snoozeMins}
+                onChange={(e) => setSnoozeMins(e.target.value)}
+                type="number"
+                min="1"
+              />
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setSnoozeOpen(false)}>
@@ -590,7 +637,7 @@ export function ThreadView({
         </DialogContent>
       </Dialog>
 
-      {/* Close dialog — reason is required */}
+      {/* Close dialog, reason is required */}
       <Dialog open={closeOpen} onOpenChange={setCloseOpen}>
         <DialogContent>
           <DialogHeader>
@@ -600,25 +647,26 @@ export function ThreadView({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Label htmlFor="close-reason">Reason</Label>
-            <Select value={closeReason} onValueChange={setCloseReason}>
-              <SelectTrigger id="close-reason">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CLOSE_REASONS.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Field label="Reason">
+              <Select value={closeReason} onValueChange={setCloseReason}>
+                <SelectTrigger id="close-reason" aria-label="Close reason">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CLOSE_REASONS.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setCloseOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={applyClose}>
+            <Button variant="danger" onClick={applyClose}>
               Close
             </Button>
           </DialogFooter>
@@ -632,33 +680,34 @@ export function ThreadView({
             <DialogTitle>Merge into another conversation</DialogTitle>
             <DialogDescription>
               Messages from this thread move into the target. The older
-              conversation wins — labels are merged in.
+              conversation wins, labels are merged in.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <Label htmlFor="merge-target">Target conversation</Label>
-            <Select value={mergeTarget} onValueChange={setMergeTarget}>
-              <SelectTrigger id="merge-target">
-                <SelectValue placeholder="Pick a conversation" />
-              </SelectTrigger>
-              <SelectContent>
-                {allConversations
-                  .filter((c) => c.id !== conversation.id)
-                  .map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.contactId} —{" "}
-                      {(c.lastMessagePreview ?? "").slice(0, 40)}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            <Field label="Target conversation">
+              <Select value={mergeTarget} onValueChange={setMergeTarget}>
+                <SelectTrigger id="merge-target" aria-label="Target conversation">
+                  <SelectValue placeholder="Pick a conversation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allConversations
+                    .filter((c) => c.id !== conversation.id)
+                    .map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.contactId},{" "}
+                        {(c.lastMessagePreview ?? "").slice(0, 40)}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setMergeOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={applyMerge} disabled={!mergeTarget}>
-              <Merge className="mr-1.5 h-3.5 w-3.5" /> Merge
+            <Button onClick={applyMerge} disabled={!mergeTarget} iconLeft={Merge}>
+              Merge
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -679,11 +728,11 @@ export function ThreadView({
               label="Status"
               value={formatDeliveryStatusLabel(detailMessage.status)}
             />
-            <DetailRow label="Created" value={detailMessage.createdAt ?? "—"} />
-            <DetailRow label="Sent" value={detailMessage.sentAt ?? "—"} />
+            <DetailRow label="Created" value={detailMessage.createdAt ?? "-"} />
+            <DetailRow label="Sent" value={detailMessage.sentAt ?? "-"} />
             <DetailRow
               label="Delivered"
-              value={detailMessage.deliveredAt ?? "—"}
+              value={detailMessage.deliveredAt ?? "-"}
             />
             {detailMessage.errorMessage && (
               <DetailRow
@@ -693,8 +742,8 @@ export function ThreadView({
             )}
             <Separator />
             <div>
-              <div className="mb-1 text-xs uppercase text-[var(--st-text)]">Body</div>
-              <div className="whitespace-pre-wrap rounded-md bg-[var(--st-bg-muted)] p-3 text-sm">
+              <div className="mb-1 text-xs uppercase text-[var(--st-text-tertiary)]">Body</div>
+              <div className="whitespace-pre-wrap rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
                 {detailMessage.body}
               </div>
             </div>
@@ -742,27 +791,23 @@ function ThreadHeader({
             <span className="truncate font-mono text-sm font-medium text-[var(--st-text)]">
               {conversation.contactId}
             </span>
-            <Badge
-              variant={conversation.status === "open" ? "default" : "secondary"}
-              className="text-[10px]"
-            >
+            <Badge tone={conversation.status === "open" ? "accent" : "neutral"}>
               {conversation.status}
             </Badge>
             {slaBreached && (
-              <Badge variant="destructive" className="animate-pulse text-[10px]">
-                <Clock className="mr-1 h-3 w-3" /> SLA breached
+              <Badge tone="danger" className="animate-pulse">
+                <Clock className="mr-1 h-3 w-3" aria-hidden="true" /> SLA breached
               </Badge>
             )}
           </div>
-          <div className="text-xs text-[var(--st-text)]">
+          <div className="text-xs text-[var(--st-text-secondary)]">
             Conversation {conversation.id}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline">
-                <UserPlus className="mr-1.5 h-3.5 w-3.5" />
+              <Button size="sm" variant="outline" iconLeft={UserPlus}>
                 {conversation.assignedAgentId
                   ? agents.find((a) => a.id === conversation.assignedAgentId)
                       ?.name ?? conversation.assignedAgentId
@@ -786,16 +831,16 @@ function ThreadHeader({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
+                iconLeft={AtSign}
                 onSelect={() => onAutoRoundRobinChange(!autoRoundRobin)}
               >
-                <AtSign className="mr-2 h-3.5 w-3.5" />
                 Auto round-robin {autoRoundRobin ? "on" : "off"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button size="sm" variant="outline" onClick={onSnooze}>
-            <Clock className="mr-1.5 h-3.5 w-3.5" /> Snooze
+          <Button size="sm" variant="outline" onClick={onSnooze} iconLeft={Clock}>
+            Snooze
           </Button>
 
           {conversation.status === "closed" ? (
@@ -803,8 +848,8 @@ function ThreadHeader({
               Reopen
             </Button>
           ) : (
-            <Button size="sm" variant="outline" onClick={onCloseOpen}>
-              <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Close
+            <Button size="sm" variant="outline" onClick={onCloseOpen} iconLeft={CheckCircle2}>
+              Close
             </Button>
           )}
 
@@ -815,14 +860,14 @@ function ThreadHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={onMerge}>
-                <Merge className="mr-2 h-3.5 w-3.5" /> Merge conversation
+              <DropdownMenuItem iconLeft={Merge} onSelect={onMerge}>
+                Merge conversation
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => void onSuppress()}>
-                <Ban className="mr-2 h-3.5 w-3.5" /> Block sender
+              <DropdownMenuItem iconLeft={Ban} onSelect={() => void onSuppress()}>
+                Block sender
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => void onAddToSegment()}>
-                <UserPlus className="mr-2 h-3.5 w-3.5" /> Add to segment
+              <DropdownMenuItem iconLeft={UserPlus} onSelect={() => void onAddToSegment()}>
+                Add to segment
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -846,35 +891,30 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
     <div className={cn("flex", isInbound ? "justify-start" : "justify-end")}>
       <div
         className={cn(
-          "max-w-[80%] space-y-1 rounded-lg border px-3 py-2 text-sm",
+          "max-w-[80%] space-y-1 rounded-[var(--st-radius)] border px-3 py-2 text-sm",
           isNote
-            ? "border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
+            ? "border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
             : isInbound
-              ? "border-[var(--st-border)] bg-white text-[var(--st-text)]"
-              : "border-[var(--st-border)] bg-[var(--st-text)] text-white",
+              ? "border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]"
+              : "border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)]",
         )}
       >
         {isNote && (
-          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-[var(--st-text)]">
-            <StickyNote className="h-3 w-3" /> Internal note
+          <div className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-[var(--st-text-secondary)]">
+            <StickyNote className="h-3 w-3" aria-hidden="true" /> Internal note
           </div>
         )}
         <div className="whitespace-pre-wrap break-words">{message.body}</div>
         {message.mediaIds.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {message.mediaIds.map((id) => (
-              <Badge key={id} variant="secondary" className="text-[10px]">
-                <Paperclip className="mr-1 h-3 w-3" /> {id.slice(0, 8)}
+              <Badge key={id} tone="neutral">
+                <Paperclip className="mr-1 h-3 w-3" aria-hidden="true" /> {id.slice(0, 8)}
               </Badge>
             ))}
           </div>
         )}
-        <div
-          className={cn(
-            "flex items-center justify-between gap-2 text-[10px]",
-            isInbound || isNote ? "text-[var(--st-text-secondary)]" : "text-[var(--st-text-secondary)]",
-          )}
-        >
+        <div className="flex items-center justify-between gap-2 text-[10px] opacity-70">
           <span>
             {message.createdAt
               ? new Date(message.createdAt).toLocaleString(undefined, {
@@ -883,18 +923,14 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
                   hour: "2-digit",
                   minute: "2-digit",
                 })
-              : "—"}
+              : "-"}
           </span>
           {!isNote && !isInbound && <DeliveryTicks status={message.status} />}
         </div>
         {message.reactions.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-1">
             {message.reactions.map((r, i) => (
-              <Badge
-                key={`${r}-${i}`}
-                variant="secondary"
-                className="text-[10px]"
-              >
+              <Badge key={`${r}-${i}`} tone="neutral">
                 {r}
               </Badge>
             ))}
@@ -904,13 +940,12 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
           <div className="flex items-center gap-1 pt-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                  aria-label="React"
-                >
-                  <Smile className="h-3.5 w-3.5" />
-                </button>
+                <IconButton
+                  label="React"
+                  icon={Smile}
+                  variant="ghost"
+                  size="sm"
+                />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 {REACTION_PALETTE.map((emoji) => (
@@ -923,24 +958,16 @@ function MessageBubble({ message, onReact, onInspect }: MessageBubbleProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <button
-              type="button"
-              onClick={onInspect}
-              className="text-[10px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-            >
+            <Button size="sm" variant="ghost" onClick={onInspect} iconLeft={Search}>
               Inspect
-            </button>
+            </Button>
           </div>
         )}
         {!isInbound && !isNote && (
           <div className="flex items-center justify-end pt-1">
-            <button
-              type="button"
-              onClick={onInspect}
-              className="text-[10px] text-[var(--st-text-secondary)] hover:text-white"
-            >
+            <Button size="sm" variant="ghost" onClick={onInspect} iconLeft={Search}>
               Inspect
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -952,7 +979,7 @@ function DeliveryTicks({ status }: { status: string }) {
   if (status === "delivered") {
     return (
       <span className="flex items-center gap-0.5">
-        <CheckCheck className="h-3 w-3" />
+        <CheckCheck className="h-3 w-3" aria-hidden="true" />
         delivered
       </span>
     );
@@ -960,7 +987,7 @@ function DeliveryTicks({ status }: { status: string }) {
   if (status === "sent") {
     return (
       <span className="flex items-center gap-0.5">
-        <CheckCheck className="h-3 w-3 opacity-60" />
+        <CheckCheck className="h-3 w-3 opacity-60" aria-hidden="true" />
         sent
       </span>
     );
@@ -968,7 +995,7 @@ function DeliveryTicks({ status }: { status: string }) {
   if (status === "queued" || status === "sending") {
     return (
       <span className="flex items-center gap-0.5">
-        <Circle className="h-3 w-3" /> queued
+        <Circle className="h-3 w-3" aria-hidden="true" /> queued
       </span>
     );
   }
@@ -978,8 +1005,8 @@ function DeliveryTicks({ status }: { status: string }) {
     status === "undelivered"
   ) {
     return (
-      <span className="flex items-center gap-0.5 text-[var(--st-text-secondary)]">
-        <Trash2 className="h-3 w-3" /> {status}
+      <span className="flex items-center gap-0.5 text-[var(--st-danger)]">
+        <Trash2 className="h-3 w-3" aria-hidden="true" /> {status}
       </span>
     );
   }
@@ -989,7 +1016,7 @@ function DeliveryTicks({ status }: { status: string }) {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-xs uppercase tracking-wide text-[var(--st-text)]">{label}</dt>
+      <dt className="text-xs uppercase tracking-wide text-[var(--st-text-tertiary)]">{label}</dt>
       <dd className="text-sm text-[var(--st-text)]">{value}</dd>
     </div>
   );

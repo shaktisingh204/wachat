@@ -1,6 +1,18 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, Button, Input, Badge, Switch } from '@/components/sabcrm/20ui';
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Badge,
+  Switch,
+  EmptyState,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   planFeatureMap,
   planFeaturesDefaults } from '@/lib/plans';
@@ -8,8 +20,7 @@ import type { PlanFeaturePermissions } from '@/lib/definitions';
 
 import * as React from 'react';
 
-import { ChevronDown, Search, Check, X, Sparkles } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ChevronDown, Search, Check, X, Sparkles, SlidersHorizontal } from 'lucide-react';
 
 type FeatureState = Partial<Record<keyof PlanFeaturePermissions, boolean>>;
 
@@ -148,11 +159,11 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
     const enabledCount = Object.values(features).filter(Boolean).length;
 
     return (
-        <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+        <Card className="overflow-hidden">
+            <CardHeader>
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-[var(--st-text)]/15 border border-primary/30 flex items-center justify-center">
-                        <Sparkles className="h-5 w-5 text-[var(--st-text)]" />
+                    <div className="h-10 w-10 rounded-[var(--st-radius)] bg-[var(--st-accent)]/15 border border-[var(--st-accent)]/30 flex items-center justify-center">
+                        <Sparkles className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <CardTitle className="text-lg">Plan Features</CardTitle>
@@ -162,10 +173,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                             copy.
                         </CardDescription>
                     </div>
-                    <Badge
-                        variant="outline"
-                        className="rounded-full border-primary/40 bg-[var(--st-text)]/15 text-[var(--st-text)] font-medium"
-                    >
+                    <Badge tone="accent" kind="soft">
                         {enabledCount}/{totalKeys}
                     </Badge>
                 </div>
@@ -187,15 +195,15 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                 )}
 
                 {/* Toolbar */}
-                <div className="sticky top-0 z-10 -mx-1 px-1 py-2 backdrop-blur-xl bg-[var(--st-bg-secondary)]/70 border-b border-white/10">
+                <div className="sticky top-0 z-10 -mx-1 px-1 py-2 bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)]">
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-secondary)]" />
+                        <div className="flex-1">
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Search features…"
-                                className="pl-9 rounded-xl bg-white/5 border-white/10 backdrop-blur"
+                                placeholder="Search features"
+                                iconLeft={Search}
+                                aria-label="Search features"
                             />
                         </div>
                         <div className="flex items-center gap-2">
@@ -203,19 +211,19 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                 type="button"
                                 size="sm"
                                 variant="outline"
-                                className="rounded-xl gap-1 border-white/10 bg-white/5 hover:bg-white/10"
+                                iconLeft={Check}
                                 onClick={() => setAll(true)}
                             >
-                                <Check className="h-3.5 w-3.5" /> All on
+                                All on
                             </Button>
                             <Button
                                 type="button"
                                 size="sm"
                                 variant="outline"
-                                className="rounded-xl gap-1 border-white/10 bg-white/5 hover:bg-white/10"
+                                iconLeft={X}
                                 onClick={() => setAll(false)}
                             >
-                                <X className="h-3.5 w-3.5" /> All off
+                                All off
                             </Button>
                         </div>
                     </div>
@@ -230,46 +238,43 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         return (
                             <div
                                 key={cat.label}
-                                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl overflow-hidden"
+                                className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] overflow-hidden"
                             >
-                                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-gradient-to-r from-white/5 to-transparent">
-                                    <button
+                                <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--st-border)]">
+                                    <Button
                                         type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="flex-1 justify-start gap-2"
+                                        aria-expanded={isOpen}
                                         onClick={() =>
                                             setOpenCategories((prev) => ({
                                                 ...prev,
                                                 [cat.label]: !isOpen,
                                             }))
                                         }
-                                        className="flex items-center gap-2 flex-1 text-left hover:opacity-80 transition"
                                     >
                                         <ChevronDown
                                             className={cn(
                                                 'h-4 w-4 transition-transform',
                                                 !isOpen && '-rotate-90',
                                             )}
+                                            aria-hidden="true"
                                         />
                                         <span className="font-semibold text-sm">{cat.label}</span>
                                         <Badge
-                                            variant="outline"
-                                            className={cn(
-                                                'rounded-full text-[10px] font-normal border-white/10',
-                                                allOn
-                                                    ? 'bg-[var(--st-text)]/15 text-[var(--st-text-secondary)] border-[var(--st-border)]/30'
-                                                    : enabled === 0
-                                                      ? 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20'
-                                                      : 'bg-white/5',
-                                            )}
+                                            tone={allOn ? 'accent' : 'neutral'}
+                                            kind="soft"
+                                            className="text-[10px] font-normal"
                                         >
                                             {enabled}/{cat.keys.length}
                                         </Badge>
-                                    </button>
+                                    </Button>
                                     <div className="flex items-center gap-1.5">
                                         <Button
                                             type="button"
                                             size="sm"
                                             variant="ghost"
-                                            className="h-7 px-2 text-xs hover:bg-white/10 rounded-lg"
                                             onClick={() => setCategory(cat.keys, true)}
                                         >
                                             Enable all
@@ -278,7 +283,6 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                             type="button"
                                             size="sm"
                                             variant="ghost"
-                                            className="h-7 px-2 text-xs hover:bg-white/10 rounded-lg"
                                             onClick={() => setCategory(cat.keys, false)}
                                         >
                                             Clear
@@ -296,24 +300,24 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                 <label
                                                     key={key}
                                                     className={cn(
-                                                        'flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer select-none transition',
+                                                        'flex items-center gap-3 px-3 py-2.5 rounded-[var(--st-radius)] border cursor-pointer select-none transition',
                                                         checked
-                                                            ? 'bg-[var(--st-text)]/10 border-primary/30 hover:bg-[var(--st-text)]/15'
-                                                            : 'bg-white/5 border-white/10 hover:bg-white/10',
+                                                            ? 'bg-[var(--st-accent)]/10 border-[var(--st-accent)]/30'
+                                                            : 'bg-[var(--st-bg)] border-[var(--st-border)]',
                                                     )}
                                                 >
                                                     <div
                                                         className={cn(
-                                                            'h-7 w-7 rounded-lg flex items-center justify-center border shrink-0',
+                                                            'h-7 w-7 rounded-[var(--st-radius)] flex items-center justify-center border shrink-0',
                                                             checked
-                                                                ? 'bg-[var(--st-text)]/20 border-primary/40 text-[var(--st-text)]'
-                                                                : 'bg-white/5 border-white/10 text-[var(--st-text-secondary)]',
+                                                                ? 'bg-[var(--st-accent)]/20 border-[var(--st-accent)]/40 text-[var(--st-accent)]'
+                                                                : 'bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text-secondary)]',
                                                         )}
                                                     >
-                                                        {Icon && <Icon className="h-3.5 w-3.5" />}
+                                                        {Icon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
                                                     </div>
                                                     <div className="min-w-0 flex-1">
-                                                        <div className="text-sm font-medium truncate">
+                                                        <div className="text-sm font-medium truncate text-[var(--st-text)]">
                                                             {meta?.name || key}
                                                         </div>
                                                         <div className="text-[10px] text-[var(--st-text-secondary)] font-mono truncate">
@@ -323,6 +327,7 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                                                     <Switch
                                                         checked={checked}
                                                         onCheckedChange={(v) => setOne(key, !!v)}
+                                                        aria-label={`Toggle ${meta?.name || key}`}
                                                     />
                                                 </label>
                                             );
@@ -333,9 +338,11 @@ export function PlanFeaturesSelector({ defaultFeatures }: PlanFeaturesSelectorPr
                         );
                     })}
                     {filteredCategories.length === 0 && (
-                        <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-[var(--st-text-secondary)]">
-                            No features match &ldquo;{search}&rdquo;.
-                        </div>
+                        <EmptyState
+                            icon={SlidersHorizontal}
+                            title="No features match your search"
+                            description={`Nothing matched "${search}". Try a different term.`}
+                        />
                     )}
                 </div>
             </CardBody>

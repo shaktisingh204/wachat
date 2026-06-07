@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SabSMS imports — main table client component.
+ * SabSMS imports. Main table client component.
  *
  * Composes the page-toolkit primitives (`SabsmsPageShell`,
  * `SabsmsFilterBar`, `SabsmsDataTable`, `SabsmsExportMenu`,
@@ -34,7 +34,7 @@ import {
   type SabsmsRowAction,
   rowsToCsv,
 } from "@/components/sabsms/page-toolkit";
-import { Badge, Progress, toast } from '@/components/sabcrm/20ui';
+import { Badge, Button, Progress, toast } from "@/components/sabcrm/20ui";
 
 import { ImportsWizard } from "./wizard";
 import {
@@ -87,13 +87,14 @@ export function ImportsTable({
     null,
   );
 
-  
   React.useEffect(() => {
     setImports(initialImports);
   }, [initialImports]);
 
   React.useEffect(() => {
-    const activeImports = imports.filter(i => i.status === "queued" || i.status === "running");
+    const activeImports = imports.filter(
+      (i) => i.status === "queued" || i.status === "running",
+    );
     if (activeImports.length === 0) return;
 
     const eventSources: EventSource[] = [];
@@ -101,40 +102,56 @@ export function ImportsTable({
     for (const record of activeImports) {
       if (record.status === "queued" || record.status === "running") {
         // Trigger processing
-        const es = new EventSource(`/api/sabsms/imports/process?id=${record.id}`);
-        
-        es.onmessage = (e) => {
+        const es = new EventSource(
+          `/api/sabsms/imports/process?id=${record.id}`,
+        );
+
+        es.onmessage = () => {
           // generic message? we are listening to specific events
         };
-        
+
         es.addEventListener("progress", (e) => {
           const data = JSON.parse(e.data);
-          setImports(prev => prev.map(imp => {
-            if (imp.id === record.id) {
-              return { ...imp, status: "running", counts: { ...imp.counts, imported: data.processed } };
-            }
-            return imp;
-          }));
+          setImports((prev) =>
+            prev.map((imp) => {
+              if (imp.id === record.id) {
+                return {
+                  ...imp,
+                  status: "running",
+                  counts: { ...imp.counts, imported: data.processed },
+                };
+              }
+              return imp;
+            }),
+          );
         });
 
         es.addEventListener("status", (e) => {
           const data = JSON.parse(e.data);
-          setImports(prev => prev.map(imp => {
-            if (imp.id === record.id) {
-              return { ...imp, status: data.status };
-            }
-            return imp;
-          }));
+          setImports((prev) =>
+            prev.map((imp) => {
+              if (imp.id === record.id) {
+                return { ...imp, status: data.status };
+              }
+              return imp;
+            }),
+          );
         });
-        
+
         es.addEventListener("completed", (e) => {
           const data = JSON.parse(e.data);
-          setImports(prev => prev.map(imp => {
-            if (imp.id === record.id) {
-              return { ...imp, status: "completed", counts: { ...imp.counts, imported: data.processed } };
-            }
-            return imp;
-          }));
+          setImports((prev) =>
+            prev.map((imp) => {
+              if (imp.id === record.id) {
+                return {
+                  ...imp,
+                  status: "completed",
+                  counts: { ...imp.counts, imported: data.processed },
+                };
+              }
+              return imp;
+            }),
+          );
           es.close();
           handleRefresh();
         });
@@ -143,7 +160,7 @@ export function ImportsTable({
           console.error("SSE error", e);
           es.close();
         });
-        
+
         eventSources.push(es);
       }
     }
@@ -151,8 +168,7 @@ export function ImportsTable({
     return () => {
       for (const es of eventSources) es.close();
     };
-  }, [imports.map(i => i.status).join(",")]); // Only re-run when statuses change
-
+  }, [imports.map((i) => i.status).join(",")]); // Only re-run when statuses change
 
   const handleRefresh = React.useCallback(() => {
     router.refresh();
@@ -178,13 +194,14 @@ export function ImportsTable({
       id: "name",
       header: "Name",
       render: (r) => (
-        <button
-          type="button"
-          className="text-left font-medium text-[var(--st-text)] hover:underline"
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-auto px-0 py-0 font-medium text-[var(--st-text)] hover:underline"
           onClick={() => setDrawerImport(r)}
         >
           {r.name}
-        </button>
+        </Button>
       ),
     },
     {
@@ -208,9 +225,10 @@ export function ImportsTable({
             : 0;
         return (
           <div className="min-w-[140px] space-y-1">
-            <Progress value={pct} className="h-1.5" />
+            <Progress value={pct} size="sm" />
             <p className="text-[10px] text-[var(--st-text)]">
-              {r.counts.imported.toLocaleString()} / {r.counts.total.toLocaleString()}
+              {r.counts.imported.toLocaleString()} /{" "}
+              {r.counts.total.toLocaleString()}
               {r.counts.failed > 0 && (
                 <span className="ml-1 text-[var(--st-text)]">
                   ({r.counts.failed.toLocaleString()} failed)
@@ -239,7 +257,7 @@ export function ImportsTable({
             )}
           </div>
         ) : (
-          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">-</span>
         ),
     },
     {
@@ -252,7 +270,7 @@ export function ImportsTable({
             ${r.costEstimate.amount.toFixed(2)}
           </span>
         ) : (
-          <span className="text-xs text-[var(--st-text-secondary)]">—</span>
+          <span className="text-xs text-[var(--st-text-secondary)]">-</span>
         ),
     },
     {
@@ -260,7 +278,7 @@ export function ImportsTable({
       header: "Created",
       render: (r) => (
         <span className="text-xs text-[var(--st-text)]">
-          {r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}
+          {r.createdAt ? new Date(r.createdAt).toLocaleString() : "-"}
         </span>
       ),
     },
@@ -269,37 +287,37 @@ export function ImportsTable({
   const rowActions: SabsmsRowAction<ImportRecord>[] = [
     {
       label: "View details",
-      icon: <ChevronRight className="h-3.5 w-3.5" />,
+      icon: <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => setDrawerImport(r),
     },
     {
       label: "Pause",
-      icon: <Pause className="h-3.5 w-3.5" />,
+      icon: <Pause className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => withToast("Pause", () => pauseImport(r.id)),
     },
     {
       label: "Resume",
-      icon: <Play className="h-3.5 w-3.5" />,
+      icon: <Play className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => withToast("Resume", () => resumeImport(r.id)),
     },
     {
       label: "Cancel",
-      icon: <X className="h-3.5 w-3.5" />,
+      icon: <X className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => withToast("Cancel", () => cancelImport(r.id)),
     },
     {
       label: "Retry failed rows",
-      icon: <RotateCcw className="h-3.5 w-3.5" />,
+      icon: <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => withToast("Retry", () => retryFailedRows(r.id)),
     },
     {
       label: "Rollback",
-      icon: <Undo2 className="h-3.5 w-3.5" />,
+      icon: <Undo2 className="h-3.5 w-3.5" aria-hidden="true" />,
       onSelect: (r) => withToast("Rollback", () => rollbackImport(r.id)),
     },
     {
       label: "Delete",
-      icon: <Trash2 className="h-3.5 w-3.5" />,
+      icon: <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />,
       destructive: true,
       onSelect: (r) => withToast("Delete", () => deleteImport(r.id)),
     },
@@ -318,7 +336,7 @@ export function ImportsTable({
       helpTitle="About imports"
       helpBody={
         <ul className="list-disc space-y-1 pl-4 text-xs">
-          <li>Every CSV must come from SabFiles — no external URLs.</li>
+          <li>Every CSV must come from SabFiles, no external URLs.</li>
           <li>
             Phone numbers are normalised to E.164; rows that fail validation
             are written to a per-import failure CSV.
@@ -330,12 +348,18 @@ export function ImportsTable({
         </ul>
       }
       secondaryActions={[
-        { label: "Mapping templates", icon: <ListChecks className="h-3.5 w-3.5" /> },
-        { label: "Schedules", icon: <RefreshCw className="h-3.5 w-3.5" /> },
+        {
+          label: "Mapping templates",
+          icon: <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />,
+        },
+        {
+          label: "Schedules",
+          icon: <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />,
+        },
       ]}
       toolbar={
         <SabsmsFilterBar
-          searchPlaceholder="Search imports by name…"
+          searchPlaceholder="Search imports by name..."
           facets={[
             {
               key: "status",
@@ -400,7 +424,7 @@ export function ImportsTable({
         bulkActions={[
           {
             label: "Cancel selected",
-            icon: <X className="h-3.5 w-3.5" />,
+            icon: <X className="h-3.5 w-3.5" aria-hidden="true" />,
             onSelect: async (rows) => {
               await Promise.all(rows.map((r) => cancelImport(r.id)));
               toast.success(`Cancelled ${rows.length} import(s).`);
@@ -409,7 +433,7 @@ export function ImportsTable({
           },
           {
             label: "Delete selected",
-            icon: <Trash2 className="h-3.5 w-3.5" />,
+            icon: <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />,
             destructive: true,
             onSelect: async (rows) => {
               await Promise.all(rows.map((r) => deleteImport(r.id)));
@@ -465,28 +489,36 @@ function ImportDetail({
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Status" value={record.status} />
-        <Field label="Source" value={record.source} />
-        <Field label="Total rows" value={record.counts.total.toLocaleString()} />
-        <Field
+        <DetailField label="Status" value={record.status} />
+        <DetailField label="Source" value={record.source} />
+        <DetailField
+          label="Total rows"
+          value={record.counts.total.toLocaleString()}
+        />
+        <DetailField
           label="Imported"
           value={record.counts.imported.toLocaleString()}
         />
-        <Field label="Failed" value={record.counts.failed.toLocaleString()} />
-        <Field
+        <DetailField
+          label="Failed"
+          value={record.counts.failed.toLocaleString()}
+        />
+        <DetailField
           label="Skipped"
           value={record.counts.skipped.toLocaleString()}
         />
         {record.options.cronExpression && (
-          <Field label="Cron" value={record.options.cronExpression} />
+          <DetailField label="Cron" value={record.options.cronExpression} />
         )}
         {record.options.webhookUrl && (
-          <Field label="Webhook" value={record.options.webhookUrl} />
+          <DetailField label="Webhook" value={record.options.webhookUrl} />
         )}
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-[var(--st-text)]">Failed rows</h3>
+        <h3 className="text-sm font-medium text-[var(--st-text)]">
+          Failed rows
+        </h3>
         {record.counts.failed > 0 ? (
           <SabsmsExportMenu
             filename={`sabsms-import-${record.id}-failures`}
@@ -498,14 +530,18 @@ function ImportDetail({
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-[var(--st-text)]">Audit trail</h3>
+        <h3 className="text-sm font-medium text-[var(--st-text)]">
+          Audit trail
+        </h3>
         <ol className="space-y-2">
           {record.audit.map((evt, i) => (
             <li
               key={i}
               className="rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-2 text-xs"
             >
-              <div className="font-medium text-[var(--st-text)]">{evt.kind}</div>
+              <div className="font-medium text-[var(--st-text)]">
+                {evt.kind}
+              </div>
               {evt.message && (
                 <div className="text-[var(--st-text)]">{evt.message}</div>
               )}
@@ -520,7 +556,13 @@ function ImportDetail({
   );
 }
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailField({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div>
       <div className="text-[10px] font-medium uppercase tracking-wide text-[var(--st-text)]">

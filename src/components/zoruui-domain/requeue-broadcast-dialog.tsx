@@ -1,28 +1,44 @@
 'use client';
 
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, RadioGroupItem, Button } from '@/components/sabcrm/20ui';
+/**
+ * RequeueBroadcastDialog - 20ui requeue composer.
+ *
+ * Resend a campaign to the same audience (all contacts, or only the ones that
+ * failed) with an optional template + header-media override. Pure 20ui: compound
+ * Dialog, compound Select, RadioGroup, Field/Input, Button/IconButton, and a
+ * SabFiles picker for the header media (no free-text URL paste).
+ */
+
 import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState } from 'react';
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Field,
+  IconButton,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  cn,
+} from '@/components/sabcrm/20ui';
+import { SabFileUrlInput } from '@/components/sabfiles';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LuRotateCw,
-  LuLoader } from 'react-icons/lu';
+import { Loader2, RotateCw } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
 import { handleRequeueBroadcast } from '@/app/actions/broadcast.actions';
 import { useToast } from '@/hooks/use-toast';
-import type { Project,
-  Template } from '@/lib/definitions';
-
-/**
- * RequeueBroadcastDialog — Clay-styled requeue composer.
- */
-
-import * as React from 'react';
-
-import { cn } from '@/lib/utils';
+import type { Project, Template } from '@/lib/definitions';
 
 const initialState = {
   message: null,
@@ -34,18 +50,12 @@ function SubmitButton() {
   return (
     <Button
       type="submit"
-      variant="rose"
+      variant="danger"
       size="md"
       disabled={pending}
-      leading={
-        pending ? (
-          <LuLoader className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <LuRotateCw className="h-3.5 w-3.5" strokeWidth={2} />
-        )
-      }
+      iconLeft={pending ? Loader2 : RotateCw}
     >
-      {pending ? 'Requeueing…' : 'Requeue broadcast'}
+      {pending ? 'Requeueing...' : 'Requeue broadcast'}
     </Button>
   );
 }
@@ -74,6 +84,7 @@ export function RequeueBroadcastDialog({
   const [selectedTemplateId, setSelectedTemplateId] =
     useState<string>(originalTemplateId);
   const [requeueScope, setRequeueScope] = useState<'ALL' | 'FAILED'>('ALL');
+  const [headerImageUrl, setHeaderImageUrl] = useState<string>('');
 
   const selectedTemplate = templates.find(
     (t) => t._id.toString() === selectedTemplateId,
@@ -102,6 +113,7 @@ export function RequeueBroadcastDialog({
       formRef.current?.reset();
       setSelectedTemplateId(originalTemplateId);
       setRequeueScope('ALL');
+      setHeaderImageUrl('');
     }
     setOpen(isOpen);
   };
@@ -113,31 +125,25 @@ export function RequeueBroadcastDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button
-          type="button"
-          aria-label="Requeue broadcast"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)] transition-colors"
-        >
-          <LuRotateCw className="h-3.5 w-3.5" strokeWidth={1.75} />
-        </button>
+        <IconButton label="Requeue broadcast" icon={RotateCw} variant="ghost" size="sm" />
       </DialogTrigger>
-      <DialogContent className="max-w-[540px] rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-0 shadow-lg">
+      <DialogContent className="max-w-[540px] p-0">
         <form ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
           <DialogHeader className="flex flex-row items-start gap-3 border-b border-[var(--st-border)] px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
-              <LuRotateCw className="h-5 w-5" strokeWidth={2} />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[var(--st-text)]">
+              <RotateCw className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-[var(--st-text)] leading-tight">
+              <DialogTitle className="text-[16px] font-semibold leading-tight text-[var(--st-text)]">
                 Requeue broadcast
               </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-[var(--st-text-secondary)] leading-snug">
-                Send this campaign again to the same audience — all contacts
-                or only the ones that failed the first time.
+              <DialogDescription className="mt-0.5 text-[12px] leading-snug text-[var(--st-text-secondary)]">
+                Send this campaign again to the same audience, all contacts or
+                only the ones that failed the first time.
               </DialogDescription>
             </div>
           </DialogHeader>
@@ -146,14 +152,15 @@ export function RequeueBroadcastDialog({
             {/* Template select */}
             <div className="flex flex-col gap-1.5">
               <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
-                Message template <span className="ml-1 text-[var(--st-text)]">*</span>
+                Message template{' '}
+                <span className="ml-1 text-[var(--st-text)]">*</span>
               </Label>
               <Select
                 value={selectedTemplateId}
                 onValueChange={setSelectedTemplateId}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose an approved template…" />
+                <SelectTrigger aria-label="Message template">
+                  <SelectValue placeholder="Choose an approved template..." />
                 </SelectTrigger>
                 <SelectContent>
                   {approvedTemplates.length > 0 ? (
@@ -181,27 +188,19 @@ export function RequeueBroadcastDialog({
 
             {/* Header media (optional) */}
             {showImageUpload ? (
-              <div className="flex flex-col gap-1.5">
-                <Label
-                  htmlFor="headerImageUrl"
-                  className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
-                >
-                  Header media URL
-                  <span className="ml-1 text-[var(--st-text-secondary)]/70 font-normal">
-                    (optional)
-                  </span>
-                </Label>
-                <Input
-                  id="headerImageUrl"
+              <Field
+                label="Header media (optional)"
+                help="Pick a new media file to override the template's header image."
+              >
+                <SabFileUrlInput
                   name="headerImageUrl"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
+                  value={headerImageUrl}
+                  onChange={setHeaderImageUrl}
+                  accept="all"
+                  pickerTitle="Choose header media"
+                  placeholder="No file chosen"
                 />
-                <div className="text-[11px] text-[var(--st-text-secondary)]">
-                  Provide a new public media URL to override the template&apos;s
-                  header image.
-                </div>
-              </div>
+              </Field>
             ) : null}
 
             {/* Scope radio group */}
@@ -211,10 +210,9 @@ export function RequeueBroadcastDialog({
               </Label>
               <RadioGroup
                 value={requeueScope}
-                onValueChange={(v) =>
-                  setRequeueScope(v as 'ALL' | 'FAILED')
-                }
+                onValueChange={(v) => setRequeueScope(v as 'ALL' | 'FAILED')}
                 className="flex flex-col gap-2"
+                aria-label="Target contacts"
               >
                 <ScopeOption
                   id="scope-all"
@@ -234,10 +232,10 @@ export function RequeueBroadcastDialog({
             </div>
           </div>
 
-          <DialogFooter className="border-t border-[var(--st-border)] px-6 py-4 sm:justify-end gap-2">
+          <DialogFooter className="gap-2 border-t border-[var(--st-border)] px-6 py-4 sm:justify-end">
             <Button
               type="button"
-              variant="pill"
+              variant="secondary"
               size="md"
               onClick={() => setOpen(false)}
             >
@@ -251,7 +249,7 @@ export function RequeueBroadcastDialog({
   );
 }
 
-/* ── local helper ───────────────────────────────────────────────── */
+/* -- local helper -- */
 
 function ScopeOption({
   id,
@@ -270,16 +268,20 @@ function ScopeOption({
     <label
       htmlFor={id}
       className={cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
+        'flex cursor-pointer items-center gap-2.5 rounded-[var(--st-radius)] border px-3 py-2.5 transition-colors',
         active
-          ? 'border-primary bg-[var(--st-bg-muted)]/50'
+          ? 'border-[var(--st-accent)] bg-[var(--st-bg-muted)]'
           : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
       )}
     >
       <RadioGroupItem value={value} id={id} />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium text-[var(--st-text)]">{title}</span>
-        <span className="text-[11px] text-[var(--st-text-secondary)]">{description}</span>
+        <span className="text-[13px] font-medium text-[var(--st-text)]">
+          {title}
+        </span>
+        <span className="text-[11px] text-[var(--st-text-secondary)]">
+          {description}
+        </span>
       </div>
     </label>
   );

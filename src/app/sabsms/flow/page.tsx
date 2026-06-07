@@ -19,18 +19,28 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize,
-  ChevronDown,
   Activity,
-  AlertCircle,
   Database,
   Inbox,
   ShieldCheck,
   Brain,
-  Loader2
 } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Badge,
+  Dot,
+  Card,
+  Field,
+  Input,
+  Textarea,
+  Spinner,
+  EmptyState,
+  SegmentedControl,
+} from '@/components/sabcrm/20ui';
 import type { SabflowBlock } from '@/app/sabsms/sabflow-blocks/mock-data';
 
-const IconMap: Record<string, React.FC<any>> = {
+const IconMap: Record<string, React.FC<{ className?: string }>> = {
   MessageSquare,
   Inbox,
   ShieldCheck,
@@ -42,9 +52,14 @@ const IconMap: Record<string, React.FC<any>> = {
   Smartphone,
   Database,
   GitBranch,
-  SplitSquareHorizontal
+  SplitSquareHorizontal,
 };
 
+const TABS = [
+  { value: 'build', label: 'Build' },
+  { value: 'test', label: 'Test' },
+  { value: 'analytics', label: 'Analytics' },
+];
 
 export default function DripsBuilderShell() {
   const [activeTab, setActiveTab] = useState('build');
@@ -63,339 +78,282 @@ export default function DripsBuilderShell() {
   }, []);
 
   const activeBlock = blocks.find(b => b.id === selectedNodeId);
-  const activeIcon = activeBlock?.icon ? IconMap[activeBlock.icon] || MessageSquare : MessageSquare;
-
+  const ActiveIcon = activeBlock?.icon ? IconMap[activeBlock.icon] || MessageSquare : MessageSquare;
 
   return (
-    <div className="flex h-screen w-full flex-col bg-[var(--st-text)] text-[var(--st-text-secondary)] font-sans overflow-hidden">
+    <div className="ui20 flex h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/10 bg-[var(--st-text)] px-4 shadow-sm z-20">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4 z-20">
         <div className="flex items-center gap-4">
-          <button className="rounded-md p-1.5 hover:bg-white/10 transition-colors">
-            <ArrowLeft className="h-4 w-4 text-[var(--st-text-secondary)]" />
-          </button>
+          <IconButton icon={ArrowLeft} label="Back to flows" variant="ghost" size="sm" />
           <div className="flex items-center gap-2">
-            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]">
+            <span className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]" aria-hidden="true">
               <Zap className="h-4 w-4" />
-            </div>
-            <h1 className="text-sm font-medium text-white">Onboarding Welcome Series</h1>
-            <span className="ml-2 rounded-full bg-[var(--st-text)]/10 px-2 py-0.5 text-[10px] font-medium text-[var(--st-text-secondary)] border border-[var(--st-border)]/20">
-              Live
             </span>
+            <h1 className="text-sm font-semibold text-[var(--st-text)]">Onboarding Welcome Series</h1>
+            <Badge tone="success" kind="soft" dot>Live</Badge>
           </div>
         </div>
 
-        <div className="flex items-center rounded-lg bg-[var(--st-text)] p-1 border border-white/5">
-          <button
-            onClick={() => setActiveTab('build')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'build' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
-            }`}
-          >
-            Build
-          </button>
-          <button
-            onClick={() => setActiveTab('test')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'test' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
-            }`}
-          >
-            Test
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-              activeTab === 'analytics' ? 'bg-[var(--st-text)] text-white shadow' : 'text-[var(--st-text-secondary)] hover:text-white'
-            }`}
-          >
-            Analytics
-          </button>
-        </div>
+        <SegmentedControl
+          items={TABS}
+          value={activeTab}
+          onChange={setActiveTab}
+          size="sm"
+          aria-label="Builder view"
+        />
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 border-r border-white/10 mr-1">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--st-bg-muted)] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--st-text)]"></span>
-            </span>
+          <div className="flex items-center gap-1.5 px-3 border-r border-[var(--st-border)] mr-1">
+            <Dot tone="success" pulse aria-label="Saved" />
             <span className="text-xs text-[var(--st-text-secondary)]">Saved just now</span>
           </div>
-          <button className="flex items-center gap-2 rounded-md bg-white/5 px-3 py-1.5 text-xs font-medium text-[var(--st-text-secondary)] hover:bg-white/10 transition-colors border border-white/5">
-            <Play className="h-3.5 w-3.5" />
+          <Button variant="secondary" size="sm" iconLeft={Play}>
             Test Flow
-          </button>
-          <button className="flex items-center gap-2 rounded-md bg-gradient-to-b from-[var(--st-text)] to-[var(--st-text)] px-4 py-1.5 text-xs font-medium text-white hover:from-[var(--st-bg-muted)] hover:to-[var(--st-text)] transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-[var(--st-border)]/30">
-            <Rocket className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="primary" size="sm" iconLeft={Rocket}>
             Deploy
-          </button>
+          </Button>
         </div>
       </header>
 
       {/* Main Workspace */}
       <div className="flex flex-1 overflow-hidden">
-        
+
         {/* Left Sidebar - Node Palette */}
-        <aside className="w-72 shrink-0 flex flex-col border-r border-white/10 bg-[var(--st-text)] z-10">
-          <div className="p-4 border-b border-white/10">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text)]" />
-              <input
-                type="text"
-                placeholder="Search nodes..."
-                className="w-full rounded-md bg-[var(--st-text)] border border-white/5 py-2 pl-9 pr-3 text-sm text-white placeholder-[var(--st-text)] focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50 transition-all"
-              />
-            </div>
+        <aside className="w-72 shrink-0 flex flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] z-10">
+          <div className="p-4 border-b border-[var(--st-border)]">
+            <Input
+              iconLeft={Search}
+              placeholder="Search nodes..."
+              inputSize="sm"
+              aria-label="Search nodes"
+            />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+          <div className="flex-1 overflow-y-auto p-3 space-y-6">
             {/* Category: Triggers */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Triggers</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">3</span>
-              </div>
-              <div className="space-y-1.5">
-                <DraggableNode icon={<Globe />} title="Webhook Received" desc="Trigger on external event" color="purple" />
-                <DraggableNode icon={<Clock />} title="Scheduled Time" desc="Run at specific intervals" color="purple" />
-                <DraggableNode icon={<Zap />} title="App Event" desc="When a user performs action" color="purple" />
-              </div>
-            </div>
+            <NodeCategory title="Triggers" count={3}>
+              <DraggableNode icon={<Globe />} title="Webhook Received" desc="Trigger on external event" />
+              <DraggableNode icon={<Clock />} title="Scheduled Time" desc="Run at specific intervals" />
+              <DraggableNode icon={<Zap />} title="App Event" desc="When a user performs action" />
+            </NodeCategory>
 
             {/* Category: Actions */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Actions</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">4</span>
-              </div>
-              <div className="space-y-1.5">
-                <DraggableNode icon={<MessageSquare />} title="Send SMS" desc="Dispatch text message" color="blue" />
-                <DraggableNode icon={<Mail />} title="Send Email" desc="Send via external provider" color="blue" />
-                <DraggableNode icon={<Smartphone />} title="Push Notification" desc="Send to mobile app" color="blue" />
-                <DraggableNode icon={<Database />} title="Update Record" desc="Modify user attributes" color="blue" />
-              </div>
-            </div>
+            <NodeCategory title="Actions" count={4}>
+              <DraggableNode icon={<MessageSquare />} title="Send SMS" desc="Dispatch text message" />
+              <DraggableNode icon={<Mail />} title="Send Email" desc="Send via external provider" />
+              <DraggableNode icon={<Smartphone />} title="Push Notification" desc="Send to mobile app" />
+              <DraggableNode icon={<Database />} title="Update Record" desc="Modify user attributes" />
+            </NodeCategory>
 
             {/* Category: Logic */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text)]">Logic</h3>
-                <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-[var(--st-text-secondary)]">3</span>
-              </div>
-              <div className="space-y-1.5">
-                <DraggableNode icon={<GitBranch />} title="If / Else" desc="Branch based on conditions" color="orange" />
-                <DraggableNode icon={<SplitSquareHorizontal />} title="A/B Split" desc="Test multiple paths" color="orange" />
-                <DraggableNode icon={<Clock />} title="Delay" desc="Wait before next step" color="orange" />
-              </div>
-            </div>
+            <NodeCategory title="Logic" count={3}>
+              <DraggableNode icon={<GitBranch />} title="If / Else" desc="Branch based on conditions" />
+              <DraggableNode icon={<SplitSquareHorizontal />} title="A/B Split" desc="Test multiple paths" />
+              <DraggableNode icon={<Clock />} title="Delay" desc="Wait before next step" />
+            </NodeCategory>
           </div>
         </aside>
 
         {/* Center Canvas */}
-        <main className="flex-1 relative bg-[var(--st-text)] overflow-hidden">
-          {/* Grid Background */}
-          <div className="absolute inset-0 z-0 pointer-events-none opacity-20" 
-               style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}>
-          </div>
+        <main className="flex-1 relative bg-[var(--st-bg-muted)] overflow-hidden">
+          {/* Grid Background (runtime-painted pattern) */}
+          <div
+            className="absolute inset-0 z-0 pointer-events-none opacity-60"
+            style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, var(--st-border-strong) 1px, transparent 0)', backgroundSize: '24px 24px' }}
+          />
 
           {/* Floating Controls */}
           <div className="absolute bottom-6 left-6 z-10 flex flex-col gap-2">
-            <div className="flex flex-col items-center rounded-lg bg-[var(--st-text)] border border-white/10 p-1 shadow-xl">
-              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomIn className="h-4 w-4" /></button>
-              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><ZoomOut className="h-4 w-4" /></button>
-              <button className="p-2 text-[var(--st-text-secondary)] hover:text-white hover:bg-white/5 rounded-md transition-colors"><Maximize className="h-4 w-4" /></button>
-            </div>
+            <Card variant="elevated" padding="none" className="flex flex-col items-center p-1">
+              <IconButton icon={ZoomIn} label="Zoom in" variant="ghost" size="sm" />
+              <IconButton icon={ZoomOut} label="Zoom out" variant="ghost" size="sm" />
+              <IconButton icon={Maximize} label="Fit to screen" variant="ghost" size="sm" />
+            </Card>
           </div>
 
           {/* Mock Canvas Content */}
-          <div className="absolute inset-0 overflow-auto z-0 flex items-center justify-center p-20 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
-             <div className="relative w-full max-w-2xl h-[600px] flex flex-col items-center">
-                
-                {/* Node 1 */}
-                <CanvasNode 
-                  icon={<Zap className="h-5 w-5 text-[var(--st-text-secondary)]" />}
-                  title="App Event"
-                  subtitle="User Signed Up"
-                  colorClass="bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
-                  isActive={false}
-                />
+          <div className="absolute inset-0 overflow-auto z-0 flex items-center justify-center p-20">
+            <div className="relative w-full max-w-2xl h-[600px] flex flex-col items-center">
 
-                {/* SVG Line */}
-                <svg className="w-10 h-16 my-2 text-[var(--st-text)]" viewBox="0 0 40 64" fill="none" preserveAspectRatio="none">
-                  <path d="M20 0 L20 64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
-                  <circle cx="20" cy="32" r="4" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
-                </svg>
+              {/* Node 1 */}
+              <CanvasNode
+                icon={<Zap className="h-5 w-5" />}
+                title="App Event"
+                subtitle="User Signed Up"
+                isActive={false}
+              />
 
-                {/* Node 2 */}
-                <CanvasNode 
-                  icon={<Clock className="h-5 w-5 text-[var(--st-text-secondary)]" />}
-                  title="Delay"
-                  subtitle="Wait 2 hours"
-                  colorClass="bg-[var(--st-text)]/10 border-[var(--st-border)]/30"
-                  isActive={false}
-                />
+              {/* SVG Line */}
+              <svg className="w-10 h-16 my-2 text-[var(--st-border-strong)]" viewBox="0 0 40 64" fill="none" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M20 0 L20 64" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
+                <circle cx="20" cy="32" r="4" fill="var(--st-bg)" stroke="currentColor" strokeWidth="2" />
+              </svg>
 
-                {/* SVG Path Fork */}
-                <svg className="w-[320px] h-20 my-2 text-[var(--st-text)]" viewBox="0 0 320 80" fill="none" preserveAspectRatio="none">
-                  <path d="M160 0 L160 20 C160 30 150 40 140 40 L40 40 C30 40 20 50 20 60 L20 80" stroke="currentColor" strokeWidth="2" />
-                  <path d="M160 0 L160 20 C160 30 170 40 180 40 L280 40 C290 40 300 50 300 60 L300 80" stroke="currentColor" strokeWidth="2" />
-                  <rect x="140" y="30" width="40" height="20" rx="10" fill="#1e293b" stroke="currentColor" strokeWidth="2" />
-                  <text x="160" y="44" fill="#94a3b8" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Split</text>
-                </svg>
+              {/* Node 2 */}
+              <CanvasNode
+                icon={<Clock className="h-5 w-5" />}
+                title="Delay"
+                subtitle="Wait 2 hours"
+                isActive={false}
+              />
 
-                <div className="flex w-[400px] justify-between">
-                  {/* Left Fork Node */}
-                  <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_send_sms')}>
-                    <CanvasNode 
-                      icon={<MessageSquare className="h-5 w-5 text-[var(--st-text-secondary)]" />}
-                      title="Send SMS"
-                      subtitle="Welcome Offer"
-                      colorClass={`bg-[var(--st-text)]/10 border-[var(--st-border)]/50 shadow-[0_0_20px_rgba(59,130,246,0.15)] ring-1 ring-[var(--st-border)] ${selectedNodeId === 'blk_send_sms' ? 'ring-2' : ''}`}
-                      isActive={true}
-                    />
-                    <div className="mt-4 px-3 py-1 bg-[var(--st-text)]/50 rounded-full border border-white/5 text-xs text-[var(--st-text-secondary)] flex items-center gap-2">
-                      <Activity className="h-3 w-3 text-[var(--st-text-secondary)]" />
-                      45% conversion
-                    </div>
-                  </div>
+              {/* SVG Path Fork */}
+              <svg className="w-[320px] h-20 my-2 text-[var(--st-border-strong)]" viewBox="0 0 320 80" fill="none" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M160 0 L160 20 C160 30 150 40 140 40 L40 40 C30 40 20 50 20 60 L20 80" stroke="currentColor" strokeWidth="2" />
+                <path d="M160 0 L160 20 C160 30 170 40 180 40 L280 40 C290 40 300 50 300 60 L300 80" stroke="currentColor" strokeWidth="2" />
+                <rect x="140" y="30" width="40" height="20" rx="10" fill="var(--st-bg)" stroke="currentColor" strokeWidth="2" />
+                <text x="160" y="44" fill="var(--st-text-secondary)" fontSize="10" textAnchor="middle" fontFamily="sans-serif">Split</text>
+              </svg>
 
-                  {/* Right Fork Node */}
-                  <div className="flex flex-col items-center cursor-pointer" onClick={() => setSelectedNodeId('blk_inbound_sms')}>
-                    <CanvasNode 
-                      icon={<Mail className="h-5 w-5 text-[var(--st-text-secondary)]" />}
-                      title="Send Email"
-                      subtitle="Newsletter #1"
-                      colorClass={`bg-[var(--st-text)]/10 border-[var(--st-border)]/30 hover:border-[var(--st-border)]/50 ${selectedNodeId === 'blk_inbound_sms' ? 'ring-1 ring-[var(--st-border)]/50' : ''}`}
-                      isActive={false}
-                    />
-                  </div>
+              <div className="flex w-[400px] justify-between">
+                {/* Left Fork Node */}
+                <div className="flex flex-col items-center">
+                  <CanvasNode
+                    icon={<MessageSquare className="h-5 w-5" />}
+                    title="Send SMS"
+                    subtitle="Welcome Offer"
+                    isActive
+                    selected={selectedNodeId === 'blk_send_sms'}
+                    onSelect={() => setSelectedNodeId('blk_send_sms')}
+                  />
+                  <Badge tone="success" kind="soft" className="mt-4">
+                    <Activity className="h-3 w-3" aria-hidden="true" /> 45% conversion
+                  </Badge>
                 </div>
 
-             </div>
+                {/* Right Fork Node */}
+                <div className="flex flex-col items-center">
+                  <CanvasNode
+                    icon={<Mail className="h-5 w-5" />}
+                    title="Send Email"
+                    subtitle="Newsletter #1"
+                    isActive={false}
+                    selected={selectedNodeId === 'blk_inbound_sms'}
+                    onSelect={() => setSelectedNodeId('blk_inbound_sms')}
+                  />
+                </div>
+              </div>
+
+            </div>
           </div>
         </main>
 
         {/* Right Sidebar - Properties Panel */}
-        <aside className="w-80 shrink-0 flex flex-col border-l border-white/10 bg-[var(--st-text)] z-10 shadow-2xl relative">
+        <aside className="w-80 shrink-0 flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-10 relative">
           {isLoading ? (
             <div className="flex h-full items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-[var(--st-text)]" />
+              <Spinner size="lg" label="Loading node properties" />
             </div>
           ) : activeBlock ? (
             <>
-              <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[var(--st-text)]">
+              <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/20 text-[var(--st-text-secondary)]">
-                    {React.createElement(activeIcon, { className: "h-4 w-4" })}
-                  </div>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]" aria-hidden="true">
+                    <ActiveIcon className="h-4 w-4" />
+                  </span>
                   <div>
-                    <h2 className="text-sm font-semibold text-white">
+                    <h2 className="text-sm font-semibold text-[var(--st-text)]">
                       {activeBlock.name}
                     </h2>
-                    <p className="text-xs text-[var(--st-text)] capitalize">{activeBlock.type} Node</p>
+                    <p className="text-xs text-[var(--st-text-secondary)] capitalize">{activeBlock.type} Node</p>
                   </div>
                 </div>
-                <button className="text-[var(--st-text-secondary)] hover:text-white"><MoreVertical className="h-4 w-4" /></button>
+                <IconButton icon={MoreVertical} label="Node options" variant="ghost" size="sm" />
               </div>
 
-              <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent">
+              <div className="flex-1 overflow-y-auto">
                 {/* Analytics Mini-widget */}
-                <div className="p-4 border-b border-white/5 bg-[var(--st-text)]">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-lg bg-[var(--st-text)] p-3 border border-white/5">
-                      <div className="text-[10px] text-[var(--st-text)] uppercase font-medium mb-1">Cost</div>
-                      <div className="text-lg font-semibold text-white">
-                        {activeBlock.creditCost} credits
-                      </div>
+                <div className="p-4 border-b border-[var(--st-border)] grid grid-cols-2 gap-3">
+                  <Card variant="outlined" padding="sm">
+                    <div className="text-[10px] text-[var(--st-text-tertiary)] uppercase font-medium mb-1">Cost</div>
+                    <div className="text-lg font-semibold text-[var(--st-text)]">
+                      {activeBlock.creditCost} credits
                     </div>
-                    <div className="rounded-lg bg-[var(--st-text)] p-3 border border-white/5">
-                      <div className="text-[10px] text-[var(--st-text)] uppercase font-medium mb-1">
-                        Usage
-                      </div>
-                      <div className="text-lg font-semibold text-white">
-                        {(activeBlock.usageCount / 1000).toFixed(1)}k
-                      </div>
-                      <div className="text-xs text-[var(--st-text-secondary)] mt-1 flex items-center gap-1"><Activity className="h-3 w-3"/> Global</div>
+                  </Card>
+                  <Card variant="outlined" padding="sm">
+                    <div className="text-[10px] text-[var(--st-text-tertiary)] uppercase font-medium mb-1">Usage</div>
+                    <div className="text-lg font-semibold text-[var(--st-text)]">
+                      {(activeBlock.usageCount / 1000).toFixed(1)}k
                     </div>
-                  </div>
+                    <div className="text-xs text-[var(--st-text-secondary)] mt-1 flex items-center gap-1">
+                      <Activity className="h-3 w-3" aria-hidden="true" /> Global
+                    </div>
+                  </Card>
                 </div>
 
                 <div className="p-5 space-y-6">
                   {/* General Settings */}
                   <div className="space-y-4">
                     <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">Configuration</h3>
-                    
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-[var(--st-text-secondary)]">Node Name</label>
-                      <input 
-                        type="text" 
-                        defaultValue={activeBlock.name}
+
+                    <Field label="Node Name">
+                      <Input
                         key={activeBlock.id}
-                        className="w-full rounded-md bg-[var(--st-text)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50" 
+                        defaultValue={activeBlock.name}
+                        inputSize="sm"
                       />
-                    </div>
+                    </Field>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-[var(--st-text-secondary)]">Description</label>
+                      <span className="text-xs font-medium text-[var(--st-text-secondary)]">Description</span>
                       <p className="text-[11px] text-[var(--st-text-secondary)] leading-relaxed">
                         {activeBlock.description}
                       </p>
                     </div>
                   </div>
 
-                  <hr className="border-white/5" />
+                  <hr className="border-[var(--st-border)]" />
 
                   {/* Dynamic Schema Fields */}
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-xs font-semibold text-[var(--st-text-secondary)] uppercase tracking-wider">Properties</h3>
-                      <button className="text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text-secondary)]">Insert Variable</button>
+                      <Button variant="ghost" size="sm">Insert Variable</Button>
                     </div>
-                    
+
                     {(() => {
                       let parsedSchema: Record<string, string> = {};
                       try {
                         parsedSchema = JSON.parse(activeBlock.schema);
-                      } catch (e) {
-                        // ignore
+                      } catch {
+                        // ignore malformed schema
                       }
-                      
+
                       return Object.entries(parsedSchema).map(([key, typeStr]) => {
                         const isRequired = !typeStr.endsWith('?');
+                        const label = (
+                          <span className="capitalize">{key}</span>
+                        );
                         return (
-                          <div key={key} className="space-y-1.5">
-                            <label className="text-xs font-medium text-[var(--st-text-secondary)] capitalize">
-                              {key} {isRequired ? <span className="text-[var(--st-text-secondary)]">*</span> : null}
-                            </label>
+                          <Field key={key} label={label} required={isRequired}>
                             {key === 'body' || key === 'text' ? (
-                              <textarea 
-                                rows={4} 
-                                className="w-full rounded-md bg-[var(--st-text)] border border-white/10 p-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50 resize-none"
-                                placeholder={`Enter ${key}...`}
-                              />
+                              <Textarea rows={4} placeholder={`Enter ${key}...`} />
                             ) : (
-                              <input 
-                                type="text" 
-                                className="w-full rounded-md bg-[var(--st-text)] border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-[var(--st-border)]/50"
-                                placeholder={`Enter ${key}...`}
-                              />
+                              <Input inputSize="sm" placeholder={`Enter ${key}...`} />
                             )}
-                          </div>
+                          </Field>
                         );
                       });
                     })()}
                   </div>
                 </div>
               </div>
-              
+
               {/* Footer Save */}
-              <div className="p-4 border-t border-white/10 bg-[var(--st-text)]">
-                <button className="w-full rounded-md bg-white text-black hover:bg-[var(--st-bg-muted)] transition-colors py-2 text-sm font-semibold shadow-lg">
+              <div className="p-4 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+                <Button variant="primary" block>
                   Save Changes
-                </button>
+                </Button>
               </div>
             </>
           ) : (
-            <div className="flex h-full items-center justify-center p-6 text-center">
-              <p className="text-sm text-[var(--st-text)]">Select a node to view its properties.</p>
+            <div className="flex h-full items-center justify-center p-6">
+              <EmptyState
+                icon={MousePointer2}
+                title="No node selected"
+                description="Select a node on the canvas to view and edit its properties."
+              />
             </div>
           )}
         </aside>
@@ -406,41 +364,88 @@ export default function DripsBuilderShell() {
 }
 
 // Subcomponents
-function DraggableNode({ icon, title, desc, color }: { icon: React.ReactNode, title: string, desc: string, color: 'blue' | 'purple' | 'orange' }) {
-  const colorMap = {
-    blue: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
-    purple: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
-    orange: 'bg-[var(--st-text)]/10 text-[var(--st-text-secondary)] border-[var(--st-border)]/20 group-hover:border-[var(--st-border)]/40',
-  };
-
+function NodeCategory({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
-    <div className="group flex cursor-grab items-start gap-3 rounded-xl border border-white/5 bg-[var(--st-text)] p-3 hover:bg-[var(--st-text)] hover:shadow-lg transition-all active:cursor-grabbing">
-      <div className={`mt-0.5 flex shrink-0 h-8 w-8 items-center justify-center rounded-lg border ${colorMap[color]} transition-colors`}>
-        {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-4 w-4' })}
+    <div className="space-y-2">
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-tertiary)]">{title}</h3>
+        <Badge tone="neutral" kind="soft">{count}</Badge>
       </div>
+      <div className="space-y-1.5">{children}</div>
+    </div>
+  );
+}
+
+function DraggableNode({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
+  return (
+    <div className="group flex cursor-grab items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3 hover:border-[var(--st-accent)] hover:shadow-[var(--st-shadow-sm)] transition-all active:cursor-grabbing">
+      <span className="mt-0.5 flex shrink-0 h-8 w-8 items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] group-hover:text-[var(--st-accent)] group-hover:border-[var(--st-accent)] transition-colors" aria-hidden="true">
+        {React.cloneElement(icon as React.ReactElement<{ className?: string }>, { className: 'h-4 w-4' })}
+      </span>
       <div>
-        <h4 className="text-sm font-medium text-white group-hover:text-white transition-colors">{title}</h4>
-        <p className="mt-0.5 text-[11px] text-[var(--st-text)] line-clamp-1">{desc}</p>
+        <h4 className="text-sm font-medium text-[var(--st-text)]">{title}</h4>
+        <p className="mt-0.5 text-[11px] text-[var(--st-text-tertiary)] line-clamp-1">{desc}</p>
       </div>
     </div>
   );
 }
 
-function CanvasNode({ icon, title, subtitle, colorClass, isActive }: { icon: React.ReactNode, title: string, subtitle: string, colorClass: string, isActive: boolean }) {
-  return (
-    <div className={`w-64 rounded-xl border bg-[var(--st-text)] p-4 shadow-xl backdrop-blur-sm transition-all hover:border-white/20 ${isActive ? colorClass : 'border-white/10'}`}>
-      <div className="flex items-center gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border ${colorClass}`}>
-          {icon}
-        </div>
-        <div className="flex-1 overflow-hidden">
-          <h4 className="truncate text-sm font-semibold text-white">{title}</h4>
-          <p className="truncate text-xs text-[var(--st-text-secondary)]">{subtitle}</p>
-        </div>
-        <button className="text-[var(--st-text)] hover:text-[var(--st-text-secondary)] transition-colors">
-          <MoreVertical className="h-4 w-4" />
-        </button>
+function CanvasNode({
+  icon,
+  title,
+  subtitle,
+  isActive,
+  selected = false,
+  onSelect,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  isActive: boolean;
+  selected?: boolean;
+  onSelect?: () => void;
+}) {
+  const border = selected
+    ? 'border-[var(--st-accent)] ring-2 ring-[var(--st-accent-ring)]'
+    : isActive
+      ? 'border-[var(--st-accent)]'
+      : 'border-[var(--st-border)]';
+  const interactive = onSelect
+    ? 'cursor-pointer hover:border-[var(--st-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent-ring)]'
+    : '';
+  const baseCls = `w-64 text-left rounded-[var(--st-radius-lg)] border bg-[var(--st-bg)] p-4 shadow-[var(--st-shadow-sm)] transition-all ${border} ${interactive}`;
+
+  const inner = (
+    <div className="flex items-center gap-3">
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] border ${isActive || selected ? 'border-[var(--st-accent)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]' : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]'}`} aria-hidden="true">
+        {icon}
+      </span>
+      <div className="flex-1 overflow-hidden">
+        <h4 className="truncate text-sm font-semibold text-[var(--st-text)]">{title}</h4>
+        <p className="truncate text-xs text-[var(--st-text-secondary)]">{subtitle}</p>
       </div>
+      <MoreVertical className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
     </div>
   );
+
+  if (onSelect) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        aria-pressed={selected}
+        onClick={onSelect}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSelect();
+          }
+        }}
+        className={baseCls}
+      >
+        {inner}
+      </div>
+    );
+  }
+  return <div className={baseCls}>{inner}</div>;
 }

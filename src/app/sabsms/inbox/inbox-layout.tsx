@@ -1,41 +1,47 @@
 "use client";
 
 /**
- * SabSMS inbox — 3-pane client orchestrator.
+ * SabSMS inbox - 3-pane client orchestrator.
  *
  * Owns the resizable layout, the active conversation selection, polling
  * for live updates, and the keyboard shortcut handler. All data loading
  * happens through the `"use server"` actions in `./actions.ts`.
  *
- * Feature map (the 20 page-unique features from §B.1 page 3):
+ * Feature map (the 20 page-unique features from B.1 page 3):
  *
- *   1. 3-pane layout                        → `ResizablePanelGroup` below.
- *   2. Filter rail (scope facet)            → `<SabsmsFilterBar>` toolbar.
- *   3. Conversation list w/ unread badges   → `<ConversationList>`.
- *   4. Thread w/ delivery ticks             → `<ThreadView>` → `DeliveryTicks`.
- *   5. Reply composer + template insertion  → `<ThreadView>` composer.
- *   6. Internal notes                       → `<ThreadView>` `Internal note` tab.
- *   7. Assign-to-agent / team               → `<ThreadView>` header dropdown.
- *   8. Auto round-robin toggle              → `<ThreadView>` header (localStorage).
- *   9. Snooze (wake-on-reply or duration)   → snooze dialog in `<ThreadView>`.
- *  10. Close / reopen w/ required reason    → close dialog in `<ThreadView>`.
- *  11. Merge two conversations              → merge dialog in `<ThreadView>`.
- *  12. Labels / tags editor                 → labels strip in `<ThreadView>`.
- *  13. SLA timers (first response + resolve)→ `sla.ts` → pulses in both panes.
- *  14. Canned responses dropdown            → `<ThreadView>` composer dropdown.
- *  15. Reactions on inbound messages        → `<MessageBubble>` reaction popover.
- *  16. Add-to-segment from thread           → `<ThreadView>` More menu (stub).
- *  17. Add-to-suppression from thread       → `<ThreadView>` More menu.
- *  18. Search by body / contact / date      → `<SabsmsFilterBar>` (URL state).
- *  19. Keyboard shortcuts (j/k/e/r/n)       → `useKeyboardShortcuts` below.
- *  20. Live updates                         → 5 s polling via SabsmsRefreshButton.
+ *   1. 3-pane layout                        -> `ResizablePanelGroup` below.
+ *   2. Filter rail (scope facet)            -> `<SabsmsFilterBar>` toolbar.
+ *   3. Conversation list w/ unread badges   -> `<ConversationList>`.
+ *   4. Thread w/ delivery ticks             -> `<ThreadView>` -> `DeliveryTicks`.
+ *   5. Reply composer + template insertion  -> `<ThreadView>` composer.
+ *   6. Internal notes                       -> `<ThreadView>` `Internal note` tab.
+ *   7. Assign-to-agent / team               -> `<ThreadView>` header dropdown.
+ *   8. Auto round-robin toggle              -> `<ThreadView>` header (localStorage).
+ *   9. Snooze (wake-on-reply or duration)   -> snooze dialog in `<ThreadView>`.
+ *  10. Close / reopen w/ required reason    -> close dialog in `<ThreadView>`.
+ *  11. Merge two conversations              -> merge dialog in `<ThreadView>`.
+ *  12. Labels / tags editor                 -> labels strip in `<ThreadView>`.
+ *  13. SLA timers (first response + resolve)-> `sla.ts` -> pulses in both panes.
+ *  14. Canned responses dropdown            -> `<ThreadView>` composer dropdown.
+ *  15. Reactions on inbound messages        -> `<MessageBubble>` reaction popover.
+ *  16. Add-to-segment from thread           -> `<ThreadView>` More menu (stub).
+ *  17. Add-to-suppression from thread       -> `<ThreadView>` More menu.
+ *  18. Search by body / contact / date      -> `<SabsmsFilterBar>` (URL state).
+ *  19. Keyboard shortcuts (j/k/e/r/n)       -> `useKeyboardShortcuts` below.
+ *  20. Live updates                         -> 5 s polling via SabsmsRefreshButton.
  *                                             TODO: replace with SSE channel.
  */
 
 import * as React from "react";
 import Link from "next/link";
 
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+  SegmentedControl,
+} from "@/components/sabcrm/20ui";
 import {
   SabsmsFilterBar,
   SabsmsKbdHint,
@@ -92,7 +98,7 @@ export function InboxLayout({
     initialThread?.conversation.id ?? null,
   );
 
-  // Composer / note focus is owned by `<ThreadView>` — let the layout
+  // Composer / note focus is owned by `<ThreadView>`. Let the layout
   // call back into it for the `r` / `n` shortcuts.
   const composerFocus = React.useRef<() => void>(() => undefined);
   const noteFocus = React.useRef<() => void>(() => undefined);
@@ -154,7 +160,7 @@ export function InboxLayout({
     [conversations],
   );
 
-  // Keyboard shortcuts — j/k navigate the visible list, r/n focus the
+  // Keyboard shortcuts: j/k navigate the visible list, r/n focus the
   // composer / note, e closes the current thread.
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -186,7 +192,7 @@ export function InboxLayout({
         noteFocus.current?.();
       } else if (e.key === "e") {
         e.preventDefault();
-        // Quick-close prompt — defer to the dialog inside ThreadView.
+        // Quick-close prompt. Defer to the dialog inside ThreadView.
         const btn = document.querySelector<HTMLButtonElement>(
           'button[data-inbox-close="true"]',
         );
@@ -201,7 +207,7 @@ export function InboxLayout({
     url.setOne("scope", next ?? null);
   }
 
-  // TODO: Phase 2 — replace the 5 s poll with the SabSMS engine SSE
+  // TODO: Phase 2 - replace the 5 s poll with the SabSMS engine SSE
   // stream at `/api/sabsms/sse/inbox` once it's wired through. The
   // engine already publishes the events; we just need to subscribe and
   // patch the conversation list / thread in-place.
@@ -231,7 +237,7 @@ export function InboxLayout({
     <div className="space-y-2">
       <SabsmsFilterBar
         searchKey="q"
-        searchPlaceholder="Search body, phone, conversation id…"
+        searchPlaceholder="Search body, phone, conversation id"
         facets={[
           {
             key: "status",
@@ -281,7 +287,7 @@ export function InboxLayout({
   return (
     <SabsmsPageShell
       title="Inbox"
-      description="Two-way SMS / MMS conversations routed by the engine. Reply, assign, snooze, and close — with SLA timers, internal notes, and keyboard shortcuts."
+      description="Two-way SMS / MMS conversations routed by the engine. Reply, assign, snooze, and close, with SLA timers, internal notes, and keyboard shortcuts."
       breadcrumbs={[{ label: "Inbox" }]}
       primaryAction={{ label: "Compose", href: "/sabsms/send" }}
       secondaryActions={[
@@ -306,7 +312,7 @@ export function InboxLayout({
       }
       toolbar={filterBar}
     >
-      <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-md border border-[var(--st-border)] bg-white">
+      <div className="h-[calc(100vh-280px)] min-h-[520px] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel defaultSize={32} minSize={22} maxSize={45}>
             <ConversationList
@@ -336,7 +342,7 @@ export function InboxLayout({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-      <p className="px-1 text-xs text-[var(--st-text)]">
+      <p className="px-1 text-xs text-[var(--st-text-secondary)]">
         Inbound messages route through{" "}
         <Link
           className="underline"
@@ -344,7 +350,7 @@ export function InboxLayout({
         >
           /sabsms/logs
         </Link>{" "}
-        — the engine writes both directions; the inbox renders the
+        . The engine writes both directions; the inbox renders the
         threaded view.
       </p>
     </SabsmsPageShell>
@@ -358,7 +364,8 @@ interface ScopeRailProps {
 }
 
 function ScopeRail({ current, onChange, counts }: ScopeRailProps) {
-  const items: Array<{ key: NonNullable<InboxFilters["scope"]>; label: string }> = [
+  type ScopeKey = NonNullable<InboxFilters["scope"]>;
+  const labels: Array<{ key: ScopeKey; label: string }> = [
     { key: "all", label: "All" },
     { key: "mine", label: "Mine" },
     { key: "unassigned", label: "Unassigned" },
@@ -366,24 +373,22 @@ function ScopeRail({ current, onChange, counts }: ScopeRailProps) {
     { key: "closed", label: "Closed" },
   ];
   return (
-    <div className="flex flex-wrap gap-1.5 rounded-md border border-[var(--st-border)] bg-white p-1.5 text-xs">
-      {items.map((i) => (
-        <button
-          key={i.key}
-          type="button"
-          onClick={() => onChange(i.key)}
-          className={
-            "rounded-md px-2.5 py-1 transition-colors " +
-            (current === i.key
-              ? "bg-[var(--st-text)] text-white"
-              : "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]")
-          }
-        >
-          {i.label}
-          <span className="ml-1.5 text-[10px] opacity-70">{counts[i.key]}</span>
-        </button>
-      ))}
-    </div>
+    <SegmentedControl<ScopeKey>
+      aria-label="Conversation scope"
+      value={(current ?? "all") as ScopeKey}
+      onChange={(next) => onChange(next)}
+      items={labels.map((i) => ({
+        value: i.key,
+        label: (
+          <span className="inline-flex items-center gap-1.5">
+            {i.label}
+            <Badge tone="neutral" kind="soft">
+              {counts[i.key]}
+            </Badge>
+          </span>
+        ),
+      }))}
+    />
   );
 }
 

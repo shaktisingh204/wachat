@@ -9,7 +9,30 @@ import {
   useSabsmsUrlState,
 } from "@/components/sabsms/page-toolkit";
 import { Sparkles, Filter, Eye, Layers, TrendingUp, Users, Target } from "lucide-react";
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Table, THead, Tr, Th, TBody, Td, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Table,
+  THead,
+  Tr,
+  Th,
+  TBody,
+  Td,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/sabcrm/20ui";
 import {
   LineChart,
   Line,
@@ -89,15 +112,15 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
   // Compute KPIs
   const totalContacts = useMemo(() => data.rows.reduce((acc, row) => acc + row.size, 0), [data]);
   const avgM1Retention = useMemo(() => {
-    const m1Cells = data.rows.map(r => r.cells.find(c => c.period === 1)).filter(Boolean);
+    const m1Cells = data.rows.map((r) => r.cells.find((c) => c.period === 1)).filter(Boolean);
     if (!m1Cells.length) return 0;
     return Math.round(m1Cells.reduce((acc, cell) => acc + cell!.value, 0) / m1Cells.length);
   }, [data]);
-  
+
   const bestCohort = useMemo(() => {
     let best = { id: "-", val: 0 };
-    data.rows.forEach(r => {
-      const m1 = r.cells.find(c => c.period === 1);
+    data.rows.forEach((r) => {
+      const m1 = r.cells.find((c) => c.period === 1);
       if (m1 && m1.value > best.val) best = { id: r.id, val: m1.value };
     });
     return best;
@@ -116,7 +139,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <SabsmsSavedViews
             views={[
               { id: "v1", label: "Monthly by First Message", params: { definition: "first-message" } },
-              { id: "v2", label: "Weekly by Conversions", params: { metric: "conversions" } }
+              { id: "v2", label: "Weekly by Conversions", params: { metric: "conversions" } },
             ]}
             currentViewId="v1"
             onSelectView={(v) => console.log(v)}
@@ -130,63 +153,73 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center bg-[var(--st-bg-secondary)] shadow-sm p-4 rounded-xl border border-[var(--st-border)]">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center bg-[var(--st-bg-secondary)] shadow-sm p-4 rounded-[var(--st-radius-lg)] border border-[var(--st-border)]">
         {/* Definition */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Definition:</span>
-          <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
+          <Select
             value={urlState.params.get("definition") || "first-message"}
-            onChange={(e) => urlState.setParam("definition", e.target.value)}
+            onValueChange={(v) => urlState.setParam("definition", v)}
           >
-            <option value="first-message">First Message</option>
-            <option value="first-reply">First Reply</option>
-            <option value="first-click">First Click</option>
-          </select>
+            <SelectTrigger className="w-[170px]" aria-label="Cohort definition">
+              <SelectValue placeholder="First Message" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="first-message">First Message</SelectItem>
+              <SelectItem value="first-reply">First Reply</SelectItem>
+              <SelectItem value="first-click">First Click</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Metric */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Metric:</span>
-          <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
+          <Select
             value={urlState.params.get("metric") || "sends"}
-            onChange={(e) => urlState.setParam("metric", e.target.value)}
+            onValueChange={(v) => urlState.setParam("metric", v)}
           >
-            <option value="sends">Sends</option>
-            <option value="replies">Replies</option>
-            <option value="clicks">Clicks</option>
-            <option value="conversions">Conversions</option>
-          </select>
+            <SelectTrigger className="w-[150px]" aria-label="Cohort metric">
+              <SelectValue placeholder="Sends" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sends">Sends</SelectItem>
+              <SelectItem value="replies">Replies</SelectItem>
+              <SelectItem value="clicks">Clicks</SelectItem>
+              <SelectItem value="conversions">Conversions</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Splits */}
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-[var(--st-text-secondary)]">Split by:</span>
-          <select
-            className="text-sm bg-transparent border-none outline-none cursor-pointer font-medium focus:text-[var(--st-text)]"
+          <Select
             value={urlState.params.get("splitBy") || "none"}
-            onChange={(e) => urlState.setParam("splitBy", e.target.value)}
+            onValueChange={(v) => urlState.setParam("splitBy", v)}
           >
-            <option value="none">None</option>
-            <option value="locale">Locale</option>
-            <option value="provider">Provider</option>
-            <option value="template">Template</option>
-          </select>
+            <SelectTrigger className="w-[150px]" aria-label="Split cohorts by">
+              <SelectValue placeholder="None" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="locale">Locale</SelectItem>
+              <SelectItem value="provider">Provider</SelectItem>
+              <SelectItem value="template">Template</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex-1" />
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setMultiMetric(!multiMetric)}>
-            <Layers className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" iconLeft={Layers} onClick={() => setMultiMetric(!multiMetric)}>
             {multiMetric ? "Single Metric" : "Multi-metric Overlay"}
           </Button>
           <Button variant="outline" size="sm">
             Compare Cohorts
           </Button>
-          <Button variant="default" size="sm">
-            <Sparkles className="mr-2 h-4 w-4" />
+          <Button variant="primary" size="sm" iconLeft={Sparkles}>
             AI Explain
           </Button>
         </div>
@@ -198,7 +231,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Total Cohorted Contacts</CardTitle>
             <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4" aria-hidden="true" />
             </div>
           </CardHeader>
           <CardBody>
@@ -210,7 +243,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Avg. Month 1 Retention</CardTitle>
             <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <TrendingUp className="h-4 w-4" />
+              <TrendingUp className="h-4 w-4" aria-hidden="true" />
             </div>
           </CardHeader>
           <CardBody>
@@ -222,7 +255,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-sm font-medium text-[var(--st-text-secondary)]">Top Performing Cohort</CardTitle>
             <div className="h-8 w-8 rounded-full bg-[var(--st-text)]/10 flex items-center justify-center text-[var(--st-text)]">
-              <Target className="h-4 w-4" />
+              <Target className="h-4 w-4" aria-hidden="true" />
             </div>
           </CardHeader>
           <CardBody>
@@ -242,33 +275,37 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="period" 
-                  stroke="hsl(var(--muted-foreground))"
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                <XAxis
+                  dataKey="period"
+                  stroke="var(--st-text-secondary)"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
+                <YAxis
+                  stroke="var(--st-text-secondary)"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(val) => `${val}%`}
                 />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--st-bg-secondary)",
+                    borderColor: "var(--st-border)",
+                    borderRadius: "var(--st-radius-lg)",
+                  }}
+                  itemStyle={{ color: "var(--st-text)" }}
                   formatter={(value: number) => [`${value}%`, undefined]}
                 />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
                 {data.rows.map((row, idx) => (
-                  <Line 
-                    key={row.id} 
-                    type="monotone" 
-                    dataKey={row.id} 
-                    stroke={COLORS[idx % COLORS.length]} 
+                  <Line
+                    key={row.id}
+                    type="monotone"
+                    dataKey={row.id}
+                    stroke={COLORS[idx % COLORS.length]}
                     strokeWidth={3}
                     dot={{ r: 4, strokeWidth: 2 }}
                     activeDot={{ r: 6 }}
@@ -290,33 +327,37 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
           <div className="h-[350px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={ltvChartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis 
-                  dataKey="period" 
-                  stroke="hsl(var(--muted-foreground))"
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                <XAxis
+                  dataKey="period"
+                  stroke="var(--st-text-secondary)"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
-                <YAxis 
-                  stroke="hsl(var(--muted-foreground))"
+                <YAxis
+                  stroke="var(--st-text-secondary)"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(val) => `$${val}`}
                 />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                  itemStyle={{ color: 'hsl(var(--foreground))' }}
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "var(--st-bg-secondary)",
+                    borderColor: "var(--st-border)",
+                    borderRadius: "var(--st-radius-lg)",
+                  }}
+                  itemStyle={{ color: "var(--st-text)" }}
                   formatter={(value: number) => [`$${value}`, undefined]}
                 />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
                 {data.rows.map((row, idx) => (
-                  <Line 
-                    key={row.id} 
-                    type="monotone" 
-                    dataKey={row.id} 
-                    stroke={COLORS[(idx + 2) % COLORS.length]} 
+                  <Line
+                    key={row.id}
+                    type="monotone"
+                    dataKey={row.id}
+                    stroke={COLORS[(idx + 2) % COLORS.length]}
                     strokeWidth={3}
                     dot={{ r: 4, strokeWidth: 2 }}
                     activeDot={{ r: 6 }}
@@ -343,7 +384,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                 <Th className="w-[180px] pl-6 font-semibold">Cohort</Th>
                 <Th className="w-[120px] font-semibold">Initial Size</Th>
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <Th key={i} className="text-center w-[120px] font-semibold">
+                  <Th key={i} align="center" className="w-[120px] font-semibold">
                     Month {i}
                   </Th>
                 ))}
@@ -357,10 +398,13 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                       <span>{row.id}</span>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="sr-only">Open menu</span>
-                            <Filter className="h-3.5 w-3.5" />
-                          </Button>
+                          <IconButton
+                            label={`Cohort actions for ${row.id}`}
+                            icon={Filter}
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start">
                           <DropdownMenuItem>Save as segment</DropdownMenuItem>
@@ -380,23 +424,23 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                     }
                     const isSelected = selectedCell?.rowId === row.id && selectedCell?.period === i;
                     return (
-                      <Td
-                        key={i}
-                        className={`text-center p-0 border-r border-[var(--st-border)]/10 last:border-r-0`}
-                      >
-                        <div 
-                          className={`h-full w-full m-1 p-2 rounded-md cursor-pointer transition-all hover:scale-[0.98] ${getHeatmapColor(cell.value)} ${isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-zoru-surface scale-[0.98]" : ""}`}
+                      <Td key={i} align="center" className="p-0 border-r border-[var(--st-border)]/10 last:border-r-0">
+                        <Button
+                          variant="ghost"
+                          aria-label={`Open ${row.id} at Month ${i}, ${cell.value} percent retained`}
+                          aria-pressed={isSelected}
+                          className={`!h-auto !w-[calc(100%-0.5rem)] !min-w-0 !block m-1 !p-2 !rounded-[var(--st-radius)] cursor-pointer text-center transition-all hover:scale-[0.98] [&_.u-btn__label]:block [&_.u-btn__label]:w-full ${getHeatmapColor(cell.value)} ${isSelected ? "ring-2 ring-[var(--st-accent)] ring-offset-2 ring-offset-[var(--st-bg-secondary)] scale-[0.98]" : ""}`}
                           onClick={() => setSelectedCell({ rowId: row.id, period: i })}
                         >
-                          <div className="flex flex-col items-center justify-center gap-0.5">
+                          <span className="flex flex-col items-center justify-center gap-0.5">
                             <span className="font-bold text-[15px]">{cell.value}%</span>
                             {multiMetric && (
                               <span className="text-[11px] opacity-80 font-mono">
                                 {cell.absoluteValue.toLocaleString()}
                               </span>
                             )}
-                          </div>
-                        </div>
+                          </span>
+                        </Button>
                       </Td>
                     );
                   })}
@@ -413,14 +457,14 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
         onOpenChange={(open) => !open && setSelectedCell(null)}
         title={`Cohort Drill-down`}
         description={selectedCell ? `Viewing ${selectedCell.rowId} at Month ${selectedCell.period}` : ""}
-        icon={<Eye className="h-4 w-4" />}
+        icon={<Eye className="h-4 w-4" aria-hidden="true" />}
       >
         <div className="space-y-6 py-4">
           <p className="text-sm text-[var(--st-text-secondary)]">
             Detailed breakdown of the contacts in this cohort cell.
           </p>
           <div className="grid grid-cols-3 gap-4">
-            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
+            <Card variant="outlined" className="bg-[var(--st-bg-muted)]/30">
               <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Active Contacts</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
@@ -431,7 +475,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                 </p>
               </CardBody>
             </Card>
-            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
+            <Card variant="outlined" className="bg-[var(--st-bg-muted)]/30">
               <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">Retention Rate</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
@@ -442,7 +486,7 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
                 </p>
               </CardBody>
             </Card>
-            <Card variant="default" className="bg-[var(--st-bg-muted)]/30">
+            <Card variant="outlined" className="bg-[var(--st-bg-muted)]/30">
               <CardBody className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <p className="text-xs text-[var(--st-text-secondary)] font-medium uppercase tracking-wider mb-2">LTV</p>
                 <p className="text-2xl font-bold font-mono text-[var(--st-text)]">
@@ -454,9 +498,9 @@ export function CohortsDashboard({ data, options }: CohortsDashboardProps) {
               </CardBody>
             </Card>
           </div>
-          
+
           <div className="flex gap-3 pt-4 border-t border-[var(--st-border)]/50">
-            <Button variant="default" className="flex-1 shadow-md">
+            <Button variant="primary" className="flex-1 shadow-md">
               View Contacts List
             </Button>
             <Button variant="outline" className="flex-1">

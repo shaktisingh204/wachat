@@ -1,15 +1,20 @@
 'use client';
 
-import { Button, Label, Alert, AlertDescription, AlertTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-import {
-  AlertCircle,
-  LoaderCircle } from 'lucide-react';
-
-import { Check } from 'lucide-react';
-
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
+import {
+    Button,
+    Label,
+    Alert,
+    Field,
+    Checkbox,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    cn,
+} from '@/components/sabcrm/20ui';
 
 import { saveOnboardingBusiness } from '@/app/actions/onboarding-flow.actions';
 
@@ -42,18 +47,18 @@ const INDUSTRIES = [
 
 const TEAM_SIZES = [
     'Just me',
-    '2 – 10',
-    '11 – 50',
-    '51 – 200',
-    '201 – 1,000',
+    '2 - 10',
+    '11 - 50',
+    '51 - 200',
+    '201 - 1,000',
     '1,000+',
 ];
 
 const VOLUMES = [
     { value: '<1k', label: 'Under 1,000 / month' },
-    { value: '1k-10k', label: '1,000 – 10,000' },
-    { value: '10k-50k', label: '10,000 – 50,000' },
-    { value: '50k-250k', label: '50,000 – 250,000' },
+    { value: '1k-10k', label: '1,000 - 10,000' },
+    { value: '10k-50k', label: '10,000 - 50,000' },
+    { value: '50k-250k', label: '50,000 - 250,000' },
     { value: '250k+', label: '250,000+' },
 ];
 
@@ -141,23 +146,20 @@ export function BusinessStep({
 
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
-            {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Tell us a bit more</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
+            {error ? (
+                <Alert tone="danger" title="Tell us a bit more">
+                    {error}
                 </Alert>
-            )}
+            ) : null}
 
             <div className="grid gap-5 sm:grid-cols-3">
-                <div className="space-y-2">
-                    <Label htmlFor="industry">Industry *</Label>
+                <Field label="Industry" required id="industry">
                     <Select
                         value={industry}
                         onValueChange={setIndustry}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="industry">
+                        <SelectTrigger id="industry" aria-label="Industry">
                             <SelectValue placeholder="Pick one" />
                         </SelectTrigger>
                         <SelectContent>
@@ -168,16 +170,15 @@ export function BusinessStep({
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="teamSize">Team size *</Label>
+                <Field label="Team size" required id="teamSize">
                     <Select
                         value={teamSize}
                         onValueChange={setTeamSize}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="teamSize">
+                        <SelectTrigger id="teamSize" aria-label="Team size">
                             <SelectValue placeholder="People on your team" />
                         </SelectTrigger>
                         <SelectContent>
@@ -188,16 +189,15 @@ export function BusinessStep({
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="volume">Monthly volume *</Label>
+                <Field label="Monthly volume" required id="volume">
                     <Select
                         value={volume}
                         onValueChange={setVolume}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="volume">
+                        <SelectTrigger id="volume" aria-label="Monthly volume">
                             <SelectValue placeholder="Messages / month" />
                         </SelectTrigger>
                         <SelectContent>
@@ -208,41 +208,36 @@ export function BusinessStep({
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
+                </Field>
             </div>
 
             <div className="space-y-3">
                 <Label>How will you use SabNode? (pick all that apply)</Label>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                <div
+                    role="group"
+                    aria-label="Use cases"
+                    className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+                >
                     {USE_CASES.map((uc) => {
                         const active = useCases.includes(uc.id);
                         return (
-                            <button
-                                type="button"
+                            <label
                                 key={uc.id}
-                                onClick={() => toggleUseCase(uc.id)}
-                                disabled={isPending}
-                                aria-pressed={active}
                                 className={cn(
-                                    'flex items-start gap-3 rounded-xl border border-[var(--st-border)] p-4 text-left transition',
+                                    'flex cursor-pointer items-start gap-3 rounded-[var(--st-radius)] border p-4 text-left transition',
+                                    isPending && 'pointer-events-none opacity-60',
                                     active
-                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5 shadow-sm'
-                                        : 'hover:border-[var(--st-text)]/60 hover:bg-[var(--st-bg-secondary)]/50'
+                                        ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5 shadow-sm'
+                                        : 'border-[var(--st-border)] hover:border-[var(--st-accent)]/60 hover:bg-[var(--st-bg-secondary)]/50'
                                 )}
                             >
-                                <span
-                                    aria-hidden
-                                    className={cn(
-                                        'mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition',
-                                        active
-                                            ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-                                            : 'border-[var(--st-border)] bg-[var(--st-bg)]'
-                                    )}
-                                >
-                                    {active ? (
-                                        <Check className="h-3 w-3" />
-                                    ) : null}
-                                </span>
+                                <Checkbox
+                                    className="mt-0.5"
+                                    checked={active}
+                                    onChange={() => toggleUseCase(uc.id)}
+                                    disabled={isPending}
+                                    aria-label={uc.label}
+                                />
                                 <div>
                                     <p className="text-sm font-semibold text-[var(--st-text)]">
                                         {uc.label}
@@ -251,7 +246,7 @@ export function BusinessStep({
                                         {uc.description}
                                     </p>
                                 </div>
-                            </button>
+                            </label>
                         );
                     })}
                 </div>
@@ -268,12 +263,10 @@ export function BusinessStep({
                 </Button>
                 <Button
                     type="submit"
-                    className="h-11 px-6 text-base"
+                    size="lg"
+                    loading={isPending}
                     disabled={isPending}
                 >
-                    {isPending ? (
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
                     Continue
                 </Button>
             </div>

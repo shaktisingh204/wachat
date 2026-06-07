@@ -1,11 +1,27 @@
 'use client';
 
-import { ScrollArea, Button, Avatar, AvatarFallback, AvatarImage, Badge, Skeleton, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+    ScrollArea,
+    Button,
+    IconButton,
+    Avatar,
+    AvatarFallback,
+    AvatarImage,
+    Badge,
+    Skeleton,
+    Spinner,
+    Input,
+    EmptyState,
+    SegmentedControl,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/sabcrm/20ui';
 import { cn } from '@/lib/utils';
-import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
-import React,
-  { useMemo,
-  useState } from 'react';
+import { MessageSquarePlus, Search, Users } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
 
 import type { WithId, Contact, Project, User, Plan } from '@/lib/definitions';
 
@@ -70,73 +86,73 @@ export function ChatContactList({
 
     const unreadCount = useMemo(() => contacts.filter(c => (c.unreadCount || 0) > 0).length, [contacts]);
 
-    const getStatusVariant = (status?: string) => {
-        if (!status) return 'secondary';
-        const s = status.toLowerCase();
-        if (s === 'open') return 'destructive';
-        if (s === 'new') return 'default';
-        if (s === 'resolved') return 'outline';
-        return 'secondary';
-    }
+    const filterItems = useMemo(
+        () => [
+            { value: 'all' as const, label: 'All' },
+            { value: 'unread' as const, label: unreadCount > 0 ? `Unread (${unreadCount})` : 'Unread' },
+        ],
+        [unreadCount],
+    );
+
+    const phoneNumbers = project?.phoneNumbers || [];
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
-            <Skeleton className="h-10 w-10 rounded-full" />
+            <Skeleton circle width={40} />
             <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
+                <Skeleton height={16} width="75%" />
+                <Skeleton height={12} width="50%" />
             </div>
         </div>
     );
 
     return (
         <div className="h-full flex flex-col overflow-hidden bg-[var(--st-bg-secondary)]">
-            <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
+            <div className="p-3 border-b border-[var(--st-border)] flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
                         <Avatar>
-                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} alt={sessionUser.name} data-ai-hint="person avatar" />
                             <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <p className="font-semibold">{sessionUser.name}</p>
+                        <p className="font-semibold text-[var(--st-text)]">{sessionUser.name}</p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
+                        <Skeleton circle width={40} />
+                        <div className="space-y-2"><Skeleton height={16} width={96} /><Skeleton height={12} width={64} /></div>
                     </div>
                 )}
-                <Button
+                <IconButton
+                    label="New chat"
+                    icon={MessageSquarePlus}
                     variant="ghost"
-                    size="icon"
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log("New Chat button clicked in Contact List");
                         onNewChat();
                     }}
-                    className="h-8 w-8"
-                >
-                    <MessageSquarePlus className="h-5 w-5" />
-                    <span className="sr-only">New Chat</span>
-                </Button>
+                />
             </div>
 
-            <div className="p-3 border-b flex-shrink-0 space-y-3">
-                <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-[var(--st-text-secondary)]" />
-                    <Input
-                        placeholder="Search or start new chat"
-                        className="pl-8"
-                        onChange={(e) => handleSearch(e.target.value)}
-                    />
-                </div>
-                <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
-                    <SelectTrigger id="phoneNumberId">
+            <div className="p-3 border-b border-[var(--st-border)] flex-shrink-0 space-y-3">
+                <Input
+                    type="search"
+                    placeholder="Search or start new chat"
+                    iconLeft={Search}
+                    aria-label="Search contacts"
+                    onChange={(e) => handleSearch(e.target.value)}
+                />
+                <Select
+                    value={selectedPhoneNumberId}
+                    onValueChange={onPhoneNumberChange}
+                    disabled={phoneNumbers.length === 0}
+                >
+                    <SelectTrigger id="phoneNumberId" aria-label="Phone number">
                         <SelectValue placeholder="Select a phone number..." />
                     </SelectTrigger>
                     <SelectContent>
-                        {(project?.phoneNumbers || []).map((phone) => (
+                        {phoneNumbers.map((phone) => (
                             <SelectItem key={phone.id} value={phone.id}>
                                 {phone.display_phone_number} ({phone.verified_name})
                             </SelectItem>
@@ -146,31 +162,14 @@ export function ChatContactList({
             </div>
 
             {/* All / Unread filter pills */}
-            <div className="px-3 py-2 border-b flex-shrink-0 flex items-center gap-1.5">
-                <button
-                    type="button"
-                    onClick={() => setChatFilter('all')}
-                    className={cn(
-                        'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
-                        chatFilter === 'all'
-                            ? 'bg-[var(--st-text)] text-white'
-                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
-                    )}
-                >
-                    All
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setChatFilter('unread')}
-                    className={cn(
-                        'rounded-full px-3 py-1 text-[11px] font-semibold transition-colors',
-                        chatFilter === 'unread'
-                            ? 'bg-[var(--st-text)] text-white'
-                            : 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-muted)]'
-                    )}
-                >
-                    Unread{unreadCount > 0 && ` (${unreadCount})`}
-                </button>
+            <div className="px-3 py-2 border-b border-[var(--st-border)] flex-shrink-0">
+                <SegmentedControl
+                    items={filterItems}
+                    value={chatFilter}
+                    onChange={setChatFilter}
+                    size="sm"
+                    aria-label="Filter chats"
+                />
             </div>
 
             <ScrollArea className="flex-1">
@@ -181,65 +180,72 @@ export function ChatContactList({
                 ) : filteredContacts.length > 0 ? (
                     <>
                         {filteredContacts.map(contact => {
-                            const unreadCount = contact.unreadCount || 0;
+                            const rowUnread = contact.unreadCount || 0;
                             const lastMsgTime = contact.lastMessageTimestamp;
                             const lastMsgContent = contact.lastMessage || 'No messages yet.';
+                            const isSelected = selectedContactId === contact._id.toString();
 
                             return (
-                                <button
+                                <Button
                                     key={contact._id.toString()}
+                                    variant="ghost"
                                     onClick={() => onSelectContact(contact)}
+                                    aria-pressed={isSelected}
                                     className={cn(
-                                        "flex w-full items-start gap-3 p-3 text-left transition-all duration-200 rounded-xl mx-2 mb-1 w-[calc(100%-16px)] hover:bg-[var(--st-bg-muted)]/50",
-                                        selectedContactId === contact._id.toString() && "bg-[var(--st-bg-muted)] shadow-sm"
+                                        'mx-2 mb-1 w-[calc(100%-16px)] !h-auto !items-start !justify-start !p-3 !rounded-xl text-left transition-all duration-200 hover:bg-[var(--st-bg-muted)]/50',
+                                        isSelected && 'bg-[var(--st-bg-muted)] shadow-sm'
                                     )}
                                 >
-                                    <Avatar>
-                                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 min-w-0 pt-0.5">
-                                        <div className="flex justify-between items-start">
-                                            <span className={cn(
-                                                "font-medium truncate pr-2",
-                                                unreadCount > 0 ? "text-[var(--st-text)]" : "text-[var(--st-text)]/80"
-                                            )}>
-                                                {contact.name || contact.waId}
-                                            </span>
-                                            {lastMsgTime && (
-                                                <span className="text-[10px] text-[var(--st-text-secondary)] whitespace-nowrap flex-shrink-0 mt-0.5">
-                                                    {format(new Date(lastMsgTime), 'HH:mm')}
+                                    <span className="flex w-full items-start gap-3">
+                                        <Avatar>
+                                            <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                        </Avatar>
+                                        <span className="flex-1 min-w-0 pt-0.5">
+                                            <span className="flex justify-between items-start">
+                                                <span className={cn(
+                                                    'font-medium truncate pr-2',
+                                                    rowUnread > 0 ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]/80'
+                                                )}>
+                                                    {contact.name || contact.waId}
                                                 </span>
-                                            )}
-                                        </div>
-                                        <div className="flex justify-between items-center mt-0.5">
-                                            <span className="text-xs text-[var(--st-text-secondary)] truncate block max-w-[180px]">
-                                                {lastMsgContent}
+                                                {lastMsgTime && (
+                                                    <span className="text-[10px] text-[var(--st-text-secondary)] whitespace-nowrap flex-shrink-0 mt-0.5">
+                                                        {format(new Date(lastMsgTime), 'HH:mm')}
+                                                    </span>
+                                                )}
                                             </span>
-                                            {unreadCount > 0 && (
-                                                <Badge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
-                                                    {unreadCount}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-                                </button>
+                                            <span className="flex justify-between items-center mt-0.5">
+                                                <span className="text-xs text-[var(--st-text-secondary)] truncate block max-w-[180px]">
+                                                    {lastMsgContent}
+                                                </span>
+                                                {rowUnread > 0 && (
+                                                    <Badge tone="accent" kind="solid" className="ml-1.5 flex-shrink-0">
+                                                        {rowUnread}
+                                                    </Badge>
+                                                )}
+                                            </span>
+                                        </span>
+                                    </span>
+                                </Button>
                             );
                         })}
                         <div ref={loadMoreRef} className="flex justify-center items-center p-4">
-                            {hasMoreContacts && <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-secondary)]" />}
+                            {hasMoreContacts && <Spinner size="sm" label="Loading more contacts" />}
                         </div>
                     </>
                 ) : (
-                    <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-[var(--st-text-secondary)]">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]/50">
-                            <Users className="h-5 w-5" />
-                        </div>
-                        <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>
-                        {!searchQuery && (
-                            <Button asChild variant="outline" size="sm" className="mt-2">
-                                <Link href="/wachat/contacts">Import or add contacts</Link>
-                            </Button>
-                        )}
+                    <div className="p-8">
+                        <EmptyState
+                            icon={Users}
+                            title={`No contacts found${searchQuery ? ' for your search' : ' for this number'}.`}
+                            action={
+                                !searchQuery ? (
+                                    <Link href="/wachat/contacts">
+                                        <Button variant="outline" size="sm">Import or add contacts</Button>
+                                    </Link>
+                                ) : undefined
+                            }
+                        />
                     </div>
                 )}
             </ScrollArea>

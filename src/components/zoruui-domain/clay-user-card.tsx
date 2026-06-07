@@ -1,7 +1,7 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/sabcrm/20ui';
-import { LuEllipsis } from 'react-icons/lu';
+import { Avatar, AvatarFallback, AvatarImage, IconButton } from '@/components/sabcrm/20ui';
+import { MoreHorizontal } from 'lucide-react';
 
 import * as React from 'react';
 
@@ -16,8 +16,8 @@ export interface ClayUserCardProps {
 }
 
 /**
- * ClayUserCard — bottom-of-sidebar user row. Avatar + name/email +
- * overflow icon. Built on the shadcn `ZoruAvatar` primitive.
+ * ClayUserCard. Bottom-of-sidebar user row: avatar plus name/email plus an
+ * overflow menu button. Built on the 20ui Avatar and IconButton primitives.
  */
 export function ClayUserCard({
   name,
@@ -34,36 +34,31 @@ export function ClayUserCard({
     .toUpperCase();
 
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3 px-2 py-2',
-        className,
-      )}
-    >
-      <Avatar className="h-10 w-10 shrink-0 ring-2 ring-background">
+    <div className={cn('flex items-center gap-3 px-2 py-2', className)}>
+      <Avatar className="h-10 w-10 shrink-0 ring-2 ring-[var(--st-bg)]">
         {avatarSrc ? <AvatarImage src={avatarSrc} alt={name} /> : null}
-        <AvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-[var(--st-text-secondary)]">
+        <AvatarFallback className="bg-[var(--st-bg-secondary)] text-[12px] font-semibold text-[var(--st-text-secondary)]">
           {initials}
         </AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[13px] font-semibold text-[var(--st-text)] leading-[1.2]">
+        <div className="truncate text-[13px] font-semibold leading-[1.2] text-[var(--st-text)]">
           {name}
         </div>
         {email ? (
-          <div className="truncate text-[11px] text-[var(--st-text-secondary)] leading-[1.25]">
+          <div className="truncate text-[11px] leading-[1.25] text-[var(--st-text-secondary)]">
             {email}
           </div>
         ) : null}
       </div>
-      <button
-        type="button"
+      <IconButton
+        label="User menu"
+        icon={MoreHorizontal}
+        variant="ghost"
+        size="sm"
         onClick={onMenuClick}
-        aria-label="User menu"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)] hover:text-[var(--st-text)] transition-colors"
-      >
-        <LuEllipsis className="h-4 w-4" strokeWidth={2} />
-      </button>
+        className="shrink-0"
+      />
     </div>
   );
 }

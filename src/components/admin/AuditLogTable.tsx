@@ -1,10 +1,34 @@
 'use client';
 
-import { Badge, Input, Table, TBody, Td, Th, THead, Tr, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
+  Badge,
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from '@/components/sabcrm/20ui';
+import {
+  Inbox,
   Search,
   ShieldAlert,
-  ShieldCheck } from 'lucide-react';
+  ShieldCheck,
+} from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -13,14 +37,12 @@ import autoTable from 'jspdf-autotable';
  *
  * Consumes a pre-aggregated {@link AuditSummary} produced by
  * `auditSummaryFor` on the server and offers client-side filtering by
- * actor, action and a free-form date range.  The component is
- * intentionally read-only — destructive operations belong on the
+ * actor, action and a free-form date range. The component is
+ * intentionally read-only. Destructive operations belong on the
  * legal-hold / DSR pages, which already have their own confirmation
  * flows.
  */
 import * as React from 'react';
-
-import { cn } from '@/lib/utils';
 
 import type {
     AuditBucket,
@@ -28,7 +50,7 @@ import type {
 } from '@/lib/compliance/dashboards';
 import type { AuditEvent } from '@/lib/compliance/types';
 
-/* ── Helpers ────────────────────────────────────────────────────────── */
+/* -- Helpers --------------------------------------------------------- */
 
 function formatTimestamp(iso: string): string {
     try {
@@ -50,7 +72,7 @@ function isFailure(evt: AuditEvent): boolean {
         === 'error';
 }
 
-/* ── Subcomponents ──────────────────────────────────────────────────── */
+/* -- Subcomponents --------------------------------------------------- */
 
 interface BucketCardProps {
     title: string;
@@ -63,10 +85,12 @@ interface BucketCardProps {
 function BucketCard({ title, items, emptyLabel, onSelect, selectedKey }: BucketCardProps) {
     const top = items.slice(0, 5);
     return (
-        <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
-                {title}
-            </h3>
+        <Card variant="outlined" padding="md">
+            <CardHeader>
+                <CardTitle className="text-xs font-semibold uppercase tracking-wider">
+                    {title}
+                </CardTitle>
+            </CardHeader>
             {top.length === 0 ? (
                 <p className="mt-3 text-sm text-[var(--st-text-secondary)]">
                     {emptyLabel ?? 'No data in range.'}
@@ -75,34 +99,32 @@ function BucketCard({ title, items, emptyLabel, onSelect, selectedKey }: BucketC
                 <ul className="mt-3 space-y-1.5">
                     {top.map((b) => (
                         <li key={b.key}>
-                            <button
-                                type="button"
+                            <Button
+                                variant={selectedKey === b.key ? 'secondary' : 'ghost'}
+                                size="sm"
+                                block
                                 onClick={() => onSelect?.(b.key)}
-                                className={cn(
-                                    'flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm transition-colors',
-                                    'hover:bg-[var(--st-bg-muted)]',
-                                    selectedKey === b.key && 'bg-[var(--st-bg-muted)] font-medium',
-                                )}
+                                className="justify-between"
                             >
                                 <span className="truncate text-[var(--st-text)]">{b.key}</span>
                                 <span className="ml-2 flex shrink-0 items-center gap-2 text-xs text-[var(--st-text)]">
                                     {b.failures > 0 ? (
-                                        <span className="rounded-full bg-[var(--st-bg-muted)] px-1.5 py-0.5 font-medium text-[var(--st-text)]">
+                                        <Badge tone="danger" kind="soft">
                                             {b.failures} fail
-                                        </span>
+                                        </Badge>
                                     ) : null}
                                     <span>{b.count}</span>
                                 </span>
-                            </button>
+                            </Button>
                         </li>
                     ))}
                 </ul>
             )}
-        </div>
+        </Card>
     );
 }
 
-/* ── Main component ─────────────────────────────────────────────────── */
+/* -- Main component -------------------------------------------------- */
 
 export interface AuditLogTableProps {
     summary: AuditSummary;
@@ -201,39 +223,25 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
         <div className="space-y-6">
             {/* KPI strip */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
-                        Total events
-                    </div>
-                    <div className="mt-2 text-2xl font-bold text-[var(--st-text)]">
-                        {summary.total.toLocaleString()}
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
-                        Failures
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                        <span className="text-2xl font-bold text-[var(--st-text)]">
-                            {summary.failures.toLocaleString()}
+                <StatCard
+                    label="Total events"
+                    value={summary.total.toLocaleString()}
+                />
+                <StatCard
+                    label="Failures"
+                    value={summary.failures.toLocaleString()}
+                    icon={summary.failures > 0 ? ShieldAlert : ShieldCheck}
+                />
+                <StatCard
+                    label="Window"
+                    value={
+                        <span className="text-sm font-normal">
+                            {formatTimestamp(summary.range.from)}
+                            <span className="mx-2 text-[var(--st-text-secondary)]">to</span>
+                            {formatTimestamp(summary.range.to)}
                         </span>
-                        {summary.failures > 0 ? (
-                            <ShieldAlert className="h-5 w-5 text-[var(--st-text)]" />
-                        ) : (
-                            <ShieldCheck className="h-5 w-5 text-[var(--st-text)]" />
-                        )}
-                    </div>
-                </div>
-                <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-[var(--st-text)]">
-                        Window
-                    </div>
-                    <div className="mt-2 text-sm text-[var(--st-text)]">
-                        {formatTimestamp(summary.range.from)}
-                        <span className="mx-2 text-[var(--st-text-secondary)]">→</span>
-                        {formatTimestamp(summary.range.to)}
-                    </div>
-                </div>
+                    }
+                />
             </div>
 
             {/* Bucket cards */}
@@ -261,31 +269,22 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
             </div>
 
             {/* Filter row */}
-            <div className="rounded-2xl border border-[var(--st-border)] bg-white p-4">
+            <Card variant="outlined" padding="md">
                 <div className="flex flex-wrap items-end gap-3">
-                    <div className="min-w-[220px] flex-1">
-                        <label className="text-xs font-medium text-[var(--st-text)]">
-                            Search
-                        </label>
-                        <div className="relative mt-1">
-                            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-                            <Input
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="actor, action, resource…"
-                                className="pl-8"
-                            />
-                        </div>
-                    </div>
-                    <div>
-                        <label className="text-xs font-medium text-[var(--st-text)]">
-                            Action
-                        </label>
+                    <Field label="Search" className="min-w-[220px] flex-1">
+                        <Input
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="actor, action, resource"
+                            iconLeft={Search}
+                        />
+                    </Field>
+                    <Field label="Action">
                         <Select
                             value={actionFilter || 'all'}
                             onValueChange={(val) => setActionFilter(val === 'all' ? null : val)}
                         >
-                            <SelectTrigger className="mt-1 w-[160px]">
+                            <SelectTrigger className="w-[160px]" aria-label="Filter by action">
                                 <SelectValue placeholder="All actions" />
                             </SelectTrigger>
                             <SelectContent>
@@ -297,65 +296,53 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div>
-                        <label className="text-xs font-medium text-[var(--st-text)]">
-                            From
-                        </label>
+                    </Field>
+                    <Field label="From">
                         <Input
                             type="datetime-local"
                             value={from}
                             onChange={(e) => setFrom(e.target.value)}
-                            className="mt-1"
                         />
-                    </div>
-                    <div>
-                        <label className="text-xs font-medium text-[var(--st-text)]">
-                            To
-                        </label>
+                    </Field>
+                    <Field label="To">
                         <Input
                             type="datetime-local"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
-                            className="mt-1"
                         />
-                    </div>
+                    </Field>
                     {hasActiveFilter ? (
-                        <button
-                            type="button"
-                            onClick={clearFilters}
-                            className="rounded-md border border-[var(--st-border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                        >
+                        <Button variant="outline" size="sm" onClick={clearFilters}>
                             Clear filters
-                        </button>
+                        </Button>
                     ) : null}
                 </div>
                 {(actorFilter || actionFilter) && (
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
                         {actorFilter && (
-                            <Badge variant="secondary">
+                            <Badge tone="neutral" kind="soft">
                                 Actor: {actorFilter}
                             </Badge>
                         )}
                         {actionFilter && (
-                            <Badge variant="secondary">
+                            <Badge tone="neutral" kind="soft">
                                 Action: {actionFilter}
                             </Badge>
                         )}
                     </div>
                 )}
-            </div>
+            </Card>
 
             {/* Table */}
-            <div className="rounded-2xl border border-[var(--st-border)] bg-white">
-                <div className="border-b border-[var(--st-border)] px-4 py-3 flex items-center justify-between">
+            <Card variant="outlined" padding="none">
+                <CardHeader className="flex items-center justify-between px-4 py-3">
                     <div>
-                        <h2 className="text-sm font-semibold text-[var(--st-text)]">
+                        <CardTitle className="text-sm font-semibold">
                             Recent events
-                        </h2>
-                        <p className="text-xs text-[var(--st-text)]">
+                        </CardTitle>
+                        <CardDescription className="text-xs">
                             Showing {filtered.length} of {summary.recent.length} most-recent rows.
-                        </p>
+                        </CardDescription>
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={exportCSV}>
@@ -365,25 +352,27 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                             Export PDF
                         </Button>
                     </div>
-                </div>
+                </CardHeader>
                 <Table>
                     <THead>
                         <Tr>
-                            <Th className="w-[180px]">Timestamp</Th>
+                            <Th width={180}>Timestamp</Th>
                             <Th>Actor</Th>
                             <Th>Action</Th>
                             <Th>Resource</Th>
-                            <Th className="w-[100px]">Outcome</Th>
+                            <Th width={100}>Outcome</Th>
                         </Tr>
                     </THead>
                     <TBody>
                         {filtered.length === 0 ? (
                             <Tr>
-                                <Td
-                                    colSpan={5}
-                                    className="py-12 text-center text-sm text-[var(--st-text-secondary)]"
-                                >
-                                    No events match the current filters.
+                                <Td colSpan={5}>
+                                    <EmptyState
+                                        icon={Inbox}
+                                        title="No matching events"
+                                        description="No events match the current filters."
+                                        size="sm"
+                                    />
                                 </Td>
                             </Tr>
                         ) : (
@@ -403,11 +392,11 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                                     </Td>
                                     <Td>
                                         {isFailure(evt) ? (
-                                            <Badge variant="destructive">
+                                            <Badge tone="danger" kind="soft">
                                                 error
                                             </Badge>
                                         ) : (
-                                            <Badge variant="secondary">
+                                            <Badge tone="success" kind="soft">
                                                 ok
                                             </Badge>
                                         )}
@@ -417,7 +406,7 @@ export function AuditLogTable({ summary }: AuditLogTableProps) {
                         )}
                     </TBody>
                 </Table>
-            </div>
+            </Card>
         </div>
     );
 }

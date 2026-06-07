@@ -1,15 +1,26 @@
 'use client';
 
-import { Button, Input, Label, Textarea, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
+  Checkbox,
+  Field,
+  Input,
+  Label,
+  Radio,
+  RadioGroup,
+  Textarea,
+  cn,
+} from '@/components/sabcrm/20ui';
 import {
   AlertCircle,
   BarChart3,
   Bot,
-  Briefcase,
   Brush,
   GitFork,
   Link2,
-  LoaderCircle,
   Mail,
   MessageSquare,
   QrCode,
@@ -17,11 +28,9 @@ import {
   ShoppingBag,
   TrendingUp,
   Users,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import * as React from 'react';
-
-import { cn } from '@/lib/utils';
 
 import { saveOnboardingRequirements } from '@/app/actions/onboarding-flow.actions';
 
@@ -72,7 +81,7 @@ export const AVAILABLE_MODULES: {
     {
         id: 'sabchat',
         name: 'SabChat AI chatbot',
-        description: 'Embeddable AI widget with FAQs & live handoff',
+        description: 'Embeddable AI widget with FAQs and live handoff',
         icon: Bot,
     },
     {
@@ -84,7 +93,7 @@ export const AVAILABLE_MODULES: {
     {
         id: 'sms',
         name: 'SMS campaigns',
-        description: 'Transactional + marketing SMS',
+        description: 'Transactional and marketing SMS',
         icon: Send,
     },
     {
@@ -102,7 +111,7 @@ export const AVAILABLE_MODULES: {
     {
         id: 'ad-manager',
         name: 'Meta Ad Manager',
-        description: 'Facebook & Instagram ad campaigns',
+        description: 'Facebook and Instagram ad campaigns',
         icon: BarChart3,
     },
     {
@@ -186,8 +195,7 @@ export function RequirementsStep({
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                <Alert tone="danger" icon={AlertCircle}>
                     <AlertTitle>Almost there</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
@@ -195,7 +203,7 @@ export function RequirementsStep({
 
             <div className="space-y-3">
                 <div className="flex items-end justify-between">
-                    <Label>Modules to turn on *</Label>
+                    <Label required>Modules to turn on</Label>
                     <span className="text-xs text-[var(--st-text-secondary)]">
                         {selected.length} selected
                     </span>
@@ -205,93 +213,91 @@ export function RequirementsStep({
                         const Icon = m.icon;
                         const active = selected.includes(m.id);
                         return (
-                            <button
-                                type="button"
+                            <label
                                 key={m.id}
-                                onClick={() => toggle(m.id)}
-                                disabled={isPending}
                                 className={cn(
-                                    'flex items-start gap-3 rounded-xl border border-[var(--st-border)] p-4 text-left transition',
+                                    'flex items-start gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 text-left transition',
+                                    isPending
+                                        ? 'cursor-not-allowed opacity-60'
+                                        : 'cursor-pointer',
                                     active
-                                        ? 'border-[var(--st-text)] bg-[var(--st-text)]/5 shadow-sm'
-                                        : 'hover:border-[var(--st-text)]/60 hover:bg-[var(--st-bg-secondary)]/50'
+                                        ? 'border-[var(--st-accent)] bg-[var(--st-accent)]/5 shadow-sm'
+                                        : 'hover:border-[var(--st-accent)]/60 hover:bg-[var(--st-bg-secondary)]/50'
                                 )}
                             >
-                                <div
+                                <Checkbox
+                                    className="mt-0.5 shrink-0"
+                                    checked={active}
+                                    disabled={isPending}
+                                    onChange={() => toggle(m.id)}
+                                    aria-label={`Enable ${m.name}`}
+                                />
+                                <span
                                     className={cn(
                                         'rounded-lg p-2',
                                         active
-                                            ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                                            ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
                                             : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]'
                                     )}
                                 >
-                                    <Icon className="h-4 w-4" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-semibold text-[var(--st-text)]">
+                                    <Icon className="h-4 w-4" aria-hidden="true" />
+                                </span>
+                                <span className="flex-1">
+                                    <span className="block text-sm font-semibold text-[var(--st-text)]">
                                         {m.name}
-                                    </p>
-                                    <p className="text-xs text-[var(--st-text-secondary)]">
+                                    </span>
+                                    <span className="block text-xs text-[var(--st-text-secondary)]">
                                         {m.description}
-                                    </p>
-                                </div>
-                            </button>
+                                    </span>
+                                </span>
+                            </label>
                         );
                     })}
                 </div>
             </div>
 
             <div className="grid gap-5 lg:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="primaryGoal">
-                        What's the #1 outcome you want in 90 days? *
-                    </Label>
+                <Field
+                    label="What's the #1 outcome you want in 90 days?"
+                    required
+                >
                     <Textarea
-                        id="primaryGoal"
                         value={primaryGoal}
                         onChange={(e) => setPrimaryGoal(e.target.value)}
                         disabled={isPending}
                         placeholder="e.g. Move WhatsApp broadcasts off a legacy BSP and cut cost-per-lead by 30%"
                         rows={3}
                     />
-                </div>
+                </Field>
 
                 <div className="space-y-5">
-                    <div className="space-y-2">
-                        <Label htmlFor="currentTools">
-                            Tools you use today (optional)
-                        </Label>
+                    <Field label="Tools you use today (optional)">
                         <Input
-                            id="currentTools"
                             value={currentTools}
                             onChange={(e) => setCurrentTools(e.target.value)}
                             disabled={isPending}
-                            placeholder="Interakt, Zoho, Mailchimp…"
+                            placeholder="Interakt, Zoho, Mailchimp"
                         />
-                    </div>
+                    </Field>
                     <div className="space-y-2">
                         <Label>When are you looking to go live?</Label>
-                        <div className="flex flex-wrap gap-2">
-                            {TIMELINES.map((t) => {
-                                const active = timeline === t;
-                                return (
-                                    <button
-                                        type="button"
-                                        key={t}
-                                        onClick={() => setTimeline(t)}
-                                        disabled={isPending}
-                                        className={cn(
-                                            'rounded-full border border-[var(--st-border)] px-4 py-1.5 text-xs font-medium text-[var(--st-text)] transition',
-                                            active
-                                                ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
-                                                : 'hover:border-[var(--st-text)]/60'
-                                        )}
-                                    >
-                                        {t}
-                                    </button>
-                                );
-                            })}
-                        </div>
+                        <RadioGroup
+                            orientation="horizontal"
+                            value={timeline}
+                            onValueChange={setTimeline}
+                            disabled={isPending}
+                            aria-label="Go-live timeline"
+                            className="flex-wrap gap-2"
+                        >
+                            {TIMELINES.map((t) => (
+                                <Radio
+                                    key={t}
+                                    value={t}
+                                    label={t}
+                                    size="sm"
+                                />
+                            ))}
+                        </RadioGroup>
                     </div>
                 </div>
             </div>
@@ -307,12 +313,11 @@ export function RequirementsStep({
                 </Button>
                 <Button
                     type="submit"
-                    className="h-11 px-6 text-base"
+                    variant="primary"
+                    size="lg"
+                    loading={isPending}
                     disabled={isPending}
                 >
-                    {isPending ? (
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
                     Continue
                 </Button>
             </div>

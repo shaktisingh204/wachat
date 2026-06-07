@@ -1,8 +1,29 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Collapsible, CollapsibleContent, CollapsibleTrigger, EmptyState, Skeleton, useToast } from '@/components/sabcrm/20ui';
 import {
-  ChevronDown,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  useToast,
+} from "@/components/sabcrm/20ui";
+import {
   CircleSlash,
   Loader2,
   Play,
@@ -10,10 +31,10 @@ import {
   RefreshCw,
   Smartphone,
   Workflow,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
- * /sabwa/flows — Chatbot flows for SabWa.
+ * /sabwa/flows. Chatbot flows for SabWa.
  *
  * Bridges SabWa to the existing SabFlow visual builder.
  * Real data layer: `listSabFlows(projectId)` from `@/app/actions/sabflow`,
@@ -24,11 +45,11 @@ import {
  * surfaces the SabWa trigger + action catalogue as a collapsible reference
  * so users understand what the builder will give them.
  *
- * Rebuilt on ZoruUI primitives — neutral zoru-* tokens only, no tab UI.
+ * Built on pure 20ui primitives. Neutral --st-* tokens only, no tab UI.
  */
 
 import * as React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useProject } from "@/context/project-context";
 import { listSabFlows } from "@/app/actions/sabflow";
@@ -123,11 +144,16 @@ function timeAgo(iso?: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function openInNewTab(href: string): void {
+  window.open(href, "_blank", "noopener,noreferrer");
+}
+
 export default function SabWaFlowsPage() {
-  const toast = useToast();
+  const { toast } = useToast();
+  const router = useRouter();
   const { activeProjectId } = useProject();
   const { current: activeSession } = useSabwaSession();
-  const sessionId = activeSession?.id ?? '';
+  const sessionId = activeSession?.id ?? "";
 
   const sabwaProjectScope = activeProjectId
     ? `sabwa-${activeProjectId}`
@@ -170,13 +196,16 @@ export default function SabWaFlowsPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
-            <Link href="/sabwa/overview">
-              <Button size="md">Open accounts</Button>
-            </Link>
+            <Button
+              variant="primary"
+              onClick={() => router.push("/sabwa/overview")}
+            >
+              Open accounts
+            </Button>
           }
         />
       </div>
@@ -202,53 +231,46 @@ export default function SabWaFlowsPage() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      {/* ── Header ───────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-start gap-3">
-        <div
-          aria-hidden
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
-        >
-          <Workflow className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1">
+      {/* Header */}
+      <PageHeader>
+        <PageHeaderHeading>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-              Chatbot Flows
-            </h1>
+            <PageTitle>Chatbot Flows</PageTitle>
             <Badge variant="secondary">SabFlow-powered</Badge>
           </div>
-          <p className="mt-1 max-w-2xl text-[13px] text-[var(--st-text-secondary)]">
+          <PageDescription>
             Chatbot flows for your personal WhatsApp use{" "}
             <strong className="font-medium text-[var(--st-text)]">SabFlow</strong>{" "}
             under the hood. Build once with the visual editor, route every
-            inbound to the right reply — labels, webhooks, branches included.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+            inbound to the right reply. Labels, webhooks, branches included.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
           <Button
-            type="button"
             variant="outline"
             size="sm"
             onClick={() => void load()}
             disabled={loading}
+            iconLeft={loading ? undefined : RefreshCw}
           >
             {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            <span className="ml-2 hidden sm:inline">Refresh</span>
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            ) : null}
+            <span className={loading ? "ml-2 hidden sm:inline" : "hidden sm:inline"}>
+              Refresh
+            </span>
           </Button>
-          <Button asChild type="button">
-            <Link href={newFlowHref} target="_blank" rel="noopener noreferrer">
-              <Plus className="h-4 w-4" />
-              <span className="ml-2">New flow</span>
-            </Link>
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => openInNewTab(newFlowHref)}
+          >
+            New flow
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      {/* ── Flow list ────────────────────────────────────────────────── */}
+      {/* Flow list */}
       <section aria-labelledby="flows-list-heading" className="space-y-3">
         <h2 id="flows-list-heading" className="sr-only">
           Your SabWa flows
@@ -266,20 +288,20 @@ export default function SabWaFlowsPage() {
           <Card>
             <CardBody className="flex flex-col items-start gap-2 p-4 text-[13px]">
               <div className="flex items-center gap-2 text-[var(--st-danger)]">
-                <CircleSlash className="h-4 w-4" />
+                <CircleSlash className="h-4 w-4" aria-hidden="true" />
                 <span className="font-medium">Couldn&apos;t load flows</span>
               </div>
               <p className="text-[var(--st-text-secondary)]">{error}</p>
               <Button
-                type="button"
                 variant="outline"
                 size="sm"
+                iconLeft={RefreshCw}
                 onClick={() => {
-                  toast.toast({ title: "Retrying flows fetch" });
+                  toast({ title: "Retrying flows fetch" });
                   void load();
                 }}
               >
-                <RefreshCw className="mr-2 h-4 w-4" /> Try again
+                Try again
               </Button>
             </CardBody>
           </Card>
@@ -299,17 +321,15 @@ export default function SabWaFlowsPage() {
               </h3>
               <p className="max-w-md text-[13px] text-[var(--st-text-secondary)]">
                 Spin up your first chatbot for personal WhatsApp. The builder
-                opens scoped to SabWa — only triggers and actions that work
+                opens scoped to SabWa, so only triggers and actions that work
                 on personal WhatsApp accounts are shown.
               </p>
-              <Button asChild type="button">
-                <Link
-                  href={newFlowHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Create your first flow
-                </Link>
+              <Button
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => openInNewTab(newFlowHref)}
+              >
+                Create your first flow
               </Button>
             </CardBody>
           </Card>
@@ -354,15 +374,17 @@ export default function SabWaFlowsPage() {
                       </div>
                     </dl>
                     <div className="flex justify-end gap-2 pt-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link
-                          href={`/dashboard/sabflow/flow-builder/${flow._id}?context=sabwa`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Play className="h-3.5 w-3.5" />
-                          <span className="ml-2">Open in builder</span>
-                        </Link>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        iconLeft={Play}
+                        onClick={() =>
+                          openInNewTab(
+                            `/dashboard/sabflow/flow-builder/${flow._id}?context=sabwa`,
+                          )
+                        }
+                      >
+                        Open in builder
                       </Button>
                     </div>
                   </CardBody>
@@ -373,7 +395,7 @@ export default function SabWaFlowsPage() {
         )}
       </section>
 
-      {/* ── Trigger + action reference ───────────────────────────────── */}
+      {/* Trigger + action reference */}
       <section aria-labelledby="catalogue-heading" className="space-y-3">
         <h2
           id="catalogue-heading"
@@ -387,23 +409,16 @@ export default function SabWaFlowsPage() {
         </p>
 
         <Collapsible defaultOpen>
-          <Card>
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
-                aria-label="Toggle SabWa triggers reference"
-              >
-                <CardHeader className="p-0">
-                  <CardTitle className="text-[13px]">
-                    Available triggers
-                  </CardTitle>
-                  <CardDescription className="text-[11.5px]">
-                    What can start a SabWa flow.
-                  </CardDescription>
-                </CardHeader>
-                <ChevronDown className="h-4 w-4 transition data-[state=open]:rotate-180" />
-              </button>
+          <Card padding="none">
+            <CollapsibleTrigger className="w-full p-4 text-left">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[13px] font-medium text-[var(--st-text)]">
+                  Available triggers
+                </span>
+                <span className="text-[11.5px] text-[var(--st-text-secondary)]">
+                  What can start a SabWa flow.
+                </span>
+              </span>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardBody className="grid gap-3 pt-0 md:grid-cols-2">
@@ -416,7 +431,7 @@ export default function SabWaFlowsPage() {
                       <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {trigger.title}
                       </span>
-                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
+                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {trigger.id}
                       </code>
                     </div>
@@ -431,23 +446,16 @@ export default function SabWaFlowsPage() {
         </Collapsible>
 
         <Collapsible defaultOpen>
-          <Card>
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                className="flex w-full items-center justify-between rounded-t-[var(--st-radius-lg)] p-4 text-left transition hover:bg-[var(--st-bg-muted)]"
-                aria-label="Toggle SabWa actions reference"
-              >
-                <CardHeader className="p-0">
-                  <CardTitle className="text-[13px]">
-                    Available actions
-                  </CardTitle>
-                  <CardDescription className="text-[11.5px]">
-                    What a SabWa flow can do after a trigger fires.
-                  </CardDescription>
-                </CardHeader>
-                <ChevronDown className="h-4 w-4 transition data-[state=open]:rotate-180" />
-              </button>
+          <Card padding="none">
+            <CollapsibleTrigger className="w-full p-4 text-left">
+              <span className="flex flex-col gap-0.5">
+                <span className="text-[13px] font-medium text-[var(--st-text)]">
+                  Available actions
+                </span>
+                <span className="text-[11.5px] text-[var(--st-text-secondary)]">
+                  What a SabWa flow can do after a trigger fires.
+                </span>
+              </span>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardBody className="grid gap-3 pt-0 md:grid-cols-2">
@@ -460,7 +468,7 @@ export default function SabWaFlowsPage() {
                       <span className="text-[13px] font-medium text-[var(--st-text)]">
                         {action.title}
                       </span>
-                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
+                      <code className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-1.5 py-0.5 text-[10px] text-[var(--st-text-secondary)]">
                         {action.id}
                       </code>
                     </div>

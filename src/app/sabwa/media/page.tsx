@@ -1,6 +1,39 @@
 "use client";
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, Checkbox, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Skeleton,
+  cn,
+  useToast,
+} from "@/components/sabcrm/20ui";
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,13 +53,13 @@ import {
   Smartphone,
   Upload,
   X,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
- * /sabwa/media — Unified media library for the connected SabWa session.
+ * /sabwa/media - Unified media library for the connected SabWa session.
  *
  * Filter strip (chat / date range / type segmented buttons), masonry grid
- * (pure CSS columns — no extra deps), lightbox dialog with prev/next
+ * (pure CSS columns, no extra deps), lightbox dialog with prev/next
  * arrows, download, push-to-SabFiles, and open-in-chat. Bulk select for
  * batch download and batch push.
  *
@@ -35,9 +68,8 @@ import {
  * Rust engine is wired the chat list is empty and we render the empty
  * state with full UI controls visible.
  *
- * Rendered with ZoruUI primitives — no shadcn `/ui/*` imports. Tabs UI
- * is intentionally avoided per the ZoruUI design rules; the media-type
- * switcher is a segmented Button group.
+ * Rendered with pure 20ui primitives. Tabs UI is intentionally avoided per
+ * the design rules; the media-type switcher is a segmented Button group.
  */
 
 import * as React from "react";
@@ -114,19 +146,19 @@ function formatTs(ts?: Date | string): string {
 }
 
 export default function SabWaMediaPage() {
-  const toast = useToast();
+  const { toast } = useToast();
   const { current: activeSession } = useSabwaSession();
-  const sessionId = activeSession?.id ?? '';
+  const sessionId = activeSession?.id ?? "";
 
   const { data: chats, loading: chatsLoading } = useChats(sessionId);
 
-  // ── Filters ────────────────────────────────────────────────────────
+  // Filters
   const [tab, setTab] = React.useState<MediaTab>("photos");
   const [chatFilter, setChatFilter] = React.useState<string>("all");
   const [fromDate, setFromDate] = React.useState<string>("");
   const [toDate, setToDate] = React.useState<string>("");
 
-  // ── Media fetch ────────────────────────────────────────────────────
+  // Media fetch
   const [items, setItems] = React.useState<MediaItem[]>([]);
   const [mediaLoading, setMediaLoading] = React.useState(false);
   const [mediaError, setMediaError] = React.useState<string | null>(null);
@@ -183,7 +215,7 @@ export default function SabWaMediaPage() {
     void loadMedia();
   }, [loadMedia]);
 
-  // ── Selection ──────────────────────────────────────────────────────
+  // Selection
   const [selected, setSelected] = React.useState<Set<string>>(() => new Set());
   const [bulkMode, setBulkMode] = React.useState(false);
 
@@ -205,7 +237,7 @@ export default function SabWaMediaPage() {
 
   const handleBulkDownload = React.useCallback(() => {
     if (selectedItems.length === 0) return;
-    toast.toast({
+    toast({
       title: "Preparing archive",
       description: `Bundling ${selectedItems.length} item${
         selectedItems.length === 1 ? "" : "s"
@@ -221,7 +253,7 @@ export default function SabWaMediaPage() {
 
   const handleBulkPushSabFiles = React.useCallback(() => {
     if (selectedItems.length === 0) return;
-    toast.toast({
+    toast({
       title: "Push to SabFiles queued",
       description: `${selectedItems.length} item${
         selectedItems.length === 1 ? "" : "s"
@@ -229,10 +261,8 @@ export default function SabWaMediaPage() {
     });
   }, [selectedItems, toast]);
 
-  // ── Lightbox ───────────────────────────────────────────────────────
-  const [lightboxIndex, setLightboxIndex] = React.useState<number | null>(
-    null,
-  );
+  // Lightbox
+  const [lightboxIndex, setLightboxIndex] = React.useState<number | null>(null);
   const closeLightbox = React.useCallback(() => setLightboxIndex(null), []);
   const goPrev = React.useCallback(() => {
     setLightboxIndex((i) => (i === null ? null : Math.max(0, i - 1)));
@@ -251,12 +281,14 @@ export default function SabWaMediaPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
             <Link href="/sabwa/overview">
-              <Button size="md">Open accounts</Button>
+              <Button variant="primary" size="md">
+                Open accounts
+              </Button>
             </Link>
           }
         />
@@ -283,62 +315,58 @@ export default function SabWaMediaPage() {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start gap-3">
-        <div
-          aria-hidden
-          className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-3 text-[var(--st-text)]"
-        >
-          <TabIcon className="h-6 w-6" />
-        </div>
-        <div className="min-w-0 flex-1">
+      <PageHeader>
+        <PageHeaderHeading>
           <div className="flex items-center gap-2">
-            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-              Media Library
-            </h1>
-            <Badge variant="ghost">
+            <span
+              aria-hidden="true"
+              className="inline-flex rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-2 text-[var(--st-text)]"
+            >
+              <TabIcon className="h-5 w-5" />
+            </span>
+            <PageTitle>Media Library</PageTitle>
+            <Badge tone="neutral">
               {items.length} {TAB_LABELS[tab].toLowerCase()}
             </Badge>
           </div>
-          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
+          <PageDescription>
             Everything sent and received across this session, in one place.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
           <Button
-            type="button"
             variant="outline"
             size="sm"
             onClick={() => void loadMedia()}
             disabled={mediaLoading}
+            aria-label="Refresh media"
           >
             {mediaLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
           <Button
-            type="button"
-            variant={bulkMode ? "default" : "outline"}
+            variant={bulkMode ? "primary" : "outline"}
             size="sm"
+            iconLeft={CheckSquare}
             onClick={() => {
               setBulkMode((v) => !v);
               clearSelection();
             }}
           >
-            <CheckSquare className="mr-2 h-4 w-4" />
             {bulkMode ? "Done" : "Select"}
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       {/* Filter strip */}
-      <Card>
+      <Card padding="none">
         <CardBody className="grid gap-3 p-3 sm:grid-cols-3 lg:grid-cols-4">
-          <div className="space-y-1">
-            <Label className="text-xs font-medium">Chat</Label>
+          <Field label="Chat">
             <Select value={chatFilter} onValueChange={setChatFilter}>
-              <SelectTrigger>
+              <SelectTrigger aria-label="Filter by chat">
                 <SelectValue
                   placeholder={chatsLoading ? "Loading..." : "All chats"}
                 />
@@ -352,50 +380,41 @@ export default function SabWaMediaPage() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs font-medium" htmlFor="from-date">
-              From
-            </Label>
+          </Field>
+          <Field label="From">
             <Input
-              id="from-date"
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
             />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs font-medium" htmlFor="to-date">
-              To
-            </Label>
+          </Field>
+          <Field label="To">
             <Input
-              id="to-date"
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
             />
-          </div>
-          <div className="space-y-1 sm:col-span-3 lg:col-span-1">
-            <Label className="text-xs font-medium">Quick</Label>
+          </Field>
+          <Field label="Quick" className="sm:col-span-3 lg:col-span-1">
             <Button
-              type="button"
               variant="ghost"
               size="sm"
+              iconLeft={CalendarDays}
               className="w-full justify-start"
               onClick={() => {
                 setFromDate("");
                 setToDate("");
                 setChatFilter("all");
-                toast.toast({ title: "Filters reset" });
+                toast({ title: "Filters reset" });
               }}
             >
-              <CalendarDays className="mr-2 h-3.5 w-3.5" /> Reset filters
+              Reset filters
             </Button>
-          </div>
+          </Field>
         </CardBody>
       </Card>
 
-      {/* Type switcher — segmented Button group (no tab UI) */}
+      {/* Type switcher - segmented Button group (no tab UI) */}
       <div
         role="group"
         aria-label="Media type"
@@ -407,14 +426,13 @@ export default function SabWaMediaPage() {
           return (
             <Button
               key={t}
-              type="button"
-              variant={active ? "default" : "ghost"}
+              variant={active ? "primary" : "ghost"}
               size="sm"
-              className="gap-1.5 rounded-[calc(var(--st-radius)-2px)]"
+              iconLeft={Icon}
+              className="rounded-[calc(var(--st-radius)-2px)]"
               aria-pressed={active}
               onClick={() => setTab(t)}
             >
-              <Icon className="h-3.5 w-3.5" />
               {TAB_LABELS[t]}
             </Button>
           );
@@ -423,32 +441,32 @@ export default function SabWaMediaPage() {
 
       {/* Bulk action bar */}
       {bulkMode && selected.size > 0 && (
-        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)]/95 px-3 py-2 shadow-[var(--st-shadow-sm)] backdrop-blur">
-          <Badge variant="ghost">{selected.size} selected</Badge>
+        <div className="sticky top-14 z-20 flex flex-wrap items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 shadow-[var(--st-shadow-sm)]">
+          <Badge tone="neutral">{selected.size} selected</Badge>
           <Button
-            type="button"
             size="sm"
             variant="outline"
+            iconLeft={Download}
             onClick={handleBulkDownload}
           >
-            <Download className="mr-2 h-4 w-4" /> Download ZIP
+            Download ZIP
           </Button>
           <Button
-            type="button"
             size="sm"
             variant="outline"
+            iconLeft={Upload}
             onClick={handleBulkPushSabFiles}
           >
-            <Upload className="mr-2 h-4 w-4" /> Push to SabFiles
+            Push to SabFiles
           </Button>
           <Button
-            type="button"
             size="sm"
             variant="ghost"
+            iconLeft={X}
             onClick={clearSelection}
             className="ml-auto"
           >
-            <X className="mr-1 h-4 w-4" /> Clear
+            Clear
           </Button>
         </div>
       )}
@@ -456,10 +474,7 @@ export default function SabWaMediaPage() {
       {/* Grid */}
       <section aria-label="Media grid">
         {mediaLoading && (
-          <div
-            className="gap-3"
-            style={{ columnCount: 3, columnGap: "0.75rem" }}
-          >
+          <div className="columns-3 gap-3 [column-gap:0.75rem]">
             {Array.from({ length: 9 }).map((_, i) => (
               <div key={i} className="mb-3 break-inside-avoid">
                 <Skeleton className="h-40 w-full rounded-[var(--st-radius)]" />
@@ -471,50 +486,56 @@ export default function SabWaMediaPage() {
         {!mediaLoading && mediaError && (
           <Card>
             <CardBody className="flex items-start gap-2 p-4 text-sm">
-              <CircleSlash className="h-4 w-4 text-[var(--st-danger)]" />
-              <span className="text-[var(--st-text-secondary)]">{mediaError}</span>
+              <CircleSlash
+                className="h-4 w-4 text-[var(--st-danger)]"
+                aria-hidden="true"
+              />
+              <span className="text-[var(--st-text-secondary)]">
+                {mediaError}
+              </span>
             </CardBody>
           </Card>
         )}
 
         {!mediaLoading && !mediaError && items.length === 0 && (
-          <Card className="border-dashed">
-            <CardBody className="flex flex-col items-center gap-2 p-10 text-center">
-              <Folder className="h-7 w-7 text-[var(--st-text-secondary)]" />
-              <h3 className="text-sm font-semibold text-[var(--st-text)]">No media yet</h3>
-              <p className="max-w-sm text-[11.5px] text-[var(--st-text-secondary)]">
-                Once your session is connected and chats sync, every photo,
-                video, voice note and document will land here.
-              </p>
-            </CardBody>
-          </Card>
+          <EmptyState
+            icon={Folder}
+            title="No media yet"
+            description="Once your session is connected and chats sync, every photo, video, voice note and document will land here."
+          />
         )}
 
         {!mediaLoading && items.length > 0 && (
-          <div
-            className="gap-3"
-            style={{
-              columnCount: 3,
-              columnGap: "0.75rem",
-            }}
-          >
+          <div className="columns-3 gap-3 [column-gap:0.75rem]">
             {items.map((it, index) => {
               const id = it.message.messageId;
               const isSelected = selected.has(id);
-              const isImage = it.message.type === "image" || it.message.type === "sticker";
+              const isImage =
+                it.message.type === "image" || it.message.type === "sticker";
               const isVideo = it.message.type === "video";
+              const openTile = () => {
+                if (bulkMode) toggleSelect(id);
+                else setLightboxIndex(index);
+              };
               return (
-                <button
+                <Card
                   key={id}
-                  type="button"
-                  onClick={() => {
-                    if (bulkMode) toggleSelect(id);
-                    else setLightboxIndex(index);
+                  variant="interactive"
+                  padding="none"
+                  role="button"
+                  tabIndex={0}
+                  onClick={openTile}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openTile();
+                    }
                   }}
                   className={cn(
-                    "mb-3 block w-full break-inside-avoid overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] text-left transition hover:shadow-[var(--st-shadow-md)]",
+                    "mb-3 block w-full break-inside-avoid overflow-hidden text-left",
                   )}
                   aria-label={`Open ${fileNameFromMessage(it.message)}`}
+                  aria-pressed={bulkMode ? isSelected : undefined}
                 >
                   <div className="relative bg-[var(--st-bg-secondary)]">
                     {isImage && it.message.mediaUrl ? (
@@ -527,18 +548,26 @@ export default function SabWaMediaPage() {
                       />
                     ) : isVideo ? (
                       <div className="flex aspect-video items-center justify-center bg-[var(--st-bg-muted)]">
-                        <FileVideo className="h-8 w-8 text-[var(--st-text-secondary)]" />
+                        <FileVideo
+                          className="h-8 w-8 text-[var(--st-text-secondary)]"
+                          aria-hidden="true"
+                        />
                       </div>
                     ) : (
                       <div className="flex aspect-square items-center justify-center bg-[var(--st-bg-muted)]">
                         {React.createElement(tabIcon(tab), {
                           className: "h-8 w-8 text-[var(--st-text-secondary)]",
+                          "aria-hidden": "true",
                         })}
                       </div>
                     )}
                     {bulkMode && (
                       <div className="absolute left-2 top-2">
-                        <Checkbox checked={isSelected} aria-label="Select" />
+                        <Checkbox
+                          checked={isSelected}
+                          readOnly
+                          aria-label="Select"
+                        />
                       </div>
                     )}
                   </div>
@@ -553,7 +582,7 @@ export default function SabWaMediaPage() {
                       {formatTs(it.message.ts)}
                     </div>
                   </div>
-                </button>
+                </Card>
               );
             })}
           </div>
@@ -613,71 +642,77 @@ export default function SabWaMediaPage() {
                   />
                 ) : (
                   <div className="p-8 text-center text-[13px] text-[var(--st-text-secondary)]">
-                    Preview unavailable — download to view.
+                    Preview unavailable, download to view.
                   </div>
                 )}
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 <Button
-                  type="button"
                   variant="outline"
                   size="sm"
+                  iconLeft={ArrowLeft}
                   onClick={goPrev}
                   disabled={lightboxIndex === 0}
                 >
-                  <ArrowLeft className="mr-1 h-4 w-4" /> Prev
+                  Prev
                 </Button>
                 <Button
-                  type="button"
                   variant="outline"
                   size="sm"
+                  iconRight={ArrowRight}
                   onClick={goNext}
                   disabled={
                     lightboxIndex === null ||
                     lightboxIndex >= items.length - 1
                   }
                 >
-                  Next <ArrowRight className="ml-1 h-4 w-4" />
+                  Next
                 </Button>
                 <span className="ml-auto" />
                 {lightboxItem.message.mediaUrl && (
-                  <Button asChild type="button" variant="outline" size="sm">
-                    <a
-                      href={lightboxItem.message.mediaUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                    >
-                      <Download className="mr-1 h-4 w-4" /> Download
-                    </a>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    iconLeft={Download}
+                    onClick={() => {
+                      if (lightboxItem.message.mediaUrl) {
+                        window.open(
+                          lightboxItem.message.mediaUrl,
+                          "_blank",
+                          "noopener",
+                        );
+                      }
+                    }}
+                  >
+                    Download
                   </Button>
                 )}
                 <Button
-                  type="button"
                   variant="outline"
                   size="sm"
+                  iconLeft={Upload}
                   onClick={() =>
-                    toast.toast({
+                    toast({
                       title: "Push to SabFiles queued",
                       description:
                         "This file will be copied to your SabFiles library.",
                     })
                   }
                 >
-                  <Upload className="mr-1 h-4 w-4" /> Push to SabFiles
+                  Push to SabFiles
                 </Button>
-                <Button asChild type="button" size="sm">
-                  <Link
-                    href={`/sabwa/inbox?jid=${encodeURIComponent(
-                      lightboxItem.chatJid,
-                    )}&message=${encodeURIComponent(
-                      lightboxItem.message.messageId,
-                    )}`}
-                  >
-                    <ExternalLink className="mr-1 h-4 w-4" /> Open in chat
-                  </Link>
-                </Button>
+                <Link
+                  href={`/sabwa/inbox?jid=${encodeURIComponent(
+                    lightboxItem.chatJid,
+                  )}&message=${encodeURIComponent(
+                    lightboxItem.message.messageId,
+                  )}`}
+                >
+                  <Button variant="primary" size="sm" iconLeft={ExternalLink}>
+                    Open in chat
+                  </Button>
+                </Link>
               </div>
             </div>
           )}

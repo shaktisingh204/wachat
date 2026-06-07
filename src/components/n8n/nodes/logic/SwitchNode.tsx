@@ -2,6 +2,21 @@
 
 import { LuGitFork, LuPlus, LuX, LuArrowRight } from 'react-icons/lu';
 import { cn } from '@/lib/utils';
+import {
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Switch,
+  ColorPicker,
+  EmptyState,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/sabcrm/20ui';
 
 /* ── Types ───────────────────────────────────────────────── */
 
@@ -22,7 +37,7 @@ export interface SwitchCase {
   id: string;
   /** Human-friendly label shown on the output port */
   label: string;
-  /** Value to test against (left-hand side) — same for all cases */
+  /** Value to test against (left-hand side), same for all cases */
   operator: SwitchOperator;
   /** Expected value for this case */
   value: string;
@@ -95,43 +110,46 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
       cases: config.cases.map((c) => (c.id === id ? { ...c, [field]: val } : c)),
     });
 
+  const portCount = config.cases.length + (config.hasDefault ? 1 : 0);
+
   return (
     <div className={cn('space-y-4', className)}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--st-text)]/10 text-[var(--st-text)]">
-          <LuGitFork className="h-4 w-4" strokeWidth={2} />
+        <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]">
+          <LuGitFork className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
         </div>
         <div>
-          <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Switch</p>
-          <p className="text-[11px] text-[var(--gray-9)]">Route items to multiple branches</p>
+          <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Switch</p>
+          <p className="text-[11px] text-[var(--st-text-secondary)]">Route items to multiple branches</p>
         </div>
       </div>
 
       {/* Switch value */}
-      <div className="space-y-1.5">
-        <Label>Switch On (value to test)</Label>
-        <input
-          type="text"
-          className={INPUT_CLS}
+      <Field
+        label="Switch On (value to test)"
+        help="Each case below will be evaluated against this value in order."
+      >
+        <Input
           value={config.switchValue}
           onChange={(e) => onChange({ ...config, switchValue: e.target.value })}
           placeholder="{{data.status}} or {{trigger.type}}"
         />
-        <p className="text-[11px] text-[var(--gray-9)]">
-          Each case below will be evaluated against this value in order.
-        </p>
-      </div>
+      </Field>
 
       {/* Cases */}
       <div className="space-y-2">
-        <Label>Cases</Label>
+        <p className="text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
+          Cases
+        </p>
 
         {config.cases.length === 0 && (
-          <div className="rounded-lg border border-dashed border-[var(--gray-5)] py-6 text-center text-[12px] text-[var(--gray-9)]">
-            <LuGitFork className="mx-auto mb-2 h-5 w-5 opacity-30" strokeWidth={1.5} />
-            No cases — add one below
-          </div>
+          <EmptyState
+            icon={LuGitFork}
+            size="sm"
+            title="No cases yet"
+            description="Add one below to start routing items."
+          />
         )}
 
         {config.cases.map((c, idx) => (
@@ -144,61 +162,58 @@ export function SwitchNode({ config, onChange, className }: SwitchNodeProps) {
           />
         ))}
 
-        <button
-          type="button"
-          onClick={addCase}
-          className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--st-text)] hover:text-[var(--st-text)] transition-colors"
-        >
-          <LuPlus className="h-3.5 w-3.5" strokeWidth={2} />
+        <Button variant="ghost" size="sm" iconLeft={LuPlus} onClick={addCase}>
           Add case
-        </button>
+        </Button>
       </div>
 
       {/* Default / fallthrough */}
-      <div className="space-y-2 rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3">
+      <Card variant="outlined" padding="sm" className="space-y-2 bg-[var(--st-bg-secondary)]">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-[12.5px] font-semibold text-[var(--gray-12)]">Default Output</p>
-            <p className="text-[11px] text-[var(--gray-9)]">Items that match no case go here</p>
+            <p className="text-[12.5px] font-semibold text-[var(--st-text)]">Default Output</p>
+            <p className="text-[11px] text-[var(--st-text-secondary)]">Items that match no case go here</p>
           </div>
-          <Toggle
+          <Switch
             checked={config.hasDefault}
-            onChange={(v) => onChange({ ...config, hasDefault: v })}
+            onCheckedChange={(v) => onChange({ ...config, hasDefault: v })}
+            aria-label="Enable default output"
           />
         </div>
 
         {config.hasDefault && (
-          <input
-            type="text"
-            className={INPUT_CLS}
+          <Input
             value={config.defaultLabel}
             onChange={(e) => onChange({ ...config, defaultLabel: e.target.value })}
             placeholder="Default"
+            aria-label="Default output label"
           />
         )}
-      </div>
+      </Card>
 
       {/* Output port summary */}
       <div className="space-y-1.5">
-        <Label>Output Ports ({config.cases.length + (config.hasDefault ? 1 : 0)} total)</Label>
+        <p className="text-[11.5px] font-medium text-[var(--st-text-secondary)] uppercase tracking-wide">
+          Output Ports ({portCount} total)
+        </p>
         <div className="space-y-1">
           {config.cases.map((c, idx) => (
-            <div key={c.id} className="flex items-center gap-2 rounded-md px-2 py-1.5">
+            <div key={c.id} className="flex items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5">
               <span
                 className="h-2.5 w-2.5 rounded-full shrink-0"
                 style={{ background: c.color }}
               />
-              <span className="text-[11.5px] font-medium text-[var(--gray-11)]">{idx}</span>
-              <LuArrowRight className="h-3 w-3 text-[var(--gray-7)]" strokeWidth={2} />
-              <span className="text-[11.5px] text-[var(--gray-10)] truncate">{c.label || `Case ${idx + 1}`}</span>
+              <span className="text-[11.5px] font-medium text-[var(--st-text)]">{idx}</span>
+              <LuArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+              <span className="text-[11.5px] text-[var(--st-text-secondary)] truncate">{c.label || `Case ${idx + 1}`}</span>
             </div>
           ))}
           {config.hasDefault && (
-            <div className="flex items-center gap-2 rounded-md px-2 py-1.5">
-              <span className="h-2.5 w-2.5 rounded-full shrink-0 bg-[var(--gray-7)]" />
-              <span className="text-[11.5px] font-medium text-[var(--gray-11)]">{config.cases.length}</span>
-              <LuArrowRight className="h-3 w-3 text-[var(--gray-7)]" strokeWidth={2} />
-              <span className="text-[11.5px] text-[var(--gray-10)]">{config.defaultLabel || 'Default'}</span>
+            <div className="flex items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5">
+              <span className="h-2.5 w-2.5 rounded-full shrink-0 bg-[var(--st-text-tertiary)]" />
+              <span className="text-[11.5px] font-medium text-[var(--st-text)]">{config.cases.length}</span>
+              <LuArrowRight className="h-3 w-3 text-[var(--st-text-tertiary)]" strokeWidth={2} aria-hidden="true" />
+              <span className="text-[11.5px] text-[var(--st-text-secondary)]">{config.defaultLabel || 'Default'}</span>
             </div>
           )}
         </div>
@@ -223,87 +238,58 @@ function CaseRow({
   const isUnary = UNARY_OPS.includes(case_.operator);
 
   return (
-    <div className="rounded-lg border border-[var(--gray-5)] bg-[var(--gray-2)] p-3 space-y-2">
+    <Card variant="outlined" padding="sm" className="space-y-2 bg-[var(--st-bg-secondary)]">
       {/* Case header */}
       <div className="flex items-center gap-2">
-        {/* Color dot */}
-        <input
-          type="color"
+        {/* Branch color */}
+        <ColorPicker
           value={case_.color}
-          onChange={(e) => onChange(case_.id, 'color', e.target.value)}
-          className="h-5 w-5 rounded-full border-0 p-0 cursor-pointer shrink-0 bg-transparent"
-          title="Branch color"
+          onChange={(color) => onChange(case_.id, 'color', color)}
+          swatches={BRANCH_COLORS}
         />
-        <span className="text-[10.5px] font-mono text-[var(--gray-8)] shrink-0">
+        <span className="text-[10.5px] font-mono text-[var(--st-text-tertiary)] shrink-0">
           Output {index}
         </span>
-        <input
-          type="text"
-          className={cn(INPUT_CLS, 'flex-1 py-1 text-[12px] font-medium')}
+        <Input
+          className="flex-1"
           value={case_.label}
           onChange={(e) => onChange(case_.id, 'label', e.target.value)}
           placeholder={`Case ${index + 1}`}
+          aria-label={`Case ${index + 1} label`}
         />
-        <button
-          type="button"
+        <IconButton
+          icon={LuX}
+          label={`Remove case ${index + 1}`}
+          size="sm"
           onClick={() => onRemove(case_.id)}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-[var(--gray-8)] hover:text-[var(--st-text)] transition-colors"
-        >
-          <LuX className="h-3.5 w-3.5" strokeWidth={2} />
-        </button>
+        />
       </div>
 
       {/* Operator */}
-      <select
-        className={INPUT_CLS}
+      <Select
         value={case_.operator}
-        onChange={(e) => onChange(case_.id, 'operator', e.target.value)}
+        onValueChange={(val) => onChange(case_.id, 'operator', val)}
       >
-        {(Object.keys(OPERATOR_LABELS) as SwitchOperator[]).map((op) => (
-          <option key={op} value={op}>{OPERATOR_LABELS[op]}</option>
-        ))}
-      </select>
+        <SelectTrigger aria-label={`Operator for case ${index + 1}`}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {(Object.keys(OPERATOR_LABELS) as SwitchOperator[]).map((op) => (
+            <SelectItem key={op} value={op}>{OPERATOR_LABELS[op]}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       {/* Value (not shown for unary operators) */}
       {!isUnary && (
-        <input
-          type={case_.operator === 'regex' ? 'text' : 'text'}
-          className={cn(INPUT_CLS, case_.operator === 'regex' && 'font-mono')}
+        <Input
+          className={cn(case_.operator === 'regex' && 'font-mono')}
           value={case_.value}
           onChange={(e) => onChange(case_.id, 'value', e.target.value)}
           placeholder={case_.operator === 'regex' ? '^order_.*$' : 'expected value or {{variable}}'}
+          aria-label={`Value for case ${index + 1}`}
         />
       )}
-    </div>
+    </Card>
   );
 }
-
-/* ── Shared primitives ───────────────────────────────────── */
-
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="text-[11.5px] font-medium text-[var(--gray-10)] uppercase tracking-wide">
-      {children}
-    </label>
-  );
-}
-
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        'relative h-5 w-9 rounded-full transition-colors',
-        checked ? 'bg-[var(--st-text)]' : 'bg-[var(--gray-5)]',
-      )}
-    >
-      <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-    </button>
-  );
-}
-
-const INPUT_CLS =
-  'w-full rounded-lg border border-[var(--gray-5)] bg-[var(--gray-3)] px-3 py-2 text-[13px] text-[var(--gray-12)] placeholder:text-[var(--gray-8)] outline-none focus:border-[var(--st-border)] transition-colors';

@@ -1,10 +1,10 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardBody, CardDescription, Button, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardTitle, CardBody, Button, Input, Field, Alert } from '@/components/sabcrm/20ui';
 import {
   useState,
   useTransition } from 'react';
-import { IndianRupee, LoaderCircle, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
+import { IndianRupee, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createPayuWalletTopup } from '@/app/actions/payu.actions';
 import type { User,
@@ -80,28 +80,20 @@ export function WalletCard({ user }: { user: WithId<User> }) {
     const currency = user.wallet?.currency || 'INR';
 
     return (
-        <Card className="relative overflow-hidden bg-[var(--st-bg)] border border-[var(--st-border)] shadow-md text-[var(--st-text)]">
-            <CardHeader className="pb-2 bg-[var(--st-bg-muted)] border-b border-[var(--st-border)]">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-[var(--st-text)] text-lg tracking-tight">
-                        <IndianRupee className="h-5 w-5 text-[var(--st-text-secondary)]" />
-                        Wallet Balance
-                    </CardTitle>
-                    <div className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" />
-                </div>
+        <Card className="relative overflow-hidden">
+            <CardHeader className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg tracking-tight">
+                    <IndianRupee className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    Wallet Balance
+                </CardTitle>
+                <span className="h-2 w-2 rounded-full bg-[var(--st-status-ok)] animate-pulse" aria-hidden="true" />
             </CardHeader>
             <CardBody className="space-y-6 pt-6">
                 {paymentStatus === 'success' && paymentType === 'wallet' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-[var(--st-status-ok)]/10 p-3 text-sm text-[var(--st-status-ok)] border border-[var(--st-status-ok)]/30">
-                        <CheckCircle2 className="h-4 w-4 text-[var(--st-status-ok)]" />
-                        Wallet topped up successfully!
-                    </div>
+                    <Alert tone="success">Wallet topped up successfully.</Alert>
                 )}
                 {paymentStatus === 'failed' && (
-                    <div className="flex items-center gap-2 rounded-lg bg-[var(--st-danger)]/10 p-3 text-sm text-[var(--st-danger)] border border-[var(--st-danger)]/30">
-                        <AlertCircle className="h-4 w-4 text-[var(--st-danger)]" />
-                        Payment failed. Please try again.
-                    </div>
+                    <Alert tone="danger">Payment failed. Please try again.</Alert>
                 )}
 
                 <div className="flex flex-col">
@@ -111,31 +103,27 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                     <p className="text-xs text-[var(--st-text-secondary)] mt-1 uppercase tracking-wider font-medium">Available Funds</p>
                 </div>
 
-                <div className="rounded-xl bg-[var(--st-bg-muted)] p-4 border border-[var(--st-border)]">
+                <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-4 border border-[var(--st-border)]">
                     <form onSubmit={handleAddFunds} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="amount" className="text-[var(--st-text-secondary)] text-xs uppercase tracking-wider">Quick Top-Up</Label>
+                            <p className="text-[var(--st-text-secondary)] text-xs uppercase tracking-wider font-medium">Quick Top-Up</p>
                             <div className="flex flex-wrap gap-2">
                                 {QUICK_AMOUNTS.map((a) => (
-                                    <button
+                                    <Button
                                         key={a}
-                                        type="button"
+                                        size="sm"
+                                        variant={amount === a ? 'primary' : 'secondary'}
+                                        aria-pressed={amount === a}
                                         onClick={() => setAmount(a)}
-                                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
-                                            amount === a
-                                                ? 'bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-sm'
-                                                : 'bg-[var(--st-bg)] text-[var(--st-text)] border border-[var(--st-border)] hover:border-[var(--st-border-strong)]'
-                                        }`}
                                     >
                                         ₹{a.toLocaleString('en-IN')}
-                                    </button>
+                                    </Button>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
-                            <div className="relative flex-1">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] font-medium z-10">₹</span>
+                        <div className="flex items-end gap-2">
+                            <Field label="Amount" className="flex-1">
                                 <Input
                                     id="amount"
                                     name="amount"
@@ -145,26 +133,22 @@ export function WalletCard({ user }: { user: WithId<User> }) {
                                     min="100"
                                     max="100000"
                                     step="100"
-                                    className="pl-7 bg-[var(--st-bg)] border-[var(--st-border)] text-[var(--st-text)] rounded-lg h-10"
+                                    prefix="₹"
                                 />
-                            </div>
+                            </Field>
                             <Button
                                 type="submit"
-                                disabled={isPending}
-                                className="bg-[var(--st-text)] text-[var(--st-text-inverted)] hover:bg-[var(--st-text)] rounded-lg h-10 px-6 font-bold"
+                                variant="primary"
+                                loading={isPending}
                             >
-                                {isPending ? (
-                                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                                ) : (
-                                    'Add Funds'
-                                )}
+                                Add Funds
                             </Button>
                         </div>
                     </form>
                 </div>
 
                 <p className="text-center text-[10px] text-[var(--st-text-tertiary)] uppercase tracking-widest font-medium flex items-center justify-center gap-1.5">
-                    <Lock className="h-3 w-3" /> Secure payment via PayU
+                    <Lock className="h-3 w-3" aria-hidden="true" /> Secure payment via PayU
                 </p>
             </CardBody>
         </Card>

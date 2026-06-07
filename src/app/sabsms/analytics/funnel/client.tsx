@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import {
-  AlertCircle,
-  ArrowRight,
+  Activity,
   BarChart,
   BarChart2,
   Calendar,
   ChevronDown,
   ChevronUp,
   Clock,
-  Copy,
   Download,
   Filter,
   GripVertical,
@@ -21,22 +19,46 @@ import {
   Save,
   Share2,
   Sparkles,
-  SplitSquareHorizontal,
   TrendingDown,
   TrendingUp,
   Users,
-  Activity
 } from "lucide-react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, Table, TBody, Td, Th, THead, Tr, Recharts, ChartContainer, ChartTooltip, CHART_PALETTE } from '@/components/sabcrm/20ui';
-
 import {
-  SabsmsPageShell,
-  SabsmsFilterBar,
-} from "@/components/sabsms/page-toolkit";
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  IconButton,
+  Recharts,
+  SegmentedControl,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
+} from '@/components/sabcrm/20ui';
+
+import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
 
 const INITIAL_STEPS = [
-  { id: "s1", name: "Sent", count: 125000, value: 0, time: "—" },
+  { id: "s1", name: "Sent", count: 125000, value: 0, time: "-" },
   { id: "s2", name: "Delivered", count: 118000, value: 0, time: "1s" },
   { id: "s3", name: "Clicked", count: 42000, value: 0, time: "45m" },
   { id: "s4", name: "Converted", count: 8500, value: 125000, time: "2h 15m" },
@@ -52,15 +74,45 @@ const FUNNEL_TREND_DATA = [
   { date: "May 7", conversion: 6.8, dropoff: 93.2 },
 ];
 
+const FUNNEL_CHART_CONFIG = {
+  users: { label: "Users Retained", color: "var(--st-accent)" },
+  conversion: { label: "Conversion Rate", color: "var(--st-text)" },
+} as const;
+
+const TREND_CHART_CONFIG = {
+  conversion: { label: "Conversion", color: "var(--st-accent)" },
+} as const;
+
+const VARIANT_OPTIONS = [
+  { value: "control", label: "Control" },
+  { value: "variant", label: "Variant" },
+];
+
+const CHANNEL_PERFORMANCE = [
+  { name: "SMS", value: 4.2 },
+  { name: "MMS", value: 5.8 },
+  { name: "RCS", value: 8.1 },
+];
+
+const TOP_COHORTS = [
+  { name: "Active (30d)", rate: "12.1%", trend: "up" as const, val: "+1.2%", alert: false },
+  { name: "New Users", rate: "8.4%", trend: "up" as const, val: "+0.8%", alert: false },
+  { name: "Dormant", rate: "3.2%", trend: "down" as const, val: "-0.4%", alert: false },
+  { name: "Churn Risk", rate: "2.1%", trend: "down" as const, val: "-1.1%", alert: true },
+];
+
 export default function FunnelAnalyticsPage() {
   const [steps, setSteps] = useState(INITIAL_STEPS);
   const [activeVariant, setActiveVariant] = useState("control");
+  const [dateRange, setDateRange] = useState("30d");
+  const [audience, setAudience] = useState("all");
+  const [savedView, setSavedView] = useState("default");
 
   const moveStep = (index: number, direction: -1 | 1) => {
     const newSteps = [...steps];
     const target = index + direction;
     if (target < 0 || target >= steps.length) return;
-    
+
     const temp = newSteps[index];
     newSteps[index] = newSteps[target];
     newSteps[target] = temp;
@@ -101,149 +153,144 @@ export default function FunnelAnalyticsPage() {
         { label: "Funnels" },
       ]}
       toolbar={
-        <div className="flex w-full items-center justify-between gap-3">
-          <SabsmsFilterBar
-            filters={[
-              {
-                id: "date",
-                label: "Last 30 Days",
-                icon: Calendar,
-                options: [
-                  { label: "Today", value: "today" },
-                  { label: "Last 7 Days", value: "7d" },
-                  { label: "Last 30 Days", value: "30d" },
-                  { label: "Custom Range...", value: "custom" },
-                ],
-              },
-              {
-                id: "audience",
-                label: "All Audiences",
-                icon: Users,
-                options: [
-                  { label: "All Audiences", value: "all" },
-                  { label: "VIP Segment", value: "vip" },
-                  { label: "Churn Risk", value: "churn" },
-                  { label: "New Users", value: "new" },
-                ],
-              },
-              {
-                id: "saved_view",
-                label: "Default View",
-                icon: Save,
-                options: [
-                  { label: "Default View", value: "default" },
-                  { label: "Q1 Campaign Funnel", value: "q1" },
-                  { label: "Holiday Promo Funnel", value: "holiday" },
-                ],
-              },
-            ]}
-          />
+        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="w-44" aria-label="Date range">
+                <Calendar className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <SelectValue placeholder="Date range" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="7d">Last 7 Days</SelectItem>
+                <SelectItem value="30d">Last 30 Days</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={audience} onValueChange={setAudience}>
+              <SelectTrigger className="w-44" aria-label="Audience">
+                <Users className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <SelectValue placeholder="Audience" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Audiences</SelectItem>
+                <SelectItem value="vip">VIP Segment</SelectItem>
+                <SelectItem value="churn">Churn Risk</SelectItem>
+                <SelectItem value="new">New Users</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={savedView} onValueChange={setSavedView}>
+              <SelectTrigger className="w-44" aria-label="Saved view">
+                <Save className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <SelectValue placeholder="Saved view" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Default View</SelectItem>
+                <SelectItem value="q1">Q1 Campaign Funnel</SelectItem>
+                <SelectItem value="holiday">Holiday Promo Funnel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="flex shrink-0 items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2">
-              <Plus className="size-4" />
+            <Button variant="outline" size="sm" iconLeft={Plus}>
               Compare Funnels
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <MoreHorizontal className="size-4" />
+                <Button variant="outline" size="sm" iconLeft={MoreHorizontal}>
                   Actions
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem className="gap-2">
-                  <Save className="size-4 text-[var(--st-text-secondary)]" /> Save View
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Share2 className="size-4 text-[var(--st-text-secondary)]" /> Export Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Mail className="size-4 text-[var(--st-text-secondary)]" /> Schedule Report
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2">
-                  <Download className="size-4 text-[var(--st-text-secondary)]" /> Download CSV
-                </DropdownMenuItem>
+                <DropdownMenuItem iconLeft={Save}>Save View</DropdownMenuItem>
+                <DropdownMenuItem iconLeft={Share2}>Export Dashboard</DropdownMenuItem>
+                <DropdownMenuItem iconLeft={Mail}>Schedule Report</DropdownMenuItem>
+                <DropdownMenuItem iconLeft={Download}>Download CSV</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       }
     >
-      {/* Premium AI Insights Banner */}
-      <div className="mb-6 overflow-hidden rounded-xl border border-[var(--st-border)]/30 bg-gradient-to-r from-[var(--st-text)]/10 via-[var(--st-text)]/5 to-[var(--st-text)]/10 p-5 shadow-sm">
-        <div className="flex items-center justify-between">
+      {/* AI Insights Banner */}
+      <Card padding="none" className="mb-6 overflow-hidden bg-[var(--st-bg-secondary)]">
+        <div className="flex items-center justify-between gap-4 p-5">
           <div className="flex items-start gap-4">
-            <div className="rounded-full bg-[var(--st-text)]/20 p-2.5">
-              <Sparkles className="size-5 text-[var(--st-text)]" />
+            <div className="rounded-full bg-[var(--st-bg-muted)] p-2.5">
+              <Sparkles className="size-5 text-[var(--st-text)]" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="font-semibold text-[var(--st-text)] dark:text-white flex items-center gap-2">
+              <h3 className="flex items-center gap-2 font-semibold text-[var(--st-text)]">
                 Datadog-grade Insight
-                <Badge className="bg-[var(--st-text)] hover:bg-[var(--st-text)]">AI Powered</Badge>
+                <Badge tone="accent">AI Powered</Badge>
               </h3>
-              <p className="mt-1 text-sm text-[var(--st-text)]/80 dark:text-[var(--st-text-secondary)]/80">
-                Drop-off from <strong className="font-medium">Delivered</strong> to <strong className="font-medium">Clicked</strong> is 64%.
+              <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+                Drop-off from <strong className="font-medium text-[var(--st-text)]">Delivered</strong> to{" "}
+                <strong className="font-medium text-[var(--st-text)]">Clicked</strong> is 64%.
                 We detected a 12% lower dropoff on cohorts receiving SMS at 10 AM. Adjusting send times could yield +2.4k conversions.
               </p>
             </div>
           </div>
-          <Button size="sm" className="gap-2 shrink-0 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-md">
+          <Button size="sm" variant="primary" className="shrink-0">
             Apply Optimal Timing
           </Button>
         </div>
-      </div>
+      </Card>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="hover:border-[var(--st-border-strong)] transition-colors">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
           <CardBody className="p-5">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Overall Conversion</p>
-                <p className="text-3xl font-bold tracking-tight">6.8%</p>
+                <p className="text-3xl font-bold tracking-tight text-[var(--st-text)]">6.8%</p>
               </div>
-              <div className="p-2 bg-[var(--st-bg-muted)] rounded-lg">
-                <TrendingUp className="size-5 text-[var(--st-text)]" />
+              <div className="rounded-lg bg-[var(--st-bg-muted)] p-2">
+                <TrendingUp className="size-5 text-[var(--st-text)]" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-[var(--st-text)] font-medium flex items-center gap-1">
-                <TrendingUp className="size-3" /> +1.2%
+              <span className="flex items-center gap-1 font-medium text-[var(--st-status-ok)]">
+                <TrendingUp className="size-3" aria-hidden="true" /> +1.2%
               </span>
-              <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
+              <span className="ml-2 text-[var(--st-text-secondary)]">vs last 30d</span>
             </div>
           </CardBody>
         </Card>
 
-        <Card className="hover:border-[var(--st-border-strong)] transition-colors">
+        <Card>
           <CardBody className="p-5">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Total Drop-off</p>
-                <p className="text-3xl font-bold tracking-tight">116.5k</p>
+                <p className="text-3xl font-bold tracking-tight text-[var(--st-text)]">116.5k</p>
               </div>
-              <div className="p-2 bg-[var(--st-bg-muted)] rounded-lg">
-                <TrendingDown className="size-5 text-[var(--st-text)]" />
+              <div className="rounded-lg bg-[var(--st-bg-muted)] p-2">
+                <TrendingDown className="size-5 text-[var(--st-text)]" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-[var(--st-text)] font-medium flex items-center gap-1">
-                <TrendingDown className="size-3" /> -0.4%
+              <span className="flex items-center gap-1 font-medium text-[var(--st-status-ok)]">
+                <TrendingDown className="size-3" aria-hidden="true" /> -0.4%
               </span>
-              <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
+              <span className="ml-2 text-[var(--st-text-secondary)]">vs last 30d</span>
             </div>
           </CardBody>
         </Card>
 
-        <Card className="hover:border-[var(--st-border-strong)] transition-colors">
+        <Card>
           <CardBody className="p-5">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Avg Time to Convert</p>
-                <p className="text-3xl font-bold tracking-tight">2h 15m</p>
+                <p className="text-3xl font-bold tracking-tight text-[var(--st-text)]">2h 15m</p>
               </div>
-              <div className="p-2 bg-[var(--st-bg-muted)] rounded-lg">
-                <Clock className="size-5 text-[var(--st-text)]" />
+              <div className="rounded-lg bg-[var(--st-bg-muted)] p-2">
+                <Clock className="size-5 text-[var(--st-text)]" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
@@ -252,32 +299,32 @@ export default function FunnelAnalyticsPage() {
           </CardBody>
         </Card>
 
-        <Card className="hover:border-[var(--st-border-strong)] transition-colors">
+        <Card>
           <CardBody className="p-5">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-[var(--st-text-secondary)]">Attributed Value</p>
-                <p className="text-3xl font-bold tracking-tight">$125k</p>
+                <p className="text-3xl font-bold tracking-tight text-[var(--st-text)]">$125k</p>
               </div>
-              <div className="p-2 bg-[var(--st-bg-muted)] rounded-lg">
-                <Activity className="size-5 text-[var(--st-text)]" />
+              <div className="rounded-lg bg-[var(--st-bg-muted)] p-2">
+                <Activity className="size-5 text-[var(--st-text)]" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm">
-              <span className="text-[var(--st-text)] font-medium flex items-center gap-1">
-                <TrendingUp className="size-3" /> +14%
+              <span className="flex items-center gap-1 font-medium text-[var(--st-status-ok)]">
+                <TrendingUp className="size-3" aria-hidden="true" /> +14%
               </span>
-              <span className="text-[var(--st-text-secondary)] ml-2">vs last 30d</span>
+              <span className="ml-2 text-[var(--st-text-secondary)]">vs last 30d</span>
             </div>
           </CardBody>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
         {/* Main Funnel Visualization */}
-        <Card className="xl:col-span-2 flex flex-col shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-[var(--st-border)]/50">
+        <Card padding="none" className="flex flex-col xl:col-span-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-[var(--st-border)] p-6">
             <div>
               <CardTitle className="text-lg">Funnel Conversion Flow</CardTitle>
               <CardDescription>
@@ -285,57 +332,43 @@ export default function FunnelAnalyticsPage() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 bg-[var(--st-bg-muted)] p-1 rounded-lg w-48">
-                <button
-                  onClick={() => setActiveVariant("control")}
-                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
-                    activeVariant === "control" 
-                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]" 
-                      : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50"
-                  }`}
-                >
-                  Control
-                </button>
-                <button
-                  onClick={() => setActiveVariant("variant")}
-                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
-                    activeVariant === "variant" 
-                      ? "bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow-[var(--st-shadow-sm)]" 
-                      : "text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]/50"
-                  }`}
-                >
-                  Variant
-                </button>
-              </div>
-              <Button variant="outline" size="icon" title="Toggle full screen">
-                <BarChart2 className="size-4 text-[var(--st-text-secondary)]" />
-              </Button>
+              <SegmentedControl
+                items={VARIANT_OPTIONS}
+                value={activeVariant}
+                onChange={setActiveVariant}
+                aria-label="Funnel variant"
+              />
+              <IconButton
+                label="Toggle full screen"
+                icon={BarChart2}
+                variant="outline"
+              />
             </div>
           </CardHeader>
 
-          <CardBody className="p-6 flex-1 flex flex-col">
-            <div className="h-[320px] w-full mb-8 relative">
-              <ChartContainer height="100%">
+          <CardBody className="flex flex-1 flex-col p-6">
+            <div className="relative mb-8 h-[320px] w-full">
+              <ChartContainer config={FUNNEL_CHART_CONFIG} className="h-full">
                 <Recharts.ComposedChart
                   data={funnelChartData}
                   margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                 >
-                  <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-[var(--st-border)]/40" />
-                  <Recharts.XAxis 
-                    dataKey="name" 
+                  <Recharts.CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                  <Recharts.XAxis
+                    dataKey="name"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 13 }}
                     dy={10}
                   />
-                  <Recharts.YAxis 
+                  <Recharts.YAxis
                     yAxisId="left"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${(value / 1000)}k`}
                   />
-                  <Recharts.YAxis 
+                  <Recharts.YAxis
                     yAxisId="right"
                     orientation="right"
                     axisLine={false}
@@ -343,30 +376,30 @@ export default function FunnelAnalyticsPage() {
                     tick={{ fill: 'var(--st-text-secondary)', fontSize: 12 }}
                     tickFormatter={(value) => `${value}%`}
                   />
-                  <Recharts.Tooltip 
-                    content={<ChartTooltip />}
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
                     cursor={{ fill: 'var(--st-bg-muted)', opacity: 0.4 }}
                   />
-                  <Recharts.Bar 
+                  <Recharts.Bar
                     yAxisId="left"
-                    dataKey="users" 
-                    fill="var(--st-accent)" 
+                    dataKey="users"
+                    fill="var(--st-accent)"
                     radius={[4, 4, 0, 0]}
                     barSize={60}
                     name="Users Retained"
                   >
                     {funnelChartData.map((entry, index) => (
-                      <Recharts.Cell 
-                        key={`cell-${index}`} 
-                        fill={index === 0 ? "var(--st-accent)" : `color-mix(in srgb, var(--st-accent) calc(${1 - (index * 0.2)} * 100%), transparent)`} 
+                      <Recharts.Cell
+                        key={`cell-${index}`}
+                        fill={index === 0 ? "var(--st-accent)" : `color-mix(in srgb, var(--st-accent) calc(${1 - (index * 0.2)} * 100%), transparent)`}
                       />
                     ))}
                   </Recharts.Bar>
-                  <Recharts.Line 
+                  <Recharts.Line
                     yAxisId="right"
-                    type="monotone" 
-                    dataKey="conversion" 
-                    stroke="var(--st-text)" 
+                    type="monotone"
+                    dataKey="conversion"
+                    stroke="var(--st-text)"
                     strokeWidth={3}
                     dot={{ r: 6, fill: "var(--st-bg)", strokeWidth: 2 }}
                     activeDot={{ r: 8 }}
@@ -378,13 +411,13 @@ export default function FunnelAnalyticsPage() {
 
             <div className="mt-auto">
               <Table>
-                <THead className="bg-[var(--st-bg-secondary)]/50">
+                <THead>
                   <Tr>
-                    <Th className="w-12 text-center"></Th>
+                    <Th className="w-12" align="center"></Th>
                     <Th>Step Name</Th>
-                    <Th className="text-right">Users</Th>
-                    <Th className="text-right">Drop-off</Th>
-                    <Th className="text-right">Conv. Value</Th>
+                    <Th align="right">Users</Th>
+                    <Th align="right">Drop-off</Th>
+                    <Th align="right">Conv. Value</Th>
                   </Tr>
                 </THead>
                 <TBody>
@@ -393,59 +426,62 @@ export default function FunnelAnalyticsPage() {
                     const isVariant = activeVariant === "variant";
                     const stepCount = isVariant ? Math.round(step.count * (1 + (index * 0.05))) : step.count;
                     const stepValue = isVariant ? Math.round(step.value * 1.1) : step.value;
-                    const dropoffDisplay = index === 0 ? "—" : `${isVariant ? Math.max(0, dropoff - 2) : dropoff}%`;
+                    const dropoffPct = isVariant ? Math.max(0, dropoff - 2) : dropoff;
+                    const dropoffDisplay = index === 0 ? "-" : `${dropoffPct}%`;
 
                     return (
-                      <Tr key={step.id} className="group hover:bg-[var(--st-bg-secondary)]/30 transition-colors">
-                        <Td className="flex items-center justify-center gap-1 py-3">
-                          <div className="flex flex-col -space-y-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button 
-                              disabled={index === 0} 
-                              onClick={() => moveStep(index, -1)}
-                              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30"
-                            >
-                              <ChevronUp className="size-3" />
-                            </button>
-                            <button 
-                              disabled={index === steps.length - 1}
-                              onClick={() => moveStep(index, 1)}
-                              className="text-[var(--st-text-secondary)] hover:text-[var(--st-text)] disabled:opacity-30"
-                            >
-                              <ChevronDown className="size-3" />
-                            </button>
+                      <Tr key={step.id} className="group">
+                        <Td align="center" className="py-3">
+                          <div className="flex items-center justify-center gap-1">
+                            <div className="flex flex-col -space-y-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              <IconButton
+                                label="Move step up"
+                                icon={ChevronUp}
+                                size="sm"
+                                disabled={index === 0}
+                                onClick={() => moveStep(index, -1)}
+                              />
+                              <IconButton
+                                label="Move step down"
+                                icon={ChevronDown}
+                                size="sm"
+                                disabled={index === steps.length - 1}
+                                onClick={() => moveStep(index, 1)}
+                              />
+                            </div>
+                            <GripVertical className="size-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
                           </div>
-                          <GripVertical className="size-4 text-[var(--st-bg-muted)]" />
                         </Td>
-                        <Td className="font-medium py-3">
+                        <Td className="py-3 font-medium text-[var(--st-text)]">
                           {step.name}
                           {index > 0 && (
                             <div className="mt-1 text-xs font-normal text-[var(--st-text-secondary)]">
-                              {getConversionRate(index)}% from start • avg {step.time}
+                              {getConversionRate(index)}% from start, avg {step.time}
                             </div>
                           )}
                         </Td>
-                        <Td className="text-right tabular-nums py-3 font-medium">
+                        <Td align="right" className="py-3 font-medium tabular-nums text-[var(--st-text)]">
                           {stepCount.toLocaleString()}
                         </Td>
-                        <Td className="text-right py-3">
+                        <Td align="right" className="py-3">
                           {index > 0 ? (
-                            <div className="flex justify-end items-center gap-2">
-                              <div className="w-16 h-1.5 bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full rounded-full ${dropoff > 50 ? 'bg-[var(--st-bg-muted)]' : 'bg-[var(--st-bg-muted)]'}`} 
-                                  style={{ width: `${isVariant ? Math.max(0, dropoff - 2) : dropoff}%` }} 
+                            <div className="flex items-center justify-end gap-2">
+                              <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
+                                <div
+                                  className="h-full rounded-full bg-[var(--st-accent)]"
+                                  style={{ width: `${dropoffPct}%` }}
                                 />
                               </div>
-                              <span className={`text-xs font-medium w-10 text-right ${dropoff > 50 ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}>
+                              <span className="w-10 text-right text-xs font-medium text-[var(--st-text-secondary)]">
                                 {dropoffDisplay}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-[var(--st-text-secondary)]">—</span>
+                            <span className="text-[var(--st-text-secondary)]">-</span>
                           )}
                         </Td>
-                        <Td className="text-right font-mono text-sm tabular-nums text-[var(--st-text)] py-3">
-                          {stepValue > 0 ? `$${stepValue.toLocaleString()}` : "—"}
+                        <Td align="right" className="py-3 font-mono text-sm tabular-nums text-[var(--st-text)]">
+                          {stepValue > 0 ? `$${stepValue.toLocaleString()}` : "-"}
                         </Td>
                       </Tr>
                     );
@@ -454,11 +490,11 @@ export default function FunnelAnalyticsPage() {
               </Table>
 
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm" className="w-full gap-2 text-[var(--st-text-secondary)] border-dashed hover:text-[var(--st-text)] hover:border-[var(--st-border-strong)] transition-all">
-                  <Plus className="size-4" /> Add Funnel Step
+                <Button variant="outline" size="sm" iconLeft={Plus} block>
+                  Add Funnel Step
                 </Button>
-                <Button variant="outline" size="sm" className="gap-2 text-[var(--st-text-secondary)] border-dashed hover:text-[var(--st-text)] transition-all">
-                  <Filter className="size-4" /> Add Filter
+                <Button variant="outline" size="sm" iconLeft={Filter}>
+                  Add Filter
                 </Button>
               </div>
             </div>
@@ -467,89 +503,88 @@ export default function FunnelAnalyticsPage() {
 
         {/* Side Panels - Analytics & Cohorts */}
         <div className="flex flex-col gap-6">
-          
+
           {/* Conversion Trend */}
-          <Card className="shadow-sm">
+          <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base flex justify-between items-center">
+              <CardTitle className="flex items-center justify-between text-base">
                 <span>Conversion Trend</span>
-                <Badge variant="secondary" className="font-normal text-xs bg-[var(--st-bg-muted)]">Last 7d</Badge>
+                <Badge tone="neutral">Last 7d</Badge>
               </CardTitle>
             </CardHeader>
             <CardBody>
-              <div className="h-[120px] w-full mt-2">
-                <ChartContainer height="100%">
+              <div className="mt-2 h-[120px] w-full">
+                <ChartContainer config={TREND_CHART_CONFIG} className="h-full">
                   <Recharts.AreaChart data={FUNNEL_TREND_DATA} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--st-accent)" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="var(--st-accent)" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="var(--st-accent)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--st-accent)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <Recharts.Tooltip content={<ChartTooltip />} />
-                    <Recharts.Area 
-                      type="monotone" 
-                      dataKey="conversion" 
-                      stroke="var(--st-accent)" 
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Recharts.Area
+                      type="monotone"
+                      dataKey="conversion"
+                      stroke="var(--st-accent)"
                       strokeWidth={2}
-                      fillOpacity={1} 
-                      fill="url(#colorConv)" 
+                      fillOpacity={1}
+                      fill="url(#colorConv)"
                     />
                   </Recharts.AreaChart>
                 </ChartContainer>
               </div>
               <div className="mt-4 flex items-center justify-between text-sm">
                 <span className="text-[var(--st-text-secondary)]">Avg. Conversion</span>
-                <span className="font-semibold">6.64%</span>
+                <span className="font-semibold text-[var(--st-text)]">6.64%</span>
               </div>
             </CardBody>
           </Card>
 
-          {/* Test Lift Estimate */}
+          {/* Test Lift Estimate / Channel Performance */}
           {activeVariant === "variant" ? (
-            <Card className="border-[var(--st-border)] bg-gradient-to-br from-[var(--st-bg-muted)]/50 to-[var(--st-bg-muted)]/50 shadow-sm relative overflow-hidden">
+            <Card className="relative overflow-hidden bg-[var(--st-bg-secondary)]">
               <div className="absolute -right-4 -top-4 opacity-10">
-                <Activity className="size-24 text-[var(--st-text)]" />
+                <Activity className="size-24 text-[var(--st-text)]" aria-hidden="true" />
               </div>
-              <CardHeader className="pb-2 relative z-10">
-                <CardTitle className="text-base flex items-center gap-2 text-[var(--st-text)]">
-                  <BarChart className="size-4" /> Experiment Results
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="flex items-center gap-2 text-base text-[var(--st-text)]">
+                  <BarChart className="size-4" aria-hidden="true" /> Experiment Results
                 </CardTitle>
               </CardHeader>
               <CardBody className="relative z-10">
-                <div className="text-3xl font-bold text-[var(--st-text)] tracking-tight">+14.5%</div>
-                <p className="text-sm text-[var(--st-text)]/80 mt-2 leading-relaxed">
-                  Variant B is outperforming Control with a <strong>98% statistical significance</strong>.
+                <div className="text-3xl font-bold tracking-tight text-[var(--st-status-ok)]">+14.5%</div>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--st-text-secondary)]">
+                  Variant B is outperforming Control with a <strong className="text-[var(--st-text)]">98% statistical significance</strong>.
                   Consider rolling this out to 100% of traffic.
                 </p>
-                <Button size="sm" className="w-full mt-4 bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white">
+                <Button size="sm" variant="primary" block className="mt-4">
                   Rollout to 100%
                 </Button>
               </CardBody>
             </Card>
           ) : (
-            <Card className="shadow-sm">
+            <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Channel Performance</CardTitle>
                 <CardDescription>Attribution across messaging channels</CardDescription>
               </CardHeader>
               <CardBody>
-                <div className="space-y-5 mt-2">
-                  {[
-                    { name: 'SMS', value: 4.2, color: 'bg-[var(--st-text)]' },
-                    { name: 'MMS', value: 5.8, color: 'bg-[var(--st-text)]' },
-                    { name: 'RCS', value: 8.1, color: 'bg-[var(--st-text)]' },
-                  ].map((channel) => (
+                <div className="mt-2 space-y-5">
+                  {CHANNEL_PERFORMANCE.map((channel) => (
                     <div key={channel.name}>
-                      <div className="flex items-center justify-between text-sm mb-1.5">
-                        <div className="flex items-center gap-2 font-medium">
-                          <div className={`size-2.5 rounded-full ${channel.color}`} />
+                      <div className="mb-1.5 flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 font-medium text-[var(--st-text)]">
+                          <span className="size-2.5 rounded-full bg-[var(--st-accent)]" aria-hidden="true" />
                           <span>{channel.name}</span>
                         </div>
-                        <span className="font-semibold">{channel.value}%</span>
+                        <span className="font-semibold text-[var(--st-text)]">{channel.value}%</span>
                       </div>
-                      <div className="h-2 w-full bg-[var(--st-bg-muted)] rounded-full overflow-hidden">
-                        <div className={`h-full ${channel.color}`} style={{ width: `${channel.value * 10}%` }} />
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--st-bg-muted)]">
+                        <div
+                          className="h-full bg-[var(--st-accent)]"
+                          style={{ width: `${channel.value * 10}%` }}
+                        />
                       </div>
                     </div>
                   ))}
@@ -559,31 +594,26 @@ export default function FunnelAnalyticsPage() {
           )}
 
           {/* Segments / Cohorts Drill */}
-          <Card className="shadow-sm flex-1">
-            <CardHeader className="pb-3 border-b border-[var(--st-border)]/30">
-              <CardTitle className="text-base flex justify-between items-center">
+          <Card padding="none" className="flex-1">
+            <CardHeader className="border-b border-[var(--st-border)] p-5">
+              <CardTitle className="flex items-center justify-between text-base">
                 <span>Top Cohorts</span>
-                <Link href="#" className="text-xs text-[var(--st-text)] hover:underline">View All</Link>
+                <Link href="#" className="text-xs text-[var(--st-accent)] hover:underline">View All</Link>
               </CardTitle>
             </CardHeader>
             <CardBody className="p-0">
               <Table>
                 <TBody>
-                  {[
-                    { name: "Active (30d)", rate: "12.1%", trend: "up", val: "+1.2%" },
-                    { name: "New Users", rate: "8.4%", trend: "up", val: "+0.8%" },
-                    { name: "Dormant", rate: "3.2%", trend: "down", val: "-0.4%" },
-                    { name: "Churn Risk", rate: "2.1%", trend: "down", val: "-1.1%", alert: true },
-                  ].map((cohort, i) => (
-                    <Tr key={i} className="border-b-0 hover:bg-[var(--st-bg-secondary)]/50 transition-colors">
-                      <Td className="py-3 px-5 text-sm font-medium">
+                  {TOP_COHORTS.map((cohort) => (
+                    <Tr key={cohort.name}>
+                      <Td className="px-5 py-3 text-sm font-medium text-[var(--st-text)]">
                         {cohort.name}
                       </Td>
-                      <Td className="py-3 px-5 text-right">
+                      <Td align="right" className="px-5 py-3">
                         <div className="flex flex-col items-end">
-                          <span className={`font-semibold ${cohort.alert ? 'text-[var(--st-text)]' : ''}`}>{cohort.rate}</span>
-                          <span className={`text-[10px] flex items-center gap-0.5 ${cohort.trend === 'up' ? 'text-[var(--st-text)]' : 'text-[var(--st-text)]'}`}>
-                            {cohort.trend === 'up' ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
+                          <span className={`font-semibold ${cohort.alert ? 'text-[var(--st-danger)]' : 'text-[var(--st-text)]'}`}>{cohort.rate}</span>
+                          <span className={`flex items-center gap-0.5 text-[10px] ${cohort.trend === 'up' ? 'text-[var(--st-status-ok)]' : 'text-[var(--st-text-secondary)]'}`}>
+                            {cohort.trend === 'up' ? <TrendingUp className="size-3" aria-hidden="true" /> : <TrendingDown className="size-3" aria-hidden="true" />}
                             {cohort.val}
                           </span>
                         </div>

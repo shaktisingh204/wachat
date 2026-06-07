@@ -5,10 +5,17 @@ import {
     MoreVertical, Wifi, Battery, Signal, ChevronLeft, X,
     Camera, FileUp, ExternalLink, ChevronRight, Check,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage, Button, Input, Textarea, Label, ScrollArea, cn } from '@/components/sabcrm/20ui';
+import {
+    Avatar, AvatarFallback, AvatarImage,
+    Button, IconButton,
+    Field, Input, Textarea, Label,
+    Checkbox, Radio, RadioGroup,
+    Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
+    ScrollArea, cn,
+} from '@/components/sabcrm/20ui';
 
 /**
- * WhatsApp Flow phone preview — renders every v7.3 component the
+ * WhatsApp Flow phone preview. Renders every v7.3 component the
  * builder can produce, purely visually. Form interactivity is
  * deliberately local to the preview; nothing calls Meta.
  */
@@ -20,7 +27,7 @@ interface RenderProps {
     setFormData: React.Dispatch<React.SetStateAction<FormState>>;
 }
 
-/* ── text family ─────────────────────────────────────────────────── */
+/* text family */
 
 const TextHeadingR = ({ component }: { component: any }) => (
     <h1 className="mb-2 text-[26px] font-bold leading-tight text-[var(--st-text)]">{component.text}</h1>
@@ -49,17 +56,21 @@ const RichTextR = ({ component }: { component: any }) => {
     return <div className="mb-2 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--st-text)]">{raw}</div>;
 };
 
-/* ── inputs ─────────────────────────────────────────────────────── */
+/* inputs */
 
 const FieldLabel = ({ component }: { component: any }) => (
-    <Label className="mb-1 block text-[12px] font-normal text-[var(--st-text)]">
-        {component.label} {component.required ? <span className="text-[var(--st-text)]">*</span> : null}
+    <Label className="mb-1 block text-[12px] font-normal text-[var(--st-text)]" required={!!component.required}>
+        {component.label}
     </Label>
 );
 
 const TextInputR = ({ component, formData, setFormData }: RenderProps) => (
-    <div className="mb-4">
-        <FieldLabel component={component} />
+    <Field
+        className="mb-4"
+        label={component.label}
+        required={!!component.required}
+        help={component['helper-text'] || undefined}
+    >
         <Input
             type={component['input-type'] === 'password' ? 'password' : 'text'}
             inputMode={component['input-type'] === 'number' ? 'numeric' : component['input-type'] === 'email' ? 'email' : component['input-type'] === 'phone' ? 'tel' : undefined}
@@ -68,41 +79,46 @@ const TextInputR = ({ component, formData, setFormData }: RenderProps) => (
             placeholder={component.placeholder}
             maxLength={component['max-chars']}
             disabled={component.enabled === false}
-            className="h-12 border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
         />
-        {component['helper-text'] ? <p className="mt-1 text-xs text-[var(--st-text)]">{component['helper-text']}</p> : null}
-    </div>
+    </Field>
 );
 
 const TextAreaR = ({ component, formData, setFormData }: RenderProps) => (
-    <div className="mb-4">
-        <FieldLabel component={component} />
+    <Field
+        className="mb-4"
+        label={component.label}
+        required={!!component.required}
+        help={component['helper-text'] || undefined}
+    >
         <Textarea
             value={formData[component.name] ?? ''}
             onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
             maxLength={component['max-length']}
             disabled={component.enabled === false}
-            className="min-h-[88px] border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
+            className="min-h-[88px]"
         />
-        {component['helper-text'] ? <p className="mt-1 text-xs text-[var(--st-text)]">{component['helper-text']}</p> : null}
-    </div>
+    </Field>
 );
 
 const DropdownR = ({ component, formData, setFormData }: RenderProps) => (
-    <div className="mb-4">
-        <FieldLabel component={component} />
-        <select
+    <Field className="mb-4" label={component.label} required={!!component.required}>
+        <Select
             value={formData[component.name] ?? ''}
-            onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
+            onValueChange={(val) => setFormData(prev => ({ ...prev, [component.name]: val }))}
             disabled={component.enabled === false}
-            className="h-12 w-full rounded-md border border-[var(--st-border)] bg-white px-3 text-[15px] text-[var(--st-text)]"
         >
-            <option value="">Select…</option>
-            {(component['data-source'] || []).map((item: any) => (
-                <option key={item.id} value={item.id} disabled={item.enabled === false}>{item.title}</option>
-            ))}
-        </select>
-    </div>
+            <SelectTrigger aria-label={component.label || 'Select an option'}>
+                <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+                {(component['data-source'] || []).map((item: any) => (
+                    <SelectItem key={item.id} value={String(item.id)} disabled={item.enabled === false}>
+                        {item.title}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    </Field>
 );
 
 const RadioGroupR = ({ component, formData, setFormData }: RenderProps) => {
@@ -110,30 +126,22 @@ const RadioGroupR = ({ component, formData, setFormData }: RenderProps) => {
     return (
         <div className="mb-4">
             <FieldLabel component={component} />
-            <div className="space-y-2">
+            <RadioGroup
+                value={current ?? ''}
+                onValueChange={(val) => setFormData(prev => ({ ...prev, [component.name]: val }))}
+                aria-label={component.label || 'Choose an option'}
+                className="space-y-2"
+            >
                 {(component['data-source'] || []).map((item: any) => (
-                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
-                        <span className={cn(
-                            'flex h-4 w-4 items-center justify-center rounded-full border-2',
-                            current === item.id ? 'border-[var(--st-border)]' : 'border-[var(--st-border)]',
-                        )}>
-                            {current === item.id ? <span className="h-2 w-2 rounded-full bg-[var(--st-text)]" /> : null}
-                        </span>
-                        <input
-                            type="radio"
-                            name={component.name}
-                            value={item.id}
-                            checked={current === item.id}
-                            onChange={() => setFormData(prev => ({ ...prev, [component.name]: item.id }))}
-                            className="sr-only"
-                        />
+                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                        <Radio value={String(item.id)} disabled={item.enabled === false} />
                         <div className="flex-1">
                             <div className="text-[14.5px] text-[var(--st-text)]">{item.title}</div>
-                            {item.description ? <div className="text-[12px] text-[var(--st-text)]">{item.description}</div> : null}
+                            {item.description ? <div className="text-[12px] text-[var(--st-text-secondary)]">{item.description}</div> : null}
                         </div>
                     </label>
                 ))}
-            </div>
+            </RadioGroup>
         </div>
     );
 };
@@ -151,22 +159,15 @@ const CheckboxGroupR = ({ component, formData, setFormData }: RenderProps) => {
             <FieldLabel component={component} />
             <div className="space-y-2">
                 {(component['data-source'] || []).map((item: any) => (
-                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
-                        <span className={cn(
-                            'flex h-4 w-4 items-center justify-center rounded border-2',
-                            current.includes(item.id) ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)]',
-                        )}>
-                            {current.includes(item.id) ? <Check className="h-3 w-3 text-white" /> : null}
-                        </span>
-                        <input
-                            type="checkbox"
-                            checked={current.includes(item.id)}
-                            onChange={() => toggle(item.id)}
-                            className="sr-only"
+                    <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+                        <Checkbox
+                            checked={current.includes(String(item.id))}
+                            onChange={() => toggle(String(item.id))}
+                            disabled={item.enabled === false}
                         />
                         <div className="flex-1">
                             <div className="text-[14.5px] text-[var(--st-text)]">{item.title}</div>
-                            {item.description ? <div className="text-[12px] text-[var(--st-text)]">{item.description}</div> : null}
+                            {item.description ? <div className="text-[12px] text-[var(--st-text-secondary)]">{item.description}</div> : null}
                         </div>
                     </label>
                 ))}
@@ -187,45 +188,43 @@ const ChipsSelectorR = ({ component, formData, setFormData }: RenderProps) => {
         <div className="mb-4">
             <FieldLabel component={component} />
             <div className="flex flex-wrap gap-2">
-                {(component['data-source'] || []).map((item: any) => (
-                    <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => toggle(item.id)}
-                        className={cn(
-                            'rounded-full border px-3 py-1 text-[13px] transition-colors',
-                            current.includes(item.id)
-                                ? 'border-[var(--st-border)] bg-[var(--st-text)]/10 text-[var(--st-text)]'
-                                : 'border-[var(--st-border)] bg-white text-[var(--st-text)]',
-                        )}
-                    >
-                        {item.title}
-                    </button>
-                ))}
+                {(component['data-source'] || []).map((item: any) => {
+                    const active = current.includes(String(item.id));
+                    return (
+                        <Button
+                            key={item.id}
+                            variant={active ? 'primary' : 'outline'}
+                            size="sm"
+                            aria-pressed={active}
+                            onClick={() => toggle(String(item.id))}
+                            className="rounded-full"
+                        >
+                            {item.title}
+                        </Button>
+                    );
+                })}
             </div>
         </div>
     );
 };
 
 const DatePickerR = ({ component, formData, setFormData }: RenderProps) => (
-    <div className="mb-4">
-        <FieldLabel component={component} />
+    <Field className="mb-4" label={component.label} required={!!component.required}>
         <Input
             type="date"
             value={formData[component.name] ?? ''}
             min={component['min-date']}
             max={component['max-date']}
             onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.value }))}
-            className="h-12 border-[var(--st-border)] bg-white text-[15px] focus-visible:ring-[var(--st-border)]"
         />
-    </div>
+    </Field>
 );
 
 const CalendarPickerR = ({ component }: { component: any }) => (
-    <div className="mb-4 rounded-md border border-[var(--st-border)] bg-white p-3">
+    <div className="mb-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
         <FieldLabel component={component} />
         <div className="mt-2 text-center text-[12px] text-[var(--st-text-secondary)]">
-            [Inline calendar · {component.mode ?? 'single'} mode]
+            Inline calendar, {component.mode ?? 'single'} mode
         </div>
     </div>
 );
@@ -234,32 +233,25 @@ const OptInR = ({ component, formData, setFormData }: RenderProps) => {
     const v = !!formData[component.name];
     return (
         <label className="mb-3 flex cursor-pointer items-start gap-3">
-            <span className={cn(
-                'mt-0.5 flex h-4 w-4 items-center justify-center rounded border-2',
-                v ? 'border-[var(--st-border)] bg-[var(--st-text)]' : 'border-[var(--st-border)]',
-            )}>
-                {v ? <Check className="h-3 w-3 text-white" /> : null}
-            </span>
-            <input
-                type="checkbox"
+            <Checkbox
+                className="mt-0.5"
                 checked={v}
                 onChange={(e) => setFormData(prev => ({ ...prev, [component.name]: e.target.checked }))}
-                className="sr-only"
             />
             <span className="text-[13.5px] text-[var(--st-text)]">
-                {component.label} {component.required ? <span className="text-[var(--st-text)]">*</span> : null}
+                {component.label} {component.required ? <span className="text-[var(--st-danger)]">*</span> : null}
             </span>
         </label>
     );
 };
 
-/* ── media ───────────────────────────────────────────────────────── */
+/* media */
 
 const ImageR = ({ component }: { component: any }) => {
     const src = component.src && !component.src.startsWith('data:') ? `data:image/png;base64,${component.src}` : component.src;
     if (!src) {
         return (
-            <div className="mb-3 flex h-32 items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
+            <div className="mb-3 flex h-32 items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                 Image (set src to preview)
             </div>
         );
@@ -269,7 +261,7 @@ const ImageR = ({ component }: { component: any }) => {
             src={src}
             alt={component['alt-text'] ?? ''}
             className={cn(
-                'mb-3 w-full rounded-md',
+                'mb-3 w-full rounded-[var(--st-radius)]',
                 component['scale-type'] === 'cover' ? 'object-cover' : 'object-contain',
             )}
             style={{ height: component.height || undefined, aspectRatio: component['aspect-ratio'] }}
@@ -280,11 +272,11 @@ const ImageR = ({ component }: { component: any }) => {
 const ImageCarouselR = ({ component }: { component: any }) => (
     <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
         {(component.images || []).length === 0 ? (
-            <div className="flex h-28 w-full items-center justify-center rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
+            <div className="flex h-28 w-full items-center justify-center rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[11px] text-[var(--st-text-secondary)]">
                 Image carousel (add images)
             </div>
         ) : (component.images || []).map((img: any, i: number) => (
-            <div key={i} className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-md bg-[var(--st-bg-muted)]">
+            <div key={i} className="h-28 w-28 flex-shrink-0 overflow-hidden rounded-[var(--st-radius)] bg-[var(--st-bg-muted)]">
                 {img.src ? (
                     <img
                         src={img.src.startsWith('data:') ? img.src : `data:image/png;base64,${img.src}`}
@@ -300,61 +292,61 @@ const ImageCarouselR = ({ component }: { component: any }) => (
 );
 
 const PhotoPickerR = ({ component }: { component: any }) => (
-    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
-        <Camera className="h-5 w-5 text-[var(--st-text-secondary)]" />
+    <div className="mb-3 flex items-center gap-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+        <Camera className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
         <div className="flex-1">
             <div className="text-[13.5px] font-medium text-[var(--st-text)]">{component.label}</div>
-            {component.description ? <div className="text-[11.5px] text-[var(--st-text)]">{component.description}</div> : null}
+            {component.description ? <div className="text-[11.5px] text-[var(--st-text-secondary)]">{component.description}</div> : null}
         </div>
     </div>
 );
 
 const DocumentPickerR = ({ component }: { component: any }) => (
-    <div className="mb-3 flex items-center gap-3 rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
-        <FileUp className="h-5 w-5 text-[var(--st-text-secondary)]" />
+    <div className="mb-3 flex items-center gap-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3">
+        <FileUp className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
         <div className="flex-1">
             <div className="text-[13.5px] font-medium text-[var(--st-text)]">{component.label}</div>
-            {component.description ? <div className="text-[11.5px] text-[var(--st-text)]">{component.description}</div> : null}
+            {component.description ? <div className="text-[11.5px] text-[var(--st-text-secondary)]">{component.description}</div> : null}
         </div>
     </div>
 );
 
-/* ── navigation ──────────────────────────────────────────────────── */
+/* navigation */
 
 const EmbeddedLinkR = ({ component }: { component: any }) => (
-    <a className="mb-3 inline-flex items-center gap-1 text-[14px] font-medium text-[var(--st-text)]">
-        {component.text} <ExternalLink className="h-3 w-3" />
+    <a className="mb-3 inline-flex items-center gap-1 text-[14px] font-medium text-[var(--st-accent)]">
+        {component.text} <ExternalLink className="h-3 w-3" aria-hidden="true" />
     </a>
 );
 
 const NavigationListR = ({ component }: { component: any }) => (
     <div className="mb-3 space-y-2">
         {(component['list-items'] || []).map((item: any, i: number) => (
-            <div key={item.id || i} className="flex items-center gap-3 rounded-md border border-[var(--st-border)] bg-white p-3">
+            <div key={item.id || i} className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
                 <div className="flex-1">
                     <div className="text-[14.5px] font-medium text-[var(--st-text)]">{item['main-content']?.title}</div>
-                    {item['main-content']?.description ? <div className="text-[12px] text-[var(--st-text)]">{item['main-content'].description}</div> : null}
+                    {item['main-content']?.description ? <div className="text-[12px] text-[var(--st-text-secondary)]">{item['main-content'].description}</div> : null}
                 </div>
-                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" />
+                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
             </div>
         ))}
         {(!component['list-items'] || component['list-items'].length === 0) ? (
-            <div className="rounded-md border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-center text-[11px] text-[var(--st-text-secondary)]">
+            <div className="rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-center text-[11px] text-[var(--st-text-secondary)]">
                 Navigation list (add items)
             </div>
         ) : null}
     </div>
 );
 
-/* ── fallback ────────────────────────────────────────────────────── */
+/* fallback */
 
 const GenericRenderer = ({ component }: { component: any }) => (
-    <div className="mb-2 rounded border border-dashed border-[var(--st-border)] p-2 text-center text-xs text-[var(--st-text-secondary)]">
+    <div className="mb-2 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] p-2 text-center text-xs text-[var(--st-text-secondary)]">
         {component.type}{component.name ? ` · ${component.name}` : ''}
     </div>
 );
 
-/* ── dispatcher ──────────────────────────────────────────────────── */
+/* dispatcher */
 
 function FlowComponent(props: RenderProps) {
     const { component } = props;
@@ -395,7 +387,7 @@ function FlowComponent(props: RenderProps) {
     }
 }
 
-/* ── main preview ────────────────────────────────────────────────── */
+/* main preview */
 
 export const MetaFlowPreview = ({
     flowJson,
@@ -427,7 +419,7 @@ export const MetaFlowPreview = ({
                 setCurrentScreenId(parsed.screens?.[0]?.id ?? null);
             }
         } catch {
-            /* ignore — canvas surfaces the JSON error */
+            /* ignore. The canvas surfaces the JSON error. */
         }
     }, [flowJson, currentScreenId]);
 
@@ -449,7 +441,7 @@ export const MetaFlowPreview = ({
     }, [currentScreen]);
 
     if (!flow) {
-        return <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">Loading preview…</div>;
+        return <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">Loading preview...</div>;
     }
     if (!currentScreen) {
         return <div className="flex h-full items-center justify-center text-xs text-[var(--st-text-secondary)]">Screen not found</div>;
@@ -457,34 +449,34 @@ export const MetaFlowPreview = ({
 
     return (
         <div
-            className={cn("relative flex select-none flex-col overflow-hidden bg-[var(--st-bg-muted)] font-sans", className)}
-            style={{
-                backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d936cd0f1d.png')",
-                backgroundBlendMode: "overlay",
-            }}
+            className={cn(
+                "relative flex select-none flex-col overflow-hidden bg-[var(--st-bg-muted)] font-sans",
+                "bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d936cd0f1d.png')] bg-blend-overlay",
+                className,
+            )}
         >
             {/* status bar */}
-            <div className="z-30 flex h-[44px] flex-shrink-0 items-center justify-between bg-[var(--st-bg-secondary)] px-6 text-black">
+            <div className="z-30 flex h-[44px] flex-shrink-0 items-center justify-between bg-[var(--st-bg-secondary)] px-6 text-[var(--st-text)]">
                 <span className="text-[15px] font-semibold">{now}</span>
                 <div className="flex items-center gap-1.5">
-                    <Signal className="h-4 w-4 fill-black" />
-                    <Wifi className="h-4 w-4" />
-                    <Battery className="h-[10px] w-[18px]" />
+                    <Signal className="h-4 w-4" aria-hidden="true" />
+                    <Wifi className="h-4 w-4" aria-hidden="true" />
+                    <Battery className="h-[10px] w-[18px]" aria-hidden="true" />
                 </div>
             </div>
 
             {/* wa chat header */}
             <div className="z-20 flex h-[60px] flex-shrink-0 items-center border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 shadow-sm">
-                <Button variant="ghost" size="icon" className="-mr-1 text-[var(--st-text)]"><ChevronLeft className="h-6 w-6" /></Button>
+                <IconButton label="Back" icon={ChevronLeft} className="-mr-1" />
                 <div className="mr-1 text-[17px] text-[var(--st-text)]">2</div>
                 <div className="ml-1 flex flex-1 items-center">
                     <Avatar className="mr-2 h-[36px] w-[36px]">
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarImage src="https://github.com/shadcn.png" alt="Business avatar" />
                         <AvatarFallback>B</AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                        <span className="text-[16px] font-semibold leading-none text-black">Business name</span>
-                        <span className="mt-1 text-[11px] leading-none text-[var(--st-text)]">Official business account</span>
+                        <span className="text-[16px] font-semibold leading-none text-[var(--st-text)]">Business name</span>
+                        <span className="mt-1 text-[11px] leading-none text-[var(--st-text-secondary)]">Official business account</span>
                     </div>
                 </div>
             </div>
@@ -492,40 +484,40 @@ export const MetaFlowPreview = ({
             {/* chat fill */}
             <div className="flex flex-1 flex-col items-center overflow-auto p-4">
                 <div className="mb-6 mt-4 rounded-[8px] bg-[var(--st-bg-muted)] px-3 py-1 shadow-sm">
-                    <span className="text-[12px] font-medium text-[var(--st-text)]">TODAY</span>
+                    <span className="text-[12px] font-medium text-[var(--st-text-secondary)]">TODAY</span>
                 </div>
                 <div className="mb-6 max-w-[85%] rounded-[8px] bg-[var(--st-bg-secondary)] px-4 py-2 text-center shadow-sm">
-                    <span className="text-[12px] text-[var(--st-text)]">🔒 End-to-end encrypted.</span>
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">🔒 End-to-end encrypted.</span>
                 </div>
-                <div className="relative mb-2 max-w-[85%] self-start rounded-tr-lg rounded-br-lg rounded-bl-lg bg-white p-1 shadow-sm">
+                <div className="relative mb-2 max-w-[85%] self-start rounded-tr-lg rounded-br-lg rounded-bl-lg bg-[var(--st-bg-secondary)] p-1 shadow-sm">
                     <div className="p-2 pb-6">
-                        <p className="text-[15px] leading-snug text-black">Hello! 👋 Click below to open the flow.</p>
+                        <p className="text-[15px] leading-snug text-[var(--st-text)]">Hello! 👋 Click below to open the flow.</p>
                     </div>
                     <span className="absolute bottom-1 right-2 min-w-[30px] text-right text-[11px] text-[var(--st-text-secondary)]">{now}</span>
                 </div>
                 <div className="w-[85%] self-start">
-                    <div className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-white p-2 shadow-sm transition-colors hover:bg-[var(--st-bg-muted)]">
-                        <span className="text-[15px] font-medium text-[var(--st-text)]">View flow</span>
+                    <div className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[var(--st-bg-secondary)] p-2 shadow-sm transition-colors hover:bg-[var(--st-bg-muted)]">
+                        <span className="text-[15px] font-medium text-[var(--st-accent)]">View flow</span>
                     </div>
                 </div>
             </div>
 
             {/* bottom input bar */}
             <div className="flex h-[80px] flex-shrink-0 items-center bg-[var(--st-bg-secondary)] px-4">
-                <div className="flex h-[40px] flex-1 items-center rounded-full border border-[var(--st-border)] bg-white px-4 text-[15px] text-[var(--st-text-secondary)]">Message…</div>
+                <div className="flex h-[40px] flex-1 items-center rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-4 text-[15px] text-[var(--st-text-secondary)]">Message</div>
             </div>
 
             {/* flow modal overlay */}
-            <div className="animate-in slide-in-from-bottom absolute inset-0 z-50 flex flex-col bg-white duration-300">
+            <div className="animate-in slide-in-from-bottom absolute inset-0 z-50 flex flex-col bg-[var(--st-bg)] duration-300">
                 <div className="flex h-[56px] flex-shrink-0 items-center justify-between border-b border-[var(--st-border)] px-2">
                     <div className="flex items-center">
-                        <Button variant="ghost" size="icon" className="text-[var(--st-text)]"><X className="h-6 w-6" /></Button>
+                        <IconButton label="Close flow" icon={X} />
                         <span className="ml-2 text-[17px] font-semibold text-[var(--st-text)]">{currentScreen.title || 'Flow'}</span>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-[var(--st-text)]"><MoreVertical className="h-5 w-5" /></Button>
+                    <IconButton label="More options" icon={MoreVertical} />
                 </div>
 
-                <ScrollArea className="flex-1 bg-white">
+                <ScrollArea className="flex-1 bg-[var(--st-bg)]">
                     <div className="flex flex-col gap-2 p-4">
                         {mainChildren.map((c: any, i: number) => (
                             <FlowComponent
@@ -539,13 +531,13 @@ export const MetaFlowPreview = ({
                 </ScrollArea>
 
                 {footer ? (
-                    <div className="flex-shrink-0 border-t border-[var(--st-border)] bg-white p-4">
+                    <div className="flex-shrink-0 border-t border-[var(--st-border)] bg-[var(--st-bg)] p-4">
                         <div className="flex flex-col gap-3">
-                            <Button className="h-[44px] w-full rounded-full bg-[var(--st-text)] text-[15px] font-semibold text-white shadow-none hover:bg-[var(--st-text)]">
+                            <Button variant="primary" block className="h-[44px] rounded-full text-[15px] font-semibold">
                                 {footer.label || 'Continue'}
                             </Button>
                             <div className="flex items-center justify-center gap-1 opacity-60">
-                                <span className="text-[10px] text-[var(--st-text)]">Secured by</span>
+                                <span className="text-[10px] text-[var(--st-text-secondary)]">Secured by</span>
                                 <span className="text-[10px] font-bold text-[var(--st-text)]">Meta</span>
                             </div>
                         </div>

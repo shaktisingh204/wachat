@@ -15,10 +15,13 @@ import {
 } from '@dnd-kit/core';
 import { SidebarItemOverlay } from './sidebar/draggable-item';
 import { v4 as uuidv4 } from 'uuid';
+import { Button, useToast } from '@/components/sabcrm/20ui';
 
 const EditorInterface = () => {
     const { state, dispatch } = useEditor();
+    const { toast } = useToast();
     const [activeDragItem, setActiveDragItem] = useState<any>(null);
+    const [saving, setSaving] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -141,8 +144,8 @@ const EditorInterface = () => {
                 if (overData?.element?.type === 'COLUMN') {
                     targetParentId = overId;
                 } else if (overData?.element?.type === 'WIDGET') {
-                    // Find parent of this widget. 
-                    // This is tricky without a "findParent" helper exposed easily, 
+                    // Find parent of this widget.
+                    // This is tricky without a "findParent" helper exposed easily,
                     // but we can trust the reducer to handle insertion or we just append for now.
                     // IMPORTANT: To properly insert *next* to a widget, we need the parent ID.
                     // For MVP: We will only allow dropping ON A COLUMN.
@@ -198,6 +201,7 @@ const EditorInterface = () => {
     };
 
     const handleSave = async () => {
+        setSaving(true);
         try {
             const response = await fetch('/api/builder/save', {
                 method: 'POST',
@@ -205,13 +209,15 @@ const EditorInterface = () => {
                 body: JSON.stringify(state.page)
             });
             if (response.ok) {
-                alert('Page saved successfully!');
+                toast.success('Page saved successfully.');
             } else {
-                alert('Failed to save page.');
+                toast.error('Failed to save page.');
             }
         } catch (error) {
             console.error(error);
-            alert('Error saving page.');
+            toast.error('Error saving page.');
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -220,10 +226,12 @@ const EditorInterface = () => {
             <div className="flex h-screen w-full bg-[var(--st-bg-muted)] overflow-hidden">
                 <BuilderSidebar />
                 <main className="flex-1 overflow-hidden flex flex-col relative">
-                    <header className="h-14 border-b bg-white flex items-center px-4 justify-between shadow-sm z-10">
-                        <h1 className="font-semibold text-[var(--st-text)]">Page Builder</h1>
+                    <header className="h-14 border-b border-[var(--st-border)] bg-[var(--st-bg)] flex items-center px-4 justify-between shadow-sm z-10">
+                        <h2 className="font-semibold text-[var(--st-text)]">Page Builder</h2>
                         <div className="flex gap-2">
-                            <button onClick={handleSave} className="px-3 py-1 bg-black text-white rounded text-sm hover:bg-[var(--st-text)]">Publish</button>
+                            <Button variant="primary" size="sm" onClick={handleSave} loading={saving}>
+                                Publish
+                            </Button>
                         </div>
                     </header>
                     <div className="flex-1 overflow-auto bg-[var(--st-bg-muted)] p-8">
@@ -247,3 +255,5 @@ export const EditorLayout = () => {
         </EditorProvider>
     );
 };
+</content>
+</invoke>

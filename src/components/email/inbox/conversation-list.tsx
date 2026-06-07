@@ -1,9 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { Loader2, Search, Star } from 'lucide-react';
+import { Inbox, Search, Star } from 'lucide-react';
 
-import { Avatar, AvatarFallback, Badge, Input, ScrollArea, cn } from '@/components/sabcrm/20ui';
+import {
+  Avatar,
+  AvatarFallback,
+  Badge,
+  Button,
+  Dot,
+  EmptyState,
+  Input,
+  ScrollArea,
+  Spinner,
+  cn,
+} from '@/components/sabcrm/20ui';
 import type { EmailInboxThreadDoc } from '@/lib/rust-client/email-inbox';
 
 export interface ConversationListProps {
@@ -85,28 +96,32 @@ export function ConversationList({
   }, [hasMore, loadingMore, loading, onLoadMore]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[var(--st-bg-secondary)]">
+    <div className="ui20 flex h-full min-h-0 flex-col bg-[var(--st-bg-secondary)]">
       <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-3">
         <Input
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          leadingSlot={<Search />}
-          placeholder="Search conversations…"
+          iconLeft={Search}
+          aria-label="Search conversations"
+          placeholder="Search conversations"
         />
       </div>
       <div className="border-b border-[var(--st-border)] px-4 py-1.5 text-[11px] uppercase tracking-wide text-[var(--st-text-secondary)]">
-        {loading ? 'Loading…' : `${total} conversation${total === 1 ? '' : 's'}`}
+        {loading ? 'Loading' : `${total} conversation${total === 1 ? '' : 's'}`}
       </div>
       <ScrollArea className="min-h-0 flex-1">
         {loading && threads.length === 0 ? (
-          <div className="flex h-40 items-center justify-center text-sm text-[var(--st-text-secondary)]">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading conversations…
+          <div className="flex h-40 items-center justify-center gap-2 text-sm text-[var(--st-text-secondary)]">
+            <Spinner size="sm" label="Loading conversations" /> Loading conversations
           </div>
         ) : threads.length === 0 ? (
-          <div className="flex h-40 flex-col items-center justify-center gap-1 text-center text-sm text-[var(--st-text-secondary)]">
-            <div className="font-medium text-[var(--st-text)]">No conversations</div>
-            <div className="text-xs">Try a different filter or search.</div>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            size="sm"
+            title="No conversations"
+            description="Try a different filter or search."
+            className="py-16"
+          />
         ) : (
           <ul className="divide-y divide-[var(--st-border)]">
             {threads.map((t) => {
@@ -118,79 +133,85 @@ export function ConversationList({
                 '(unknown sender)';
               return (
                 <li key={t._id}>
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    block
                     onClick={() => onSelect(t)}
+                    aria-pressed={selected}
                     className={cn(
-                      'flex w-full items-start gap-3 px-3 py-3 text-left transition-colors hover:bg-[var(--st-bg)] focus:bg-[var(--st-bg)] focus:outline-none',
+                      'h-auto items-start justify-start gap-3 whitespace-normal rounded-none border-0 px-3 py-3 text-left',
+                      '[&>.u-btn__label]:block [&>.u-btn__label]:min-w-0 [&>.u-btn__label]:flex-1 [&>.u-btn__label]:overflow-visible [&>.u-btn__label]:text-clip',
                       selected && 'bg-[var(--st-bg)]',
                     )}
                   >
-                    <Avatar className="h-9 w-9 shrink-0">
-                      <AvatarFallback className="text-[11px]">
-                        {initialsFor(t)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-                      <div className="flex items-center gap-2">
+                    <span className="flex w-full items-start gap-3">
+                      <Avatar className="h-9 w-9 shrink-0">
+                        <AvatarFallback className="text-[11px]">
+                          {initialsFor(t)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              'flex-1 truncate text-sm',
+                              t.unread
+                                ? 'font-semibold text-[var(--st-text)]'
+                                : 'text-[var(--st-text)]',
+                            )}
+                          >
+                            {fromName}
+                          </span>
+                          <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
+                            {relTime(t.lastMessageAt)}
+                          </span>
+                        </span>
                         <span
                           className={cn(
-                            'flex-1 truncate text-sm',
+                            'truncate text-sm',
                             t.unread
-                              ? 'font-semibold text-[var(--st-text)]'
-                              : 'text-[var(--st-text)]',
+                              ? 'font-medium text-[var(--st-text)]'
+                              : 'text-[var(--st-text-secondary)]',
                           )}
                         >
-                          {fromName}
+                          {t.subject || '(no subject)'}
                         </span>
-                        <span className="shrink-0 text-[11px] text-[var(--st-text-secondary)]">
-                          {relTime(t.lastMessageAt)}
+                        <span className="truncate text-xs text-[var(--st-text-secondary)]">
+                          {t.lastMessagePreview}
                         </span>
-                      </div>
-                      <div
-                        className={cn(
-                          'truncate text-sm',
-                          t.unread
-                            ? 'font-medium text-[var(--st-text)]'
-                            : 'text-[var(--st-text-secondary)]',
-                        )}
-                      >
-                        {t.subject || '(no subject)'}
-                      </div>
-                      <div className="truncate text-xs text-[var(--st-text-secondary)]">
-                        {t.lastMessagePreview}
-                      </div>
-                      <div className="mt-1 flex items-center gap-1.5">
-                        {t.unread && (
-                          <span
-                            aria-label="Unread"
-                            className="h-1.5 w-1.5 rounded-full bg-[var(--st-text)]"
-                          />
-                        )}
-                        {t.starred && (
-                          <Star className="h-3 w-3 fill-[var(--st-text-secondary)] text-[var(--st-text)]" />
-                        )}
-                        <Badge variant={tone.variant} className="text-[10px]">
-                          {tone.label}
-                        </Badge>
-                        {t.assignedTo && (
-                          <Avatar className="h-4 w-4">
-                            <AvatarFallback className="text-[8px]">
-                              {t.assignedTo.slice(-2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        )}
-                        {(t.labels ?? []).slice(0, 2).map((l) => (
-                          <span
-                            key={l}
-                            className="rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-1.5 py-px text-[10px] text-[var(--st-text-secondary)]"
-                          >
-                            {l}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </button>
+                        <span className="mt-1 flex items-center gap-1.5">
+                          {t.unread && (
+                            <Dot tone="accent" aria-label="Unread" />
+                          )}
+                          {t.starred && (
+                            <Star
+                              className="h-3 w-3 fill-[var(--st-text-secondary)] text-[var(--st-text)]"
+                              aria-label="Starred"
+                            />
+                          )}
+                          <Badge variant={tone.variant} kind="outline" className="text-[10px]">
+                            {tone.label}
+                          </Badge>
+                          {t.assignedTo && (
+                            <Avatar className="h-4 w-4">
+                              <AvatarFallback className="text-[8px]">
+                                {t.assignedTo.slice(-2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                          {(t.labels ?? []).slice(0, 2).map((l) => (
+                            <Badge
+                              key={l}
+                              variant="outline"
+                              className="text-[10px] text-[var(--st-text-secondary)]"
+                            >
+                              {l}
+                            </Badge>
+                          ))}
+                        </span>
+                      </span>
+                    </span>
+                  </Button>
                 </li>
               );
             })}
@@ -199,12 +220,11 @@ export function ConversationList({
         {hasMore && (
           <div
             ref={sentinelRef}
-            className="flex items-center justify-center py-4 text-xs text-[var(--st-text-secondary)]"
+            className="flex items-center justify-center gap-2 py-4 text-xs text-[var(--st-text-secondary)]"
           >
             {loadingMore ? (
               <>
-                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Loading
-                more…
+                <Spinner size="sm" label="Loading more" /> Loading more
               </>
             ) : (
               'Scroll for more'

@@ -2,9 +2,21 @@
 
 import { useState, useTransition } from 'react';
 import { updateQrCode } from '@/app/actions/qr-code.actions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, Button, Input, Label, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Button,
+    IconButton,
+    Field,
+    Input,
+    ColorPicker,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import type { QrCodeWithShortUrl } from '@/lib/definitions';
-import { LoaderCircle, Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 interface EditQrDialogProps {
     qrCode: QrCodeWithShortUrl;
@@ -26,78 +38,60 @@ export function EditQrDialog({ qrCode, onComplete }: EditQrDialogProps) {
                 config: { ...qrCode.config, color, bgColor },
             });
             if (result.success) {
-                toast({ title: 'QR code updated', variant: 'success' });
+                toast({ title: 'QR code updated', tone: 'success' });
                 setOpen(false);
                 onComplete();
             } else {
-                toast({ title: result.error ?? 'Failed to update', variant: 'destructive' });
+                toast({ title: result.error ?? 'Failed to update', tone: 'danger' });
             }
         });
     };
 
     return (
         <>
-            <Button variant="ghost" size="icon-sm" onClick={() => setOpen(true)} title="Edit">
-                <Pencil className="h-3.5 w-3.5" />
-            </Button>
+            <IconButton
+                label="Edit QR code"
+                icon={Pencil}
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpen(true)}
+            />
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-w-sm">
                     <DialogHeader>
                         <DialogTitle>Edit QR Code</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
-                        <div className="space-y-1.5">
-                            <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Name</Label>
+                        <Field label="Name">
                             <Input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="QR code name"
                             />
-                        </div>
+                        </Field>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Foreground</Label>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="color"
-                                        value={color}
-                                        onChange={(e) => setColor(e.target.value)}
-                                        className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-transparent p-0.5"
-                                    />
-                                    <Input
-                                        value={color}
-                                        onChange={(e) => setColor(e.target.value)}
-                                        className="text-[12px] font-mono h-8"
-                                        maxLength={7}
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-[12.5px] text-[var(--st-text-secondary)]">Background</Label>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="color"
-                                        value={bgColor}
-                                        onChange={(e) => setBgColor(e.target.value)}
-                                        className="h-8 w-10 cursor-pointer rounded border border-[var(--st-border)] bg-transparent p-0.5"
-                                    />
-                                    <Input
-                                        value={bgColor}
-                                        onChange={(e) => setBgColor(e.target.value)}
-                                        className="text-[12px] font-mono h-8"
-                                        maxLength={7}
-                                    />
-                                </div>
-                            </div>
+                            <Field label="Foreground">
+                                <ColorPicker value={color} onChange={setColor} />
+                            </Field>
+                            <Field label="Background">
+                                <ColorPicker value={bgColor} onChange={setBgColor} />
+                            </Field>
                         </div>
                     </div>
-                    <div className="flex justify-end gap-2 pt-2">
-                        <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button size="sm" onClick={handleSave} disabled={isPending || !name.trim()}>
-                            {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
+                    <DialogFooter>
+                        <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={handleSave}
+                            loading={isPending}
+                            disabled={!name.trim()}
+                        >
                             Save
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </>

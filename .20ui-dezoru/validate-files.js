@@ -33,7 +33,12 @@ function classify(file) {
   }
   if (/<button[\s>]/.test(src)) hard.push('raw<button>');
   const inputRe = /<input\b([^>]*)>/g;
-  while ((m = inputRe.exec(src))) { if (!/type\s*=\s*['"]hidden['"]/.test(m[1])) { hard.push('raw<input>'); break; } }
+  while ((m = inputRe.exec(src))) {
+    const a = m[1];
+    // hidden form fields + native file inputs (no 20ui primitive; SabFiles/dropzone plumbing) are legit
+    if (/type\s*=\s*['"](hidden|file)['"]/.test(a) || /getInputProps/.test(a)) continue;
+    hard.push('raw<input>'); break;
+  }
   if (/<select[\s>]/.test(src)) hard.push('raw<select>');
   if (/<textarea[\s>]/.test(src)) hard.push('raw<textarea>');
   if (/<table[\s>]/.test(src)) hard.push('raw<table>');

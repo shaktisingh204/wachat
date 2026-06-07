@@ -2,7 +2,21 @@
 
 import * as React from "react";
 
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Separator, Switch } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  Input,
+  Label,
+  Separator,
+  Slider,
+  Switch,
+} from "@/components/sabcrm/20ui";
 
 import type { CampaignDraft, QuietHoursWindow } from "../types";
 
@@ -33,45 +47,43 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
     setQuietHours(draft.quietHours.filter((_, idx) => idx !== i));
   }
 
+  const throttleRps = draft.throttlePerSecond ?? 10;
+
   return (
     <div className="space-y-5">
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Throughput</CardTitle>
           <CardDescription>
-            Tune outbound rate. Higher = faster delivery but more carrier risk.
+            Tune outbound rate. Higher means faster delivery but more carrier
+            risk.
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="throttle-rps">
-                Messages per second
-              </Label>
-              <Badge variant="secondary">
-                {draft.throttlePerSecond ?? 10} msg/s
-              </Badge>
+              <Label htmlFor="throttle-rps">Messages per second</Label>
+              <Badge tone="neutral">{throttleRps} msg/s</Badge>
             </div>
-            <input
+            <Slider
               id="throttle-rps"
-              type="range"
               min={1}
               max={100}
               step={1}
-              value={draft.throttlePerSecond ?? 10}
-              onChange={(e) =>
-                onChange({ throttlePerSecond: Number(e.target.value) })
+              value={throttleRps}
+              ariaLabel="Messages per second"
+              onValueChange={(v) =>
+                onChange({ throttlePerSecond: Number(v) })
               }
-              className="w-full accent-[var(--st-text)]"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="throttle-per-provider">
-              Per-provider cap (msg/s)
-            </Label>
+          <Field
+            label="Per-provider cap (msg/s)"
+            help="Hard ceiling enforced before round-robin. Leave empty for no cap."
+            id="throttle-per-provider"
+          >
             <Input
-              id="throttle-per-provider"
               type="number"
               min={0}
               value={draft.perProviderCap ?? ""}
@@ -84,10 +96,7 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                 })
               }
             />
-            <p className="text-xs text-[var(--st-text)]">
-              Hard ceiling enforced before round-robin. Leave empty for no cap.
-            </p>
-          </div>
+          </Field>
         </CardBody>
       </Card>
 
@@ -100,16 +109,19 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
         </CardHeader>
         <CardBody className="space-y-3">
           {draft.quietHours.length === 0 ? (
-            <p className="text-sm text-[var(--st-text)]">No quiet-hours windows.</p>
+            <p className="text-sm text-[var(--st-text-secondary)]">
+              No quiet-hours windows.
+            </p>
           ) : (
             draft.quietHours.map((w, i) => (
               <div
                 key={i}
-                className="grid grid-cols-1 gap-2 rounded border border-[var(--st-border)] p-2 md:grid-cols-[100px_1fr_1fr_auto] md:items-center"
+                className="grid grid-cols-1 gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-2 md:grid-cols-[100px_1fr_1fr_auto] md:items-center"
               >
                 <Input
                   value={w.country}
                   maxLength={2}
+                  aria-label={`Country for quiet-hours window ${i + 1}`}
                   onChange={(e) =>
                     updateWindow(i, { country: e.target.value.toUpperCase() })
                   }
@@ -118,11 +130,13 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
                 <Input
                   type="time"
                   value={w.start}
+                  aria-label={`Start time for quiet-hours window ${i + 1}`}
                   onChange={(e) => updateWindow(i, { start: e.target.value })}
                 />
                 <Input
                   type="time"
                   value={w.end}
+                  aria-label={`End time for quiet-hours window ${i + 1}`}
                   onChange={(e) => updateWindow(i, { end: e.target.value })}
                 />
                 <Button
@@ -136,32 +150,28 @@ export function StepThrottle({ draft, onChange }: StepThrottleProps) {
               </div>
             ))
           )}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addWindow}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={addWindow}>
             Add window
           </Button>
 
           <Separator />
 
-          <label className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-[var(--st-text)]">
               Per-recipient TZ-aware quiet hours
-              <span className="block text-xs text-[var(--st-text)]">
-                Compute the window in the recipient&apos;s local timezone,
-                not the campaign country.
+              <span className="block text-xs text-[var(--st-text-secondary)]">
+                Compute the window in the recipient&apos;s local timezone, not
+                the campaign country.
               </span>
             </span>
             <Switch
               checked={draft.perRecipientTzQuietHours}
+              aria-label="Per-recipient TZ-aware quiet hours"
               onCheckedChange={(v) =>
                 onChange({ perRecipientTzQuietHours: Boolean(v) })
               }
             />
-          </label>
+          </div>
         </CardBody>
       </Card>
     </div>

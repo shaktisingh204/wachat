@@ -1,11 +1,22 @@
 'use client';
 
-import { Button, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Popover, PopoverContent, PopoverTrigger, Badge, ScrollArea, Select } from '@/components/sabcrm/20ui';
 import {
-  cn } from '@/lib/utils';
-import { Check,
-  ChevronsUpDown,
-  X } from 'lucide-react';
+  Badge,
+  Button,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  IconButton,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  ScrollArea,
+} from '@/components/sabcrm/20ui';
+import { cn } from '@/lib/utils';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 
 import React from 'react';
 
@@ -28,7 +39,7 @@ export function MultiSelectCombobox({
   options,
   selected,
   onSelectionChange,
-  placeholder = "Select...",
+  placeholder = 'Select...',
   className,
 }: MultiSelectComboboxProps) {
   const [open, setOpen] = React.useState(false);
@@ -47,7 +58,7 @@ export function MultiSelectCombobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between h-auto min-h-10", className)}
+          className={cn('w-full justify-between h-auto min-h-10', className)}
         >
           <div className="flex gap-1 flex-wrap">
             {selected.length > 0 ? (
@@ -57,26 +68,35 @@ export function MultiSelectCombobox({
                   <Badge
                     key={option.value}
                     variant="secondary"
-                    className="rounded-sm px-2 py-1 font-normal flex items-center gap-1"
-                    style={option.color ? { backgroundColor: option.color, color: 'var(--st-text-inverted)' } : {}}
+                    className="rounded-[var(--st-radius)] px-2 py-1 font-normal flex items-center gap-1"
+                    style={
+                      option.color
+                        ? { backgroundColor: option.color, color: 'var(--st-text-inverted)' }
+                        : undefined
+                    }
                   >
                     {option.label}
-                    <button
-                      type="button"
-                      className="ml-1 rounded-full outline-none ring-offset-zoru-surface focus:ring-2 focus:ring-[var(--st-border)] focus:ring-offset-2"
-                      onKeyDown={(e) => { if (e.key === "Enter") handleSelect(option.value); }}
-                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                      onClick={(e) => { e.stopPropagation(); handleSelect(option.value); }}
-                    >
-                      <X className="h-3 w-3 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]" />
-                    </button>
+                    <IconButton
+                      label={`Remove ${option.label}`}
+                      icon={X}
+                      size="sm"
+                      className="ml-1"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelect(option.value);
+                      }}
+                    />
                   </Badge>
                 ))
             ) : (
               <span className="text-[var(--st-text-secondary)] font-normal">{placeholder}</span>
             )}
           </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
@@ -94,12 +114,17 @@ export function MultiSelectCombobox({
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
-                        selected.includes(option.value) ? "opacity-100" : "opacity-0"
+                        'mr-2 h-4 w-4',
+                        selected.includes(option.value) ? 'opacity-100' : 'opacity-0',
                       )}
+                      aria-hidden="true"
                     />
                     {option.color && (
-                      <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: option.color }} />
+                      <span
+                        className="w-4 h-4 rounded-full mr-2"
+                        style={{ backgroundColor: option.color }}
+                        aria-hidden="true"
+                      />
                     )}
                     {option.label}
                   </CommandItem>

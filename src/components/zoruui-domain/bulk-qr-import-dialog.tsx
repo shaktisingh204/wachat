@@ -1,8 +1,27 @@
 'use client';
 
-import { Button, Badge, Dialog, DialogContent, DialogHeader, DialogTitle, Label, cn } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Badge,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Alert,
+  EmptyState,
+  Spinner,
+  Progress,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  cn,
+} from '@/components/sabcrm/20ui';
 import { useRef, useState } from 'react';
-import { FileDown, Upload, CheckCircle, AlertCircle, LoaderCircle } from 'lucide-react';
+import { FileDown, Upload, CheckCircle, FileSpreadsheet } from 'lucide-react';
 
 interface BulkQrImportDialogProps {
   open: boolean;
@@ -159,7 +178,7 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-[var(--st-text)]" />
+            <Upload className="h-5 w-5 text-[var(--st-text)]" aria-hidden="true" />
             Bulk Import QR Codes
           </DialogTitle>
         </DialogHeader>
@@ -169,78 +188,89 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             <p className="text-sm text-[var(--st-text-secondary)]">
               Upload a CSV file with your QR code data. Each row becomes one QR code.
             </p>
-            <div className="flex items-center justify-between p-3 bg-[var(--st-bg-muted)] rounded-lg border">
+            <div className="flex items-center justify-between p-3 bg-[var(--st-bg-muted)] rounded-[var(--st-radius)] border border-[var(--st-border)]">
               <div>
-                <p className="text-sm font-medium">Download Template</p>
+                <p className="text-sm font-medium text-[var(--st-text)]">Download Template</p>
                 <p className="text-xs text-[var(--st-text-secondary)]">CSV with example rows</p>
               </div>
-              <Button variant="outline" size="sm" onClick={downloadTemplateCsv}>
-                <FileDown className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" iconLeft={FileDown} onClick={downloadTemplateCsv}>
                 Template
               </Button>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="qr-csv-file">CSV File <span className="text-[var(--st-text)]">*</span></Label>
+              <p className="text-sm font-medium text-[var(--st-text)]">
+                CSV File <span className="text-[var(--st-danger)]">*</span>
+              </p>
               <input
-                id="qr-csv-file"
                 ref={fileInputRef}
                 type="file"
                 accept=".csv"
                 onChange={handleFileChange}
-                className="flex h-10 w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium cursor-pointer"
+                className="hidden"
+                aria-hidden="true"
+                tabIndex={-1}
               />
-              <p className="text-xs text-[var(--st-text-secondary)]">Columns: name, dataType, data (JSON), isDynamic, tags (semicolon-separated)</p>
+              <Button
+                variant="outline"
+                block
+                iconLeft={FileSpreadsheet}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Choose CSV File
+              </Button>
+              <p className="text-xs text-[var(--st-text-secondary)]">
+                Columns: name, dataType, data (JSON), isDynamic, tags (semicolon-separated)
+              </p>
             </div>
             {fileError && (
-              <p className="text-sm text-[var(--st-text)] flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                {fileError}
-              </p>
+              <Alert tone="danger">{fileError}</Alert>
             )}
-            <div className="flex justify-end gap-2 pt-2">
+            <DialogFooter>
               <Button variant="ghost" onClick={() => handleClose(false)}>Cancel</Button>
-            </div>
+            </DialogFooter>
           </div>
         )}
 
         {step === 'preview' && (
           <div className="space-y-4 py-2">
             <div className="flex items-center gap-3">
-              <Badge variant="secondary">{parsedRows.length} rows valid</Badge>
+              <Badge tone="neutral">{parsedRows.length} rows valid</Badge>
               {parseErrors.length > 0 && (
-                <Badge variant="destructive">{parseErrors.length} errors</Badge>
+                <Badge tone="danger">{parseErrors.length} errors</Badge>
               )}
             </div>
 
             {parseErrors.length > 0 && (
-              <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-lg p-3 space-y-1 max-h-28 overflow-y-auto">
+              <div className="bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-3 space-y-1 max-h-28 overflow-y-auto">
                 {parseErrors.map((err, i) => (
-                  <p key={i} className="text-xs text-[var(--st-text)]">Row {err.row}: {err.message}</p>
+                  <p key={i} className="text-xs text-[var(--st-danger)]">Row {err.row}: {err.message}</p>
                 ))}
               </div>
             )}
 
             {parsedRows.length > 0 && (
-              <div className="border rounded-lg overflow-auto max-h-52">
-                <table className="w-full text-xs">
-                  <thead className="bg-[var(--st-bg-muted)] border-b">
-                    <tr>
+              <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-auto max-h-52">
+                <Table density="compact" stickyHeader>
+                  <THead>
+                    <Tr>
                       {['Name', 'Type', 'Dynamic', 'Tags'].map(h => (
-                        <th key={h} className="text-left px-3 py-2 font-medium text-[var(--st-text)]">{h}</th>
+                        <Th key={h}>{h}</Th>
                       ))}
-                    </tr>
-                  </thead>
-                  <tbody>
+                    </Tr>
+                  </THead>
+                  <TBody>
                     {parsedRows.slice(0, 5).map((row, i) => (
-                      <tr key={i} className={cn("border-b last:border-0", i % 2 === 1 && "bg-[var(--st-bg-muted)]/50")}>
-                        <td className="px-3 py-2 font-medium truncate max-w-[120px]">{row.name}</td>
-                        <td className="px-3 py-2 text-[var(--st-text-secondary)]">{row.dataType}</td>
-                        <td className="px-3 py-2">{row.isDynamic ? 'Yes' : 'No'}</td>
-                        <td className="px-3 py-2 text-[var(--st-text-secondary)] truncate max-w-[100px]">{row.tags.join(', ') || '—'}</td>
-                      </tr>
+                      <Tr key={i}>
+                        <Td truncate className="max-w-[120px] font-medium">{row.name}</Td>
+                        <Td className="text-[var(--st-text-secondary)]">{row.dataType}</Td>
+                        <Td>{row.isDynamic ? 'Yes' : 'No'}</Td>
+                        <Td truncate className="max-w-[100px] text-[var(--st-text-secondary)]">
+                          {row.tags.join(', ') || '-'}
+                        </Td>
+                      </Tr>
                     ))}
-                  </tbody>
-                </table>
+                  </TBody>
+                </Table>
                 {parsedRows.length > 5 && (
                   <p className="text-xs text-[var(--st-text-secondary)] text-center py-2 bg-[var(--st-bg-muted)]">
                     +{parsedRows.length - 5} more rows
@@ -250,29 +280,29 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
             )}
 
             {parsedRows.length === 0 && (
-              <p className="text-sm text-center text-[var(--st-text-secondary)] py-4">No valid rows found. Check your CSV format.</p>
+              <EmptyState
+                icon={FileSpreadsheet}
+                title="No valid rows found"
+                description="Check your CSV format and try again."
+                size="sm"
+              />
             )}
 
-            <div className="flex justify-end gap-2 pt-2">
+            <DialogFooter>
               <Button variant="ghost" onClick={reset}>Back</Button>
-              <Button onClick={handleImport} disabled={parsedRows.length === 0}>
+              <Button variant="primary" onClick={handleImport} disabled={parsedRows.length === 0}>
                 Import {parsedRows.length} QR Codes
               </Button>
-            </div>
+            </DialogFooter>
           </div>
         )}
 
         {step === 'importing' && (
           <div className="space-y-5 py-4">
             <div className="flex flex-col items-center gap-4">
-              <LoaderCircle className="h-10 w-10 text-[var(--st-text)] animate-spin" />
-              <p className="font-medium">Importing QR codes...</p>
-              <div className="w-full bg-[var(--st-bg-muted)] rounded-full h-2 overflow-hidden">
-                <div
-                  className="h-2 bg-[var(--st-text)] rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
+              <Spinner size="lg" label="Importing QR codes" />
+              <p className="font-medium text-[var(--st-text)]">Importing QR codes...</p>
+              <Progress value={progress} label="Import progress" className="w-full" />
               <p className="text-sm text-[var(--st-text-secondary)]">{progress}% complete</p>
             </div>
           </div>
@@ -282,18 +312,18 @@ export function BulkQrImportDialog({ open, onOpenChange, onComplete }: BulkQrImp
           <div className="space-y-5 py-4">
             <div className="flex flex-col items-center gap-4 text-center">
               <div className="w-16 h-16 rounded-full bg-[var(--st-bg-muted)] flex items-center justify-center">
-                <CheckCircle className="h-8 w-8 text-[var(--st-text)]" />
+                <CheckCircle className="h-8 w-8 text-[var(--st-status-ok)]" aria-hidden="true" />
               </div>
               <div>
-                <p className="font-semibold text-lg">Import Started</p>
+                <p className="font-semibold text-lg text-[var(--st-text)]">Import Started</p>
                 <p className="text-sm text-[var(--st-text-secondary)] mt-1">
                   Your {parsedRows.length} QR codes are being processed. They will appear in your dashboard shortly.
                 </p>
               </div>
             </div>
-            <div className="flex justify-center pt-2">
-              <Button onClick={handleDone}>Done</Button>
-            </div>
+            <DialogFooter className="justify-center">
+              <Button variant="primary" onClick={handleDone}>Done</Button>
+            </DialogFooter>
           </div>
         )}
       </DialogContent>

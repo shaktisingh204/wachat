@@ -4,50 +4,50 @@ import * as React from "react";
 import {
   AlertCircle,
   Building,
-  CheckCircle2,
-  Clock,
-  Download,
-  FileText,
-  MessageSquare,
-  Plus,
-  RefreshCw,
-  Settings,
-  ShieldAlert,
-  ShieldCheck,
-  XCircle,
   Hash,
   Activity,
-  ArrowRight,
-  Info,
-  ChevronDown,
-  ChevronRight,
   Save,
-  UploadCloud,
   Check,
-  BarChart,
-  FileKey,
   Globe,
   Radio,
-  Briefcase,
   Layers,
   Zap,
-  Server,
-  Lock
+  ShieldAlert,
+  ShieldCheck,
+  FileKey,
+  Plus,
 } from "lucide-react";
 
-import { cn } from '@/components/sabcrm/20ui';
-
-import { Badge, Button, Card, Input, Label, StatCard, Switch, CardBody, CardDescription, CardHeader, CardTitle, useToast, Accordion03, Accordion03Item, Accordion03Trigger, Accordion03Content, Collapsible, CollapsibleTrigger, CollapsibleContent, Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  Dot,
+  Field,
+  Input,
+  StatCard,
+  Switch,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/sabcrm/20ui";
 
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit/sabsms-page-shell";
 
 export default function DltRegistrationPage() {
   const { toast } = useToast();
-  
-  // States for collapsibles
-  const [isJioOpen, setIsJioOpen] = React.useState(false);
-  const [isAirtelOpen, setIsAirtelOpen] = React.useState(false);
-  const [isViOpen, setIsViOpen] = React.useState(false);
 
   return (
     <SabsmsPageShell
@@ -61,144 +61,133 @@ export default function DltRegistrationPage() {
       ]}
       primaryAction={{
         label: "Deploy Compliance Rules",
-        icon: <Save className="w-4 h-4" />,
-        onClick: () => toast({ title: "Compliance settings deployed across all clusters." }),
+        onClick: () =>
+          toast.success("Compliance settings deployed across all clusters."),
       }}
       secondaryActions={[
         {
           label: "Export Full Matrix",
-          onClick: () => toast({ title: "Exporting matrix as CSV..." }),
+          onSelectAction: () => toast({ title: "Exporting matrix as CSV." }),
         },
       ]}
     >
       <div className="space-y-8 pb-10">
-        
+
         {/* KPI Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           <StatCard
             label="Overall Compliance Score"
             value="98.5%"
-            period="Excellent standing"
-            icon={<ShieldCheck className="w-4 h-4 text-[var(--st-text)]" />}
-            trend={{ value: 2.1, isPositive: true }}
+            icon={ShieldCheck}
+            delta={{ value: "+2.1%", tone: "up" }}
           />
           <StatCard
             label="Active PEIDs"
             value="3"
-            period="Across 4 Operators"
-            icon={<Building className="w-4 h-4 text-[var(--st-text)]" />}
+            icon={Building}
+            delta={{ value: "4 operators", tone: "neutral" }}
           />
           <StatCard
             label="Registered Headers"
             value="124"
-            period="8 pending approval"
-            icon={<Hash className="w-4 h-4 text-[var(--st-text)]" />}
-            trend={{ value: 12, isPositive: true }}
+            icon={Hash}
+            delta={{ value: "+12", tone: "up" }}
           />
           <StatCard
             label="Template Scrub Rate"
             value="0.02%"
-            period="Blocked due to mismatch"
-            icon={<Activity className="w-4 h-4 text-[var(--st-text)]" />}
-            trend={{ value: 0.05, isPositive: false }}
+            icon={Activity}
+            delta={{ value: "-0.05%", tone: "down" }}
           />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          
+
           {/* Main Form Accordion */}
           <div className="xl:col-span-2 space-y-6">
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-semibold text-[var(--st-text)] tracking-tight">DLT Registration Matrix</h2>
-              <p className="text-sm text-[var(--st-text)]">
-                Complete the configuration across all layers to ensure seamless SMS delivery in India. 
+              <p className="text-sm text-[var(--st-text-secondary)]">
+                Complete the configuration across all layers to ensure seamless SMS delivery in India.
                 Any misconfiguration may result in severe penalties or message drops.
               </p>
             </div>
-            
-            <Accordion03 type="single" defaultValue="step-1" className="space-y-4">
-              
+
+            <Accordion type="single" collapsible defaultValue="step-1" className="space-y-4">
+
               {/* Step 1: PEID */}
-              <Accordion03Item value="step-1">
-                <Accordion03Trigger>
+              <AccordionItem value="step-1" className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                <AccordionTrigger className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">1</div>
                     <div className="flex flex-col items-start">
                       <span className="font-semibold text-[var(--st-text)]">Principal Entity (PEID) Configuration</span>
-                      <span className="text-xs font-normal text-[var(--st-text)]">Manage business registrations and entity IDs.</span>
+                      <span className="text-xs font-normal text-[var(--st-text-secondary)]">Manage business registrations and entity IDs.</span>
                     </div>
                   </div>
-                </Accordion03Trigger>
-                <Accordion03Content>
-                  <div className="space-y-6 px-11">
-                    <div className="bg-[var(--st-bg-muted)]/50 rounded-xl p-5 border border-[var(--st-border)] shadow-sm">
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-6 px-4 pb-4">
+                    <div className="bg-[var(--st-bg-secondary)] rounded-[var(--st-radius-lg)] p-5 border border-[var(--st-border)]">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Business Name</Label>
-                          <Input defaultValue="SabNode Technologies Pvt. Ltd." className="bg-white" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs font-semibold text-[var(--st-text)] uppercase tracking-wider">Primary PEID</Label>
-                          <Input defaultValue="1101456789012345678" className="font-mono text-[var(--st-text)] bg-white" />
-                        </div>
+                        <Field label="Business Name">
+                          <Input defaultValue="SabNode Technologies Pvt. Ltd." />
+                        </Field>
+                        <Field label="Primary PEID">
+                          <Input defaultValue="1101456789012345678" className="font-mono" />
+                        </Field>
                       </div>
-                      <div className="mt-6 flex items-center gap-3">
-                        <Button size="sm" variant="default" className="shadow-sm">
-                          <Check className="w-4 h-4 mr-2" /> Verify Entity Status
+                      <div className="mt-6 flex flex-wrap items-center gap-3">
+                        <Button size="sm" variant="primary" iconLeft={Check}>
+                          Verify Entity Status
                         </Button>
                         <Button size="sm" variant="outline">
                           Upload Registration Certificate (KYC)
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-4">
                       <h4 className="text-sm font-semibold text-[var(--st-text)] flex items-center gap-2">
-                        <Layers className="w-4 h-4 text-[var(--st-text-secondary)]" /> Operator-specific Mapping
+                        <Layers className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Operator-specific Mapping
                       </h4>
-                      
+
                       <Accordion type="multiple" defaultValue={["op-jio"]} className="space-y-3">
-                        <AccordionItem value="op-jio" className="border rounded-lg bg-white overflow-hidden">
-                          <AccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
+                        <AccordionItem value="op-jio" className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                          <AccordionTrigger className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <Badge variant="default" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Jio</Badge>
-                              <span className="text-sm font-medium">Reliance Jio Infocomm Ltd.</span>
+                              <Badge tone="neutral">Jio</Badge>
+                              <span className="text-sm font-medium text-[var(--st-text)]">Reliance Jio Infocomm Ltd.</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
-                            <div className="grid grid-cols-2 gap-4">
+                          <AccordionContent>
+                            <div className="px-4 pb-4 grid grid-cols-2 gap-4">
+                              <Field label="Mapped PEID">
+                                <Input inputSize="sm" defaultValue="1101456789012345678" className="font-mono" />
+                              </Field>
                               <div className="space-y-1">
-                                <Label className="text-xs text-[var(--st-text)]">Mapped PEID</Label>
-                                <Input defaultValue="1101456789012345678" className="h-8 text-sm font-mono bg-white" />
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-xs text-[var(--st-text)]">Status</Label>
-                                <div className="flex items-center gap-2 h-8">
-                                  <Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] shadow-none hover:bg-[var(--st-bg-muted)]">Active</Badge>
-                                </div>
+                                <span className="block text-xs text-[var(--st-text-secondary)]">Status</span>
+                                <Badge tone="success" dot>Active</Badge>
                               </div>
                             </div>
                           </AccordionContent>
                         </AccordionItem>
 
-                        <AccordionItem value="op-airtel" className="border rounded-lg bg-white overflow-hidden">
-                          <AccordionTrigger className="px-4 py-3 hover:bg-[var(--st-bg-muted)] data-[state=open]:bg-[var(--st-bg-muted)] border-b border-transparent data-[state=open]:border-[var(--st-border)]">
+                        <AccordionItem value="op-airtel" className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                          <AccordionTrigger className="px-4 py-3">
                             <div className="flex items-center gap-3">
-                              <Badge variant="default" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Airtel</Badge>
-                              <span className="text-sm font-medium">Bharti Airtel Ltd.</span>
+                              <Badge tone="neutral">Airtel</Badge>
+                              <span className="text-sm font-medium text-[var(--st-text)]">Bharti Airtel Ltd.</span>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent className="px-4 py-4 bg-[var(--st-bg-muted)]/30">
-                            <div className="grid grid-cols-2 gap-4">
+                          <AccordionContent>
+                            <div className="px-4 pb-4 grid grid-cols-2 gap-4">
+                              <Field label="Mapped PEID">
+                                <Input inputSize="sm" defaultValue="1101456789012345678" className="font-mono" />
+                              </Field>
                               <div className="space-y-1">
-                                <Label className="text-xs text-[var(--st-text)]">Mapped PEID</Label>
-                                <Input defaultValue="1101456789012345678" className="h-8 text-sm font-mono bg-white" />
-                              </div>
-                              <div className="space-y-1">
-                                <Label className="text-xs text-[var(--st-text)]">Status</Label>
-                                <div className="flex items-center gap-2 h-8">
-                                  <Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] shadow-none hover:bg-[var(--st-bg-muted)]">Active</Badge>
-                                </div>
+                                <span className="block text-xs text-[var(--st-text-secondary)]">Status</span>
+                                <Badge tone="success" dot>Active</Badge>
                               </div>
                             </div>
                           </AccordionContent>
@@ -206,150 +195,136 @@ export default function DltRegistrationPage() {
                       </Accordion>
                     </div>
                   </div>
-                </Accordion03Content>
-              </Accordion03Item>
+                </AccordionContent>
+              </AccordionItem>
 
               {/* Step 2: Headers */}
-              <Accordion03Item value="step-2">
-                <Accordion03Trigger>
+              <AccordionItem value="step-2" className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                <AccordionTrigger className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">2</div>
                     <div className="flex flex-col items-start">
                       <span className="font-semibold text-[var(--st-text)]">Header (Sender ID) Registration</span>
-                      <span className="text-xs font-normal text-[var(--st-text)]">Configure 6-alpha or 6-numeric Sender IDs for different message types.</span>
+                      <span className="text-xs font-normal text-[var(--st-text-secondary)]">Configure 6-alpha or 6-numeric Sender IDs for different message types.</span>
                     </div>
                   </div>
-                </Accordion03Trigger>
-                <Accordion03Content>
-                  <div className="space-y-6 px-11">
-                    <div className="flex justify-between items-center">
-                      <p className="text-sm text-[var(--st-text)]">Register and map your headers to specific routing profiles.</p>
-                      <Button size="sm" variant="outline" className="bg-white"><Plus className="w-4 h-4 mr-1"/> Add Header</Button>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-6 px-4 pb-4">
+                    <div className="flex justify-between items-center gap-3">
+                      <p className="text-sm text-[var(--st-text-secondary)]">Register and map your headers to specific routing profiles.</p>
+                      <Button size="sm" variant="outline" iconLeft={Plus}>Add Header</Button>
                     </div>
 
-                    <div className="border rounded-xl overflow-hidden shadow-sm">
-                      <table className="w-full text-sm text-left">
-                        <thead className="bg-[var(--st-bg-muted)] border-b">
-                          <tr>
-                            <th className="px-4 py-3 font-semibold text-[var(--st-text)]">Header</th>
-                            <th className="px-4 py-3 font-semibold text-[var(--st-text)]">Type</th>
-                            <th className="px-4 py-3 font-semibold text-[var(--st-text)]">Purpose</th>
-                            <th className="px-4 py-3 font-semibold text-[var(--st-text)] text-right">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y bg-white">
-                          <tr className="hover:bg-[var(--st-bg-muted)]/50">
-                            <td className="px-4 py-3 font-mono font-medium text-[var(--st-text)]">SABOTP</td>
-                            <td className="px-4 py-3"><Badge variant="secondary" className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] border-none">Transactional</Badge></td>
-                            <td className="px-4 py-3 text-[var(--st-text)]">Critical Alerts & OTPs</td>
-                            <td className="px-4 py-3 text-right">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--st-text)]">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[var(--st-text)]"></span> Approved
-                              </span>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-[var(--st-bg-muted)]/50">
-                            <td className="px-4 py-3 font-mono font-medium text-[var(--st-text)]">SABPRM</td>
-                            <td className="px-4 py-3"><Badge variant="secondary" className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] border-none">Promotional</Badge></td>
-                            <td className="px-4 py-3 text-[var(--st-text)]">Marketing Campaigns</td>
-                            <td className="px-4 py-3 text-right">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--st-text)]">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[var(--st-text)]"></span> Approved
-                              </span>
-                            </td>
-                          </tr>
-                          <tr className="hover:bg-[var(--st-bg-muted)]/50">
-                            <td className="px-4 py-3 font-mono font-medium text-[var(--st-text)]">140789</td>
-                            <td className="px-4 py-3"><Badge variant="secondary" className="bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)] text-[var(--st-text)] border-none">Promotional</Badge></td>
-                            <td className="px-4 py-3 text-[var(--st-text)]">Voice & Bulk Promo</td>
-                            <td className="px-4 py-3 text-right">
-                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--st-text)]">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[var(--st-text)]"></span> Pending
-                              </span>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div className="border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden">
+                      <Table>
+                        <THead>
+                          <Tr>
+                            <Th>Header</Th>
+                            <Th>Type</Th>
+                            <Th>Purpose</Th>
+                            <Th align="right">Status</Th>
+                          </Tr>
+                        </THead>
+                        <TBody>
+                          <Tr>
+                            <Td className="font-mono font-medium">SABOTP</Td>
+                            <Td><Badge tone="info">Transactional</Badge></Td>
+                            <Td>Critical Alerts &amp; OTPs</Td>
+                            <Td align="right"><Badge tone="success" dot>Approved</Badge></Td>
+                          </Tr>
+                          <Tr>
+                            <Td className="font-mono font-medium">SABPRM</Td>
+                            <Td><Badge tone="neutral">Promotional</Badge></Td>
+                            <Td>Marketing Campaigns</Td>
+                            <Td align="right"><Badge tone="success" dot>Approved</Badge></Td>
+                          </Tr>
+                          <Tr>
+                            <Td className="font-mono font-medium">140789</Td>
+                            <Td><Badge tone="neutral">Promotional</Badge></Td>
+                            <Td>Voice &amp; Bulk Promo</Td>
+                            <Td align="right"><Badge tone="warning" dot>Pending</Badge></Td>
+                          </Tr>
+                        </TBody>
+                      </Table>
                     </div>
                   </div>
-                </Accordion03Content>
-              </Accordion03Item>
+                </AccordionContent>
+              </AccordionItem>
 
               {/* Step 3: Template Matrix */}
-              <Accordion03Item value="step-3">
-                <Accordion03Trigger>
+              <AccordionItem value="step-3" className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                <AccordionTrigger className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)] flex items-center justify-center font-bold text-sm">3</div>
                     <div className="flex flex-col items-start">
                       <span className="font-semibold text-[var(--st-text)]">Template Compliance Matrix</span>
-                      <span className="text-xs font-normal text-[var(--st-text)]">Map internal SabSMS templates to DLT approved content structures.</span>
+                      <span className="text-xs font-normal text-[var(--st-text-secondary)]">Map internal SabSMS templates to DLT approved content structures.</span>
                     </div>
                   </div>
-                </Accordion03Trigger>
-                <Accordion03Content>
-                  <div className="space-y-6 px-11">
-                    
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-6 px-4 pb-4">
+
                     <div className="flex flex-col md:flex-row gap-4">
-                      <div className="flex-1 bg-gradient-to-br from-[var(--st-bg-muted)] to-white border border-[var(--st-border)] rounded-xl p-5 shadow-sm">
+                      <Card variant="outlined" padding="md" className="flex-1 bg-[var(--st-bg-secondary)]">
                         <div className="flex justify-between items-start mb-4">
-                          <div className="p-2 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-lg">
-                            <Zap className="w-5 h-5" />
+                          <div className="p-2 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-[var(--st-radius)]">
+                            <Zap className="w-5 h-5" aria-hidden="true" />
                           </div>
-                          <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)] bg-white">Auto-Sync Enabled</Badge>
+                          <Badge tone="success" kind="outline">Auto-Sync Enabled</Badge>
                         </div>
                         <h4 className="font-semibold text-[var(--st-text)] mb-1">Smart Template Sync</h4>
-                        <p className="text-sm text-[var(--st-text)] mb-4">Automatically pull approved templates from DLT portals and match them with internal SabSMS logic.</p>
-                        <Button className="w-full bg-[var(--st-text)] hover:bg-[var(--st-text)] text-white shadow-sm border-none">Sync Now</Button>
-                      </div>
+                        <p className="text-sm text-[var(--st-text-secondary)] mb-4">Automatically pull approved templates from DLT portals and match them with internal SabSMS logic.</p>
+                        <Button variant="primary" block>Sync Now</Button>
+                      </Card>
 
-                      <div className="flex-1 bg-gradient-to-br from-[var(--st-bg-muted)] to-white border border-[var(--st-border)] rounded-xl p-5 shadow-sm">
+                      <Card variant="outlined" padding="md" className="flex-1 bg-[var(--st-bg-secondary)]">
                         <div className="flex justify-between items-start mb-4">
-                          <div className="p-2 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-lg">
-                            <ShieldAlert className="w-5 h-5" />
+                          <div className="p-2 bg-[var(--st-bg-muted)] text-[var(--st-text)] rounded-[var(--st-radius)]">
+                            <ShieldAlert className="w-5 h-5" aria-hidden="true" />
                           </div>
-                          <Badge variant="outline" className="text-[var(--st-text)] border-[var(--st-border)] bg-white">2 Errors</Badge>
+                          <Badge tone="danger" kind="outline">2 Errors</Badge>
                         </div>
                         <h4 className="font-semibold text-[var(--st-text)] mb-1">Scrubbing Simulator</h4>
-                        <p className="text-sm text-[var(--st-text)] mb-4">Test your payloads against the DLT content rules before sending to production.</p>
-                        <Button variant="outline" className="w-full bg-white border-[var(--st-border)] text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Run Diagnostics</Button>
-                      </div>
+                        <p className="text-sm text-[var(--st-text-secondary)] mb-4">Test your payloads against the DLT content rules before sending to production.</p>
+                        <Button variant="outline" block>Run Diagnostics</Button>
+                      </Card>
                     </div>
 
-                    <div className="border rounded-xl overflow-hidden shadow-sm bg-[var(--st-bg-muted)]/50">
-                      <div className="bg-white px-4 py-3 border-b flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <div className="border border-[var(--st-border)] rounded-[var(--st-radius-lg)] overflow-hidden bg-[var(--st-bg-secondary)]">
+                      <div className="bg-[var(--st-bg)] px-4 py-3 border-b border-[var(--st-border)] flex flex-col sm:flex-row justify-between items-center gap-3">
                         <h5 className="font-medium text-sm text-[var(--st-text)]">Critical Mappings</h5>
-                        <div className="relative w-full sm:w-auto">
-                          <Input placeholder="Search templates..." className="h-8 w-full sm:w-64 text-xs bg-white" />
-                        </div>
+                        <Input
+                          inputSize="sm"
+                          placeholder="Search templates."
+                          aria-label="Search templates"
+                          className="w-full sm:w-64"
+                        />
                       </div>
                       <div className="p-4 space-y-4">
-                        
+
                         {/* Collapsible Template Items */}
-                        <Collapsible open={isJioOpen} onOpenChange={setIsJioOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
-                          <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={() => setIsJioOpen(!isJioOpen)}>
-                            <div className="flex items-center gap-4">
-                              <ChevronRight className={cn("w-4 h-4 text-[var(--st-text-secondary)] transition-transform duration-200", isJioOpen && "rotate-90")} />
-                              <div>
-                                <h6 className="text-sm font-medium text-[var(--st-text)]">OTP Verification v2</h6>
-                                <p className="text-xs text-[var(--st-text)] font-mono mt-0.5">TPL-1007161718291011123</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <Badge className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Mapped</Badge>
-                            </div>
-                          </div>
+                        <Collapsible defaultOpen className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                          <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 hover:bg-[var(--st-bg-muted)]">
+                            <span className="text-left">
+                              <span className="block text-sm font-medium text-[var(--st-text)]">OTP Verification v2</span>
+                              <span className="block text-xs text-[var(--st-text-secondary)] font-mono mt-0.5">TPL-1007161718291011123</span>
+                            </span>
+                            <Badge tone="success">Mapped</Badge>
+                          </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-muted)]/50 border-t border-[var(--st-border)]">
+                            <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-secondary)] border-t border-[var(--st-border)]">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                  <Label className="text-[10px] font-bold text-[var(--st-text)] uppercase tracking-wider mb-2 block">DLT Format</Label>
-                                  <div className="p-3 bg-white border rounded-md font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed shadow-sm">
+                                  <span className="block text-[10px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">DLT Format</span>
+                                  <div className="p-3 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">
                                     {`Dear {#var#},\nYour verification code is {#var#}. This code is valid for 10 minutes.\n- SabNode`}
                                   </div>
                                 </div>
                                 <div>
-                                  <Label className="text-[10px] font-bold text-[var(--st-text)] uppercase tracking-wider mb-2 block">SabSMS Internal Format</Label>
-                                  <div className="p-3 bg-[var(--st-bg-muted)]/50 border border-[var(--st-border)] rounded-md font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed shadow-sm">
+                                  <span className="block text-[10px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">SabSMS Internal Format</span>
+                                  <div className="p-3 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-[var(--st-radius)] font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">
                                     {`Dear {{user.name}},\nYour verification code is {{otp.code}}. This code is valid for 10 minutes.\n- SabNode`}
                                   </div>
                                 </div>
@@ -358,35 +333,30 @@ export default function DltRegistrationPage() {
                           </CollapsibleContent>
                         </Collapsible>
 
-                        <Collapsible open={isAirtelOpen} onOpenChange={setIsAirtelOpen} className="border border-[var(--st-border)] rounded-lg bg-white overflow-hidden transition-all duration-200 shadow-sm">
-                          <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-[var(--st-bg-muted)]" onClick={() => setIsAirtelOpen(!isAirtelOpen)}>
-                            <div className="flex items-center gap-4">
-                              <ChevronRight className={cn("w-4 h-4 text-[var(--st-text-secondary)] transition-transform duration-200", isAirtelOpen && "rotate-90")} />
-                              <div>
-                                <h6 className="text-sm font-medium text-[var(--st-text)]">Payment Reminder</h6>
-                                <p className="text-xs text-[var(--st-text)] font-mono mt-0.5">TPL-1007161718291011124</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <Badge variant="destructive" className="bg-[var(--st-bg-muted)] text-[var(--st-text)] border-[var(--st-border)] hover:bg-[var(--st-bg-muted)]">Mismatch Error</Badge>
-                            </div>
-                          </div>
+                        <Collapsible className="border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-bg)] overflow-hidden">
+                          <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 hover:bg-[var(--st-bg-muted)]">
+                            <span className="text-left">
+                              <span className="block text-sm font-medium text-[var(--st-text)]">Payment Reminder</span>
+                              <span className="block text-xs text-[var(--st-text-secondary)] font-mono mt-0.5">TPL-1007161718291011124</span>
+                            </span>
+                            <Badge tone="danger">Mismatch Error</Badge>
+                          </CollapsibleTrigger>
                           <CollapsibleContent>
-                            <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-muted)]/30 border-t border-[var(--st-border)]">
-                               <div className="flex items-start gap-2 mb-4 p-3 bg-white border border-[var(--st-border)] rounded-lg shadow-sm">
-                                  <AlertCircle className="w-4 h-4 text-[var(--st-text)] mt-0.5 flex-shrink-0" />
-                                  <p className="text-xs text-[var(--st-text)]">Variable count mismatch. DLT format requires 3 variables, but internal format provides 2. This template will fail scrubbing.</p>
-                               </div>
+                            <div className="px-4 sm:px-11 pb-4 pt-4 bg-[var(--st-bg-secondary)] border-t border-[var(--st-border)]">
+                              <div className="flex items-start gap-2 mb-4 p-3 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
+                                <AlertCircle className="w-4 h-4 text-[var(--st-danger)] mt-0.5 flex-shrink-0" aria-hidden="true" />
+                                <p className="text-xs text-[var(--st-text-secondary)]">Variable count mismatch. DLT format requires 3 variables, but internal format provides 2. This template will fail scrubbing.</p>
+                              </div>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                  <Label className="text-[10px] font-bold text-[var(--st-text)] uppercase tracking-wider mb-2 block">DLT Format (3 Vars)</Label>
-                                  <div className="p-3 bg-white border rounded-md font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed shadow-sm">
+                                  <span className="block text-[10px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">DLT Format (3 Vars)</span>
+                                  <div className="p-3 bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">
                                     {`Hi {#var#}, your payment of Rs. {#var#} is due on {#var#}. Please pay immediately.`}
                                   </div>
                                 </div>
                                 <div>
-                                  <Label className="text-[10px] font-bold text-[var(--st-text)] uppercase tracking-wider mb-2 block">SabSMS Internal Format (2 Vars)</Label>
-                                  <div className="p-3 bg-[var(--st-bg-muted)]/50 border border-[var(--st-border)] rounded-md font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed shadow-sm">
+                                  <span className="block text-[10px] font-bold text-[var(--st-text-secondary)] uppercase tracking-wider mb-2">SabSMS Internal Format (2 Vars)</span>
+                                  <div className="p-3 bg-[var(--st-bg-muted)] border border-[var(--st-border)] rounded-[var(--st-radius)] font-mono text-xs text-[var(--st-text)] whitespace-pre-wrap leading-relaxed">
                                     {`Hi {{user.name}}, your payment of Rs. {{amount}} is due on today. Please pay immediately.`}
                                   </div>
                                 </div>
@@ -398,91 +368,91 @@ export default function DltRegistrationPage() {
                       </div>
                     </div>
                   </div>
-                </Accordion03Content>
-              </Accordion03Item>
-            </Accordion03>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
 
           {/* Sidebar / Configuration Panel */}
           <div className="xl:col-span-1 space-y-6">
-            
-            <Card className="border-[var(--st-border)] shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-br from-[var(--st-text)] to-[var(--st-text)] p-5 text-white">
+
+            <Card variant="outlined" padding="none" className="overflow-hidden">
+              <div className="bg-[var(--st-bg-secondary)] p-5 border-b border-[var(--st-border)]">
                 <div className="flex items-center gap-2 mb-2">
-                  <Globe className="w-5 h-5 text-[var(--st-text-secondary)]" />
-                  <h3 className="font-semibold text-lg">Global Parameters</h3>
+                  <Globe className="w-5 h-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                  <h3 className="font-semibold text-lg text-[var(--st-text)]">Global Parameters</h3>
                 </div>
-                <p className="text-xs text-[var(--st-text-secondary)] opacity-90 leading-relaxed">
+                <p className="text-xs text-[var(--st-text-secondary)] leading-relaxed">
                   These settings apply to all traffic routed through India DLT gateways.
                 </p>
               </div>
               <CardBody className="p-5 space-y-6">
-                
+
                 <div className="space-y-5">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium text-[var(--st-text)] cursor-pointer">Enforce Quiet Hours</Label>
-                      <p className="text-xs text-[var(--st-text)]">Block promotional traffic between 9PM - 9AM IST.</p>
+                      <span className="block text-sm font-medium text-[var(--st-text)]">Enforce Quiet Hours</span>
+                      <p className="text-xs text-[var(--st-text-secondary)]">Block promotional traffic between 9PM - 9AM IST.</p>
                     </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium text-[var(--st-text)] cursor-pointer">Strict Scrubbing</Label>
-                      <p className="text-xs text-[var(--st-text)]">Drop messages before sending if internal format variables do not exactly match DLT.</p>
-                    </div>
-                    <Switch defaultChecked />
+                    <Switch defaultChecked aria-label="Enforce Quiet Hours" />
                   </div>
 
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <Label className="text-sm font-medium text-[var(--st-text)] cursor-pointer">Auto-Fallback Routing</Label>
-                      <p className="text-xs text-[var(--st-text)]">Attempt alternative operator if primary operator rejects due to DLT error.</p>
+                      <span className="block text-sm font-medium text-[var(--st-text)]">Strict Scrubbing</span>
+                      <p className="text-xs text-[var(--st-text-secondary)]">Drop messages before sending if internal format variables do not exactly match DLT.</p>
                     </div>
-                    <Switch />
+                    <Switch defaultChecked aria-label="Strict Scrubbing" />
+                  </div>
+
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <span className="block text-sm font-medium text-[var(--st-text)]">Auto-Fallback Routing</span>
+                      <p className="text-xs text-[var(--st-text-secondary)]">Attempt alternative operator if primary operator rejects due to DLT error.</p>
+                    </div>
+                    <Switch aria-label="Auto-Fallback Routing" />
                   </div>
                 </div>
 
                 <div className="pt-5 border-t border-[var(--st-border)]">
                   <h4 className="text-sm font-semibold text-[var(--st-text)] mb-3 flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-[var(--st-text-secondary)]" /> Network Status
+                    <Radio className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" /> Network Status
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center p-2 rounded-md bg-[var(--st-bg-muted)]/50 border border-[var(--st-border)]">
+                    <div className="flex justify-between items-center p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[var(--st-text)] animate-pulse"></div>
+                        <Dot tone="success" pulse aria-label="Jio DLT Node online" />
                         <span className="text-xs font-medium text-[var(--st-text)]">Jio DLT Node</span>
                       </div>
-                      <span className="text-xs text-[var(--st-text)] font-mono">32ms</span>
+                      <span className="text-xs text-[var(--st-text-secondary)] font-mono">32ms</span>
                     </div>
-                    <div className="flex justify-between items-center p-2 rounded-md bg-[var(--st-bg-muted)]/50 border border-[var(--st-border)]">
+                    <div className="flex justify-between items-center p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[var(--st-text)] animate-pulse"></div>
+                        <Dot tone="success" pulse aria-label="Airtel DLT Node online" />
                         <span className="text-xs font-medium text-[var(--st-text)]">Airtel DLT Node</span>
                       </div>
-                      <span className="text-xs text-[var(--st-text)] font-mono">45ms</span>
+                      <span className="text-xs text-[var(--st-text-secondary)] font-mono">45ms</span>
                     </div>
-                    <div className="flex justify-between items-center p-2 rounded-md bg-[var(--st-bg-muted)]/50 border border-[var(--st-border)]">
+                    <div className="flex justify-between items-center p-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-[var(--st-text)]"></div>
+                        <Dot tone="warning" aria-label="Vi DLT Node syncing" />
                         <span className="text-xs font-medium text-[var(--st-text)]">Vi DLT Node</span>
                       </div>
-                      <span className="text-xs text-[var(--st-text)] font-mono">Syncing...</span>
+                      <span className="text-xs text-[var(--st-text-secondary)] font-mono">Syncing.</span>
                     </div>
                   </div>
                 </div>
               </CardBody>
             </Card>
 
-            <Card className="border-[var(--st-border)] shadow-sm border-dashed bg-[var(--st-bg-muted)]/50">
+            <Card variant="outlined" padding="none" className="border-dashed bg-[var(--st-bg-secondary)]">
               <CardBody className="p-6 text-center space-y-3">
-                <div className="w-12 h-12 bg-white rounded-full border shadow-sm flex items-center justify-center mx-auto mb-4">
-                  <FileKey className="w-6 h-6 text-[var(--st-text-secondary)]" />
+                <div className="w-12 h-12 bg-[var(--st-bg)] rounded-full border border-[var(--st-border)] flex items-center justify-center mx-auto mb-4">
+                  <FileKey className="w-6 h-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
                 </div>
                 <h4 className="text-sm font-semibold text-[var(--st-text)]">Need help with DLT?</h4>
-                <p className="text-xs text-[var(--st-text)] max-w-[240px] mx-auto">Our compliance team can help you register your business entities and templates.</p>
-                <Button variant="outline" className="mt-4 w-full bg-white text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">Contact Compliance Team</Button>
+                <p className="text-xs text-[var(--st-text-secondary)] max-w-[240px] mx-auto">Our compliance team can help you register your business entities and templates.</p>
+                <Button variant="outline" block className="mt-4">Contact Compliance Team</Button>
               </CardBody>
             </Card>
 

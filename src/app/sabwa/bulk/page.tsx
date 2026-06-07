@@ -1,12 +1,60 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Checkbox, EmptyState, Input, Label, Progress, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Table, TBody, Td, Th, THead, Tr, Textarea, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Badge,
+  type BadgeTone,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  Progress,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Slider,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Textarea,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Check,
-  ChevronRight,
   Pause,
   Play,
   Plus,
@@ -15,30 +63,31 @@ import {
   Square,
   Upload,
   X,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * /sabwa/bulk — Bulk Sender wizard (ZoruUI).
+ * /sabwa/bulk - Bulk Sender wizard (20ui).
  *
  * Per SABWA_PLAN.md §6 page 10 and §9 (anti-ban): a 4-step wizard
  *
- *   Audience → Compose → Review → Run
+ *   Audience -> Compose -> Review -> Run
  *
  * with mandatory rate-limit, jitter and ToS-gate confirmations. Bulk-send on a
  * personal WhatsApp account is the #1 cause of bans, so the page is built
  * around guardrails first, then ergonomics.
  *
- * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
- * surface, prop shapes and data flow are unchanged. Audience source uses a
- * segmented Button group instead of a Tabs/ZoruRadioGroup card matrix per the
- * no-tab-ui directive; stepper is the existing pattern from `connect/_client`.
+ * Pure 20ui: every control is a 20ui primitive, file inputs source from
+ * SabFiles, and there are no raw HTML controls or inline styling. The
+ * server-action surface, prop shapes and data flow are unchanged. Audience
+ * source uses a segmented Button group instead of a tab matrix per the
+ * no-tab-ui directive; stepper is the existing pattern from connect/_client.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 
-import { Slider } from '@/components/sabcrm/20ui';
 import {
+  SabFileToFileButton,
   SabFilePickerButton,
   type SabFilePick,
 } from '@/components/sabfiles';
@@ -73,7 +122,7 @@ interface AudienceState {
     rows: CsvRow[];
     phoneColumn: string | null;
     firstNameColumn: string | null;
-    customColumns: Record<string, string>; // custom1 → header
+    customColumns: Record<string, string>; // custom1 -> header
   };
   label: string | null;
   groupJid: string | null;
@@ -106,7 +155,6 @@ const RATE_PRESETS: Record<RatePreset, { perMinute: number; label: string }> = {
 };
 
 const STEPS = ['Audience', 'Compose', 'Review', 'Run'] as const;
-type Step = (typeof STEPS)[number];
 
 const AUDIENCE_OPTIONS: { value: AudienceSource; label: string }[] = [
   { value: 'paste', label: 'Paste numbers' },
@@ -159,7 +207,7 @@ function getRecipientsFromAudience(a: AudienceState): string[] {
       .map((r) => (r[a.csv.phoneColumn as string] ?? '').replace(/\D/g, ''))
       .filter((s) => s.length >= 6 && s.length <= 15);
   }
-  // label / group / tag are stub-only without engine wiring — return a
+  // label / group / tag are stub-only without engine wiring - return a
   // deterministic mock set sized off the chosen value so the rest of the
   // wizard remains exercisable.
   if (a.source === 'label' && a.label)
@@ -189,7 +237,7 @@ function computeBanRisk({
   firstContactRatio: number;
   jitterSec: number;
 }): { score: number; label: 'low' | 'moderate' | 'high' | 'critical' } {
-  // 0..100 — bigger is worse. Weighted across rate, volume, first-contact ratio
+  // 0..100 - bigger is worse. Weighted across rate, volume, first-contact ratio
   // and inverse-jitter.
   const rate = Math.min(perMinute / 30, 1) * 35;
   const volume = Math.min(recipientCount / 5000, 1) * 30;
@@ -232,21 +280,22 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
         const isReachable = idx <= furthestUnlocked;
         return (
           <li key={label} className="flex items-center gap-2">
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              size="sm"
+              block
               onClick={() => isReachable && onJump(idx)}
               disabled={!isReachable}
+              aria-current={isActive ? 'step' : undefined}
               className={cn(
-                'flex flex-1 items-center gap-2 rounded-[var(--st-radius)] px-3 py-2 text-left text-[12.5px] transition',
+                'justify-start gap-2 rounded-[var(--st-radius)] px-3 py-2 text-left text-[12.5px]',
                 isActive && 'bg-[var(--st-text)] text-[var(--st-text-inverted)]',
                 !isActive && isComplete && 'bg-[var(--st-bg-secondary)] text-[var(--st-text)]',
                 !isActive && !isComplete && 'text-[var(--st-text-secondary)]',
-                !isReachable && 'opacity-50',
               )}
-              aria-current={isActive ? 'step' : undefined}
             >
               <span
-                aria-hidden
+                aria-hidden="true"
                 className={cn(
                   'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10.5px] font-semibold',
                   isActive && 'bg-[var(--st-text-inverted)] text-[var(--st-text)]',
@@ -254,16 +303,10 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
                   !isActive && !isComplete && 'border border-[var(--st-border-strong)] text-[var(--st-text-secondary)]',
                 )}
               >
-                {isComplete ? <Check className="h-3 w-3" /> : idx + 1}
+                {isComplete ? <Check className="h-3 w-3" aria-hidden="true" /> : idx + 1}
               </span>
               <span className="truncate font-medium">{label}</span>
-            </button>
-            {idx < STEPS.length - 1 && (
-              <ChevronRight
-                className="hidden h-4 w-4 shrink-0 text-[var(--st-text-secondary)] sm:hidden"
-                aria-hidden
-              />
-            )}
+            </Button>
           </li>
         );
       })}
@@ -271,7 +314,7 @@ function Stepper({ current, onJump, furthestUnlocked }: StepperProps) {
   );
 }
 
-// ─── Step 1 — Audience ─────────────────────────────────────────────────────
+// ─── Step 1 - Audience ─────────────────────────────────────────────────────
 
 interface Step1Props {
   state: AudienceState;
@@ -286,7 +329,6 @@ function Step1Audience({
   recipientCount,
   maxRecipients,
 }: Step1Props) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const exceeded = recipientCount > maxRecipients;
 
   const handleCsv = (file: File) => {
@@ -324,7 +366,7 @@ function Step1Audience({
         </CardDescription>
       </CardHeader>
       <CardBody className="space-y-4">
-        {/* Segmented source switcher — replaces the old radio-card grid */}
+        {/* Segmented source switcher - replaces the old radio-card grid */}
         <div
           role="group"
           aria-label="Audience source"
@@ -333,8 +375,7 @@ function Step1Audience({
           {AUDIENCE_OPTIONS.map((opt) => (
             <Button
               key={opt.value}
-              type="button"
-              variant={state.source === opt.value ? 'default' : 'ghost'}
+              variant={state.source === opt.value ? 'primary' : 'ghost'}
               size="sm"
               className="rounded-[calc(var(--st-radius)-2px)]"
               onClick={() => onChange({ ...state, source: opt.value })}
@@ -346,50 +387,38 @@ function Step1Audience({
 
         {state.source === 'paste' && (
           <div className="space-y-2">
-            <Label htmlFor="paste-numbers">Phone numbers</Label>
-            <Textarea
-              id="paste-numbers"
-              placeholder={
-                'One per line, or comma-separated\n919876543210\n919811112222'
-              }
-              value={state.pasted}
-              onChange={(e) => onChange({ ...state, pasted: e.target.value })}
-              rows={6}
-            />
-            <p className="text-xs text-[var(--st-text-secondary)]">
-              Country code required. Non-digit characters are stripped.
-            </p>
+            <Field
+              label="Phone numbers"
+              help="Country code required. Non-digit characters are stripped."
+            >
+              <Textarea
+                placeholder={
+                  'One per line, or comma-separated\n919876543210\n919811112222'
+                }
+                value={state.pasted}
+                onChange={(e) => onChange({ ...state, pasted: e.target.value })}
+                rows={6}
+              />
+            </Field>
           </div>
         )}
 
         {state.source === 'csv' && (
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv,text/csv"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleCsv(f);
-                }}
-                className="hidden"
-              />
-              <Button
-                type="button"
+              <SabFileToFileButton
+                accept="document"
                 variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-                className="gap-1"
+                className="gap-1 text-sm"
+                onPickFile={(file) => handleCsv(file)}
               >
-                <Upload className="h-3.5 w-3.5" />
+                <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                 {state.csv.rows.length > 0
                   ? `${state.csv.rows.length} rows loaded`
                   : 'Choose CSV'}
-              </Button>
+              </SabFileToFileButton>
               {state.csv.rows.length > 0 && (
                 <Button
-                  type="button"
                   variant="ghost"
                   size="sm"
                   className="text-xs"
@@ -413,8 +442,7 @@ function Step1Audience({
             {state.csv.headers.length > 0 && (
               <div className="space-y-3">
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <Label className="text-xs">Phone column</Label>
+                  <Field label="Phone column">
                     <Select
                       value={state.csv.phoneColumn ?? ''}
                       onValueChange={(v) =>
@@ -435,9 +463,8 @@ function Step1Audience({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">First-name column</Label>
+                  </Field>
+                  <Field label="First-name column">
                     <Select
                       value={state.csv.firstNameColumn ?? '__none__'}
                       onValueChange={(v) =>
@@ -462,12 +489,12 @@ function Step1Audience({
                         ))}
                       </SelectContent>
                     </Select>
-                  </div>
+                  </Field>
                 </div>
 
                 <div className="rounded-[var(--st-radius)] border border-[var(--st-border)]">
                   <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5 text-xs font-medium text-[var(--st-text)]">
-                    Preview — first 5 rows
+                    Preview, first 5 rows
                   </div>
                   <div className="overflow-x-auto">
                     <Table>
@@ -503,8 +530,7 @@ function Step1Audience({
         )}
 
         {state.source === 'label' && (
-          <div className="space-y-1">
-            <Label>Label</Label>
+          <Field label="Label">
             <Select
               value={state.label ?? ''}
               onValueChange={(v) => onChange({ ...state, label: v })}
@@ -518,12 +544,14 @@ function Step1Audience({
                 <SelectItem value="vip">VIP</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </Field>
         )}
 
         {state.source === 'group' && (
-          <div className="space-y-1">
-            <Label>Group</Label>
+          <Field
+            label="Group"
+            help="Members are messaged one-to-one. The group itself receives nothing."
+          >
             <Select
               value={state.groupJid ?? ''}
               onValueChange={(v) => onChange({ ...state, groupJid: v })}
@@ -543,27 +571,23 @@ function Step1Audience({
                 </SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-[var(--st-text-secondary)]">
-              Members are messaged 1:1 — the group itself receives nothing.
-            </p>
-          </div>
+          </Field>
         )}
 
         {state.source === 'tag' && (
-          <div className="space-y-1">
-            <Label>Contact tag</Label>
+          <Field label="Contact tag">
             <Input
               placeholder="e.g. newsletter"
               value={state.tag ?? ''}
               onChange={(e) => onChange({ ...state, tag: e.target.value })}
             />
-          </div>
+          </Field>
         )}
 
         <Separator />
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Badge variant={exceeded ? 'danger' : 'secondary'}>
+            <Badge tone={exceeded ? 'danger' : 'neutral'}>
               {recipientCount.toLocaleString()} recipient
               {recipientCount === 1 ? '' : 's'}
             </Badge>
@@ -582,7 +606,7 @@ function Step1Audience({
   );
 }
 
-// ─── Step 2 — Compose ──────────────────────────────────────────────────────
+// ─── Step 2 - Compose ──────────────────────────────────────────────────────
 
 interface Step2Props {
   state: ComposeState;
@@ -616,13 +640,12 @@ function Step2Compose({
           <code className="rounded bg-[var(--st-bg-secondary)] px-1 text-xs text-[var(--st-text)]">
             {'{{firstName}}'}
           </code>{' '}
-          and other variables — they are substituted per recipient.
+          and other variables. They are substituted per recipient.
         </CardDescription>
       </CardHeader>
       <CardBody className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-1">
-            <Label className="text-xs">Start from a template</Label>
+          <Field label="Start from a template">
             <Select
               value={state.templateId ?? '__none__'}
               onValueChange={(v) => {
@@ -653,20 +676,19 @@ function Step2Compose({
                 })}
               </SelectContent>
             </Select>
-          </div>
+          </Field>
           <div className="space-y-1">
-            <Label className="text-xs">Insert variable</Label>
+            <Label>Insert variable</Label>
             <div className="flex flex-wrap gap-1">
               {availableVars.map((v) => (
                 <Button
                   key={v}
-                  type="button"
                   variant="outline"
                   size="sm"
                   className="gap-1 text-xs"
+                  iconLeft={Plus}
                   onClick={() => insertVar(v)}
                 >
-                  <Plus className="h-3 w-3" />
                   {v}
                 </Button>
               ))}
@@ -674,20 +696,18 @@ function Step2Compose({
           </div>
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="body">Message body</Label>
+        <Field label="Message body">
           <Textarea
-            id="body"
             value={state.body}
             onChange={(e) => onChange({ ...state, body: e.target.value })}
             rows={5}
-            placeholder="Hi {{firstName}}, …"
+            placeholder="Hi {{firstName}},"
           />
-        </div>
+        </Field>
 
         <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-1">
-            <Label className="text-xs">Live preview</Label>
+            <Label>Live preview</Label>
             <div className="min-h-[88px] whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
               {preview || (
                 <span className="text-[var(--st-text-secondary)]">
@@ -697,15 +717,15 @@ function Step2Compose({
             </div>
           </div>
           <div className="space-y-1">
-            <Label className="text-xs">Media (SabFiles only)</Label>
+            <Label>Media (SabFiles only)</Label>
             <div className="flex items-center gap-2">
               <SabFilePickerButton
                 accept="all"
                 onPick={(p) => onChange({ ...state, media: p })}
                 variant="outline"
-                className="h-8 gap-1 text-xs"
+                className="gap-1 text-xs"
               >
-                <Upload className="h-3.5 w-3.5" />
+                <Upload className="h-3.5 w-3.5" aria-hidden="true" />
                 {state.media ? 'Replace' : 'Attach media'}
               </SabFilePickerButton>
               {state.media && (
@@ -713,14 +733,12 @@ function Step2Compose({
                   <span className="max-w-[160px] truncate">
                     {state.media.name}
                   </span>
-                  <button
-                    type="button"
+                  <IconButton
+                    label="Remove attachment"
+                    icon={X}
+                    size="sm"
                     onClick={() => onChange({ ...state, media: null })}
-                    aria-label="Remove attachment"
-                    className="rounded p-0.5 hover:bg-[var(--st-bg)]"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+                  />
                 </div>
               )}
             </div>
@@ -732,45 +750,45 @@ function Step2Compose({
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div>
-              <Label className="text-sm">A/B variant</Label>
+              <Label>A/B variant</Label>
               <p className="text-xs text-[var(--st-text-secondary)]">
-                Split-test a second body — recipients are randomly assigned.
+                Split-test a second body. Recipients are randomly assigned.
               </p>
             </div>
             {state.variantBody === null ? (
               <Button
-                type="button"
                 variant="outline"
                 size="sm"
                 className="gap-1"
+                iconLeft={Plus}
                 onClick={() => onChange({ ...state, variantBody: '' })}
               >
-                <Plus className="h-3.5 w-3.5" />
                 Add variant
               </Button>
             ) : (
               <Button
-                type="button"
                 variant="ghost"
                 size="sm"
                 className="gap-1 text-xs"
+                iconLeft={X}
                 onClick={() => onChange({ ...state, variantBody: null })}
               >
-                <X className="h-3.5 w-3.5" />
                 Remove
               </Button>
             )}
           </div>
           {state.variantBody !== null && (
             <>
-              <Textarea
-                value={state.variantBody}
-                onChange={(e) =>
-                  onChange({ ...state, variantBody: e.target.value })
-                }
-                rows={4}
-                placeholder="Variant B body…"
-              />
+              <Field label="Variant B body">
+                <Textarea
+                  value={state.variantBody}
+                  onChange={(e) =>
+                    onChange({ ...state, variantBody: e.target.value })
+                  }
+                  rows={4}
+                  placeholder="Variant B body"
+                />
+              </Field>
               {previewVariant && (
                 <div className="whitespace-pre-wrap rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3 text-sm text-[var(--st-text)]">
                   {previewVariant}
@@ -784,7 +802,7 @@ function Step2Compose({
   );
 }
 
-// ─── Step 3 — Review ───────────────────────────────────────────────────────
+// ─── Step 3 - Review ───────────────────────────────────────────────────────
 
 interface Step3Props {
   recipientCount: number;
@@ -856,14 +874,13 @@ function Step3Review({
                 riskColor[risk.label],
               )}
             >
-              {risk.score}/100 · {risk.label}
+              {risk.score}/100 . {risk.label}
             </p>
           </div>
         </div>
 
         {warnings.length > 0 && (
-          <Alert variant="warning">
-            <AlertTriangle className="h-4 w-4" />
+          <Alert tone="warning" icon={AlertTriangle}>
             <AlertTitle>Anti-ban warnings</AlertTitle>
             <AlertDescription>
               <ul className="ml-4 list-disc space-y-1 text-xs">
@@ -876,13 +893,12 @@ function Step3Review({
         )}
 
         <div className="space-y-2">
-          <Label className="text-sm">Send rate</Label>
+          <Label>Send rate</Label>
           <div className="flex flex-wrap gap-2">
             {(['safe', 'normal', 'aggressive'] as RatePreset[]).map((p) => (
               <Button
                 key={p}
-                type="button"
-                variant={ratePreset === p ? 'default' : 'outline'}
+                variant={ratePreset === p ? 'primary' : 'outline'}
                 size="sm"
                 className="text-xs"
                 onClick={() => setPreset(p)}
@@ -897,9 +913,11 @@ function Step3Review({
               max={30}
               step={1}
               value={[settings.perMinute]}
-              onValueChange={(v) =>
-                onChange({ ...settings, perMinute: v[0] ?? settings.perMinute })
-              }
+              ariaLabel="Messages per minute"
+              onValueChange={(v) => {
+                const arr = Array.isArray(v) ? v : [v];
+                onChange({ ...settings, perMinute: arr[0] ?? settings.perMinute });
+              }}
               className="flex-1"
             />
             <span className="w-16 text-right text-sm tabular-nums text-[var(--st-text)]">
@@ -909,29 +927,30 @@ function Step3Review({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm">Humanization jitter</Label>
+          <Label>Humanization jitter</Label>
           <div className="flex items-center gap-3">
             <Slider
               min={2}
               max={10}
               step={1}
               value={[settings.jitterSec]}
-              onValueChange={(v) =>
-                onChange({ ...settings, jitterSec: v[0] ?? settings.jitterSec })
-              }
+              ariaLabel="Jitter in seconds"
+              onValueChange={(v) => {
+                const arr = Array.isArray(v) ? v : [v];
+                onChange({ ...settings, jitterSec: arr[0] ?? settings.jitterSec });
+              }}
               className="flex-1"
             />
             <span className="w-16 text-right text-sm tabular-nums text-[var(--st-text)]">
-              ±{settings.jitterSec}s
+              +/-{settings.jitterSec}s
             </span>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label className="text-sm">Send-window (hour of day)</Label>
+          <Label>Send-window (hour of day)</Label>
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="space-y-1">
-              <Label className="text-xs">Start</Label>
+            <Field label="Start">
               <Select
                 value={String(settings.windowStartHour)}
                 onValueChange={(v) =>
@@ -949,9 +968,8 @@ function Step3Review({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">End</Label>
+            </Field>
+            <Field label="End">
               <Select
                 value={String(settings.windowEndHour)}
                 onValueChange={(v) =>
@@ -969,9 +987,8 @@ function Step3Review({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">Timezone</Label>
+            </Field>
+            <Field label="Timezone">
               <Input
                 value={settings.timezone}
                 onChange={(e) =>
@@ -979,7 +996,7 @@ function Step3Review({
                 }
                 placeholder="e.g. Asia/Kolkata"
               />
-            </div>
+            </Field>
           </div>
         </div>
 
@@ -987,16 +1004,16 @@ function Step3Review({
           <Checkbox
             id="first-contact"
             checked={settings.firstContactOnly}
-            onCheckedChange={(v) =>
-              onChange({ ...settings, firstContactOnly: Boolean(v) })
+            onChange={(e) =>
+              onChange({ ...settings, firstContactOnly: e.target.checked })
             }
           />
           <div className="space-y-0.5">
-            <Label htmlFor="first-contact" className="cursor-pointer text-sm">
+            <Label htmlFor="first-contact" className="cursor-pointer">
               Skip first-contact recipients
             </Label>
             <p className="text-xs text-[var(--st-text-secondary)]">
-              Don&apos;t bulk-message contacts who have never messaged you.
+              Do not bulk-message contacts who have never messaged you.
               Strongly recommended.
             </p>
           </div>
@@ -1006,12 +1023,12 @@ function Step3Review({
           <Checkbox
             id="accept-tos"
             checked={settings.acceptedToS}
-            onCheckedChange={(v) =>
-              onChange({ ...settings, acceptedToS: Boolean(v) })
+            onChange={(e) =>
+              onChange({ ...settings, acceptedToS: e.target.checked })
             }
           />
           <div className="space-y-0.5">
-            <Label htmlFor="accept-tos" className="cursor-pointer text-sm">
+            <Label htmlFor="accept-tos" className="cursor-pointer">
               I understand WhatsApp ToS risk and accept that my account may be
               banned.
             </Label>
@@ -1026,7 +1043,7 @@ function Step3Review({
   );
 }
 
-// ─── Step 4 — Run ──────────────────────────────────────────────────────────
+// ─── Step 4 - Run ──────────────────────────────────────────────────────────
 
 type CampaignStatus = 'running' | 'paused' | 'aborted' | 'completed';
 type RecipientRunStatus = 'pending' | 'sent' | 'failed' | 'cancelled';
@@ -1049,22 +1066,17 @@ interface Step4Props {
   onControl: (op: 'pause' | 'resume' | 'abort') => void;
 }
 
-function campaignStatusBadgeVariant(
-  status: CampaignStatus,
-): 'success' | 'warning' | 'danger' | 'secondary' {
+function campaignStatusBadgeTone(status: CampaignStatus): BadgeTone {
   if (status === 'running') return 'success';
   if (status === 'paused') return 'warning';
   if (status === 'aborted') return 'danger';
-  return 'secondary';
+  return 'neutral';
 }
 
-function recipientStatusBadgeVariant(
-  status: RecipientRunStatus,
-): 'success' | 'danger' | 'secondary' | 'outline' {
+function recipientStatusBadgeTone(status: RecipientRunStatus): BadgeTone {
   if (status === 'sent') return 'success';
   if (status === 'failed') return 'danger';
-  if (status === 'cancelled') return 'secondary';
-  return 'outline';
+  return 'neutral';
 }
 
 interface Step4PropsWithResolver extends Step4Props {
@@ -1098,7 +1110,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-2 text-base">
           <span>Run</span>
-          <Badge variant={campaignStatusBadgeVariant(run.status)}>
+          <Badge tone={campaignStatusBadgeTone(run.status)}>
             {run.status}
           </Badge>
         </CardTitle>
@@ -1115,41 +1127,38 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
             </span>
             <span>ETA {fmtDuration(etaSec)}</span>
           </div>
-          <Progress value={progress} />
+          <Progress value={progress} aria-label="Campaign progress" />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <Button
-            type="button"
             size="sm"
             variant="outline"
             className="gap-1"
+            iconLeft={Pause}
             disabled={run.status !== 'running'}
             onClick={() => onControl('pause')}
           >
-            <Pause className="h-3.5 w-3.5" />
             Pause
           </Button>
           <Button
-            type="button"
             size="sm"
             variant="outline"
             className="gap-1"
+            iconLeft={Play}
             disabled={run.status !== 'paused'}
             onClick={() => onControl('resume')}
           >
-            <Play className="h-3.5 w-3.5" />
             Resume
           </Button>
           <Button
-            type="button"
             size="sm"
-            variant="destructive"
+            variant="danger"
             className="gap-1"
+            iconLeft={Square}
             disabled={run.status === 'aborted' || run.status === 'completed'}
             onClick={() => onControl('abort')}
           >
-            <Square className="h-3.5 w-3.5" />
             Abort
           </Button>
         </div>
@@ -1170,7 +1179,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label className="text-xs">Filter</Label>
+            <Label>Filter</Label>
             <Select
               value={filter}
               onValueChange={(v) =>
@@ -1194,7 +1203,7 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
               <THead>
                 <Tr>
                   <Th>Recipient</Th>
-                  <Th className="w-24 text-right">
+                  <Th align="right" className="w-24">
                     Status
                   </Th>
                 </Tr>
@@ -1218,9 +1227,10 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                           </span>
                         </div>
                       </Td>
-                      <Td className="text-right text-xs capitalize">
+                      <Td align="right" className="text-xs capitalize">
                         <Badge
-                          variant={recipientStatusBadgeVariant(r.status)}
+                          tone={recipientStatusBadgeTone(r.status)}
+                          kind={r.status === 'pending' ? 'outline' : 'soft'}
                           className="text-[10px]"
                         >
                           {r.status}
@@ -1233,9 +1243,10 @@ function Step4Run({ run, onControl, resolve }: Step4PropsWithResolver) {
                   <Tr>
                     <Td
                       colSpan={2}
-                      className="text-center text-xs text-[var(--st-text-secondary)]"
+                      align="center"
+                      className="text-xs text-[var(--st-text-secondary)]"
                     >
-                      …and {(filtered.length - 200).toLocaleString()} more
+                      and {(filtered.length - 200).toLocaleString()} more
                     </Td>
                   </Tr>
                 )}
@@ -1277,7 +1288,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
             <THead>
               <Tr>
                 <Th>Name</Th>
-                <Th className="text-right">Recipients</Th>
+                <Th align="right">Recipients</Th>
                 <Th>Status</Th>
                 <Th>Started</Th>
               </Tr>
@@ -1288,11 +1299,11 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
                   <Td className="font-medium text-[var(--st-text)]">
                     {c.name}
                   </Td>
-                  <Td className="text-right tabular-nums">
+                  <Td align="right" className="tabular-nums">
                     {c.recipients.toLocaleString()}
                   </Td>
                   <Td>
-                    <Badge variant={campaignStatusBadgeVariant(c.status)}>
+                    <Badge tone={campaignStatusBadgeTone(c.status)}>
                       {c.status}
                     </Badge>
                   </Td>
@@ -1312,7 +1323,7 @@ function PastCampaignsTable({ items }: { items: PastCampaign[] }) {
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function BulkSenderPage() {
-  const toaster = useToast();
+  const { toast } = useToast();
   const { sessionUser } = useProject();
   const { current: currentSession } = useSabwaSession();
   const sessionId = currentSession?.id;
@@ -1364,7 +1375,7 @@ export default function BulkSenderPage() {
   const [run, setRun] = React.useState<RunState | null>(null);
   const [pastCampaigns, setPastCampaigns] = React.useState<PastCampaign[]>([]);
 
-  // Seed past-campaigns table from engine on each fetch — optimistic local
+  // Seed past-campaigns table from engine on each fetch. Optimistic local
   // appends/updates from this page (start / pause / abort) replay on top.
   React.useEffect(() => {
     const list = campaignsQ.data;
@@ -1392,7 +1403,7 @@ export default function BulkSenderPage() {
       const v = window.localStorage.getItem(ANTIBAN_DISMISS_KEY);
       if (v === '1') setBannerOpen(false);
     } catch {
-      // localStorage might be blocked — keep the banner open.
+      // localStorage might be blocked. Keep the banner open.
     }
   }, []);
 
@@ -1444,12 +1455,12 @@ export default function BulkSenderPage() {
       out.push(`Jitter ${settings.jitterSec}s is below the 4-second floor.`);
     if (recipientCount > 2000 && !settings.firstContactOnly)
       out.push(
-        'Large volume without first-contact filter — risk of mass-report spike.',
+        'Large volume without first-contact filter, risk of mass-report spike.',
       );
     if (settings.windowEndHour - settings.windowStartHour < 4)
-      out.push('Send-window is shorter than 4 hours — campaign may be slow.');
+      out.push('Send-window is shorter than 4 hours, campaign may be slow.');
     if (compose.body.length > 0 && compose.body.length < 20)
-      out.push('Very short body — increases the chance of being flagged as spam.');
+      out.push('Very short body increases the chance of being flagged as spam.');
     return out;
   }, [settings, recipientCount, compose.body.length]);
 
@@ -1495,13 +1506,14 @@ export default function BulkSenderPage() {
       },
       ...p,
     ]);
-    toaster.toast({
+    toast({
       title: 'Campaign started',
-      description: `${recipients.length} recipient${recipients.length === 1 ? '' : 's'} — rate ${settings.perMinute}/min`,
+      description: `${recipients.length} recipient${recipients.length === 1 ? '' : 's'}, rate ${settings.perMinute}/min`,
+      tone: 'success',
     });
   };
 
-  // Simulated tick — replace with `getBulkCampaign(id)` poll + `useSabwaStream`
+  // Simulated tick. Replace with `getBulkCampaign(id)` poll + `useSabwaStream`
   // subscription once the engine bridge ships (SABWA_PLAN.md §13).
   React.useEffect(() => {
     if (!run || run.status !== 'running') return;
@@ -1570,12 +1582,14 @@ export default function BulkSenderPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
         <EmptyState
-          icon={<Sparkles />}
+          icon={Sparkles}
           title="Upgrade required"
           description="Bulk sender is a Pro feature. Upgrade to unlock 2,000+ daily sends with anti-ban controls."
           action={
             <Link href="/dashboard/plans">
-              <Button size="md">View plans</Button>
+              <Button variant="primary" size="md">
+                View plans
+              </Button>
             </Link>
           }
         />
@@ -1602,43 +1616,34 @@ export default function BulkSenderPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="flex items-start justify-between gap-3">
+        <PageHeader bordered={false} className="items-start">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-              <Send className="h-5 w-5" />
+              <Send className="h-5 w-5" aria-hidden="true" />
             </div>
-            <div>
-              <h1 className="text-[20px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-                Bulk Sender
-              </h1>
-              <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
-                Audience → Compose → Review → Run, with anti-ban guardrails.
-              </p>
-            </div>
+            <PageHeaderHeading>
+              <PageTitle>Bulk Sender</PageTitle>
+              <PageDescription>
+                Audience, Compose, Review, Run, with anti-ban guardrails.
+              </PageDescription>
+            </PageHeaderHeading>
           </div>
-        </div>
+        </PageHeader>
 
         {bannerOpen && (
-          <Alert variant="warning">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle className="flex items-center justify-between gap-2">
-              <span>Anti-ban notice</span>
-              <button
-                type="button"
-                onClick={dismissBanner}
-                aria-label="Dismiss"
-                className="rounded p-0.5 text-[var(--st-text-secondary)] hover:bg-[var(--st-bg-secondary)]"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </AlertTitle>
-            <AlertDescription className="text-xs">
+          <Alert
+            tone="warning"
+            icon={AlertTriangle}
+            title="Anti-ban notice"
+            onClose={dismissBanner}
+          >
+            <p className="text-xs">
               Bulk sending on a personal WhatsApp number can get the account
-              banned. Defaults are conservative (8/min, ±4s jitter,
-              9 AM–6 PM window) — only loosen them if you know your audience
+              banned. Defaults are conservative (8/min, +/-4s jitter,
+              9 AM to 6 PM window). Only loosen them if you know your audience
               expects you. The campaign auto-pauses on presence drop or three
               consecutive send failures.
-            </AlertDescription>
+            </p>
           </Alert>
         )}
 
@@ -1681,7 +1686,7 @@ export default function BulkSenderPage() {
             <CardHeader>
               <CardTitle className="text-base">Run</CardTitle>
               <CardDescription>
-                No active campaign — head back to Review and submit.
+                No active campaign. Head back to Review and submit.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -1689,24 +1694,23 @@ export default function BulkSenderPage() {
 
         <div className="flex items-center justify-between gap-2">
           <Button
-            type="button"
             variant="outline"
             onClick={goBack}
             disabled={stepIdx === 0}
             className="gap-1"
+            iconLeft={ArrowLeft}
           >
-            <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
           {stepIdx < 2 && (
             <Button
-              type="button"
+              variant="primary"
               onClick={goNext}
               disabled={stepIdx === 0 && recipientCount === 0}
               className="gap-1"
+              iconRight={ArrowRight}
             >
               Next
-              <ArrowRight className="h-4 w-4" />
             </Button>
           )}
           {stepIdx === 2 && (
@@ -1714,13 +1718,13 @@ export default function BulkSenderPage() {
               <TooltipTrigger asChild>
                 <span>
                   <Button
-                    type="button"
+                    variant="primary"
                     onClick={startCampaign}
                     disabled={!canSubmit}
                     className="gap-1"
+                    iconRight={ArrowRight}
                   >
                     Start campaign
-                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -1741,7 +1745,6 @@ export default function BulkSenderPage() {
           )}
           {stepIdx === 3 && (
             <Button
-              type="button"
               variant="outline"
               onClick={() => {
                 setRun(null);

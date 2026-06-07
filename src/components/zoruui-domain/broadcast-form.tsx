@@ -1,52 +1,76 @@
 'use client';
 
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, RadioGroup, RadioGroupItem, Popover, PopoverContent, PopoverTrigger, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Field,
+  Input,
+  Label,
+  Checkbox,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Alert,
+  Tag,
+  cn,
+} from '@/components/sabcrm/20ui';
+import { SabFileToFileButton } from '@/components/sabfiles';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Papa from 'papaparse';
 import ExcelJS from 'exceljs';
 import type { WithId } from 'mongodb';
 import {
-  LuCircleAlert,
-  LuCheck,
-  LuChevronsUpDown,
-  LuDownload,
-  LuSend,
-  LuUpload,
-  LuLoader,
-  LuFileText,
-  LuTag,
-  } from 'react-icons/lu';
+  AlertCircle,
+  Check,
+  ChevronsUpDown,
+  Download,
+  Send,
+  Loader2,
+  Upload,
+  FileText,
+  TagIcon,
+} from 'lucide-react';
 
 import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
 import { useToast } from '@/hooks/use-toast';
-import type { Template,
-  Tag,
-  MetaFlow } from '@/lib/definitions';
+import type { Template, Tag as TagType, MetaFlow } from '@/lib/definitions';
 import { TemplateInputRenderer } from './template-input-renderer';
 import { useProject } from '@/context/project-context';
-import { cn } from '@/lib/utils';
 
 /**
- * BroadcastForm — the WhatsApp broadcast composer, rebuilt on Clay.
+ * BroadcastForm - the WhatsApp broadcast composer, rebuilt on 20ui.
  *
  * 6 steps, all on a single page:
  *   1. Type               (Message template vs. Interactive flow)
  *   2. Send-from number
  *   3. Content            (template picker or flow picker)
  *   4. Flow entry message (if type=flow)
- *   5. Audience           (CSV/XLSX upload OR tag segment)
+ *   5. Audience           (CSV/XLSX from SabFiles OR tag segment)
  *   6. Template variables (derived from selected template + CSV headers)
  *
  * All validation, CSV/XLSX parsing, tag-popover logic, and server-action
- * wiring is preserved — only the visuals are re-rendered in Clay.
+ * wiring is preserved. The contact file is sourced from SabFiles and
+ * injected into the submitted FormData as `csvFile`.
  */
 
 import * as React from 'react';
 
-/* ══════════════════════════════════════════════════════════════════
- *  Helpers (unchanged from original — CSV/XLSX parsing + validation)
- * ══════════════════════════════════════════════════════════════════ */
+/* ==================================================================
+ *  Helpers (unchanged from original: CSV/XLSX parsing + validation)
+ * ================================================================== */
 
 const initialState = {
   message: undefined,
@@ -151,34 +175,29 @@ const validateFileContent = async (
   return { errors, headers };
 };
 
-/* ══════════════════════════════════════════════════════════════════
+/* ==================================================================
  *  Submit button
- * ══════════════════════════════════════════════════════════════════ */
+ * ================================================================== */
 
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
     <Button
       type="submit"
-      variant="rose"
+      variant="gradient"
       size="lg"
       disabled={pending || disabled}
-      leading={
-        pending ? (
-          <LuLoader className="h-4 w-4 animate-spin" />
-        ) : (
-          <LuSend className="h-4 w-4" strokeWidth={2} />
-        )
-      }
+      loading={pending}
+      iconLeft={pending ? undefined : Send}
     >
-      {pending ? 'Queueing broadcast…' : 'Start broadcast'}
+      {pending ? 'Queueing broadcast...' : 'Start broadcast'}
     </Button>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════
+/* ==================================================================
  *  Main component
- * ══════════════════════════════════════════════════════════════════ */
+ * ================================================================== */
 
 interface BroadcastFormProps {
   templates: WithId<Template>[];
@@ -210,7 +229,6 @@ export function BroadcastForm({
     null,
   );
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
-  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -221,10 +239,9 @@ export function BroadcastForm({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Queued', description: state.message });
+      toast({ title: 'Queued', description: state.message, tone: 'success' });
       formRef.current?.reset();
       setSelectedFile(null);
-      setFileInputKey(Date.now());
       setSelectedTagIds([]);
       onSuccess();
     }
@@ -232,7 +249,7 @@ export function BroadcastForm({
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast, onSuccess]);
@@ -276,14 +293,15 @@ export function BroadcastForm({
     validateAndExtract();
   }, [selectedFile, selectedTemplate, broadcastType, audienceType]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
-    } else {
-      setSelectedFile(null);
-      setValidationErrors([]);
-      setVariableOptions([]);
+  /**
+   * Inject the SabFiles-sourced contact file into the submitted FormData
+   * so the server action keeps reading it as `csvFile`.
+   */
+  const submitAction = (formData: FormData) => {
+    if (selectedFile) {
+      formData.set('csvFile', selectedFile, selectedFile.name);
     }
+    formAction(formData);
   };
 
   const handleDownloadSample = () => {
@@ -300,7 +318,7 @@ export function BroadcastForm({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast({ title: 'Sample file downloading…' });
+    toast({ title: 'Sample file downloading...' });
   };
 
   const handleTemplateChange = (templateId: string) => {
@@ -318,7 +336,7 @@ export function BroadcastForm({
   );
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-7">
+    <form ref={formRef} action={submitAction} className="flex flex-col gap-7">
       <input
         type="hidden"
         name="projectId"
@@ -330,13 +348,14 @@ export function BroadcastForm({
         <input key={id} type="hidden" name="tagIds" value={id} />
       ))}
 
-      {/* ── Steps 1 + 2: Type + Phone number ── */}
+      {/* Steps 1 + 2: Type + Phone number */}
       <div className="grid gap-5 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <StepLabel step={1} label="Broadcast type" />
           <RadioGroup
             value={broadcastType}
             onValueChange={(v) => setBroadcastType(v as 'template' | 'flow')}
+            orientation="horizontal"
             className="flex gap-3"
           >
             <TypeOption
@@ -363,13 +382,13 @@ export function BroadcastForm({
             value={selectedPhoneNumber}
             onValueChange={setSelectedPhoneNumber}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a number…" />
+            <SelectTrigger aria-label="Send-from number">
+              <SelectValue placeholder="Choose a number..." />
             </SelectTrigger>
             <SelectContent>
               {(activeProject?.phoneNumbers || []).map((phone) => (
                 <SelectItem key={phone.id} value={phone.id}>
-                  {phone.display_phone_number} · {phone.verified_name}
+                  {phone.display_phone_number} - {phone.verified_name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -377,7 +396,7 @@ export function BroadcastForm({
         </div>
       </div>
 
-      {/* ── Step 3: Content selection ── */}
+      {/* Step 3: Content selection */}
       <div className="flex flex-col gap-1.5">
         <StepLabel
           step={3}
@@ -391,8 +410,8 @@ export function BroadcastForm({
             value={selectedTemplate?._id.toString() || ''}
             onValueChange={handleTemplateChange}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose an approved template…" />
+            <SelectTrigger aria-label="Template">
+              <SelectValue placeholder="Choose an approved template..." />
             </SelectTrigger>
             <SelectContent>
               {approvedTemplates.length > 0 ? (
@@ -423,8 +442,8 @@ export function BroadcastForm({
             value={selectedFlow?._id.toString() || ''}
             onValueChange={handleFlowChange}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Choose a flow…" />
+            <SelectTrigger aria-label="Interactive flow">
+              <SelectValue placeholder="Choose a flow..." />
             </SelectTrigger>
             <SelectContent>
               {metaFlows.length > 0 ? (
@@ -446,9 +465,9 @@ export function BroadcastForm({
         )}
       </div>
 
-      {/* ── Flow-only fields ── */}
+      {/* Flow-only fields */}
       {broadcastType === 'flow' && (
-        <div className="grid gap-4 rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-5 md:grid-cols-2">
+        <div className="grid gap-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-5 md:grid-cols-2">
           <div className="md:col-span-2">
             <Label className="text-[11.5px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
               Flow entry message
@@ -457,33 +476,29 @@ export function BroadcastForm({
               Define how the flow entry message looks to the user.
             </p>
           </div>
-          <Field
-            label="Header"
-            optional
-            htmlFor="flowHeader"
-          >
+          <Field label="Header" help="Optional">
             <Input
               name="flowHeader"
               id="flowHeader"
               placeholder="Start your application"
             />
           </Field>
-          <Field label="Body text" required htmlFor="flowBody">
+          <Field label="Body text" required>
             <Input
               name="flowBody"
               id="flowBody"
-              placeholder="Click below to begin…"
+              placeholder="Click below to begin..."
               required
             />
           </Field>
-          <Field label="Footer" optional htmlFor="flowFooter">
+          <Field label="Footer" help="Optional">
             <Input
               name="flowFooter"
               id="flowFooter"
               placeholder="Wachat"
             />
           </Field>
-          <Field label="CTA button" required htmlFor="flowCta">
+          <Field label="CTA button" required>
             <Input
               name="flowCta"
               id="flowCta"
@@ -494,7 +509,7 @@ export function BroadcastForm({
         </div>
       )}
 
-      {/* ── Step 4: Audience ── */}
+      {/* Step 4: Audience */}
       <div className="grid gap-5 md:grid-cols-2">
         <div className="flex flex-col gap-2">
           <StepLabel step={4} label="Audience" />
@@ -502,6 +517,7 @@ export function BroadcastForm({
           <RadioGroup
             value={audienceType}
             onValueChange={(val) => setAudienceType(val as 'file' | 'tags')}
+            orientation="horizontal"
             className="flex gap-3"
           >
             <TypeOption
@@ -527,52 +543,56 @@ export function BroadcastForm({
               <Label className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]">
                 Contact file <span className="ml-1 text-[var(--st-text)]">*</span>
               </Label>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
+                iconLeft={Download}
                 onClick={handleDownloadSample}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
               >
-                <LuDownload className="h-3 w-3" strokeWidth={2} />
                 Sample CSV
-              </button>
+              </Button>
             </div>
-            <label
+            <div
               className={cn(
-                'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[12px] border-2 border-dashed px-4 py-6 text-center transition-colors',
+                'flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border-2 border-dashed px-4 py-6 text-center',
                 selectedFile
-                  ? 'border-primary bg-[var(--st-bg-muted)]/60'
-                  : 'border-[var(--st-border)] bg-[var(--st-bg-muted)] hover:bg-[var(--st-bg-muted)]',
+                  ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                  : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)]',
               )}
             >
-              <LuUpload
+              <Upload
                 className={cn(
-                  'h-5 w-5 transition-colors',
-                  selectedFile ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
+                  'h-5 w-5',
+                  selectedFile
+                    ? 'text-[var(--st-text)]'
+                    : 'text-[var(--st-text-secondary)]',
                 )}
                 strokeWidth={1.75}
+                aria-hidden="true"
               />
               <div className="flex flex-col gap-0.5">
                 <span className="text-[13px] font-medium text-[var(--st-text)]">
-                  {selectedFile?.name || 'Click to choose a file'}
+                  {selectedFile?.name || 'Choose a contact file'}
                 </span>
                 <span className="text-[11px] text-[var(--st-text-secondary)]">
-                  {selectedFile ? 'Click to replace' : 'CSV or XLSX'}
+                  {selectedFile ? 'Pick again to replace' : 'CSV or XLSX from SabFiles'}
                 </span>
               </div>
-              <input
-                key={fileInputKey}
-                id="csvFile"
-                name="csvFile"
-                type="file"
-                accept=".csv,.xlsx"
-                required
-                onChange={handleFileChange}
-                className="sr-only"
-              />
-            </label>
+              <SabFileToFileButton
+                accept="all"
+                variant="outline"
+                onPickFile={(file) => setSelectedFile(file)}
+                onError={(err) =>
+                  toast({ title: 'Could not load file', description: err.message, tone: 'danger' })
+                }
+              >
+                {selectedFile ? 'Replace file' : 'Choose from SabFiles'}
+              </SabFileToFileButton>
+            </div>
             <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
               For variables, use column names that match your template (e.g.{' '}
-              <code className="rounded-[3px] bg-[var(--st-bg-muted)] px-1 font-mono text-[10px] text-[var(--st-text)]">
+              <code className="rounded-[3px] bg-[var(--st-bg-secondary)] px-1 font-mono text-[10px] text-[var(--st-text)]">
                 variable1
               </code>
               ).
@@ -580,26 +600,22 @@ export function BroadcastForm({
 
             {isValidating ? (
               <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--st-text)]">
-                <LuLoader className="h-3 w-3 animate-spin" />
-                Validating file…
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                Validating file...
               </p>
             ) : null}
 
             {validationErrors.length > 0 && (
-              <div className="mt-2 rounded-[12px] border border-destructive/40 bg-[var(--st-bg-muted)] p-3">
-                <div className="flex items-center gap-2 text-[12px] font-semibold text-[var(--st-text)]">
-                  <LuCircleAlert className="h-3.5 w-3.5" strokeWidth={2} />
-                  File error
-                </div>
-                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-[var(--st-text)]/90">
+              <Alert tone="danger" title="File error" icon={AlertCircle} className="mt-2">
+                <ul className="list-disc space-y-0.5 pl-5">
                   {validationErrors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
                   {validationErrors.length > 5 && (
-                    <li>…and {validationErrors.length - 5} more issues.</li>
+                    <li>and {validationErrors.length - 5} more issues.</li>
                   )}
                 </ul>
-              </div>
+              </Alert>
             )}
           </div>
         ) : (
@@ -609,33 +625,33 @@ export function BroadcastForm({
             </Label>
             <Popover>
               <PopoverTrigger asChild>
-                <button
+                <Button
                   type="button"
-                  role="combobox"
+                  variant="outline"
+                  block
+                  iconLeft={TagIcon}
+                  iconRight={ChevronsUpDown}
+                  aria-label="Select contact tags"
                   className={cn(
-                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[10px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 text-[13px] font-medium transition-colors hover:border-[var(--st-border)]',
+                    'justify-between',
                     selectedTagIds.length === 0 && 'text-[var(--st-text-secondary)]',
                   )}
                 >
-                  <span className="inline-flex items-center gap-1.5 truncate">
-                    <LuTag className="h-3.5 w-3.5" strokeWidth={2} />
-                    {selectedTagIds.length > 0
-                      ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                      : 'Select tags…'}
-                  </span>
-                  <LuChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                </button>
+                  {selectedTagIds.length > 0
+                    ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
+                    : 'Select tags...'}
+                </Button>
               </PopoverTrigger>
               <PopoverContent
                 className="w-[--radix-popover-trigger-width] p-0"
                 align="start"
               >
                 <Command>
-                  <CommandInput placeholder="Search tags…" />
+                  <CommandInput placeholder="Search tags..." />
                   <CommandList>
                     <CommandEmpty>No tags found.</CommandEmpty>
                     <CommandGroup>
-                      {(activeProject?.tags || []).map((tag: Tag) => {
+                      {(activeProject?.tags || []).map((tag: TagType) => {
                         const isSelected = selectedTagIds.includes(tag._id);
                         return (
                           <CommandItem
@@ -652,22 +668,16 @@ export function BroadcastForm({
                               className={cn(
                                 'mr-2 flex h-4 w-4 items-center justify-center rounded-[4px] border',
                                 isSelected
-                                  ? 'border-primary bg-[var(--st-text)] text-white'
+                                  ? 'border-[var(--st-accent)] bg-[var(--st-accent)] text-white'
                                   : 'border-[var(--st-border)]',
                               )}
+                              aria-hidden="true"
                             >
                               {isSelected ? (
-                                <LuCheck
-                                  className="h-3 w-3"
-                                  strokeWidth={3}
-                                />
+                                <Check className="h-3 w-3" strokeWidth={3} />
                               ) : null}
                             </span>
-                            <span
-                              className="mr-2 h-2 w-2 shrink-0 rounded-full"
-                              style={{ backgroundColor: tag.color }}
-                            />
-                            <span>{tag.name}</span>
+                            <Tag color={tag.color}>{tag.name}</Tag>
                           </CommandItem>
                         );
                       })}
@@ -684,11 +694,11 @@ export function BroadcastForm({
         )}
       </div>
 
-      {/* ── Step 5: Template variables ── */}
+      {/* Step 5: Template variables */}
       {broadcastType === 'template' && selectedTemplate && (
         <div className="flex flex-col gap-3">
           <StepLabel step={5} label="Template variables" />
-          <div className="rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-5">
+          <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-5">
             <TemplateInputRenderer
               template={selectedTemplate}
               variableOptions={variableOptions}
@@ -697,28 +707,28 @@ export function BroadcastForm({
         </div>
       )}
 
-      {/* ── Options ── */}
-      <div className="flex items-center gap-3 rounded-[14px] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-5 py-3">
-        <label className="flex items-center gap-2.5 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={createContacts}
-            onChange={(e) => setCreateContacts(e.target.checked)}
-            className="h-4 w-4 rounded border-[var(--st-border)] text-accent focus:ring-accent"
-          />
-          <span className="text-[12px] text-[var(--st-text)] font-medium">Create contacts in CRM</span>
-        </label>
+      {/* Options */}
+      <div className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-5 py-3">
+        <Checkbox
+          checked={createContacts}
+          onChange={(e) => setCreateContacts(e.target.checked)}
+          label={
+            <span className="text-[12px] font-medium text-[var(--st-text)]">
+              Create contacts in CRM
+            </span>
+          }
+        />
         <span className="text-[10px] text-[var(--st-text-secondary)]">
           {createContacts
             ? 'New contacts will be added for each recipient not already in your CRM.'
-            : 'Off — only existing contacts will be updated. No new contacts created.'}
+            : 'Off. Only existing contacts will be updated. No new contacts created.'}
         </span>
       </div>
 
-      {/* ── Submit ── */}
+      {/* Submit */}
       <div className="flex flex-col items-stretch gap-3 border-t border-[var(--st-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
-          <LuFileText className="h-3.5 w-3.5" strokeWidth={2} />
+          <FileText className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
           {selectedFile ? (
             <span>
               Ready:{' '}
@@ -727,11 +737,11 @@ export function BroadcastForm({
               </span>{' '}
               {validationErrors.length > 0 ? (
                 <span className="text-[var(--st-text)]">
-                  · {validationErrors.length} issue
+                  - {validationErrors.length} issue
                   {validationErrors.length === 1 ? '' : 's'}
                 </span>
               ) : (
-                <span className="text-[var(--st-text)]">· validated</span>
+                <span className="text-[var(--st-text)]">- validated</span>
               )}
             </span>
           ) : audienceType === 'tags' && selectedTagIds.length > 0 ? (
@@ -763,14 +773,14 @@ export function BroadcastForm({
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════
+/* ==================================================================
  *  Local UI helpers
- * ══════════════════════════════════════════════════════════════════ */
+ * ================================================================== */
 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
     <span className="inline-flex items-center gap-2 text-[12.5px] font-semibold text-[var(--st-text)]">
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[10px] font-semibold tabular-nums text-[var(--st-text)]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[10px] font-semibold tabular-nums text-[var(--st-text)]">
         {step}
       </span>
       {label}
@@ -795,10 +805,10 @@ function TypeOption({
     <label
       htmlFor={id}
       className={cn(
-        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[12px] border px-3 py-2.5 transition-colors',
+        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--st-radius)] border px-3 py-2.5',
         active
-          ? 'border-primary bg-[var(--st-bg-muted)]/50'
-          : 'border-[var(--st-border)] bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg-muted)]',
+          ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg)]',
       )}
     >
       <RadioGroupItem value={value} id={id} className="mt-0.5" />
@@ -811,37 +821,5 @@ function TypeOption({
         </span>
       </div>
     </label>
-  );
-}
-
-function Field({
-  label,
-  required,
-  optional,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  optional?: boolean;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label
-        htmlFor={htmlFor}
-        className="text-[11.5px] font-semibold text-[var(--st-text-secondary)]"
-      >
-        {label}
-        {required ? <span className="ml-1 text-[var(--st-text)]">*</span> : null}
-        {optional ? (
-          <span className="ml-1 font-normal text-[var(--st-text-secondary)]/70">
-            (optional)
-          </span>
-        ) : null}
-      </Label>
-      {children}
-    </div>
   );
 }

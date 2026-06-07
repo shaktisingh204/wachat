@@ -1,6 +1,24 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Skeleton, Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, cn } from '@/components/sabcrm/20ui';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  EmptyState,
+  IconButton,
+  PageDescription,
+  PageTitle,
+  Skeleton,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  cn,
+} from "@/components/sabcrm/20ui";
 import {
   CalendarClock,
   ChevronLeft,
@@ -9,12 +27,12 @@ import {
   Plus,
   Repeat,
   Smartphone,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
- * SabWa — Scheduler Calendar (`/sabwa/scheduler`).
+ * SabWa - Scheduler Calendar (`/sabwa/scheduler`).
  *
- * Hand-rolled month/week/day calendar — no external calendar lib. Events
+ * Hand-rolled month/week/day calendar, no external calendar lib. Events
  * are draggable between cells; dropping fires `updateScheduledMessage`
  * with the new `scheduledFor`. Clicking an event opens the shared
  * `ScheduleDialog` in edit mode; the "New schedule" button opens it in
@@ -22,11 +40,11 @@ import {
  *
  * Data is fetched via `listScheduledMessages` which returns
  * `{ items: [] }` when the engine has no schedules for the session. When
- * empty, we render the calendar shell with an inline empty state — never
+ * empty, we render the calendar shell with an inline empty state, never
  * placeholder/sample data.
  *
- * Rebuilt on ZoruUI primitives. The month/week/day view picker is rendered
- * as a segmented Button group (no tab UI per the ZoruUI design rules).
+ * Built on 20ui primitives. The month/week/day view picker is rendered
+ * as a segmented Button group (no tab UI per the 20ui design rules).
  */
 
 import * as React from "react";
@@ -58,7 +76,7 @@ interface CalendarEvent {
   raw: ScheduleDialogInitial;
 }
 
-// ─── Date helpers ───────────────────────────────────────────────────────────
+// --- Date helpers -----------------------------------------------------------
 
 function startOfMonth(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -103,7 +121,7 @@ function monthLabel(d: Date): string {
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] as const;
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+// --- Page -------------------------------------------------------------------
 
 export default function SchedulerCalendarPage() {
   const { current: activeSession } = useSabwaSession();
@@ -123,7 +141,7 @@ export default function SchedulerCalendarPage() {
   >();
   const [defaultDate, setDefaultDate] = React.useState<Date | undefined>();
 
-  // ─ Data fetch ──────────────────────────────────────────────────────────
+  // - Data fetch -------------------------------------------------------------
   const refresh = React.useCallback(async () => {
     if (!sessionId) return;
     setLoaded(false);
@@ -146,7 +164,7 @@ export default function SchedulerCalendarPage() {
     void refresh();
   }, [refresh]);
 
-  // ─ Range helpers ──────────────────────────────────────────────────────
+  // - Range helpers ----------------------------------------------------------
   const monthGridStart = React.useMemo(
     () => startOfMonthGrid(cursor),
     [cursor],
@@ -165,7 +183,7 @@ export default function SchedulerCalendarPage() {
     return m;
   }, [events]);
 
-  // ─ Drag and drop ──────────────────────────────────────────────────────
+  // - Drag and drop ----------------------------------------------------------
   const onEventDragStart = (id: string) =>
     (ev: React.DragEvent<HTMLDivElement>) => {
       ev.dataTransfer.setData("text/plain", id);
@@ -185,7 +203,7 @@ export default function SchedulerCalendarPage() {
       const existing = events.find((e) => e.id === id);
       if (!existing) return;
       const next = new Date(target);
-      
+
       if (dropType === "time-slot") {
         const rect = ev.currentTarget.getBoundingClientRect();
         const offsetY = Math.max(0, ev.clientY - rect.top);
@@ -215,7 +233,7 @@ export default function SchedulerCalendarPage() {
       }
     };
 
-  // ─ Dialog plumbing ────────────────────────────────────────────────────
+  // - Dialog plumbing --------------------------------------------------------
   const openCreate = (when?: Date) => {
     setDialogMode("create");
     setDialogInitial(undefined);
@@ -235,7 +253,7 @@ export default function SchedulerCalendarPage() {
     setDialogOpen(true);
   };
 
-  // ─ View nav ───────────────────────────────────────────────────────────
+  // - View nav ---------------------------------------------------------------
   const onPrev = () => {
     if (view === "month")
       setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1));
@@ -265,12 +283,14 @@ export default function SchedulerCalendarPage() {
     return (
       <div className="mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview before scheduling messages."
           action={
             <Link href="/sabwa/overview">
-              <Button size="md">Open accounts</Button>
+              <Button variant="primary" size="md">
+                Open accounts
+              </Button>
             </Link>
           }
         />
@@ -281,7 +301,7 @@ export default function SchedulerCalendarPage() {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="p-4 md:p-6 lg:p-8 space-y-4">
-        {/* ─── Breadcrumb ──────────────────────────────────────────── */}
+        {/* --- Breadcrumb ------------------------------------------------- */}
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -298,24 +318,22 @@ export default function SchedulerCalendarPage() {
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* ─── Toolbar ─────────────────────────────────────────────── */}
+        {/* --- Toolbar --------------------------------------------------- */}
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-              <CalendarClock className="h-5 w-5" />
+              <CalendarClock className="h-5 w-5" aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-[var(--st-text)]">
-                Scheduler — Calendar
-              </h1>
-              <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-                Drag events to reschedule. Click an event to edit; click a
-                day to add.
-              </p>
+              <PageTitle>Scheduler, Calendar</PageTitle>
+              <PageDescription>
+                Drag events to reschedule. Click an event to edit; click a day
+                to add.
+              </PageDescription>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {/* Segmented view picker — no tab UI per ZoruUI rules */}
+            {/* Segmented view picker, no tab UI per 20ui rules */}
             <div
               role="group"
               aria-label="Calendar view"
@@ -326,7 +344,7 @@ export default function SchedulerCalendarPage() {
                   key={m}
                   type="button"
                   size="sm"
-                  variant={view === m ? "default" : "ghost"}
+                  variant={view === m ? "primary" : "ghost"}
                   onClick={() => setView(m)}
                   className="h-7 px-3 text-xs capitalize"
                   aria-pressed={view === m}
@@ -336,14 +354,13 @@ export default function SchedulerCalendarPage() {
               ))}
             </div>
             <div className="inline-flex items-center gap-1">
-              <Button
+              <IconButton
                 variant="outline"
-                size="icon"
+                size="sm"
+                icon={ChevronLeft}
+                label="Previous"
                 onClick={onPrev}
-                aria-label="Previous"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
+              />
               <Button
                 variant="outline"
                 size="sm"
@@ -351,23 +368,25 @@ export default function SchedulerCalendarPage() {
               >
                 Today
               </Button>
-              <Button
+              <IconButton
                 variant="outline"
-                size="icon"
+                size="sm"
+                icon={ChevronRight}
+                label="Next"
                 onClick={onNext}
-                aria-label="Next"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
+              />
             </div>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/sabwa/scheduler/queue">
-                <ListChecks className="mr-1.5 h-4 w-4" />
+            <Link href="/sabwa/scheduler/queue">
+              <Button variant="outline" size="sm" iconLeft={ListChecks}>
                 Queue
-              </Link>
-            </Button>
-            <Button size="sm" onClick={() => openCreate(cursor)}>
-              <Plus className="mr-1.5 h-4 w-4" />
+              </Button>
+            </Link>
+            <Button
+              variant="primary"
+              size="sm"
+              iconLeft={Plus}
+              onClick={() => openCreate(cursor)}
+            >
               New schedule
             </Button>
           </div>
@@ -380,7 +399,7 @@ export default function SchedulerCalendarPage() {
           {headerLabel}
         </p>
 
-        {/* ─── Body ────────────────────────────────────────────────── */}
+        {/* --- Body ------------------------------------------------------ */}
         {!loaded && events.length === 0 && (
           <div className="space-y-2">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -432,12 +451,16 @@ export default function SchedulerCalendarPage() {
 
         {loaded && events.length === 0 && (
           <EmptyState
-            icon={<CalendarClock />}
+            icon={CalendarClock}
             title="Calendar is empty"
-            description="Schedules you create will appear here. No scheduled messages yet — use the 'New schedule' button to add one."
+            description="Schedules you create will appear here. No scheduled messages yet, use the 'New schedule' button to add one."
             action={
-              <Button size="md" onClick={() => openCreate(cursor)}>
-                <Plus className="mr-1.5 h-4 w-4" />
+              <Button
+                variant="primary"
+                size="md"
+                iconLeft={Plus}
+                onClick={() => openCreate(cursor)}
+              >
                 New schedule
               </Button>
             }
@@ -458,7 +481,7 @@ export default function SchedulerCalendarPage() {
   );
 }
 
-// ─── Month grid ─────────────────────────────────────────────────────────────
+// --- Month grid -------------------------------------------------------------
 
 interface MonthGridProps {
   gridStart: Date;
@@ -516,7 +539,8 @@ function MonthGrid({
                   onClick={() => onCellClick(d)}
                   className={cn(
                     "group relative min-h-[96px] cursor-pointer border-b border-r border-[var(--st-border)] p-1.5 text-xs",
-                    !inMonth && "bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]",
+                    !inMonth &&
+                      "bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]",
                   )}
                 >
                   <div className="mb-1 flex items-center justify-between">
@@ -529,17 +553,17 @@ function MonthGrid({
                     >
                       {d.getDate()}
                     </span>
-                    <button
-                      type="button"
-                      aria-label={`Add schedule on ${d.toDateString()}`}
-                      className="rounded p-0.5 opacity-0 transition group-hover:opacity-100 hover:bg-[var(--st-bg-muted)]"
+                    <IconButton
+                      variant="ghost"
+                      size="sm"
+                      icon={Plus}
+                      label={`Add schedule on ${d.toDateString()}`}
+                      className="opacity-0 transition group-hover:opacity-100"
                       onClick={(ev) => {
                         ev.stopPropagation();
                         onAddInCell(d);
                       }}
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
+                    />
                   </div>
                   <div className="space-y-1">
                     {dayEvents.slice(0, 3).map((e) => (
@@ -575,7 +599,7 @@ function MonthGrid({
   );
 }
 
-// ─── Week grid ──────────────────────────────────────────────────────────────
+// --- Week grid --------------------------------------------------------------
 
 interface WeekGridProps {
   weekStart: Date;
@@ -632,8 +656,7 @@ function WeekGrid({
                 const slot = new Date(d);
                 slot.setHours(h, 0, 0, 0);
                 const slotEvents = events.filter(
-                  (e) =>
-                    sameDay(e.date, d) && e.date.getHours() === h,
+                  (e) => sameDay(e.date, d) && e.date.getHours() === h,
                 );
                 return (
                   <div
@@ -665,7 +688,7 @@ function WeekGrid({
   );
 }
 
-// ─── Day grid ───────────────────────────────────────────────────────────────
+// --- Day grid ---------------------------------------------------------------
 
 interface DayGridProps {
   day: Date;
@@ -732,7 +755,7 @@ function DayGrid({
   );
 }
 
-// ─── Event chip ─────────────────────────────────────────────────────────────
+// --- Event chip -------------------------------------------------------------
 
 function EventChip({
   event,
@@ -750,9 +773,11 @@ function EventChip({
     hour: "2-digit",
     minute: "2-digit",
   });
-  
+
   const isRecurring = event.raw.recurrence !== "none";
-  const tzStr = event.raw.timezone ? ` ${event.raw.timezone.split('/').pop()?.replace(/_/g, ' ')}` : "";
+  const tzStr = event.raw.timezone
+    ? ` ${event.raw.timezone.split("/").pop()?.replace(/_/g, " ")}`
+    : "";
 
   return (
     <div
@@ -771,13 +796,20 @@ function EventChip({
         "cursor-grab rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-1.5 py-1 text-[11px] leading-tight text-[var(--st-text)] active:cursor-grabbing hover:bg-[var(--st-bg-muted)] transition-colors flex flex-col",
         expanded && "py-1.5",
       )}
-      title={`${time}${tzStr} — ${event.body} (${meta.label})`}
+      title={`${time}${tzStr}, ${event.body} (${meta.label})`}
     >
       <div className="flex items-center gap-1 w-full overflow-hidden">
-        {isRecurring && <Repeat className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]" />}
+        {isRecurring && (
+          <Repeat
+            className="h-3 w-3 shrink-0 text-[var(--st-text-secondary)]"
+            aria-hidden="true"
+          />
+        )}
         <span className="font-medium tabular-nums shrink-0">{time}</span>
         {(!expanded || !event.raw.timezone) && tzStr && (
-          <span className="text-[var(--st-text-secondary)] shrink-0 text-[10px]">{tzStr}</span>
+          <span className="text-[var(--st-text-secondary)] shrink-0 text-[10px]">
+            {tzStr}
+          </span>
         )}
         <span className="truncate">{event.body}</span>
       </div>
@@ -790,7 +822,7 @@ function EventChip({
   );
 }
 
-// ─── Mapper ─────────────────────────────────────────────────────────────────
+// --- Mapper -----------------------------------------------------------------
 
 function toCalendarEvent(item: SabwaScheduled): CalendarEvent {
   const date = new Date(item.scheduledFor);

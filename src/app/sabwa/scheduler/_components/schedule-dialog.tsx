@@ -1,6 +1,38 @@
 "use client";
 
-import { Button, Calendar, Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, Input, Label, Popover, PopoverContent, PopoverTrigger, RadioGroup, RadioGroupItem, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, cn, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Calendar,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  IconButton,
+  Input,
+  Label,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  RadioGroup,
+  RadioGroupItem,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tag,
+  Textarea,
+  cn,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   CalendarIcon,
   Clock,
@@ -10,11 +42,10 @@ import {
   Paperclip,
   Send,
   Users,
-  X,
-  } from "lucide-react";
+} from "lucide-react";
 
 /**
- * ScheduleDialog — shared modal for creating / editing scheduled SabWa
+ * ScheduleDialog - shared modal for creating / editing scheduled SabWa
  * messages. Re-used by:
  *
  *   - `/sabwa/scheduler`           (calendar view)
@@ -25,14 +56,14 @@ import {
  * in `@/app/actions/sabwa.actions` (`scheduleMessage`,
  * `updateScheduledMessage`, plus `sendMessage` for the "Test now"
  * shortcut). Those actions are still stubs that throw "not implemented",
- * so the UI catches and surfaces them as a toast — that's expected for
+ * so the UI catches and surfaces them as a toast. That is expected for
  * Phase 1 and unblocks the rest of the scheduler UI.
  *
  * SabFiles policy: media attachments come from `<SabFilePickerButton>`.
  * There is intentionally no free-text URL field.
  *
- * Rebuilt on ZoruUI primitives. The recipient-type picker is rendered as
- * a segmented Button group (no tab UI per ZoruUI design rules).
+ * Rebuilt on the 20ui design system. The recipient-type picker is rendered
+ * as a segmented Button group (no tab UI per design rules).
  */
 
 import * as React from "react";
@@ -57,7 +88,7 @@ import type {
   SabwaChat,
 } from "@/lib/sabwa/types";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// --- Types ------------------------------------------------------------------
 
 export type SchedulerRecurrence =
   | "none"
@@ -88,7 +119,7 @@ export interface ScheduleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: "create" | "edit";
-  /** Pre-fill values (edit mode → existing row; create mode → defaults). */
+  /** Pre-fill values (edit mode -> existing row; create mode -> defaults). */
   initial?: ScheduleDialogInitial;
   /** Pre-selected day when opened from a calendar cell. */
   defaultDate?: Date;
@@ -102,7 +133,7 @@ interface TargetDraft extends SabwaScheduledTarget {
   label: string;
 }
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// --- Helpers ----------------------------------------------------------------
 
 const DEFAULT_TIMEZONE: string =
   typeof Intl !== "undefined"
@@ -124,38 +155,30 @@ const TIMEZONES: string[] = [
 
 function targetTypeMeta(type: SabwaScheduledTargetType): {
   label: string;
-  badge: "secondary" | "default";
-  className: string;
   Icon: React.ComponentType<{ className?: string }>;
 } {
   switch (type) {
     case "group":
       return {
         label: "Group",
-        badge: "secondary",
-        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: Users,
       };
     case "broadcast":
       return {
         label: "Broadcast",
-        badge: "secondary",
-        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: Megaphone,
       };
     case "individual":
     default:
       return {
         label: "Chat",
-        badge: "default",
-        className: "border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]",
         Icon: MessageSquare,
       };
   }
 }
 
 function formatDateInput(date: Date): string {
-  // yyyy-MM-dd in local time for <input type="date">.
+  // yyyy-MM-dd in local time.
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
@@ -233,7 +256,7 @@ function describeCron(cron: string): string {
   return "Custom schedule";
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
+// --- Component --------------------------------------------------------------
 
 export function ScheduleDialog({
   open,
@@ -244,9 +267,9 @@ export function ScheduleDialog({
   sessionId,
   onSaved,
 }: ScheduleDialogProps) {
-  const toast = useToast();
+  const { toast } = useToast();
 
-  // ─ State ────────────────────────────────────────────────────────────────
+  // - State ------------------------------------------------------------------
   const initialDate = React.useMemo(
     () => initial?.scheduledFor ?? defaultDate ?? nextDefaultDate(),
     [initial?.scheduledFor, defaultDate],
@@ -302,7 +325,7 @@ export function ScheduleDialog({
   const [submitting, setSubmitting] = React.useState(false);
   const [testing, setTesting] = React.useState(false);
 
-  // ─ Live chat picker data ────────────────────────────────────────────────
+  // - Live chat picker data --------------------------------------------------
   const { data: chatsData, loading: chatsLoading } = useChats(sessionId);
   const resolveJid = useResolveJid(sessionId);
 
@@ -321,7 +344,7 @@ export function ScheduleDialog({
     });
   }, [chatsData, targetTab]);
 
-  // Apply the search-string filter locally — cmdk's built-in fuzzy filter
+  // Apply the search-string filter locally. cmdk's built-in fuzzy filter
   // also runs via `value=` on each item, but we pre-narrow so the empty
   // state message stays meaningful.
   const filteredChats = React.useMemo<SabwaChat[]>(() => {
@@ -357,7 +380,7 @@ export function ScheduleDialog({
     setJidInput("");
   }, [open, initial, defaultDate]);
 
-  // ─ Derived ──────────────────────────────────────────────────────────────
+  // - Derived ----------------------------------------------------------------
   const combined = React.useMemo(
     () => combineDateTime(dateStr, timeStr),
     [dateStr, timeStr],
@@ -388,7 +411,7 @@ export function ScheduleDialog({
 
   const canSubmit = errors.length === 0 && !submitting;
 
-  // ─ Handlers ────────────────────────────────────────────────────────────
+  // - Handlers ---------------------------------------------------------------
   const addTarget = React.useCallback(
     (jid: string, label: string, type: SabwaScheduledTargetType) => {
       const key = jid.trim();
@@ -426,10 +449,10 @@ export function ScheduleDialog({
   function reportError(action: string, err: unknown) {
     const message =
       err instanceof Error ? err.message : "Something went wrong.";
-    toast.toast({
+    toast({
       title: action,
       description: message,
-      variant: "destructive",
+      tone: "danger",
     });
   }
 
@@ -445,11 +468,11 @@ export function ScheduleDialog({
         result = await updateScheduledMessage(initial.scheduledId, draft);
       } else {
         if (!sessionId) {
-          toast.toast({
+          toast({
             title: "No active session",
             description:
               "Connect or select a SabWa session before scheduling.",
-            variant: "destructive",
+            tone: "danger",
           });
           return;
         }
@@ -462,7 +485,7 @@ export function ScheduleDialog({
         );
         return;
       }
-      toast.toast({
+      toast({
         title:
           mode === "edit" ? "Schedule updated" : "Message scheduled",
         description:
@@ -472,6 +495,7 @@ export function ScheduleDialog({
                 recurrenceToCron(recurrence, combined ?? new Date(), customCron) ??
                   "",
               ),
+        tone: "success",
       });
       onSaved?.();
       onOpenChange(false);
@@ -500,19 +524,19 @@ export function ScheduleDialog({
 
   const handleTestNow = React.useCallback(async () => {
     if (targets.length === 0 || (!body.trim() && !mediaId)) {
-      toast.toast({
+      toast({
         title: "Nothing to send",
         description: "Pick a recipient and add a message first.",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
     if (!sessionId) {
-      toast.toast({
+      toast({
         title: "No active session",
         description:
           "Connect or select a SabWa session before testing a send.",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -531,9 +555,10 @@ export function ScheduleDialog({
       if (lastError) {
         reportError("Test send failed", new Error(lastError));
       } else {
-        toast.toast({
+        toast({
           title: "Test sent",
           description: `Delivered to ${targets.length} recipient${targets.length === 1 ? "" : "s"}.`,
+          tone: "success",
         });
       }
     } catch (err) {
@@ -544,7 +569,7 @@ export function ScheduleDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targets, body, mediaId, sessionId, toast]);
 
-  // ─ Render ──────────────────────────────────────────────────────────────
+  // - Render -----------------------------------------------------------------
   const calendarSelected = combined ?? undefined;
 
   const TARGET_KINDS: { value: SabwaScheduledTargetType; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
@@ -573,10 +598,10 @@ export function ScheduleDialog({
         </DialogHeader>
 
         <div className="grid gap-5">
-          {/* ─── Target ─────────────────────────────────────────────── */}
+          {/* --- Target --------------------------------------------------- */}
           <section className="space-y-2">
             <Label className="text-sm font-medium">Recipients</Label>
-            {/* Segmented picker — no tab UI per ZoruUI rules */}
+            {/* Segmented picker - no tab UI per design rules */}
             <div
               role="group"
               aria-label="Recipient type"
@@ -587,7 +612,7 @@ export function ScheduleDialog({
                   key={value}
                   type="button"
                   size="sm"
-                  variant={targetTab === value ? "default" : "ghost"}
+                  variant={targetTab === value ? "primary" : "ghost"}
                   className="h-8 w-full gap-1.5 text-xs"
                   onClick={() => setTargetTab(value)}
                   aria-pressed={targetTab === value}
@@ -598,7 +623,7 @@ export function ScheduleDialog({
               ))}
             </div>
 
-            {/* Searchable picker — live chats list */}
+            {/* Searchable picker - live chats list */}
             <div className="mt-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)]">
               <Command
                 shouldFilter={false}
@@ -607,10 +632,10 @@ export function ScheduleDialog({
                 <CommandInput
                   placeholder={
                     targetTab === "individual"
-                      ? "Search chats or contacts…"
+                      ? "Search chats or contacts..."
                       : targetTab === "group"
-                        ? "Search groups…"
-                        : "Search broadcast lists…"
+                        ? "Search groups..."
+                        : "Search broadcast lists..."
                   }
                   value={search}
                   onValueChange={setSearch}
@@ -618,12 +643,12 @@ export function ScheduleDialog({
                 <CommandList className="max-h-[200px]">
                   {chatsLoading && (
                     <div className="px-3 py-2 text-xs text-[var(--st-text-secondary)]">
-                      Loading chats…
+                      Loading chats...
                     </div>
                   )}
                   <CommandEmpty>
                     {chatsLoading
-                      ? "Loading…"
+                      ? "Loading..."
                       : visibleChats.length === 0
                         ? "No chats available for this session."
                         : "No matches. Try a different search."}
@@ -689,6 +714,7 @@ export function ScheduleDialog({
             <div className="mt-3 space-y-2">
               <div className="flex gap-2">
                 <Input
+                  aria-label="Recipient JID"
                   placeholder={targetPlaceholder}
                   value={jidInput}
                   onChange={(e) => setJidInput(e.target.value)}
@@ -734,39 +760,26 @@ export function ScheduleDialog({
             {targets.length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {targets.map((t) => {
-                  const meta = targetTypeMeta(t.type);
-                  const Icon = meta.Icon;
                   const resolvedName = resolveJid(t.jid);
                   const phone = formatJid(t.jid);
                   return (
-                    <span
+                    <Tag
                       key={t.jid}
-                      className={cn(
-                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs",
-                        meta.className,
-                      )}
+                      onRemove={() => removeTarget(t.jid)}
+                      removeLabel={`Remove ${resolvedName}`}
                       title={phone !== resolvedName ? phone : t.jid}
                     >
-                      <Icon className="h-3 w-3" />
                       <span className="max-w-[16ch] truncate">
                         {resolvedName}
                       </span>
-                      <button
-                        type="button"
-                        aria-label={`Remove ${resolvedName}`}
-                        onClick={() => removeTarget(t.jid)}
-                        className="ml-0.5 rounded-full p-0.5 hover:bg-[var(--st-bg-muted)]"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
+                    </Tag>
                   );
                 })}
               </div>
             )}
           </section>
 
-          {/* ─── Message ────────────────────────────────────────────── */}
+          {/* --- Message -------------------------------------------------- */}
           <section className="space-y-2">
             <Label htmlFor="schedule-body" className="text-sm font-medium">
               Message
@@ -775,7 +788,7 @@ export function ScheduleDialog({
               id="schedule-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your message…"
+              placeholder="Write your message..."
               rows={4}
               className="resize-y"
             />
@@ -792,27 +805,22 @@ export function ScheduleDialog({
                 {mediaId ? "Replace attachment" : "Add attachment"}
               </SabFilePickerButton>
               {mediaId && (
-                <div className="flex items-center gap-1.5 rounded-full border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-2 py-0.5 text-xs text-[var(--st-text)]">
+                <Tag
+                  onRemove={() => {
+                    setMediaId(undefined);
+                    setMediaName(undefined);
+                  }}
+                  removeLabel="Remove attachment"
+                >
                   <span className="max-w-[16ch] truncate">
                     {mediaName ?? "Attachment"}
                   </span>
-                  <button
-                    type="button"
-                    aria-label="Remove attachment"
-                    onClick={() => {
-                      setMediaId(undefined);
-                      setMediaName(undefined);
-                    }}
-                    className="rounded-full p-0.5 hover:bg-[var(--st-bg-muted)]"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
+                </Tag>
               )}
             </div>
           </section>
 
-          {/* ─── Schedule ───────────────────────────────────────────── */}
+          {/* --- Schedule ------------------------------------------------- */}
           <section className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1.5">
               <Label className="text-sm font-medium">Date</Label>
@@ -840,12 +848,12 @@ export function ScheduleDialog({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={calendarSelected}
-                    onSelect={(d) => {
+                    value={calendarSelected}
+                    onChange={(d) => {
                       if (d) setDateStr(formatDateInput(d));
                       setDatePopoverOpen(false);
                     }}
-                    initialFocus
+                    autoFocus
                   />
                 </PopoverContent>
               </Popover>
@@ -854,23 +862,20 @@ export function ScheduleDialog({
               <Label htmlFor="schedule-time" className="text-sm font-medium">
                 Time
               </Label>
-              <div className="relative">
-                <Clock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-                <Input
-                  id="schedule-time"
-                  type="time"
-                  value={timeStr}
-                  onChange={(e) => setTimeStr(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
+              <Input
+                id="schedule-time"
+                type="time"
+                iconLeft={Clock}
+                value={timeStr}
+                onChange={(e) => setTimeStr(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="schedule-tz" className="text-sm font-medium">
                 Timezone
               </Label>
               <Select value={timezone} onValueChange={setTimezone}>
-                <SelectTrigger id="schedule-tz">
+                <SelectTrigger id="schedule-tz" aria-label="Timezone">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -889,20 +894,22 @@ export function ScheduleDialog({
             </div>
           </section>
 
-          {/* ─── Recurrence ─────────────────────────────────────────── */}
+          {/* --- Recurrence ----------------------------------------------- */}
           <section className="space-y-2">
             <Label className="text-sm font-medium">Recurrence</Label>
             <RadioGroup
+              aria-label="Recurrence"
               value={recurrence}
               onValueChange={(v) =>
                 setRecurrence(v as SchedulerRecurrence)
               }
+              orientation="horizontal"
               className="grid grid-cols-2 gap-2 sm:grid-cols-5"
             >
               {(
                 ["none", "daily", "weekly", "monthly", "custom"] as const
               ).map((opt) => (
-                <Label
+                <label
                   key={opt}
                   htmlFor={`rec-${opt}`}
                   className={cn(
@@ -913,43 +920,47 @@ export function ScheduleDialog({
                 >
                   <RadioGroupItem id={`rec-${opt}`} value={opt} />
                   {opt === "none" ? "Once" : opt}
-                </Label>
+                </label>
               ))}
             </RadioGroup>
             {recurrence === "custom" && (
               <Input
+                aria-label="Custom cron expression"
                 value={customCron}
                 onChange={(e) => setCustomCron(e.target.value)}
-                placeholder="Cron — e.g. 0 9 * * 1-5"
+                placeholder="Cron - e.g. 0 9 * * 1-5"
                 className="font-mono text-xs"
               />
             )}
             <p className="text-[11px] text-[var(--st-text-secondary)]">{cronPreview}</p>
           </section>
 
-          {/* ─── End condition ──────────────────────────────────────── */}
+          {/* --- End condition -------------------------------------------- */}
           {recurrence !== "none" && (
             <section className="space-y-2">
               <Label className="text-sm font-medium">End condition</Label>
               <RadioGroup
+                aria-label="End condition"
                 value={endKind}
                 onValueChange={(v) => setEndKind(v as SchedulerEndKind)}
+                orientation="horizontal"
                 className="flex flex-col gap-2 sm:flex-row sm:items-center"
               >
-                <Label
+                <label
                   htmlFor="end-never"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <RadioGroupItem id="end-never" value="never" />
                   Never
-                </Label>
-                <Label
+                </label>
+                <label
                   htmlFor="end-count"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <RadioGroupItem id="end-count" value="count" />
                   After
                   <Input
+                    aria-label="Number of occurrences"
                     type="number"
                     min={1}
                     value={endCount}
@@ -960,31 +971,32 @@ export function ScheduleDialog({
                     className="h-7 w-20"
                   />
                   occurrences
-                </Label>
-                <Label
+                </label>
+                <label
                   htmlFor="end-date"
                   className="flex cursor-pointer items-center gap-2 text-sm text-[var(--st-text)]"
                 >
                   <RadioGroupItem id="end-date" value="date" />
                   On
                   <Input
+                    aria-label="End date"
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
                     disabled={endKind !== "date"}
                     className="h-7"
                   />
-                </Label>
+                </label>
               </RadioGroup>
             </section>
           )}
 
-          {/* ─── Errors ─────────────────────────────────────────────── */}
+          {/* --- Errors --------------------------------------------------- */}
           {errors.length > 0 && (
             <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5">
               <ul className="space-y-0.5 text-xs text-[var(--st-text-secondary)]">
                 {errors.map((e) => (
-                  <li key={e}>• {e}</li>
+                  <li key={e}>- {e}</li>
                 ))}
               </ul>
             </div>
@@ -1013,7 +1025,12 @@ export function ScheduleDialog({
           >
             Cancel
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+          >
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
             {mode === "edit" ? "Save changes" : "Schedule"}
           </Button>
@@ -1025,7 +1042,7 @@ export function ScheduleDialog({
 
 export default ScheduleDialog;
 
-// ─── Internals ──────────────────────────────────────────────────────────────
+// --- Internals --------------------------------------------------------------
 
 function nextDefaultDate(): Date {
   // Round up to the next 15-minute slot for a friendlier default.

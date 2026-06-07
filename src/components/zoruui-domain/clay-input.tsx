@@ -1,4 +1,4 @@
-import { Input } from '@/components/sabcrm/20ui';
+import { Input, SelectField, type SelectOption } from '@/components/sabcrm/20ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -11,94 +11,55 @@ export interface ClayInputProps
 }
 
 /**
- * ClayInput — delegates to the shadcn `ZoruInput` primitive.
- * When `leading`/`trailing` adornments are provided, we wrap the
- * primitive in a flex container with focus-within styling so the
- * decorations sit flush inside the same visual bounding box.
+ * ClayInput - delegates to the 20ui `Input` primitive.
+ *
+ * `leading`/`trailing` adornments map onto 20ui's built-in affix slots
+ * (`prefix`/`suffix`), so the decorations sit flush inside the same visual
+ * bounding box with no hand-rolled wrapper or motion.
  */
 export const ClayInput = React.forwardRef<HTMLInputElement, ClayInputProps>(
-  ({ className, leading, trailing, sizeVariant = 'md', ...props }, ref) => {
-    if (!leading && !trailing) {
-      return (
-        <Input
-          ref={ref}
-          className={cn(
-            sizeVariant === 'sm' && 'h-8 py-1.5 text-[12.5px]',
-            sizeVariant === 'md' && 'h-10',
-            className,
-          )}
-          {...props}
-        />
-      );
-    }
-    return (
-      <div
-        className={cn(
-          'flex items-center gap-2 rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] ring-offset-zoru-surface transition-all duration-150',
-          'focus-within:outline-none focus-within:ring-2 focus-within:ring-[var(--st-border)] focus-within:ring-offset-2',
-          'hover:border-[var(--st-border)] focus-within:border-[var(--st-border)]',
-          sizeVariant === 'sm' ? 'h-8 px-2.5' : 'h-10 px-3',
-          className,
-        )}
-      >
-        {leading ? (
-          <span className="flex shrink-0 items-center text-[var(--st-text-secondary)]">
-            {leading}
-          </span>
-        ) : null}
-        <input
-          ref={ref}
-          className="flex-1 bg-transparent text-sm text-[var(--st-text)] placeholder:text-[var(--st-text-secondary)] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-          {...props}
-        />
-        {trailing ? (
-          <span className="flex shrink-0 items-center text-[var(--st-text-secondary)]">
-            {trailing}
-          </span>
-        ) : null}
-      </div>
-    );
-  },
+  ({ className, leading, trailing, sizeVariant = 'md', ...props }, ref) => (
+    <Input
+      ref={ref}
+      inputSize={sizeVariant}
+      prefix={leading ?? undefined}
+      suffix={trailing ?? undefined}
+      className={cn(className)}
+      {...props}
+    />
+  ),
 );
 ClayInput.displayName = 'ClayInput';
 
-export interface ClaySelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface ClaySelectProps {
   options: Array<{ value: string; label: string }>;
   sizeVariant?: 'sm' | 'md';
+  value?: string | null;
+  onChange?: (value: string | null) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  className?: string;
+  id?: string;
+  'aria-label'?: string;
 }
 
 /**
- * ClaySelect — native <select> styled to match the shadcn Input.
- * (We deliberately keep this as a native element rather than the
- * Radix-based shadcn Select primitive because the public API here
- * accepts standard select HTML attributes plus a flat `options` list.)
+ * ClaySelect - delegates to the 20ui props-based `SelectField`, which renders a
+ * fully accessible listbox (roving focus, typeahead, `role="listbox"`) over the
+ * shared portal popover. It accepts the same flat `options` list as before; the
+ * `value`/`onChange(value)` contract follows the 20ui Select shape.
  */
-export const ClaySelect = React.forwardRef<HTMLSelectElement, ClaySelectProps>(
+export const ClaySelect = React.forwardRef<HTMLButtonElement, ClaySelectProps>(
   ({ className, options, sizeVariant = 'md', ...props }, ref) => (
-    <select
+    <SelectField
       ref={ref}
-      className={cn(
-        'flex w-full rounded-md border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm ring-offset-zoru-surface transition-all duration-150 placeholder:text-[var(--st-text-secondary)] hover:border-[var(--st-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-border)] focus-visible:ring-offset-2 focus-visible:border-[var(--st-border)] disabled:cursor-not-allowed disabled:opacity-50',
-        'appearance-none bg-no-repeat pr-8',
-        sizeVariant === 'sm' && 'h-8 py-1 text-[12.5px]',
-        sizeVariant === 'md' && 'h-10',
-        className,
-      )}
-      style={{
-        backgroundImage:
-          "url(\"data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2395918B'%3e%3cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.06l3.71-3.83a.75.75 0 111.08 1.04l-4.25 4.39a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3e%3c/svg%3e\")",
-        backgroundPosition: 'right 0.625rem center',
-        backgroundSize: '1rem',
-      }}
+      block
+      size={sizeVariant}
+      options={options as SelectOption[]}
+      className={cn(className)}
       {...props}
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    />
   ),
 );
 ClaySelect.displayName = 'ClaySelect';

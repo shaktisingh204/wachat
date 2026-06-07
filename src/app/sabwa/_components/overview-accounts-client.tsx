@@ -1,44 +1,79 @@
 'use client';
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Skeleton, StatCard, cn, useToast } from '@/components/sabcrm/20ui';
 import {
-  useRouter } from 'next/navigation';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  IconButton,
+  Input,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  StatCard,
+  cn,
+  useToast,
+  type BadgeVariant,
+} from '@/components/sabcrm/20ui';
+import { useRouter } from 'next/navigation';
 import {
+  AlertCircle,
   ArrowRight,
   Briefcase,
   Check,
   CheckCircle2,
-  ChevronRight,
   LogOut,
   Pencil,
   Plus,
   QrCode,
   Smartphone,
   Sparkles,
-  AlertCircle,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
   useSabwaSession,
-  toSessionInfo,
   type SabwaSessionInfo,
-  } from '@/lib/sabwa/session-context';
+} from '@/lib/sabwa/session-context';
 import {
   listSessions,
   logoutSession,
   renameSession,
-  } from '@/app/actions/sabwa.actions';
-import type { SabwaSession } from '@/lib/sabwa/types';
+} from '@/app/actions/sabwa.actions';
 
 /**
- * OverviewAccountsClient — `/sabwa/overview` accounts hub.
+ * OverviewAccountsClient. The `/sabwa/overview` accounts hub.
  *
  * Once a project is opened, this becomes the home for that project:
  *   - Active project name + "Change project" link back to /sabwa
  *   - List of linked WhatsApp accounts (sessions) for the project
- *   - Radio-select an account → activates it for Inbox / Chats / etc.
- *   - "Connect another WhatsApp" CTA → /sabwa/connect
+ *   - Radio-select an account to activate it for Inbox / Chats / etc.
+ *   - "Connect another WhatsApp" CTA to /sabwa/connect
  *
  * When no accounts are linked, renders an empty state with a primary
  * "Connect WhatsApp" CTA. When one is selected, the rest of SabWa
@@ -49,11 +84,9 @@ import type { SabwaSession } from '@/lib/sabwa/types';
 import * as React from 'react';
 import Link from 'next/link';
 
-/* ── status pill helpers ───────────────────────────────────────── */
+/* status pill helpers */
 
-function statusVariant(
-  status?: string,
-): 'success' | 'warning' | 'danger' | 'ghost' {
+function statusVariant(status?: string): BadgeVariant {
   switch (status) {
     case 'connected':
       return 'success';
@@ -63,10 +96,10 @@ function statusVariant(
       return 'warning';
     case 'banned':
     case 'error':
-      return 'danger';
+      return 'destructive';
     case 'logged_out':
     default:
-      return 'ghost';
+      return 'secondary';
   }
 }
 
@@ -80,9 +113,12 @@ function formatPhone(phone?: string | null): string {
   return phone.startsWith('+') ? phone : `+${phone}`;
 }
 
-function defaultLabel(
-  session: { id: string; pushName?: string; label?: string; phoneE164?: string },
-): string {
+function defaultLabel(session: {
+  id: string;
+  pushName?: string;
+  label?: string;
+  phoneE164?: string;
+}): string {
   if (session.label?.trim()) return session.label;
   if (session.pushName?.trim()) return session.pushName;
   const phone = formatPhone(session.phoneE164);
@@ -95,7 +131,7 @@ function defaultLabel(
   return tail ? `Linked WhatsApp · ${tail}` : 'Linked WhatsApp';
 }
 
-/* ── rename dialog ─────────────────────────────────────────────── */
+/* rename dialog */
 
 function RenameDialog({
   session,
@@ -106,7 +142,7 @@ function RenameDialog({
   onOpenChange: (open: boolean) => void;
   onRenamed: () => void;
 }) {
-  const toast = useToast();
+  const { toast } = useToast();
   const [value, setValue] = React.useState('');
   const [pending, startTransition] = React.useTransition();
 
@@ -122,14 +158,13 @@ function RenameDialog({
     startTransition(async () => {
       const res = await renameSession(session.id, label);
       if (!res.ok) {
-        toast.toast({
+        toast.error({
           title: 'Rename failed',
           description: res.error,
-          variant: 'destructive',
         });
         return;
       }
-      toast.toast({ title: 'Renamed' });
+      toast.success('Renamed');
       onRenamed();
       onOpenChange(false);
     });
@@ -142,17 +177,15 @@ function RenameDialog({
           <DialogTitle>Rename account</DialogTitle>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="sabwa-rename-label">Label</Label>
+          <Field label="Label" id="sabwa-rename-label">
             <Input
-              id="sabwa-rename-label"
               autoFocus
               maxLength={80}
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="e.g. Primary number"
             />
-          </div>
+          </Field>
           <DialogFooter>
             <Button
               type="button"
@@ -162,7 +195,7 @@ function RenameDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={pending || !value.trim()}>
+            <Button type="submit" variant="primary" disabled={pending || !value.trim()}>
               Save
             </Button>
           </DialogFooter>
@@ -172,7 +205,7 @@ function RenameDialog({
   );
 }
 
-/* ── account row ───────────────────────────────────────────────── */
+/* account row */
 
 function AccountRow({
   session,
@@ -198,28 +231,23 @@ function AccountRow({
           : 'border-[var(--st-border)] bg-[var(--st-bg)] hover:border-[var(--st-border-strong)]',
       )}
     >
-      <button
-        type="button"
+      <IconButton
+        icon={Check}
+        label={isActive ? 'Active account' : 'Set as active account'}
         onClick={onActivate}
+        aria-pressed={isActive}
         className={cn(
-          'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition',
+          'mt-0.5 h-5 w-5 shrink-0 rounded-full border',
           isActive
             ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
             : 'border-[var(--st-border-strong)] bg-[var(--st-bg)] text-transparent hover:border-[var(--st-text)]',
         )}
-        aria-pressed={isActive}
-        aria-label={isActive ? 'Active account' : 'Set as active account'}
-      >
-        <Check className="h-3 w-3" />
-      </button>
+      />
 
       <div className="min-w-0 flex-1 basis-[200px]">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-[14px] text-[var(--st-text)]">{label}</p>
-          <Badge
-            variant={statusVariant(session.status)}
-            className="text-[10px]"
-          >
+          <Badge variant={statusVariant(session.status)} className="text-[10px]">
             {statusLabel(session.status)}
           </Badge>
           {isActive && (
@@ -234,44 +262,39 @@ function AccountRow({
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-1">
-        <Button
-          type="button"
+        <IconButton
+          icon={Pencil}
+          label="Rename"
           variant="ghost"
-          size="icon-sm"
-          aria-label="Rename"
+          size="sm"
           onClick={onRename}
-        >
-          <Pencil />
-        </Button>
-        <Button
-          type="button"
+        />
+        <IconButton
+          icon={LogOut}
+          label="Log out"
           variant="ghost"
-          size="icon-sm"
-          aria-label="Log out"
+          size="sm"
           onClick={onLogout}
-        >
-          <LogOut />
-        </Button>
+        />
       </div>
     </div>
   );
 }
 
-/* ── page ──────────────────────────────────────────────────────── */
+/* page */
 
 export function OverviewAccountsClient() {
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
   const { activeProjectId, projects } = useProject();
-  const { current, sessions, setCurrent, refresh, loading } =
-    useSabwaSession();
+  const { current, sessions, setCurrent, refresh, loading } = useSabwaSession();
 
   const activeProject = React.useMemo(
     () =>
       projects.find(
         (p) =>
           // Defensive: a partially-hydrated project row could be
-          // missing `_id`. Don't crash the render — just skip it.
+          // missing `_id`. Don't crash the render, just skip it.
           p?._id?.toString?.() === activeProjectId,
       ) ?? null,
     [projects, activeProjectId],
@@ -293,7 +316,7 @@ export function OverviewAccountsClient() {
       try {
         const res = await listSessions(activeProjectId);
         if (res.ok) {
-          // Push freshest into context via refresh() — the provider
+          // Push freshest into context via refresh(). The provider
           // re-derives `current` from `setCurrent` storage.
           await refresh();
         }
@@ -310,9 +333,7 @@ export function OverviewAccountsClient() {
   //   - Otherwise leave it unselected so the user picks deliberately.
   React.useEffect(() => {
     if (current) return;
-    const connected = sessions.find(
-      (s) => s.id && s.status === 'connected',
-    );
+    const connected = sessions.find((s) => s.id && s.status === 'connected');
     if (connected) {
       setCurrent(connected.id);
       return;
@@ -323,8 +344,8 @@ export function OverviewAccountsClient() {
   }, [current, sessions, setCurrent]);
 
   // Auto-refresh while any session is in a transitional state. The engine
-  // flips `pending`/`pairing`/`syncing` → `connected` over SSE, but this
-  // hub doesn't subscribe to the per-session stream — instead we poll the
+  // flips `pending`/`pairing`/`syncing` to `connected` over SSE, but this
+  // hub doesn't subscribe to the per-session stream. Instead we poll the
   // sessions list every 4s while at least one row is still settling, so
   // the user sees the row update without a manual reload. Stops as soon
   // as every session is `connected` or in a terminal state.
@@ -353,14 +374,13 @@ export function OverviewAccountsClient() {
     startLogoutTransition(async () => {
       const res = await logoutSession(logoutTarget.id);
       if (!res.ok) {
-        toast.toast({
+        toast.error({
           title: 'Logout failed',
           description: res.error,
-          variant: 'destructive',
         });
         return;
       }
-      toast.toast({ title: 'Account logged out' });
+      toast.success('Account logged out');
       setLogoutTarget(null);
       await refresh();
       router.refresh();
@@ -382,72 +402,73 @@ export function OverviewAccountsClient() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>
-              {activeProject?.name ?? 'Project'}
-            </BreadcrumbPage>
+            <BreadcrumbPage>{activeProject?.name ?? 'Project'}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-secondary)]">
-            <Briefcase className="-mt-0.5 mr-1 inline h-3 w-3" />
+      <PageHeader bordered={false} className="mt-5">
+        <PageHeaderHeading>
+          <PageEyebrow>
+            <Briefcase className="-mt-0.5 mr-1 inline h-3 w-3" aria-hidden="true" />
             {activeProject?.name ?? 'Project'}
-          </p>
-          <h1 className="mt-1 text-[26px] leading-[1.15] tracking-[-0.015em] text-[var(--st-text)]">
-            WhatsApp accounts
-          </h1>
-          <p className="mt-1 text-[13px] text-[var(--st-text-secondary)]">
+          </PageEyebrow>
+          <PageTitle>WhatsApp accounts</PageTitle>
+          <PageDescription>
             Pick one account to activate it across SabWa. Inbox, Chats,
             Broadcasts, and AI all use whichever account is active.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
           <Link href="/sabwa">
             <Button variant="outline" size="md">
               Change project
             </Button>
           </Link>
           <Link href="/sabwa/connect">
-            <Button size="md">
-              <Plus />
+            <Button variant="primary" size="md" iconLeft={Plus}>
               Connect WhatsApp
             </Button>
           </Link>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      {/* Active-account ready banner — confirms the rest of SabWa works */}
+      {/* Active-account ready banner. Confirms the rest of SabWa works */}
       {current && current.status === 'connected' && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
-          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]" />
-          <div className="min-w-0 flex-1">
-            <p className="text-[13px] text-[var(--st-text)]">
-              <strong>{current.label ?? current.pushName ?? 'This account'}</strong>{' '}
-              is active. Inbox, Chats, Groups, Broadcasts and AI assistant
-              now operate on this number.
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <Link href="/sabwa/inbox">
-                <Button variant="outline" size="sm">
-                  Open inbox
-                  <ArrowRight />
-                </Button>
-              </Link>
-              <Link href="/sabwa/chats">
-                <Button variant="ghost" size="sm">
-                  Chats
-                </Button>
-              </Link>
-              <Link href="/sabwa/broadcasts">
-                <Button variant="ghost" size="sm">
-                  Broadcasts
-                </Button>
-              </Link>
+        <Card variant="outlined" padding="md" className="mt-5 bg-[var(--st-bg-secondary)]">
+          <CardBody className="flex items-start gap-3">
+            <CheckCircle2
+              className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-status-ok)]"
+              aria-hidden="true"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] text-[var(--st-text)]">
+                <strong>
+                  {current.label ?? current.pushName ?? 'This account'}
+                </strong>{' '}
+                is active. Inbox, Chats, Groups, Broadcasts and AI assistant
+                now operate on this number.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Link href="/sabwa/inbox">
+                  <Button variant="outline" size="sm" iconRight={ArrowRight}>
+                    Open inbox
+                  </Button>
+                </Link>
+                <Link href="/sabwa/chats">
+                  <Button variant="ghost" size="sm">
+                    Chats
+                  </Button>
+                </Link>
+                <Link href="/sabwa/broadcasts">
+                  <Button variant="ghost" size="sm">
+                    Broadcasts
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       )}
 
       {/* Global Metric Roll-ups */}
@@ -456,17 +477,27 @@ export function OverviewAccountsClient() {
           <StatCard
             label="Total Accounts"
             value={sessions.length.toString()}
-            icon={<Smartphone />}
+            icon={Smartphone}
           />
           <StatCard
             label="Ready to Use"
-            value={sessions.filter(s => s.status === 'connected').length.toString()}
-            icon={<CheckCircle2 className="text-[var(--st-status-ok)]" />}
+            value={sessions
+              .filter((s) => s.status === 'connected')
+              .length.toString()}
+            icon={CheckCircle2}
+            accent="var(--st-status-ok)"
           />
           <StatCard
             label="Needs Attention"
-            value={sessions.filter(s => s.status !== 'connected').length.toString()}
-            icon={<AlertCircle className={sessions.filter(s => s.status !== 'connected').length > 0 ? "text-[var(--st-warn)]" : "text-[var(--st-text-secondary)]"} />}
+            value={sessions
+              .filter((s) => s.status !== 'connected')
+              .length.toString()}
+            icon={AlertCircle}
+            accent={
+              sessions.filter((s) => s.status !== 'connected').length > 0
+                ? 'var(--st-warn)'
+                : undefined
+            }
           />
         </div>
       )}
@@ -489,13 +520,12 @@ export function OverviewAccountsClient() {
           </div>
         ) : sessions.length === 0 ? (
           <EmptyState
-            icon={<Sparkles />}
+            icon={Sparkles}
             title="No WhatsApp accounts linked yet"
             description="Connect a personal WhatsApp number to start using Inbox, Chats, Broadcasts, and AI for this project."
             action={
               <Link href="/sabwa/connect">
-                <Button size="md">
-                  <QrCode />
+                <Button variant="primary" size="md" iconLeft={QrCode}>
                   Connect WhatsApp
                 </Button>
               </Link>
@@ -509,7 +539,7 @@ export function OverviewAccountsClient() {
                 // back to the index so React doesn't reuse rows by mistake.
                 key={s.id || `row-${idx}`}
                 session={s}
-                // An empty session id should never match the active one —
+                // An empty session id should never match the active one,
                 // otherwise every row with `id === ''` would render as
                 // the active account.
                 isActive={!!s.id && current?.id === s.id}
@@ -517,9 +547,10 @@ export function OverviewAccountsClient() {
                   if (!s.id) return;
                   setCurrent(s.id);
                   if (s.status !== 'connected') {
-                    toast.toast({
+                    toast({
                       title: "This account isn't connected yet",
-                      description: 'Finish pairing first to use it across SabWa.',
+                      description:
+                        'Finish pairing first to use it across SabWa.',
                     });
                   }
                 }}
@@ -527,14 +558,16 @@ export function OverviewAccountsClient() {
                 onLogout={() => setLogoutTarget(s)}
               />
             ))}
-            <Link href="/sabwa/connect" className="mt-1">
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] p-4 text-[13px] text-[var(--st-text-secondary)] transition hover:border-[var(--st-text)] hover:text-[var(--st-text)]"
+            <Link href="/sabwa/connect" className="mt-1 block">
+              <Button
+                variant="outline"
+                size="md"
+                block
+                iconLeft={Plus}
+                className="border-dashed text-[var(--st-text-secondary)]"
               >
-                <Plus className="h-4 w-4" />
                 Connect another WhatsApp account
-              </button>
+              </Button>
             </Link>
           </div>
         )}
@@ -542,13 +575,18 @@ export function OverviewAccountsClient() {
 
       {/* Hint when accounts exist but none active */}
       {sessions.length > 0 && !current && (
-        <div className="mt-5 flex items-start gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-4">
-          <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]" />
-          <p className="text-[13px] text-[var(--st-text-secondary)]">
-            Pick an account above to activate it. Other SabWa features
-            (Inbox, Chats, Broadcasts) need an active account to work.
-          </p>
-        </div>
+        <Card variant="outlined" padding="md" className="mt-5">
+          <CardBody className="flex items-start gap-3">
+            <Smartphone
+              className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]"
+              aria-hidden="true"
+            />
+            <p className="text-[13px] text-[var(--st-text-secondary)]">
+              Pick an account above to activate it. Other SabWa features
+              (Inbox, Chats, Broadcasts) need an active account to work.
+            </p>
+          </CardBody>
+        </Card>
       )}
 
       <RenameDialog
@@ -574,9 +612,7 @@ export function OverviewAccountsClient() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={logoutPending}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={logoutPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -594,3 +630,5 @@ export function OverviewAccountsClient() {
 }
 
 export default OverviewAccountsClient;
+</content>
+</invoke>

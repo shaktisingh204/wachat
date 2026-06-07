@@ -1,6 +1,44 @@
 'use client';
 
-import { Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, CardBody, CardHeader, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, Popover, PopoverContent, PopoverTrigger, Skeleton, Switch, Table, TBody, Td, Th, THead, Tr, Textarea } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  EmptyState,
+  Field,
+  Input,
+  Menu,
+  MenuItem,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  Switch,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tag,
+  Textarea,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import {
   Edit3,
   MessageSquareReply,
@@ -10,21 +48,20 @@ import {
   Search,
   Smartphone,
   Trash2,
-  X,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * SabWa — Quick Replies (Page 16)
+ * SabWa - Quick Replies (Page 16)
  *
- * Table of slash-command shortcuts (e.g. /thanks → "Thanks for reaching
- * out!"). Each row exposes a usage count, last-used timestamp, and an
- * enable toggle. A "New quick reply" Dialog has a live preview showing
+ * Table of slash-command shortcuts (for example /thanks expands to "Thanks
+ * for reaching out!"). Each row exposes a usage count, last-used timestamp,
+ * and an enable toggle. A "New quick reply" Dialog has a live preview showing
  * what gets sent when the user types the shortcut, plus optional media.
  *
- * Migrated to ZoruUI primitives. No behaviour changes — same server
- * actions, same prop shapes.
+ * Migrated to 20ui primitives. No behaviour changes - same server actions,
+ * same prop shapes.
  *
- * Source of truth: SABWA_PLAN.md § 6 — Page 16.
+ * Source of truth: SABWA_PLAN.md section 6 - Page 16.
  */
 
 import * as React from 'react';
@@ -169,7 +206,7 @@ export default function Page() {
           </BreadcrumbList>
         </Breadcrumb>
         <EmptyState
-          icon={<Smartphone />}
+          icon={Smartphone}
           title="No active WhatsApp account"
           description="Pick a connected account on the SabWa overview to start using this page."
           action={
@@ -202,38 +239,35 @@ export default function Page() {
       </Breadcrumb>
 
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <PageHeader bordered={false}>
         <div className="flex items-start gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
-            <MessageSquareReply className="h-5 w-5" />
+            <MessageSquareReply className="h-5 w-5" aria-hidden="true" />
           </div>
-          <div>
-            <h1 className="text-[24px] tracking-[-0.015em] text-[var(--st-text)] leading-[1.2]">
-              Quick replies
-            </h1>
-            <p className="mt-1 text-[13px] text-[var(--st-text-secondary)] max-w-2xl">
+          <PageHeaderHeading>
+            <PageTitle>Quick replies</PageTitle>
+            <PageDescription>
               Slash-command shortcuts that expand into saved blurbs inside the
               chat composer.
-            </p>
-          </div>
+            </PageDescription>
+          </PageHeaderHeading>
         </div>
-        <Button onClick={openNew}>
-          <Plus className="mr-2 h-4 w-4" /> New quick reply
-        </Button>
-      </div>
+        <PageActions>
+          <Button onClick={openNew} iconLeft={Plus}>
+            New quick reply
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <Card>
+      <Card padding="none">
         <CardHeader>
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search shortcuts or body…"
-              className="pl-9"
-              aria-label="Search quick replies"
-            />
-          </div>
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search shortcuts or body"
+            iconLeft={Search}
+            aria-label="Search quick replies"
+          />
         </CardHeader>
         <CardBody className="p-0">
           <Table>
@@ -260,7 +294,7 @@ export default function Page() {
                 <Tr>
                   <Td colSpan={6} className="py-8">
                     <EmptyState
-                      icon={<MessageSquareReply />}
+                      icon={MessageSquareReply}
                       title={
                         search
                           ? 'No quick replies match your search'
@@ -269,7 +303,7 @@ export default function Page() {
                       description={
                         search
                           ? 'Try a different shortcut or body keyword, or clear the search.'
-                          : 'Save short blurbs as slash-commands like /thanks or /eta — type the shortcut in any composer to expand it instantly.'
+                          : 'Save short blurbs as slash-commands like /thanks or /eta. Type the shortcut in any composer to expand it instantly.'
                       }
                       action={
                         search ? (
@@ -280,8 +314,7 @@ export default function Page() {
                             Clear search
                           </Button>
                         ) : (
-                          <Button onClick={openNew}>
-                            <Plus className="mr-1.5 h-4 w-4" />
+                          <Button onClick={openNew} iconLeft={Plus}>
                             New quick reply
                           </Button>
                         )
@@ -311,7 +344,7 @@ export default function Page() {
                   </Td>
                   <Td className="max-w-md">
                     <span className="line-clamp-1 text-sm text-[var(--st-text-secondary)]">
-                      {r.body || '—'}
+                      {r.body || '-'}
                     </span>
                   </Td>
                   <Td className="text-sm">{r.usageCount}</Td>
@@ -319,33 +352,29 @@ export default function Page() {
                     {formatRelative(r.lastUsedAt)}
                   </Td>
                   <Td>
-                    <Popover>
-                      <PopoverTrigger asChild>
+                    <Menu
+                      align="end"
+                      label={`Actions for ${r.shortcut}`}
+                      trigger={
                         <Button
-                          size="icon"
+                          size="sm"
                           variant="ghost"
                           aria-label={`Actions for ${r.shortcut}`}
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent align="end" className="w-40 p-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(r)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
-                        >
-                          <Edit3 className="h-3.5 w-3.5" /> Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void onDelete(r.id)}
-                          className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm text-[var(--st-danger)] hover:bg-[var(--st-bg-secondary)]"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </button>
-                      </PopoverContent>
-                    </Popover>
+                          iconLeft={MoreHorizontal}
+                        />
+                      }
+                    >
+                      <MenuItem icon={Edit3} onSelect={() => openEdit(r)}>
+                        Edit
+                      </MenuItem>
+                      <MenuItem
+                        icon={Trash2}
+                        danger
+                        onSelect={() => void onDelete(r.id)}
+                      >
+                        Delete
+                      </MenuItem>
+                    </Menu>
                   </Td>
                 </Tr>
               ))}
@@ -369,7 +398,7 @@ export default function Page() {
   );
 }
 
-// ─── Editor dialog ─────────────────────────────────────────────────────────
+// --- Editor dialog ---------------------------------------------------------
 
 interface QuickReplyDialogProps {
   sessionId: string;
@@ -425,6 +454,9 @@ function QuickReplyDialog({
     onSaved();
   };
 
+  const addVariable = (token: string) =>
+    setBody((b) => `${b}${token} `);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
@@ -439,28 +471,26 @@ function QuickReplyDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="qr-shortcut">Shortcut</Label>
+          <Field
+            label="Shortcut"
+            error={
+              dupShortcut
+                ? 'Another quick reply already uses this shortcut.'
+                : undefined
+            }
+            help={
+              !dupShortcut && !shortcut.startsWith('/') && shortcut
+                ? `Will be saved as ${normalized}.`
+                : undefined
+            }
+          >
             <Input
-              id="qr-shortcut"
               value={shortcut}
               onChange={(e) => setShortcut(e.target.value)}
               placeholder="/thanks"
-              aria-invalid={dupShortcut || undefined}
             />
-            {!shortcut.startsWith('/') && shortcut && (
-              <p className="text-[11px] text-[var(--st-text-secondary)]">
-                Will be saved as <code>{normalized}</code>.
-              </p>
-            )}
-            {dupShortcut && (
-              <p className="text-[11px] text-[var(--st-danger)]">
-                Another quick reply already uses this shortcut.
-              </p>
-            )}
-          </div>
-          <div className="space-y-1.5">
-            <Label>Attached media</Label>
+          </Field>
+          <Field label="Attached media">
             <div className="flex items-center gap-2">
               <SabFilePickerButton
                 accept="all"
@@ -470,47 +500,69 @@ function QuickReplyDialog({
                   setMediaName(name);
                 }}
               >
-                <Paperclip className="mr-1.5 h-3.5 w-3.5" />
+                <Paperclip className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
                 {mediaSabFileId ? 'Replace' : 'Attach'}
               </SabFilePickerButton>
               {mediaSabFileId && (
-                <Badge variant="secondary" className="gap-1">
+                <Tag
+                  onRemove={() => {
+                    setMediaSabFileId(undefined);
+                    setMediaName('');
+                  }}
+                  removeLabel="Remove media"
+                >
                   {mediaName || 'Media attached'}
-                  <button
-                    type="button"
-                    aria-label="Remove media"
-                    onClick={() => {
-                      setMediaSabFileId(undefined);
-                      setMediaName('');
-                    }}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
+                </Tag>
               )}
             </div>
-          </div>
+          </Field>
         </div>
 
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center">
-            <Label htmlFor="qr-body">Body</Label>
-            <div className="flex items-center gap-1.5 text-[11px] text-[var(--st-text-secondary)]">
-              <span>Variables:</span>
-              <button type="button" onClick={() => setBody(b => b + '{{first_name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{first_name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{last_name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{last_name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{name}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{name}}'}</button>
-              <button type="button" onClick={() => setBody(b => b + '{{phone}} ')} className="hover:text-[var(--st-text)] hover:underline decoration-dotted transition-colors">{'{{phone}}'}</button>
-            </div>
-          </div>
+        <Field
+          label={
+            <span className="flex items-center justify-between gap-2">
+              <span>Body</span>
+              <span className="flex items-center gap-1.5 text-[11px] font-normal text-[var(--st-text-secondary)]">
+                <span>Variables:</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addVariable('{{first_name}}')}
+                >
+                  {'{{first_name}}'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addVariable('{{last_name}}')}
+                >
+                  {'{{last_name}}'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addVariable('{{name}}')}
+                >
+                  {'{{name}}'}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addVariable('{{phone}}')}
+                >
+                  {'{{phone}}'}
+                </Button>
+              </span>
+            </span>
+          }
+        >
           <Textarea
-            id="qr-body"
             rows={5}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Hi {{first_name}}, thanks for reaching out! We'll be back to you within a few hours."
           />
-        </div>
+        </Field>
 
         {/* Live preview */}
         <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-3">
@@ -551,9 +603,13 @@ function QuickReplyDialog({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={() => void onSubmit()} disabled={!valid || saving}>
+          <Button
+            onClick={() => void onSubmit()}
+            disabled={!valid || saving}
+            loading={saving}
+          >
             {saving
-              ? 'Saving…'
+              ? 'Saving'
               : initial
                 ? 'Save changes'
                 : 'Create quick reply'}

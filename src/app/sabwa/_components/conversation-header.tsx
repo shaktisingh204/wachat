@@ -1,6 +1,16 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage, Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/sabcrm/20ui';
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/sabcrm/20ui';
 import {
   ArrowLeft,
   MoreVertical,
@@ -10,12 +20,12 @@ import {
   Search,
   Users,
   Video,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
- * ConversationHeader — top bar of the middle pane in the SabWa inbox.
+ * ConversationHeader - top bar of the middle pane in the SabWa inbox.
  *
- * Shows the active chat's avatar + name + presence ("online" / "typing"
+ * Shows the active chat's avatar, name and presence ("online" / "typing"
  * / "last seen ..."). On the right, surfaces a search-within-chat button,
  * a more-actions menu, and a toggle for the right-side contact panel.
  *
@@ -36,7 +46,7 @@ export interface ConversationHeaderProps {
   /** Toggle the right-hand contact panel. */
   onTogglePanel?: () => void;
   panelOpen?: boolean;
-  /** Presence string from SSE — "online", "typing...", etc. */
+  /** Presence string from SSE, e.g. "online", "typing...". */
   presence?: string | null;
   onSearch?: () => void;
   onArchive?: () => void;
@@ -91,35 +101,34 @@ export function ConversationHeader({
           aria-label="Back to chats"
           onClick={onBack}
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
         </Button>
       ) : null}
 
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={onTogglePanel}
-        role="button"
         aria-label={panelOpen ? 'Close contact panel' : 'Open contact panel'}
-        className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-[var(--st-radius)] px-1 py-1 text-left hover:bg-[var(--st-bg-muted)]"
+        className="!h-auto min-w-0 flex-1 justify-start gap-3 px-1 py-1 text-left"
       >
-        <Avatar className="h-9 w-9 shrink-0">
-          {chat.profilePicUrl ? (
-            <AvatarImage src={chat.profilePicUrl} alt={name} />
-          ) : null}
-          <AvatarFallback className="text-xs">
-            {isGroup ? <Users className="h-4 w-4" /> : initials}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-[var(--st-text)]">{name}</p>
-          <p
-            className="truncate text-xs text-[var(--st-text-secondary)]"
-            aria-label="Open contact panel"
-          >
-            {subtitle}
-          </p>
-        </div>
-      </button>
+        <span className="flex min-w-0 flex-1 items-center gap-3">
+          <Avatar className="h-9 w-9 shrink-0">
+            {chat.profilePicUrl ? (
+              <AvatarImage src={chat.profilePicUrl} alt={name} />
+            ) : null}
+            <AvatarFallback className="text-xs">
+              {isGroup ? <Users className="h-4 w-4" aria-hidden="true" /> : initials}
+            </AvatarFallback>
+          </Avatar>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium text-[var(--st-text)]">{name}</span>
+            <span className="block truncate text-xs text-[var(--st-text-secondary)]">
+              {subtitle}
+            </span>
+          </span>
+        </span>
+      </Button>
 
       <div className="flex shrink-0 items-center gap-0.5">
         <Button
@@ -129,7 +138,7 @@ export function ConversationHeader({
           aria-label="Voice call"
           className="hidden md:inline-flex"
         >
-          <Phone className="h-4 w-4" />
+          <Phone className="h-4 w-4" aria-hidden="true" />
         </Button>
         <Button
           type="button"
@@ -138,7 +147,7 @@ export function ConversationHeader({
           aria-label="Video call"
           className="hidden md:inline-flex"
         >
-          <Video className="h-4 w-4" />
+          <Video className="h-4 w-4" aria-hidden="true" />
         </Button>
         <Button
           type="button"
@@ -147,7 +156,7 @@ export function ConversationHeader({
           aria-label="Search in chat"
           onClick={onSearch}
         >
-          <Search className="h-4 w-4" />
+          <Search className="h-4 w-4" aria-hidden="true" />
         </Button>
         {onTogglePanel ? (
           <Button
@@ -159,16 +168,16 @@ export function ConversationHeader({
             className="hidden md:inline-flex"
           >
             {panelOpen ? (
-              <PanelRightClose className="h-4 w-4" />
+              <PanelRightClose className="h-4 w-4" aria-hidden="true" />
             ) : (
-              <PanelRightOpen className="h-4 w-4" />
+              <PanelRightOpen className="h-4 w-4" aria-hidden="true" />
             )}
           </Button>
         ) : null}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button type="button" variant="ghost" size="icon" aria-label="More">
-              <MoreVertical className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" aria-hidden="true" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -179,10 +188,7 @@ export function ConversationHeader({
               {chat.archived ? 'Unarchive' : 'Archive chat'}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={() => onClearMessages?.()}
-              className="text-[var(--st-danger)]"
-            >
+            <DropdownMenuItem variant="danger" onSelect={() => onClearMessages?.()}>
               Clear messages
             </DropdownMenuItem>
           </DropdownMenuContent>

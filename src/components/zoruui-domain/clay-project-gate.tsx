@@ -1,19 +1,7 @@
 'use client';
 
-import { Card, Button, Select } from '@/components/sabcrm/20ui';
-import {
-  usePathname,
-  useRouter } from 'next/navigation';
-import {
-  LuArrowRight,
-  LuCheck,
-  LuPlus,
-  LuSearch,
-  LuMessageSquare,
-  } from 'react-icons/lu';
-
 /**
- * ClayProjectGate — "pick a project first" gate for Wachat routes.
+ * ClayProjectGate - "pick a project first" gate for Wachat routes.
  *
  * Every Wachat page is scoped to a single WhatsApp Business Account.
  * When the user has no `activeProjectId` selected, we intercept the
@@ -26,17 +14,34 @@ import {
  * page).
  *
  * Note: gate / hook ordering / conditions are preserved exactly as
- * they were before the shadcn restyle. Only the visual chrome was
- * migrated to shadcn `ZoruCard` + `ZoruButton`.
+ * they were before. Only the visual chrome was migrated to the 20ui
+ * design system.
  */
 
 import * as React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ArrowRight, Check, Plus, Search, MessageSquare } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import {
+  cn,
+  Button,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
-import { } from './clay-button';
-import { ClayInput } from './clay-input';
-import { ClayBreadcrumbs } from './clay-breadcrumbs';
 
 /**
  * Routes that are allowed to render without an active project.
@@ -67,7 +72,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
     return <>{children}</>;
   }
 
-  // Project already selected — pass through
+  // Project already selected, pass through
   if (activeProjectId) {
     return <>{children}</>;
   }
@@ -83,7 +88,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
 
   const selectProject = (id: string) => {
     setActiveProjectId(id);
-    // Persist immediately — the ProjectProvider reads from localStorage
+    // Persist immediately. The ProjectProvider reads from localStorage
     // on mount, so seeding the key here keeps the selection after
     // hard refresh.
     try {
@@ -95,51 +100,50 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
 
   return (
     <div>
-      <ClayBreadcrumbs
-        items={[
-          { label: 'Wachat', href: '/dashboard' },
-          { label: 'Select project' },
-        ]}
-      />
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dashboard">Wachat</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Select project</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
 
-      <div className="mt-5 flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-[var(--st-text)] leading-[1.1]">
-            Select a project
-          </h1>
-          <p className="mt-1.5 text-[13px] text-[var(--st-text-secondary)]">
-            Wachat is scoped per WhatsApp Business Account. Pick the
-            project you want to work in to continue.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="pill"
-            size="md"
-            onClick={() => router.push('/wachat')}
-          >
+      <PageHeader className="mt-5">
+        <PageHeaderHeading>
+          <PageTitle>Select a project</PageTitle>
+          <PageDescription>
+            Wachat is scoped per WhatsApp Business Account. Pick the project
+            you want to work in to continue.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="secondary" onClick={() => router.push('/wachat')}>
             All projects
           </Button>
           <Button
-            variant="obsidian"
-            size="md"
-            leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
+            variant="primary"
+            iconLeft={Plus}
             onClick={() => router.push('/wachat/setup')}
           >
             Connect account
           </Button>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
       {/* Filter */}
       <div className="mt-6 max-w-md">
-        <ClayInput
-          sizeVariant="md"
-          placeholder="Search your projects"
-          leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        />
+        <Field label="Search projects">
+          <Input
+            iconLeft={Search}
+            placeholder="Search your projects"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          />
+        </Field>
       </div>
 
       {/* Project grid */}
@@ -148,71 +152,68 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-[118px] animate-pulse rounded-[14px] bg-[var(--st-bg-muted)]"
+              className="h-[118px] animate-pulse rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]"
             />
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <Card variant="default" className="mt-8 p-10 text-center">
+        <div className="mt-8">
           {filter ? (
-            <>
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
-                <LuSearch className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="mt-4 text-[15px] font-semibold text-[var(--st-text)]">
-                No projects match your search
-              </div>
-              <div className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
-                Try a different name, or clear the filter to see all your projects.
-              </div>
-              <Button
-                variant="pill"
-                size="md"
-                onClick={() => setFilter('')}
-                className="mt-5"
-              >
-                Clear filter
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--st-bg-muted)]">
-                <LuMessageSquare className="h-6 w-6 text-[var(--st-text)]" strokeWidth={1.75} />
-              </div>
-              <div className="mt-4 text-[18px] font-semibold text-[var(--st-text)]">
-                Connect your WhatsApp Business
-              </div>
-              <div className="mx-auto mt-1.5 max-w-sm text-[13px] text-[var(--st-text-secondary)] leading-relaxed">
-                Link your WhatsApp Business Account via Meta to start sending
-                broadcasts, managing chats, and building automations.
-              </div>
-              <div className="mt-5 flex items-center justify-center gap-2.5">
-                <Button
-                  variant="obsidian"
-                  size="md"
-                  leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                  onClick={() => router.push('/wachat/setup')}
-                >
-                  Connect WhatsApp account
+            <EmptyState
+              icon={Search}
+              title="No projects match your search"
+              description="Try a different name, or clear the filter to see all your projects."
+              action={
+                <Button variant="secondary" onClick={() => setFilter('')}>
+                  Clear filter
                 </Button>
-              </div>
-              <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-4 text-left">
-                <div>
-                  <div className="text-[12px] font-semibold text-[var(--st-text)]">1. Click connect</div>
-                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Open the Meta guided signup</div>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={MessageSquare}
+              title="Connect your WhatsApp Business"
+              description="Link your WhatsApp Business Account via Meta to start sending broadcasts, managing chats, and building automations."
+              action={
+                <div className="flex flex-col items-center gap-6">
+                  <Button
+                    variant="primary"
+                    iconLeft={Plus}
+                    onClick={() => router.push('/wachat/setup')}
+                  >
+                    Connect WhatsApp account
+                  </Button>
+                  <div className="grid max-w-lg grid-cols-3 gap-4 text-left">
+                    <div>
+                      <div className="text-[12px] font-semibold text-[var(--st-text)]">
+                        1. Click connect
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
+                        Open the Meta guided signup
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[12px] font-semibold text-[var(--st-text)]">
+                        2. Login to Meta
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
+                        Grant WhatsApp permissions
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[12px] font-semibold text-[var(--st-text)]">
+                        3. Auto-sync
+                      </div>
+                      <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">
+                        Your WABA appears instantly
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-[12px] font-semibold text-[var(--st-text)]">2. Login to Meta</div>
-                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Grant WhatsApp permissions</div>
-                </div>
-                <div>
-                  <div className="text-[12px] font-semibold text-[var(--st-text)]">3. Auto-sync</div>
-                  <div className="mt-0.5 text-[11px] text-[var(--st-text-secondary)]">Your WABA appears instantly</div>
-                </div>
-              </div>
-            </>
+              }
+            />
           )}
-        </Card>
+        </div>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProjects.map((p) => {
@@ -221,62 +222,68 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               ? (p as any).phoneNumbers.length > 0
               : false;
             return (
-              <button
+              <Card
                 key={id}
-                type="button"
+                variant="interactive"
+                padding="md"
+                role="button"
+                tabIndex={0}
                 onClick={() => selectProject(id)}
-                className={cn('group block w-full text-left')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    selectProject(id);
+                  }
+                }}
+                aria-label={`Select project ${p.name || 'Untitled project'}`}
+                className="group flex flex-col text-left"
               >
-                <Card
-                  variant="default"
-                  className="flex flex-col p-4 transition-transform group-hover:-translate-y-0.5 group-hover:shadow-md"
-                >
-                  <div className="flex items-start justify-between">
-                    <div
-                      className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-[10px] text-[13px] font-semibold uppercase',
-                        'bg-[var(--st-bg-muted)] text-[var(--st-text)]',
-                      )}
-                    >
-                      {(p.name || '?').slice(0, 2)}
-                    </div>
-                    <LuArrowRight
-                      className="h-4 w-4 text-[var(--st-text-secondary)]/70 transition-[color,transform] group-hover:text-[var(--st-text)] group-hover:translate-x-0.5"
-                      strokeWidth={2}
-                    />
+                <div className="flex items-start justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[13px] font-semibold uppercase text-[var(--st-text)]">
+                    {(p.name || '?').slice(0, 2)}
                   </div>
-                  <div className="mt-3.5 text-[11.5px] font-medium text-[var(--st-text-secondary)]">
-                    WhatsApp project
-                  </div>
-                  <div className="mt-1 text-[15px] font-semibold text-[var(--st-text)] leading-tight truncate">
-                    {p.name || 'Untitled project'}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
-                    <span
-                      className={cn(
-                        'inline-flex h-1.5 w-1.5 rounded-full',
-                        hasPhone ? 'bg-[var(--st-text)]' : 'bg-[var(--st-text)]',
-                      )}
-                    />
-                    {hasPhone ? 'Phone connected' : 'Setup incomplete'}
-                    {p.wabaId ? (
-                      <>
-                        <span className="text-[var(--st-text-secondary)]/70">·</span>
-                        <span className="truncate font-mono text-[10px]">
-                          WABA {String(p.wabaId).slice(-6)}
-                        </span>
-                      </>
-                    ) : null}
-                  </div>
-                </Card>
-              </button>
+                  <ArrowRight
+                    className="h-4 w-4 text-[var(--st-text-secondary)] transition-transform group-hover:translate-x-0.5"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="mt-3.5 text-[11.5px] font-medium text-[var(--st-text-secondary)]">
+                  WhatsApp project
+                </div>
+                <div className="mt-1 truncate text-[15px] font-semibold leading-tight text-[var(--st-text)]">
+                  {p.name || 'Untitled project'}
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-[11px] text-[var(--st-text-secondary)]">
+                  <span
+                    className={cn(
+                      'inline-flex h-1.5 w-1.5 rounded-full',
+                      hasPhone
+                        ? 'bg-[var(--st-status-ok)]'
+                        : 'bg-[var(--st-text-tertiary)]',
+                    )}
+                    aria-hidden="true"
+                  />
+                  {hasPhone ? 'Phone connected' : 'Setup incomplete'}
+                  {p.wabaId ? (
+                    <>
+                      <span className="text-[var(--st-text-tertiary)]">
+                        &middot;
+                      </span>
+                      <span className="truncate font-mono text-[10px]">
+                        WABA {String(p.wabaId).slice(-6)}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
+              </Card>
             );
           })}
         </div>
       )}
 
       <div className="mt-8 flex items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
-        <LuCheck className="h-3 w-3" strokeWidth={2.5} />
+        <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
         Your selection is remembered on this device.
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Input, Label, Alert, AlertDescription, AlertTitle } from '@/components/sabcrm/20ui';
+import { Button, IconButton, Field, Input, Alert } from '@/components/sabcrm/20ui';
 import {
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -8,10 +8,7 @@ import {
   FacebookAuthProvider,
   updateProfile,
   } from 'firebase/auth';
-import { AlertCircle,
-  Eye,
-  EyeOff,
-  LoaderCircle } from 'lucide-react';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
 import * as React from 'react';
 
@@ -102,10 +99,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
     return (
         <div className="space-y-6">
             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Could not create account</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" title="Could not create account">
+                    {error}
                 </Alert>
             )}
 
@@ -113,6 +108,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 <Button
                     variant="outline"
                     type="button"
+                    block
                     disabled={isPending}
                     onClick={() => handleSocial('google')}
                 >
@@ -122,6 +118,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 <Button
                     variant="outline"
                     type="button"
+                    block
                     disabled={isPending}
                     onClick={() => handleSocial('facebook')}
                 >
@@ -142,22 +139,18 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
             </div>
 
             <form onSubmit={handleEmailSignup} className="space-y-4" noValidate>
-                <div className="space-y-2">
-                    <Label htmlFor="name">Full name</Label>
+                <Field label="Full name">
                     <Input
-                        id="name"
                         name="name"
                         placeholder="Jane Cooper"
                         autoComplete="name"
                         required
                         disabled={isPending}
                     />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="email">Work email</Label>
+                <Field label="Work email">
                     <Input
-                        id="email"
                         name="email"
                         type="email"
                         placeholder="jane@company.com"
@@ -165,13 +158,14 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                         required
                         disabled={isPending}
                     />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                <Field
+                    label="Password"
+                    help="Must be at least 8 characters. Use a mix of letters and numbers."
+                >
                     <div className="relative">
                         <Input
-                            id="password"
                             name="password"
                             type={showPassword ? 'text' : 'password'}
                             placeholder="At least 8 characters"
@@ -180,38 +174,29 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                             disabled={isPending}
                             className="pr-10"
                         />
-                        <button
-                            type="button"
+                        <IconButton
+                            label={showPassword ? 'Hide password' : 'Show password'}
+                            icon={showPassword ? EyeOff : Eye}
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setShowPassword((v) => !v)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-                            aria-label={
-                                showPassword
-                                    ? 'Hide password'
-                                    : 'Show password'
-                            }
-                        >
-                            {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
-                            ) : (
-                                <Eye className="h-4 w-4" />
-                            )}
-                        </button>
+                            className="absolute right-1 top-1/2 -translate-y-1/2"
+                        />
                     </div>
-                    <p className="text-xs text-[var(--st-text-secondary)]">
-                        Must be at least 8 characters. Use a mix of letters
-                        and numbers.
-                    </p>
-                </div>
+                </Field>
 
                 <Button
+                    variant="primary"
                     type="submit"
-                    className="w-full h-11 text-base"
+                    size="lg"
+                    block
+                    loading={isPending}
                     disabled={isPending}
                 >
                     {isPending ? (
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
                     ) : null}
-                    Create account & continue
+                    Create account and continue
                 </Button>
             </form>
         </div>
@@ -244,7 +229,7 @@ function friendlyFirebaseError(err: unknown): string {
         case 'auth/invalid-email':
             return 'That email address looks invalid.';
         case 'auth/weak-password':
-            return 'Password is too weak — please use at least 8 characters.';
+            return 'Password is too weak, please use at least 8 characters.';
         case 'auth/popup-closed-by-user':
             return 'Signup was cancelled.';
         case 'auth/network-request-failed':
@@ -256,7 +241,7 @@ function friendlyFirebaseError(err: unknown): string {
 
 function GoogleIcon() {
     return (
-        <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+        <svg role="img" aria-hidden="true" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
             <path
                 fill="currentColor"
                 d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.08-2.58 1.98-4.48 1.98-3.79 0-7.17-3.22-7.17-7.22s3.38-7.22 7.17-7.22c2.23 0 3.63.92 4.48 1.75l2.72-2.72C19.62 3.39 16.67 2 12.48 2 7.01 2 2.56 6.18 2.56 12s4.45 10 9.92 10c2.79 0 5.1-1 6.88-2.84 1.92-1.92 2.58-4.75 2.58-7.17 0-.66-.07-1.32-.19-1.98z"
@@ -267,7 +252,7 @@ function GoogleIcon() {
 
 function FacebookIcon() {
     return (
-        <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
+        <svg role="img" aria-hidden="true" viewBox="0 0 24 24" className="mr-2 h-4 w-4">
             <path
                 fill="currentColor"
                 d="M22.675 0H1.325C.593 0 0 .593 0 1.325v21.35C0 23.407.593 24 1.325 24H12.82v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116c.732 0 1.325-.593 1.325-1.325V1.325C24 .593 23.407 0 22.675 0z"

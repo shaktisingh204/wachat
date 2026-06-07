@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * TabsBar — horizontal strip of open module tabs.
+ * TabsBar - horizontal strip of open module tabs.
  *
  *  - Renders inline above the page content; pinned tabs sort to the front.
  *  - Each tab shows the module gradient as an underline when active and
@@ -13,37 +13,51 @@
  *  - Overflow scrolls horizontally with hidden scrollbar; a soft fade
  *    indicates more content off-screen on either side.
  *  - Empty state: a subtle helper hint.
+ *
+ * Pure 20ui: menus use Menu / MenuItem / MenuSeparator, the close affordance
+ * is an IconButton, and icons come from lucide-react. The right-click menu is
+ * positioned at the cursor (the 20ui Menu is trigger-anchored only) but reuses
+ * the same MenuItem rows so styling, motion, and a11y stay consistent.
  */
 
 import * as React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { X, Pin, PinOff, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LuX, LuPin, LuPinOff, LuChevronDown } from "react-icons/lu";
+import { IconButton, Menu, MenuItem, MenuSeparator } from "@/components/sabcrm/20ui";
 import { useTabs } from "./tabs-context";
 import type { Tab } from "./types";
 
-/* ── ContextMenu (lightweight, in-file) ───────────────────────────── */
+/* ── Cursor-anchored context menu (right-click) ───────────────────── */
 
-interface MenuItem {
+interface ContextMenuRow {
   label: string;
   onClick: () => void;
   danger?: boolean;
-  icon?: React.ReactNode;
+  /** Optional leading node - e.g. a module hue dot. Decorative. */
+  leading?: React.ReactNode;
   disabled?: boolean;
 }
 
-function ContextMenu({
+/**
+ * A fixed-position menu rendered at the pointer (right-click / computed coords).
+ * The 20ui Menu anchors to a trigger, so this thin shell carries the position
+ * while delegating each row to the shared MenuItem for styling + a11y.
+ */
+function CursorMenu({
   items,
   position,
+  label,
   onClose,
 }: {
-  items: MenuItem[];
+  items: ContextMenuRow[];
   position: { x: number; y: number };
+  label: string;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onDoc(e: MouseEvent) {
       if (!ref.current?.contains(e.target as Node)) onClose();
     }
@@ -58,36 +72,66 @@ function ContextMenu({
     };
   }, [onClose]);
 
+  // Roving focus across the visible rows, matching the 20ui Menu key model.
+  const onListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const rows = Array.from(
+      ref.current?.querySelectorAll<HTMLButtonElement>(
+        '[role="menuitem"]:not([aria-disabled="true"])',
+      ) ?? [],
+    );
+    if (rows.length === 0) return;
+    const current = rows.indexOf(document.activeElement as HTMLButtonElement);
+    const focusAt = (i: number) => rows[(i + rows.length) % rows.length]?.focus();
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        focusAt(current < 0 ? 0 : current + 1);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        focusAt(current < 0 ? rows.length - 1 : current - 1);
+        break;
+      case "Home":
+        e.preventDefault();
+        focusAt(0);
+        break;
+      case "End":
+        e.preventDefault();
+        focusAt(rows.length - 1);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div
       ref={ref}
-      role="menu"
+      className="ui20 fixed z-[60] min-w-[184px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-xl"
       style={{ top: position.y, left: position.x }}
-      className="fixed z-[60] min-w-[180px] rounded-xl bg-white py-1 shadow-2xl ring-1 ring-[var(--st-border)]/80 backdrop-blur-xl"
+      role="menu"
+      aria-label={label}
+      onKeyDown={onListKeyDown}
     >
       {items.map((item, i) => (
-        <button
+        <MenuItem
           key={i}
-          type="button"
-          role="menuitem"
-          onClick={() => {
-            if (item.disabled) return;
+          danger={item.danger}
+          disabled={item.disabled}
+          onSelect={() => {
             item.onClick();
             onClose();
           }}
-          disabled={item.disabled}
-          className={cn(
-            "flex w-full items-center gap-2 px-3 py-1.5 text-left text-[12.5px] font-bold transition-colors",
-            item.disabled
-              ? "text-[var(--st-text-secondary)] cursor-not-allowed"
-              : item.danger
-                ? "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]"
-                : "text-[var(--st-text)] hover:bg-[var(--st-bg-muted)] hover:text-[var(--st-text)]",
-          )}
         >
-          {item.icon ? <span className="shrink-0">{item.icon}</span> : null}
-          <span className="flex-1">{item.label}</span>
-        </button>
+          <span className="flex items-center gap-2">
+            {item.leading ? (
+              <span className="shrink-0" aria-hidden="true">
+                {item.leading}
+              </span>
+            ) : null}
+            <span>{item.label}</span>
+          </span>
+        </MenuItem>
       ))}
     </div>
   );
@@ -124,7 +168,7 @@ const TabChip = React.forwardRef<
 ) {
   const handleAuxClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      // Middle-click closes — matches browser convention.
+      // Middle-click closes - matches browser convention.
       if (e.button === 1 && !tab.pinned) {
         e.preventDefault();
         onClose();
@@ -163,11 +207,15 @@ const TabChip = React.forwardRef<
       onDrop={onDrop}
       className={cn(
         "group relative flex items-center gap-2 shrink-0 cursor-pointer select-none",
-        "rounded-t-xl px-3 h-9 border-x border-t border-transparent",
+        "rounded-t-[var(--st-radius)] px-3 h-9 border-x border-t border-transparent",
         "transition-all duration-150",
         active
-          ? cn("bg-white border-[var(--st-border)]/80 -mb-px", "shadow-[0_-1px_0_rgba(255,255,255,0.9)_inset]")
-          : cn("bg-[var(--st-bg-muted)]/70 hover:bg-white", tab.hue.hoverSoft, "text-[var(--st-text)] hover:text-[var(--st-text)]"),
+          ? "bg-[var(--st-bg)] border-[var(--st-border)] -mb-px"
+          : cn(
+              "bg-[var(--st-bg-secondary)] hover:bg-[var(--st-bg)]",
+              tab.hue.hoverSoft,
+              "text-[var(--st-text)] hover:text-[var(--st-text)]",
+            ),
         tab.pinned ? "px-2.5" : "pr-2",
       )}
       title={tab.title}
@@ -175,7 +223,7 @@ const TabChip = React.forwardRef<
       {/* Active gradient underline pinned to the bottom of the chip */}
       {active && (
         <span
-          aria-hidden
+          aria-hidden="true"
           className={cn(
             "pointer-events-none absolute inset-x-2 -bottom-[1.5px] h-[2px] rounded-full bg-gradient-to-r",
             tab.hue.gradient,
@@ -183,22 +231,22 @@ const TabChip = React.forwardRef<
         />
       )}
 
-      {/* Module hue dot (inactive) — replaced by a subtle dot for pinned tabs */}
+      {/* Module hue dot (inactive) */}
       {!active && (
         <span
-          aria-hidden
+          aria-hidden="true"
           className={cn("size-1.5 rounded-full bg-gradient-to-br shrink-0", tab.hue.gradient)}
         />
       )}
 
       {tab.pinned ? (
-        <LuPin
-          aria-hidden
+        <Pin
+          aria-hidden="true"
           className={cn("size-3 shrink-0", active ? tab.hue.ink : "text-[var(--st-text)]")}
         />
       ) : null}
 
-      {/* Title — pinned tabs hide the label to stay compact */}
+      {/* Title - pinned tabs hide the label to stay compact */}
       {!tab.pinned && (
         <span
           className={cn(
@@ -210,24 +258,22 @@ const TabChip = React.forwardRef<
         </span>
       )}
 
-      {/* Close button — hidden for pinned tabs */}
+      {/* Close button - hidden for pinned tabs */}
       {!tab.pinned && (
-        <button
-          type="button"
-          aria-label={`Close ${tab.title}`}
+        <IconButton
+          label={`Close ${tab.title}`}
+          icon={X}
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
           className={cn(
-            "ml-0.5 grid size-5 shrink-0 place-items-center rounded-md",
-            "text-[var(--st-text-secondary)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/70",
+            "ml-0.5 shrink-0",
             "opacity-0 group-hover:opacity-100 focus:opacity-100",
             active && "opacity-100",
           )}
-        >
-          <LuX className="size-3" strokeWidth={2.5} />
-        </button>
+        />
       )}
     </div>
   );
@@ -251,9 +297,6 @@ export function TabsBar({ className }: { className?: string }) {
     tab: Tab;
     position: { x: number; y: number };
   } | null>(null);
-  const [overflowMenu, setOverflowMenu] = useState<{
-    position: { x: number; y: number };
-  } | null>(null);
   const dragId = useRef<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const chipRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -270,7 +313,7 @@ export function TabsBar({ className }: { className?: string }) {
     return (
       <div
         className={cn(
-          "flex items-center h-10 px-4 text-[12px] font-bold tracking-tight text-[var(--st-text-secondary)] select-none",
+          "ui20 flex items-center h-10 px-4 text-[12px] font-bold tracking-tight text-[var(--st-text-secondary)] select-none",
           className,
         )}
       >
@@ -282,19 +325,19 @@ export function TabsBar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative flex items-stretch h-10 border-b border-[var(--st-border)]/80 bg-[var(--st-bg-muted)]/40",
+        "ui20 relative flex items-stretch h-10 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]",
         className,
       )}
     >
-      {/* Scroll fade — left */}
+      {/* Scroll fade - left */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[var(--st-bg-muted)]/80 to-transparent z-10"
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-[var(--st-bg-secondary)] to-transparent z-10"
       />
-      {/* Scroll fade — right */}
+      {/* Scroll fade - right */}
       <div
-        aria-hidden
-        className="pointer-events-none absolute right-10 top-0 bottom-0 w-6 bg-gradient-to-l from-[var(--st-bg-muted)]/80 to-transparent z-10"
+        aria-hidden="true"
+        className="pointer-events-none absolute right-10 top-0 bottom-0 w-6 bg-gradient-to-l from-[var(--st-bg-secondary)] to-transparent z-10"
       />
 
       <div
@@ -341,36 +384,50 @@ export function TabsBar({ className }: { className?: string }) {
         })}
       </div>
 
-      {/* Overflow menu — quick access to all tabs */}
-      <button
-        type="button"
-        aria-label="All tabs"
-        title="All tabs"
-        onClick={(e) => {
-          const rect = (e.currentTarget as HTMLButtonElement).getBoundingClientRect();
-          setOverflowMenu({
-            position: { x: rect.right - 220, y: rect.bottom + 4 },
-          });
-        }}
-        className="grid size-9 shrink-0 self-center mr-1 place-items-center rounded-lg text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]/70 transition-colors"
-      >
-        <LuChevronDown className="size-4" />
-      </button>
+      {/* Overflow menu - quick access to all tabs */}
+      <div className="shrink-0 self-center mr-1">
+        <Menu
+          align="end"
+          label="All tabs"
+          trigger={<IconButton label="All tabs" icon={ChevronDown} />}
+        >
+          {tabs.map((t) => (
+            <MenuItem key={t.id} onSelect={() => focusTab(t.id)}>
+              <span className="flex items-center gap-2">
+                <span
+                  aria-hidden="true"
+                  className={cn("size-2 rounded-full bg-gradient-to-br shrink-0", t.hue.gradient)}
+                />
+                <span>{t.title}</span>
+              </span>
+            </MenuItem>
+          ))}
+          <MenuSeparator />
+          <MenuItem danger icon={X} onSelect={closeAll}>
+            Close all
+          </MenuItem>
+        </Menu>
+      </div>
 
       {/* Per-tab right-click menu */}
       {tabMenu && (
-        <ContextMenu
+        <CursorMenu
+          label={`${tabMenu.tab.title} options`}
           items={[
             {
               label: tabMenu.tab.pinned ? "Unpin tab" : "Pin tab",
               onClick: () => togglePin(tabMenu.tab.id),
-              icon: tabMenu.tab.pinned ? <LuPinOff className="size-3.5" /> : <LuPin className="size-3.5" />,
+              leading: tabMenu.tab.pinned ? (
+                <PinOff className="size-3.5" />
+              ) : (
+                <Pin className="size-3.5" />
+              ),
             },
             {
               label: "Close tab",
               onClick: () => closeTab(tabMenu.tab.id),
               disabled: tabMenu.tab.pinned,
-              icon: <LuX className="size-3.5" />,
+              leading: <X className="size-3.5" />,
             },
             {
               label: "Close others",
@@ -385,26 +442,6 @@ export function TabsBar({ className }: { className?: string }) {
           ]}
           position={tabMenu.position}
           onClose={() => setTabMenu(null)}
-        />
-      )}
-
-      {/* Overflow "all tabs" dropdown */}
-      {overflowMenu && (
-        <ContextMenu
-          items={[
-            ...tabs.map<MenuItem>((t) => ({
-              label: t.title,
-              onClick: () => focusTab(t.id),
-              icon: (
-                <span
-                  className={cn("size-2 rounded-full bg-gradient-to-br", t.hue.gradient)}
-                />
-              ),
-            })),
-            { label: "Close all", onClick: closeAll, danger: true, icon: <LuX className="size-3.5" /> },
-          ]}
-          position={overflowMenu.position}
-          onClose={() => setOverflowMenu(null)}
         />
       )}
     </div>

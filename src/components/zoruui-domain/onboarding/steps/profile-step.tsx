@@ -1,9 +1,18 @@
 'use client';
 
-import { Button, Input, Label, Alert, AlertDescription, AlertTitle, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
-  AlertCircle,
-  LoaderCircle } from 'lucide-react';
+    Alert,
+    AlertDescription,
+    AlertTitle,
+    Button,
+    Field,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/sabcrm/20ui';
 
 import * as React from 'react';
 
@@ -101,53 +110,43 @@ export function ProfileStep({
     return (
         <form onSubmit={submit} className="space-y-5" noValidate>
             {error && (
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
+                <Alert tone="danger">
                     <AlertTitle>Fix the highlighted fields</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
             <div className="grid gap-5 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <Label htmlFor="fullName">Full name *</Label>
+                <Field id="fullName" label="Full name" required>
                     <Input
-                        id="fullName"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         disabled={isPending}
                         placeholder="Jane Cooper"
                         autoComplete="name"
                     />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="companyName">Company / brand *</Label>
+                <Field id="companyName" label="Company / brand" required>
                     <Input
-                        id="companyName"
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                         disabled={isPending}
                         placeholder="Acme Inc."
                         autoComplete="organization"
                     />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="role">Your role *</Label>
+                <Field id="role" label="Your role" required>
                     <Select
                         value={role}
                         onValueChange={setRole}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="role">
+                        <SelectTrigger id="role" aria-label="Your role">
                             <SelectValue placeholder="Select your role" />
                         </SelectTrigger>
-                        <SelectContent
-                            position="popper"
-                            sideOffset={6}
-                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]"
-                        >
+                        <SelectContent>
                             {ROLES.map((r) => (
                                 <SelectItem key={r} value={r}>
                                     {r}
@@ -155,23 +154,18 @@ export function ProfileStep({
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="country">Country *</Label>
+                <Field id="country" label="Country" required>
                     <Select
                         value={country}
                         onValueChange={setCountry}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="country">
+                        <SelectTrigger id="country" aria-label="Country">
                             <SelectValue placeholder="Where are you based?" />
                         </SelectTrigger>
-                        <SelectContent
-                            position="popper"
-                            sideOffset={6}
-                            className="zoruui z-[60] bg-[var(--st-bg)] border border-[var(--st-border)] text-[var(--st-text)] shadow-[var(--st-shadow-lg)]"
-                        >
+                        <SelectContent>
                             {COUNTRIES.map((c) => (
                                 <SelectItem key={c} value={c}>
                                     {c}
@@ -179,42 +173,37 @@ export function ProfileStep({
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="phone">Phone (optional)</Label>
+                <Field id="phone" label="Phone (optional)">
                     <Input
-                        id="phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         disabled={isPending}
                         placeholder="+91 98765 43210"
                         autoComplete="tel"
                     />
-                </div>
+                </Field>
 
-                <div className="space-y-2">
-                    <Label htmlFor="website">Website (optional)</Label>
+                <Field id="website" label="Website (optional)">
                     <Input
-                        id="website"
                         value={website}
                         onChange={(e) => setWebsite(e.target.value)}
                         disabled={isPending}
                         placeholder="https://acme.com"
                         autoComplete="url"
                     />
-                </div>
+                </Field>
             </div>
 
             <div className="flex justify-end pt-2">
                 <Button
                     type="submit"
-                    className="h-11 px-6 text-base"
+                    variant="primary"
+                    size="lg"
+                    loading={isPending}
                     disabled={isPending}
                 >
-                    {isPending ? (
-                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                    ) : null}
                     Continue
                 </Button>
             </div>
