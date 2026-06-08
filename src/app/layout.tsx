@@ -86,16 +86,22 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${onest.variable}`}
     >
-      <body className="antialiased font-sans min-h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+      <body
+        suppressHydrationWarning
+        className="ui20 20ui antialiased font-sans min-h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
+      >
         {/* Theme bootstrap — resolve the saved light/dark preference and stamp
-            an explicit class on <html> BEFORE first paint, so the app rail,
-            header, and every Ui20 / 20ui surface render in the chosen theme
-            with no flash. "system" is resolved to an explicit class so the
-            20ui prefers-color-scheme fallback can't override the choice. */}
+            an explicit class on <html> AND <body> BEFORE first paint. <body>
+            carries the 20ui scope (both the `ui20` and `20ui` class names, so it
+            matches the design-system scope whichever rename state is live) so
+            every page — not just the shell chrome — gets 20ui component styles
+            app-wide. Stamping the explicit light/dark here means the 20ui
+            prefers-color-scheme auto-dark fallback can't override the chosen
+            theme on a dark-OS machine. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var t=localStorage.getItem('sabnode-theme')||'system';var d=document.documentElement;d.classList.remove('light','dark');var dark=t==='dark'||(t==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);d.classList.add(dark?'dark':'light');}catch(e){}})();",
+              "(function(){try{var t=localStorage.getItem('sabnode-theme')||'system';var dark=t==='dark'||(t==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var theme=dark?'dark':'light';var d=document.documentElement;d.classList.remove('light','dark');d.classList.add(theme);var b=document.body;if(b){b.classList.remove('light','dark');b.classList.add('ui20','20ui',theme);}}catch(e){}})();",
           }}
         />
         <MotionProvider>
