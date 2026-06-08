@@ -34,6 +34,8 @@ export default async function BaseShellPage({ params }: PageProps) {
 
   // No tables yet — render the same client shell with an empty state.
   const { BaseShellClient } = await import('./_components/base-shell-client');
+  const { EmptyState, Card } = await import('@/components/sabcrm/20ui');
+  const { Table2 } = await import('lucide-react');
   return (
     <BaseShellClient
       workspaceId={workspaceId}
@@ -41,8 +43,14 @@ export default async function BaseShellPage({ params }: PageProps) {
       tables={[]}
       activeTableId={null}
     >
-      <div className="p-10 text-center text-[var(--st-text-secondary)]">
-        Create your first table to get started.
+      <div className="mx-auto w-full max-w-2xl px-6 py-12">
+        <Card variant="outlined">
+          <EmptyState
+            icon={Table2}
+            title="No tables yet"
+            description="Tables hold your records, like sheets in a spreadsheet. Use Add table above to create your first one."
+          />
+        </Card>
       </div>
     </BaseShellClient>
   );

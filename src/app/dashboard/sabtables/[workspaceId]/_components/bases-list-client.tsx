@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Database, Plus, ChevronLeft } from 'lucide-react';
+import { Database, Plus, ChevronLeft, ArrowUpRight, Table2 } from 'lucide-react';
 
 import {
   Button,
@@ -17,10 +17,14 @@ import {
   Input,
   Textarea,
   PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
+  StatCard,
   EmptyState,
+  useToast,
 } from '@/components/sabcrm/20ui';
 import { createSabtablesBase } from '@/app/actions/sabtables.actions';
 import type { SabtablesBaseDoc } from '@/lib/rust-client/sabtables-bases';
@@ -33,11 +37,14 @@ interface Props {
 
 export function BasesListClient({ workspace, initialItems }: Props) {
   const router = useRouter();
+  const { toast } = useToast();
   const [items, setItems] = useState(initialItems);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [pending, startTransition] = useTransition();
+
+  const describedCount = items.filter((b) => Boolean(b.description?.trim())).length;
 
   const handleCreate = () => {
     if (!name.trim()) return;
@@ -52,29 +59,33 @@ export function BasesListClient({ workspace, initialItems }: Props) {
         setOpen(false);
         setName('');
         setDescription('');
+        toast.success('Base created');
         router.refresh();
       } catch (err) {
         console.error('[sabtables] createBase failed', err);
+        toast.error('Could not create the base. Please try again.');
       }
     });
   };
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <main className="mx-auto w-full max-w-[1200px] px-6 py-8 space-y-6">
       <Link
         href="/dashboard/sabtables"
-        className="inline-flex items-center text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+        className="inline-flex items-center rounded-[var(--st-radius-sm)] text-sm text-[var(--st-text-secondary)] transition hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
       >
-        <ChevronLeft className="w-4 h-4 mr-1" aria-hidden="true" /> All workspaces
+        <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" /> All workspaces
       </Link>
 
       <PageHeader>
-        <div>
+        <PageHeaderHeading>
+          <PageEyebrow>Workspace</PageEyebrow>
           <PageTitle>{workspace.name}</PageTitle>
-          {workspace.description ? (
-            <PageDescription>{workspace.description}</PageDescription>
-          ) : null}
-        </div>
+          <PageDescription>
+            {workspace.description?.trim() ||
+              'Bases group related tables, like a spreadsheet file with several sheets.'}
+          </PageDescription>
+        </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
             New base
@@ -82,42 +93,78 @@ export function BasesListClient({ workspace, initialItems }: Props) {
         </PageActions>
       </PageHeader>
 
+      {items.length > 0 ? (
+        <section
+          aria-label="Base summary"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+        >
+          <StatCard
+            label="Bases"
+            value={items.length}
+            icon={Database}
+            accent="#3b7af5"
+          />
+          <StatCard label="Tables" value="Per base" icon={Table2} accent="#7c3aed" />
+          <StatCard
+            label="Described"
+            value={describedCount}
+            icon={Database}
+            accent="#1f9d55"
+          />
+        </section>
+      ) : null}
+
       {items.length === 0 ? (
-        <EmptyState
-          icon={Database}
-          title="No bases yet"
-          description="A base groups related tables, like a spreadsheet file containing several sheets."
-          action={
-            <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
-              Create base
-            </Button>
-          }
-        />
+        <Card variant="outlined">
+          <EmptyState
+            icon={Database}
+            title="No bases yet"
+            description="A base groups related tables, like a spreadsheet file containing several sheets. Create your first one to start adding tables."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+                Create base
+              </Button>
+            }
+          />
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <section
+          aria-label="Bases"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
           {items.map((b) => (
-            <Link key={b._id} href={`/dashboard/sabtables/${workspace._id}/${b._id}`}>
-              <Card variant="interactive" padding="md" className="cursor-pointer h-full">
-                <div className="flex items-start gap-3">
-                  <div
-                    className="w-10 h-10 rounded-[var(--st-radius)] flex items-center justify-center text-[var(--st-bg-secondary)]"
-                    style={{ backgroundColor: b.color || 'var(--st-text)' }}
-                  >
-                    <Database className="w-5 h-5" aria-hidden="true" />
+            <Link
+              key={b._id}
+              href={`/dashboard/sabtables/${workspace._id}/${b._id}`}
+              className="group block h-full rounded-[var(--st-radius-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+            >
+              <Card variant="interactive" padding="md" className="h-full cursor-pointer">
+                <article className="flex h-full flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-bg-secondary)]"
+                      style={{ backgroundColor: b.color || 'var(--st-text)' }}
+                    >
+                      <Database className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <ArrowUpRight
+                      className="h-4 w-4 text-[var(--st-text-tertiary)] opacity-0 transition group-hover:opacity-100"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-semibold truncate text-[var(--st-text)]">{b.name}</div>
-                    {b.description ? (
-                      <div className="text-sm text-[var(--st-text-secondary)] line-clamp-2">
-                        {b.description}
-                      </div>
-                    ) : null}
+                    <h2 className="truncate font-semibold text-[var(--st-text)]">
+                      {b.name}
+                    </h2>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-[var(--st-text-secondary)]">
+                      {b.description?.trim() || 'Open to view its tables and records.'}
+                    </p>
                   </div>
-                </div>
+                </article>
               </Card>
             </Link>
           ))}
-        </div>
+        </section>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -131,13 +178,15 @@ export function BasesListClient({ workspace, initialItems }: Props) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Sales pipeline"
+                autoFocus
               />
             </Field>
-            <Field label="Description">
+            <Field label="Description" help="Optional. Explain what this base tracks.">
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
+                placeholder="Deals, contacts, and follow-ups for the sales team."
               />
             </Field>
           </div>
@@ -151,11 +200,11 @@ export function BasesListClient({ workspace, initialItems }: Props) {
               loading={pending}
               disabled={pending || !name.trim()}
             >
-              {pending ? 'Creating...' : 'Create'}
+              {pending ? 'Creating...' : 'Create base'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }

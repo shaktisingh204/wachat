@@ -10,6 +10,7 @@
  */
 
 import { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
 import {
   Plus,
   Settings2,
@@ -21,6 +22,8 @@ import {
   ListFilter,
   Eye,
   Inbox,
+  Zap,
+  Rows3,
 } from 'lucide-react';
 
 import {
@@ -214,9 +217,9 @@ export function TableViewClient({
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Toolbar */}
-      <div className="border-b border-[var(--st-border)] px-3 py-2 flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2">
         <SegmentedControl<SabtablesViewKind>
           items={VIEW_KINDS}
           value={viewKind}
@@ -224,7 +227,12 @@ export function TableViewClient({
           size="sm"
           aria-label="View layout"
         />
-        <div className="h-5 w-px bg-[var(--st-border)] mx-1" />
+        <span className="mx-1 h-5 w-px bg-[var(--st-border)]" aria-hidden="true" />
+        <Badge tone="neutral" kind="soft">
+          <Rows3 className="h-3 w-3" aria-hidden="true" />
+          <span className="tabular-nums">{records.length}</span>{' '}
+          {records.length === 1 ? 'record' : 'records'}
+        </Badge>
         <Button variant="ghost" size="sm" iconLeft={ListFilter}>
           Filter
         </Button>
@@ -232,14 +240,38 @@ export function TableViewClient({
           Configure
         </Button>
         <div className="flex-1" />
+        <Button asChild variant="ghost" size="sm">
+          <Link
+            href={`/dashboard/sabtables/${workspaceId}/${baseId}/${table._id}/automations`}
+          >
+            <Zap className="h-4 w-4" aria-hidden="true" />
+            Automations
+          </Link>
+        </Button>
         <Button variant="primary" onClick={handleAddRecord} size="sm" iconLeft={Plus}>
           Add record
         </Button>
       </div>
 
       {/* View body */}
-      <div className="flex-1 min-h-0 overflow-auto">
-        {viewKind === 'grid' && (
+      <div className="min-h-0 flex-1 overflow-auto">
+        {viewKind === 'grid' && records.length === 0 && (
+          <div className="mx-auto w-full max-w-2xl px-6 py-12">
+            <Card variant="outlined">
+              <EmptyState
+                icon={Inbox}
+                title="No records yet"
+                description="Add your first record to start filling in this table, or add a field to shape its columns."
+                action={
+                  <Button variant="primary" iconLeft={Plus} onClick={handleAddRecord}>
+                    Add record
+                  </Button>
+                }
+              />
+            </Card>
+          </div>
+        )}
+        {viewKind === 'grid' && records.length > 0 && (
           <GridView
             table={table}
             records={records}

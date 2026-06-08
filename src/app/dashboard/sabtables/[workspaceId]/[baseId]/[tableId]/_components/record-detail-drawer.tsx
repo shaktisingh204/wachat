@@ -18,9 +18,10 @@ import {
   Input,
   Textarea,
   Checkbox,
+  Separator,
   EmptyState,
 } from '@/components/sabcrm/20ui';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, ListChecks } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   createSabtablesComment,
@@ -85,19 +86,30 @@ export function RecordDetailDrawer({
           <SheetTitle>Record details</SheetTitle>
         </SheetHeader>
 
-        <div className="space-y-4 py-4">
-          {table.fields.map((f) => (
-            <FieldRow
-              key={f.id}
-              field={f}
-              value={record.fieldsJson[f.id]}
-              onChange={(v) => onCellChange(record._id, f.id, v)}
-            />
-          ))}
-        </div>
+        <section aria-label="Fields" className="py-4">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+            <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />
+            Fields
+          </h3>
+          <div className="space-y-4">
+            {table.fields.map((f) => (
+              <FieldRow
+                key={f.id}
+                field={f}
+                value={record.fieldsJson[f.id]}
+                onChange={(v) => onCellChange(record._id, f.id, v)}
+              />
+            ))}
+          </div>
+        </section>
 
-        <div className="border-t border-[var(--st-border)] pt-4 space-y-3">
-          <div className="font-medium text-[var(--st-text)]">Comments</div>
+        <Separator />
+
+        <section aria-label="Comments" className="space-y-3 pt-4">
+          <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+            <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
+            Comments
+          </h3>
           {comments.length === 0 ? (
             <EmptyState
               icon={MessageSquare}
@@ -106,16 +118,16 @@ export function RecordDetailDrawer({
               description="Be the first to leave a note on this record."
             />
           ) : (
-            <div className="space-y-2">
+            <ul className="space-y-2">
               {comments.map((c) => (
-                <div key={c._id} className="text-sm">
-                  <div className="font-medium text-xs text-[var(--st-text-secondary)]">
+                <li key={c._id} className="text-sm">
+                  <div className="text-xs font-medium text-[var(--st-text-secondary)] tabular-nums">
                     {new Date(c.createdAt ?? '').toLocaleString()}
                   </div>
                   <div className="text-[var(--st-text)]">{c.body}</div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
           <Field label="Add a comment">
             <Textarea
@@ -125,10 +137,16 @@ export function RecordDetailDrawer({
               rows={2}
             />
           </Field>
-          <Button size="sm" variant="primary" onClick={handleAddComment} disabled={!commentBody.trim()}>
+          <Button
+            size="sm"
+            variant="primary"
+            iconLeft={MessageSquare}
+            onClick={handleAddComment}
+            disabled={!commentBody.trim()}
+          >
             Comment
           </Button>
-        </div>
+        </section>
       </SheetContent>
     </Sheet>
   );

@@ -70,7 +70,7 @@ export default function SabTablesAutomationsPage() {
                     </PageHeaderHeading>
                     <PageActions>
                         <Button variant="primary" iconLeft={Plus}>
-                            Create Automation
+                            Create automation
                         </Button>
                     </PageActions>
                 </PageHeader>
@@ -84,7 +84,7 @@ export default function SabTablesAutomationsPage() {
 
                 <Card padding="none">
                     <CardHeader>
-                        <CardTitle>All Automations</CardTitle>
+                        <CardTitle>All automations</CardTitle>
                         <CardDescription>Every workflow across your bases and the triggers that run them.</CardDescription>
                     </CardHeader>
                     <CardBody>
@@ -95,7 +95,7 @@ export default function SabTablesAutomationsPage() {
                                 description="Create your first automation to run actions automatically when records change."
                                 action={
                                     <Button variant="primary" iconLeft={Plus}>
-                                        Create Automation
+                                        Create automation
                                     </Button>
                                 }
                             />
@@ -103,7 +103,7 @@ export default function SabTablesAutomationsPage() {
                             <Table hover>
                                 <THead>
                                     <Tr>
-                                        <Th>Automation Name</Th>
+                                        <Th>Automation name</Th>
                                         <Th>Trigger</Th>
                                         <Th>Base</Th>
                                         <Th>Status</Th>

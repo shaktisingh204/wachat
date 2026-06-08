@@ -4,10 +4,10 @@
  * SabTables - workspaces grid. 20ui primitives only.
  */
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Layers, Plus } from 'lucide-react';
+import { Layers, Plus, Database, ArrowUpRight, FolderKanban } from 'lucide-react';
 
 import {
   Button,
@@ -21,9 +21,12 @@ import {
   Field,
   Input,
   PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
+  StatCard,
   EmptyState,
   useToast,
 } from '@/components/sabcrm/20ui';
@@ -43,6 +46,11 @@ export function WorkspacesListClient({ initialItems }: Props) {
   const [color, setColor] = useState('#7c3aed');
   const [pending, startTransition] = useTransition();
 
+  const describedCount = useMemo(
+    () => items.filter((w) => Boolean(w.description?.trim())).length,
+    [items],
+  );
+
   const handleCreate = () => {
     if (!name.trim()) return;
     startTransition(async () => {
@@ -61,14 +69,16 @@ export function WorkspacesListClient({ initialItems }: Props) {
   };
 
   return (
-    <div className="px-6 py-8 space-y-8">
+    <main className="mx-auto w-full max-w-[1200px] px-6 py-8 space-y-6">
       <PageHeader>
-        <div>
-          <PageTitle>SabTables</PageTitle>
+        <PageHeaderHeading>
+          <PageEyebrow>SabTables</PageEyebrow>
+          <PageTitle>Workspaces</PageTitle>
           <PageDescription>
-            Flexible databases. Group bases under workspaces and collaborate on records.
+            Flexible databases without the spreadsheet limits. Group bases under
+            workspaces and collaborate on records with your team.
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
             New workspace
@@ -76,42 +86,78 @@ export function WorkspacesListClient({ initialItems }: Props) {
         </PageActions>
       </PageHeader>
 
+      {items.length > 0 ? (
+        <section
+          aria-label="Workspace summary"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+        >
+          <StatCard
+            label="Workspaces"
+            value={items.length}
+            icon={FolderKanban}
+            accent="#7c3aed"
+          />
+          <StatCard label="Bases" value="Grouped" icon={Database} accent="#3b7af5" />
+          <StatCard
+            label="Described"
+            value={describedCount}
+            icon={Layers}
+            accent="#1f9d55"
+          />
+        </section>
+      ) : null}
+
       {items.length === 0 ? (
-        <EmptyState
-          icon={Layers}
-          title="No workspaces yet"
-          description="Workspaces group bases. Create your first one to get started."
-          action={
-            <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
-              Create workspace
-            </Button>
-          }
-        />
+        <Card variant="outlined">
+          <EmptyState
+            icon={Layers}
+            title="No workspaces yet"
+            description="Workspaces group related bases, like folders for your databases. Create your first one to get started."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+                Create workspace
+              </Button>
+            }
+          />
+        </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <section
+          aria-label="Workspaces"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        >
           {items.map((w) => (
-            <Link key={w._id} href={`/dashboard/sabtables/${w._id}`} className="block h-full">
+            <Link
+              key={w._id}
+              href={`/dashboard/sabtables/${w._id}`}
+              className="group block h-full rounded-[var(--st-radius-lg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+            >
               <Card variant="interactive" className="h-full cursor-pointer">
-                <div className="flex items-start gap-3">
-                  <div
-                    className="w-10 h-10 rounded-[var(--st-radius)] flex items-center justify-center text-[var(--st-bg-secondary)]"
-                    style={{ backgroundColor: w.color || 'var(--st-text)' }}
-                  >
-                    <Layers className="w-5 h-5" aria-hidden="true" />
+                <article className="flex h-full flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-bg-secondary)]"
+                      style={{ backgroundColor: w.color || 'var(--st-text)' }}
+                    >
+                      <Layers className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <ArrowUpRight
+                      className="h-4 w-4 text-[var(--st-text-tertiary)] opacity-0 transition group-hover:opacity-100"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-semibold truncate text-[var(--st-text)]">{w.name}</div>
-                    {w.description ? (
-                      <div className="text-sm text-[var(--st-text-secondary)] line-clamp-2">
-                        {w.description}
-                      </div>
-                    ) : null}
+                    <h2 className="truncate font-semibold text-[var(--st-text)]">
+                      {w.name}
+                    </h2>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-[var(--st-text-secondary)]">
+                      {w.description?.trim() || 'Open to view and create bases.'}
+                    </p>
                   </div>
-                </div>
+                </article>
               </Card>
             </Link>
           ))}
-        </div>
+        </section>
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -120,11 +166,12 @@ export function WorkspacesListClient({ initialItems }: Props) {
             <DialogTitle>New workspace</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <Field label="Name">
+            <Field label="Name" help="Choose a name your team will recognise.">
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Marketing CRM"
+                autoFocus
               />
             </Field>
             <Field label="Accent colour">
@@ -141,11 +188,11 @@ export function WorkspacesListClient({ initialItems }: Props) {
               loading={pending}
               disabled={pending || !name.trim()}
             >
-              {pending ? 'Creating...' : 'Create'}
+              {pending ? 'Creating...' : 'Create workspace'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }

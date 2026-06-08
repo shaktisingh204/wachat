@@ -9,10 +9,11 @@
 import { useState, useTransition, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Plus, Database } from 'lucide-react';
+import { ChevronLeft, Plus, Database, Table2 } from 'lucide-react';
 
 import {
   Button,
+  Badge,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -68,37 +69,47 @@ export function BaseShellClient({
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="border-b border-[var(--st-border)] px-4 py-2 flex items-center gap-3">
+    <div className="flex min-h-screen flex-col">
+      <header className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-2">
         <Link
           href={`/dashboard/sabtables/${workspaceId}`}
-          className="inline-flex items-center text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
+          className="inline-flex items-center rounded-[var(--st-radius-sm)] text-sm text-[var(--st-text-secondary)] transition hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
         >
-          <ChevronLeft className="w-4 h-4 mr-1" aria-hidden="true" />
+          <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
           <span className="hidden sm:inline">Workspace</span>
         </Link>
         <div className="flex items-center gap-2 font-semibold text-[var(--st-text)]">
-          <div
-            className="w-6 h-6 rounded-[var(--st-radius)] flex items-center justify-center text-[var(--st-bg-secondary)]"
+          <span
+            className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-bg-secondary)]"
             style={{ backgroundColor: base.color || 'var(--st-text)' }}
           >
-            <Database className="w-3.5 h-3.5" aria-hidden="true" />
-          </div>
+            <Database className="h-3.5 w-3.5" aria-hidden="true" />
+          </span>
           {base.name}
         </div>
-      </div>
+        {tables.length > 0 ? (
+          <Badge tone="neutral" kind="soft">
+            <Table2 className="h-3 w-3" aria-hidden="true" />
+            {tables.length} {tables.length === 1 ? 'table' : 'tables'}
+          </Badge>
+        ) : null}
+      </header>
 
-      <div className="border-b border-[var(--st-border)] px-4 flex items-center gap-1 overflow-x-auto">
+      <nav
+        aria-label="Tables"
+        className="flex items-center gap-1 overflow-x-auto border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4"
+      >
         {tables.map((t) => {
           const active = t._id === activeTableId;
           return (
             <Link
               key={t._id}
               href={`/dashboard/sabtables/${workspaceId}/${base._id}/${t._id}`}
+              aria-current={active ? 'page' : undefined}
               className={cn(
-                'px-3 py-2 text-sm border-b-2 -mb-px transition whitespace-nowrap',
+                '-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]',
                 active
-                  ? 'border-[var(--st-accent)] text-[var(--st-text)] font-medium'
+                  ? 'border-[var(--st-accent)] font-medium text-[var(--st-text)]'
                   : 'border-transparent text-[var(--st-text-secondary)] hover:text-[var(--st-text)]',
               )}
             >
@@ -115,9 +126,9 @@ export function BaseShellClient({
         >
           Add table
         </Button>
-      </div>
+      </nav>
 
-      <div className="flex-1 min-h-0">{children}</div>
+      <div className="min-h-0 flex-1">{children}</div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
@@ -130,6 +141,7 @@ export function BaseShellClient({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Contacts"
+                autoFocus
               />
             </Field>
           </div>
@@ -143,7 +155,7 @@ export function BaseShellClient({
               loading={pending}
               disabled={pending || !name.trim()}
             >
-              {pending ? 'Creating...' : 'Create'}
+              {pending ? 'Creating...' : 'Create table'}
             </Button>
           </DialogFooter>
         </DialogContent>

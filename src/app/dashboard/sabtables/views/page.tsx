@@ -80,7 +80,7 @@ export default function SabTablesViewsPage() {
                     </PageHeaderHeading>
                     <PageActions>
                         <Button variant="primary" iconLeft={Plus}>
-                            Create View
+                            Create view
                         </Button>
                     </PageActions>
                 </PageHeader>
@@ -93,7 +93,7 @@ export default function SabTablesViewsPage() {
 
                 <Card padding="none">
                     <CardHeader className="px-5 pt-5">
-                        <CardTitle>Saved Views</CardTitle>
+                        <CardTitle>Saved views</CardTitle>
                         <CardDescription>
                             Every view configured across your bases and tables.
                         </CardDescription>
@@ -107,7 +107,7 @@ export default function SabTablesViewsPage() {
                                     description="Create a Grid, Kanban, or Calendar view to start organizing your table records."
                                     action={
                                         <Button variant="primary" iconLeft={Plus}>
-                                            Create View
+                                            Create view
                                         </Button>
                                     }
                                 />
@@ -116,7 +116,7 @@ export default function SabTablesViewsPage() {
                             <Table hover>
                                 <THead>
                                     <Tr>
-                                        <Th>View Name</Th>
+                                        <Th>View name</Th>
                                         <Th>Table</Th>
                                         <Th>Type</Th>
                                         <Th>Base</Th>
