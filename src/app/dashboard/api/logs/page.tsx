@@ -3,19 +3,17 @@ import { getUsageLogs } from '@/app/actions/developer-platform.actions';
 import {
   PageHeader,
   PageHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
+  StatCard,
   Alert,
   Card,
+  CardHeader,
+  CardTitle,
   CardBody,
 } from '@/components/sabcrm/20ui';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Filter, ScrollText, ListChecks, TriangleAlert } from 'lucide-react';
 import { LogFilter } from './components/log-filter';
 import { LogTimeline } from './components/log-timeline';
 
@@ -46,6 +44,9 @@ export default async function LogsPage({
     limit,
   });
 
+  const rows = res.success ? res.rows : [];
+  const errorCount = rows.filter((r) => r.status >= 400).length;
+
   const nextUrl = res.success && res.nextCursor
     ? '/dashboard/api/logs?' +
       new URLSearchParams({
@@ -58,30 +59,41 @@ export default async function LogsPage({
     : null;
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Request log</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
+    <div className="20ui flex min-h-full flex-col gap-6">
       <PageHeader>
         <PageHeading>
+          <PageEyebrow>Developer platform</PageEyebrow>
           <PageTitle>Request log</PageTitle>
           <PageDescription>
-            Last 30 days. Filter logs by providing specific criteria.
+            Every API request your tenant made in the last 30 days. Filter by path, key, or status
+            to narrow the timeline.
           </PageDescription>
         </PageHeading>
       </PageHeader>
 
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <StatCard
+          label="Requests in view"
+          value={rows.length.toLocaleString('en-US')}
+          icon={<ListChecks />}
+          accent="#3b7af5"
+        />
+        <StatCard
+          label="Errors in view"
+          value={errorCount.toLocaleString('en-US')}
+          icon={<TriangleAlert />}
+          accent="#d97706"
+        />
+      </div>
+
       <Card>
-        <CardBody className="pt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardBody>
           <LogFilter />
         </CardBody>
       </Card>
@@ -93,8 +105,14 @@ export default async function LogsPage({
       ) : (
         <>
           <Card>
-            <CardBody className="pt-6">
-              <LogTimeline logs={res.rows} />
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ScrollText className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              <LogTimeline logs={rows} />
             </CardBody>
           </Card>
 

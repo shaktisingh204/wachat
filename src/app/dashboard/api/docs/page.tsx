@@ -2,20 +2,24 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Check, Copy } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, Copy, KeyRound, Boxes } from 'lucide-react';
 
 import {
   Badge,
+  Button,
   Card,
   CardBody,
   CardDescription,
   CardHeader,
   CardTitle,
   IconButton,
+  PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -177,31 +181,42 @@ function CodeBlock({ code }: { code: string }) {
 
 export default function ApiDocsPage() {
   return (
-    <div className="space-y-8">
-      <div className="space-y-4">
-        <Link
-          href="/dashboard/api"
-          className="inline-flex items-center gap-2 text-sm text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back to API Keys
-        </Link>
-        <PageHeader bordered={false}>
-          <PageHeaderHeading>
-            <PageTitle className="flex items-center gap-3">
-              <BookOpen className="h-7 w-7" aria-hidden="true" />
-              API Documentation
-            </PageTitle>
-            <PageDescription>
-              Integrate your applications with SabNode using our REST API.
-            </PageDescription>
-          </PageHeaderHeading>
-        </PageHeader>
+    <div className="20ui flex flex-col gap-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Developer platform</PageEyebrow>
+          <PageTitle>API documentation</PageTitle>
+          <PageDescription>
+            Integrate your applications with SabNode using our REST API. Authenticate, then call
+            any of the CRM endpoints below.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/api">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Developer platform
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <StatCard
+          label="CRM endpoints"
+          value={String(crmApiDocs.length)}
+          icon={<BookOpen />}
+          accent="#3b7af5"
+        />
+        <StatCard label="Auth scheme" value="Bearer" icon={<KeyRound />} accent="#7c3aed" />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Authentication</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Authentication
+          </CardTitle>
           <CardDescription>
             Authenticate your API requests by including your API key in the Authorization header.
           </CardDescription>
@@ -219,8 +234,11 @@ export default function ApiDocsPage() {
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-[var(--st-text)]">CRM Suite APIs</h2>
-        <div className="space-y-6">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+          <Boxes className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+          CRM Suite APIs
+        </h2>
+        <div className="space-y-4">
           {crmApiDocs.map((endpoint, i) => {
             const [method, path] = endpoint.endpoint.split(' ');
             return (

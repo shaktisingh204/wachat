@@ -8,7 +8,9 @@ import type {
   BiChartType,
   BiFilterOp,
 } from '@/lib/rust-client/bi-charts';
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Play, Plus, Trash2 } from 'lucide-react';
+
+import { Alert, Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import { ChartPreview } from '../chart-preview';
 
@@ -102,11 +104,14 @@ export function DrilldownRunner({
               placeholder="value"
             />
             <Button
+              size="sm"
               variant="ghost"
               onClick={() =>
                 setFilters((prev) => prev.filter((_, i) => i !== idx))
               }
               disabled={filters.length === 1}
+              iconLeft={Trash2}
+              aria-label={`Remove filter ${idx + 1}`}
             >
               Remove
             </Button>
@@ -114,18 +119,20 @@ export function DrilldownRunner({
         ))}
         <div className="flex gap-2">
           <Button
+            size="sm"
             variant="ghost"
             onClick={() =>
               setFilters((prev) => [...prev, { column: '', op: 'eq', value: '' }])
             }
+            iconLeft={Plus}
           >
             Add filter
           </Button>
-          <Button onClick={run} disabled={pending}>
+          <Button onClick={run} disabled={pending} iconLeft={Play}>
             {pending ? 'Running…' : 'Run drilldown'}
           </Button>
         </div>
-        {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
+        {error && <Alert tone="danger">{error}</Alert>}
       </div>
 
       <ChartPreview

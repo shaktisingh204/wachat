@@ -1,18 +1,20 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, KeyRound } from 'lucide-react';
+import { Plus, Trash2, KeyRound, Search, ShieldCheck, Layers } from 'lucide-react';
 
 import { fmtDate } from '@/lib/utils';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
   Field,
   Input,
   Badge,
+  StatCard,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -34,9 +36,18 @@ import {
   Th,
   Td,
   EmptyState,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { createNativeAppAPIKey, deleteNativeAppAPIKey } from '@/app/actions/platform/native-app-apis.actions';
+import {
+  createNativeAppAPIKey,
+  deleteNativeAppAPIKey,
+} from '@/app/actions/platform/native-app-apis.actions';
 import type { NativeAppAPIKey } from '@/types/platform';
 
 export default function NativeAppAPIsClient({ initialData }: { initialData: NativeAppAPIKey[] }) {
@@ -82,32 +93,86 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
     });
   };
 
-  const filteredData = initialData.filter((d) => d.name.toLowerCase().includes(query.toLowerCase()));
+  const stats = useMemo(() => {
+    const total = initialData.length;
+    const scoped = initialData.filter((d) => d.scopes.length > 0).length;
+    const fullAccess = total - scoped;
+    return { total, scoped, fullAccess };
+  }, [initialData]);
+
+  const filteredData = initialData.filter((d) =>
+    d.name.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  const generateButton = (
+    <Button
+      variant="primary"
+      iconLeft={Plus}
+      onClick={() => {
+        setDialogOpen(true);
+        setNewKey(null);
+      }}
+    >
+      Generate key
+    </Button>
+  );
 
   return (
-    <EntityListShell
-      title="Native API Keys"
-      subtitle="Manage access tokens for mobile apps and integrations."
-      primaryAction={
-        <Button variant="primary" iconLeft={Plus} onClick={() => { setDialogOpen(true); setNewKey(null); }}>
-          Generate Key
-        </Button>
-      }
-      search={{ value: query, onChange: setQuery, placeholder: 'Search keys...' }}
-    >
+    <div className="20ui flex w-full flex-col gap-5">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Platform</PageEyebrow>
+          <PageTitle>Native app API keys</PageTitle>
+          <PageDescription>
+            Issue scoped access tokens for mobile apps and integrations. Secrets are shown once
+            at creation.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>{generateButton}</PageActions>
+      </PageHeader>
+
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Total keys" value={stats.total} icon={KeyRound} />
+        <StatCard label="Scoped keys" value={stats.scoped} icon={ShieldCheck} />
+        <StatCard label="Full access" value={stats.fullAccess} icon={Layers} />
+      </div>
+
       <Card padding="none" className="overflow-hidden">
+        <CardHeader className="flex flex-col gap-3 border-b border-[var(--st-border)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            <CardTitle>Access tokens</CardTitle>
+          </div>
+          <div className="w-full sm:w-64">
+            <Field label="Search keys" className="[&_.u-field__label]:sr-only">
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search keys…"
+                iconLeft={Search}
+              />
+            </Field>
+          </div>
+        </CardHeader>
+
         {filteredData.length === 0 ? (
           <EmptyState
             icon={KeyRound}
-            title="No API keys found"
-            description="Generate a key to give a mobile app or integration access."
+            title={query ? 'No matching keys' : 'No API keys yet'}
+            description={
+              query
+                ? 'Try a different search term.'
+                : 'Generate a key to give a mobile app or integration access.'
+            }
+            action={query ? undefined : generateButton}
           />
         ) : (
           <Table>
             <THead>
               <Tr>
                 <Th>Name</Th>
-                <Th>Key Prefix</Th>
+                <Th>Key prefix</Th>
                 <Th>Scopes</Th>
                 <Th>Created</Th>
                 <Th align="right">Actions</Th>
@@ -118,21 +183,32 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
                 <Tr key={item.id}>
                   <Td className="font-medium">
                     <span className="flex items-center gap-2">
-                      <KeyRound className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                      <KeyRound
+                        className="h-4 w-4 text-[var(--st-text-tertiary)]"
+                        aria-hidden="true"
+                      />
                       {item.name}
                     </span>
                   </Td>
-                  <Td className="font-mono text-sm">{item.keyPrefix}...</Td>
+                  <Td className="font-mono text-sm">{item.keyPrefix}…</Td>
                   <Td>
                     <div className="flex flex-wrap gap-1">
-                      {item.scopes.map((s) => (
-                        <Badge key={s} tone="neutral">
-                          {s}
+                      {item.scopes.length > 0 ? (
+                        item.scopes.map((s) => (
+                          <Badge key={s} tone="neutral" kind="soft" className="font-mono text-xs">
+                            {s}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge tone="warning" kind="soft">
+                          Full access
                         </Badge>
-                      ))}
+                      )}
                     </div>
                   </Td>
-                  <Td className="text-sm text-[var(--st-text-tertiary)]">{fmtDate(item.createdAt)}</Td>
+                  <Td className="text-sm text-[var(--st-text-tertiary)]">
+                    {fmtDate(item.createdAt)}
+                  </Td>
                   <Td align="right">
                     <IconButton
                       label={`Delete ${item.name}`}
@@ -152,7 +228,7 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{newKey ? 'Save Your Key' : 'Generate API Key'}</DialogTitle>
+            <DialogTitle>{newKey ? 'Save your key' : 'Generate API key'}</DialogTitle>
             <DialogDescription>
               {newKey
                 ? 'Copy this key now. For your security, it will not be shown again.'
@@ -171,14 +247,14 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
               </div>
             ) : (
               <>
-                <Field label="Key Name">
+                <Field label="Key name">
                   <Input
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="e.g. Mobile App Production"
                   />
                 </Field>
-                <Field label="Scopes (comma separated)">
+                <Field label="Scopes" help="Comma separated. Leave blank for full access.">
                   <Input
                     value={form.scopes}
                     onChange={(e) => setForm({ ...form, scopes: e.target.value })}
@@ -209,7 +285,9 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
 
       <AlertDialog
         open={pendingDelete !== null}
-        onOpenChange={(open) => { if (!open) setPendingDelete(null); }}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -225,7 +303,6 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
             <AlertDialogAction
               disabled={isPending}
               onClick={(e) => {
-                // Keep the dialog mounted until the async delete settles.
                 e.preventDefault();
                 if (pendingDelete) handleDelete(pendingDelete.id);
               }}
@@ -235,6 +312,6 @@ export default function NativeAppAPIsClient({ initialData }: { initialData: Nati
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </EntityListShell>
+    </div>
   );
 }

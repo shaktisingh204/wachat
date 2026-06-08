@@ -25,7 +25,7 @@ import {
   EmptyState,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Copy, Key, X } from 'lucide-react';
+import { Copy, Key, KeyRound, ScrollText, Plus, X } from 'lucide-react';
 
 interface KeyRow {
   _id: string;
@@ -126,7 +126,10 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
 
       <Card>
         <CardHeader>
-          <CardTitle>Generate new key</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Generate new key
+          </CardTitle>
         </CardHeader>
         <CardBody>
           <div className="flex flex-wrap items-end gap-3">
@@ -149,6 +152,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
             </Field>
             <Button
               variant="primary"
+              iconLeft={Plus}
               onClick={handleCreate}
               loading={busy}
               disabled={busy || !name.trim()}
@@ -160,6 +164,12 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
       </Card>
 
       <Card padding="none">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Key className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Your keys
+          </CardTitle>
+        </CardHeader>
         <Table>
           <THead>
             <Tr>
@@ -254,7 +264,10 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
 
       <Card padding="none">
         <CardHeader>
-          <CardTitle>Audit logs</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <ScrollText className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Audit logs
+          </CardTitle>
         </CardHeader>
         <Table>
           <THead>

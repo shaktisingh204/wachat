@@ -32,7 +32,7 @@ import {
   useToast,
   type BadgeTone,
 } from '@/components/sabcrm/20ui';
-import { Copy, Webhook, RefreshCw } from 'lucide-react';
+import { Copy, Webhook, RefreshCw, Plus, Send } from 'lucide-react';
 
 interface Props {
   initialSubs: WebhookSubscription[];
@@ -149,7 +149,10 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
       ) : null}
 
       <section className="space-y-4">
-        <h2 className="text-base font-semibold text-[var(--st-text)]">Subscriptions</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+          <Webhook className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+          Subscriptions
+        </h2>
 
         <Card>
           <CardHeader>
@@ -176,7 +179,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
               />
             </Field>
             <div className="flex justify-end">
-              <Button variant="primary" onClick={handleCreate} loading={busy} disabled={busy || !url.trim()}>
+              <Button variant="primary" iconLeft={Plus} onClick={handleCreate} loading={busy} disabled={busy || !url.trim()}>
                 Create
               </Button>
             </div>
@@ -184,11 +187,13 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
         </Card>
 
         {subs.length === 0 ? (
-          <EmptyState
-            icon={Webhook}
-            title="No subscriptions yet"
-            description="Create a subscription above to start receiving events."
-          />
+          <Card>
+            <EmptyState
+              icon={Webhook}
+              title="No subscriptions yet"
+              description="Create a subscription above to start receiving events."
+            />
+          </Card>
         ) : (
           <div className="space-y-2">
             {subs.map((s) => (
@@ -205,7 +210,7 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
                       </p>
                     </div>
                     <div className="flex flex-shrink-0 items-center gap-2">
-                      <Badge tone={SUB_STATUS_TONE[s.status] ?? 'danger'}>{s.status}</Badge>
+                      <Badge tone={SUB_STATUS_TONE[s.status] ?? 'danger'} dot>{s.status}</Badge>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -230,7 +235,10 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-[var(--st-text)]">Recent deliveries</h2>
+          <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+            <Send className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Recent deliveries
+          </h2>
           <Button variant="ghost" size="sm" iconLeft={RefreshCw} onClick={reloadDeliveries} disabled={busy}>
             Refresh
           </Button>

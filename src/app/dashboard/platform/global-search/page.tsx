@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { performGlobalSearch } from '@/app/actions/platform/global-search.actions';
 import { GlobalSearchClient } from './global-search-client';
 import { Skeleton } from '@/components/sabcrm/20ui';
+import type { GlobalSearchResult } from '@/types/platform';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -13,7 +14,7 @@ export default async function GlobalSearchPage(props: { searchParams: SearchPara
   const page = parseInt(pageStr, 10) || 1;
   const limit = 5;
 
-  let data = [];
+  let data: GlobalSearchResult[] = [];
   let total = 0;
 
   if (query) {
@@ -23,16 +24,16 @@ export default async function GlobalSearchPage(props: { searchParams: SearchPara
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 md:p-10">
+    <div className="20ui mx-auto w-full max-w-5xl">
       <Suspense
         fallback={
-          <div className="space-y-4">
-            <Skeleton height={40} width={256} radius="var(--st-radius)" />
-            <Skeleton height={48} className="w-full max-w-md" radius="var(--st-radius)" />
-            <div className="space-y-2 mt-8">
-              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
-              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
-              <Skeleton height={96} className="w-full" radius="var(--st-radius)" />
+          <div className="flex flex-col gap-4">
+            <Skeleton height={32} width={220} radius="var(--st-radius)" />
+            <Skeleton height={56} className="w-full" radius="var(--st-radius)" />
+            <div className="mt-2 flex flex-col gap-2">
+              <Skeleton height={72} className="w-full" radius="var(--st-radius)" />
+              <Skeleton height={72} className="w-full" radius="var(--st-radius)" />
+              <Skeleton height={72} className="w-full" radius="var(--st-radius)" />
             </div>
           </div>
         }

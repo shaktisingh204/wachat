@@ -5,12 +5,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { ArrowLeft, BarChart3, Filter } from 'lucide-react';
+
 import {
   Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   PageHeader,
@@ -40,7 +41,7 @@ export default async function DrilldownPage({
     notFound();
   }
 
-  let initialRun = await runChartAction(chartId).catch(() => ({
+  const initialRun = await runChartAction(chartId).catch(() => ({
     rows: [] as Record<string, unknown>[],
     columns: [],
     mode: 'unsupported' as const,
@@ -60,12 +61,16 @@ export default async function DrilldownPage({
           </PageEyebrow>
           <PageTitle>{chart.name}</PageTitle>
           <div className="mt-1">
-            <Badge variant="outline">{chart.type}</Badge>
+            <Badge tone="neutral">
+              <BarChart3 size={12} aria-hidden="true" />
+              {chart.type}
+            </Badge>
           </div>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="ghost">
+          <Button variant="ghost" asChild>
             <Link href={`/dashboard/analytics-workspace/workbooks/${id}`}>
+              <ArrowLeft size={16} aria-hidden="true" />
               Back to workbook
             </Link>
           </Button>
@@ -74,11 +79,14 @@ export default async function DrilldownPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Drilldown</CardTitle>
-          <CardDescription>
-            Add ad-hoc filters and re-run the chart. Filters here layer on
-            top of the chart's saved filter list.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Filter size={16} aria-hidden="true" />
+            Drilldown
+          </CardTitle>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            Add ad-hoc filters and re-run the chart. Filters here layer on top of
+            the chart's saved filter list.
+          </p>
         </CardHeader>
         <CardBody>
           <DrilldownRunner
@@ -92,7 +100,10 @@ export default async function DrilldownPage({
       {initialRun.rows.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Baseline result</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 size={16} aria-hidden="true" />
+              Baseline result
+            </CardTitle>
           </CardHeader>
           <CardBody>
             <ChartPreview

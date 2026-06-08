@@ -23,7 +23,7 @@ import {
   Badge,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { TriangleAlert, Copy, Boxes, Trash2, BarChart2 } from 'lucide-react';
+import { TriangleAlert, Copy, Boxes, Trash2, BarChart2, Plus } from 'lucide-react';
 
 interface UsageRow {
   keyId: string;
@@ -126,7 +126,10 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
 
       <Card>
         <CardHeader>
-          <CardTitle>Register OAuth app</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Boxes className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Register OAuth app
+          </CardTitle>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -162,6 +165,7 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
           <div className="flex justify-end">
             <Button
               variant="primary"
+              iconLeft={Plus}
               onClick={handleCreate}
               loading={busy}
               disabled={busy || !name.trim()}
@@ -173,13 +177,19 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
       </Card>
 
       {apps.length === 0 ? (
-        <EmptyState
-          icon={Boxes}
-          title="No OAuth apps yet"
-          description="Register an app above to get started."
-        />
+        <Card>
+          <EmptyState
+            icon={Boxes}
+            title="No OAuth apps yet"
+            description="Register your first app above to start issuing scoped access tokens."
+          />
+        </Card>
       ) : (
         <div className="space-y-3">
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+            <Boxes className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Registered apps
+          </h2>
           {apps.map((a) => {
             const usage = usageData.find((u) => u.keyId === a.clientId);
             const requestCount = usage?.count ?? 0;
@@ -262,8 +272,8 @@ export function AppsClient({ initialApps, usageData = [] }: Props): JSX.Element 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <p className="mb-1 text-[var(--st-text-tertiary)]">Status</p>
-                          <Badge tone={rateLimited ? 'danger' : 'success'}>
-                            {rateLimited ? 'Rate Limited' : 'Active'}
+                          <Badge tone={rateLimited ? 'danger' : 'success'} dot>
+                            {rateLimited ? 'Rate limited' : 'Active'}
                           </Badge>
                         </div>
                         <div>

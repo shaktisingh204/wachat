@@ -25,7 +25,7 @@ import {
   EmptyState,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Copy, KeyRound } from 'lucide-react';
+import { Copy, KeyRound, Plus, ListChecks } from 'lucide-react';
 
 interface PatRow {
   _id: string;
@@ -123,7 +123,10 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
 
       <Card>
         <CardHeader>
-          <CardTitle>Generate Personal Access Token</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Generate Personal Access Token
+          </CardTitle>
           <CardDescription>
             PATs inherit your RBAC and can only do what your account is allowed to do.
           </CardDescription>
@@ -150,6 +153,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
             </Field>
             <Button
               variant="primary"
+              iconLeft={Plus}
               onClick={handleCreate}
               disabled={!name.trim()}
               loading={busy}
@@ -161,6 +165,12 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
       </Card>
 
       <Card padding="none">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ListChecks className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            Your tokens
+          </CardTitle>
+        </CardHeader>
         <Table>
           <THead>
             <Tr>
@@ -200,7 +210,7 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
                   {t.revoked ? (
                     <Badge tone="danger">Revoked</Badge>
                   ) : (
-                    <Badge tone="success">Active</Badge>
+                    <Badge tone="success" dot>Active</Badge>
                   )}
                 </Td>
                 <Td align="right">

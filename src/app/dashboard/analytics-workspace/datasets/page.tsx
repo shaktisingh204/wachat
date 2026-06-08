@@ -2,22 +2,31 @@
  * Datasets list. Connect-source / upload-CSV entry point.
  */
 import Link from 'next/link';
-import { Database } from 'lucide-react';
+import {
+  Combine,
+  Database,
+  FileSpreadsheet,
+  Globe,
+  LayoutDashboard,
+  Rows3,
+  Table2,
+} from 'lucide-react';
 
 import {
   Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   EmptyState,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -31,6 +40,23 @@ import { NewDatasetPanel } from './_components/new-dataset-panel';
 
 export const dynamic = 'force-dynamic';
 
+const SOURCE_LABEL: Record<string, string> = {
+  csv_upload: 'CSV',
+  mongo_collection: 'Collection',
+  rest_api: 'REST',
+};
+
+function sourceIcon(source: string) {
+  switch (source) {
+    case 'csv_upload':
+      return <FileSpreadsheet size={13} aria-hidden="true" />;
+    case 'rest_api':
+      return <Globe size={13} aria-hidden="true" />;
+    default:
+      return <Database size={13} aria-hidden="true" />;
+  }
+}
+
 export default async function DatasetsPage() {
   let items: Awaited<ReturnType<typeof listDatasetsAction>>['items'] = [];
   try {
@@ -40,38 +66,64 @@ export default async function DatasetsPage() {
     items = [];
   }
 
+  const totalRows = items.reduce((acc, d) => acc + (d.rowCount ?? 0), 0);
+  const sourceCount = new Set(items.map((d) => d.source)).size;
+
   return (
-    <div className="20ui flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
+          <PageEyebrow>Analytics workspace</PageEyebrow>
           <PageTitle>Datasets</PageTitle>
           <PageDescription>
             Bring tabular data from SabFiles, system collections, or a REST URL.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Link href="/dashboard/analytics-workspace/datasets/joins">
-            <Button variant="ghost">Joins</Button>
-          </Link>
-          <Link href="/dashboard/analytics-workspace">
-            <Button variant="ghost">Workbooks</Button>
-          </Link>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/analytics-workspace/datasets/joins">
+              <Combine size={16} aria-hidden="true" />
+              Joins
+            </Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/analytics-workspace">
+              <LayoutDashboard size={16} aria-hidden="true" />
+              Workbooks
+            </Link>
+          </Button>
         </PageActions>
       </PageHeader>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          label="Datasets"
+          value={items.length}
+          icon={Database}
+          accent="var(--st-accent)"
+        />
+        <StatCard
+          label="Total rows"
+          value={totalRows.toLocaleString()}
+          icon={Rows3}
+        />
+        <StatCard label="Source types" value={sourceCount} icon={Table2} />
+      </div>
 
       <NewDatasetPanel />
 
       <Card>
         <CardHeader>
-          <CardTitle>Your datasets</CardTitle>
-          <CardDescription>
-            Click any dataset to preview rows and refresh its schema.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Database size={16} aria-hidden="true" />
+            Your datasets
+          </CardTitle>
         </CardHeader>
         <CardBody>
           {items.length === 0 ? (
             <EmptyState
               icon={Database}
+              tone="info"
               title="No datasets yet"
               description="Connect a CSV, system collection, or REST endpoint above to get started."
             />
@@ -91,16 +143,23 @@ export default async function DatasetsPage() {
                     <Td>
                       <Link
                         href={`/dashboard/analytics-workspace/datasets/${d._id}`}
-                        className="text-[var(--st-text)] hover:underline"
+                        className="font-medium text-[var(--st-text)] hover:underline"
                       >
                         {d.name}
                       </Link>
                     </Td>
                     <Td>
-                      <Badge variant="outline">{d.source}</Badge>
+                      <Badge tone="neutral">
+                        {sourceIcon(d.source)}
+                        {SOURCE_LABEL[d.source] ?? d.source}
+                      </Badge>
                     </Td>
-                    <Td align="right">{d.rowCount ?? '-'}</Td>
-                    <Td className="text-[var(--st-text-secondary)]">{d.lastRefreshAt ?? '-'}</Td>
+                    <Td align="right" className="tabular-nums">
+                      {d.rowCount != null ? d.rowCount.toLocaleString() : '-'}
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {d.lastRefreshAt ?? '-'}
+                    </Td>
                   </Tr>
                 ))}
               </TBody>

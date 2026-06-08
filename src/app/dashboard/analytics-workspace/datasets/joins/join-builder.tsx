@@ -3,9 +3,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Combine, Plus, Save, Trash2 } from 'lucide-react';
+
 import { createJoinAction } from '@/app/actions/analytics-bi.actions';
 import type { BiJoinType } from '@/lib/rust-client/bi-dataset-joins';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Alert, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 interface DatasetRef {
   id: string;
@@ -71,10 +73,13 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>New join</CardTitle>
-        <CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <Combine size={16} aria-hidden="true" />
+          New join
+        </CardTitle>
+        <p className="text-sm text-[var(--st-text-secondary)]">
           Pick two datasets, choose the join type, and map matching columns.
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
@@ -149,9 +154,12 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
                 placeholder="right column"
               />
               <Button
+                size="sm"
                 variant="ghost"
                 onClick={() => setRows((prev) => prev.filter((_, i) => i !== idx))}
                 disabled={rows.length === 1}
+                iconLeft={Trash2}
+                aria-label={`Remove column mapping ${idx + 1}`}
               >
                 Remove
               </Button>
@@ -159,18 +167,24 @@ export function JoinBuilder({ datasets }: { datasets: DatasetRef[] }) {
           ))}
           <div>
             <Button
+              size="sm"
               variant="ghost"
               onClick={() => setRows((prev) => [...prev, { left: '', right: '' }])}
+              iconLeft={Plus}
             >
               Add column
             </Button>
           </div>
         </div>
 
-        {error && <p className="mt-3 text-sm text-[var(--st-danger)]">{error}</p>}
+        {error && (
+          <Alert tone="danger" className="mt-3">
+            {error}
+          </Alert>
+        )}
 
         <div className="mt-4 flex justify-end">
-          <Button onClick={submit} disabled={pending}>
+          <Button onClick={submit} disabled={pending} iconLeft={Save}>
             {pending ? 'Saving…' : 'Save join'}
           </Button>
         </div>

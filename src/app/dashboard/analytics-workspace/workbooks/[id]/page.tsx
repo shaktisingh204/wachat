@@ -6,15 +6,17 @@
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { BarChart3, Database, Layers, Settings2 } from 'lucide-react';
 
 import {
   Button,
+  PageActions,
+  PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
-  PageEyebrow,
   PageTitle,
-  PageDescription,
-  PageActions,
+  StatCard,
 } from '@/components/sabcrm/20ui';
 import {
   getWorkbookAction,
@@ -47,8 +49,10 @@ export default async function WorkbookPage({
   const charts = 'items' in chartsRes ? chartsRes.items : [];
   const datasets = 'items' in datasetsRes ? datasetsRes.items : [];
 
+  const chartTypeCount = new Set(charts.map((c) => c.type)).size;
+
   return (
-    <div className="flex flex-col gap-4 p-6">
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>
@@ -62,11 +66,29 @@ export default async function WorkbookPage({
           )}
         </PageHeaderHeading>
         <PageActions>
-          <Link href="/dashboard/analytics-workspace/datasets">
-            <Button variant="ghost">Manage datasets</Button>
-          </Link>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/analytics-workspace/datasets">
+              <Settings2 size={16} aria-hidden="true" />
+              Manage datasets
+            </Link>
+          </Button>
         </PageActions>
       </PageHeader>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          label="Charts"
+          value={charts.length}
+          icon={BarChart3}
+          accent="var(--st-accent)"
+        />
+        <StatCard
+          label="Datasets available"
+          value={datasets.length}
+          icon={Database}
+        />
+        <StatCard label="Chart types" value={chartTypeCount} icon={Layers} />
+      </div>
 
       <WorkbookEditor
         workbookId={id}

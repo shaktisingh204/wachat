@@ -18,6 +18,7 @@ import {
   PageTitle,
   SegmentedControl,
   Skeleton,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { useEffect, useState, useTransition } from 'react';
@@ -29,6 +30,8 @@ import {
   Clock,
   Copy,
   Check,
+  CheckCircle2,
+  Send,
 } from 'lucide-react';
 
 import {
@@ -148,6 +151,30 @@ export default function TeamInvitesPage() {
           Refresh
         </Button>
       </PageHeader>
+
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} padding="md">
+              <Skeleton width={88} height={11} radius={9999} />
+              <Skeleton className="mt-3" width={40} height={26} radius={6} />
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatCard label="Total invites" value={counts.all} icon={Send} accent="var(--st-accent)" />
+            <StatCard label="Pending" value={counts.pending} icon={Clock} />
+            <StatCard label="Accepted" value={counts.accepted} icon={CheckCircle2} />
+            <StatCard
+              label="Expired"
+              value={counts.expired}
+              icon={CircleX}
+              delta={counts.expired > 0 ? { value: 'Review', tone: 'down' } : undefined}
+            />
+          </>
+        )}
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">

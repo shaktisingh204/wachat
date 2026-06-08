@@ -3,13 +3,20 @@
  */
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Database } from 'lucide-react';
+import {
+  Columns3,
+  Database,
+  FileSpreadsheet,
+  Globe,
+  RefreshCcw,
+  Rows3,
+  TableProperties,
+} from 'lucide-react';
 
 import {
   Badge,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   EmptyState,
@@ -35,6 +42,23 @@ import {
 import { RefreshButton } from './refresh-button';
 
 export const dynamic = 'force-dynamic';
+
+const SOURCE_LABEL: Record<string, string> = {
+  csv_upload: 'CSV upload',
+  mongo_collection: 'System collection',
+  rest_api: 'REST endpoint',
+};
+
+function sourceIcon(source: string) {
+  switch (source) {
+    case 'csv_upload':
+      return <FileSpreadsheet size={13} aria-hidden="true" />;
+    case 'rest_api':
+      return <Globe size={13} aria-hidden="true" />;
+    default:
+      return <Database size={13} aria-hidden="true" />;
+  }
+}
 
 export default async function DatasetDetailPage({
   params,
@@ -69,7 +93,7 @@ export default async function DatasetDetailPage({
         : [];
 
   return (
-    <div className="20ui flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>
@@ -86,24 +110,39 @@ export default async function DatasetDetailPage({
           ) : null}
         </PageHeaderHeading>
         <PageActions>
-          <Badge variant="outline">{dataset.source}</Badge>
+          <Badge tone="neutral">
+            {sourceIcon(dataset.source)}
+            {SOURCE_LABEL[dataset.source] ?? dataset.source}
+          </Badge>
           <RefreshButton id={id} />
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatCard label="Rows" value={preview.rowCount ?? dataset.rowCount ?? 0} />
-        <StatCard label="Last refresh" value={dataset.lastRefreshAt ?? '-'} />
-        <StatCard label="Columns" value={columns.length} />
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] md:grid-cols-3">
+        <StatCard
+          label="Rows"
+          value={(preview.rowCount ?? dataset.rowCount ?? 0).toLocaleString()}
+          icon={Rows3}
+          accent="var(--st-accent)"
+        />
+        <StatCard label="Columns" value={columns.length} icon={Columns3} />
+        <StatCard
+          label="Last refresh"
+          value={dataset.lastRefreshAt ?? 'Never'}
+          icon={RefreshCcw}
+        />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Preview</CardTitle>
-          <CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <TableProperties size={16} aria-hidden="true" />
+            Preview
+          </CardTitle>
+          <p className="text-sm text-[var(--st-text-secondary)]">
             First 50 rows. CSV / REST sources require the dataset to be
             materialised into a system collection before previewing.
-          </CardDescription>
+          </p>
         </CardHeader>
         <CardBody>
           {preview.rows.length === 0 ? (
@@ -111,6 +150,7 @@ export default async function DatasetDetailPage({
               icon={Database}
               title="No preview rows available"
               description="This dataset has no preview rows yet. Refresh or materialise the source to populate it."
+              action={<RefreshButton id={id} />}
             />
           ) : (
             <Table>

@@ -1,33 +1,59 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
+  IconButton,
   Card,
+  CardHeader,
+  CardTitle,
   Field,
   Input,
   Textarea,
   Badge,
+  StatCard,
   EmptyState,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
   useToast,
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
+  type BadgeTone,
 } from '@/components/sabcrm/20ui';
-import { createGenerativeAIDraft, updateGenerativeAIDraftStatus, deleteGenerativeAIDraft } from '@/app/actions/platform/generative-ai-drafter.actions';
+import {
+  createGenerativeAIDraft,
+  updateGenerativeAIDraftStatus,
+  deleteGenerativeAIDraft,
+} from '@/app/actions/platform/generative-ai-drafter.actions';
 import type { GenerativeAIDraft } from '@/types/platform';
-import { Plus, Trash2, CheckCircle, XCircle, Bot, Cpu, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import {
+  Plus,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Bot,
+  Cpu,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  FileCheck2,
+  FilePen,
+} from 'lucide-react';
 
-const STATUS_TONE: Record<string, 'success' | 'danger' | 'neutral'> = {
+const STATUS_TONE: Record<string, BadgeTone> = {
   approved: 'success',
   rejected: 'danger',
   draft: 'neutral',
@@ -39,10 +65,10 @@ export default function GenerativeAIDrafterClientPage({
   currentPage,
   limit,
 }: {
-  initialData: GenerativeAIDraft[],
-  total: number,
-  currentPage: number,
-  limit: number
+  initialData: GenerativeAIDraft[];
+  total: number;
+  currentPage: number;
+  limit: number;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -50,7 +76,11 @@ export default function GenerativeAIDrafterClientPage({
   const { toast } = useToast();
   const router = useRouter();
 
-  const [form, setForm] = useState<{ entityType: string, aiModel: 'gpt-4' | 'claude', prompt: string }>({
+  const [form, setForm] = useState<{
+    entityType: string;
+    aiModel: 'gpt-4' | 'claude';
+    prompt: string;
+  }>({
     entityType: 'email',
     aiModel: 'gpt-4',
     prompt: '',
@@ -60,7 +90,6 @@ export default function GenerativeAIDrafterClientPage({
     if (!form.prompt) return;
     startTransition(async () => {
       try {
-        // Mock generation
         const mockContent = `Generated ${form.entityType} content using ${form.aiModel} based on: "${form.prompt}". \n\nDear customer,\nWe are excited to share... [AI Generated Content]`;
 
         await createGenerativeAIDraft({
@@ -72,7 +101,7 @@ export default function GenerativeAIDrafterClientPage({
         setDialogOpen(false);
         setForm({ entityType: 'email', aiModel: 'gpt-4', prompt: '' });
         router.refresh();
-      } catch (err) {
+      } catch {
         toast.error('Error generating draft');
       }
     });
@@ -83,7 +112,7 @@ export default function GenerativeAIDrafterClientPage({
       await updateGenerativeAIDraftStatus(id, status);
       toast.success(`Draft ${status}`);
       router.refresh();
-    } catch (err) {
+    } catch {
       toast.error('Error updating draft');
     }
   };
@@ -94,30 +123,158 @@ export default function GenerativeAIDrafterClientPage({
       await deleteGenerativeAIDraft(id);
       toast.success('Draft deleted');
       router.refresh();
-    } catch (err) {
+    } catch {
       toast.error('Error deleting draft');
     }
   };
 
-  const filteredData = initialData.filter(d =>
-    d.prompt.toLowerCase().includes(query.toLowerCase()) ||
-    d.entityType.includes(query.toLowerCase()) ||
-    (d.aiModel && d.aiModel.toLowerCase().includes(query.toLowerCase()))
+  const stats = useMemo(() => {
+    const approved = initialData.filter((d) => d.status === 'approved').length;
+    const pending = initialData.filter((d) => d.status === 'draft').length;
+    return { approved, pending };
+  }, [initialData]);
+
+  const filteredData = initialData.filter(
+    (d) =>
+      d.prompt.toLowerCase().includes(query.toLowerCase()) ||
+      d.entityType.includes(query.toLowerCase()) ||
+      (d.aiModel && d.aiModel.toLowerCase().includes(query.toLowerCase())),
   );
 
   const totalPages = Math.ceil(total / limit);
 
+  const newButton = (
+    <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+      New draft
+    </Button>
+  );
+
   return (
-    <EntityListShell
-      title="Generative AI Drafter"
-      subtitle="Draft emails, proposals, and contracts instantly using AI."
-      primaryAction={<Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>New Draft</Button>}
-      search={{ value: query, onChange: setQuery, placeholder: 'Search drafts...' }}
-      pagination={
-        totalPages > 1 ? (
-          <div className="flex items-center justify-between border-t border-[var(--st-border)] pt-4 mt-4">
+    <div className="20ui flex w-full flex-col gap-5">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Platform · AI</PageEyebrow>
+          <PageTitle>Generative AI drafter</PageTitle>
+          <PageDescription>
+            Draft emails, proposals, and contracts with AI, then review and approve before they
+            ship.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>{newButton}</PageActions>
+      </PageHeader>
+
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Total drafts" value={total} icon={Bot} />
+        <StatCard label="Approved (page)" value={stats.approved} icon={FileCheck2} />
+        <StatCard label="Pending review" value={stats.pending} icon={FilePen} />
+      </div>
+
+      <Card padding="none" className="overflow-hidden">
+        <CardHeader className="flex flex-col gap-3 border-b border-[var(--st-border)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Bot className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            <CardTitle>Drafts</CardTitle>
+          </div>
+          <div className="w-full sm:w-56">
+            <Field label="Search drafts" className="[&_.u-field__label]:sr-only">
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search drafts…"
+                iconLeft={Search}
+              />
+            </Field>
+          </div>
+        </CardHeader>
+
+        {filteredData.length === 0 ? (
+          <EmptyState
+            icon={Bot}
+            title={query ? 'No matching drafts' : 'No drafts yet'}
+            description={
+              query
+                ? 'Try a different search term.'
+                : 'Generate your first AI draft to see it here.'
+            }
+            action={query ? undefined : newButton}
+          />
+        ) : (
+          <div className="flex flex-col gap-4 p-4">
+            {filteredData.map((item) => (
+              <Card
+                key={item.id}
+                variant="outlined"
+                padding="lg"
+                className="flex flex-col gap-5 md:flex-row"
+              >
+                <div className="flex-1">
+                  <div className="mb-3 flex flex-wrap items-center gap-2">
+                    <Bot className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                    <span className="text-sm font-semibold uppercase tracking-wide text-[var(--st-text)]">
+                      {item.entityType}
+                    </span>
+                    <Badge tone={STATUS_TONE[item.status] ?? 'neutral'} dot>
+                      {item.status}
+                    </Badge>
+                    {item.aiModel && (
+                      <Badge tone="info" kind="soft" className="inline-flex items-center gap-1">
+                        <Cpu className="h-3 w-3" aria-hidden="true" />
+                        {item.aiModel === 'gpt-4' ? 'GPT-4' : 'Claude'}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mb-3 text-sm font-medium text-[var(--st-text)]">
+                    Prompt:{' '}
+                    <span className="italic text-[var(--st-text-tertiary)]">"{item.prompt}"</span>
+                  </p>
+                  <div className="whitespace-pre-wrap rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-4 font-mono text-sm text-[var(--st-text)]">
+                    {item.content}
+                  </div>
+                </div>
+                <div className="flex flex-row items-center justify-end gap-2 border-t border-[var(--st-border)] pt-4 md:w-36 md:flex-col md:items-stretch md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                  {item.status === 'draft' && (
+                    <>
+                      <Button
+                        variant="outline"
+                        block
+                        iconLeft={CheckCircle}
+                        className="justify-start"
+                        onClick={() => handleStatus(item.id, 'approved')}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="outline"
+                        block
+                        iconLeft={XCircle}
+                        className="justify-start"
+                        onClick={() => handleStatus(item.id, 'rejected')}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    variant="ghost"
+                    block
+                    iconLeft={Trash2}
+                    className="justify-start text-[var(--st-danger)]"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-3 border-t border-[var(--st-border)] px-4 py-3">
             <span className="text-sm text-[var(--st-text-tertiary)]">
-              Showing {Math.min((currentPage - 1) * limit + 1, total)} to {Math.min(currentPage * limit, total)} of {total} entries
+              Showing {Math.min((currentPage - 1) * limit + 1, total)} to{' '}
+              {Math.min(currentPage * limit, total)} of {total} entries
             </span>
             <div className="flex items-center gap-2">
               <Button
@@ -129,7 +286,9 @@ export default function GenerativeAIDrafterClientPage({
               >
                 Previous
               </Button>
-              <span className="text-sm px-2 text-[var(--st-text-secondary)]">Page {currentPage} of {totalPages}</span>
+              <span className="px-2 text-sm text-[var(--st-text-secondary)]">
+                Page {currentPage} of {totalPages}
+              </span>
               <Button
                 variant="outline"
                 size="sm"
@@ -141,76 +300,37 @@ export default function GenerativeAIDrafterClientPage({
               </Button>
             </div>
           </div>
-        ) : null
-      }
-    >
-      <div className="grid gap-6">
-        {filteredData.map(item => (
-          <Card key={item.id} variant="outlined" padding="lg" className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <Bot className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
-                <span className="font-semibold text-[var(--st-text)] uppercase text-sm tracking-wider">{item.entityType}</span>
-                <Badge tone={STATUS_TONE[item.status] ?? 'neutral'}>{item.status}</Badge>
-                {item.aiModel && (
-                  <Badge tone="info" className="inline-flex items-center gap-1">
-                    <Cpu className="w-3 h-3" aria-hidden="true" />
-                    {item.aiModel === 'gpt-4' ? 'GPT-4' : 'Claude'}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm font-medium text-[var(--st-text)] mb-2">
-                Prompt: <span className="text-[var(--st-text-tertiary)] italic">"{item.prompt}"</span>
-              </p>
-              <div className="bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] text-sm text-[var(--st-text)] mt-4 whitespace-pre-wrap font-mono">
-                {item.content}
-              </div>
-            </div>
-            <div className="flex flex-row md:flex-col items-center justify-end gap-2 md:w-32 border-t md:border-t-0 md:border-l border-[var(--st-border)] pt-4 md:pt-0 md:pl-4">
-              {item.status === 'draft' && (
-                <>
-                  <Button variant="outline" block iconLeft={CheckCircle} className="justify-start" onClick={() => handleStatus(item.id, 'approved')}>
-                    Approve
-                  </Button>
-                  <Button variant="outline" block iconLeft={XCircle} className="justify-start" onClick={() => handleStatus(item.id, 'rejected')}>
-                    Reject
-                  </Button>
-                </>
-              )}
-              <Button variant="ghost" block iconLeft={Trash2} className="justify-start" onClick={() => handleDelete(item.id)}>
-                Delete
-              </Button>
-            </div>
-          </Card>
-        ))}
-        {filteredData.length === 0 && (
-          <EmptyState
-            icon={Bot}
-            title="No drafts found"
-            description="Generate your first AI draft to see it here."
-            action={<Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>New Draft</Button>}
-          />
         )}
-      </div>
+      </Card>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle>Generate AI Content</DialogTitle>
+            <DialogTitle>Generate AI content</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <Field label="AI Model">
-              <Select value={form.aiModel} onValueChange={(v: 'gpt-4' | 'claude') => setForm({ ...form, aiModel: v })}>
-                <SelectTrigger aria-label="AI Model"><SelectValue placeholder="Select AI Model" /></SelectTrigger>
+            <Field label="AI model">
+              <Select
+                value={form.aiModel}
+                onValueChange={(v: 'gpt-4' | 'claude') => setForm({ ...form, aiModel: v })}
+              >
+                <SelectTrigger aria-label="AI model">
+                  <SelectValue placeholder="Select AI model" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="gpt-4">GPT-4</SelectItem>
                   <SelectItem value="claude">Claude</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
-            <Field label="Content Type">
-              <Select value={form.entityType} onValueChange={(v) => setForm({ ...form, entityType: v })}>
-                <SelectTrigger aria-label="Content Type"><SelectValue placeholder="Select type" /></SelectTrigger>
+            <Field label="Content type">
+              <Select
+                value={form.entityType}
+                onValueChange={(v) => setForm({ ...form, entityType: v })}
+              >
+                <SelectTrigger aria-label="Content type">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="proposal">Proposal</SelectItem>
@@ -221,20 +341,22 @@ export default function GenerativeAIDrafterClientPage({
             <Field label="Prompt">
               <Textarea
                 value={form.prompt}
-                onChange={e => setForm({ ...form, prompt: e.target.value })}
-                placeholder="Write an engaging follow-up email for a recent real estate lead..."
+                onChange={(e) => setForm({ ...form, prompt: e.target.value })}
+                placeholder="Write an engaging follow-up email for a recent real estate lead…"
                 rows={3}
               />
             </Field>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
             <Button variant="primary" iconLeft={Bot} loading={isPending} onClick={handleCreate}>
               Generate
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </EntityListShell>
+    </div>
   );
 }

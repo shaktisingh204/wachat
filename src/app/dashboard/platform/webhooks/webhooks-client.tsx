@@ -1,16 +1,28 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, KeyRound, Webhook } from 'lucide-react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Plus,
+  Trash2,
+  KeyRound,
+  Webhook,
+  Search,
+  Activity,
+  AlertTriangle,
+  PauseCircle,
+} from 'lucide-react';
 import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   Field,
   Input,
   Badge,
+  StatCard,
   EmptyState,
   Table,
   THead,
@@ -25,6 +37,12 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
   useToast,
   type BadgeTone,
 } from '@/components/sabcrm/20ui';
@@ -80,39 +98,81 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
     });
   };
 
+  const stats = useMemo(() => {
+    const total = initialData.length;
+    const active = initialData.filter((d) => d.status === 'active').length;
+    const failing = initialData.filter((d) => d.status === 'failing').length;
+    const inactive = initialData.filter((d) => d.status === 'inactive').length;
+    return { total, active, failing, inactive };
+  }, [initialData]);
+
   const filteredData = initialData.filter((d) =>
     d.name.toLowerCase().includes(query.toLowerCase()),
   );
 
+  const addButton = (
+    <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+      Add webhook
+    </Button>
+  );
+
   return (
-    <EntityListShell
-      title="Webhooks & Zapier Integrations"
-      subtitle="Connect SabNode to external apps using webhooks."
-      primaryAction={
-        <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
-          Add Webhook
-        </Button>
-      }
-      search={{ value: query, onChange: setQuery, placeholder: 'Search webhooks...' }}
-    >
+    <div className="20ui flex w-full flex-col gap-5">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Platform</PageEyebrow>
+          <PageTitle>Webhooks &amp; Zapier</PageTitle>
+          <PageDescription>
+            Push SabNode events to external apps in real time. Each endpoint is signed with a
+            secret you can rotate.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>{addButton}</PageActions>
+      </PageHeader>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard label="Endpoints" value={stats.total} icon={Webhook} />
+        <StatCard label="Active" value={stats.active} icon={Activity} />
+        <StatCard label="Failing" value={stats.failing} icon={AlertTriangle} />
+        <StatCard label="Paused" value={stats.inactive} icon={PauseCircle} />
+      </div>
+
       <Card padding="none" className="overflow-hidden">
+        <CardHeader className="flex flex-col gap-3 border-b border-[var(--st-border)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <Webhook className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+            <CardTitle>Endpoints</CardTitle>
+          </div>
+          <div className="w-full sm:w-64">
+            <Field label="Search webhooks" className="[&_.u-field__label]:sr-only">
+              <Input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search webhooks…"
+                iconLeft={Search}
+              />
+            </Field>
+          </div>
+        </CardHeader>
+
         {filteredData.length === 0 ? (
           <EmptyState
             icon={Webhook}
-            title="No webhooks found"
-            description="Add a webhook to push SabNode events to your external apps."
-            action={
-              <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
-                Add Webhook
-              </Button>
+            title={query ? 'No matching webhooks' : 'No webhooks yet'}
+            description={
+              query
+                ? 'Try a different search term.'
+                : 'Add a webhook to push SabNode events to your external apps.'
             }
+            action={query ? undefined : addButton}
           />
         ) : (
           <Table>
             <THead>
               <Tr>
                 <Th>Name</Th>
-                <Th>URL</Th>
+                <Th>Endpoint URL</Th>
                 <Th>Status</Th>
                 <Th>Events</Th>
                 <Th align="right">Actions</Th>
@@ -122,25 +182,40 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
               {filteredData.map((item) => (
                 <Tr key={item.id}>
                   <Td className="font-medium">{item.name}</Td>
-                  <Td className="font-mono text-[var(--st-text-secondary)]">{item.url}</Td>
+                  <Td className="max-w-[22rem] truncate font-mono text-xs text-[var(--st-text-secondary)]">
+                    {item.url}
+                  </Td>
                   <Td>
                     <Badge tone={STATUS_TONE[item.status]} dot>
                       {item.status}
                     </Badge>
                   </Td>
-                  <Td>{item.events.join(', ')}</Td>
+                  <Td>
+                    <div className="flex flex-wrap gap-1">
+                      {item.events.length > 0 ? (
+                        item.events.map((ev) => (
+                          <Badge key={ev} tone="neutral" kind="soft" className="font-mono text-xs">
+                            {ev}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-xs text-[var(--st-text-tertiary)]">All events</span>
+                      )}
+                    </div>
+                  </Td>
                   <Td align="right">
                     <div className="flex items-center justify-end gap-1">
                       <IconButton
-                        label="Copy signing secret"
+                        label={`Copy signing secret for ${item.name}`}
                         icon={KeyRound}
+                        variant="ghost"
                         onClick={() => {
                           navigator.clipboard.writeText(item.secret);
                           toast.success('Secret copied to clipboard');
                         }}
                       />
                       <IconButton
-                        label="Delete webhook"
+                        label={`Delete webhook ${item.name}`}
                         icon={Trash2}
                         variant="danger"
                         onClick={() => handleDelete(item.id)}
@@ -158,13 +233,13 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Webhook</DialogTitle>
+            <DialogTitle>Add webhook</DialogTitle>
             <DialogDescription>
               Register an endpoint to receive SabNode event notifications.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <Field label="Webhook Name">
+            <Field label="Webhook name">
               <Input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -176,10 +251,10 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
                 type="url"
                 value={form.url}
                 onChange={(e) => setForm({ ...form, url: e.target.value })}
-                placeholder="https://..."
+                placeholder="https://…"
               />
             </Field>
-            <Field label="Events" help="Comma separated event names.">
+            <Field label="Events" help="Comma separated event names. Leave blank for all events.">
               <Input
                 value={form.events}
                 onChange={(e) => setForm({ ...form, events: e.target.value })}
@@ -197,6 +272,6 @@ export default function WebhooksClient({ initialData }: { initialData: WebhookEn
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </EntityListShell>
+    </div>
   );
 }

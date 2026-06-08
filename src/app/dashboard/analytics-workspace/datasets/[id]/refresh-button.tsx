@@ -3,6 +3,8 @@
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { RefreshCcw } from 'lucide-react';
+
 import { refreshDatasetAction } from '@/app/actions/analytics-bi.actions';
 import { Button } from '@/components/sabcrm/20ui';
 
@@ -19,6 +21,8 @@ export function RefreshButton({ id }: { id: string }) {
         })
       }
       disabled={pending}
+      loading={pending}
+      iconLeft={RefreshCcw}
     >
       {pending ? 'Refreshing…' : 'Refresh'}
     </Button>

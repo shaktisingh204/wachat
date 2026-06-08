@@ -3,9 +3,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { CalendarPlus, Plus } from 'lucide-react';
+
 import { createScheduleAction } from '@/app/actions/analytics-bi.actions';
 import type { BiScheduleFormat } from '@/lib/rust-client/bi-schedules';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { Alert, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 interface WorkbookRef {
   id: string;
@@ -54,11 +56,14 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>New schedule</CardTitle>
-        <CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <CalendarPlus size={16} aria-hidden="true" />
+          New schedule
+        </CardTitle>
+        <p className="text-sm text-[var(--st-text-secondary)]">
           Standard cron syntax (5 fields). Recipients are comma- or
           newline-separated email addresses.
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
@@ -121,9 +126,13 @@ export function NewSchedulePanel({ workbooks }: { workbooks: WorkbookRef[] }) {
             />
           </div>
         </div>
-        {error && <p className="mt-3 text-sm text-[var(--st-danger)]">{error}</p>}
+        {error && (
+          <Alert tone="danger" className="mt-3">
+            {error}
+          </Alert>
+        )}
         <div className="mt-4 flex justify-end">
-          <Button onClick={submit} disabled={pending}>
+          <Button onClick={submit} disabled={pending} iconLeft={Plus}>
             {pending ? 'Saving…' : 'Create schedule'}
           </Button>
         </div>

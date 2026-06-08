@@ -14,7 +14,16 @@ import type {
   BiChartRunResponse,
   BiChartType,
 } from '@/lib/rust-client/bi-charts';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import {
+  BarChart3,
+  Maximize2,
+  PlayCircle,
+  Plus,
+  SlidersHorizontal,
+  Trash2,
+} from 'lucide-react';
+
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 
 import { ChartPreview } from './chart-preview';
 
@@ -116,14 +125,17 @@ export function WorkbookEditor({
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
+    <div className="grid gap-[var(--st-space-4)] lg:grid-cols-[360px_1fr]">
       <Card>
         <CardHeader>
-          <CardTitle>Chart builder</CardTitle>
-          <CardDescription>
-            Drag-equivalent: type dimension / measure column names. Saved
-            charts run via the Rust query exec layer.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <SlidersHorizontal size={16} aria-hidden="true" />
+            Chart builder
+          </CardTitle>
+          <p className="text-sm text-[var(--st-text-secondary)]">
+            Type dimension / measure column names. Saved charts run via the Rust
+            query exec layer.
+          </p>
         </CardHeader>
         <CardBody className="flex flex-col gap-3">
           <div className="grid gap-1.5">
@@ -202,22 +214,30 @@ export function WorkbookEditor({
           {error && <p className="text-sm text-[var(--st-danger)]">{error}</p>}
 
           <div className="flex gap-2 pt-1">
-            <Button onClick={saveChart} disabled={pending}>
+            <Button onClick={saveChart} disabled={pending} iconLeft={Plus}>
               {pending ? 'Saving…' : 'Save chart'}
             </Button>
-            <Button variant="ghost" onClick={previewDraft} disabled={pending}>
+            <Button
+              variant="ghost"
+              onClick={previewDraft}
+              disabled={pending}
+              iconLeft={PlayCircle}
+            >
               Preview
             </Button>
           </div>
         </CardBody>
       </Card>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-[var(--st-space-4)]">
         {previewResult && (
           <Card>
             <CardHeader>
-              <CardTitle>Preview</CardTitle>
-              <CardDescription>Mode: {previewResult.mode}</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <PlayCircle size={16} aria-hidden="true" />
+                Preview
+                <Badge tone="info">{previewResult.mode}</Badge>
+              </CardTitle>
             </CardHeader>
             <CardBody>
               <ChartPreview
@@ -231,15 +251,17 @@ export function WorkbookEditor({
 
         {charts.length === 0 ? (
           <Card>
-            <CardHeader>
-              <CardTitle>No charts saved</CardTitle>
-              <CardDescription>
-                Build a chart on the left and click Save to persist it here.
-              </CardDescription>
-            </CardHeader>
+            <CardBody>
+              <EmptyState
+                icon={BarChart3}
+                tone="info"
+                title="No charts saved"
+                description="Build a chart on the left and click Save to persist it here."
+              />
+            </CardBody>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-[var(--st-space-4)] xl:grid-cols-2">
             {charts.map((c) => (
               <SavedChartCard
                 key={c._id}
@@ -271,24 +293,38 @@ function SavedChartCard({
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
-          <div>
-            <CardTitle>{chart.name}</CardTitle>
-            <CardDescription>
-              <Badge variant="outline">{chart.type}</Badge>
-            </CardDescription>
+          <div className="flex flex-col gap-1.5">
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3
+                size={16}
+                className="text-[var(--st-accent)]"
+                aria-hidden="true"
+              />
+              {chart.name}
+            </CardTitle>
+            <div>
+              <Badge tone="neutral">{chart.type}</Badge>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={onRun}>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button size="sm" variant="ghost" onClick={onRun} iconLeft={PlayCircle}>
               Run
             </Button>
-            <Button variant="ghost" asChild>
+            <Button size="sm" variant="ghost" asChild>
               <a
                 href={`/dashboard/analytics-workspace/workbooks/${workbookId}/${chart._id}`}
               >
+                <Maximize2 size={14} aria-hidden="true" />
                 Drilldown
               </a>
             </Button>
-            <Button variant="ghost" onClick={onRemove}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onRemove}
+              iconLeft={Trash2}
+              aria-label={`Remove ${chart.name}`}
+            >
               Remove
             </Button>
           </div>

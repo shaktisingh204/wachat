@@ -1,12 +1,30 @@
 'use client';
 
 /**
- * Generic chart preview. Maps `BiChartRunResponse.rows` onto Ui20's
+ * Generic chart preview. Maps `BiChartRunResponse.rows` onto the 20ui
  * recharts wrappers for bar / line / pie. Table renders rows directly;
  * KPI renders the first measure as a big number. map / heatmap show a
- * raw-rows table with a TODO badge.
+ * raw-rows table with a "renderer pending" badge.
  */
-import { Badge, Table, TBody, THead, CHART_PALETTE, Recharts, ChartContainer, ChartTooltip } from '@/components/sabcrm/20ui';
+import { Database } from 'lucide-react';
+
+import {
+  Badge,
+  CHART_PALETTE,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  EmptyState,
+  Recharts,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  type ChartConfig,
+} from '@/components/sabcrm/20ui';
 import type { BiChartColumn, BiChartType } from '@/lib/rust-client/bi-charts';
 
 interface Props {
@@ -15,12 +33,21 @@ interface Props {
   columns: BiChartColumn[];
 }
 
+const CHART_HEIGHT = 280;
+
 export function ChartPreview({ chartType, rows, columns }: Props) {
   const dimKey = columns.find((c) => c.role === 'dimension')?.key;
   const measureKey = columns.find((c) => c.role === 'measure')?.key;
 
   if (rows.length === 0) {
-    return <p className="text-sm text-[var(--st-text-secondary)]">No rows returned.</p>;
+    return (
+      <EmptyState
+        icon={Database}
+        size="sm"
+        title="No rows returned"
+        description="This query produced no rows. Adjust the dimensions, measure, or filters and run again."
+      />
+    );
   }
 
   if (chartType === 'kpi') {
@@ -29,12 +56,10 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
       0,
     );
     return (
-      <div className="flex flex-col gap-1">
-        <span className="text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
-          {measureKey ?? 'value'}
-        </span>
-        <span className="text-3xl font-semibold text-[var(--st-text)]">{total}</span>
-      </div>
+      <StatCard
+        label={measureKey ?? 'value'}
+        value={total.toLocaleString()}
+      />
     );
   }
 
@@ -43,29 +68,31 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
     return (
       <div className="flex flex-col gap-2">
         {chartType !== 'table' && (
-          <Badge variant="outline">
-            {chartType} renderer pending — showing raw rows
-          </Badge>
+          <div>
+            <Badge tone="warning">
+              {chartType} renderer pending — showing raw rows
+            </Badge>
+          </div>
         )}
         <Table>
           <THead>
-            <tr>
+            <Tr>
               {keys.map((k) => (
-                <th key={k} className="text-left">
+                <Th key={k} align="left">
                   {k}
-                </th>
+                </Th>
               ))}
-            </tr>
+            </Tr>
           </THead>
           <TBody>
             {rows.slice(0, 100).map((r, i) => (
-              <tr key={i} className="border-t border-[var(--st-border)]">
+              <Tr key={i}>
                 {keys.map((k) => (
-                  <td key={k} className="py-1.5 text-sm">
+                  <Td key={k}>
                     {String((r as Record<string, unknown>)[k] ?? '')}
-                  </td>
+                  </Td>
                 ))}
-              </tr>
+              </Tr>
             ))}
           </TBody>
         </Table>
@@ -75,15 +102,22 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
 
   if (!dimKey || !measureKey) {
     return (
-      <p className="text-sm text-[var(--st-text-secondary)]">
-        Need at least one dimension and one measure to render this chart.
-      </p>
+      <EmptyState
+        icon={Database}
+        size="sm"
+        title="Not enough fields to chart"
+        description="Add at least one dimension and one measure to render this chart type."
+      />
     );
   }
 
+  const config: ChartConfig = {
+    [measureKey]: { label: measureKey, color: CHART_PALETTE[0] },
+  };
+
   if (chartType === 'pie') {
     return (
-      <ChartContainer height={280}>
+      <ChartContainer config={config} style={{ height: CHART_HEIGHT }}>
         <Recharts.PieChart>
           <Recharts.Pie
             data={rows}
@@ -98,7 +132,7 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
               />
             ))}
           </Recharts.Pie>
-          <Recharts.Tooltip content={<ChartTooltip />} />
+          <ChartTooltip content={<ChartTooltipContent nameKey={dimKey} />} />
           <Recharts.Legend />
         </Recharts.PieChart>
       </ChartContainer>
@@ -107,16 +141,16 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
 
   if (chartType === 'line') {
     return (
-      <ChartContainer height={280}>
+      <ChartContainer config={config} style={{ height: CHART_HEIGHT }}>
         <Recharts.LineChart data={rows}>
           <Recharts.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
-          <Recharts.XAxis dataKey={dimKey} />
-          <Recharts.YAxis />
-          <Recharts.Tooltip content={<ChartTooltip />} />
+          <Recharts.XAxis dataKey={dimKey} tickLine={false} axisLine={false} />
+          <Recharts.YAxis tickLine={false} axisLine={false} />
+          <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
           <Recharts.Line
             type="monotone"
             dataKey={measureKey}
-            stroke={CHART_PALETTE[0]}
+            stroke={`var(--color-${measureKey})`}
             dot={false}
           />
         </Recharts.LineChart>
@@ -126,13 +160,13 @@ export function ChartPreview({ chartType, rows, columns }: Props) {
 
   // bar (default)
   return (
-    <ChartContainer height={280}>
+    <ChartContainer config={config} style={{ height: CHART_HEIGHT }}>
       <Recharts.BarChart data={rows}>
-        <Recharts.CartesianGrid stroke="var(--st-border)" strokeDasharray="3 3" />
-        <Recharts.XAxis dataKey={dimKey} />
-        <Recharts.YAxis />
-        <Recharts.Tooltip content={<ChartTooltip />} />
-        <Recharts.Bar dataKey={measureKey} fill={CHART_PALETTE[0]} />
+        <Recharts.CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
+        <Recharts.XAxis dataKey={dimKey} tickLine={false} axisLine={false} />
+        <Recharts.YAxis tickLine={false} axisLine={false} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Recharts.Bar dataKey={measureKey} fill={`var(--color-${measureKey})`} radius={4} />
       </Recharts.BarChart>
     </ChartContainer>
   );

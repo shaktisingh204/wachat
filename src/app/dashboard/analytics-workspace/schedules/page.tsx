@@ -2,22 +2,30 @@
  * Scheduled reports. CRUD.
  */
 import Link from 'next/link';
-import { CalendarClock } from 'lucide-react';
+import {
+  CalendarClock,
+  CircleCheck,
+  FileText,
+  LayoutDashboard,
+  ListChecks,
+  Timer,
+} from 'lucide-react';
 
 import {
   Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   EmptyState,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -60,21 +68,42 @@ export default async function SchedulesPage() {
   const schedules = 'items' in schedulesRes ? schedulesRes.items : [];
   const workbooks = 'items' in workbooksRes ? workbooksRes.items : [];
 
+  const workbookNames = new Map(workbooks.map((w) => [w._id, w.name]));
+  const activeCount = schedules.filter(
+    (s) => statusTone(s.status) === 'success',
+  ).length;
+  const formatCount = new Set(schedules.map((s) => s.format)).size;
+
   return (
-    <div className="20ui flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
+          <PageEyebrow>Analytics workspace</PageEyebrow>
           <PageTitle>Scheduled reports</PageTitle>
           <PageDescription>
             Email a workbook on a cron schedule. PDF, CSV, or inline body.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Button variant="ghost">
-            <Link href="/dashboard/analytics-workspace">Workbooks</Link>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/analytics-workspace">
+              <LayoutDashboard size={16} aria-hidden="true" />
+              Workbooks
+            </Link>
           </Button>
         </PageActions>
       </PageHeader>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          label="Schedules"
+          value={schedules.length}
+          icon={CalendarClock}
+          accent="var(--st-accent)"
+        />
+        <StatCard label="Active" value={activeCount} icon={CircleCheck} />
+        <StatCard label="Formats" value={formatCount} icon={FileText} />
+      </div>
 
       <NewSchedulePanel
         workbooks={workbooks.map((w) => ({ id: w._id, name: w.name }))}
@@ -82,16 +111,16 @@ export default async function SchedulesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Active schedules</CardTitle>
-          <CardDescription>
-            Cron evaluation runs in the BI worker. Next-run timestamps are
-            populated after the first tick.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <ListChecks size={16} aria-hidden="true" />
+            Active schedules
+          </CardTitle>
         </CardHeader>
         <CardBody>
           {schedules.length === 0 ? (
             <EmptyState
               icon={CalendarClock}
+              tone="info"
               title="No scheduled reports"
               description="Create a schedule above to email a workbook on a recurring cadence."
             />
@@ -110,11 +139,22 @@ export default async function SchedulesPage() {
               <TBody>
                 {schedules.map((s) => (
                   <Tr key={s._id}>
-                    <Td>{s.name}</Td>
-                    <Td className="text-[var(--st-text-secondary)]">{s.workbookId}</Td>
-                    <Td className="font-mono text-xs">{s.cron}</Td>
+                    <Td className="font-medium text-[var(--st-text)]">{s.name}</Td>
+                    <Td className="text-[var(--st-text-secondary)]">
+                      {workbookNames.get(s.workbookId) ?? s.workbookId}
+                    </Td>
                     <Td>
-                      <Badge tone="accent">{s.format}</Badge>
+                      <span className="inline-flex items-center gap-1.5 font-mono text-xs text-[var(--st-text-secondary)]">
+                        <Timer
+                          size={13}
+                          className="text-[var(--st-text-tertiary)]"
+                          aria-hidden="true"
+                        />
+                        {s.cron}
+                      </span>
+                    </Td>
+                    <Td>
+                      <Badge tone="info">{s.format}</Badge>
                     </Td>
                     <Td>
                       <Badge tone={statusTone(s.status)} dot>

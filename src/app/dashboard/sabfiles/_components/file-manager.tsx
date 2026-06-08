@@ -8,10 +8,13 @@ import {
     FileText,
     FolderPlus,
     Folder,
+    FolderOpen,
+    HardDrive,
     Image as ImageIcon,
     Link2,
     MoreHorizontal,
     Pencil,
+    Share2,
     Star,
     Trash2,
     Upload,
@@ -23,6 +26,8 @@ import {
     Button,
     Card,
     CardBody,
+    CardHeader,
+    CardTitle,
     Dialog,
     DialogContent,
     DialogDescription,
@@ -36,7 +41,14 @@ import {
     Menu,
     MenuItem,
     MenuSeparator,
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+    PageActions,
     Progress,
+    StatCard,
     Table,
     TBody,
     Td,
@@ -486,38 +498,77 @@ export function FileManager({
         [handleUpload],
     );
 
+    // Derived KPI metrics for the stat strip (this folder's contents only).
+    const folderCount = nodes.filter((n) => n.type === 'folder').length;
+    const fileCount = nodes.length - folderCount;
+    const sharedCount = nodes.filter((n) => n.shareToken).length;
+    const sizeInView = nodes.reduce((sum, n) => sum + (n.type === 'folder' ? 0 : n.size ?? 0), 0);
+
+    const here = initialBreadcrumb[initialBreadcrumb.length - 1];
+    const isRoot = !here?.id;
+    const title = isRoot ? 'My files' : here?.name || 'Folder';
+
+    const uploadAction = (
+        <SabFileToFileButton variant="default" onPickFile={(file) => startUpload(file)}>
+            <span className="inline-flex items-center gap-2">
+                <Upload size={14} aria-hidden="true" />
+                Upload file
+            </span>
+        </SabFileToFileButton>
+    );
+
     return (
         <div
-            className="relative flex flex-col gap-4"
+            className="relative flex flex-col gap-[var(--st-space-5)]"
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <div className="flex flex-wrap items-center justify-between gap-3">
-                <FilesBreadcrumb crumbs={initialBreadcrumb} />
-                <div className="flex items-center gap-2">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>SabFiles</PageEyebrow>
+                    <PageTitle>{title}</PageTitle>
+                    <PageDescription>
+                        Upload, organise and share your files. Drag files anywhere on this page to upload.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
                     <Button variant="secondary" iconLeft={FolderPlus} onClick={() => setShowNewFolder(true)}>
                         New folder
                     </Button>
-                    <SabFileToFileButton variant="default" onPickFile={(file) => startUpload(file)}>
-                        <span className="inline-flex items-center gap-2">
-                            <Upload size={14} aria-hidden="true" />
-                            Upload
-                        </span>
-                    </SabFileToFileButton>
-                </div>
+                    {uploadAction}
+                </PageActions>
+            </PageHeader>
+
+            <div className="grid grid-cols-2 gap-[var(--st-space-3)] md:grid-cols-4">
+                <StatCard label="Files" value={fileCount} icon={FileIcon} />
+                <StatCard label="Folders" value={folderCount} icon={Folder} />
+                <StatCard label="Size in view" value={formatBytes(sizeInView)} icon={HardDrive} />
+                <StatCard label="Shared" value={sharedCount} icon={Share2} />
             </div>
+
+            <FilesBreadcrumb crumbs={initialBreadcrumb} />
 
             {nodes.length === 0 ? (
                 <Card variant="ghost" padding="lg">
                     <EmptyState
-                        icon={Folder}
+                        icon={FolderOpen}
                         title="This folder is empty"
                         description="Drop files anywhere on this page, or use Upload to add your first file."
+                        action={uploadAction}
                     />
                 </Card>
             ) : (
                 <Card padding="none">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Folder size={16} aria-hidden="true" />
+                            Contents
+                            <Badge tone="neutral" kind="soft">
+                                {nodes.length}
+                            </Badge>
+                        </CardTitle>
+                    </CardHeader>
                     <Table hover>
                         <THead>
                             <Tr>

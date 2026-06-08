@@ -3,9 +3,11 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Plug, Plus } from 'lucide-react';
+
 import { createDatasetAction } from '@/app/actions/analytics-bi.actions';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { Button, Card, CardBody, CardDescription, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
+import { Alert, Button, Card, CardBody, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/sabcrm/20ui';
 
 type Source = 'csv_upload' | 'mongo_collection' | 'rest_api';
 
@@ -31,7 +33,7 @@ export function NewDatasetPanel() {
       setError('Name is required');
       return;
     }
-    if (source === 'csv_upload' && !filePick?.fileId) {
+    if (source === 'csv_upload' && !filePick?.id) {
       setError('Pick a CSV from SabFiles');
       return;
     }
@@ -49,7 +51,7 @@ export function NewDatasetPanel() {
           name: name.trim(),
           description: description.trim() || undefined,
           source,
-          fileId: source === 'csv_upload' ? filePick?.fileId : undefined,
+          fileId: source === 'csv_upload' ? filePick?.id : undefined,
           collectionName:
             source === 'mongo_collection' ? collectionName.trim() : undefined,
           restUrl: source === 'rest_api' ? restUrl.trim() : undefined,
@@ -69,11 +71,14 @@ export function NewDatasetPanel() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Connect a data source</CardTitle>
-        <CardDescription>
+        <CardTitle className="flex items-center gap-2">
+          <Plug size={16} aria-hidden="true" />
+          Connect a data source
+        </CardTitle>
+        <p className="text-sm text-[var(--st-text-secondary)]">
           CSV uploads live in SabFiles. System collections are scoped to your
           tenant; REST endpoints are stored as saved URLs.
-        </CardDescription>
+        </p>
       </CardHeader>
       <CardBody>
         <div className="grid gap-4 md:grid-cols-2">
@@ -103,12 +108,16 @@ export function NewDatasetPanel() {
           {source === 'csv_upload' && (
             <div className="grid gap-1.5 md:col-span-2">
               <Label>CSV file</Label>
-              <SabFilePickerButton
-                accept="text/csv"
-                onPick={setFilePick}
-                value={filePick ?? undefined}
-                placeholder="Pick a CSV from SabFiles"
-              />
+              <div className="flex items-center gap-3">
+                <SabFilePickerButton accept="document" onPick={setFilePick}>
+                  {filePick ? 'Change file' : 'Pick a CSV from SabFiles'}
+                </SabFilePickerButton>
+                {filePick ? (
+                  <span className="truncate text-sm text-[var(--st-text-secondary)]">
+                    {filePick.name}
+                  </span>
+                ) : null}
+              </div>
             </div>
           )}
 
@@ -147,10 +156,14 @@ export function NewDatasetPanel() {
           </div>
         </div>
 
-        {error && <p className="mt-3 text-sm text-[var(--st-danger)]">{error}</p>}
+        {error && (
+          <Alert tone="danger" className="mt-3">
+            {error}
+          </Alert>
+        )}
 
         <div className="mt-4 flex justify-end">
-          <Button onClick={submit} disabled={pending}>
+          <Button onClick={submit} disabled={pending} iconLeft={Plus}>
             {pending ? 'Saving…' : 'Add dataset'}
           </Button>
         </div>

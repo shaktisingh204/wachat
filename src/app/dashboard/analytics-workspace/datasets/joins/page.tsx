@@ -2,14 +2,20 @@
  * Dataset joins - list + visual join builder.
  */
 import Link from 'next/link';
-import { Combine } from 'lucide-react';
+import {
+  ArrowRight,
+  Columns3,
+  Combine,
+  Database,
+  LayoutDashboard,
+  Network,
+} from 'lucide-react';
 
 import {
   Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   EmptyState,
@@ -19,6 +25,7 @@ import {
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -43,8 +50,11 @@ export default async function JoinsPage() {
   const joins = 'items' in joinsRes ? joinsRes.items : [];
   const datasets = 'items' in datasetsRes ? datasetsRes.items : [];
 
+  const datasetNames = new Map(datasets.map((d) => [d._id, d.name]));
+  const joinTypeCount = new Set(joins.map((j) => j.type)).size;
+
   return (
-    <div className="20ui flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-[var(--st-space-5)] p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>
@@ -61,11 +71,29 @@ export default async function JoinsPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Link href="/dashboard/analytics-workspace">
-            <Button variant="ghost">Workbooks</Button>
-          </Link>
+          <Button variant="ghost" asChild>
+            <Link href="/dashboard/analytics-workspace">
+              <LayoutDashboard size={16} aria-hidden="true" />
+              Workbooks
+            </Link>
+          </Button>
         </PageActions>
       </PageHeader>
+
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          label="Saved joins"
+          value={joins.length}
+          icon={Combine}
+          accent="var(--st-accent)"
+        />
+        <StatCard
+          label="Datasets available"
+          value={datasets.length}
+          icon={Database}
+        />
+        <StatCard label="Join types used" value={joinTypeCount} icon={Network} />
+      </div>
 
       <JoinBuilder
         datasets={datasets.map((d) => ({ id: d._id, name: d.name }))}
@@ -73,15 +101,16 @@ export default async function JoinsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Saved joins</CardTitle>
-          <CardDescription>
-            Use these when building charts to query rows from two sources.
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Combine size={16} aria-hidden="true" />
+            Saved joins
+          </CardTitle>
         </CardHeader>
         <CardBody>
           {joins.length === 0 ? (
             <EmptyState
               icon={Combine}
+              tone="info"
               title="No joins yet"
               description="Create a join above to combine rows from two datasets."
             />
@@ -91,21 +120,38 @@ export default async function JoinsPage() {
                 <Tr>
                   <Th align="left">Name</Th>
                   <Th align="left">Type</Th>
-                  <Th align="left">Left</Th>
-                  <Th align="left">Right</Th>
+                  <Th align="left">Datasets</Th>
                   <Th align="right">Columns</Th>
                 </Tr>
               </THead>
               <TBody>
                 {joins.map((j) => (
                   <Tr key={j._id}>
-                    <Td>{j.name}</Td>
+                    <Td className="font-medium text-[var(--st-text)]">{j.name}</Td>
                     <Td>
-                      <Badge variant="outline">{j.type}</Badge>
+                      <Badge tone="info">{j.type}</Badge>
                     </Td>
-                    <Td className="text-[var(--st-text-secondary)]">{j.leftId}</Td>
-                    <Td className="text-[var(--st-text-secondary)]">{j.rightId}</Td>
-                    <Td align="right">{j.onColumns?.length ?? 0}</Td>
+                    <Td>
+                      <span className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)]">
+                        {datasetNames.get(j.leftId) ?? j.leftId}
+                        <ArrowRight
+                          size={13}
+                          className="text-[var(--st-text-tertiary)]"
+                          aria-hidden="true"
+                        />
+                        {datasetNames.get(j.rightId) ?? j.rightId}
+                      </span>
+                    </Td>
+                    <Td align="right">
+                      <span className="inline-flex items-center gap-1.5 tabular-nums text-[var(--st-text-secondary)]">
+                        <Columns3
+                          size={13}
+                          className="text-[var(--st-text-tertiary)]"
+                          aria-hidden="true"
+                        />
+                        {j.onColumns?.length ?? 0}
+                      </span>
+                    </Td>
                   </Tr>
                 ))}
               </TBody>

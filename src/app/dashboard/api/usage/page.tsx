@@ -6,14 +6,9 @@ import {
 import {
   PageHeader,
   PageHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
   Card,
   StatCard,
   Badge,
@@ -25,7 +20,7 @@ import {
   Tr,
   Td,
 } from '@/components/sabcrm/20ui';
-import { Inbox } from 'lucide-react';
+import { Inbox, Activity, TriangleAlert, Timer, Gauge, ListOrdered, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 
@@ -55,20 +50,9 @@ export default async function UsagePage(): Promise<JSX.Element> {
 
   return (
     <div className="20ui flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/api">Developer platform</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Usage analytics</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <PageHeader>
         <PageHeading>
+          <PageEyebrow>Developer platform</PageEyebrow>
           <PageTitle>Usage analytics</PageTitle>
           <PageDescription>
             Aggregated over the last 24 hours. Raw entries live in{' '}
@@ -81,17 +65,41 @@ export default async function UsagePage(): Promise<JSX.Element> {
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Total requests" value={summaryRes.totalRequests.toLocaleString('en-US')} />
+        <StatCard
+          label="Total requests"
+          value={summaryRes.totalRequests.toLocaleString('en-US')}
+          icon={<Activity />}
+          accent="#3b7af5"
+        />
         <StatCard
           label="Errors"
           value={`${summaryRes.errorRequests.toLocaleString('en-US')} (${pct(summaryRes.errorRequests, summaryRes.totalRequests)})`}
+          icon={<TriangleAlert />}
+          accent="#d97706"
+          delta={{
+            value: pct(summaryRes.errorRequests, summaryRes.totalRequests),
+            tone: summaryRes.errorRequests > 0 ? 'down' : 'neutral',
+          }}
         />
-        <StatCard label="Avg latency" value={`${Math.round(summaryRes.avgLatencyMs)} ms`} />
-        <StatCard label="p95 latency" value={`${Math.round(summaryRes.p95LatencyMs)} ms`} />
+        <StatCard
+          label="Avg latency"
+          value={`${Math.round(summaryRes.avgLatencyMs)} ms`}
+          icon={<Timer />}
+          accent="#1f9d55"
+        />
+        <StatCard
+          label="p95 latency"
+          value={`${Math.round(summaryRes.p95LatencyMs)} ms`}
+          icon={<Gauge />}
+          accent="#7c3aed"
+        />
       </div>
 
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-[var(--st-text)]">Top endpoints</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+          <ListOrdered className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+          Top endpoints
+        </h2>
         <Card padding="none">
           {topRes.rows.length > 0 ? (
             <Table>
@@ -133,7 +141,10 @@ export default async function UsagePage(): Promise<JSX.Element> {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-base font-semibold text-[var(--st-text)]">By key</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold text-[var(--st-text)]">
+          <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+          By key
+        </h2>
         <Card padding="none">
           {keysRes.rows.length > 0 ? (
             <Table>
