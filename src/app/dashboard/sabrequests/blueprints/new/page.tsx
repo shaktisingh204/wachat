@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default function NewBlueprintPage() {
     return (
-        <div className="20ui p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <BlueprintEditor mode="create" />
         </div>
     );

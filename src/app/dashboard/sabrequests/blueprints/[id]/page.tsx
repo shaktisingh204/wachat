@@ -20,7 +20,7 @@ export default async function BlueprintDetailPage({
         notFound();
     }
     return (
-        <div className="p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <BlueprintEditor mode="edit" initial={res.data} />
         </div>
     );
