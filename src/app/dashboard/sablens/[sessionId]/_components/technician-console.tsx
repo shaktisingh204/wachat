@@ -55,6 +55,7 @@ import type {
   LensChatMessage,
   LensFrame,
 } from '@/lib/sablens/transport';
+import type { BadgeTone } from '@/components/sabcrm/20ui';
 import type {
   SablensAnnotationDoc,
   SablensAnnotationKind,
@@ -78,6 +79,13 @@ const TOOL_BUTTONS: {
 ];
 
 const COLORS = ['#ef4444', '#f97316', '#22c55e', '#3b82f6', '#a855f7', '#ffffff'];
+
+const STATUS_TONE: Record<string, BadgeTone> = {
+  scheduled: 'info',
+  waiting: 'warning',
+  active: 'success',
+  ended: 'neutral',
+};
 
 function annotationDocToLocal(doc: SablensAnnotationDoc): LensAnnotation {
   return {
@@ -312,7 +320,9 @@ export function TechnicianConsole({
               {session.customerEmail || 'No email on file'}
             </span>
           </div>
-          <Badge>{status}</Badge>
+          <Badge tone={STATUS_TONE[status] ?? 'neutral'} dot>
+            {status}
+          </Badge>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -481,9 +491,18 @@ export function TechnicianConsole({
         {/* Right panel: chat + log */}
         <Card padding="none" className="flex min-h-0 flex-col">
           <CardHeader className="p-3">
-            <CardTitle className="text-sm">Activity</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <MessageSquare
+                className="size-4 text-[var(--st-text-secondary)]"
+                aria-hidden="true"
+              />
+              Activity
+            </CardTitle>
           </CardHeader>
           <CardBody className="flex min-h-0 flex-1 flex-col gap-3 p-3 pt-0">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              Action log
+            </p>
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
               {log.length === 0 ? (
                 <EmptyState size="sm" title="No activity yet." />
@@ -504,6 +523,9 @@ export function TechnicianConsole({
 
             <Separator />
 
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-secondary)]">
+              Chat
+            </p>
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2">
               {chat.length === 0 ? (
                 <EmptyState size="sm" icon={MessageSquare} title="No chat yet." />

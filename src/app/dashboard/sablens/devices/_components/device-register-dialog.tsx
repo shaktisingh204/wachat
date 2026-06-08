@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { CirclePlus } from 'lucide-react';
 
-import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Input, Label, useToast } from '@/components/sabcrm/20ui';
+import { Button, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Field, Input, useToast } from '@/components/sabcrm/20ui';
 import { registerSablensDevice } from '@/app/actions/sablens.actions';
 
 export function DeviceRegisterDialog() {
@@ -35,8 +35,8 @@ export function DeviceRegisterDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <CirclePlus className="size-4" /> Register device
+        <Button variant="primary">
+          <CirclePlus className="size-4" aria-hidden="true" /> Register device
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -48,25 +48,24 @@ export function DeviceRegisterDialog() {
               one-off join token.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-3 py-4">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="label">Label</Label>
+          <div className="flex flex-col gap-4 py-4">
+            <Field label="Label">
               <Input
-                id="label"
                 value={label}
                 placeholder="Field tech kit #4"
                 onChange={(e) => setLabel(e.target.value)}
               />
-            </div>
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="fp">Device fingerprint</Label>
+            </Field>
+            <Field
+              label="Device fingerprint"
+              help="The hex string from the SabLens mobile installer."
+            >
               <Input
-                id="fp"
                 value={fingerprint}
-                placeholder="hex string from the SabLens mobile installer"
+                placeholder="a1b2c3d4e5f6"
                 onChange={(e) => setFingerprint(e.target.value)}
               />
-            </div>
+            </Field>
           </div>
           <DialogFooter>
             <Button
@@ -76,8 +75,8 @@ export function DeviceRegisterDialog() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Registering…' : 'Register'}
+            <Button type="submit" variant="primary" loading={isPending}>
+              {isPending ? 'Registering' : 'Register'}
             </Button>
           </DialogFooter>
         </form>
