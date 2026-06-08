@@ -13,14 +13,15 @@ Legend: ⬜ todo · 🔄 in progress · ✅ done (premium redesign + on main)
 ## Redesigned & on main ✅
 user · team · platform · api · sabfiles · analytics-workspace · email · instagram ·
 sabsign · sabshop · sabconnect · sabvoice · sabbigin · finance · sabmonitor ·
-sabworkerly · sabsprints · sabmeet · sabcreator · sabvault · sabtables · sabpractice
+sabworkerly · sabsprints · sabmeet · sabcreator · sabvault · sabtables · sabpractice ·
+sablens · sabsheet · sabops
 
 ## Remaining (todo)
 Big (need split into multiple agents):
 - ⬜ telegram (88) · sabdesk (85) · facebook (61) · settings (44, excl /crm) · sabcheckout (44) · sabbi (36) · sabsense (34) · ad-manager (30) · sabflow (28) · sabchat (21)
 
 Small/medium:
-- ⬜ mailbox (7) · sabrequests (7) · url-shortener (6) · sabwebinar (6) · sabthrive (6) · sabbugs (6) · marketing (6) · sabshow (5) · sabrewards (5) · sabsheet (4) · sabpublish (4) · sabops (4) · sablens (4) · qr-code-maker · sabcampaigns · sabmail · sabcatalyst · sabprep · sabbigin-done · …remaining singles
+- ⬜ mailbox (7) · sabrequests (7) · url-shortener (6) · sabwebinar (6) · sabthrive (6) · sabbugs (6) · marketing (6) · sabshow (5) · sabrewards (5) · sabpublish (4) · qr-code-maker · sabcampaigns · sabmail · sabcatalyst · sabprep · sabbigin-done · …remaining singles
 
 ## Phase final
 - ⬜ auth (login/signup/forgot/onboarding) · account · embeds
