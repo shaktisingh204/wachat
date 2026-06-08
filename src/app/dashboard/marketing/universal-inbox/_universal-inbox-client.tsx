@@ -84,7 +84,10 @@ export function UniversalInboxClient({
       {/* Left Pane - Message List */}
       <div className="flex w-1/3 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg)]">
         <div className="flex items-center justify-between border-b border-[var(--st-border)] p-4">
-          <h2 className="text-lg font-semibold text-[var(--st-text)]">Universal Inbox</h2>
+          <div className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            <h2 className="text-base font-semibold tracking-tight text-[var(--st-text)]">Universal inbox</h2>
+          </div>
           <IconButton label="Inbox options" icon={MoreVertical} variant="ghost" />
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -185,16 +188,16 @@ export function UniversalInboxClient({
           </>
         ) : (
           <div className="flex flex-1 flex-col overflow-y-auto bg-[var(--st-bg)]">
-            {/* Global Campaign Dashboard Header */}
-            <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]/50 p-8 pb-4">
+            {/* Campaign overview header */}
+            <div className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8 pb-4">
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3 text-[var(--st-text)]">
                     <Megaphone className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-[var(--st-text)]">Global Campaign Dashboard</h2>
-                    <p className="text-sm text-[var(--st-text-secondary)]">Monitor and manage cross-channel ROI</p>
+                    <h2 className="text-xl font-semibold tracking-tight text-[var(--st-text)]">Campaign overview</h2>
+                    <p className="text-sm text-[var(--st-text-secondary)]">Track cross-channel performance across your campaigns.</p>
                   </div>
                 </div>
                 <Badge tone="success" kind="soft" className="flex items-center gap-2 px-3 py-1.5">
@@ -204,10 +207,10 @@ export function UniversalInboxClient({
               </div>
 
               <div className="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
-                <StatCard icon={Activity} label="Active Drip" value={campaigns.filter((c) => c.status === 'active').length} />
-                <StatCard icon={Share2} label="Social Posts" value={socialPosts.length} />
-                <StatCard icon={LinkIcon} label="UTM Links" value={utmLinks.length} />
-                <StatCard icon={MessageCircle} label="Messages" value={messages.length} />
+                <StatCard icon={Activity} label="Active drips" value={campaigns.filter((c) => c.status === 'active').length} accent="#7c3aed" />
+                <StatCard icon={Share2} label="Social posts" value={socialPosts.length} accent="#3b7af5" />
+                <StatCard icon={LinkIcon} label="UTM links" value={utmLinks.length} accent="#1f9d55" />
+                <StatCard icon={MessageCircle} label="Messages" value={messages.length} accent="#e0844e" />
               </div>
             </div>
 
@@ -215,20 +218,18 @@ export function UniversalInboxClient({
               {/* Campaigns List */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-[var(--st-text)]">
+                  <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--st-text)]">
                     <Mail className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                    Drip Campaigns
+                    Drip campaigns
                   </h3>
-                  <Link href="/dashboard/sabcampaigns">
-                    <Button variant="ghost" size="sm">
-                      View All
-                    </Button>
-                  </Link>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard/sabcampaigns">View all</Link>
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
                   {campaigns.length === 0 ? (
-                    <EmptyState icon={Mail} title="No campaigns active" size="sm" />
+                    <EmptyState icon={Mail} title="No active campaigns" description="Drip campaigns you launch will show up here." size="sm" />
                   ) : (
                     campaigns.slice(0, 4).map((campaign) => (
                       <Card key={campaign._id} variant="outlined" padding="md">
@@ -255,20 +256,18 @@ export function UniversalInboxClient({
               {/* UTM Links List */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-[var(--st-text)]">
+                  <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--st-text)]">
                     <LinkIcon className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                    Top Performing Links
+                    Top performing links
                   </h3>
-                  <Link href="/dashboard/sabsense/utm-tracking">
-                    <Button variant="ghost" size="sm">
-                      View All
-                    </Button>
-                  </Link>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard/sabsense/utm-tracking">View all</Link>
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
                   {utmLinks.length === 0 ? (
-                    <EmptyState icon={LinkIcon} title="No UTM links tracked" size="sm" />
+                    <EmptyState icon={LinkIcon} title="No UTM links yet" description="Tracked links appear here once you create them." size="sm" />
                   ) : (
                     utmLinks
                       .slice(0, 4)
@@ -301,21 +300,19 @@ export function UniversalInboxClient({
               {/* Social Posts List */}
               <div className="flex flex-col gap-4 lg:col-span-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 text-lg font-semibold text-[var(--st-text)]">
+                  <h3 className="flex items-center gap-2 text-base font-semibold tracking-tight text-[var(--st-text)]">
                     <Share2 className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                    Scheduled Social Media
+                    Scheduled social posts
                   </h3>
-                  <Link href="/dashboard/marketing/social-media-scheduler">
-                    <Button variant="ghost" size="sm">
-                      View All
-                    </Button>
-                  </Link>
+                  <Button asChild variant="ghost" size="sm">
+                    <Link href="/dashboard/marketing/social-media-scheduler">View all</Link>
+                  </Button>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {socialPosts.length === 0 ? (
                     <div className="lg:col-span-3">
-                      <EmptyState icon={Share2} title="No social posts scheduled" size="sm" />
+                      <EmptyState icon={Share2} title="No scheduled posts" description="Posts you schedule will show up here." size="sm" />
                     </div>
                   ) : (
                     socialPosts.slice(0, 3).map((post) => (

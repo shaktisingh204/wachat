@@ -13,17 +13,15 @@ export default function Loading() {
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>Marketing</PageEyebrow>
-          <PageTitle>Social media scheduler</PageTitle>
+          <PageTitle>Audience segmentation</PageTitle>
           <PageDescription>
-            Plan posts across your channels and keep tabs on what is scheduled, live, or needs a retry.
+            Group your contacts into reusable segments to target campaigns more precisely.
           </PageDescription>
         </PageHeaderHeading>
       </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 w-full" radius={12} />
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+        <Skeleton className="h-24 w-full" radius={12} />
       </div>
 
       <div className="space-y-2" aria-busy="true" aria-live="polite">

@@ -131,7 +131,7 @@ export function WhatsappBotClient({ initialData }: { initialData: any[] }) {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6 p-4 md:p-6">
+    <div className="20ui mx-auto flex w-full max-w-[1180px] flex-col gap-[var(--st-space-5)] px-6 py-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>WhatsApp Chatbots</PageTitle>

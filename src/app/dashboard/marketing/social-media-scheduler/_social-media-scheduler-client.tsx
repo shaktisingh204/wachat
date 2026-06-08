@@ -1,12 +1,25 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { Plus, Pencil, Trash2, Wand2, CalendarClock } from 'lucide-react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import React, { useMemo, useState, useTransition } from 'react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Wand2,
+  CalendarClock,
+  Send,
+  TriangleAlert,
+  Share2,
+  SearchX,
+} from 'lucide-react';
 import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  StatCard,
   Table,
   THead,
   TBody,
@@ -29,6 +42,13 @@ import {
   SelectItem,
   Badge,
   EmptyState,
+  SearchInput,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -41,23 +61,53 @@ import {
 const PLATFORM_OPTIONS = ['facebook', 'twitter', 'instagram', 'linkedin'];
 const STATUS_OPTIONS = ['scheduled', 'published', 'failed'];
 
-export function SocialPostClient({ initialData }: { initialData: any[] }) {
+type StatusTone = 'info' | 'success' | 'danger' | 'neutral';
+
+const STATUS_TONE: Record<string, StatusTone> = {
+  scheduled: 'info',
+  published: 'success',
+  failed: 'danger',
+};
+
+interface SocialPost {
+  _id: string;
+  platform?: string;
+  content?: string;
+  status?: string;
+  scheduledTime?: string;
+  tags?: string[];
+  [key: string]: unknown;
+}
+
+export function SocialPostClient({ initialData }: { initialData: SocialPost[] }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingItem, setEditingItem] = useState<SocialPost | null>(null);
   const [search, setSearch] = useState('');
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   // Form State
-  const [platform, setPlatform] = useState<string>('');
-  const [content, setContent] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
-  const [scheduledTime, setScheduledTime] = useState<string>('');
-  const [tags, setTags] = useState<string>('');
+  const [platform, setPlatform] = useState('');
+  const [content, setContent] = useState('');
+  const [status, setStatus] = useState('');
+  const [scheduledTime, setScheduledTime] = useState('');
+  const [tags, setTags] = useState('');
 
-  const filteredData = initialData.filter((item) =>
-    JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
+  const filteredData = useMemo(
+    () =>
+      initialData.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(search.toLowerCase()),
+      ),
+    [initialData, search],
   );
+
+  const stats = useMemo(() => {
+    const total = initialData.length;
+    const scheduled = initialData.filter((p) => p.status === 'scheduled').length;
+    const published = initialData.filter((p) => p.status === 'published').length;
+    const failed = initialData.filter((p) => p.status === 'failed').length;
+    return { total, scheduled, published, failed };
+  }, [initialData]);
 
   const openNew = () => {
     setEditingItem(null);
@@ -69,7 +119,7 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
     setIsDialogOpen(true);
   };
 
-  const openEdit = (item: any) => {
+  const openEdit = (item: SocialPost) => {
     setEditingItem(item);
     setPlatform(item.platform || '');
     setContent(item.content || '');
@@ -86,53 +136,56 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
         content,
         status,
         scheduledTime,
-        tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        tags: tags
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean),
       };
 
       try {
         if (editingItem) {
           const res = await updateSocialPost(editingItem._id, payload);
           if (res.success) {
-            toast.success('Record updated successfully.');
+            toast.success('Post updated.');
             setIsDialogOpen(false);
           } else {
-            toast.error(res.error || 'Failed to update record.');
+            toast.error(res.error || 'Could not update the post.');
           }
         } else {
           const res = await createSocialPost(payload);
           if (res.success) {
-            toast.success('Record created successfully.');
+            toast.success('Post scheduled.');
             setIsDialogOpen(false);
           } else {
-            toast.error(res.error || 'Failed to create record.');
+            toast.error(res.error || 'Could not schedule the post.');
           }
         }
-      } catch (err) {
-        toast.error('An unexpected error occurred.');
+      } catch {
+        toast.error('Something went wrong. Please try again.');
       }
     });
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
+    if (!confirm('Delete this scheduled post?')) return;
 
     startTransition(async () => {
       try {
         const res = await deleteSocialPost(id);
         if (res.success) {
-          toast.success('Record deleted.');
+          toast.success('Post deleted.');
         } else {
-          toast.error(res.error || 'Failed to delete record.');
+          toast.error(res.error || 'Could not delete the post.');
         }
-      } catch (err) {
-        toast.error('Failed to delete record.');
+      } catch {
+        toast.error('Could not delete the post.');
       }
     });
   };
 
   const handleSuggest = () => {
     if (!content || !platform) {
-      toast.info('Please enter content and select a platform first.');
+      toast.info('Add content and pick a platform first.');
       return;
     }
 
@@ -146,166 +199,228 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
           if (res.data.optimalPostingTime) {
             setScheduledTime(res.data.optimalPostingTime);
           }
-          toast.success('Generated suggestions successfully.');
+          toast.success('Suggestions applied.');
         } else {
-          toast.error(res.error || 'Failed to generate suggestions.');
+          toast.error(res.error || 'Could not generate suggestions.');
         }
-      } catch (err) {
-        toast.error('An unexpected error occurred during suggestion generation.');
+      } catch {
+        toast.error('Could not generate suggestions.');
       }
     });
   };
 
-  return (
-    <EntityListShell
-      title="Social Media Posts"
-      subtitle="Manage your Social Media Posts seamlessly."
-      search={{ value: search, onChange: setSearch, placeholder: 'Search...' }}
-      primaryAction={
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
-              Create New
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingItem ? 'Edit Record' : 'Create New'}</DialogTitle>
-            </DialogHeader>
+  const dialog = (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+          Schedule post
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{editingItem ? 'Edit post' : 'Schedule a post'}</DialogTitle>
+        </DialogHeader>
 
-            <div className="flex flex-col gap-4 py-2">
-              <Field label="Platform">
-                <Select value={platform} onValueChange={setPlatform}>
-                  <SelectTrigger aria-label="Platform">
-                    <SelectValue placeholder="Select option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PLATFORM_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt}>
-                        {opt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+        <div className="flex flex-col gap-4 py-2">
+          <Field label="Platform">
+            <Select value={platform} onValueChange={setPlatform}>
+              <SelectTrigger aria-label="Platform">
+                <SelectValue placeholder="Select a platform" />
+              </SelectTrigger>
+              <SelectContent>
+                {PLATFORM_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt} className="capitalize">
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
-              <Field label="Content">
-                <Textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={4}
-                />
-              </Field>
+          <Field label="Content">
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={4}
+              placeholder="What do you want to share?"
+            />
+          </Field>
 
-              <Field label="Status">
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger aria-label="Status">
-                    <SelectValue placeholder="Select option" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt} value={opt}>
-                        {opt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
+          <Field label="Status">
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger aria-label="Status">
+                <SelectValue placeholder="Select a status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt} className="capitalize">
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
-              <Field label="Scheduled Time">
-                <Input
-                  type="text"
-                  placeholder="e.g. 2023-11-05T14:30:00Z or Tuesday 10:00 AM"
-                  value={scheduledTime}
-                  onChange={(e) => setScheduledTime(e.target.value)}
-                />
-              </Field>
+          <Field label="Scheduled time" help="An ISO timestamp or a plain time works.">
+            <Input
+              type="text"
+              placeholder="2026-06-12T14:30:00Z or Tuesday 10:00 AM"
+              value={scheduledTime}
+              onChange={(e) => setScheduledTime(e.target.value)}
+            />
+          </Field>
 
-              <Field label="Tags">
-                <div className="flex flex-col gap-2">
-                  <Input
-                    type="text"
-                    placeholder="Comma-separated tags"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    iconLeft={Wand2}
-                    loading={isPending}
-                    onClick={handleSuggest}
-                    disabled={isPending || !content || !platform}
-                    className="w-fit"
-                  >
-                    Suggest Tags &amp; Time
-                  </Button>
-                </div>
-              </Field>
-            </div>
-
-            <DialogFooter>
-              <Button variant="primary" loading={isPending} onClick={handleSave}>
-                Save
+          <Field label="Tags">
+            <div className="flex flex-col gap-2">
+              <Input
+                type="text"
+                placeholder="Comma-separated tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                iconLeft={Wand2}
+                loading={isPending}
+                onClick={handleSuggest}
+                disabled={isPending || !content || !platform}
+                className="w-fit"
+              >
+                Suggest tags and time
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      }
-    >
-      {filteredData.length === 0 ? (
-        <EmptyState
-          icon={CalendarClock}
-          title="No records found."
-          description="Create your first scheduled post to get started."
-          action={
-            <Button variant="primary" iconLeft={Plus} onClick={openNew}>
-              Create New
-            </Button>
-          }
-        />
-      ) : (
-        <Card padding="none" className="overflow-hidden">
+            </div>
+          </Field>
+        </div>
+
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" loading={isPending} onClick={handleSave}>
+            {editingItem ? 'Save changes' : 'Schedule post'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  return (
+    <div className="20ui mx-auto flex w-full max-w-[1180px] flex-col gap-[var(--st-space-5)] px-6 py-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Marketing</PageEyebrow>
+          <PageTitle>Social media scheduler</PageTitle>
+          <PageDescription>
+            Plan posts across your channels and keep tabs on what is scheduled, live, or needs a retry.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>{dialog}</PageActions>
+      </PageHeader>
+
+      <section aria-label="Posting overview" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total posts" value={stats.total.toLocaleString()} icon={Share2} accent="#3b7af5" />
+        <StatCard label="Scheduled" value={stats.scheduled.toLocaleString()} icon={CalendarClock} accent="#7c3aed" />
+        <StatCard label="Published" value={stats.published.toLocaleString()} icon={Send} accent="#1f9d55" />
+        <StatCard label="Failed" value={stats.failed.toLocaleString()} icon={TriangleAlert} accent="#e0484e" />
+      </section>
+
+      <Card padding="none">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
+          <div>
+            <CardTitle>Scheduled posts</CardTitle>
+            <CardDescription>
+              {filteredData.length} of {initialData.length} posts
+            </CardDescription>
+          </div>
+          <div className="w-full sm:w-72">
+            <SearchInput
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Search by content, tag, or platform"
+              aria-label="Search scheduled posts"
+            />
+          </div>
+        </CardHeader>
+
+        {filteredData.length === 0 ? (
+          <div className="px-4 py-10">
+            <EmptyState
+              icon={search ? SearchX : CalendarClock}
+              title={search ? 'No posts match your search' : 'No posts scheduled yet'}
+              description={
+                search
+                  ? 'Try a different keyword, tag, or platform.'
+                  : 'Schedule your first post to start filling your content calendar.'
+              }
+              action={
+                search ? undefined : (
+                  <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                    Schedule post
+                  </Button>
+                )
+              }
+            />
+          </div>
+        ) : (
           <Table>
             <THead>
               <Tr>
-                <Th className="capitalize">Platform</Th>
-                <Th className="capitalize">Content</Th>
-                <Th className="capitalize">Status</Th>
-                <Th className="capitalize">Time</Th>
-                <Th className="capitalize">Tags</Th>
+                <Th>Platform</Th>
+                <Th>Content</Th>
+                <Th>Status</Th>
+                <Th>Scheduled</Th>
+                <Th>Tags</Th>
                 <Th align="right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
               {filteredData.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.platform || '')}</Td>
-                  <Td>{String(item.content || '')}</Td>
-                  <Td>{String(item.status || '')}</Td>
-                  <Td>{String(item.scheduledTime || '')}</Td>
+                  <Td className="font-medium capitalize">{String(item.platform || '—')}</Td>
+                  <Td className="max-w-[22rem] truncate text-[var(--st-text-secondary)]">
+                    {String(item.content || '—')}
+                  </Td>
+                  <Td>
+                    {item.status ? (
+                      <Badge tone={STATUS_TONE[item.status] ?? 'neutral'} dot className="capitalize">
+                        {item.status}
+                      </Badge>
+                    ) : (
+                      <span className="text-[var(--st-text-secondary)]">—</span>
+                    )}
+                  </Td>
+                  <Td className="tabular-nums text-[var(--st-text-secondary)]">
+                    {String(item.scheduledTime || '—')}
+                  </Td>
                   <Td>
                     <div className="flex flex-wrap gap-1">
-                      {item.tags?.map((tag: string, idx: number) => (
-                        <Badge key={idx} variant="secondary">
-                          {tag}
-                        </Badge>
-                      ))}
+                      {item.tags && item.tags.length > 0 ? (
+                        item.tags.map((tag: string, idx: number) => (
+                          <Badge key={idx} tone="neutral" kind="soft">
+                            {tag}
+                          </Badge>
+                        ))
+                      ) : (
+                        <span className="text-[var(--st-text-secondary)]">—</span>
+                      )}
                     </div>
                   </Td>
                   <Td align="right">
                     <div className="flex items-center justify-end gap-1">
                       <IconButton
-                        label="Edit record"
+                        label="Edit post"
                         icon={Pencil}
+                        variant="ghost"
                         size="sm"
                         disabled={isPending}
                         onClick={() => openEdit(item)}
                       />
                       <IconButton
-                        label="Delete record"
+                        label="Delete post"
                         icon={Trash2}
+                        variant="ghost"
                         size="sm"
                         disabled={isPending}
                         onClick={() => handleDelete(item._id)}
@@ -316,8 +431,8 @@ export function SocialPostClient({ initialData }: { initialData: any[] }) {
               ))}
             </TBody>
           </Table>
-        </Card>
-      )}
-    </EntityListShell>
+        )}
+      </Card>
+    </div>
   );
 }

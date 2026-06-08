@@ -151,7 +151,7 @@ export function LandingPageClient({ initialData }: { initialData: any[] }) {
   const blendedCPA = totalConversions > 0 ? (totalSpend / totalConversions).toFixed(2) : '0.00';
 
   return (
-    <div className="flex flex-col gap-6 w-full">
+    <div className="20ui mx-auto flex w-full max-w-[1180px] flex-col gap-[var(--st-space-5)] px-6 py-6">
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="dashboard">Global Campaign Dashboard</TabsTrigger>
