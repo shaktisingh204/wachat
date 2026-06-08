@@ -70,7 +70,7 @@
   z-index: 1000;
   min-width: 200px;
   max-width: min(360px, calc(100vw - var(--st-space-4)));
-  max-height: var(--radix-menubar-content-available-height);
+  max-height: min(var(--radix-menubar-content-available-height, 60vh), 420px);
   overflow-x: hidden;
   overflow-y: auto;
   padding: var(--st-space-1);
@@ -88,7 +88,8 @@
 }
 :is(.\32 0ui, .sabcrm-twenty) .u-menubar__subcontent {
   min-width: 180px;
-  max-height: var(--radix-menubar-content-available-height, none);
+  max-height: min(var(--radix-menubar-content-available-height, 60vh), 420px);
+  overflow-y: auto;
   transform-origin: var(--radix-menubar-sub-content-transform-origin);
 }
 

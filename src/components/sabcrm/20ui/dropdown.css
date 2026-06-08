@@ -21,6 +21,10 @@
   line-height: 1.4;
   box-shadow: var(--u-elev-3);
   outline: none;
+  /* Size to content, capped so a long menu scrolls within the panel instead of
+     growing unbounded / running off-screen. */
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
   /* Grow from the corner Radix anchored against (its content var resolves to a
      side+align-aware origin), so the menu reads as unfolding from the trigger. */
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);

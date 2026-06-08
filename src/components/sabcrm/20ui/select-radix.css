@@ -70,7 +70,10 @@
   position: relative;
   z-index: 1000;
   min-width: 8rem;
-  max-height: var(--radix-select-content-available-height);
+  /* Content-height, but never taller than the space Radix measured nor the
+     shared dropdown cap — so a long option list scrolls instead of filling the
+     viewport. */
+  max-height: min(var(--radix-select-content-available-height, 60vh), 420px);
   overflow: hidden;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
