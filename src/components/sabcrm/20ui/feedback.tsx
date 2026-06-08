@@ -158,8 +158,12 @@ export function Callout({
 }
 
 export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
-  /** The chip glyph (decorative). */
-  icon?: LucideIcon;
+  /**
+   * The chip glyph (decorative). Either a Lucide component (`Search`) —
+   * rendered with a tone-appropriate size — or an already-rendered node
+   * (`<Search />`). Both are accepted so neither calling convention crashes.
+   */
+  icon?: LucideIcon | React.ReactNode;
   title: React.ReactNode;
   description?: React.ReactNode;
   /** Action slot — typically a Button or two. */
@@ -171,7 +175,7 @@ export interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /** A centred placeholder for empty lists / first-run, with an optional action. */
 export function EmptyState({
-  icon: Icon,
+  icon,
   title,
   description,
   action,
@@ -181,11 +185,16 @@ export function EmptyState({
   ...rest
 }: EmptyStateProps): React.JSX.Element {
   const cls = ['u-empty', `u-empty--${size}`, className].filter(Boolean).join(' ');
+  // A bare Lucide component gets sized; an already-rendered node is used as-is.
+  const glyph =
+    typeof icon === 'function'
+      ? React.createElement(icon as LucideIcon, { size: size === 'sm' ? 18 : 22 })
+      : icon;
   return (
     <div className={cls} {...rest}>
-      {Icon ? (
+      {icon ? (
         <span className={`u-empty__chip u-empty__chip--${tone}`} aria-hidden="true">
-          <Icon size={size === 'sm' ? 18 : 22} />
+          {glyph}
         </span>
       ) : null}
       <p className="u-empty__title">{title}</p>
