@@ -27,8 +27,8 @@ import type {
   BugDoc,
   BugPriority,
   BugSeverity,
-} from '@/lib/rust-client/bug-tracker-bugs';
-import type { BugVersionDoc } from '@/lib/rust-client/bug-tracker-versions';
+} from '@/lib/rust-client/sabbugs-bugs';
+import type { BugVersionDoc } from '@/lib/rust-client/sabbugs-versions';
 
 import {
   BUG_PRIORITIES,

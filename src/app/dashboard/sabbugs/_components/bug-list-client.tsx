@@ -34,8 +34,8 @@ import {
 } from '@/components/sabcrm/20ui';
 
 import { listBugs, saveCurrentFilter, deleteSavedFilter } from '@/app/actions/bug-tracker.actions';
-import type { BugDoc } from '@/lib/rust-client/bug-tracker-bugs';
-import type { BugSavedFilterDoc } from '@/lib/rust-client/bug-tracker-saved-filters';
+import type { BugDoc } from '@/lib/rust-client/sabbugs-bugs';
+import type { BugSavedFilterDoc } from '@/lib/rust-client/sabbugs-saved-filters';
 
 import {
   BugPriorityBadge,

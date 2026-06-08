@@ -12,7 +12,7 @@ import {
 import type {
   BugVersionDoc,
   BugVersionStatus,
-} from '@/lib/rust-client/bug-tracker-versions';
+} from '@/lib/rust-client/sabbugs-versions';
 
 import type { ProjectOption } from './bug-shared';
 
@@ -27,7 +27,7 @@ export function BugVersionsClient({
   initialError?: string;
   projectOptions: ProjectOption[];
 }) {
-  const toast = useToast();
+  const { toast } = useToast();
   const [versions, setVersions] = React.useState(initialVersions);
   const [draftName, setDraftName] = React.useState('');
   const [draftProject, setDraftProject] = React.useState<string | undefined>();

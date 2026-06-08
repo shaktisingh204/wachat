@@ -27,10 +27,10 @@ import {
   deleteComment,
   updateBug,
 } from '@/app/actions/bug-tracker.actions';
-import type { BugDoc, BugStatus } from '@/lib/rust-client/bug-tracker-bugs';
-import type { BugCommentDoc } from '@/lib/rust-client/bug-tracker-comments';
-import type { BugHistoryEntryDoc } from '@/lib/rust-client/bug-tracker-history';
-import type { BugVersionDoc } from '@/lib/rust-client/bug-tracker-versions';
+import type { BugDoc, BugStatus } from '@/lib/rust-client/sabbugs-bugs';
+import type { BugCommentDoc } from '@/lib/rust-client/sabbugs-comments';
+import type { BugHistoryEntryDoc } from '@/lib/rust-client/sabbugs-history';
+import type { BugVersionDoc } from '@/lib/rust-client/sabbugs-versions';
 
 import { BugForm } from './bug-form';
 import {

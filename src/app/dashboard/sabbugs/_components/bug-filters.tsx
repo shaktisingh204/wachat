@@ -8,7 +8,7 @@ import type {
   BugPriority,
   BugSeverity,
   BugStatus,
-} from '@/lib/rust-client/bug-tracker-bugs';
+} from '@/lib/rust-client/sabbugs-bugs';
 
 import {
   BUG_PRIORITIES,

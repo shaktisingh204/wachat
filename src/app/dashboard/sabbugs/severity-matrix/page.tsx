@@ -26,9 +26,9 @@ import { listBugs } from '@/app/actions/bug-tracker.actions';
 import type {
   BugPriority,
   BugSeverity,
-} from '@/lib/rust-client/bug-tracker-bugs';
+} from '@/lib/rust-client/sabbugs-bugs';
 
-import { BUG_PRIORITIES, BUG_SEVERITIES } from '../_components/bug-shared';
+import { BUG_PRIORITIES, BUG_SEVERITIES } from '../_components/bug-constants';
 
 export const dynamic = 'force-dynamic';
 

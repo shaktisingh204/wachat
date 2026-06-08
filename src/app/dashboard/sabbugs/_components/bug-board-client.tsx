@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Card, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, useToast } from '@/components/sabcrm/20ui';
 
 import { updateBug } from '@/app/actions/bug-tracker.actions';
-import type { BugDoc, BugStatus } from '@/lib/rust-client/bug-tracker-bugs';
+import type { BugDoc, BugStatus } from '@/lib/rust-client/sabbugs-bugs';
 
 import {
   BUG_STATUSES,
@@ -24,7 +24,7 @@ export function BugBoardClient({
   initialError?: string;
 }) {
   const router = useRouter();
-  const toast = useToast();
+  const { toast } = useToast();
   const [bugs, setBugs] = React.useState(initialBugs);
 
   const grouped = React.useMemo(() => {
