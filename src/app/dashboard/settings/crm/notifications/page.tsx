@@ -39,6 +39,7 @@ import {
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  PageDescription,
   Button,
   Switch,
   Callout,
@@ -165,23 +166,23 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
   const muted = prefs.muteAll;
 
   return (
-    <div className="st-page">
-      <div className="st-settings">
+    <div className="stn-page">
+      <div className="stn-settings">
         <PageHeader>
           <PageHeaderHeading>
             <PageTitle>Notifications</PageTitle>
+            <PageDescription>
+              Choose which events notify you and how. Saved to your workspace so
+              your preferences follow you across devices.
+              {sync.phase === 'offline' ? (
+                <span className="stn-offline" role="status">
+                  The settings service is offline, so changes are kept on this
+                  device for now.
+                </span>
+              ) : null}
+            </PageDescription>
           </PageHeaderHeading>
         </PageHeader>
-        <p className="st-settings__intro">
-          Choose which events notify you and how. Saved to your workspace so your
-          preferences follow you across devices.
-          {sync.phase === 'offline' ? (
-            <span className="stn-offline" role="status">
-              The settings service is offline, so changes are kept on this device
-              for now.
-            </span>
-          ) : null}
-        </p>
 
         {/* Master mute */}
         <div className={`stn-master${muted ? ' is-muted' : ''}`}>

@@ -1,16 +1,27 @@
 /* ==========================================================================
    SabCRM — Notifications settings (`/dashboard/settings/crm/notifications`)
    --------------------------------------------------------------------------
-   Twenty-style preferences surface. All selectors are scoped under
-   `.sabcrm-twenty` and namespaced `stn-` (SabCRM Twenty Notifications) so they
-   never collide with the shared `st-*` classes or the per-page `.st-switch`
-   variants defined in other settings CSS files. Colours come exclusively from
-   the Twenty `--st-*` design tokens so light / dark / density all follow.
+   Preferences surface, migrated to the 20ui design system. All selectors are
+   scoped under the 20ui root (`:is(.\32 0ui, .ui20)`) — NOT `.sabcrm-twenty` —
+   and namespaced `stn-` (SabCRM Notifications) so they never collide with the
+   shared `st-*` classes. Colours come exclusively from the `--st-*` design
+   tokens so light / dark / density all follow.
    ========================================================================== */
+
+/* ---- Page layout (replaces the shared .st-page / .st-settings wrappers) -- */
+:is(.\32 0ui, .ui20) .stn-page {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+:is(.\32 0ui, .ui20) .stn-settings {
+  max-width: 880px;
+}
 
 /* ---- Master mute card -------------------------------------------------- */
 
-.sabcrm-twenty .stn-master {
+:is(.\32 0ui, .ui20) .stn-master {
   display: flex;
   align-items: center;
   gap: var(--st-space-4);
@@ -21,12 +32,12 @@
   background: var(--st-bg);
 }
 
-.sabcrm-twenty .stn-master.is-muted {
+:is(.\32 0ui, .ui20) .stn-master.is-muted {
   background: var(--st-bg-secondary);
   border-color: var(--st-border);
 }
 
-.sabcrm-twenty .stn-master__icon {
+:is(.\32 0ui, .ui20) .stn-master__icon {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -38,12 +49,12 @@
   color: var(--st-text-secondary);
 }
 
-.sabcrm-twenty .stn-master.is-muted .stn-master__icon {
+:is(.\32 0ui, .ui20) .stn-master.is-muted .stn-master__icon {
   background: var(--st-accent-soft);
   color: var(--st-accent);
 }
 
-.sabcrm-twenty .stn-master__text {
+:is(.\32 0ui, .ui20) .stn-master__text {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -51,65 +62,65 @@
   flex: 1 1 auto;
 }
 
-.sabcrm-twenty .stn-master__title {
+:is(.\32 0ui, .ui20) .stn-master__title {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--st-text);
 }
 
-.sabcrm-twenty .stn-master__hint {
+:is(.\32 0ui, .ui20) .stn-master__hint {
   margin: 0;
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--st-text-secondary);
 }
 
-.sabcrm-twenty .stn-master__control {
+:is(.\32 0ui, .ui20) .stn-master__control {
   flex: 0 0 auto;
 }
 
 /* ---- Section heading --------------------------------------------------- */
 
-.sabcrm-twenty .stn-group {
+:is(.\32 0ui, .ui20) .stn-group {
   margin-top: var(--st-space-6);
 }
 
-.sabcrm-twenty .stn-group__head {
+:is(.\32 0ui, .ui20) .stn-group__head {
   display: flex;
   flex-direction: column;
   gap: 2px;
   margin-bottom: var(--st-space-3);
 }
 
-.sabcrm-twenty .stn-group__title {
+:is(.\32 0ui, .ui20) .stn-group__title {
   margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--st-text);
 }
 
-.sabcrm-twenty .stn-group__hint {
+:is(.\32 0ui, .ui20) .stn-group__hint {
   margin: 0;
   font-size: 12.5px;
   line-height: 1.45;
   color: var(--st-text-secondary);
 }
 
-.sabcrm-twenty .stn-group.is-disabled {
+:is(.\32 0ui, .ui20) .stn-group.is-disabled {
   opacity: 0.55;
 }
 
 /* ---- Event table ------------------------------------------------------- */
 
-.sabcrm-twenty .stn-table {
+:is(.\32 0ui, .ui20) .stn-table {
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
   overflow: hidden;
   background: var(--st-bg);
 }
 
-.sabcrm-twenty .stn-thead {
+:is(.\32 0ui, .ui20) .stn-thead {
   display: grid;
   grid-template-columns: 1fr 84px 84px;
   align-items: center;
@@ -119,7 +130,7 @@
   border-bottom: 1px solid var(--st-border);
 }
 
-.sabcrm-twenty .stn-thead__label {
+:is(.\32 0ui, .ui20) .stn-thead__label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -127,7 +138,7 @@
   color: var(--st-text-tertiary);
 }
 
-.sabcrm-twenty .stn-thead__channel {
+:is(.\32 0ui, .ui20) .stn-thead__channel {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -140,7 +151,7 @@
   text-align: center;
 }
 
-.sabcrm-twenty .stn-row {
+:is(.\32 0ui, .ui20) .stn-row {
   display: grid;
   grid-template-columns: 1fr 84px 84px;
   align-items: center;
@@ -149,37 +160,37 @@
   border-bottom: 1px solid var(--st-border-light);
 }
 
-.sabcrm-twenty .stn-row:last-child {
+:is(.\32 0ui, .ui20) .stn-row:last-child {
   border-bottom: none;
 }
 
-.sabcrm-twenty .stn-row__text {
+:is(.\32 0ui, .ui20) .stn-row__text {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.sabcrm-twenty .stn-row__label {
+:is(.\32 0ui, .ui20) .stn-row__label {
   font-size: 13.5px;
   font-weight: 500;
   color: var(--st-text);
 }
 
-.sabcrm-twenty .stn-row__desc {
+:is(.\32 0ui, .ui20) .stn-row__desc {
   font-size: 12px;
   line-height: 1.4;
   color: var(--st-text-secondary);
 }
 
-.sabcrm-twenty .stn-row__cell {
+:is(.\32 0ui, .ui20) .stn-row__cell {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 /* The whole table dims while muted, but keep interaction blocked too. */
-.sabcrm-twenty .stn-group.is-disabled .stn-row__cell {
+:is(.\32 0ui, .ui20) .stn-group.is-disabled .stn-row__cell {
   pointer-events: none;
 }
 
@@ -190,13 +201,13 @@
 /* The note itself is the 20ui <Callout> (self-styled `.u-callout`). This rule
    only supplies the top spacing below the event table. */
 
-.sabcrm-twenty .stn-callout-spacing {
+:is(.\32 0ui, .ui20) .stn-callout-spacing {
   margin-top: var(--st-space-3);
 }
 
 /* ---- Footer actions ---------------------------------------------------- */
 
-.sabcrm-twenty .stn-footer {
+:is(.\32 0ui, .ui20) .stn-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -206,7 +217,7 @@
   border-top: 1px solid var(--st-border-light);
 }
 
-.sabcrm-twenty .stn-footer__note {
+:is(.\32 0ui, .ui20) .stn-footer__note {
   margin: 0;
   font-size: 12px;
   color: var(--st-text-tertiary);
@@ -215,7 +226,7 @@
 /* ---- Offline / engine-down notice (in the page intro) ------------------ */
 /* The base `--st-*` set has no semantic danger colour, so it's mapped locally
    and re-mapped for dark mode to stay legible on the settings surface. */
-.sabcrm-twenty .stn-offline {
+:is(.\32 0ui, .ui20) .stn-offline {
   display: block;
   margin-top: 4px;
   font-size: var(--st-font-size-sm);
@@ -223,7 +234,7 @@
   color: #b3261e;
 }
 
-.sabcrm-twenty.st-theme-dark .stn-offline {
+:is(.\32 0ui, .ui20).dark .stn-offline {
   color: #f3777a;
 }
 
@@ -235,12 +246,12 @@
 /* ---- Narrow viewports -------------------------------------------------- */
 
 @media (max-width: 560px) {
-  .sabcrm-twenty .stn-thead,
-  .sabcrm-twenty .stn-row {
+  :is(.\32 0ui, .ui20) .stn-thead,
+  :is(.\32 0ui, .ui20) .stn-row {
     grid-template-columns: 1fr 64px 64px;
     gap: var(--st-space-2);
   }
-  .sabcrm-twenty .stn-thead__channel .stn-thead__channel-text {
+  :is(.\32 0ui, .ui20) .stn-thead__channel .stn-thead__channel-text {
     display: none;
   }
 }
