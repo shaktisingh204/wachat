@@ -431,7 +431,7 @@ export default function SettingsPage() {
   const activeCategory = settingsStructure.find((t) => t.id === activeTab);
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 md:p-8">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 md:p-8">
       <div className="max-w-6xl mx-auto">
         <PageHeader>
           <PageHeaderHeading>

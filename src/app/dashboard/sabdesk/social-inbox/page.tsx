@@ -350,7 +350,7 @@ export default function SocialInbox() {
     `!justify-start w-full ${active ? 'text-[var(--st-accent)] bg-[var(--st-accent-soft)]' : 'text-[var(--st-text-secondary)]'}`;
 
   return (
-    <div className="ui20 dark flex h-screen bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
+    <div className="20ui dark flex h-screen bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
 
       {/* ========================================== */}
       {/* LEFT SIDEBAR - FILTERS */}

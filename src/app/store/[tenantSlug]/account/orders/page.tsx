@@ -73,7 +73,7 @@ export default function GuestOrdersPage(): React.JSX.Element {
     const currency = order?.currency ?? '₹';
 
     return (
-        <div className="ui20 max-w-xl">
+        <div className="20ui max-w-xl">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Track an order</PageTitle>

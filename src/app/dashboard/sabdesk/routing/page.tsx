@@ -234,7 +234,7 @@ export default function RoutingPage() {
   const [selectedQueue, setSelectedQueue] = useState<string | null>(null);
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <PageHeader>

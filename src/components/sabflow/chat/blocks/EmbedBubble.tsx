@@ -74,7 +74,7 @@ export function EmbedBubble({
 
   if (!safe) {
     return (
-      <div className="ui20 flex justify-start">
+      <div className="20ui flex justify-start">
         <div
           className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
@@ -88,7 +88,7 @@ export function EmbedBubble({
 
   if (errored) {
     return (
-      <div className="ui20 flex justify-start">
+      <div className="20ui flex justify-start">
         <div
           className="flex flex-col items-start gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
@@ -115,7 +115,7 @@ export function EmbedBubble({
     : { width: '100%', maxWidth, aspectRatio, backgroundColor };
 
   return (
-    <div className="ui20 flex justify-start">
+    <div className="20ui flex justify-start">
       <div
         className="relative overflow-hidden rounded-2xl rounded-tl-sm shadow-sm"
         style={style}

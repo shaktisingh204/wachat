@@ -262,7 +262,7 @@ function LoginMain() {
 
 export default function LoginPage() {
     return (
-        <div className="ui20 min-h-screen w-full bg-[var(--st-bg)]">
+        <div className="20ui min-h-screen w-full bg-[var(--st-bg)]">
             <div className="grid min-h-screen lg:grid-cols-2">
                 <BrandSidebar />
                 <LoginMain />

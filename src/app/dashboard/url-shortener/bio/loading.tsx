@@ -6,7 +6,7 @@ export default function Loading() {
       role="status"
       aria-label="Loading bio links"
       aria-busy="true"
-      className="ui20 w-full p-6 space-y-6 animate-in fade-in duration-500"
+      className="20ui w-full p-6 space-y-6 animate-in fade-in duration-500"
     >
       <span className="sr-only">Loading bio links</span>
 

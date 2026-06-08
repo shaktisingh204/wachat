@@ -20,7 +20,7 @@ const total = 11834;
 
 export default function Page() {
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <div className="max-w-5xl mx-auto px-6 py-8">
         <PageHeader className="mb-8">
           <PageHeaderHeading>

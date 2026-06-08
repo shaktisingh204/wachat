@@ -3,14 +3,14 @@
 
    GPU-only motion: the wave rect translateY's to fill the wordmark; the two
    ripple paths translateX for the surface ripple. No layout, no paint thrash.
-   Every selector is scoped under :is(.ui20, .sabcrm-twenty). Reduced motion
+   Every selector is scoped under :is(.\32 0ui, .sabcrm-twenty). Reduced motion
    parks the wave at a pleasant fill level and leaves only a gentle breathe.
    ========================================================================= */
 
 /* ------------------------------------------------------------------ */
 /* WaterLoader root                                                    */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-water {
+:is(.\32 0ui, .sabcrm-twenty) .u-water {
   position: relative;
   display: inline-flex;
   flex-direction: column;
@@ -22,7 +22,7 @@
 }
 
 /* Soft brand halo behind the wordmark (decorative, opacity-only breathe). */
-:is(.ui20, .sabcrm-twenty) .u-water__halo {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__halo {
   position: absolute;
   inset: -28% -14% auto -14%;
   height: 150%;
@@ -36,11 +36,11 @@
   will-change: opacity, transform;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water--flat .u-water__halo {
+:is(.\32 0ui, .sabcrm-twenty) .u-water--flat .u-water__halo {
   display: none;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water__svg {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__svg {
   display: block;
   width: 100%;
   height: auto;
@@ -48,7 +48,7 @@
 }
 
 /* Empty/outline wordmark — hairline stroke reads as the "drained" glyph. */
-:is(.ui20, .sabcrm-twenty) .u-water__glyph-empty {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__glyph-empty {
   stroke: var(--st-border);
   stroke-width: 1;
 }
@@ -57,7 +57,7 @@
 /* Wave fill + ripple (transform-only)                                 */
 /* ------------------------------------------------------------------ */
 /* The wrapping group rises to fill the letters, then ebbs back down.  */
-:is(.ui20, .sabcrm-twenty) .u-water__rise {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__rise {
   transform-box: fill-box;
   transform-origin: center;
   animation: u-water-rise 4.4s var(--u-ease-in-out) infinite;
@@ -65,20 +65,20 @@
 }
 
 /* Both ripple paths scroll sideways for the surface ripple. */
-:is(.ui20, .sabcrm-twenty) .u-water__wave {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__wave {
   animation-name: u-water-drift;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
   will-change: transform;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water__wave--back {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__wave--back {
   fill: var(--u-brand-orange);
   opacity: 0.5;
   animation-duration: 4.2s;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water__wave--front {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__wave--front {
   fill: var(--u-brand-rose);
   opacity: 0.85;
   animation-duration: 2.8s;
@@ -86,7 +86,7 @@
 }
 
 /* Specular crest line riding the front wave. */
-:is(.ui20, .sabcrm-twenty) .u-water__crest {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__crest {
   fill: none;
   stroke: rgba(255, 255, 255, 0.6);
   stroke-width: 1.5;
@@ -95,7 +95,7 @@
 /* ------------------------------------------------------------------ */
 /* Caption + screen-reader-only line                                   */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-water__caption {
+:is(.\32 0ui, .sabcrm-twenty) .u-water__caption {
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
   letter-spacing: 0.16em;
@@ -103,7 +103,7 @@
   color: var(--st-text-secondary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water .u-sr-only {
+:is(.\32 0ui, .sabcrm-twenty) .u-water .u-sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -118,7 +118,7 @@
 /* ------------------------------------------------------------------ */
 /* WaterLoaderScreen — full-viewport (or inline) centred host          */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-water-screen {
+:is(.\32 0ui, .sabcrm-twenty) .u-water-screen {
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -132,7 +132,7 @@
   animation: u-water-fade var(--u-dur-slow) var(--u-ease-out) both;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-water-screen--inline {
+:is(.\32 0ui, .sabcrm-twenty) .u-water-screen--inline {
   position: absolute;
 }
 
@@ -188,19 +188,19 @@
 /* Reduced motion — park the wave at a comfortable fill, gentle fade   */
 /* ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-water__rise {
+  :is(.\32 0ui, .sabcrm-twenty) .u-water__rise {
     /* Park ~70% full so the wordmark reads as mostly poured, not blank. */
     animation: none;
     transform: translateY(-62px);
   }
-  :is(.ui20, .sabcrm-twenty) .u-water__wave {
+  :is(.\32 0ui, .sabcrm-twenty) .u-water__wave {
     animation: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-water__halo {
+  :is(.\32 0ui, .sabcrm-twenty) .u-water__halo {
     /* Keep a slow, movement-free opacity breathe — no scale/transform. */
     animation: u-water-breathe-soft 6s var(--u-ease-in-out) infinite;
   }
-  :is(.ui20, .sabcrm-twenty) .u-water-screen {
+  :is(.\32 0ui, .sabcrm-twenty) .u-water-screen {
     animation: none;
   }
 }

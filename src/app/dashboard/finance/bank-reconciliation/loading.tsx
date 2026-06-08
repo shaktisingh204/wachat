@@ -13,7 +13,7 @@ import {
 export default function Loading() {
   return (
     <div
-      className="ui20 flex w-full flex-col gap-4"
+      className="20ui flex w-full flex-col gap-4"
       aria-busy="true"
       aria-live="polite"
     >

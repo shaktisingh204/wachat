@@ -102,7 +102,7 @@ export const SheetContent = React.forwardRef<
   return (
     <SheetPortal>
       {/* Token scope for everything we portal to <body>. */}
-      <div className="ui20 sabcrm-twenty u-sheet__layer">
+      <div className="20ui sabcrm-twenty u-sheet__layer">
         <SheetOverlay />
         <DialogPrimitive.Content
           ref={ref}

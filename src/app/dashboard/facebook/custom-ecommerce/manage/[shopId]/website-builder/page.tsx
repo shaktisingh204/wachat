@@ -42,7 +42,7 @@ export default async function WebsiteBuilderPage(props: {
 
   return (
     <CartProvider>
-      <div className="ui20">
+      <div className="20ui">
         <WebsiteBuilder
           shop={shop}
           initialPages={pages}

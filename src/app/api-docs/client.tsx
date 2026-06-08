@@ -103,7 +103,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
                 title="A clean REST API for every module."
                 subtitle="Signed, idempotent, versioned. Hit /v1 from anywhere, your CRM, your dashboards, your bots."
                 extra={
-                    <span className="ui20 inline-flex">
+                    <span className="20ui inline-flex">
                         <Button
                             variant="primary"
                             iconRight={ArrowRight}
@@ -117,7 +117,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
 
             {/* Code sample with language tabs */}
             <SectionWrap>
-                <div className="ui20">
+                <div className="20ui">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text-secondary)]">
                         Hello, SabNode
                     </p>
@@ -152,7 +152,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
 
             {/* Features */}
             <SectionWrap bg="white">
-                <div className="ui20 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div className="20ui grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {FEATURES.map((f, i) => {
                         const Icon = f.icon;
                         return (
@@ -176,7 +176,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
 
             {/* Endpoint list */}
             <SectionWrap>
-                <div className="ui20">
+                <div className="20ui">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--st-text-secondary)]">
                         Common endpoints
                     </p>
@@ -224,7 +224,7 @@ export function ApiDocsClient({ session }: { session?: { user?: unknown } | null
 
             {/* Related */}
             <SectionWrap bg="white">
-                <div className="ui20 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="20ui grid grid-cols-1 gap-4 md:grid-cols-3">
                     {RELATED.map((c, i) => {
                         const Icon = c.icon;
                         return (

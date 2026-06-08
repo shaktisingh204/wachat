@@ -779,7 +779,7 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
   const closeDetail = React.useCallback(() => setDetailApp(null), []);
 
   return (
-    <div className="ui20 mx-auto flex w-full max-w-5xl flex-col gap-6 p-[var(--st-space-6)]">
+    <div className="20ui mx-auto flex w-full max-w-5xl flex-col gap-6 p-[var(--st-space-6)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>

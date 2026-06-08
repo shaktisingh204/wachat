@@ -306,7 +306,7 @@ export function ConflictBanner({
   const reasonText = reasonLabel(active.detail.reason);
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       {/* ------------------------------------------------------------------ */}
       {/* Top banner                                                          */}
       {/* ------------------------------------------------------------------ */}

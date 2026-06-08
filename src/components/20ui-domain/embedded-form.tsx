@@ -311,7 +311,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
 
     if (successMessage) {
         return (
-            <div ref={containerRef} className="ui20 p-8">
+            <div ref={containerRef} className="20ui p-8">
                 <EmptyState
                     icon={CheckCircle}
                     tone="success"
@@ -503,7 +503,7 @@ export const EmbeddedForm: React.FC<EmbeddedFormProps> = ({ form }) => {
     const logoSrc = theme.logoFileUrl || (settings.logoUrl as string | undefined);
 
     return (
-        <div ref={containerRef} className="ui20 p-2">
+        <div ref={containerRef} className="20ui p-2">
             <style>{dynamicStyles}</style>
             <Card padding="none" className="shadow-md w-full" id={uniqueId}>
                 <form onSubmit={handleSubmit(onSubmit)}>

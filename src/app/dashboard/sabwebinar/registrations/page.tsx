@@ -98,7 +98,7 @@ export default function RegistrationsPage() {
 
   return (
     <TooltipProvider>
-      <div className="ui20 flex-1 space-y-6 p-4 md:p-8 pt-6">
+      <div className="20ui flex-1 space-y-6 p-4 md:p-8 pt-6">
         <PageHeader>
           <PageHeaderHeading>
             <PageTitle>Registrations</PageTitle>

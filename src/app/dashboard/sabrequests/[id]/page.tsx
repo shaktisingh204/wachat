@@ -32,7 +32,7 @@ export default async function RequestDetailPage({
         getBlueprintById(reqRes.data.blueprintId),
     ]);
     return (
-        <div className="ui20 p-6">
+        <div className="20ui p-6">
             <RequestDetail
                 request={reqRes.data}
                 blueprint={bpRes.data ?? null}

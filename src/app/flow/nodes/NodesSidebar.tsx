@@ -59,7 +59,7 @@ export function NodesSidebar() {
   }, {} as Record<string, NodeDescriptor[]>);
 
   return (
-    <aside className="ui20 w-72 shrink-0 flex flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] h-full z-10">
+    <aside className="20ui w-72 shrink-0 flex flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] h-full z-10">
       <div className="p-4 border-b border-[var(--st-border)]">
         <Field label="Search nodes">
           <Input

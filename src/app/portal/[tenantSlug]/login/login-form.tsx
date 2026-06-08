@@ -34,7 +34,7 @@ export function PortalLoginForm({ tenantSlug }: { tenantSlug: string }) {
     }
 
     return (
-        <form onSubmit={onSubmit} className="ui20 flex flex-col gap-3">
+        <form onSubmit={onSubmit} className="20ui flex flex-col gap-3">
             <Field label="Email address" error={localError ?? undefined}>
                 <Input
                     id="portal-email"

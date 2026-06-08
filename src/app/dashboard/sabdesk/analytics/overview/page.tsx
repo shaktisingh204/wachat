@@ -71,7 +71,7 @@ export default function AnalyticsOverviewPage() {
         : FEED_ROWS;
 
     return (
-        <div className="ui20 flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Analytics Overview Dashboard</PageTitle>

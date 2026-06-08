@@ -115,7 +115,7 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
     }
 
     return (
-        <div className="ui20 mx-auto flex max-w-md flex-col gap-4 p-6">
+        <div className="20ui mx-auto flex max-w-md flex-col gap-4 p-6">
             <Card padding="lg">
                 <CardHeader>
                     <CardTitle>{isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}</CardTitle>

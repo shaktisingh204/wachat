@@ -76,7 +76,7 @@ export function CustomerLensClient({ token, session }: Props) {
   const isLive = permissionState === 'granted';
 
   return (
-    <div className="ui20 dark flex min-h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex min-h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       <header className="flex items-center justify-between gap-3 border-b border-[var(--st-border)] px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold text-[var(--st-text)]">SabLens</span>

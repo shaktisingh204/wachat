@@ -121,7 +121,7 @@ function EditorContent({
   };
 
   return (
-    <div className="ui20 flex flex-col h-screen overflow-clip bg-[var(--st-bg)]">
+    <div className="20ui flex flex-col h-screen overflow-clip bg-[var(--st-bg)]">
       {/* Header */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 z-30">
         <IconButton

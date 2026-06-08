@@ -13,7 +13,7 @@
  * accent check/dot indicator, and a right-aligned shortcut hint.
  *
  * Both portalled content roots (the menu panel and each submenu panel) carry
- * `className="ui20 sabcrm-twenty"` so the `--st-*` / `--u-*` tokens resolve no
+ * `className="20ui sabcrm-twenty"` so the `--st-*` / `--u-*` tokens resolve no
  * matter where in the app the bar lives (panels render to `document.body`,
  * outside the CRM subtree). The Emil scale-in grows from the Radix-anchored
  * edge via `--radix-menubar-content-transform-origin`.
@@ -116,7 +116,7 @@ export const MenubarContent = React.forwardRef<
       {/* Wrapper carries the system classes so tokens resolve in the body
           portal; it is layout-transparent (display: contents) so it never
           interferes with Radix's fixed positioning of the panel. */}
-      <div className="ui20 sabcrm-twenty u-menubar__portal">
+      <div className="20ui sabcrm-twenty u-menubar__portal">
         <RadixMenubar.Content
           ref={ref}
           align={align}
@@ -284,7 +284,7 @@ export const MenubarSubContent = React.forwardRef<
 >(function MenubarSubContent({ className, sideOffset = 2, alignOffset = -4, portalProps, ...rest }, ref) {
   return (
     <RadixMenubar.Portal {...portalProps}>
-      <div className="ui20 sabcrm-twenty u-menubar__portal">
+      <div className="20ui sabcrm-twenty u-menubar__portal">
         <RadixMenubar.SubContent
           ref={ref}
           sideOffset={sideOffset}

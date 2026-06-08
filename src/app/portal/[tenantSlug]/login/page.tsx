@@ -38,7 +38,7 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
     const errorMessage = error ? ERROR_COPY[error] ?? null : null;
 
     return (
-        <main className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+        <main className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
             <Card variant="elevated" padding="lg" className="w-full max-w-[420px]">
                 <CardHeader>
                     <CardTitle>Sign in to your portal</CardTitle>
@@ -66,7 +66,7 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
 
 export default function PortalLoginPage({ params, searchParams }: PageProps) {
   return (
-    <React.Suspense fallback={<div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] text-sm text-[var(--st-text-secondary)]">Loading...</div>}>
+    <React.Suspense fallback={<div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] text-sm text-[var(--st-text-secondary)]">Loading...</div>}>
       <PortalLoginPageContent params={params} searchParams={searchParams} />
     </React.Suspense>
   );

@@ -155,7 +155,7 @@ export default function SabFlowInvitesPage() {
   }, [sent]);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       <div className="mx-auto max-w-5xl">
         <PageHeader>
           <PageHeaderHeading>

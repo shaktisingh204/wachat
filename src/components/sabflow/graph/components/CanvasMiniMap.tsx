@@ -120,7 +120,7 @@ export function CanvasMiniMap({
   };
 
   return (
-    <div className="ui20 absolute bottom-16 right-4 z-20 h-[100px] w-[160px] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-[var(--st-shadow-lg)]">
+    <div className="20ui absolute bottom-16 right-4 z-20 h-[100px] w-[160px] overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] shadow-[var(--st-shadow-lg)]">
       {/* Close button */}
       <IconButton
         label="Close minimap"

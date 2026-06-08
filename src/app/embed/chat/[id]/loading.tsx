@@ -3,7 +3,7 @@ import { Skeleton } from '@/components/sabcrm/20ui';
 export default function EmbedLoading() {
   return (
     <main
-      className="ui20 m-0 p-0 h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)]"
+      className="20ui m-0 p-0 h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)]"
       aria-busy="true"
       aria-label="Loading chat"
     >

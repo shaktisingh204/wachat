@@ -27,7 +27,7 @@ export default async function ApiTransactionsPage(): Promise<React.JSX.Element> 
     const hasItems = res.items.length > 0;
 
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>API transactions</PageTitle>

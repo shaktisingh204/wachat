@@ -94,7 +94,7 @@ export function ModuleDirectoryClient({
   );
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <div className="mx-auto max-w-5xl px-6 py-8">
         <PageHeader bordered={false} className="mb-8">
           <PageHeaderHeading>

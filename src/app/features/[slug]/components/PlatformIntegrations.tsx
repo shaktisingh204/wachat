@@ -18,7 +18,7 @@ interface PlatformIntegrationsProps {
 
 export function PlatformIntegrations({ color, integrations }: PlatformIntegrationsProps) {
   return (
-    <section className="ui20 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
+    <section className="20ui border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
         <div className="grid grid-cols-12 gap-8 md:gap-12">
           <div className="col-span-12 lg:col-span-6">

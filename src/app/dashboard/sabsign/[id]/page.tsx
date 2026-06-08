@@ -242,7 +242,7 @@ export default function EnvelopeDetailPage() {
 
   if (loading) {
     return (
-      <div className="ui20 p-6 flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+      <div className="20ui p-6 flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
         <Spinner size="sm" />
         Loading
       </div>
@@ -250,7 +250,7 @@ export default function EnvelopeDetailPage() {
   }
   if (!env) {
     return (
-      <div className="ui20 p-6">
+      <div className="20ui p-6">
         <EmptyState
           icon={Inbox}
           title="Envelope not found"
@@ -266,7 +266,7 @@ export default function EnvelopeDetailPage() {
   }
 
   return (
-    <div className="ui20 p-6 max-w-6xl mx-auto space-y-6">
+    <div className="20ui p-6 max-w-6xl mx-auto space-y-6">
       <PageHeader>
         <PageHeaderHeading>
           <div className="flex items-center gap-2 flex-wrap">

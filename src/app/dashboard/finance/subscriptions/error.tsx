@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="ui20 flex h-full flex-col items-center justify-center p-8">
+    <div className="20ui flex h-full flex-col items-center justify-center p-8">
       <EmptyState
         icon={AlertTriangle}
         tone="danger"

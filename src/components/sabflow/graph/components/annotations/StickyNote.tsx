@@ -430,7 +430,7 @@ export function StickyNote({ annotation, onChange, onDelete }: Props) {
           role="menu"
           // Runtime cursor coordinates.
           style={{ top: menuPos.y, left: menuPos.x }}
-          className="ui20 fixed z-[9999] min-w-[200px] select-none rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] py-1.5 shadow-xl"
+          className="20ui fixed z-[9999] min-w-[200px] select-none rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] py-1.5 shadow-xl"
           onContextMenu={(e) => e.preventDefault()}
         >
           {/* Header */}

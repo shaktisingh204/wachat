@@ -214,7 +214,7 @@ export function FlowCanvas({
   }, [deleteNode, selectedId]);
 
   return (
-    <div className="ui20 flex h-full w-full">
+    <div className="20ui flex h-full w-full">
       {/* Node palette */}
       <aside className="flex w-56 shrink-0 flex-col gap-2 overflow-y-auto border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]/30 p-3">
         <p className="px-1 text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">

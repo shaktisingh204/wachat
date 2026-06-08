@@ -125,7 +125,7 @@ export function WorkspaceSettingsPage({
     );
 
   return (
-    <div className="ui20 mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+    <div className="20ui mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
       <PageHeader>
         <div className="flex items-center gap-3">
           <Avatar data-shape="square">

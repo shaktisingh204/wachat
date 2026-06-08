@@ -1371,7 +1371,7 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
   const { prefs, setPrefs, hydrated } = useSecurityPrefs();
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
         <PageHeader>
           <PageHeaderHeading>

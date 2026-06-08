@@ -1,58 +1,58 @@
 /* 20ui showcase — gallery scaffolding (scoped, minimal) */
-:is(.ui20, .sabcrm-twenty) .ux-page {
+:is(.\32 0ui, .sabcrm-twenty) .ux-page {
   max-width: 1080px;
   margin: 0 auto;
   padding: var(--st-space-5) var(--st-space-5) 96px;
 }
-:is(.ui20, .sabcrm-twenty) .ux-hero {
+:is(.\32 0ui, .sabcrm-twenty) .ux-hero {
   margin-bottom: var(--st-space-6);
 }
-:is(.ui20, .sabcrm-twenty) .ux-hero h1 {
+:is(.\32 0ui, .sabcrm-twenty) .ux-hero h1 {
   margin: 0;
   font-size: 28px;
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.02em;
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .ux-hero p {
+:is(.\32 0ui, .sabcrm-twenty) .ux-hero p {
   margin: var(--st-space-2) 0 0;
   max-width: 60ch;
   color: var(--st-text-secondary);
   line-height: 1.6;
 }
-:is(.ui20, .sabcrm-twenty) .ux-section {
+:is(.\32 0ui, .sabcrm-twenty) .ux-section {
   padding: var(--st-space-5) 0;
   border-top: 1px solid var(--st-border-light);
 }
-:is(.ui20, .sabcrm-twenty) .ux-section__head {
+:is(.\32 0ui, .sabcrm-twenty) .ux-section__head {
   display: flex;
   align-items: baseline;
   gap: var(--st-space-3);
   margin-bottom: var(--st-space-4);
 }
-:is(.ui20, .sabcrm-twenty) .ux-section__head h2 {
+:is(.\32 0ui, .sabcrm-twenty) .ux-section__head h2 {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .ux-section__head span {
+:is(.\32 0ui, .sabcrm-twenty) .ux-section__head span {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .ux-row {
+:is(.\32 0ui, .sabcrm-twenty) .ux-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--st-space-3);
   margin-bottom: var(--st-space-3);
 }
-:is(.ui20, .sabcrm-twenty) .ux-grid {
+:is(.\32 0ui, .sabcrm-twenty) .ux-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--st-space-3);
 }
-:is(.ui20, .sabcrm-twenty) .ux-col {
+:is(.\32 0ui, .sabcrm-twenty) .ux-col {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
@@ -60,7 +60,7 @@
 }
 
 /* Premium aurora hero */
-:is(.ui20, .sabcrm-twenty) .ux-aurora-hero {
+:is(.\32 0ui, .sabcrm-twenty) .ux-aurora-hero {
   margin-bottom: var(--st-space-6);
   padding: 48px 0 40px;
   display: flex;
@@ -68,7 +68,7 @@
   align-items: flex-start;
   gap: var(--st-space-3);
 }
-:is(.ui20, .sabcrm-twenty) .ux-hero-title {
+:is(.\32 0ui, .sabcrm-twenty) .ux-hero-title {
   margin: 4px 0 0;
   font-size: clamp(30px, 5vw, 46px);
   line-height: 1.05;
@@ -77,7 +77,7 @@
   color: var(--st-text);
   max-width: 18ch;
 }
-:is(.ui20, .sabcrm-twenty) .ux-hero-sub {
+:is(.\32 0ui, .sabcrm-twenty) .ux-hero-sub {
   margin: 0;
   max-width: 60ch;
   font-size: var(--st-font-size-lg);

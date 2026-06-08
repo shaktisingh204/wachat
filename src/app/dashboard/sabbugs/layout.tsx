@@ -23,7 +23,7 @@ export default function BugTrackerLayout({
   const router = useRouter();
 
   return (
-    <div className="ui20 flex w-full flex-col gap-4 p-4 md:p-6">
+    <div className="20ui flex w-full flex-col gap-4 p-4 md:p-6">
       <nav
         aria-label="Bug Tracker"
         className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] pb-3"

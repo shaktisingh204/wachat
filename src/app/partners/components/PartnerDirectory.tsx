@@ -47,7 +47,7 @@ export function PartnerDirectory() {
   });
 
   return (
-    <div className="ui20 mt-16 space-y-6">
+    <div className="20ui mt-16 space-y-6">
       <PageHeader bordered={false} compact>
         <PageHeaderHeading>
           <PageTitle>Partner Directory</PageTitle>

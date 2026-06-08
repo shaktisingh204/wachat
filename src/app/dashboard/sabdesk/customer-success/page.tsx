@@ -518,7 +518,7 @@ export default function CustomerSuccessDashboard() {
   ];
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] pb-20">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] pb-20">
       {/* Top Navigation Bar / Header */}
       <header className="sticky top-0 z-50 bg-[var(--st-bg)]/80 backdrop-blur-xl border-b border-[var(--st-border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">

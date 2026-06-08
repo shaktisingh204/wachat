@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="ui20 mt-4 flex min-h-[400px] items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8">
+    <div className="20ui mt-4 flex min-h-[400px] items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-8">
       <EmptyState
         icon={AlertTriangle}
         tone="danger"

@@ -7,5 +7,5 @@ import React from 'react';
  * webmail UX renders its own three-pane layout inside `[accountId]/`.
  */
 export default function MailboxLayout({ children }: { children: React.ReactNode }) {
-    return <div className="ui20 min-h-full">{children}</div>;
+    return <div className="20ui min-h-full">{children}</div>;
 }

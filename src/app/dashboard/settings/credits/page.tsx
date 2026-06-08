@@ -65,7 +65,7 @@ export default function CreditsSettingsPage() {
   const wallet = user?.wallet;
 
   return (
-    <div className="ui20 flex min-h-full flex-col gap-6">
+    <div className="20ui flex min-h-full flex-col gap-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

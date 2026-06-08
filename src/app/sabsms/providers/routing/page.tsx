@@ -347,7 +347,7 @@ export default function RoutingPage() {
   const activeIndex = providers.findIndex((p) => p.id === activeId);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 lg:p-12">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 lg:p-12">
       <div className="max-w-7xl mx-auto space-y-10">
         {/* Header */}
         <PageHeader>

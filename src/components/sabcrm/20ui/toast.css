@@ -4,7 +4,7 @@
    Radix portals this to <body>; we keep it pinned bottom-right with a tight
    column gap. It sits above modals/popovers and is itself non-interactive
    except for the toasts inside it. */
-:is(.ui20, .sabcrm-twenty) .u-toast-viewport {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast-viewport {
   position: fixed;
   right: 0;
   bottom: 0;
@@ -21,7 +21,7 @@
 }
 
 /* ----- Toast surface ----- */
-:is(.ui20, .sabcrm-twenty) .u-toast {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast {
   position: relative;
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -41,20 +41,20 @@
 }
 
 /* The left tinted edge — a slim coloured rail keyed to the tone. */
-:is(.ui20, .sabcrm-twenty) .u-toast__edge {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__edge {
   position: absolute;
   inset: 0 auto 0 0;
   width: 3px;
   background: var(--u-toast-edge);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-toast__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__icon {
   grid-row: 1 / span 2;
   margin-top: 1px;
   color: var(--u-toast-icon);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-toast__body {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__body {
   grid-column: 2;
   min-width: 0;
   display: flex;
@@ -62,7 +62,7 @@
   gap: 2px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-toast__title {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__title {
   margin: 0;
   color: var(--st-text);
   font-family: var(--st-font);
@@ -71,7 +71,7 @@
   line-height: 1.35;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-toast__desc {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__desc {
   margin: 0;
   color: var(--st-text-secondary);
   font-family: var(--st-font);
@@ -81,7 +81,7 @@
 }
 
 /* ----- Inline action button ----- */
-:is(.ui20, .sabcrm-twenty) .u-toast__action {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__action {
   grid-column: 2;
   justify-self: start;
   margin-top: var(--st-space-1);
@@ -101,20 +101,20 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__action:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__action:hover {
   background: var(--st-hover);
   border-color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__action:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__action:active {
   transform: scale(0.97);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__action:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__action:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Close button ----- */
-:is(.ui20, .sabcrm-twenty) .u-toast__close {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__close {
   grid-column: 3;
   grid-row: 1;
   display: inline-flex;
@@ -134,36 +134,36 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__close:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__close:hover {
   background: var(--st-hover);
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__close:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__close:active {
   transform: scale(0.92);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast__close:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast__close:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Tones: tinted edge + icon ----- */
-:is(.ui20, .sabcrm-twenty) .u-toast--info {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast--info {
   --u-toast-edge: var(--st-accent);
   --u-toast-icon: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast--success {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast--success {
   --u-toast-edge: var(--st-status-ok);
   --u-toast-icon: var(--st-status-ok);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast--warning {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast--warning {
   --u-toast-edge: var(--st-warn);
   --u-toast-icon: var(--st-warn);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast--danger {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast--danger {
   --u-toast-edge: var(--st-danger);
   --u-toast-icon: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast--neutral {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast--neutral {
   --u-toast-edge: var(--st-text-tertiary);
   --u-toast-icon: var(--st-text-secondary);
 }
@@ -172,23 +172,23 @@
    Radix drives state via [data-state] + [data-swipe] and exposes the live swipe
    offset in --radix-toast-swipe-move-x. Transform/opacity only, custom ease,
    sub-250ms — Emil-clean. */
-:is(.ui20, .sabcrm-twenty) .u-toast[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast[data-state='open'] {
   animation: u-toast-in var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-toast[data-state='closed'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast[data-state='closed'] {
   animation: u-toast-out var(--u-dur) var(--u-ease-out);
 }
 /* While dragging, follow the pointer 1:1 with no transition. */
-:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='move'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast[data-swipe='move'] {
   transform: translateX(var(--radix-toast-swipe-move-x));
 }
 /* Released below threshold — snap back to rest. */
-:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
   transform: translateX(0);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
 /* Released past threshold — fling out and let Radix close it. */
-:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='end'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-toast[data-swipe='end'] {
   animation: u-toast-swipe-out var(--u-dur) var(--u-ease-out);
 }
 
@@ -225,20 +225,20 @@
 
 /* ----- Reduced motion: fade only, no movement ----- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-toast[data-state='open'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast[data-state='open'] {
     animation: u-toast-fade-in var(--u-dur) var(--u-ease-out);
   }
-  :is(.ui20, .sabcrm-twenty) .u-toast[data-state='closed'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast[data-state='closed'] {
     animation: u-toast-fade-out var(--u-dur-fast) var(--u-ease-out);
   }
-  :is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='end'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast[data-swipe='end'] {
     animation: u-toast-fade-out var(--u-dur-fast) var(--u-ease-out);
   }
-  :is(.ui20, .sabcrm-twenty) .u-toast__action:active,
-  :is(.ui20, .sabcrm-twenty) .u-toast__close:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast__action:active,
+  :is(.\32 0ui, .sabcrm-twenty) .u-toast__close:active {
     transform: none;
   }
   @keyframes u-toast-fade-in {

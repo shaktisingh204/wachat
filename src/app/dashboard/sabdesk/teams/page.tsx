@@ -186,7 +186,7 @@ export default function TeamsPage() {
   const deptItems = departments.slice(0, 4).map((d) => ({ value: d, label: d }));
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 font-sans">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 font-sans">
       <div className="max-w-[1400px] mx-auto space-y-6">
         {/* Header */}
         <PageHeader>

@@ -78,7 +78,7 @@ export default async function MailboxLandingPage() {
     const noDomains = domains.length === 0;
 
     return (
-        <div className="ui20 mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
+        <div className="20ui mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Mailbox</PageTitle>

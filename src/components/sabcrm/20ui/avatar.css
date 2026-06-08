@@ -9,7 +9,7 @@
    A 36px circular frame by default; one radius token, swapped to the square
    corner radius via `data-shape="square"`. Both slots fill the frame and inherit
    its radius, so the container owns the single source of truth for the shape. */
-:is(.ui20, .sabcrm-twenty) .u-avatar {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar {
   position: relative;
   display: inline-flex;
   flex: 0 0 auto;
@@ -20,11 +20,11 @@
   background: var(--st-bg-muted, var(--st-bg-secondary));
   user-select: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar[data-shape='square'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar[data-shape='square'] {
   border-radius: var(--st-radius);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar__img {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar__img {
   width: 100%;
   height: 100%;
   aspect-ratio: 1 / 1;
@@ -34,7 +34,7 @@
   animation: u-avatar-fade-in var(--u-dur-fast, 180ms) var(--u-ease-out, ease-out);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar__fallback {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar__fallback {
   display: flex;
   width: 100%;
   height: 100%;
@@ -58,7 +58,7 @@
   }
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar-group {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group {
   display: inline-flex;
   align-items: center;
   /* per-size overlap distance, set by the size modifiers below */
@@ -67,7 +67,7 @@
 
 /* The ring + overlap live on the wrapping item so they apply uniformly to the
    real avatar and the overflow chip, and so the avatar primitive stays untouched. */
-:is(.ui20, .sabcrm-twenty) .u-avatar-group__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item {
   display: inline-flex;
   flex: 0 0 auto;
   border-radius: 50%;
@@ -75,24 +75,24 @@
   box-shadow: 0 0 0 2px var(--st-bg);
   transition: transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-group__item + .u-avatar-group__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item + .u-avatar-group__item {
   margin-left: calc(var(--u-avatar-overlap) * -1);
 }
 
 /* Square avatars round their ring to match the 4px primitive corners. */
-:is(.ui20, .sabcrm-twenty) .u-avatar-group__item:has(.st-avatar--square) {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item:has(.st-avatar--square) {
   border-radius: var(--st-radius-sm);
 }
 
 /* Earlier avatars paint under later ones; nudge the hovered one forward so it
    lifts cleanly out of the stack (Emil: transform-only, instant-feeling). */
-:is(.ui20, .sabcrm-twenty) .u-avatar-group__item:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item:hover {
   transform: translateY(-1px);
   z-index: 1;
 }
 
 /* ----- "+N" overflow chip ----- */
-:is(.ui20, .sabcrm-twenty) .u-avatar-overflow {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-overflow {
   align-items: center;
   justify-content: center;
   width: 24px;
@@ -105,55 +105,55 @@
   line-height: 1;
   user-select: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-overflow--square {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-overflow--square {
   border-radius: var(--st-radius-sm);
 }
 
 /* ----- Sizes — match the .st-avatar primitive footprints + chip sizing -----
    xs 14 · sm 18 · md 24 · lg 40. Overlap scales with the avatar. */
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--xs {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--xs {
   --u-avatar-overlap: 5px;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--xs .u-avatar-overflow {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--xs .u-avatar-overflow {
   width: 14px;
   height: 14px;
   font-size: 8px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--sm {
   --u-avatar-overlap: 6px;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--sm .u-avatar-overflow {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--sm .u-avatar-overflow {
   width: 18px;
   height: 18px;
   font-size: 9px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--md {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--md {
   --u-avatar-overlap: 8px;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--md .u-avatar-overflow {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--md .u-avatar-overflow {
   width: 24px;
   height: 24px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--lg {
   --u-avatar-overlap: 13px;
 }
-:is(.ui20, .sabcrm-twenty) .u-avatar-group--lg .u-avatar-overflow {
+:is(.\32 0ui, .sabcrm-twenty) .u-avatar-group--lg .u-avatar-overflow {
   width: 40px;
   height: 40px;
   font-size: var(--st-font-size);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-avatar-group__item {
+  :is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-avatar-group__item:hover {
+  :is(.\32 0ui, .sabcrm-twenty) .u-avatar-group__item:hover {
     transform: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-avatar__img {
+  :is(.\32 0ui, .sabcrm-twenty) .u-avatar__img {
     animation: none;
   }
 }

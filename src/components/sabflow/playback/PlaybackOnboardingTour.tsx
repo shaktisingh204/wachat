@@ -279,7 +279,7 @@ export function PlaybackOnboardingTour({
 
   return createPortal(
     <div
-      className="ui20"
+      className="20ui"
       data-sabflow-playback-tour=""
       aria-live="polite"
     >

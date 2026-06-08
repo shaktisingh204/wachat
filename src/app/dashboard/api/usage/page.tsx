@@ -54,7 +54,7 @@ export default async function UsagePage(): Promise<JSX.Element> {
   }
 
   return (
-    <div className="ui20 flex min-h-full flex-col gap-6">
+    <div className="20ui flex min-h-full flex-col gap-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

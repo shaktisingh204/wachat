@@ -152,7 +152,7 @@ export default async function HomePage() {
 
   return (
     <HomeMotionShell>
-      <div className="ui20 mx-auto w-full max-w-[1400px] px-6 pt-6 pb-12 space-y-4">
+      <div className="20ui mx-auto w-full max-w-[1400px] px-6 pt-6 pb-12 space-y-4">
         {/* Hero ribbon */}
         <Card variant="outlined" padding="md" aria-label="Welcome">
           <PageHeader bordered={false} compact>

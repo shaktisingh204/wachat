@@ -26,7 +26,7 @@ export default async function NewRequestPage({
     const sp = await searchParams;
     const blueprints = await listBlueprints({ published: true, limit: 100 });
     return (
-        <div className="ui20 flex flex-col gap-6 p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>New request</PageTitle>

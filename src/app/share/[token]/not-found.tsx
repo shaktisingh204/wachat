@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
     return (
-        <main className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg)] p-4">
+        <main className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg)] p-4">
             <Card variant="elevated" padding="lg" className="w-full max-w-md">
                 <EmptyState
                     icon={FileQuestion}

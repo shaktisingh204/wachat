@@ -15,7 +15,7 @@
  * / Header / Footer / Title / Description / Close) with `asChild` triggers.
  *
  * The portalled overlay + content mount to `document.body`, so the layer wrapper
- * carries `className="ui20 sabcrm-twenty"` — that way the `--st-*` / `--u-*`
+ * carries `className="20ui sabcrm-twenty"` — that way the `--st-*` / `--u-*`
  * tokens resolve no matter where in the app the trigger lives.
  *
  *   <Dialog>
@@ -100,7 +100,7 @@ export const DialogContent = React.forwardRef<
   return (
     <RadixDialog.Portal {...portalProps}>
       {/* The wrapper centres the panel + scopes tokens in the body portal. */}
-      <div className="ui20 sabcrm-twenty u-dialog-layer">
+      <div className="20ui sabcrm-twenty u-dialog-layer">
         <DialogOverlay className={overlayClassName} />
         <RadixDialog.Content ref={ref} className={cx('u-dialog', className)} {...rest}>
           {children}

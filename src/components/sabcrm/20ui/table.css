@@ -3,7 +3,7 @@
 /* ===================================================================== */
 /* Table root                                                            */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-table {
+:is(.\32 0ui, .sabcrm-twenty) .u-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -15,12 +15,12 @@
 
 /* Density: cells set their own vertical padding via these vars so a single
    knob retunes the whole rhythm. */
-:is(.ui20, .sabcrm-twenty) .u-table--comfortable {
+:is(.\32 0ui, .sabcrm-twenty) .u-table--comfortable {
   --u-table-pad-y: 10px;
   --u-table-pad-x: var(--st-space-3);
   --u-table-head-h: 36px;
 }
-:is(.ui20, .sabcrm-twenty) .u-table--compact {
+:is(.\32 0ui, .sabcrm-twenty) .u-table--compact {
   --u-table-pad-y: var(--st-space-1);
   --u-table-pad-x: var(--st-space-2);
   --u-table-head-h: 30px;
@@ -29,10 +29,10 @@
 /* ===================================================================== */
 /* Header                                                                */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-thead {
+:is(.\32 0ui, .sabcrm-twenty) .u-thead {
   background: var(--st-bg-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-th {
+:is(.\32 0ui, .sabcrm-twenty) .u-th {
   height: var(--u-table-head-h, 36px);
   padding: 0 var(--u-table-pad-x, var(--st-space-3));
   border-bottom: 1px solid var(--st-border);
@@ -45,23 +45,23 @@
   vertical-align: middle;
   user-select: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-th--left {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--left {
   text-align: left;
 }
-:is(.ui20, .sabcrm-twenty) .u-th--center {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--center {
   text-align: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-th--right {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--right {
   text-align: right;
 }
-:is(.ui20, .sabcrm-twenty) .u-th__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__label {
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Sticky header — engages when the table lives inside a scroll container. */
-:is(.ui20, .sabcrm-twenty) .u-table--sticky .u-thead .u-th {
+:is(.\32 0ui, .sabcrm-twenty) .u-table--sticky .u-thead .u-th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -71,10 +71,10 @@
 }
 
 /* Sortable header — the label is a real button so it is keyboard reachable. */
-:is(.ui20, .sabcrm-twenty) .u-th--sortable {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--sortable {
   padding: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-th__sort {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__sort {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-1);
@@ -93,27 +93,27 @@
     background var(--u-dur-fast) var(--u-ease-out),
     color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-th--right .u-th__sort {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--right .u-th__sort {
   justify-content: flex-end;
 }
-:is(.ui20, .sabcrm-twenty) .u-th--center .u-th__sort {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--center .u-th__sort {
   justify-content: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-th__sort:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__sort:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-th__sort:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__sort:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
   border-radius: var(--st-radius-sm);
 }
-:is(.ui20, .sabcrm-twenty) .u-th.is-sorted {
+:is(.\32 0ui, .sabcrm-twenty) .u-th.is-sorted {
   color: var(--st-text);
 }
 
 /* Sort caret — dimmed until the column is active, then it carries the accent. */
-:is(.ui20, .sabcrm-twenty) .u-th__caret {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__caret {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   opacity: 0;
@@ -122,10 +122,10 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-th__sort:hover .u-th__caret {
+:is(.\32 0ui, .sabcrm-twenty) .u-th__sort:hover .u-th__caret {
   opacity: 0.6;
 }
-:is(.ui20, .sabcrm-twenty) .u-th.is-sorted .u-th__caret {
+:is(.\32 0ui, .sabcrm-twenty) .u-th.is-sorted .u-th__caret {
   opacity: 1;
   color: var(--st-accent);
 }
@@ -133,28 +133,28 @@
 /* ===================================================================== */
 /* Body                                                                  */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-td {
+:is(.\32 0ui, .sabcrm-twenty) .u-td {
   padding: var(--u-table-pad-y, 10px) var(--u-table-pad-x, var(--st-space-3));
   border-bottom: 1px solid var(--st-border-light);
   color: var(--st-text);
   vertical-align: middle;
 }
-:is(.ui20, .sabcrm-twenty) .u-td--left {
+:is(.\32 0ui, .sabcrm-twenty) .u-td--left {
   text-align: left;
 }
-:is(.ui20, .sabcrm-twenty) .u-td--center {
+:is(.\32 0ui, .sabcrm-twenty) .u-td--center {
   text-align: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-td--right {
+:is(.\32 0ui, .sabcrm-twenty) .u-td--right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
 /* Truncating cells need a constrained inner block to ellipsize. */
-:is(.ui20, .sabcrm-twenty) .u-td--truncate {
+:is(.\32 0ui, .sabcrm-twenty) .u-td--truncate {
   max-width: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-td__inner {
+:is(.\32 0ui, .sabcrm-twenty) .u-td__inner {
   display: block;
   overflow: hidden;
   white-space: nowrap;
@@ -162,31 +162,31 @@
 }
 
 /* The last body row drops its hairline so it sits flush with a card edge. */
-:is(.ui20, .sabcrm-twenty) .u-tbody .u-tr:last-child .u-td {
+:is(.\32 0ui, .sabcrm-twenty) .u-tbody .u-tr:last-child .u-td {
   border-bottom: none;
 }
 
 /* Row interactions */
-:is(.ui20, .sabcrm-twenty) .u-tr {
+:is(.\32 0ui, .sabcrm-twenty) .u-tr {
   background: var(--st-bg);
   transition: background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-table--zebra .u-tbody .u-tr:nth-child(even) {
+:is(.\32 0ui, .sabcrm-twenty) .u-table--zebra .u-tbody .u-tr:nth-child(even) {
   background: var(--st-bg-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-table--hover .u-tbody .u-tr:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-table--hover .u-tbody .u-tr:hover {
   background: var(--st-hover);
 }
-:is(.ui20, .sabcrm-twenty) .u-tr.is-selected,
-:is(.ui20, .sabcrm-twenty) .u-table--hover .u-tbody .u-tr.is-selected:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-tr.is-selected,
+:is(.\32 0ui, .sabcrm-twenty) .u-table--hover .u-tbody .u-tr.is-selected:hover {
   background: var(--st-accent-soft);
 }
 
 /* Clickable rows behave like a control: pointer + keyboard focus ring. */
-:is(.ui20, .sabcrm-twenty) .u-tr--clickable {
+:is(.\32 0ui, .sabcrm-twenty) .u-tr--clickable {
   cursor: pointer;
 }
-:is(.ui20, .sabcrm-twenty) .u-tr--clickable:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-tr--clickable:focus-visible {
   outline: none;
   box-shadow: inset var(--u-focus-ring);
 }
@@ -194,15 +194,15 @@
 /* ===================================================================== */
 /* Footer + caption                                                      */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-tfoot .u-td,
-:is(.ui20, .sabcrm-twenty) .u-tfoot td {
+:is(.\32 0ui, .sabcrm-twenty) .u-tfoot .u-td,
+:is(.\32 0ui, .sabcrm-twenty) .u-tfoot td {
   border-top: 1px solid var(--st-border);
   border-bottom: none;
   background: var(--st-bg-secondary);
   color: var(--st-text-secondary);
   font-weight: var(--st-fw-medium);
 }
-:is(.ui20, .sabcrm-twenty) .u-tcaption {
+:is(.\32 0ui, .sabcrm-twenty) .u-tcaption {
   padding: var(--st-space-2) var(--u-table-pad-x, var(--st-space-3));
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
@@ -213,13 +213,13 @@
 /* ===================================================================== */
 /* Checkbox column                                                       */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-th--checkbox,
-:is(.ui20, .sabcrm-twenty) .u-td--checkbox {
+:is(.\32 0ui, .sabcrm-twenty) .u-th--checkbox,
+:is(.\32 0ui, .sabcrm-twenty) .u-td--checkbox {
   width: 1%;
   padding-right: var(--st-space-2);
   white-space: nowrap;
 }
-:is(.ui20, .sabcrm-twenty) .u-table__checkbox {
+:is(.\32 0ui, .sabcrm-twenty) .u-table__checkbox {
   width: 15px;
   height: 15px;
   margin: 0;
@@ -227,7 +227,7 @@
   cursor: pointer;
   vertical-align: middle;
 }
-:is(.ui20, .sabcrm-twenty) .u-table__checkbox:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-table__checkbox:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
   border-radius: var(--st-radius-sm);
@@ -236,16 +236,16 @@
 /* ===================================================================== */
 /* DataTable wrapper                                                     */
 /* ===================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-datatable {
+:is(.\32 0ui, .sabcrm-twenty) .u-datatable {
   width: 100%;
 }
 
 /* Empty state — mirrors the 20ui EmptyState look (chip + title + muted copy). */
-:is(.ui20, .sabcrm-twenty) .u-td--empty {
+:is(.\32 0ui, .sabcrm-twenty) .u-td--empty {
   padding: 0;
   border-bottom: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-table-empty {
+:is(.\32 0ui, .sabcrm-twenty) .u-table-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -253,7 +253,7 @@
   padding: var(--st-space-6) var(--st-space-4);
   text-align: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-table-empty__chip {
+:is(.\32 0ui, .sabcrm-twenty) .u-table-empty__chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -265,14 +265,14 @@
   color: var(--st-text-tertiary);
   animation: u-table-chip-in var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-table-empty__title {
+:is(.\32 0ui, .sabcrm-twenty) .u-table-empty__title {
   margin: 0;
   color: var(--st-text);
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.01em;
 }
-:is(.ui20, .sabcrm-twenty) .u-table-empty__desc {
+:is(.\32 0ui, .sabcrm-twenty) .u-table-empty__desc {
   margin: 0;
   max-width: 38ch;
   color: var(--st-text-secondary);
@@ -295,10 +295,10 @@
 /* Reduced motion                                                        */
 /* ===================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-th__caret {
+  :is(.\32 0ui, .sabcrm-twenty) .u-th__caret {
     transition: opacity var(--u-dur-fast) var(--u-ease-out), color var(--u-dur-fast) var(--u-ease-out);
   }
-  :is(.ui20, .sabcrm-twenty) .u-table-empty__chip {
+  :is(.\32 0ui, .sabcrm-twenty) .u-table-empty__chip {
     animation: none;
   }
 }

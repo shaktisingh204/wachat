@@ -1,11 +1,11 @@
 /* 20ui · Pagination */
 
-:is(.ui20, .sabcrm-twenty) .u-pagination {
+:is(.\32 0ui, .sabcrm-twenty) .u-pagination {
   display: inline-flex;
   max-width: 100%;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-pagination__list {
+:is(.\32 0ui, .sabcrm-twenty) .u-pagination__list {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -16,7 +16,7 @@
 }
 
 /* ----- A page cell (shared by numbers, nav arrows, and gaps) ----- */
-:is(.ui20, .sabcrm-twenty) .u-page {
+:is(.\32 0ui, .sabcrm-twenty) .u-page {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -44,26 +44,26 @@
     transform 80ms var(--u-ease-out);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-page:hover:not(:disabled):not(.is-current) {
+:is(.\32 0ui, .sabcrm-twenty) .u-page:hover:not(:disabled):not(.is-current) {
   background: var(--st-hover);
   border-color: var(--st-border-strong);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-page:active:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-page:active:not(:disabled) {
   transform: scale(0.97);
 }
-:is(.ui20, .sabcrm-twenty) .u-page:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-page:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-:is(.ui20, .sabcrm-twenty) .u-page:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-page:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 /* ----- Current page — the single accent moment ----- */
-:is(.ui20, .sabcrm-twenty) .u-page.is-current {
+:is(.\32 0ui, .sabcrm-twenty) .u-page.is-current {
   background: var(--st-accent-grad, var(--st-accent));
   border-color: transparent;
   color: var(--st-text-inverted, #fff);
@@ -73,21 +73,21 @@
     0 1px 2px rgba(16, 24, 40, 0.12),
     0 0 0 1px var(--st-accent-ring) inset;
 }
-:is(.ui20, .sabcrm-twenty) .u-page.is-current:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-page.is-current:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Prev / Next ----- */
-:is(.ui20, .sabcrm-twenty) .u-page--nav {
+:is(.\32 0ui, .sabcrm-twenty) .u-page--nav {
   padding: 0 var(--st-space-3);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-page__nav-label {
+:is(.\32 0ui, .sabcrm-twenty) .u-page__nav-label {
   font-size: var(--st-font-size-sm);
 }
 
 /* ----- Ellipsis gap — inert, no border, no hover ----- */
-:is(.ui20, .sabcrm-twenty) .u-page--gap {
+:is(.\32 0ui, .sabcrm-twenty) .u-page--gap {
   border-color: transparent;
   background: transparent;
   color: var(--st-text-tertiary);
@@ -96,23 +96,23 @@
 }
 
 /* ----- Compact size ----- */
-:is(.ui20, .sabcrm-twenty) .u-pagination--compact .u-page {
+:is(.\32 0ui, .sabcrm-twenty) .u-pagination--compact .u-page {
   min-width: 26px;
   height: 26px;
   padding: 0 var(--st-space-1);
   font-size: var(--st-font-size-sm);
   border-radius: var(--st-radius-sm);
 }
-:is(.ui20, .sabcrm-twenty) .u-pagination--compact .u-page--nav {
+:is(.\32 0ui, .sabcrm-twenty) .u-pagination--compact .u-page--nav {
   padding: 0 var(--st-space-2);
 }
 /* In compact mode the word labels give way to the chevrons alone. */
-:is(.ui20, .sabcrm-twenty) .u-pagination--compact .u-page__nav-label {
+:is(.\32 0ui, .sabcrm-twenty) .u-pagination--compact .u-page__nav-label {
   display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-page:active:not(:disabled) {
+  :is(.\32 0ui, .sabcrm-twenty) .u-page:active:not(:disabled) {
     transform: none;
   }
 }

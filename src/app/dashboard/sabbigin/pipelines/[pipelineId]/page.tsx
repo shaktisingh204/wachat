@@ -57,7 +57,7 @@ export default async function PipelineDetailPage({
   const stages = pipeline.stages ?? [];
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <EntityDetailShell
         title={pipeline.name}
         eyebrow="PIPELINE"

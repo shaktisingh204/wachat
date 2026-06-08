@@ -9,7 +9,7 @@ export default async function AdminDispositionsPage() {
     const items = resp.items ?? [];
 
     return (
-        <div className="ui20 flex flex-1 flex-col gap-6 min-h-0 p-6">
+        <div className="20ui flex flex-1 flex-col gap-6 min-h-0 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Dispositions</PageTitle>

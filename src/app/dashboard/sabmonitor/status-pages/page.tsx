@@ -22,7 +22,7 @@ export default async function StatusPagesIndex(): Promise<React.JSX.Element> {
     const res = await listSabmonitorStatusPages();
 
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader compact>
                 <PageHeaderHeading>
                     <PageTitle>Status pages</PageTitle>

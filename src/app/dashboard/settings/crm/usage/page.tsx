@@ -363,7 +363,7 @@ export default function SabcrmUsageSettingsPage(): React.JSX.Element {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-8">
         <PageHeader bordered>
           <PageHeaderHeading>

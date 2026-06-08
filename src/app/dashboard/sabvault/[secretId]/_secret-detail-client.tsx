@@ -124,7 +124,7 @@ export function SecretDetailClient({ secret }: { secret: SabvaultSecretDoc }) {
     }
 
     return (
-        <div className="ui20 mx-auto flex max-w-3xl flex-col gap-4 p-6">
+        <div className="20ui mx-auto flex max-w-3xl flex-col gap-4 p-6">
             <PageHeader bordered={false} compact>
                 <PageHeaderHeading>
                     <Button

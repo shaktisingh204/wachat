@@ -159,7 +159,7 @@ export function Modal({
   if (!mounted || !open) return null;
 
   const overlay = (
-    <div className="ui20 sabcrm-twenty u-modal-overlay" onMouseDown={onClose}>
+    <div className="20ui sabcrm-twenty u-modal-overlay" onMouseDown={onClose}>
       <div
         ref={panelRef}
         role="dialog"

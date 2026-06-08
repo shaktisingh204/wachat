@@ -155,7 +155,7 @@ export function RewardsPortalClient({
   }, [referralUrl, toast]);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4 md:p-8">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] p-4 md:p-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <PageHeader bordered={false}>
           <PageHeaderHeading>

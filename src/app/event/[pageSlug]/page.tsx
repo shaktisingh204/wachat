@@ -47,7 +47,7 @@ export default async function PublicEventPage({ params }: PageProps) {
 
   return (
     <main
-      className="ui20 dark min-h-screen px-4 py-10 md:px-12"
+      className="20ui dark min-h-screen px-4 py-10 md:px-12"
       style={{ backgroundColor: bg }}
     >
       <section className="mx-auto max-w-5xl">

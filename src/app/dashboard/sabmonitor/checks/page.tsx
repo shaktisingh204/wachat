@@ -46,7 +46,7 @@ export default async function SabmonitorChecksPage(): Promise<React.JSX.Element>
     );
 
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader compact>
                 <PageHeaderHeading>
                     <PageTitle>Checks</PageTitle>

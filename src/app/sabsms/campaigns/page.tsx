@@ -332,7 +332,7 @@ export default function CampaignsPage() {
   });
 
   return (
-    <div className="ui20 flex flex-col min-h-screen bg-[var(--st-bg-secondary)]">
+    <div className="20ui flex flex-col min-h-screen bg-[var(--st-bg-secondary)]">
       {/* Header Area */}
       <div className="border-b border-[var(--st-border)] bg-[var(--st-bg)]">
         <div className="mx-auto w-full max-w-[1600px] px-6 py-8 md:py-12">

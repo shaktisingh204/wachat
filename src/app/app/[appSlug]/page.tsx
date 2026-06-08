@@ -44,7 +44,7 @@ export default async function SabcreatorRuntimePage({
   ]);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg-secondary)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg-secondary)]">
       <div className="px-6 py-8 space-y-6 max-w-5xl mx-auto">
         <PageHeader>
           <div>

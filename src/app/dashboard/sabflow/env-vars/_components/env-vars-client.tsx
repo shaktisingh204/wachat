@@ -165,7 +165,7 @@ export function EnvVarsClient() {
   }, [confirmDelete, toast]);
 
   return (
-    <div className="ui20 flex flex-col h-full">
+    <div className="20ui flex flex-col h-full">
       {/* Header */}
       <div className="border-b border-[var(--st-border)] px-4 sm:px-6">
         <div className="flex flex-wrap items-center gap-3 py-4">

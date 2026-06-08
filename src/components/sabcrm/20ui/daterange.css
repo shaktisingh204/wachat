@@ -1,18 +1,18 @@
 /* 20ui · DateRangePicker
    A trigger field (Input-styled) that opens the reused range `Calendar` in a
    body-mounted portal popover. Every selector is scoped under
-   :is(.ui20, .sabcrm-twenty) so the tokens resolve both app-wide and inside the
+   :is(.\32 0ui, .sabcrm-twenty) so the tokens resolve both app-wide and inside the
    CRM; the popover mounts to document.body carrying both root classes. The
    calendar grid itself is styled by datepicker.css (the `u-cal__*` map). */
 
 /* ── Trigger field ──────────────────────────────────────────────────────── */
-:is(.ui20, .sabcrm-twenty) .u-daterange {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange {
   position: relative;
   display: inline-block;
   width: 100%;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -32,28 +32,28 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger:hover:not(:disabled) {
   border-color: var(--st-border-strong);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger:focus-visible,
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger[aria-expanded='true'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger:focus-visible,
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger[aria-expanded='true'] {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger:disabled {
   background: var(--st-bg-secondary);
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-daterange__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 
 /* The label region: "start <arrow> end". `min-width: 0` lets it ellipsize
    inside the flex trigger rather than overflowing. */
-:is(.ui20, .sabcrm-twenty) .u-daterange__value {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__value {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -63,44 +63,44 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__date {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__date {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   font-variant-numeric: tabular-nums;
 }
 /* The second slot before the end date is chosen — muted, lighter. */
-:is(.ui20, .sabcrm-twenty) .u-daterange__date--pending {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__date--pending {
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__sep {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__sep {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 
 /* Placeholder colour when nothing is chosen (data-placeholder set on trigger). */
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger[data-placeholder] .u-daterange__value {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger[data-placeholder] .u-daterange__value {
   color: var(--st-text-tertiary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-daterange__caret {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__caret {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   transition: transform var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__trigger[aria-expanded='true'] .u-daterange__caret {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__trigger[aria-expanded='true'] .u-daterange__caret {
   transform: rotate(180deg);
 }
 /* Keeps the trigger's right edge aligned when the caret is swapped for the
    overlaid clear button (same width as the clear hit area). */
-:is(.ui20, .sabcrm-twenty) .u-daterange__caret-spacer {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__caret-spacer {
   flex: 0 0 auto;
   width: 18px;
   height: 1px;
 }
 
 /* ── Inline clear button (overlay, not nested in the trigger) ───────────── */
-:is(.ui20, .sabcrm-twenty) .u-daterange__clear {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear {
   position: absolute;
   top: 50%;
   right: var(--st-space-2);
@@ -121,20 +121,20 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__clear:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__clear:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear:active {
   transform: translateY(-50%) scale(0.9);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__clear:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ── Popover surface (mounts on document.body via StPortalPopover) ──────── */
-:is(.ui20, .sabcrm-twenty) .u-daterange__pop {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__pop {
   padding: var(--st-space-2);
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
@@ -143,12 +143,12 @@
   transform-origin: top center;
   animation: u-daterange-in var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__pop[data-placement='top'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__pop[data-placement='top'] {
   transform-origin: bottom center;
 }
 
 /* ── Footer (hint + clear), sits under the calendar grid ────────────────── */
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -157,7 +157,7 @@
   padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
   border-top: 1px solid var(--st-border-light);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__hint {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__hint {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -167,7 +167,7 @@
   font-size: var(--st-font-size-sm);
   font-variant-numeric: tabular-nums;
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear {
   flex: 0 0 auto;
   padding: var(--st-space-1) var(--st-space-2);
   border: none;
@@ -182,17 +182,17 @@
     background var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear:hover:not(:disabled) {
   background: var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear:active:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear:active:not(:disabled) {
   transform: scale(0.96);
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear:disabled {
   color: var(--st-text-tertiary);
   cursor: not-allowed;
 }
-:is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
@@ -210,18 +210,18 @@
 
 /* ── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-daterange__pop {
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__pop {
     animation: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-daterange__caret,
-  :is(.ui20, .sabcrm-twenty) .u-daterange__clear,
-  :is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear {
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__caret,
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear,
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-daterange__clear:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__clear:active {
     transform: translateY(-50%);
   }
-  :is(.ui20, .sabcrm-twenty) .u-daterange__footer-clear:active:not(:disabled) {
+  :is(.\32 0ui, .sabcrm-twenty) .u-daterange__footer-clear:active:not(:disabled) {
     transform: none;
   }
 }

@@ -131,7 +131,7 @@ export default function UnassignedPage() {
   };
 
   return (
-    <div className="ui20 min-h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
       <PageHeader className="sticky top-0 z-20 bg-[var(--st-bg-secondary)] backdrop-blur-xl">
         <div className="flex items-center gap-4">

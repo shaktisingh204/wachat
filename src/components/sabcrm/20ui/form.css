@@ -6,12 +6,12 @@
  */
 
 /* Redden the label when its field is invalid (data-invalid set by FormLabel). */
-:is(.ui20, .sabcrm-twenty) .u-field__label[data-invalid] {
+:is(.\32 0ui, .sabcrm-twenty) .u-field__label[data-invalid] {
   color: var(--st-danger);
 }
 
 /* Soft entrance for the validation message so errors arrive, not blink in. */
-:is(.ui20, .sabcrm-twenty) .u-form-message {
+:is(.\32 0ui, .sabcrm-twenty) .u-form-message {
   animation: u-form-message-in var(--u-dur-fast) var(--u-ease-out);
 }
 
@@ -27,7 +27,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-form-message {
+  :is(.\32 0ui, .sabcrm-twenty) .u-form-message {
     animation: none;
   }
 }

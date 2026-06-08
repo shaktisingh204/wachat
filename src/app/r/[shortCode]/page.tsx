@@ -35,7 +35,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
             <html lang="en">
                 <head><title>Link Expired</title></head>
                 <body className="m-0">
-                    <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                    <div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
                         <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
                             <CardBody className="p-8">
                                 <EmptyState
@@ -65,7 +65,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
             <html lang="en">
                 <head><title>Link Not Active</title></head>
                 <body className="m-0">
-                    <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                    <div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
                         <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
                             <CardBody className="p-8">
                                 <EmptyState
@@ -151,7 +151,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
                 )}
             </head>
             <body className="m-0">
-                <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg)] p-6">
+                <div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg)] p-6">
                     <noscript>
                         {pixelIds.facebook && (
                             // eslint-disable-next-line @next/next/no-img-element
@@ -194,7 +194,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
 export default function RetargetingPage({ params, searchParams }: Props) {
   return (
     <React.Suspense fallback={
-      <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg)]">
+      <div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg)]">
         <Spinner size="lg" label="Loading" />
       </div>
     }>

@@ -98,7 +98,7 @@ function SabNodeWordmark({ className }: { className?: string }) {
 
 function InviteShell({ children }: { children: React.ReactNode }) {
     return (
-        <div className="ui20 relative flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4 py-10 text-[var(--st-text)]">
+        <div className="20ui relative flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4 py-10 text-[var(--st-text)]">
             <div className="flex w-full flex-col items-center gap-8">
                 <Link
                     href="/"

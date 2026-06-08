@@ -8,7 +8,7 @@
 /* ===========================================================================
    HeroPill
    =========================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-hero-pill {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -25,7 +25,7 @@
   box-shadow: var(--u-elev-1);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-hero-pill__mark {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill__mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -33,13 +33,13 @@
   color: var(--st-accent);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-hero-pill__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill__label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-hero-pill__action {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill__action {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -47,17 +47,17 @@
   color: var(--st-accent);
   font-weight: var(--st-fw-semibold);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill__divider {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill__divider {
   width: 1px;
   height: 12px;
   background: var(--st-border-strong);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill__arrow {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill__arrow {
   transition: transform var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* Link variant — focusable, hover lift, arrow nudge. */
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--link {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link {
   cursor: pointer;
   transition:
     background var(--u-dur-fast) var(--u-ease-out),
@@ -65,25 +65,25 @@
     box-shadow var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--link:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:hover {
   border-color: var(--st-border-strong);
   background: var(--st-bg-secondary);
   box-shadow: var(--u-elev-2);
   transform: translateY(-1px);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--link:hover .u-hero-pill__arrow {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:hover .u-hero-pill__arrow {
   transform: translateX(2px);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--link:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:active {
   transform: translateY(0) scale(0.98);
 }
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--link:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* Mount animation. */
-:is(.ui20, .sabcrm-twenty) .u-hero-pill--animate {
+:is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--animate {
   animation: u-hero-pill-in var(--u-dur-slow) var(--u-ease-out) both;
 }
 @keyframes u-hero-pill-in {
@@ -100,7 +100,7 @@
 /* ===========================================================================
    Logos3 — quiet, wrapping logo wall (grayscale to colour on hover/focus)
    =========================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-logos {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -108,7 +108,7 @@
   width: 100%;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__heading {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__heading {
   margin: 0;
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
@@ -118,7 +118,7 @@
   text-align: center;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__row {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -130,12 +130,12 @@
   list-style: none;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__item {
   display: inline-flex;
   align-items: center;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__link {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link {
   display: inline-flex;
   align-items: center;
   border-radius: var(--st-radius);
@@ -146,13 +146,13 @@
     filter var(--u-dur) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-logos__link:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__img,
-:is(.ui20, .sabcrm-twenty) .u-logos__node {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__img,
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__node {
   display: inline-flex;
   align-items: center;
   height: 28px;
@@ -166,16 +166,16 @@
     opacity var(--u-dur) var(--u-ease-out),
     filter var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-logos__node :is(svg, img) {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__node :is(svg, img) {
   height: 28px;
   width: auto;
   max-width: 140px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-logos__link:hover .u-logos__img,
-:is(.ui20, .sabcrm-twenty) .u-logos__link:hover .u-logos__node,
-:is(.ui20, .sabcrm-twenty) .u-logos__link:focus-visible .u-logos__img,
-:is(.ui20, .sabcrm-twenty) .u-logos__link:focus-visible .u-logos__node {
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link:hover .u-logos__img,
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link:hover .u-logos__node,
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link:focus-visible .u-logos__img,
+:is(.\32 0ui, .sabcrm-twenty) .u-logos__link:focus-visible .u-logos__node {
   filter: grayscale(0);
   opacity: 1;
 }
@@ -183,24 +183,24 @@
 /* ===========================================================================
    CallToAction — centered conversion band
    =========================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-cta {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta {
   position: relative;
   overflow: hidden;
   border-radius: var(--st-radius-lg);
   text-align: center;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta--soft {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta--soft {
   border: 1px solid var(--st-border);
   background: var(--st-bg-secondary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta--gradient {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta--gradient {
   border: 1px solid transparent;
   background: var(--st-text);
   color: var(--st-text-inverted);
 }
-:is(.ui20, .sabcrm-twenty) .u-cta__aurora {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__aurora {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -209,7 +209,7 @@
   pointer-events: none;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta__inner {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__inner {
   position: relative;
   z-index: 1;
   display: flex;
@@ -221,18 +221,18 @@
   padding: var(--st-space-6) var(--st-space-5);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta__eyebrow {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__eyebrow {
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-cta--gradient .u-cta__eyebrow {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta--gradient .u-cta__eyebrow {
   color: var(--u-brand-amber);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta__heading {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__heading {
   margin: 0;
   font-size: 22px;
   font-weight: var(--st-fw-semibold);
@@ -241,19 +241,19 @@
   color: inherit;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta__subtext {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__subtext {
   margin: 0;
   max-width: 46ch;
   font-size: var(--st-font-size-lg);
   line-height: 1.55;
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-cta--gradient .u-cta__subtext {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta--gradient .u-cta__subtext {
   /* Lighter neutral over the dark band keeps AA contrast. */
   color: rgba(255, 255, 255, 0.78);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-cta__actions {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -263,24 +263,24 @@
 }
 
 /* Anchor-as-button reset (the u-btn classes carry the look). */
-:is(.ui20, .sabcrm-twenty) .u-cta__link {
+:is(.\32 0ui, .sabcrm-twenty) .u-cta__link {
   text-decoration: none;
 }
 
 /* ===========================================================================
    StatisticsCard — big-number stat block
    =========================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-stats {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-:is(.ui20, .sabcrm-twenty) .u-stats--center {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats--center {
   align-items: center;
   text-align: center;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -292,13 +292,13 @@
   color: var(--st-accent);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__figure {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__figure {
   display: inline-flex;
   align-items: baseline;
   gap: var(--st-space-2);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__value {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__value {
   font-size: 34px;
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.03em;
@@ -307,7 +307,7 @@
   font-feature-settings: "tnum" 1;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__trend {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__trend {
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
@@ -315,27 +315,27 @@
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-semibold);
 }
-:is(.ui20, .sabcrm-twenty) .u-stats__trend--up {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__trend--up {
   background: rgba(46, 125, 50, 0.12);
   color: var(--st-status-ok);
 }
-:is(.ui20, .sabcrm-twenty) .u-stats__trend--down {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__trend--down {
   background: var(--st-danger-soft);
   color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-stats__trend--neutral {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__trend--neutral {
   background: var(--st-bg-muted);
   color: var(--st-text-secondary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__label {
   margin-top: var(--st-space-2);
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-medium);
   color: var(--st-text);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-stats__desc {
+:is(.\32 0ui, .sabcrm-twenty) .u-stats__desc {
   font-size: var(--st-font-size-sm);
   line-height: 1.5;
   color: var(--st-text-secondary);
@@ -344,7 +344,7 @@
 /* ===========================================================================
    RouteComingSoon — centered placeholder
    =========================================================================== */
-:is(.ui20, .sabcrm-twenty) .u-soon {
+:is(.\32 0ui, .sabcrm-twenty) .u-soon {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -355,7 +355,7 @@
   text-align: center;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-soon__badge {
+:is(.\32 0ui, .sabcrm-twenty) .u-soon__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -377,7 +377,7 @@
   }
 }
 
-:is(.ui20, .sabcrm-twenty) .u-soon__title {
+:is(.\32 0ui, .sabcrm-twenty) .u-soon__title {
   margin: 0;
   font-size: var(--st-font-size-xl);
   font-weight: var(--st-fw-semibold);
@@ -385,7 +385,7 @@
   color: var(--st-text);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-soon__desc {
+:is(.\32 0ui, .sabcrm-twenty) .u-soon__desc {
   margin: 0;
   max-width: 42ch;
   font-size: var(--st-font-size-lg);
@@ -393,7 +393,7 @@
   color: var(--st-text-secondary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-soon__action {
+:is(.\32 0ui, .sabcrm-twenty) .u-soon__action {
   margin-top: var(--st-space-2);
 }
 
@@ -401,17 +401,17 @@
    Reduced motion — disable every movement, keep visibility
    =========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-hero-pill--animate {
+  :is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--animate {
     animation: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-hero-pill--link:hover,
-  :is(.ui20, .sabcrm-twenty) .u-hero-pill--link:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:hover,
+  :is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:active {
     transform: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-hero-pill--link:hover .u-hero-pill__arrow {
+  :is(.\32 0ui, .sabcrm-twenty) .u-hero-pill--link:hover .u-hero-pill__arrow {
     transform: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-soon__badge {
+  :is(.\32 0ui, .sabcrm-twenty) .u-soon__badge {
     animation: none;
   }
 }

@@ -217,7 +217,7 @@ export default function AutomationsPage(): React.JSX.Element {
 
   return (
     <TooltipProvider>
-      <div className="ui20 flex w-full flex-col gap-8 pb-12">
+      <div className="20ui flex w-full flex-col gap-8 pb-12">
         <PageHeader>
           <PageHeading>
             <PageEyebrow>SabShop Engine</PageEyebrow>

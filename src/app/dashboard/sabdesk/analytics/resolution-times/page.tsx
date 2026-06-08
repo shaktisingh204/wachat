@@ -75,7 +75,7 @@ export default function AnalyticsResolutionTimesPage() {
   const [range, setRange] = useState<TimeRange>('7d');
 
   return (
-    <div className="ui20 dark flex min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
       <PageHeader className="px-8">
         <PageHeaderHeading>

@@ -51,7 +51,7 @@ export default function EnvelopeAuditPage() {
   }, [params.id]);
 
   return (
-    <div className="ui20 p-6 max-w-4xl mx-auto space-y-4">
+    <div className="20ui p-6 max-w-4xl mx-auto space-y-4">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Audit trail</PageTitle>

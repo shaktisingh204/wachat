@@ -2,7 +2,7 @@
    ui20 tokens — promoted to :root (app-wide)
    =========================================================================
 
-   The ui20 design tokens normally live under `.ui20` (and `.sabcrm-twenty`).
+   The ui20 design tokens normally live under `.\32 0ui` (and `.sabcrm-twenty`).
    This file mirrors them at the document `:root` (light) and `.dark` (dark) so
    that `var(--st-*)` / `var(--u-*)` resolve ANYWHERE in SabNode — enabling
    hardcoded colours across the app to be replaced with central ui20 tokens.
@@ -10,7 +10,7 @@
    - Tokens only (no base font/color), so promoting them to :root never restyles
      existing markup; values are inert until something references them.
    - Dark values follow the app's existing `.dark` class (Tailwind convention).
-   - `.ui20` and `.sabcrm-twenty` keep their own scoped definitions, which still
+   - `.\32 0ui` and `.sabcrm-twenty` keep their own scoped definitions, which still
      win inside those subtrees — this is purely the global fallback layer.
    - Values mirror ./tokens.css; keep them in sync.
    ========================================================================= */

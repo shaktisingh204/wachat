@@ -1,17 +1,17 @@
 /* =========================================================================
-   20ui — standalone design-system foundation (.ui20 root)
+   20ui — standalone design-system foundation (.\32 0ui root)
    =========================================================================
 
    This makes 20ui a TRUE app-wide design system, like Ui20: its own neutral
-   root class `.ui20` with a fully self-contained token set, so any
+   root class `.\32 0ui` with a fully self-contained token set, so any
    `<div class="ui20">…</div>` anywhere in SabNode renders 20ui correctly,
    independent of the CRM's `.sabcrm-twenty` scope.
 
-   - Light is the default; add `.dark` (or `data-theme="dark"`) on the `.ui20`
+   - Light is the default; add `.dark` (or `data-theme="dark"`) on the `.\32 0ui`
      root for dark mode, or let it follow the OS when neither is set.
    - Token names keep the `--st-*` (surface/text/etc.) + `--u-*` (motion /
      elevation / focus / brand) families the components already consume, so
-     20ui components work under BOTH `.ui20` (app-wide) and `.sabcrm-twenty`
+     20ui components work under BOTH `.\32 0ui` (app-wide) and `.sabcrm-twenty`
      (the CRM) with zero per-component change.
    - Loaded globally (imported once from the 20ui barrel).
 
@@ -20,7 +20,7 @@
    calm minimal aesthetic).
    ========================================================================= */
 
-.ui20 {
+.\32 0ui {
   /* ----- Surfaces ----- */
   --st-bg: #ffffff;
   --st-bg-secondary: #fafafa;
@@ -146,7 +146,7 @@
   --u-halo: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(244, 63, 94, 0.45), rgba(139, 92, 246, 0.45));
   --u-shadow-brand: 0 10px 30px -6px var(--u-glow-orange);
 
-  /* Root base text + font so unstyled content inside .ui20 reads correctly. */
+  /* Root base text + font so unstyled content inside .\32 0ui reads correctly. */
   color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size);
@@ -154,15 +154,15 @@
 }
 
 /* ----- Dark theme (explicit) -----
-   `html.dark .ui20` lets the no-FOUC theme bootstrap (which stamps `html.dark`
-   before first paint) theme every .ui20 surface immediately — same as the
-   `html.dark .ui20` hook in ui20.css. Without it, .ui20 chrome (the app
+   `html.dark .\32 0ui` lets the no-FOUC theme bootstrap (which stamps `html.dark`
+   before first paint) theme every .\32 0ui surface immediately — same as the
+   `html.dark .\32 0ui` hook in ui20.css. Without it, .\32 0ui chrome (the app
    rail + header) would paint light until the React `appDark` className caught
    up post-hydration, flashing white inside an already-dark shell. The app
-   theme is authoritative on <html>, so when it is dark every .ui20 is dark. */
-.ui20.dark,
-.ui20[data-theme="dark"],
-html.dark .ui20 {
+   theme is authoritative on <html>, so when it is dark every .\32 0ui is dark. */
+.\32 0ui.dark,
+.\32 0ui[data-theme="dark"],
+html.dark .\32 0ui {
   --st-bg: #181818;
   --st-bg-secondary: #1d1d1d;
   --st-bg-muted: #222222;
@@ -207,7 +207,7 @@ html.dark .ui20 {
 
 /* ----- Dark theme (auto, when no explicit light/dark set) ----- */
 @media (prefers-color-scheme: dark) {
-  .ui20:not(.light):not([data-theme="light"]) {
+  .\32 0ui:not(.light):not([data-theme="light"]) {
     --st-bg: #181818;
     --st-bg-secondary: #1d1d1d;
     --st-bg-muted: #222222;
@@ -239,23 +239,23 @@ html.dark .ui20 {
 }
 
 /* Thin matched scrollbars + accent selection inside the system root. */
-.ui20 ::selection {
+.\32 0ui ::selection {
   background: var(--st-accent-soft);
   color: var(--st-accent-hover);
 }
-.ui20 *::-webkit-scrollbar {
+.\32 0ui *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-.ui20 *::-webkit-scrollbar-thumb {
+.\32 0ui *::-webkit-scrollbar-thumb {
   background: var(--st-border-strong);
   border: 3px solid var(--st-bg);
   border-radius: var(--st-radius-pill);
 }
-.ui20 *::-webkit-scrollbar-thumb:hover {
+.\32 0ui *::-webkit-scrollbar-thumb:hover {
   background: var(--st-text-tertiary);
 }
-.ui20 *::-webkit-scrollbar-corner {
+.\32 0ui *::-webkit-scrollbar-corner {
   background: transparent;
 }
 
@@ -264,7 +264,7 @@ html.dark .ui20 {
    even on standalone ui20 surfaces where the CRM's sabcrm-twenty.css is NOT
    loaded. The portal root carries `ui20 sabcrm-twenty st-popover` on one element,
    so this is a compound selector. ----- */
-.ui20.st-popover {
+.\32 0ui.st-popover {
   z-index: 1200;
   background: var(--st-bg);
   border: 1px solid var(--st-border);
@@ -280,7 +280,7 @@ html.dark .ui20 {
   transform-origin: top center;
   animation: u-pop-in var(--u-dur) var(--u-ease-out);
 }
-.ui20.st-popover[data-placement='top'] {
+.\32 0ui.st-popover[data-placement='top'] {
   transform-origin: bottom center;
 }
 @keyframes u-pop-in {
@@ -294,7 +294,7 @@ html.dark .ui20 {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ui20.st-popover {
+  .\32 0ui.st-popover {
     animation: none;
   }
 }

@@ -666,7 +666,7 @@ export default function AuditTrailPage() {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   return (
-    <div className="ui20 min-h-screen p-4 md:p-8">
+    <div className="20ui min-h-screen p-4 md:p-8">
       <div className="mx-auto max-w-7xl">
         <PageHeader>
           <PageHeaderHeading>

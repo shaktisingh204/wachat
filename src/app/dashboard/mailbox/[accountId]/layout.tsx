@@ -34,7 +34,7 @@ export default async function MailboxAccountLayout({
     ];
 
     return (
-        <div className="ui20 flex min-h-full flex-col">
+        <div className="20ui flex min-h-full flex-col">
             <header className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)]/95 px-4 py-3 backdrop-blur">
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/mailbox" className="u-btn u-btn--ghost u-btn--sm">

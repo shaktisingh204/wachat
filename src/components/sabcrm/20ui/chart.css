@@ -1,7 +1,7 @@
 /* 20ui · Chart (recharts v3 skin) */
 
 /* ----- Container ----- */
-:is(.ui20, .sabcrm-twenty) .u-chart {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart {
   display: flex;
   justify-content: center;
   width: 100%;
@@ -12,54 +12,54 @@
 
 /* Recharts paints fixed greys/whites into its internals; re-skin them to the
    token palette so charts read correctly in both light and dark. */
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-surface,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-layer,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-sector {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-surface,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-layer,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-sector {
   outline: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-tick text,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-polar-angle-axis-tick text,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-polar-radius-axis-tick text {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-tick text,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-polar-angle-axis-tick text,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-polar-radius-axis-tick text {
   fill: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-grid line,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-grid-horizontal line,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-grid-vertical line {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-grid line,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-grid-horizontal line,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-grid-vertical line {
   stroke: var(--st-border);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-line,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-tick-line {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-line,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-cartesian-axis-tick-line {
   stroke: var(--st-border-strong);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-polar-grid line,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-polar-grid-concentric-polygon,
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-polar-grid-concentric-circle {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-polar-grid line,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-polar-grid-concentric-polygon,
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-polar-grid-concentric-circle {
   stroke: var(--st-border);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-reference-line line {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-reference-line line {
   stroke: var(--st-border-strong);
 }
 /* Hover cursor band/line behind the tooltip. */
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-rectangle.recharts-tooltip-cursor {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-rectangle.recharts-tooltip-cursor {
   fill: var(--st-hover);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-curve.recharts-tooltip-cursor {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-curve.recharts-tooltip-cursor {
   stroke: var(--st-border-strong);
 }
 /* Radial bar track. */
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-radial-bar-background-sector {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-radial-bar-background-sector {
   fill: var(--st-bg-muted);
 }
 /* Recharts strokes dots/sectors with a literal #fff; make those seams vanish so
    slices sit flush on the token surface. */
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-dot[stroke='#fff'],
-:is(.ui20, .sabcrm-twenty) .u-chart .recharts-sector[stroke='#fff'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-dot[stroke='#fff'],
+:is(.\32 0ui, .sabcrm-twenty) .u-chart .recharts-sector[stroke='#fff'] {
   stroke: var(--st-bg);
 }
 
 /* ----- Tooltip body ----- */
-:is(.ui20, .sabcrm-twenty) .u-chart-tt {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt {
   display: grid;
   gap: var(--st-space-2);
   min-width: 9rem;
@@ -73,24 +73,24 @@
   /* Emil: tooltip pops in on transform/opacity only, fast. */
   animation: u-chart-tt-in var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__label {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__items {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__items {
   display: grid;
   gap: 6px;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__row {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__row {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
   gap: var(--st-space-2);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__row--center {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__row--center {
   align-items: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__icon {
   width: 10px;
   height: 10px;
   color: var(--st-text-tertiary);
@@ -98,32 +98,32 @@
 }
 
 /* Indicator glyph (dot / line / dashed); colour comes from --u-chart-indicator. */
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__indicator {
   flex-shrink: 0;
   border-radius: 2px;
   background: var(--u-chart-indicator, var(--st-accent));
   border: 1px solid var(--u-chart-indicator, var(--st-accent));
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__indicator--dot {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__indicator--dot {
   width: 10px;
   height: 10px;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__indicator--line {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__indicator--line {
   width: 4px;
   align-self: stretch;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__indicator--dashed {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__indicator--dashed {
   width: 0;
   border: 0;
   border-left: 2px dashed var(--u-chart-indicator, var(--st-accent));
   background: transparent;
   align-self: stretch;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__indicator--nest {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__indicator--nest {
   margin: 2px 0;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__content {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__content {
   display: flex;
   flex: 1;
   align-items: center;
@@ -131,17 +131,17 @@
   gap: var(--st-space-3);
   line-height: 1;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__content--nest {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__content--nest {
   align-items: flex-end;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__name-wrap {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__name-wrap {
   display: grid;
   gap: 6px;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__name {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__name {
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-tt__value {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-tt__value {
   font-family: var(--st-font-mono);
   font-weight: var(--st-fw-medium);
   font-variant-numeric: tabular-nums;
@@ -149,39 +149,39 @@
 }
 
 /* ----- Legend ----- */
-:is(.ui20, .sabcrm-twenty) .u-chart-legend {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: var(--st-space-4);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend--top {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend--top {
   padding-bottom: var(--st-space-3);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend--bottom {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend--bottom {
   padding-top: var(--st-space-3);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend__item {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend__swatch {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend__swatch {
   width: 9px;
   height: 9px;
   border-radius: 2px;
   flex-shrink: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend__icon {
   width: 12px;
   height: 12px;
   color: var(--st-text-tertiary);
   flex-shrink: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-chart-legend__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-chart-legend__label {
   color: var(--st-text);
 }
 
@@ -197,7 +197,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-chart-tt {
+  :is(.\32 0ui, .sabcrm-twenty) .u-chart-tt {
     animation: none;
   }
 }

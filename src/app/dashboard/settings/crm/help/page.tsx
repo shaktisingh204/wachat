@@ -207,7 +207,7 @@ function HelpSection({
 
 export default function SabcrmHelpSettingsPage(): React.JSX.Element {
   return (
-    <div className="ui20 mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-8">
+    <div className="20ui mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-8">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle className="flex items-center gap-2">

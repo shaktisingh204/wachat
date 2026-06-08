@@ -39,7 +39,7 @@ export function CommissionCalculator() {
   const annualCommission = monthlyCommission * 12;
 
   return (
-    <div className="ui20 dark mt-12">
+    <div className="20ui dark mt-12">
       <Card variant="outlined" padding="lg" className="space-y-8">
         <CardHeader className="flex items-center gap-3">
           <Calculator className="w-5 h-5 text-[var(--st-text-secondary)]" aria-hidden="true" />

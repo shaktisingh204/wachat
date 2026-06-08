@@ -20,7 +20,7 @@ interface UseCasesSectionProps {
 
 export function UseCasesSection({ color, useCases }: UseCasesSectionProps) {
   return (
-    <section className="ui20 dark border-t border-[var(--st-border)] bg-[#121126] text-[var(--st-text)]">
+    <section className="20ui dark border-t border-[var(--st-border)] bg-[#121126] text-[var(--st-text)]">
       <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
         <PageHeader bordered={false} className="mb-10">
           <PageHeaderHeading>

@@ -81,7 +81,7 @@ export default function DripsBuilderShell() {
   const ActiveIcon = activeBlock?.icon ? IconMap[activeBlock.icon] || MessageSquare : MessageSquare;
 
   return (
-    <div className="ui20 flex h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
+    <div className="20ui flex h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
       {/* Header */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4 z-20">
         <div className="flex items-center gap-4">

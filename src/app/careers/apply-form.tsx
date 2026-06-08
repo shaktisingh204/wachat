@@ -84,7 +84,7 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
 
   if (!isOpen) {
     return (
-      <div className="ui20">
+      <div className="20ui">
         <Button
           variant="primary"
           onClick={() => setIsOpen(true)}
@@ -97,7 +97,7 @@ export function ApplyForm({ jobId, jobTitle }: { jobId: string, jobTitle: string
   }
 
   return (
-    <div className="ui20 mt-6 animate-in fade-in slide-in-from-top-2 border-t border-[var(--st-border)] pt-6">
+    <div className="20ui mt-6 animate-in fade-in slide-in-from-top-2 border-t border-[var(--st-border)] pt-6">
       <div
         className="min-h-[250px] cursor-text rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 font-mono text-sm text-[var(--st-text)]"
         onClick={() => inputRef.current?.focus()}

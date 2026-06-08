@@ -59,7 +59,7 @@ export default async function ExpiredLinkPage({ searchParams }: PageProps) {
     }
 
     return (
-        <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <div className="flex min-h-screen flex-col items-center justify-center px-4 text-center">
                 <Card variant="elevated" padding="lg" className="w-full max-w-md">
                     <EmptyState

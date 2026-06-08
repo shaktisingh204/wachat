@@ -39,7 +39,7 @@ export default async function PublicEmbedPage({
   }
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-6">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] p-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-4">
         <PageHeader>
           <PageHeaderHeading>

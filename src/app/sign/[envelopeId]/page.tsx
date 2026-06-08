@@ -140,7 +140,7 @@ export default function PublicSignPage() {
 
   if (error) {
     return (
-      <div className="ui20 min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
+      <div className="20ui min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
         <Card className="max-w-md w-full">
           <CardBody>
             <EmptyState
@@ -157,7 +157,7 @@ export default function PublicSignPage() {
 
   if (!payload) {
     return (
-      <div className="ui20 min-h-screen flex flex-col items-center justify-center gap-3 p-6 bg-[var(--st-bg)]">
+      <div className="20ui min-h-screen flex flex-col items-center justify-center gap-3 p-6 bg-[var(--st-bg)]">
         <Spinner size="lg" label="Loading envelope" />
         <p className="text-sm text-[var(--st-text-secondary)]">Loading envelope.</p>
       </div>
@@ -166,7 +166,7 @@ export default function PublicSignPage() {
 
   if (done) {
     return (
-      <div className="ui20 min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
+      <div className="20ui min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)]">
         <Card className="max-w-md w-full text-center">
           <CardBody>
             <h2 className="text-lg font-semibold text-[var(--st-text)]">All set</h2>
@@ -180,7 +180,7 @@ export default function PublicSignPage() {
   const fields = payload.fields.filter((f) => f.recipientRole === payload.signer.role);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] p-4">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
         <Card padding="none" className="overflow-hidden">
           {payload.docUrl ? (

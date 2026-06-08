@@ -28,7 +28,7 @@ export default async function SabmonitorCheckDetailPage({
     const check = await getSabmonitorCheck(checkId);
     if (!check) notFound();
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader compact>
                 <PageHeaderHeading>
                     <PageTitle>{check.name}</PageTitle>

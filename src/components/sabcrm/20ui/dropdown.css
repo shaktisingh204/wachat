@@ -2,12 +2,12 @@
 
 /* The portal wrapper only exists to scope tokens in the body portal; it must
    not interfere with Radix's fixed positioning of the panel. */
-:is(.ui20, .sabcrm-twenty).u-dropdown__portal {
+:is(.\32 0ui, .sabcrm-twenty).u-dropdown__portal {
   display: contents;
 }
 
 /* ----- Panel ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown {
   z-index: 1000;
   min-width: 184px;
   max-width: min(320px, calc(100vw - var(--st-space-4)));
@@ -28,12 +28,12 @@
 /* Sub-content shares the same Radix content transform-origin var (the dropdown
    package namespaces by component, not by content vs sub-content), so the panel
    still unfolds from the side the sub-menu opened toward. */
-:is(.ui20, .sabcrm-twenty) .u-dropdown--sub {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown--sub {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
 }
 
 /* ----- Item rows ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item {
   position: relative;
   display: flex;
   align-items: center;
@@ -58,36 +58,36 @@
 }
 
 /* Radix sets data-highlighted on the roving-focus row (pointer OR keyboard). */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-highlighted] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item[data-highlighted] {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-disabled] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item[data-disabled] {
   pointer-events: none;
   opacity: 0.5;
 }
 
 /* Leading convenience icon + indicator-row icons share a muted ink. */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item-icon {
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-highlighted] .u-dropdown__item-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item[data-highlighted] .u-dropdown__item-icon {
   color: var(--st-text-secondary);
 }
 
 /* Inset rows reserve the indicator gutter so plain items align with check/radio. */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--inset {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--inset {
   padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
 }
 
 /* Checkbox / radio rows: a fixed leading gutter for the indicator. */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--indicator {
   padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__indicator {
   position: absolute;
   left: var(--st-space-2);
   display: inline-flex;
@@ -97,11 +97,11 @@
   height: 16px;
   color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator-check {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__indicator-check {
   width: 15px;
   height: 15px;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator-dot {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__indicator-dot {
   width: 7px;
   height: 7px;
   fill: currentColor;
@@ -109,27 +109,27 @@
 }
 
 /* Danger variant — destructive command (e.g. "Delete lead"). */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--danger {
   color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__item-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__item-icon {
   color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger[data-highlighted] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--danger[data-highlighted] {
   background: var(--st-danger-soft);
   color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dropdown__item--danger[data-highlighted]
   .u-dropdown__item-icon {
   color: var(--st-danger);
 }
 
 /* ----- Sub-menu trigger ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__subtrigger[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__subtrigger[data-state='open'] {
   background: var(--st-hover);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__subtrigger-chevron {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__subtrigger-chevron {
   flex: 0 0 auto;
   margin-left: auto;
   width: 15px;
@@ -138,7 +138,7 @@
 }
 
 /* ----- Label ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__label {
   padding: var(--st-space-1) var(--st-space-2);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -146,49 +146,49 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__label--inset {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__label--inset {
   padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
 }
 
 /* ----- Separator ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__separator {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__separator {
   height: 1px;
   margin: var(--st-space-1) calc(var(--st-space-1) * -1);
   background: var(--st-border-light);
 }
 
 /* ----- Trailing shortcut hint ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown__shortcut {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__shortcut {
   margin-left: auto;
   padding-left: var(--st-space-3);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
   letter-spacing: 0.06em;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__shortcut {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__shortcut {
   color: var(--st-danger);
   opacity: 0.7;
 }
 
 /* ----- Entrance (Emil: transform + opacity only, < 250ms, eased) ----- */
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-state='open'] {
   animation: u-dropdown-in var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='closed'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-state='closed'] {
   animation: u-dropdown-out var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* Directional nudge: lean in from the anchored side, then settle. */
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='top'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='top'] {
   animation-name: u-dropdown-in-top;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='bottom'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='bottom'] {
   animation-name: u-dropdown-in-bottom;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='left'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='left'] {
   animation-name: u-dropdown-in-left;
 }
-:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='right'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='right'] {
   animation-name: u-dropdown-in-right;
 }
 
@@ -255,12 +255,12 @@
 
 /* Reduced motion: fade only, no movement or scale. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='open'],
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='closed'],
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='top'],
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='bottom'],
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='left'],
-  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='right'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-state='open'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-state='closed'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='top'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='bottom'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='left'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-dropdown[data-side='right'] {
     animation: u-dropdown-fade var(--u-dur-fast) ease;
   }
   @keyframes u-dropdown-fade {

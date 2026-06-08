@@ -600,7 +600,7 @@ export function NodePropertiesPanel({ node, onUpdate, onClose }: Props) {
   const Icon = meta.icon;
 
   return (
-    <div className="ui20 w-[340px] shrink-0 flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden">
+    <div className="20ui w-[340px] shrink-0 flex flex-col border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden">
       {/* ── Header ── */}
       <div className="flex items-center gap-2.5 border-b border-[var(--st-border)] px-4 py-3 shrink-0">
         <div

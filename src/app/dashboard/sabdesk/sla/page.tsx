@@ -56,7 +56,7 @@ export default function SLAPage() {
   const activeCount = mockSLAs.filter((s) => s.active).length;
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 font-sans">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 font-sans">
       <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-6">
 
         {/* Left Sidebar: Policies List */}

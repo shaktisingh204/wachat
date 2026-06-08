@@ -17,7 +17,7 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="ui20 flex min-h-[400px] flex-col items-center justify-center p-6">
+    <div className="20ui flex min-h-[400px] flex-col items-center justify-center p-6">
       <EmptyState
         icon={AlertTriangle}
         tone="danger"

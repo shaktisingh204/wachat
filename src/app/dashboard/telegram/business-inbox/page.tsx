@@ -411,7 +411,7 @@ export default function Page() {
 
     if (!projectId) {
         return (
-            <div className="ui20 p-6">
+            <div className="20ui p-6">
                 <EmptyState
                     icon={Inbox}
                     title="Select a project"
@@ -422,7 +422,7 @@ export default function Page() {
     }
 
     return (
-        <div className="ui20 flex h-[calc(100vh-4rem)] flex-col bg-[var(--st-bg-secondary)]">
+        <div className="20ui flex h-[calc(100vh-4rem)] flex-col bg-[var(--st-bg-secondary)]">
             <TelegramProjectGate />
             {/* Analytics summary bar */}
             <AnalyticsBar

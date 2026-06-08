@@ -27,7 +27,7 @@ export default async function SyntheticScriptsPage(): Promise<React.JSX.Element>
     const res = await listSabmonitorSyntheticScripts();
 
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Synthetic browser scripts</PageTitle>

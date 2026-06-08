@@ -152,7 +152,7 @@ export default function ClientSignupPage() {
 
   if (settings && !settings.allowClientSignup) {
     return (
-      <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
+      <main className="20ui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
         <Card className="mx-auto max-w-lg text-center" padding="lg">
           <CardHeader>
             <CardTitle>Signup unavailable</CardTitle>
@@ -167,7 +167,7 @@ export default function ClientSignupPage() {
 
   if (submitted) {
     return (
-      <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
+      <main className="20ui min-h-screen bg-[var(--st-bg)] px-4 py-16 text-[var(--st-text)]">
         <Card className="mx-auto max-w-lg text-center" padding="lg">
           <CardHeader>
             <CardTitle>Account created</CardTitle>
@@ -190,7 +190,7 @@ export default function ClientSignupPage() {
   }
 
   return (
-    <main className="ui20 min-h-screen bg-[var(--st-bg)] px-4 py-12 text-[var(--st-text)]">
+    <main className="20ui min-h-screen bg-[var(--st-bg)] px-4 py-12 text-[var(--st-text)]">
       <Card className="mx-auto max-w-xl" padding="lg">
         <CardHeader>
           <CardTitle>Create a client account</CardTitle>

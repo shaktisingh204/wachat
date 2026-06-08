@@ -94,7 +94,7 @@ export default function AiCopilotTrainingDataPage() {
   }, [allRows, searchTerm]);
 
   return (
-    <div className="ui20 flex h-full min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui flex h-full min-h-screen w-full flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>AI Copilot Training Data</PageTitle>

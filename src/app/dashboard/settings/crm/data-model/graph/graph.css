@@ -5,7 +5,7 @@
    `/dashboard/settings/crm/data-model/graph`. There is no design-system
    primitive for an ER-diagram canvas, so these draw directly on the 20ui
    `--st-*` design tokens (defined in `@/components/sabcrm/20ui/tokens.css`)
-   and are scoped under the `.ui20` class the page wrapper applies. The page
+   and are scoped under the `.\32 0ui` class the page wrapper applies. The page
    chrome (header, alert, empty state, buttons) uses 20ui components.
 
    The diagram is a single relatively-positioned canvas holding:
@@ -15,7 +15,7 @@
    the edge endpoints.
    ========================================================================= */
 
-.ui20 .dmg-toolbar {
+.\32 0ui .dmg-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -23,11 +23,11 @@
   margin-bottom: var(--st-space-3);
 }
 
-.ui20 .dmg-toolbar__spacer {
+.\32 0ui .dmg-toolbar__spacer {
   flex: 1 1 auto;
 }
 
-.ui20 .dmg-stat {
+.\32 0ui .dmg-stat {
   display: inline-flex;
   align-items: baseline;
   gap: 6px;
@@ -35,14 +35,14 @@
   color: var(--st-text-secondary);
 }
 
-.ui20 .dmg-stat__num {
+.\32 0ui .dmg-stat__num {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
 
 /* ----- Legend ----------------------------------------------------------- */
 
-.ui20 .dmg-legend {
+.\32 0ui .dmg-legend {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -54,7 +54,7 @@
   margin-bottom: var(--st-space-3);
 }
 
-.ui20 .dmg-legend__item {
+.\32 0ui .dmg-legend__item {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -62,7 +62,7 @@
   color: var(--st-text-secondary);
 }
 
-.ui20 .dmg-legend__swatch {
+.\32 0ui .dmg-legend__swatch {
   display: inline-flex;
   width: 14px;
   height: 14px;
@@ -71,32 +71,32 @@
   border: 1px solid var(--st-border);
 }
 
-.ui20 .dmg-legend__swatch--standard {
+.\32 0ui .dmg-legend__swatch--standard {
   background: var(--st-bg);
 }
 
-.ui20 .dmg-legend__swatch--custom {
+.\32 0ui .dmg-legend__swatch--custom {
   background: var(--st-accent-soft);
   border-color: var(--st-accent);
 }
 
-.ui20 .dmg-legend__line {
+.\32 0ui .dmg-legend__line {
   width: 30px;
   height: 0;
   flex: 0 0 auto;
 }
 
-.ui20 .dmg-legend__line--m1 {
+.\32 0ui .dmg-legend__line--m1 {
   border-top: 2px solid var(--st-accent);
 }
 
-.ui20 .dmg-legend__line--1m {
+.\32 0ui .dmg-legend__line--1m {
   border-top: 2px dashed var(--st-text-tertiary);
 }
 
 /* ----- Canvas ----------------------------------------------------------- */
 
-.ui20 .dmg-canvas-wrap {
+.\32 0ui .dmg-canvas-wrap {
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
   background:
@@ -106,12 +106,12 @@
   max-height: 72vh;
 }
 
-.ui20 .dmg-canvas {
+.\32 0ui .dmg-canvas {
   position: relative;
   margin: 0 auto;
 }
 
-.ui20 .dmg-edges {
+.\32 0ui .dmg-edges {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -120,57 +120,57 @@
   overflow: visible;
 }
 
-.ui20 .dmg-edge {
+.\32 0ui .dmg-edge {
   fill: none;
   stroke: var(--st-accent);
   stroke-width: 1.6;
   transition: stroke 120ms ease, stroke-width 120ms ease, opacity 120ms ease;
 }
 
-.ui20 .dmg-edge--1m {
+.\32 0ui .dmg-edge--1m {
   stroke: var(--st-text-tertiary);
   stroke-dasharray: 5 4;
 }
 
 /* Dim edges not touching the hovered node; highlight the active ones. */
-.ui20 .dmg-canvas[data-hover] .dmg-edge {
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge {
   opacity: 0.18;
 }
 
-.ui20 .dmg-canvas[data-hover] .dmg-edge.is-active {
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge.is-active {
   opacity: 1;
   stroke-width: 2.4;
 }
 
-.ui20 .dmg-edge__label {
+.\32 0ui .dmg-edge__label {
   font-family: var(--st-font);
   font-size: 10px;
   font-weight: var(--st-fw-medium);
   fill: var(--st-text-tertiary);
 }
 
-.ui20 .dmg-edge__label-bg {
+.\32 0ui .dmg-edge__label-bg {
   fill: var(--st-bg);
   opacity: 0.92;
 }
 
-.ui20 .dmg-canvas[data-hover] .dmg-edge__label,
-.ui20 .dmg-canvas[data-hover] .dmg-edge__label-bg {
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge__label,
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge__label-bg {
   opacity: 0.18;
 }
 
-.ui20 .dmg-canvas[data-hover] .dmg-edge-group.is-active .dmg-edge__label {
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge-group.is-active .dmg-edge__label {
   opacity: 1;
   fill: var(--st-text-secondary);
 }
 
-.ui20 .dmg-canvas[data-hover] .dmg-edge-group.is-active .dmg-edge__label-bg {
+.\32 0ui .dmg-canvas[data-hover] .dmg-edge-group.is-active .dmg-edge__label-bg {
   opacity: 0.92;
 }
 
 /* ----- Card nodes ------------------------------------------------------- */
 
-.ui20 .dmg-node {
+.\32 0ui .dmg-node {
   position: absolute;
   display: flex;
   align-items: center;
@@ -190,29 +190,29 @@
   cursor: pointer;
 }
 
-.ui20 .dmg-node:hover,
-.ui20 .dmg-node:focus-visible {
+.\32 0ui .dmg-node:hover,
+.\32 0ui .dmg-node:focus-visible {
   border-color: var(--st-accent);
   box-shadow: var(--st-shadow-pop);
   outline: none;
   z-index: 5;
 }
 
-.ui20 .dmg-node--custom {
+.\32 0ui .dmg-node--custom {
   background: var(--st-accent-soft);
   border-color: var(--st-accent);
 }
 
 /* Dim non-related nodes while one is hovered. */
-.ui20 .dmg-canvas[data-hover] .dmg-node {
+.\32 0ui .dmg-canvas[data-hover] .dmg-node {
   opacity: 0.35;
 }
 
-.ui20 .dmg-canvas[data-hover] .dmg-node.is-active {
+.\32 0ui .dmg-canvas[data-hover] .dmg-node.is-active {
   opacity: 1;
 }
 
-.ui20 .dmg-node__icon {
+.\32 0ui .dmg-node__icon {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -224,19 +224,19 @@
   color: var(--st-text-secondary);
 }
 
-.ui20 .dmg-node--custom .dmg-node__icon {
+.\32 0ui .dmg-node--custom .dmg-node__icon {
   background: var(--st-bg);
   color: var(--st-accent);
 }
 
-.ui20 .dmg-node__body {
+.\32 0ui .dmg-node__body {
   display: flex;
   flex-direction: column;
   min-width: 0;
   gap: 1px;
 }
 
-.ui20 .dmg-node__label {
+.\32 0ui .dmg-node__label {
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-semibold);
   white-space: nowrap;
@@ -245,7 +245,7 @@
   max-width: 150px;
 }
 
-.ui20 .dmg-node__meta {
+.\32 0ui .dmg-node__meta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -253,7 +253,7 @@
   color: var(--st-text-tertiary);
 }
 
-.ui20 .dmg-node__count {
+.\32 0ui .dmg-node__count {
   display: inline-flex;
   align-items: center;
   padding: 0 6px;
@@ -267,20 +267,20 @@
 
 /* ----- Self-relation marker (object pointing at itself) ----------------- */
 
-.ui20 .dmg-self {
+.\32 0ui .dmg-self {
   fill: none;
   stroke: var(--st-accent);
   stroke-width: 1.6;
 }
 
-.ui20 .dmg-self--1m {
+.\32 0ui .dmg-self--1m {
   stroke: var(--st-text-tertiary);
   stroke-dasharray: 5 4;
 }
 
 /* ----- Empty state for "no relations" ----------------------------------- */
 
-.ui20 .dmg-norel {
+.\32 0ui .dmg-norel {
   margin-top: var(--st-space-3);
   text-align: center;
   font-size: var(--st-font-size-sm);

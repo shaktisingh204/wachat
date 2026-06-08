@@ -1,11 +1,11 @@
 /* WachatPage — the single page frame for every WaChat page.
  *
  * One width, one responsive gutter, one header→body rhythm. Tokens only
- * (--st-*), so it tracks 20ui light/dark automatically. Scoped under .ui20
+ * (--st-*), so it tracks 20ui light/dark automatically. Scoped under .\32 0ui
  * (the container always carries it) so it can never leak onto other surfaces.
  */
 
-.ui20.wachat-page {
+.\32 0ui.wachat-page {
   width: 100%;
   min-height: 100%;
   background: var(--st-bg);
@@ -15,7 +15,7 @@
 }
 
 /* ----- Centered, padded content column (the default frame) ----- */
-.ui20.wachat-page .wachat-page__inner {
+.\32 0ui.wachat-page .wachat-page__inner {
   margin-inline: auto;
   width: 100%;
   max-width: 1320px;
@@ -24,21 +24,21 @@
   padding-block: var(--st-space-5) 40px; /* 24px top, 40px bottom */
 }
 
-.ui20.wachat-page .wachat-page__inner[data-width='narrow'] {
+.\32 0ui.wachat-page .wachat-page__inner[data-width='narrow'] {
   max-width: 880px;
 }
 
-.ui20.wachat-page .wachat-page__inner[data-width='wide'] {
+.\32 0ui.wachat-page .wachat-page__inner[data-width='wide'] {
   max-width: 1560px;
 }
 
 /* Breadcrumb sits tight above the header. */
-.ui20.wachat-page .wachat-page__crumbs {
+.\32 0ui.wachat-page .wachat-page__crumbs {
   margin-bottom: var(--st-space-4); /* 16px */
 }
 
 /* Page body: one consistent vertical rhythm between sections/cards. */
-.ui20.wachat-page .wachat-page__body {
+.\32 0ui.wachat-page .wachat-page__body {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-5); /* 24px */
@@ -47,12 +47,12 @@
 
 /* PageHeader (bordered) already owns its bottom padding + hairline; add the
    body's own breathing room after it without doubling up. */
-.ui20.wachat-page .wachat-page__body--after-header {
+.\32 0ui.wachat-page .wachat-page__body--after-header {
   margin-top: var(--st-space-5); /* 24px below the header hairline */
 }
 
 /* ----- Full-bleed "app" frame (inbox, kanban, flow canvas, calls) ----- */
-.ui20.wachat-page--app {
+.\32 0ui.wachat-page--app {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -62,8 +62,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ui20.wachat-page,
-  .ui20.wachat-page * {
+  .\32 0ui.wachat-page,
+  .\32 0ui.wachat-page * {
     scroll-behavior: auto;
   }
 }

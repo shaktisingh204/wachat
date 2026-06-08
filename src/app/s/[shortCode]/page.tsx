@@ -134,7 +134,7 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
 
     if (hasPixels && trackingAllowed) {
         return (
-            <main className="ui20 flex min-h-screen flex-col items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
+            <main className="20ui flex min-h-screen flex-col items-center justify-center p-4 bg-[var(--st-bg-secondary)]">
                 {/* Meta redirect as fallback */}
                 <meta httpEquiv="refresh" content={`2;url=${finalUrl}`} />
 
@@ -225,7 +225,7 @@ async function ShortUrlRedirectPageContent({ params }: { params: Promise<{ short
 
 export default function ShortUrlRedirectPage({ params }: { params: Promise<{ shortCode: string }> }) {
   return (
-    <React.Suspense fallback={<div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)]"><Spinner size="lg" label="Loading" /></div>}>
+    <React.Suspense fallback={<div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)]"><Spinner size="lg" label="Loading" /></div>}>
       <ShortUrlRedirectPageContent params={params} />
     </React.Suspense>
   );

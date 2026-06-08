@@ -438,7 +438,7 @@ export default function SabcrmFunctionsSettingsPage(): React.JSX.Element {
   }, [deleteTarget, remove]);
 
   return (
-    <div className="ui20 mx-auto flex w-full max-w-[1080px] flex-col gap-[var(--st-space-4)] p-[var(--st-space-4)]">
+    <div className="20ui mx-auto flex w-full max-w-[1080px] flex-col gap-[var(--st-space-4)] p-[var(--st-space-4)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Functions</PageTitle>

@@ -115,7 +115,7 @@ export function CampaignAnalyticsClient({ campaignId }: { campaignId: string }) 
   const unsubRate = pct(report.unsubscribed, report.delivered);
 
   return (
-    <div className="ui20 space-y-6">
+    <div className="20ui space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>{campaign.name}</PageTitle>

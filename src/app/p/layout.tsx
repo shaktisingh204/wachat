@@ -14,7 +14,7 @@ export default function PublicPortalLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="ui20 min-h-screen w-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen w-full bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6">
         <header className="flex items-center justify-between border-b border-[var(--st-border)] pb-4">
           <div className="flex items-center gap-2">

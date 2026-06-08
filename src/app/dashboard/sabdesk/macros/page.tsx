@@ -58,7 +58,7 @@ export default function MacrosPage() {
   const panelOpen = Boolean(selectedMacro) || isCreating;
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 flex gap-6">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 flex gap-6">
 
       {/* Main List Area */}
       <div className={`flex-1 transition-all duration-300 ${panelOpen ? 'hidden lg:block lg:w-1/2' : 'w-full'}`}>

@@ -275,7 +275,7 @@ function EditorContent({ flow: initialFlow }: Props) {
   return (
     <div
       ref={containerRef}
-      className="ui20 absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
+      className="20ui absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
     >
       {/* ── Webhook URL banner (shown after activation) ────────────── */}
       {webhookBanner && webhookBanner.length > 0 && (

@@ -86,7 +86,7 @@ export function AboutUsClient() {
   return (
     <div
       ref={container}
-      className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono selection:bg-[var(--st-text)] selection:text-[var(--st-bg)]"
+      className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono selection:bg-[var(--st-text)] selection:text-[var(--st-bg)]"
     >
       <LandingHeader />
       <div className="flex w-full">

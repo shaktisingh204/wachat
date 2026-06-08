@@ -56,7 +56,7 @@ export default function DeliverabilityPage({ dlrTrendData, volumeVsDlrData, fail
   const [showReroute, setShowReroute] = useState(true);
 
   return (
-    <div className="ui20 flex h-full flex-col overflow-y-auto bg-[var(--st-bg-secondary)] pb-12">
+    <div className="20ui flex h-full flex-col overflow-y-auto bg-[var(--st-bg-secondary)] pb-12">
       <SabsmsPageShell
         title="Deliverability Command Center"
         description="Enterprise-grade observability into delivery rates, latency, and carrier anomalies."

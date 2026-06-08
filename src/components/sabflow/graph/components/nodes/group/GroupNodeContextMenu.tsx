@@ -171,7 +171,7 @@ export function GroupNodeContextMenu({
     <div
       ref={menuRef}
       style={{ top: position.y, left: position.x }}
-      className="ui20 u-menu fixed z-[9999] min-w-[200px] select-none"
+      className="20ui u-menu fixed z-[9999] min-w-[200px] select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
       <MenuItem icon={Pencil} onSelect={handleEditTitle}>

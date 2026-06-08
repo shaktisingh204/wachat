@@ -122,7 +122,7 @@ export const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps
     return (
       <Vaul.Portal>
         {/* Token scope for everything we portal to <body>. */}
-        <div className="ui20 sabcrm-twenty u-drawer__layer">
+        <div className="20ui sabcrm-twenty u-drawer__layer">
           <Vaul.Overlay className="u-drawer__overlay" />
           <Vaul.Content
             ref={ref}

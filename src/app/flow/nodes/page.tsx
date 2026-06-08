@@ -8,7 +8,7 @@ export default function NodesSidebarPage() {
   const { toast } = useToast();
 
   return (
-    <div className="ui20 flex h-screen w-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] font-sans overflow-hidden">
+    <div className="20ui flex h-screen w-full bg-[var(--st-bg)] text-[var(--st-text-secondary)] font-sans overflow-hidden">
       <NodesSidebar />
       <main className="flex-1 flex flex-col items-center justify-center relative bg-[var(--st-bg)]">
         {/* Grid Background (static design pattern, tinted with the 20ui border token) */}

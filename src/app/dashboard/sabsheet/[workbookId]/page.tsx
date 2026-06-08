@@ -31,7 +31,7 @@ export default async function SabsheetWorkbookPage({ params }: PageProps) {
   ]);
 
   return (
-    <div className="ui20 flex h-[calc(100vh-3.5rem)] flex-col">
+    <div className="20ui flex h-[calc(100vh-3.5rem)] flex-col">
       <WorkbookEditor
         workbook={workbook}
         sheets={sheets}

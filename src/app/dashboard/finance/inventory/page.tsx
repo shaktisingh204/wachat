@@ -12,7 +12,7 @@ async function InventoryItemListContainer() {
 
 function InventoryItemFallback() {
   return (
-    <div className="ui20 flex w-full flex-col gap-4 p-8">
+    <div className="20ui flex w-full flex-col gap-4 p-8">
       <Skeleton height={40} width="100%" />
       <Skeleton height={400} width="100%" />
     </div>

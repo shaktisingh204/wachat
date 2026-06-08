@@ -33,7 +33,7 @@ export default async function MailboxAccountsAdminPage() {
     ]);
 
     return (
-        <div className="ui20 mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
+        <div className="20ui mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeading>
                     <PageTitle>Mailbox accounts</PageTitle>

@@ -5,7 +5,7 @@
    `--u-dock-mx` (0..1 cursor fraction) on the hovered <li> so the lift can lean
    toward the cursor side. transform/opacity only; reduced-motion strips it all. */
 
-:is(.ui20, .sabcrm-twenty) .u-dock {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock {
   --u-dock-size: 48px;
   /* How much extra scale the hovered tile gets, and its neighbours' share. */
   --u-dock-peak: 1.55;
@@ -17,7 +17,7 @@
   isolation: isolate;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-dock__list {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__list {
   position: relative;
   z-index: 1;
   display: flex;
@@ -35,7 +35,7 @@
 }
 
 /* Soft accent halo behind the bar (decorative). */
-:is(.ui20, .sabcrm-twenty) .u-dock__aurora {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__aurora {
   position: absolute;
   inset: -10% -6%;
   z-index: 0;
@@ -47,7 +47,7 @@
 }
 
 /* ----- Item wrapper ----- */
-:is(.ui20, .sabcrm-twenty) .u-dock__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__item {
   position: relative;
   display: flex;
   align-items: flex-end;
@@ -55,7 +55,7 @@
   flex: 0 0 auto;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-dock__btn {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn {
   appearance: none;
   display: block;
   margin: 0;
@@ -71,22 +71,22 @@
     translateX(calc((var(--u-dock-mx, 0.5) - 0.5) * var(--u-dock-size) * 0.12));
   transition: transform var(--u-dur) var(--u-ease-spring);
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:focus-visible {
   outline: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn[aria-disabled='true'],
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn[aria-disabled='true'],
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:active:not(:disabled):not([aria-disabled='true']) {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:active:not(:disabled):not([aria-disabled='true']) {
   /* Keep the cursor-lean translateX while pressing (scale alone would drop it). */
   transform: scale(0.94)
     translateX(calc((var(--u-dock-mx, 0.5) - 0.5) * var(--u-dock-size) * 0.12));
 }
 
 /* ----- Tile (the rounded square behind the glyph) ----- */
-:is(.ui20, .sabcrm-twenty) .u-dock__tile {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__tile {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -103,29 +103,29 @@
     box-shadow var(--u-dur-fast) var(--u-ease-out),
     background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tile {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tile {
   color: var(--st-accent);
   border-color: var(--st-accent);
   box-shadow: var(--u-elev-2);
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tile {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tile {
   box-shadow: var(--u-focus-ring);
   border-color: var(--st-accent);
   color: var(--st-accent);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-dock__glyph {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__glyph {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 55%;
   height: 55%;
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__glyph > svg {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__glyph > svg {
   width: 100%;
   height: 100%;
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__img {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__img {
   width: 64%;
   height: 64%;
   object-fit: contain;
@@ -133,12 +133,12 @@
 }
 
 /* ----- Active state ----- */
-:is(.ui20, .sabcrm-twenty) .u-dock__item.is-active .u-dock__tile {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__item.is-active .u-dock__tile {
   color: var(--st-accent);
   border-color: var(--st-accent);
   background: var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__dot {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__dot {
   position: absolute;
   left: 50%;
   bottom: calc(var(--u-dock-size) * -0.18);
@@ -152,13 +152,13 @@
     transform var(--u-dur) var(--u-ease-spring),
     opacity var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__item.is-active .u-dock__dot {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__item.is-active .u-dock__dot {
   transform: translateX(-50%) scale(1);
   opacity: 1;
 }
 
 /* ----- Tooltip ----- */
-:is(.ui20, .sabcrm-twenty) .u-dock__tip {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__tip {
   position: absolute;
   left: 50%;
   bottom: calc(100% + 8px);
@@ -182,7 +182,7 @@
     transform var(--u-dur-fast) var(--u-ease-out);
 }
 /* Tooltip pointer. */
-:is(.ui20, .sabcrm-twenty) .u-dock__tip::after {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__tip::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -193,8 +193,8 @@
   transform: translateX(-50%) translateY(-50%) rotate(45deg);
   border-radius: 1px;
 }
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tip,
-:is(.ui20, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tip {
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tip,
+:is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tip {
   opacity: 1;
   transform: translateX(-50%) translateY(0) scale(1);
 }
@@ -204,7 +204,7 @@
    The hovered icon peaks; its immediate neighbours grow less; the next
    ring grows least. Disabled when the dock is static or reduced-motion.
    ===================================================================== */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dock:not(.u-dock--static)
   .u-dock__item:hover
   .u-dock__btn {
@@ -213,12 +213,12 @@
 }
 
 /* Immediate neighbours (one each side). */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dock:not(.u-dock--static)
   .u-dock__item:hover
   + .u-dock__item
   .u-dock__btn,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dock:not(.u-dock--static)
   .u-dock__item:has(+ .u-dock__item:hover)
   .u-dock__btn {
@@ -226,13 +226,13 @@
 }
 
 /* Second ring (two away each side). */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dock:not(.u-dock--static)
   .u-dock__item:hover
   + .u-dock__item
   + .u-dock__item
   .u-dock__btn,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-dock:not(.u-dock--static)
   .u-dock__item:has(+ .u-dock__item + .u-dock__item:hover)
   .u-dock__btn {
@@ -241,21 +241,21 @@
 
 /* ----- Reduced motion: no magnify, no growth, no press, no slide ----- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-dock__btn,
-  :is(.ui20, .sabcrm-twenty) .u-dock__item:hover .u-dock__btn,
-  :is(.ui20, .sabcrm-twenty) .u-dock__item:hover + .u-dock__item .u-dock__btn,
-  :is(.ui20, .sabcrm-twenty) .u-dock__item:has(+ .u-dock__item:hover) .u-dock__btn,
-  :is(.ui20, .sabcrm-twenty) .u-dock__item:hover + .u-dock__item + .u-dock__item .u-dock__btn,
-  :is(.ui20, .sabcrm-twenty) .u-dock__item:has(+ .u-dock__item + .u-dock__item:hover) .u-dock__btn {
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__btn,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__item:hover .u-dock__btn,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__item:hover + .u-dock__item .u-dock__btn,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__item:has(+ .u-dock__item:hover) .u-dock__btn,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__item:hover + .u-dock__item + .u-dock__item .u-dock__btn,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__item:has(+ .u-dock__item + .u-dock__item:hover) .u-dock__btn {
     transform: none;
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-dock__tip,
-  :is(.ui20, .sabcrm-twenty) .u-dock__dot {
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__tip,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__dot {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tip,
-  :is(.ui20, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tip {
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:hover .u-dock__tip,
+  :is(.\32 0ui, .sabcrm-twenty) .u-dock__btn:focus-visible .u-dock__tip {
     transform: translateX(-50%) translateY(0) scale(1);
   }
 }

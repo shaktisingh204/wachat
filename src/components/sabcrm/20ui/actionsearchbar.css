@@ -1,6 +1,6 @@
 /* 20ui · ActionSearchBar — inline search that ranks + runs actions */
 
-:is(.ui20, .sabcrm-twenty) .u-asb {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb {
   position: relative;
   display: block;
   width: 100%;
@@ -9,7 +9,7 @@
 }
 
 /* ----- Field ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__field {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__field {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -24,22 +24,22 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__field:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__field:hover {
   border-color: var(--st-border-strong);
 }
 /* Field shows the focus state when its inner input is focused. */
-:is(.ui20, .sabcrm-twenty) .u-asb__field:has(.u-asb__input:focus-visible),
-:is(.ui20, .sabcrm-twenty) .u-asb__field[data-active] {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__field:has(.u-asb__input:focus-visible),
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__field[data-active] {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-ring);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__lead {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__lead {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__input {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__input {
   flex: 1 1 auto;
   min-width: 0;
   height: 100%;
@@ -53,12 +53,12 @@
   line-height: 1.4;
   outline: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__input::placeholder {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__input::placeholder {
   color: var(--st-text-tertiary);
 }
 
 /* ----- Clear button (icon-only) ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__clear {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__clear {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -76,20 +76,20 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__clear:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__clear:hover {
   background: var(--st-hover);
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__clear:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__clear:active {
   transform: scale(0.92);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__clear:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__clear:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Trailing hint (e.g. a "/" key) ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__hint {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__hint {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -107,7 +107,7 @@
 }
 
 /* ----- Panel ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__panel {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__panel {
   position: absolute;
   top: calc(100% + var(--st-space-2));
   left: 0;
@@ -123,7 +123,7 @@
   animation: u-asb-in var(--u-dur) var(--u-ease-out);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__list {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -132,7 +132,7 @@
 }
 
 /* ----- Group heading ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__heading {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__heading {
   padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -141,12 +141,12 @@
   text-transform: uppercase;
 }
 /* The very first heading needs no extra lead-in space. */
-:is(.ui20, .sabcrm-twenty) .u-asb__heading:first-child {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__heading:first-child {
   padding-top: var(--st-space-1);
 }
 
 /* ----- Option row ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__option {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -160,14 +160,14 @@
   /* Colour only — the active row is keyboard-driven and constantly visible. */
   transition: background var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__option[data-active] {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option[data-active] {
   background: var(--st-hover);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__option:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option:active {
   background: var(--st-active);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__option-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option-icon {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -176,15 +176,15 @@
   height: 16px;
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__option-icon :where(svg) {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option-icon :where(svg) {
   width: 16px;
   height: 16px;
 }
-:is(.ui20, .sabcrm-twenty) .u-asb__option[data-active] .u-asb__option-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option[data-active] .u-asb__option-icon {
   color: var(--st-text-secondary);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__option-label {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option-label {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -192,7 +192,7 @@
   text-overflow: ellipsis;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-asb__option-shortcut {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__option-shortcut {
   flex: 0 0 auto;
   margin-left: auto;
   padding-left: var(--st-space-3);
@@ -203,7 +203,7 @@
 }
 
 /* ----- Empty state ----- */
-:is(.ui20, .sabcrm-twenty) .u-asb__empty {
+:is(.\32 0ui, .sabcrm-twenty) .u-asb__empty {
   margin: 0;
   padding: var(--st-space-3) var(--st-space-2);
   color: var(--st-text-tertiary);
@@ -224,15 +224,15 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-asb__panel {
+  :is(.\32 0ui, .sabcrm-twenty) .u-asb__panel {
     /* Fade only — no movement or scale. */
     animation: u-asb-fade var(--u-dur-fast) ease;
   }
-  :is(.ui20, .sabcrm-twenty) .u-asb__clear,
-  :is(.ui20, .sabcrm-twenty) .u-asb__field {
+  :is(.\32 0ui, .sabcrm-twenty) .u-asb__clear,
+  :is(.\32 0ui, .sabcrm-twenty) .u-asb__field {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-asb__clear:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-asb__clear:active {
     transform: none;
   }
   @keyframes u-asb-fade {

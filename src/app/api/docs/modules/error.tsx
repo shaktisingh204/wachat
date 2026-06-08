@@ -17,7 +17,7 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex items-center justify-center p-6">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex items-center justify-center p-6">
       <Card variant="outlined" padding="lg" className="max-w-md w-full">
         <EmptyState
           icon={AlertTriangle}

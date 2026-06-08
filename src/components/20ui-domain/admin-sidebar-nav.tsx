@@ -45,7 +45,7 @@ export function AdminSidebarNav() {
             : pathname.startsWith(item.href);
 
     return (
-        <aside className="ui20 w-64 shrink-0 flex flex-col bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] h-full text-[var(--st-text)]">
+        <aside className="20ui w-64 shrink-0 flex flex-col bg-[var(--st-bg-secondary)] border-r border-[var(--st-border)] h-full text-[var(--st-text)]">
             {/* Logo */}
             <div className="h-16 px-5 flex items-center gap-3 border-b border-[var(--st-border)] shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] border border-[var(--st-border)]">

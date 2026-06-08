@@ -95,7 +95,7 @@ export default function AnalyticsCustomerSatisfactionPage() {
   }, [searchTerm]);
 
   return (
-    <div className="ui20 flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Analytics Customer Satisfaction Dashboard</PageTitle>

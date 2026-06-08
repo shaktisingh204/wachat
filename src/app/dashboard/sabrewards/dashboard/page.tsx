@@ -32,7 +32,7 @@ export default async function RewardsDashboardPage(): Promise<React.JSX.Element>
   }
 
   return (
-    <div className="ui20 flex flex-col gap-6">
+    <div className="20ui flex flex-col gap-6">
       <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="Members" value={kpis.totalMembers.toLocaleString()} icon={<Users />} />
         <StatCard

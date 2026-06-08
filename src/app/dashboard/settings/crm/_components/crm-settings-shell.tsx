@@ -29,7 +29,7 @@ export function CrmSettingsShell({ children }: { children: React.ReactNode }): R
 
   return (
     <div
-      className={`sabcrm-twenty ui20 ${appDark ? 'dark st-theme-dark' : 'light'} h-full overflow-y-auto bg-[var(--st-bg-secondary)] text-[var(--st-text)]`}
+      className={`sabcrm-twenty 20ui ${appDark ? 'dark st-theme-dark' : 'light'} h-full overflow-y-auto bg-[var(--st-bg-secondary)] text-[var(--st-text)]`}
     >
       <div className="mx-auto max-w-[1120px] px-[var(--st-space-5)] pb-[var(--st-space-6)] pt-[var(--st-space-4)]">
         <div className="mb-[var(--st-space-4)] flex items-center">

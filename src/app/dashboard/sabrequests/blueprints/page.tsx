@@ -31,7 +31,7 @@ export default async function BlueprintsListPage() {
     const res = await listBlueprints({ limit: 200 });
     const rows = res.data ?? [];
     return (
-        <div className="ui20 flex flex-col gap-6 p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Blueprints</PageTitle>

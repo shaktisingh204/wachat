@@ -279,7 +279,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
 
     return (
         <div
-            className="ui20 flex flex-col h-full border-l [background:var(--st-surface)] [border-color:var(--st-border)]"
+            className="20ui flex flex-col h-full border-l [background:var(--st-surface)] [border-color:var(--st-border)]"
         >
             <div
                 className="px-4 py-3 border-b flex items-center justify-between flex-shrink-0 [background:var(--st-bg-secondary)] [border-color:var(--st-border)]"

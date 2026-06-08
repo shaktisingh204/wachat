@@ -837,7 +837,7 @@ export default function SabSignIntegrations() {
   ];
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] p-4 pb-24 text-[var(--st-text)] md:p-8">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] p-4 pb-24 text-[var(--st-text)] md:p-8">
       <div className="relative mx-auto max-w-[1400px] space-y-8">
         <PageHeader>
           <PageHeaderHeading>

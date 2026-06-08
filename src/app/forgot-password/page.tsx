@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default function Page(props: any) {
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <Suspense fallback={<Loading />}>
         <ClientPage {...props} />
       </Suspense>

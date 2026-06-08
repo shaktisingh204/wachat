@@ -14,7 +14,7 @@ async function SubscriptionPageContainer() {
 /** Shape-matching loading placeholder that mirrors the subscriptions surface. */
 function SubscriptionPageSkeleton() {
   return (
-    <div className="ui20 space-y-6 p-8" aria-busy="true">
+    <div className="20ui space-y-6 p-8" aria-busy="true">
       <div className="space-y-2">
         <Skeleton className="h-7 w-56" />
         <Skeleton className="h-4 w-80" />

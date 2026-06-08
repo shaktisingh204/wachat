@@ -19,7 +19,7 @@ export default async function AdminDashboardLayout({
     }
 
     return (
-        <div className="ui20 flex h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)] overflow-hidden">
+        <div className="20ui flex h-screen bg-[var(--st-bg-secondary)] text-[var(--st-text)] overflow-hidden">
             {/* Sidebar */}
             <AdminSidebarNav />
 

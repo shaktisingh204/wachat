@@ -14,7 +14,7 @@ interface ChatHeaderProps {
 export function ChatHeader({ widgetName, primaryColor, onClose, isOnline }: ChatHeaderProps) {
   return (
     <header
-      className="ui20 flex items-center justify-between px-4 py-3 text-[var(--st-text-inverted)]"
+      className="20ui flex items-center justify-between px-4 py-3 text-[var(--st-text-inverted)]"
       style={{ background: primaryColor }}
     >
       <div className="flex items-center gap-2">

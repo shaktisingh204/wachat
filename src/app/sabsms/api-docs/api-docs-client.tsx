@@ -425,7 +425,7 @@ export default function ApiDocsClient() {
   const safeActiveLang = endpointData.codeExamples[activeLang] ? activeLang : Object.keys(endpointData.codeExamples)[0];
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg-secondary)] font-sans text-[var(--st-text)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg-secondary)] font-sans text-[var(--st-text)]">
 
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)]/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">

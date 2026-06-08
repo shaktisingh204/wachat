@@ -56,7 +56,7 @@ export default async function PublicCheckoutPage({
       // backgroundColor is the buyer-facing event theme color picked per page,
       // so it is genuinely runtime-computed and stays inline.
       style={{ backgroundColor: theme.background ?? '#0b0b10' }}
-      className="ui20 min-h-screen px-4 py-10 text-white md:px-12"
+      className="20ui min-h-screen px-4 py-10 text-white md:px-12"
     >
       <div className="mx-auto max-w-2xl">
         <PageHeader bordered={false}>

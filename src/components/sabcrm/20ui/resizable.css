@@ -14,7 +14,7 @@
       `flex-grow/shrink: 0` and `flex-basis: auto` inline, so we size the track
       with width/height, never flex. */
 
-:is(.ui20, .sabcrm-twenty) .u-resizable {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable {
   position: relative;
   height: 100%;
   width: 100%;
@@ -26,7 +26,7 @@
 /* Panel: the library applies this class to its inner flex child. Keep it a
    plain, clipping region so long content scrolls inside instead of bleeding
    over the divider. */
-:is(.ui20, .sabcrm-twenty) .u-resizable__panel {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__panel {
   position: relative;
   overflow: auto;
   min-width: 0;
@@ -36,7 +36,7 @@
 /* ----- Handle (the Separator) -------------------------------------------- */
 /* A centred hairline inside a wider, invisible hit/keyboard target. The visible
    line lives in ::after so the focus ring can wrap the whole grab strip. */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle {
   position: relative;
   display: flex;
   align-items: center;
@@ -49,7 +49,7 @@
 }
 
 /* The hairline rule. transform + opacity are the only animated properties. */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle::after {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle::after {
   content: '';
   position: absolute;
   background: var(--st-border);
@@ -60,12 +60,12 @@
 }
 
 /* Vertical divider line => the group is horizontal (panels side by side). */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle[aria-orientation='vertical'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle[aria-orientation='vertical'] {
   width: 11px;
   align-self: stretch;
   cursor: col-resize;
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='vertical']::after {
   top: 0;
   bottom: 0;
@@ -75,12 +75,12 @@
 }
 
 /* Horizontal divider line => the group is vertical (panels stacked). */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle[aria-orientation='horizontal'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle[aria-orientation='horizontal'] {
   height: 11px;
   align-self: stretch;
   cursor: row-resize;
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal']::after {
   left: 0;
   right: 0;
@@ -91,59 +91,59 @@
 
 /* Accent track on hover / active drag (library `data-separator` state) and on
    keyboard focus. The line thickens (scale on the cross axis) + takes accent. */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle:hover::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[data-separator='hover']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[data-separator='active']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle:focus-visible::after {
   background: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='vertical']:hover::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='vertical'][data-separator='hover']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='vertical'][data-separator='active']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='vertical']:focus-visible::after {
   transform: translateX(-50%) scaleX(2);
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal']:hover::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal'][data-separator='hover']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal'][data-separator='active']::after,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal']:focus-visible::after {
   transform: translateY(-50%) scaleY(2);
 }
 
 /* Visible keyboard focus on the whole strip (fixing-accessibility). */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle:focus-visible {
   border-radius: var(--st-radius-sm);
   box-shadow: var(--u-focus-ring);
 }
 
 /* Disabled separator: no affordance, no accent. */
-:is(.ui20, .sabcrm-twenty) .u-resizable__handle[data-separator='disabled'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle[data-separator='disabled'] {
   cursor: default;
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[data-separator='disabled']::after {
   background: var(--st-border-light);
   transform: translateX(-50%);
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal'][data-separator='disabled']::after {
   transform: translateY(-50%);
 }
 
 /* ----- Optional grip pill ------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-resizable__grip {
+:is(.\32 0ui, .sabcrm-twenty) .u-resizable__grip {
   position: relative;
   z-index: 1;
   display: inline-flex;
@@ -164,35 +164,35 @@
 
 /* On a vertical group the divider runs horizontally, so lay the grip on its
    side (wider than tall) and rotate the icon to match. */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal']
   .u-resizable__grip {
   width: 22px;
   height: 14px;
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle[aria-orientation='horizontal']
   .u-resizable__grip-icon {
   transform: rotate(90deg);
 }
 
 /* Grip lights up with the same accent + a gentle press feel. */
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle--grip:hover
   .u-resizable__grip,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle--grip[data-separator='hover']
   .u-resizable__grip,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle--grip[data-separator='active']
   .u-resizable__grip,
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle--grip:focus-visible
   .u-resizable__grip {
   color: var(--st-accent);
   border-color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty)
+:is(.\32 0ui, .sabcrm-twenty)
   .u-resizable__handle--grip[data-separator='active']
   .u-resizable__grip {
   transform: scale(0.94);
@@ -200,31 +200,31 @@
 
 /* Reduced motion: drop all movement, keep colour-only state changes. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-resizable__handle::after,
-  :is(.ui20, .sabcrm-twenty) .u-resizable__grip {
+  :is(.\32 0ui, .sabcrm-twenty) .u-resizable__handle::after,
+  :is(.\32 0ui, .sabcrm-twenty) .u-resizable__grip {
     transition-property: background-color, border-color, color;
   }
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='vertical']:hover::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='vertical'][data-separator='hover']::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='vertical'][data-separator='active']::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='vertical']:focus-visible::after {
     transform: translateX(-50%);
   }
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='horizontal']:hover::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='horizontal'][data-separator='hover']::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='horizontal'][data-separator='active']::after,
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle[aria-orientation='horizontal']:focus-visible::after {
     transform: translateY(-50%);
   }
-  :is(.ui20, .sabcrm-twenty)
+  :is(.\32 0ui, .sabcrm-twenty)
     .u-resizable__handle--grip[data-separator='active']
     .u-resizable__grip {
     transform: none;

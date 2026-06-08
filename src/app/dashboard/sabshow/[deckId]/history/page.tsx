@@ -37,7 +37,7 @@ export default async function HistoryPage({ params }: HistoryPageProps) {
     const versions = await listSabshowVersions(deckId);
 
     return (
-        <div className="ui20 mx-auto w-full max-w-3xl space-y-4 p-6">
+        <div className="20ui mx-auto w-full max-w-3xl space-y-4 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>{deck.title}</PageTitle>

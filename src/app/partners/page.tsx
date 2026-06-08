@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function PartnersPage() {
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono antialiased">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-mono antialiased">
       {/* Developer-First OpenAPI layout style */}
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)]/80 backdrop-blur-md px-6 py-4">

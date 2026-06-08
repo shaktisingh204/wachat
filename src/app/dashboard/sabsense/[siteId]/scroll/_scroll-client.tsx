@@ -63,7 +63,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
 
     if (!site) {
         return (
-            <div className="ui20 p-8">
+            <div className="20ui p-8">
                 <EmptyState
                     icon={MapPin}
                     title="Site not found"
@@ -80,7 +80,7 @@ export function ScrollClient({ site, initialUrl, snapshots, scrollEvents }: Prop
     };
 
     return (
-        <div className="ui20 p-8 space-y-6">
+        <div className="20ui p-8 space-y-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>{site.name} scroll map</PageTitle>

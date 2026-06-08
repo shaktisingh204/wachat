@@ -47,7 +47,7 @@ export default async function PrintAuditPage({
 
     if (!audit) {
         return (
-            <div className="ui20 flex items-center justify-center h-screen bg-[var(--st-bg)]">
+            <div className="20ui flex items-center justify-center h-screen bg-[var(--st-bg)]">
                 <EmptyState
                     icon={FileWarning}
                     tone="danger"
@@ -69,7 +69,7 @@ export default async function PrintAuditPage({
     const hasPages = Boolean(audit.pages && audit.pages.length > 0);
 
     return (
-        <div className="ui20 p-8 bg-[var(--st-bg)] text-[var(--st-text)] max-w-[210mm] mx-auto min-h-screen">
+        <div className="20ui p-8 bg-[var(--st-bg)] text-[var(--st-text)] max-w-[210mm] mx-auto min-h-screen">
             <style>{`
                 @media print {
                     @page { margin: 15mm; }

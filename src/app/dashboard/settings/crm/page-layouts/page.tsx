@@ -774,7 +774,7 @@ export default function SabcrmPageLayoutsSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="ui20 min-h-full bg-[var(--st-bg)] px-6 py-6 text-[var(--st-text)]">
+    <div className="20ui min-h-full bg-[var(--st-bg)] px-6 py-6 text-[var(--st-text)]">
       <div className="mx-auto w-full max-w-5xl">
         <PageHeader>
           <PageHeaderHeading>

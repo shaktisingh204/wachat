@@ -4,7 +4,7 @@ import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (
-    <div className="ui20 min-h-screen flex items-center justify-center bg-[var(--st-bg-secondary)] p-4">
+    <div className="20ui min-h-screen flex items-center justify-center bg-[var(--st-bg-secondary)] p-4">
       <div className="w-full max-w-[640px] h-[700px] max-h-[100dvh] flex flex-col overflow-hidden rounded-[var(--st-radius-lg)] shadow-2xl bg-[var(--st-bg)]">
         {/* Header skeleton */}
         <div className="shrink-0 flex items-center gap-3 px-5 py-3.5 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">

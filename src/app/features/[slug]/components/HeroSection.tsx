@@ -17,7 +17,7 @@ export function HeroSection({ feature, categoryMeta }: HeroSectionProps) {
   const Icon = FEATURE_ICONS[feature.iconKey] ?? Sparkles;
 
   return (
-    <section className="ui20 relative overflow-hidden">
+    <section className="20ui relative overflow-hidden">
       {/* feature-tinted halo */}
       <div
         aria-hidden

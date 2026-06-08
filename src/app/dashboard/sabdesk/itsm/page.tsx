@@ -709,7 +709,7 @@ export default function SabDeskITSM() {
   ] as const;
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Top header */}
       <header className="sticky top-0 z-40 bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-4">

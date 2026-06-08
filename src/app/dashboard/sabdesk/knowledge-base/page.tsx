@@ -186,7 +186,7 @@ export default function KnowledgeBasePage() {
   ];
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       {/* Header */}
       <PageHeader>
         <PageHeaderHeading>
@@ -620,7 +620,7 @@ export default function KnowledgeBasePage() {
 
       {/* Editor Modal / Fullscreen Overlay */}
       {isEditorOpen && (
-        <div className="ui20 dark fixed inset-0 z-50 bg-[var(--st-bg)] flex flex-col">
+        <div className="20ui dark fixed inset-0 z-50 bg-[var(--st-bg)] flex flex-col">
           {/* Editor Header */}
           <div className="h-16 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between px-6">
             <div className="flex items-center gap-4">

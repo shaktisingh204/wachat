@@ -173,7 +173,7 @@ export default function ReviewsModerationPage() {
   const filteredReviews = mockReviews.filter((r) => filter === "All" || r.status === filter);
 
   return (
-    <div className="ui20 flex w-full flex-col gap-6 p-6">
+    <div className="20ui flex w-full flex-col gap-6 p-6">
       <PageHeaderBlock />
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

@@ -108,7 +108,7 @@ export default async function SabbiginPipelinePage() {
     }
 
     return (
-        <div className="ui20 flex w-full flex-col gap-4">
+        <div className="20ui flex w-full flex-col gap-4">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>SabBigin</PageEyebrow>

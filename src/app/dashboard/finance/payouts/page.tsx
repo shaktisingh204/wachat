@@ -17,7 +17,7 @@ async function PayoutPageContainer() {
 
 function PayoutPageFallback() {
   return (
-    <div className="ui20 space-y-4 p-8">
+    <div className="20ui space-y-4 p-8">
       <Skeleton height={40} width="100%" radius="var(--st-radius)" />
       <Skeleton height={400} width="100%" radius="var(--st-radius)" />
     </div>

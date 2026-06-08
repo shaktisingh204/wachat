@@ -20,7 +20,7 @@ export const metadata = {
 
 export default function Demo20Page() {
   return (
-    <main className="ui20 demo20-root">
+    <main className="20ui demo20-root">
       <Ui20Showcase />
     </main>
   );

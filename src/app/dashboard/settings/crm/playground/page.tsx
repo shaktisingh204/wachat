@@ -287,7 +287,7 @@ export default function SabcrmApiPlaygroundPage(): React.JSX.Element {
   const noProject = !isLoadingProject && !activeProjectId;
 
   return (
-    <div className="ui20 mx-auto w-full max-w-3xl px-6 py-8">
+    <div className="20ui mx-auto w-full max-w-3xl px-6 py-8">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>API Playground</PageTitle>

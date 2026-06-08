@@ -546,7 +546,7 @@ export default function SabcrmViewsSettingsPage(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="ui20 flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Views</PageTitle>

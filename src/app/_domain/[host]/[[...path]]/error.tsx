@@ -16,7 +16,7 @@ export default function DomainError({
   }, [error]);
 
   return (
-    <div className="ui20 min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen flex items-center justify-center p-6 bg-[var(--st-bg)] text-[var(--st-text)]">
       <EmptyState
         icon={AlertTriangle}
         tone="danger"

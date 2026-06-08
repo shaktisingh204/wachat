@@ -17,7 +17,7 @@ export default function BlogError({
   }, [error]);
 
   return (
-    <div className="ui20 dark min-h-screen flex flex-col items-center justify-center bg-[var(--st-bg)] p-8">
+    <div className="20ui dark min-h-screen flex flex-col items-center justify-center bg-[var(--st-bg)] p-8">
       <EmptyState
         tone="danger"
         icon={AlertTriangle}

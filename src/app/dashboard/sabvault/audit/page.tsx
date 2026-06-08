@@ -47,7 +47,7 @@ export default async function SabvaultAuditPage(props: {
     });
 
     return (
-        <div className="ui20 mx-auto flex max-w-5xl flex-col gap-4 p-6">
+        <div className="20ui mx-auto flex max-w-5xl flex-col gap-4 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>SabVault</PageEyebrow>

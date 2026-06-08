@@ -109,7 +109,7 @@ const _CONTACTS_PER_PAGE = 30;
 
 function ChatPageSkeleton() {
   return (
-    <div className="ui20 flex h-full w-full gap-3 p-3">
+    <div className="20ui flex h-full w-full gap-3 p-3">
       <Skeleton className="h-full w-[320px] shrink-0" />
       <Skeleton className="h-full flex-1" />
       <Skeleton className="hidden h-full w-[300px] shrink-0 lg:block" />
@@ -795,7 +795,7 @@ export function Ui20ChatClient() {
 
   if (!activeProjectId) {
     return (
-      <div className="ui20 flex h-full items-center justify-center p-4">
+      <div className="20ui flex h-full items-center justify-center p-4">
         <Alert
           tone="danger"
           title="No project selected"
@@ -817,7 +817,7 @@ export function Ui20ChatClient() {
         onOpenChange={setIsNewChatDialogOpen}
         onStartChat={handleNewChat}
       />
-      <div className="ui20 flex h-full w-full flex-col overflow-hidden bg-[var(--st-bg)]">
+      <div className="20ui flex h-full w-full flex-col overflow-hidden bg-[var(--st-bg)]">
         <div className="flex flex-1 overflow-hidden">
           {/* Pane 1 — conversations list */}
           <div

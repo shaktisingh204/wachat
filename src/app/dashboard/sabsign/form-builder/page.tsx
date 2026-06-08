@@ -153,7 +153,7 @@ export default function SabSignFormBuilder() {
   const activeRecipientColor = recipients.find((r) => r.id === activeRecipient)?.color;
 
   return (
-    <div className="ui20 dark flex flex-col h-screen bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
+    <div className="20ui dark flex flex-col h-screen bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
 
       {/* Top Navbar */}
       <header className="flex items-center justify-between px-4 py-3 bg-[var(--st-bg)] border-b border-[var(--st-border)] shrink-0 z-30">

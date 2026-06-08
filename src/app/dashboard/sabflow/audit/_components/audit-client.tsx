@@ -235,7 +235,7 @@ export function AuditClient() {
   /* -- render ------------------------------------------------------------- */
 
   return (
-    <div className="ui20 flex flex-col h-full">
+    <div className="20ui flex flex-col h-full">
       {/* Header */}
       <PageHeader className="px-4 sm:px-6 shrink-0">
         <PageHeaderHeading>

@@ -273,7 +273,7 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="ui20 flex flex-col gap-3 max-w-4xl mx-auto">
+    <div className="20ui flex flex-col gap-3 max-w-4xl mx-auto">
       {/* Top toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">

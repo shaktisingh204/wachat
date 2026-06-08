@@ -121,7 +121,7 @@ export default function CommunityPage() {
   const [activeTab, setActiveTab] = useState("forums");
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle className="flex items-center gap-3">

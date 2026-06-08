@@ -14,7 +14,7 @@ export default async function AdminMacrosPage() {
     const items = resp.items ?? [];
 
     return (
-        <div className="ui20 flex flex-1 flex-col min-h-0">
+        <div className="20ui flex flex-1 flex-col min-h-0">
             <PageHeader compact className="px-4 pt-4">
                 <PageHeaderHeading>
                     <PageTitle>Macros</PageTitle>

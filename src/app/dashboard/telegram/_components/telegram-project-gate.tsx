@@ -38,7 +38,7 @@ export function TelegramProjectGate({
     const href = `/dashboard/telegram/projects?next=${encodeURIComponent(target)}`;
 
     return (
-        <div className="ui20">
+        <div className="20ui">
             <Alert tone="info">
                 {explainer ??
                     'Pick a Telegram project to see data here. Bots, chats, broadcasts, and rules are all scoped to a project.'}

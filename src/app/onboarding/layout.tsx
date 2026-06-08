@@ -8,7 +8,7 @@ export default function OnboardingLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <header className="border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]/60 backdrop-blur-sm">
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
                     <Link href="/" className="flex items-center gap-2">

@@ -60,7 +60,7 @@ export function ScriptTestPanel({ result, variablesBefore, onClose }: Props) {
     <Card
       variant="outlined"
       padding="none"
-      className="ui20 mt-1 overflow-hidden bg-[var(--st-bg-secondary)]"
+      className="20ui mt-1 overflow-hidden bg-[var(--st-bg-secondary)]"
     >
       {/* Header row */}
       <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-2">

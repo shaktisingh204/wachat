@@ -4,7 +4,7 @@
  * Import the whole system from one place:
  *   import { Button, Card, Badge, Field, Input, Switch, Tabs, Modal } from '@/components/sabcrm/20ui';
  *
- * 20ui is app-wide: wrap any subtree in `<div className="ui20">` and every
+ * 20ui is app-wide: wrap any subtree in `<div className="20ui">` and every
  * component renders with its own self-contained tokens (light by default, add
  * `.dark` for dark mode) — no dependency on the CRM `.sabcrm-twenty` scope. The
  * token foundation (`./tokens.css`) is imported here so it loads wherever

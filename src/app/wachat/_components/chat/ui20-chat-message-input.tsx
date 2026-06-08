@@ -269,7 +269,7 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 </Command>
             </Modal>
 
-            <div className="ui20 flex w-full items-center gap-2 p-2 relative">
+            <div className="20ui flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
                     disabled={disabled || isUploading}
                     onMediaSelect={(type) => setTimeout(() => handleMediaClick(type), 0)}

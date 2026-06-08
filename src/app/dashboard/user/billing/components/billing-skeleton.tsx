@@ -6,7 +6,7 @@ import { Card, Skeleton } from '@/components/sabcrm/20ui';
 
 export const BillingSkeleton = () => {
   return (
-    <div className="ui20 flex flex-col gap-10 w-full" aria-busy="true">
+    <div className="20ui flex flex-col gap-10 w-full" aria-busy="true">
       {/* Hero header area skeleton */}
       <Card variant="elevated" padding="lg" className="relative overflow-hidden h-48">
         <Skeleton width={128} height={24} radius={999} className="mb-4" />

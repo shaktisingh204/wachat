@@ -107,7 +107,7 @@ export function Simulator({ onNewRequest }: SimulatorProps) {
   };
 
   return (
-    <div className="ui20 w-full lg:w-[450px] xl:w-[550px] bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-6 flex flex-col md:h-screen md:overflow-y-auto">
+    <div className="20ui w-full lg:w-[450px] xl:w-[550px] bg-[var(--st-bg-secondary)] border-l border-[var(--st-border)] p-6 flex flex-col md:h-screen md:overflow-y-auto">
       <div className="mb-8">
         <h3 className="text-sm font-bold uppercase tracking-widest text-[var(--st-text-tertiary)] mb-3">Example Request</h3>
         <div className="bg-[var(--st-bg)] border border-[var(--st-border)] rounded-[var(--st-radius)] p-4 text-xs font-mono text-[var(--st-text-secondary)] overflow-x-auto">

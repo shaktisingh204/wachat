@@ -146,7 +146,7 @@ export default function SignerPortalPage() {
   };
 
   return (
-    <div className="ui20 dark flex flex-col h-screen overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex flex-col h-screen overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
 
       {/* Top Navigation Bar */}
       <header className="flex-none h-16 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between px-6 z-20">

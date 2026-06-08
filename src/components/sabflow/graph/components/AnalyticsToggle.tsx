@@ -49,7 +49,7 @@ export function AnalyticsToggle({ isHeatmapEnabled, onHeatmapToggle }: Props) {
   const isLoading = status === 'loading';
 
   return (
-    <div className="ui20 relative">
+    <div className="20ui relative">
       <Popover>
         <PopoverTrigger asChild>
           <IconButton

@@ -362,7 +362,7 @@ export default function Page() {
   const hasNoProject = !projectId;
 
   return (
-    <div className="ui20 flex min-h-full flex-col gap-6">
+    <div className="20ui flex min-h-full flex-col gap-6">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

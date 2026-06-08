@@ -143,7 +143,7 @@ export default async function ChangelogPage({ searchParams }: { searchParams: Pr
   const allTags = Array.from(new Set(allEntries.flatMap(e => e.tags))).sort();
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <LandingHeader active="resources" />
       <div className="flex flex-col lg:flex-row max-w-7xl mx-auto border-x border-[var(--st-border)] min-h-[calc(100vh-64px)]">
 

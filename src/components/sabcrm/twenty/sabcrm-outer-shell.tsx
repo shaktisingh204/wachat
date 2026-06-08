@@ -66,13 +66,13 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
       <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
         {/* 20ui AppRail, scoped to its own design-system root + synced to the
             app theme so dark/light always matches the surrounding chrome. */}
-        <div className={`ui20 ${appDark ? 'dark' : 'light'}`} style={{ display: 'flex' }}>
+        <div className={`20ui ${appDark ? 'dark' : 'light'}`} style={{ display: 'flex' }}>
           <AppRail items={railItems} label="SabNode apps" />
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col">
           {/* Header — 20ui AppHeader, theme-synced (mirrors Ui20HomeShell). */}
-          <div className={`ui20 ${appDark ? 'dark' : 'light'}`}>
+          <div className={`20ui ${appDark ? 'dark' : 'light'}`}>
             <AppHeader
               sticky={false}
               leading={

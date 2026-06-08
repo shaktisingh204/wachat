@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------ */
 /* Skeleton — a shimmer that moves a gradient's background-position    */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-skeleton {
+:is(.\32 0ui, .sabcrm-twenty) .u-skeleton {
   display: block;
   width: 100%;
   height: 0.85em;
@@ -20,7 +20,7 @@
   background-position: 200% 0;
   animation: u-skeleton-shimmer 1.4s var(--u-ease-out) infinite;
 }
-:is(.ui20, .sabcrm-twenty) .u-skeleton--circle {
+:is(.\32 0ui, .sabcrm-twenty) .u-skeleton--circle {
   flex: 0 0 auto;
 }
 
@@ -33,7 +33,7 @@
 /* ------------------------------------------------------------------ */
 /* Spinner — a rotating ring via the border trick                     */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-spinner {
+:is(.\32 0ui, .sabcrm-twenty) .u-spinner {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -42,7 +42,7 @@
   flex: 0 0 auto;
   color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-spinner__ring {
+:is(.\32 0ui, .sabcrm-twenty) .u-spinner__ring {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -60,7 +60,7 @@
 /* ------------------------------------------------------------------ */
 /* Progress (linear)                                                   */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-progress {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress {
   position: relative;
   width: 100%;
   height: 8px;
@@ -70,27 +70,27 @@
   /* tone is exposed as a single var so fill + ring share the palette */
   --u-progress-tone: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--sm {
   height: 5px;
 }
-:is(.ui20, .sabcrm-twenty) .u-progress--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--lg {
   height: 12px;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-progress--accent {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--accent {
   --u-progress-tone: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress--success {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--success {
   --u-progress-tone: var(--st-status-ok);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress--warning {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--warning {
   --u-progress-tone: var(--st-warn);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress--danger {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress--danger {
   --u-progress-tone: var(--st-danger);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-progress__fill {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress__fill {
   position: absolute;
   inset: 0;
   transform-origin: left center;
@@ -101,7 +101,7 @@
 }
 
 /* Indeterminate — a sweep that loops; ignores the scaleX fill. */
-:is(.ui20, .sabcrm-twenty) .u-progress.is-indeterminate .u-progress__fill {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress.is-indeterminate .u-progress__fill {
   inset: 0 auto 0 0;
   width: 40%;
   transform: none;
@@ -120,32 +120,32 @@
 /* ------------------------------------------------------------------ */
 /* ProgressRing (circular)                                             */
 /* ------------------------------------------------------------------ */
-:is(.ui20, .sabcrm-twenty) .u-ring {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring {
   display: inline-block;
   flex: 0 0 auto;
   --u-ring-tone: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring--accent {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring--accent {
   --u-ring-tone: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring--success {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring--success {
   --u-ring-tone: var(--st-status-ok);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring--warning {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring--warning {
   --u-ring-tone: var(--st-warn);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring--danger {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring--danger {
   --u-ring-tone: var(--st-danger);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-ring__track {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring__track {
   stroke: var(--st-bg-muted);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring__indicator {
   stroke: var(--u-ring-tone);
   transition: stroke-dashoffset var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-ring__value {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring__value {
   fill: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-xs);
@@ -153,11 +153,11 @@
 }
 
 /* Indeterminate — spin the whole ring; the 75%-offset arc reads as motion. */
-:is(.ui20, .sabcrm-twenty) .u-ring.is-indeterminate {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring.is-indeterminate {
   animation: u-spinner-rotate 0.9s linear infinite;
   transform-origin: center;
 }
-:is(.ui20, .sabcrm-twenty) .u-ring.is-indeterminate .u-ring__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-ring.is-indeterminate .u-ring__indicator {
   transition: none;
 }
 
@@ -165,18 +165,18 @@
 /* Reduced motion — slow/stop everything that moves                    */
 /* ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-skeleton {
+  :is(.\32 0ui, .sabcrm-twenty) .u-skeleton {
     animation-duration: 3.2s;
   }
-  :is(.ui20, .sabcrm-twenty) .u-spinner__ring,
-  :is(.ui20, .sabcrm-twenty) .u-ring.is-indeterminate {
+  :is(.\32 0ui, .sabcrm-twenty) .u-spinner__ring,
+  :is(.\32 0ui, .sabcrm-twenty) .u-ring.is-indeterminate {
     animation-duration: 2s;
   }
-  :is(.ui20, .sabcrm-twenty) .u-progress.is-indeterminate .u-progress__fill {
+  :is(.\32 0ui, .sabcrm-twenty) .u-progress.is-indeterminate .u-progress__fill {
     animation-duration: 2.4s;
   }
-  :is(.ui20, .sabcrm-twenty) .u-progress__fill,
-  :is(.ui20, .sabcrm-twenty) .u-ring__indicator {
+  :is(.\32 0ui, .sabcrm-twenty) .u-progress__fill,
+  :is(.\32 0ui, .sabcrm-twenty) .u-ring__indicator {
     transition: none;
   }
 }

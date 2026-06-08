@@ -28,7 +28,7 @@ export function BioPreview({ state }: Props) {
           --st-* tokens resolve to their dark-surface values (light text on a
           dark screen) without any inverted color hacks. */}
       <div
-        className="ui20 dark relative w-[375px] min-h-[640px] overflow-hidden rounded-[2.5rem] border-4 border-[var(--st-border-strong)] bg-[var(--st-bg)] px-6 py-10 shadow-[var(--st-shadow-lg)]"
+        className="20ui dark relative w-[375px] min-h-[640px] overflow-hidden rounded-[2.5rem] border-4 border-[var(--st-border-strong)] bg-[var(--st-bg)] px-6 py-10 shadow-[var(--st-shadow-lg)]"
         role="img"
         aria-label={`Link-in-bio preview for ${displayName}`}
       >

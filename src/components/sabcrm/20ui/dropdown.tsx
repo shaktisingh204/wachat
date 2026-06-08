@@ -16,7 +16,7 @@
  * Radix `--radix-dropdown-menu-content-transform-origin` var, see dropdown.css).
  *
  * Content and SubContent each portal to `<body>` through a wrapper that carries
- * `className="ui20 sabcrm-twenty"`, so the `--st-*` / `--u-*` tokens resolve no
+ * `className="20ui sabcrm-twenty"`, so the `--st-*` / `--u-*` tokens resolve no
  * matter where in the app the trigger lives.
  *
  *   <DropdownMenu>
@@ -89,7 +89,7 @@ export const DropdownMenuContent = React.forwardRef<
     <RadixDropdownMenu.Portal {...portalProps}>
       {/* The wrapper carries the system classes so tokens resolve in the body
           portal; `display: contents` keeps it out of Radix's positioning. */}
-      <div className="ui20 sabcrm-twenty u-dropdown__portal">
+      <div className="20ui sabcrm-twenty u-dropdown__portal">
         <RadixDropdownMenu.Content
           ref={ref}
           sideOffset={sideOffset}
@@ -278,7 +278,7 @@ export const DropdownMenuSubContent = React.forwardRef<
 ) {
   return (
     <RadixDropdownMenu.Portal {...portalProps}>
-      <div className="ui20 sabcrm-twenty u-dropdown__portal">
+      <div className="20ui sabcrm-twenty u-dropdown__portal">
         <RadixDropdownMenu.SubContent
           ref={ref}
           sideOffset={sideOffset}

@@ -33,7 +33,7 @@ function money(minor: number, currency = 'USD'): string {
 export default async function JobsListPage() {
     const jobs = await getSabworkerlyJobs({ status: 'all', limit: 200 });
     return (
-        <div className="ui20 flex flex-col gap-5">
+        <div className="20ui flex flex-col gap-5">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Jobs</PageTitle>

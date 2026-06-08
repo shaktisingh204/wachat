@@ -42,7 +42,7 @@ export default async function WorkflowsListPage({
   );
 
   return (
-    <div className="ui20 px-6 py-8 space-y-6">
+    <div className="20ui px-6 py-8 space-y-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Workflows</PageTitle>

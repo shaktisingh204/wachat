@@ -44,7 +44,7 @@ export default async function JoinsPage() {
   const datasets = 'items' in datasetsRes ? datasetsRes.items : [];
 
   return (
-    <div className="ui20 flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>

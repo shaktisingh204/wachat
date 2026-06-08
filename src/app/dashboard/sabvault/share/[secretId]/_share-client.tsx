@@ -96,7 +96,7 @@ export function ShareDialogClient({
     }
 
     return (
-        <div className="ui20 mx-auto flex max-w-2xl flex-col gap-4 p-6">
+        <div className="20ui mx-auto flex max-w-2xl flex-col gap-4 p-6">
             <Link
                 href={`/dashboard/sabvault/${secret._id}`}
                 className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"

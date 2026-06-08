@@ -51,7 +51,7 @@ export default function SabMeetRecordingsPage() {
     const totalDuration = "2h 30m";
 
     return (
-        <div className="ui20 p-6 space-y-6">
+        <div className="20ui p-6 space-y-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Recordings</PageTitle>

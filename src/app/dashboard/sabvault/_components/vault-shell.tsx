@@ -42,7 +42,7 @@ export function VaultShell({
     }
 
     return (
-        <div className="ui20 flex h-full min-h-[calc(100vh-4rem)] gap-4 p-4">
+        <div className="20ui flex h-full min-h-[calc(100vh-4rem)] gap-4 p-4">
             {/* Folder tree */}
             <aside className="w-64 shrink-0">
                 <Card padding="sm">

@@ -76,7 +76,7 @@ export default function SabVaultBreachAlertsPage() {
 
     return (
         <TooltipProvider>
-            <div className="ui20 p-6 space-y-6">
+            <div className="20ui p-6 space-y-6">
                 <PageHeader>
                     <PageHeaderHeading>
                         <PageTitle>

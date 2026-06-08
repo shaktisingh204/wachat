@@ -47,7 +47,7 @@ export default function TriggersPage() {
   const [activeTab, setActiveTab] = useState('list');
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6">
       <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}

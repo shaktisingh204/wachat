@@ -17,7 +17,7 @@ interface HowItWorksSectionProps {
 
 export function HowItWorksSection({ featureName, color, howItWorks }: HowItWorksSectionProps) {
   return (
-    <section className="ui20 border-t border-[var(--st-border)]">
+    <section className="20ui border-t border-[var(--st-border)]">
       <div className="container mx-auto px-4 md:px-6 py-14 md:py-20">
         <div className="grid grid-cols-12 gap-6 md:gap-10">
           <div className="col-span-12 md:col-span-4">

@@ -141,7 +141,7 @@ export default function BillingPage() {
   const noPlansFound = Object.entries(categorizedPlans).every(([, p]) => p.length === 0);
 
   return (
-    <div className="ui20 flex flex-col gap-10 w-full motion-safe:animate-slide-up">
+    <div className="20ui flex flex-col gap-10 w-full motion-safe:animate-slide-up">
       {/* Hero Header Area */}
       <PageHeader className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-8 md:p-10 border border-[var(--st-border)]">
         <PageHeaderHeading>

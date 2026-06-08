@@ -515,7 +515,7 @@ export default function SabcrmTagsSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-3xl flex-col gap-6 p-[var(--st-space-6,1.5rem)]">
         <PageHeader>
           <PageHeaderHeading>

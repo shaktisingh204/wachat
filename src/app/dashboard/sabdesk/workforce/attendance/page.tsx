@@ -57,7 +57,7 @@ export default function WorkforceAttendancePage() {
     }, [searchTerm]);
 
     return (
-        <div className="ui20 dark flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui dark flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Workforce Attendance Dashboard</PageTitle>

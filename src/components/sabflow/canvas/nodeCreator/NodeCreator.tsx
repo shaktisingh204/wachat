@@ -102,7 +102,7 @@ export function NodeCreator({ state, onClose, onPick }: Props) {
 
   let runningIndex = 0;
   return (
-    <div className="sabflow-node-creator ui20" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="sabflow-node-creator 20ui" onMouseDown={(e) => e.stopPropagation()}>
       <div className="flex items-center gap-2 p-2.5 border-b border-[var(--st-border)]">
         <Field className="flex-1" label="Search nodes">
           <Input

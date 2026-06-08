@@ -198,7 +198,7 @@ export function RoomClient({ room }: RoomClientProps) {
   );
 
   return (
-    <div className="ui20 dark flex h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)]">
         <div className="flex items-center gap-3">

@@ -114,7 +114,7 @@ export function EventContextMenu({
       style={{ top: position.y, left: position.x }}
       role="menu"
       aria-label="Event actions"
-      className="ui20 fixed z-[9999] flex min-w-[190px] flex-col gap-0.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-xl select-none"
+      className="20ui fixed z-[9999] flex min-w-[190px] flex-col gap-0.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-xl select-none"
       onContextMenu={(e) => e.preventDefault()}
     >
       <Button

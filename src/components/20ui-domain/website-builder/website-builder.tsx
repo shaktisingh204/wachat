@@ -249,7 +249,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     return (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
             {/* Root Container: Full Viewport, Fixed Layout */}
-            <div className="ui20 flex flex-col h-screen w-full bg-[var(--st-bg-secondary)] overflow-hidden relative">
+            <div className="20ui flex flex-col h-screen w-full bg-[var(--st-bg-secondary)] overflow-hidden relative">
                 <div className="absolute inset-0 z-0 opacity-[0.03] [background-image:radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] [background-size:24px_24px]" aria-hidden="true"></div>
 
                 {/* 1. Header (Fixed at top) */}

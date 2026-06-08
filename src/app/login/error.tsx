@@ -17,7 +17,7 @@ export default function LoginErrorBoundary({
     }, [error]);
 
     return (
-        <div className="ui20 flex min-h-screen flex-col items-center justify-center p-6 bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui flex min-h-screen flex-col items-center justify-center p-6 bg-[var(--st-bg)] text-[var(--st-text)]">
             <EmptyState
                 icon={AlertTriangle}
                 tone="danger"

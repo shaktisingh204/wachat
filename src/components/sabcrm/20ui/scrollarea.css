@@ -1,6 +1,6 @@
 /* 20ui · ScrollArea — token-skinned custom scrollbars (Radix-driven) */
 
-:is(.ui20, .sabcrm-twenty) .u-scrollarea {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollarea {
   position: relative;
   overflow: hidden;
   /* Inherit the parent's corner so content clips cleanly inside cards/panels. */
@@ -9,24 +9,24 @@
 
 /* The real scroll container. Radix sizes it to fill the Root; it keeps native
    scroll physics, keyboard scrolling, and screen-reader access. */
-:is(.ui20, .sabcrm-twenty) .u-scrollarea__viewport {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollarea__viewport {
   width: 100%;
   height: 100%;
   border-radius: inherit;
 }
 /* Radix wraps children in an inline-block content node; let it size naturally so
    horizontal overflow is detected and the viewport content stretches. */
-:is(.ui20, .sabcrm-twenty) .u-scrollarea__viewport > div {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollarea__viewport > div {
   display: block !important;
   min-width: 100%;
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollarea__viewport:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollarea__viewport:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Scrollbar track ----- */
-:is(.ui20, .sabcrm-twenty) .u-scrollbar {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar {
   display: flex;
   /* No native selection / touch panning on the decorative bar itself. */
   touch-action: none;
@@ -37,41 +37,41 @@
      and (for type="hover"/"scroll") the visibility transitions. */
   transition: opacity var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar[data-state='hidden'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar[data-state='hidden'] {
   opacity: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar[data-state='visible'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar[data-state='visible'] {
   opacity: 1;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-scrollbar--vertical {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar--vertical {
   width: 10px;
   /* Lay the thumb out top-to-bottom. */
   flex-direction: column;
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar--horizontal {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar--horizontal {
   height: 10px;
   flex-direction: row;
 }
 
 /* ----- Thumb ----- */
-:is(.ui20, .sabcrm-twenty) .u-scrollbar__thumb {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar__thumb {
   position: relative;
   flex: 1;
   border-radius: var(--st-radius-pill);
   background: var(--st-border-strong);
   transition: background-color var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar__thumb:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar__thumb:hover {
   background: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar__thumb:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar__thumb:active {
   background: var(--st-text-secondary);
 }
 /* Widen the pointer hit-area along the scroll axis only, so the thumb stays easy
    to grab without the cross-axis overlay spilling past the slim bar and swallowing
    clicks on the content beside it (centred over the visual thumb). */
-:is(.ui20, .sabcrm-twenty) .u-scrollbar__thumb::before {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar__thumb::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -80,22 +80,22 @@
   height: 100%;
   transform: translate(-50%, -50%);
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar--vertical .u-scrollbar__thumb::before {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar--vertical .u-scrollbar__thumb::before {
   min-height: 44px;
 }
-:is(.ui20, .sabcrm-twenty) .u-scrollbar--horizontal .u-scrollbar__thumb::before {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollbar--horizontal .u-scrollbar__thumb::before {
   min-width: 44px;
 }
 
 /* ----- Corner (where the two bars meet) ----- */
-:is(.ui20, .sabcrm-twenty) .u-scrollarea__corner {
+:is(.\32 0ui, .sabcrm-twenty) .u-scrollarea__corner {
   background: transparent;
 }
 
 /* ----- Reduced motion: no fade transitions, instant visibility ----- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-scrollbar,
-  :is(.ui20, .sabcrm-twenty) .u-scrollbar__thumb {
+  :is(.\32 0ui, .sabcrm-twenty) .u-scrollbar,
+  :is(.\32 0ui, .sabcrm-twenty) .u-scrollbar__thumb {
     transition: none;
   }
 }

@@ -110,7 +110,7 @@ export default function WorkforceShiftSwapsPage() {
   }, [searchTerm]);
 
   return (
-    <div className="ui20 flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <PageHeader className="px-8">
         <PageHeaderHeading>
           <PageTitle>Workforce Shift Swaps</PageTitle>

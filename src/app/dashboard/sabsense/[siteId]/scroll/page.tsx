@@ -42,7 +42,7 @@ export default function ScrollPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="ui20 flex items-center gap-3 p-8 text-sm text-[var(--st-text-secondary)]">
+                <div className="20ui flex items-center gap-3 p-8 text-sm text-[var(--st-text-secondary)]">
                     <Spinner size="sm" label="Loading scroll map" />
                     <span>Loading scroll map.</span>
                 </div>

@@ -9,7 +9,7 @@ import {
 
 export default function NewWorkerPage() {
     return (
-        <div className="ui20 flex flex-col gap-5">
+        <div className="20ui flex flex-col gap-5">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Add worker</PageTitle>

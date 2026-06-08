@@ -237,7 +237,7 @@ export default function ViewsBuilderPage() {
   };
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+    <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
       {/* Header */}
       <PageHeader className="sticky top-0 z-20 px-6 bg-[var(--st-bg-secondary)] backdrop-blur-xl">
         <div className="flex items-center gap-4">

@@ -451,7 +451,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
 
   if (error) {
     return (
-      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
+      <div className="20ui flex flex-col gap-[var(--st-space-4)]">
         {header}
         <Alert tone="danger" title="Could not load the data model graph">
           {error}
@@ -462,7 +462,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
 
   if (loading) {
     return (
-      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
+      <div className="20ui flex flex-col gap-[var(--st-space-4)]">
         {header}
         <Card padding="md">
           <div className="flex flex-col gap-[var(--st-space-3)]">
@@ -477,7 +477,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
 
   if (objects.length === 0) {
     return (
-      <div className="ui20 flex flex-col gap-[var(--st-space-4)]">
+      <div className="20ui flex flex-col gap-[var(--st-space-4)]">
         {header}
         <EmptyState
           icon={GitBranch}
@@ -497,7 +497,7 @@ export default function DataModelGraphPage(): React.JSX.Element {
   }
 
   return (
-    <div className="ui20 flex flex-col gap-[var(--st-space-3)]">
+    <div className="20ui flex flex-col gap-[var(--st-space-3)]">
       {header}
 
       <div className="flex flex-wrap items-center gap-[var(--st-space-3)]">

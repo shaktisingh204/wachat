@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default function SabSprintsRootPage() {
     return (
-        <div className="ui20 mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
+        <div className="20ui mx-auto flex max-w-2xl flex-col gap-6 px-6 py-12">
             <Card>
                 <CardHeader>
                     <CardTitle>SabSprints</CardTitle>

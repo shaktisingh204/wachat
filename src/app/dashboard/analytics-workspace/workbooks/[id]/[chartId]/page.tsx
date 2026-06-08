@@ -47,7 +47,7 @@ export default async function DrilldownPage({
   }));
 
   return (
-    <div className="ui20 flex flex-col gap-4 p-6">
+    <div className="20ui flex flex-col gap-4 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>

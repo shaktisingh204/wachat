@@ -100,7 +100,7 @@ export function KeysClient({ initialKeys, usageData = [], logsData = [] }: Props
   };
 
   return (
-    <div className="ui20 space-y-4">
+    <div className="20ui space-y-4">
       {revealed ? (
         <Alert
           tone="warning"

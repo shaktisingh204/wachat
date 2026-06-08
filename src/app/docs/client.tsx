@@ -164,7 +164,7 @@ export function DocsClient({ session }: { session?: { user?: unknown } | null })
 
     return (
         <MarketingShell session={session}>
-            <div className="ui20">
+            <div className="20ui">
                 <PageHero
                     kicker="Docs · guides + references"
                     title={

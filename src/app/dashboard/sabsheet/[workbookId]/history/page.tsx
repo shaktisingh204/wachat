@@ -31,7 +31,7 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
   const versions = await listSabsheetVersions(workbookId);
 
   return (
-    <div className="ui20 mx-auto w-full max-w-3xl space-y-4 p-6">
+    <div className="20ui mx-auto w-full max-w-3xl space-y-4 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>{workbook.title} history</PageTitle>

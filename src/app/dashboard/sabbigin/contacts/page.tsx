@@ -46,7 +46,7 @@ export default async function SabbiginContactsPage({ searchParams }: PageProps) 
     const { contacts, total } = await getCrmContacts(page, 25, q || undefined);
 
     return (
-        <div className="ui20 flex w-full flex-col gap-4">
+        <div className="20ui flex w-full flex-col gap-4">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Contacts</PageTitle>

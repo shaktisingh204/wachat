@@ -52,7 +52,7 @@ export function AdminDispositionsClient({ initialData }: { initialData: any[] })
     }
 
     return (
-        <div className="ui20 flex flex-col gap-6">
+        <div className="20ui flex flex-col gap-6">
             <Card padding="md">
                 <CardBody>
                     <form onSubmit={handleCreate} className="flex flex-col gap-4 sm:flex-row sm:items-end">

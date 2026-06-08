@@ -61,7 +61,7 @@ export default async function SchedulesPage() {
   const workbooks = 'items' in workbooksRes ? workbooksRes.items : [];
 
   return (
-    <div className="ui20 flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Scheduled reports</PageTitle>

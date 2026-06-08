@@ -377,7 +377,7 @@ export default function SabSignTemplatesPage() {
   }, [templates, searchQuery, activeCategory]);
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Top Header Section */}
       <div className="sticky top-0 z-30 border-b border-[var(--st-border)] bg-[var(--st-bg)]/85 px-8 py-5 backdrop-blur-xl">
         <div className="mx-auto max-w-[1600px]">

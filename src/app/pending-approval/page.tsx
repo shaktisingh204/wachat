@@ -7,7 +7,7 @@ export default function PendingApprovalPage() {
     const supportEmail = 'support@sabnode.com';
 
     return (
-        <div className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <div className="flex items-center justify-center min-h-screen bg-[var(--st-bg-secondary)] p-4">
                 <Card className="w-full max-w-md text-center">
                     <CardHeader>

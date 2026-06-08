@@ -84,7 +84,7 @@ export function BlockNodeContextMenu({
   return (
     <div
       ref={menuRef}
-      className="ui20 u-menu fixed z-[9999] min-w-[184px] select-none"
+      className="20ui u-menu fixed z-[9999] min-w-[184px] select-none"
       style={{ left: x, top: y }}
       onContextMenu={(e) => e.preventDefault()}
     >

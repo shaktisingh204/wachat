@@ -81,7 +81,7 @@ const STATUS_TONE: Record<WorkflowStatus, BadgeTone> = {
 
 export default function SabCreatorWorkflowsPage() {
   return (
-    <div className="ui20 p-6 md:p-10 space-y-8">
+    <div className="20ui p-6 md:p-10 space-y-8">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>

@@ -260,7 +260,7 @@ export function CanvasContextMenu({
 
   return (
     <div
-      className="ui20 sabflow-context-menu u-menu fixed z-[60]"
+      className="20ui sabflow-context-menu u-menu fixed z-[60]"
       role="menu"
       aria-label="Canvas actions"
       style={{ left: state.x, top: state.y }}

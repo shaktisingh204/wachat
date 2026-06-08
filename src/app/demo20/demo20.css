@@ -1,6 +1,6 @@
-/* /demo20 standalone page chrome. The root carries `.ui20`, so it themes itself
+/* /demo20 standalone page chrome. The root carries `.\32 0ui`, so it themes itself
    from the design system's own tokens (works with the page's light/dark). */
-.ui20.demo20-root {
+.\32 0ui.demo20-root {
   min-height: 100dvh;
   background: var(--st-bg-secondary);
 }

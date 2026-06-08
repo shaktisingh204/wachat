@@ -38,7 +38,7 @@ export default async function ApiDocsPage({
   const moduleEndpoints = catalogData.filter((c: any) => c.module === currentModule);
 
   return (
-    <div className="ui20 max-w-6xl mx-auto space-y-12 pb-24">
+    <div className="20ui max-w-6xl mx-auto space-y-12 pb-24">
       {/* HEADER SECTION */}
       <div>
         <Link href="/dashboard/api" className="inline-flex mb-4 -ml-2">

@@ -135,7 +135,7 @@ export function BuilderShellClient({
   };
 
   return (
-    <div className="ui20 min-h-screen flex flex-col">
+    <div className="20ui min-h-screen flex flex-col">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>{app.name}</PageTitle>

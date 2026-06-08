@@ -483,7 +483,7 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
   }, [revokeTarget, activeProjectId, toast]);
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-5xl flex-col gap-[var(--st-space-5)] p-[var(--st-space-6)]">
         <PageHeader>
           <PageHeaderHeading>

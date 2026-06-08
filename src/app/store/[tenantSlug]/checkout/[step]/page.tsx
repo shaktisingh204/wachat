@@ -118,7 +118,7 @@ export default function CheckoutStepPage(): React.JSX.Element {
     }, [step, search]);
 
     return (
-        <div className="ui20 mx-auto max-w-2xl">
+        <div className="20ui mx-auto max-w-2xl">
             <PageHeader bordered={false}>
                 <PageHeaderHeading>
                     <PageTitle>Checkout</PageTitle>

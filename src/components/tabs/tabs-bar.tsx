@@ -107,7 +107,7 @@ function CursorMenu({
   return (
     <div
       ref={ref}
-      className="ui20 fixed z-[60] min-w-[184px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-xl"
+      className="20ui fixed z-[60] min-w-[184px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-xl"
       style={{ top: position.y, left: position.x }}
       role="menu"
       aria-label={label}

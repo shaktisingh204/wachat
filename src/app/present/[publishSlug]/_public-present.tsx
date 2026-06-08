@@ -48,7 +48,7 @@ export function PublicPresent({
 
     if (!current) {
         return (
-            <div className="ui20 dark sabshow-public flex h-screen items-center justify-center bg-black">
+            <div className="20ui dark sabshow-public flex h-screen items-center justify-center bg-black">
                 <EmptyState
                     icon={MonitorPlay}
                     title="No slides"
@@ -59,7 +59,7 @@ export function PublicPresent({
     }
 
     return (
-        <div className="ui20 dark sabshow-public flex h-screen w-screen flex-col bg-black text-white">
+        <div className="20ui dark sabshow-public flex h-screen w-screen flex-col bg-black text-white">
             <div className="flex items-center justify-between px-4 py-2 text-xs">
                 <span className="font-medium">/present/{slug}</span>
                 <span>

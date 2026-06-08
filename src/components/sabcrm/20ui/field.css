@@ -1,32 +1,32 @@
 /* 20ui · Field · Input · Textarea */
 
-:is(.ui20, .sabcrm-twenty) .u-field {
+:is(.\32 0ui, .sabcrm-twenty) .u-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-:is(.ui20, .sabcrm-twenty) .u-field__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-field__label {
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-field__req {
+:is(.\32 0ui, .sabcrm-twenty) .u-field__req {
   color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-field__help {
+:is(.\32 0ui, .sabcrm-twenty) .u-field__help {
   margin: 0;
   font-size: var(--st-font-size-xs);
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-field__error {
+:is(.\32 0ui, .sabcrm-twenty) .u-field__error {
   margin: 0;
   font-size: var(--st-font-size-xs);
   color: var(--st-danger);
 }
 
 /* ----- Input ----- */
-:is(.ui20, .sabcrm-twenty) .u-input,
-:is(.ui20, .sabcrm-twenty) .u-input__control {
+:is(.\32 0ui, .sabcrm-twenty) .u-input,
+:is(.\32 0ui, .sabcrm-twenty) .u-input__control {
   width: 100%;
   height: 32px;
   padding: 0 var(--st-space-3);
@@ -39,41 +39,41 @@
   outline: none;
   transition: border-color var(--u-dur-fast) var(--u-ease-out), box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-input::placeholder,
-:is(.ui20, .sabcrm-twenty) .u-input__control::placeholder,
-:is(.ui20, .sabcrm-twenty) .u-textarea::placeholder {
+:is(.\32 0ui, .sabcrm-twenty) .u-input::placeholder,
+:is(.\32 0ui, .sabcrm-twenty) .u-input__control::placeholder,
+:is(.\32 0ui, .sabcrm-twenty) .u-textarea::placeholder {
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-input:focus,
-:is(.ui20, .sabcrm-twenty) .u-input:focus-within {
+:is(.\32 0ui, .sabcrm-twenty) .u-input:focus,
+:is(.\32 0ui, .sabcrm-twenty) .u-input:focus-within {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-input--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-input--sm {
   height: 26px;
   font-size: var(--st-font-size-sm);
   border-radius: var(--st-radius-sm);
 }
-:is(.ui20, .sabcrm-twenty) .u-input--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-input--lg {
   height: 38px;
 }
-:is(.ui20, .sabcrm-twenty) .u-input.is-invalid,
-:is(.ui20, .sabcrm-twenty) .u-input--affix.is-invalid {
+:is(.\32 0ui, .sabcrm-twenty) .u-input.is-invalid,
+:is(.\32 0ui, .sabcrm-twenty) .u-input--affix.is-invalid {
   border-color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-input.is-invalid:focus,
-:is(.ui20, .sabcrm-twenty) .u-input--affix.is-invalid:focus-within {
+:is(.\32 0ui, .sabcrm-twenty) .u-input.is-invalid:focus,
+:is(.\32 0ui, .sabcrm-twenty) .u-input--affix.is-invalid:focus-within {
   box-shadow: 0 0 0 3px var(--st-danger-soft);
 }
 
 /* Affix wrapper (icons / prefix / suffix). */
-:is(.ui20, .sabcrm-twenty) .u-input--affix {
+:is(.\32 0ui, .sabcrm-twenty) .u-input--affix {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
   padding: 0 var(--st-space-2);
 }
-:is(.ui20, .sabcrm-twenty) .u-input__control {
+:is(.\32 0ui, .sabcrm-twenty) .u-input__control {
   height: auto;
   flex: 1 1 auto;
   min-width: 0;
@@ -82,21 +82,21 @@
   background: transparent;
   box-shadow: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-input__control:focus {
+:is(.\32 0ui, .sabcrm-twenty) .u-input__control:focus {
   box-shadow: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-input__icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-input__icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-input__affix {
+:is(.\32 0ui, .sabcrm-twenty) .u-input__affix {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
 
 /* ----- Textarea ----- */
-:is(.ui20, .sabcrm-twenty) .u-textarea {
+:is(.\32 0ui, .sabcrm-twenty) .u-textarea {
   width: 100%;
   min-height: 64px;
   padding: var(--st-space-2) var(--st-space-3);
@@ -111,10 +111,10 @@
   outline: none;
   transition: border-color var(--u-dur-fast) var(--u-ease-out), box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-textarea:focus {
+:is(.\32 0ui, .sabcrm-twenty) .u-textarea:focus {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-textarea.is-invalid {
+:is(.\32 0ui, .sabcrm-twenty) .u-textarea.is-invalid {
   border-color: var(--st-danger);
 }

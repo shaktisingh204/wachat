@@ -58,7 +58,7 @@ export function PublicFormClient({ view, table }: Props) {
 
   if (submitted) {
     return (
-      <div className="ui20 min-h-screen flex items-center justify-center p-6">
+      <div className="20ui min-h-screen flex items-center justify-center p-6">
         <Card className="w-full max-w-md" padding="lg">
           <EmptyState
             icon={CheckCircle2}
@@ -72,7 +72,7 @@ export function PublicFormClient({ view, table }: Props) {
   }
 
   return (
-    <div className="ui20 min-h-screen flex items-center justify-center p-6">
+    <div className="20ui min-h-screen flex items-center justify-center p-6">
       <Card className="w-full max-w-xl" padding="lg">
         <PageHeader bordered={false} compact>
           <PageHeaderHeading>

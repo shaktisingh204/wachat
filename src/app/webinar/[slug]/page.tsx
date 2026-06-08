@@ -37,7 +37,7 @@ export default async function WebinarLandingPage({ params }: Params) {
   const subline = theme.subHeadline ?? webinar.description ?? null;
 
   return (
-    <main className="ui20 min-h-screen" style={{ background: bg, color: fg }}>
+    <main className="20ui min-h-screen" style={{ background: bg, color: fg }}>
       <div className="mx-auto flex max-w-5xl flex-col gap-10 px-6 py-16">
         <PageHeader bordered={false}>
           <PageHeaderHeading>

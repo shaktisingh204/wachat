@@ -180,7 +180,7 @@ export function ShareLanding({
     };
 
     return (
-        <main className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <main className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8">
                 <PageHeader className="flex flex-wrap items-end justify-between gap-3">
                     <PageHeaderHeading className="min-w-0 flex-1">

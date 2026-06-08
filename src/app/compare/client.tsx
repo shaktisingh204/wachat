@@ -63,7 +63,7 @@ export function CompareClient({ session }: { session?: { user?: unknown } | null
                 subtitle="No hand-waving. Here's exactly what we do better, what we do worse, and where we tie."
             />
 
-            <div className="ui20">
+            <div className="20ui">
                 {/* Competitor switcher */}
                 <SectionWrap>
                     <div className="flex flex-wrap justify-center">

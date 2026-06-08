@@ -203,7 +203,7 @@ export function TransactionalTemplateForm({ mode, templateId }: Props) {
   }
 
   return (
-    <div className="ui20 space-y-6">
+    <div className="20ui space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>

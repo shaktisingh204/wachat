@@ -983,7 +983,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
 
   // ---- Render -------------------------------------------------------------
   return (
-    <div className="ui20 sabcrm-twenty max-w-[920px] mx-auto px-[var(--st-space-4)] py-[var(--st-space-5)] flex flex-col gap-[var(--st-space-4)]">
+    <div className="20ui sabcrm-twenty max-w-[920px] mx-auto px-[var(--st-space-4)] py-[var(--st-space-5)] flex flex-col gap-[var(--st-space-4)]">
       <Link
         href="/dashboard/settings/crm"
         className="inline-flex items-center gap-1 text-[13px] text-[var(--st-text-secondary)] hover:text-[var(--st-text)] w-fit"

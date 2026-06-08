@@ -18,7 +18,7 @@ export default function EmbedError({
   }, [error]);
 
   return (
-    <main className="ui20 m-0 flex h-screen items-center justify-center bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
+    <main className="20ui m-0 flex h-screen items-center justify-center bg-[var(--st-bg)] p-6 text-[var(--st-text)]">
       <EmptyState
         icon={AlertTriangle}
         tone="danger"

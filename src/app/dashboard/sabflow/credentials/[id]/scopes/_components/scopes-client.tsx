@@ -251,7 +251,7 @@ export function ScopesClient({ credentialId }: { credentialId: string }) {
   /* -- Render ------------------------------------------------------------ */
 
   return (
-    <div className="ui20 flex flex-col h-full">
+    <div className="20ui flex flex-col h-full">
       {/* Header */}
       <PageHeader className="shrink-0 px-6">
         <div className="flex items-center gap-3">

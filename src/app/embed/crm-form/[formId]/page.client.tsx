@@ -83,7 +83,7 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
 
     if (isLoading) {
         return (
-            <main className="ui20 min-h-screen bg-transparent p-0">
+            <main className="20ui min-h-screen bg-transparent p-0">
                 <FormSkeleton />
             </main>
         );
@@ -91,14 +91,14 @@ export default function EmbeddedFormPage(props: { params: Promise<{ formId: stri
 
     if (error || !form) {
         return (
-            <main className="ui20 min-h-screen bg-transparent p-0">
+            <main className="20ui min-h-screen bg-transparent p-0">
                 <FormError message={error || 'Form not found.'} onRetry={() => fetchForm(true)} />
             </main>
         );
     }
 
     return (
-        <main className="ui20 min-h-screen bg-transparent p-0">
+        <main className="20ui min-h-screen bg-transparent p-0">
             <EmbeddedForm form={form} />
         </main>
     );

@@ -130,7 +130,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
     };
 
     return (
-        <div className="ui20">
+        <div className="20ui">
             {customStyleTag}
             <div className={cn('flex flex-wrap', alignmentClasses[alignment])} style={{ gap: `${gap}px` }}>
                 <div className={cn('grid w-full', gridColsClass)} style={{ gap: `${gap}px` }}>

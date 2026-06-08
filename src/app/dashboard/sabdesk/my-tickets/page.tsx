@@ -205,7 +205,7 @@ export default function MyTicketsPage() {
   };
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
       {/* Header section */}
       <div className="sticky top-0 z-20 bg-[var(--st-bg)] border-b border-[var(--st-border)] px-6 py-4">
         <PageHeader bordered={false} compact className="items-center">

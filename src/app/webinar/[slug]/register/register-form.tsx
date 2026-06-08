@@ -64,7 +64,7 @@ export function RegisterForm({ slug, title, theme }: Props) {
   };
 
   return (
-    <main className="ui20 min-h-screen" style={{ background: bg, color: fg }}>
+    <main className="20ui min-h-screen" style={{ background: bg, color: fg }}>
       <div className="mx-auto flex max-w-md flex-col gap-6 px-6 py-16">
         <PageHeader bordered={false}>
           <PageHeaderHeading>

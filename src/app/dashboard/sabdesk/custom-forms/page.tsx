@@ -237,7 +237,7 @@ export default function CustomFormsPage() {
   };
 
   return (
-    <div className="ui20 dark h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)] font-sans overflow-hidden">
+    <div className="20ui dark h-screen flex flex-col bg-[var(--st-bg)] text-[var(--st-text)] font-sans overflow-hidden">
       {/* Top bar */}
       <header className="h-16 flex-none bg-[var(--st-bg-secondary)] border-b border-[var(--st-border)] flex items-center justify-between px-6">
         <div className="flex items-center gap-4">

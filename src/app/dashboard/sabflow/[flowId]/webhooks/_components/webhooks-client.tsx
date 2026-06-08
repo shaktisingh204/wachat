@@ -121,7 +121,7 @@ export function WebhooksClient({ flowId }: { flowId: string }) {
   }, []);
 
   return (
-    <div className="ui20 flex h-full flex-col">
+    <div className="20ui flex h-full flex-col">
       <PageHeader compact>
         <div className="flex items-center gap-3">
           <Link

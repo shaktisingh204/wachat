@@ -35,7 +35,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
 
     if (!site || !recording) {
         return (
-            <div className="ui20 p-8">
+            <div className="20ui p-8">
                 <EmptyState
                     icon={Clapperboard}
                     title="Recording not found"
@@ -46,7 +46,7 @@ export default async function RecordingDetailPage({ params }: PageProps) {
     }
 
     return (
-        <div className="ui20 p-8 space-y-6">
+        <div className="20ui p-8 space-y-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Session recording</PageTitle>

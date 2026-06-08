@@ -91,7 +91,7 @@ function pct(numerator: number, denominator: number): string {
 
 export function CoverageDashboard({ data }: Props) {
     return (
-        <div className="ui20 space-y-8">
+        <div className="20ui space-y-8">
             <HeroStrip data={data} />
             <RustStubsSection result={data.rustStubs} />
             <MissingIntegrationsSection result={data.n8nMissing} />

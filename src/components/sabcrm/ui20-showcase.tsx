@@ -176,7 +176,7 @@ export function Ui20Showcase(): React.JSX.Element {
 
   return (
     <ToastProvider>
-    <div className="ui20 ux-page">
+    <div className="20ui ux-page">
       <Breadcrumb
         items={[{ label: 'SabCRM', href: '/sabcrm' }, { label: '20ui' }]}
       />

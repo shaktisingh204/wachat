@@ -136,7 +136,7 @@ export default function SabChatVisitorsPage() {
   });
 
   return (
-    <div className="ui20 mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+    <div className="20ui mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

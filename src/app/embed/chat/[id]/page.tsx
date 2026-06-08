@@ -86,7 +86,7 @@ export default async function EmbedChatPage(props: {
 
   return (
     <main
-      className="ui20 m-0 flex h-screen flex-col p-0"
+      className="20ui m-0 flex h-screen flex-col p-0"
       style={{
         background: widget.theme?.background ?? '#ffffff',
         color: widget.theme?.foreground ?? '#0f172a',

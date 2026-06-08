@@ -153,7 +153,7 @@ export default function ResourcesClient() {
   }, { scope: containerRef, dependencies: [currentResources, currentPage] });
 
   return (
-    <div ref={containerRef} className="ui20 min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div ref={containerRef} className="20ui min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Hero Section */}
       <section className="py-16 px-6 border-b border-[var(--st-border)]">
         <PageHeader bordered={false} className="header-elem max-w-4xl mx-auto !block text-center">

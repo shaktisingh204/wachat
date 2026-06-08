@@ -15,7 +15,7 @@ export default async function CustomerLensPage({ params }: { params: Params }) {
 
   if (!res.ok) {
     return (
-      <div className="ui20 flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] p-6 text-center">
+      <div className="20ui flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] p-6 text-center">
         <EmptyState
           icon={Unlink}
           tone="danger"

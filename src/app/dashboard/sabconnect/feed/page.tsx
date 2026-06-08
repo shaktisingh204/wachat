@@ -41,7 +41,7 @@ export default async function SabConnectFeedPage() {
     ]);
 
     return (
-        <div className="ui20 flex w-full flex-col gap-6">
+        <div className="20ui flex w-full flex-col gap-6">
             <PageHeader>
                 <PageHeading>
                     <PageTitle>Connect</PageTitle>

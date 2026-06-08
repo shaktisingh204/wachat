@@ -501,7 +501,7 @@ export function DomainsPanel({ flowId, flowName }: DomainsPanelProps) {
   }, []);
 
   return (
-    <div className="ui20 mx-auto flex max-w-2xl flex-col gap-6 p-6">
+    <div className="20ui mx-auto flex max-w-2xl flex-col gap-6 p-6">
       {/* Page heading */}
       <PageHeader bordered={false} className="items-center">
         <span

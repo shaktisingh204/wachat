@@ -69,7 +69,7 @@ export default function SabFlowDocsPage() {
   }, [rows]);
 
   return (
-    <div className="ui20 flex h-full min-h-screen bg-[var(--st-bg)]">
+    <div className="20ui flex h-full min-h-screen bg-[var(--st-bg)]">
       {/* Left rail */}
       <aside className="w-64 shrink-0 overflow-y-auto border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4">
         <div className="mb-4 flex items-center gap-2">

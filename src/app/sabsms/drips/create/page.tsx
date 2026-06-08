@@ -51,7 +51,7 @@ export default function DripsBuilderShell() {
   const [selectedNode, setSelectedNode] = useState<string | null>('node-sms');
 
   return (
-    <div className="ui20 flex h-screen w-full flex-col overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)] font-sans">
+    <div className="20ui flex h-screen w-full flex-col overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)] font-sans">
       {/* Header */}
       <header className="z-20 flex h-14 shrink-0 items-center justify-between border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4 shadow-sm">
         <div className="flex items-center gap-4">

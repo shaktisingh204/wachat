@@ -17,11 +17,11 @@
    ========================================================================= */
 
 /* ---- Tokens: light (modern ui20 palette) ----
-   Selector is `.sabcrm-twenty.ui20` (specificity 0,2,0) so these token values
+   Selector is `.sabcrm-twenty.\32 0ui` (specificity 0,2,0) so these token values
    DETERMINISTICALLY beat every single-class definition of `--st-*` (the base
-   `.sabcrm-twenty`, `.ui20`, and `:root`), regardless of CSS bundle order. The
+   `.sabcrm-twenty`, `.\32 0ui`, and `:root`), regardless of CSS bundle order. The
    CRM frame root carries BOTH classes. */
-.sabcrm-twenty.ui20 {
+.sabcrm-twenty.\32 0ui {
   /* Surfaces — cool neutral, gently layered. */
   --st-bg: #ffffff;
   --st-bg-secondary: #f6f7f9;
@@ -69,7 +69,7 @@
 }
 
 /* ---- Tokens: dark (specificity 0,3,0 beats base `.sabcrm-twenty.st-theme-dark`) ---- */
-.sabcrm-twenty.ui20.st-theme-dark {
+.sabcrm-twenty.\32 0ui.st-theme-dark {
   --st-bg: #15161c;
   --st-bg-secondary: #1b1d25;
   --st-bg-muted: #23252f;

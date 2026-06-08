@@ -1661,7 +1661,7 @@ export default function RolesPage(): React.JSX.Element {
   // ---- Render -------------------------------------------------------------
 
   return (
-    <div className="ui20 flex flex-col gap-5 p-[var(--st-space-5)]">
+    <div className="20ui flex flex-col gap-5 p-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Roles & Permissions</PageTitle>

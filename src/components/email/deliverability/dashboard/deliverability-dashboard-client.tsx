@@ -119,7 +119,7 @@ export function DeliverabilityDashboardClient() {
   if (loading) return <Skeleton className="h-96 w-full" />;
 
   return (
-    <div className="ui20 space-y-6">
+    <div className="20ui space-y-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Deliverability dashboard</PageTitle>

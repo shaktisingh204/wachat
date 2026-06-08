@@ -28,7 +28,7 @@ export default function WhatsappChatbotsError({
       : 'We ran into an issue loading the chatbots page. Try again or head back to overview.';
 
   return (
-    <div className="ui20 mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
+    <div className="20ui mx-auto w-full max-w-[1180px] px-6 pt-6 pb-10">
       <div role="alert" className="flex min-h-[60vh] items-center justify-center">
         <EmptyState
           icon={AlertTriangle}

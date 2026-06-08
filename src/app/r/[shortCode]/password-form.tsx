@@ -23,7 +23,7 @@ export function PasswordForm({ shortCode, hasError }: { shortCode: string, hasEr
         <html lang="en">
             <head><title>Password Protected Link</title></head>
             <body>
-                <div className="ui20 flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+                <div className="20ui flex min-h-screen items-center justify-center bg-[var(--st-bg-secondary)] p-6">
                     <Card variant="elevated" padding="none" className="w-full max-w-[400px]">
                         <CardBody className="flex flex-col items-center gap-4 p-8 text-center">
                             <span

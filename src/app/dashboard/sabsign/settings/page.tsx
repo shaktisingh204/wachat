@@ -133,7 +133,7 @@ export default function SabSignSettingsPage() {
   const radiusValue = `${buttonRadius}px`;
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 md:p-10">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] p-6 md:p-10">
       {/* Header Section */}
       <div className="max-w-7xl mx-auto mb-10">
         <PageHeader>

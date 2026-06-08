@@ -1,7 +1,7 @@
 /* 20ui · Progress — determinate + indeterminate bar (Radix-driven) */
 
 /* ----- Track ----- */
-:is(.ui20, .sabcrm-twenty) .u-progress {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress {
   position: relative;
   width: 100%;
   height: 10px;
@@ -12,12 +12,12 @@
 }
 
 /* Compact rail (e.g. inline, dense lists). */
-:is(.ui20, .sabcrm-twenty) .u-progress[data-size='sm'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-size='sm'] {
   height: 6px;
 }
 
 /* ----- Filled indicator ----- */
-:is(.ui20, .sabcrm-twenty) .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress__indicator {
   width: 100%;
   height: 100%;
   border-radius: inherit;
@@ -29,23 +29,23 @@
 }
 
 /* ----- Tones (one solid status/accent token each) ----- */
-:is(.ui20, .sabcrm-twenty) .u-progress[data-tone='accent'] .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-tone='accent'] .u-progress__indicator {
   background: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress[data-tone='success'] .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-tone='success'] .u-progress__indicator {
   background: var(--st-status-ok);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress[data-tone='warning'] .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-tone='warning'] .u-progress__indicator {
   background: var(--st-warn);
 }
-:is(.ui20, .sabcrm-twenty) .u-progress[data-tone='danger'] .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-tone='danger'] .u-progress__indicator {
   background: var(--st-danger);
 }
 
 /* ----- Indeterminate ----- */
 /* The indicator becomes a short shuttle that loops across the track. Width and
    position are driven by the keyframe; no inline transform is set in this mode. */
-:is(.ui20, .sabcrm-twenty) .u-progress[data-indeterminate] .u-progress__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-progress[data-indeterminate] .u-progress__indicator {
   width: 40%;
   transition: none;
   transform: translateX(-100%);
@@ -66,10 +66,10 @@
 /* Reduced motion: no transitions, no looping shuttle. The indeterminate bar
    falls back to a static, centred pulse-free fill so it stays perceivable. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-progress__indicator {
+  :is(.\32 0ui, .sabcrm-twenty) .u-progress__indicator {
     transition: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-progress[data-indeterminate] .u-progress__indicator {
+  :is(.\32 0ui, .sabcrm-twenty) .u-progress[data-indeterminate] .u-progress__indicator {
     width: 100%;
     transform: translateX(0);
     animation: none;

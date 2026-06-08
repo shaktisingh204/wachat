@@ -47,7 +47,7 @@ export default async function RequestsAnalyticsPage() {
     const a = res.data;
     if (!a) {
         return (
-            <div className="ui20 p-6">
+            <div className="20ui p-6">
                 <Card>
                     <CardBody>
                         <EmptyState
@@ -61,7 +61,7 @@ export default async function RequestsAnalyticsPage() {
         );
     }
     return (
-        <div className="ui20 flex flex-col gap-6 p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Request analytics</PageTitle>

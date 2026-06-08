@@ -25,7 +25,7 @@ export default async function MailboxDomainsAdminPage() {
     const domains = await listMailDomains();
 
     return (
-        <div className="ui20 mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
+        <div className="20ui mx-auto flex w-full max-w-5xl flex-col gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Domains</PageTitle>

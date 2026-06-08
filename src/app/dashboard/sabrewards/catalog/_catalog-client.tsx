@@ -188,7 +188,7 @@ export function CatalogClient({
   }, [programs]);
 
   return (
-    <div className="ui20 flex flex-col gap-4">
+    <div className="20ui flex flex-col gap-4">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Catalog</PageTitle>

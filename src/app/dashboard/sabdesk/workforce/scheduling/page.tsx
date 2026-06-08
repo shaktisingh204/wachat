@@ -91,7 +91,7 @@ export default function WorkforceSchedulingPage() {
   const [range, setRange] = React.useState<RangeValue>('7d');
 
   return (
-    <div className="ui20 dark flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Workforce Scheduling Dashboard</PageTitle>

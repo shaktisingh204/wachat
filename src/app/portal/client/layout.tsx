@@ -42,7 +42,7 @@ export default async function ClientPortalLayout({
     const brand = await getClientPortalBrand();
 
     return (
-        <div className="ui20 flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui flex h-screen w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
             <ClientPortalSidebar />
             <div className="relative flex min-w-0 flex-1 flex-col">
                 <ClientPortalTopbar

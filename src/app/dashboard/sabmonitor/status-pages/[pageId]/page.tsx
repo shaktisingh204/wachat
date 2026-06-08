@@ -26,7 +26,7 @@ export default async function EditStatusPagePage({
     const page = await getSabmonitorStatusPage(pageId);
     if (!page) notFound();
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader compact bordered={false}>
                 <PageHeaderHeading>
                     <PageTitle>{page.title}</PageTitle>

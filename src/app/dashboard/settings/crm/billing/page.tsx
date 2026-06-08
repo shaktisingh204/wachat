@@ -466,7 +466,7 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="ui20 mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
+    <div className="20ui mx-auto w-full max-w-5xl px-4 py-6 sm:px-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>SabCRM</PageEyebrow>

@@ -191,7 +191,7 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
     );
 
     return (
-        <div className="ui20 flex h-full flex-col">
+        <div className="20ui flex h-full flex-col">
             <header className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] px-6 py-4">
                 <Input
                     value={name}

@@ -125,7 +125,7 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                 title={<>Connect SabNode to <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 bg-clip-text text-transparent">everything else.</span></>}
                 subtitle="Native connectors for the apps your team already uses. Webhooks and a clean REST API for everything else."
                 extra={
-                    <div className="ui20 mx-auto w-full max-w-md">
+                    <div className="20ui mx-auto w-full max-w-md">
                         <Field label={<span className="sr-only">Search integrations</span>}>
                             <Input
                                 value={q}
@@ -141,7 +141,7 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
 
             {/* Category tabs */}
             <SectionWrap>
-                <div className="ui20 flex justify-center">
+                <div className="20ui flex justify-center">
                     <SegmentedControl
                         items={tabItems}
                         value={tab}
@@ -152,7 +152,7 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                 </div>
 
                 {visible.length === 0 ? (
-                    <div className="ui20 mt-10">
+                    <div className="20ui mt-10">
                         <EmptyState
                             icon={Search}
                             title="No integrations match your search"
@@ -160,7 +160,7 @@ export function IntegrationsClient({ session }: { session?: { user?: unknown } |
                         />
                     </div>
                 ) : (
-                    <div className="ui20 mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="20ui mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                         {visible.map((it, i) => (
                             <m.div
                                 key={it.name}

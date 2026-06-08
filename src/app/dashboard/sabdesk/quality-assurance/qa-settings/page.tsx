@@ -48,7 +48,7 @@ export default function QualityAssuranceQaSettingsPage() {
     const [range, setRange] = useState<RangeValue>('30d');
 
     return (
-        <div className="ui20 dark flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui dark flex flex-col w-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Quality Assurance Qa Settings Dashboard</PageTitle>

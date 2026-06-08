@@ -50,7 +50,7 @@ export default async function PublicPresentPage({
                 <style
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{
-                        __html: `.ui20.sabshow-public { ${publication.customCss} }`,
+                        __html: `.\\32 0ui.sabshow-public { ${publication.customCss} }`,
                     }}
                 />
             ) : null}

@@ -98,7 +98,7 @@ export function TriggerStartPanel({ open, onClose, onPick }: Props) {
   let runningIndex = 0;
   return (
     <div
-      className="ui20 absolute right-3 top-3 z-30 flex max-h-[calc(100%-1.5rem)] w-[360px] flex-col overflow-hidden rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[0_24px_48px_-12px_var(--st-border)]"
+      className="20ui absolute right-3 top-3 z-30 flex max-h-[calc(100%-1.5rem)] w-[360px] flex-col overflow-hidden rounded-[12px] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-[0_24px_48px_-12px_var(--st-border)]"
       onMouseDown={(e) => e.stopPropagation()}
     >
       <div className="relative border-b border-[var(--st-border)] px-4 pb-3 pt-4">

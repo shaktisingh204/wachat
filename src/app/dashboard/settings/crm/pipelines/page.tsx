@@ -825,7 +825,7 @@ export default function SabcrmPipelinesSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="ui20 mx-auto w-full max-w-[var(--st-page-max,72rem)] px-[var(--st-space-5)] py-[var(--st-space-5)]">
+    <div className="20ui mx-auto w-full max-w-[var(--st-page-max,72rem)] px-[var(--st-space-5)] py-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Pipelines</PageTitle>

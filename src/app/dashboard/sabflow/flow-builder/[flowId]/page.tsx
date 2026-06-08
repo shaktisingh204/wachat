@@ -26,7 +26,7 @@ export default async function FlowEditorPage({ params }: Props) {
   }
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <EditorPage flow={flow as any} />
     </div>
   );

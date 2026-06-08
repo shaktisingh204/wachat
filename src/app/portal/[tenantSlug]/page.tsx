@@ -302,7 +302,7 @@ async function PortalDashboardPageContent({ params }: PageProps) {
 
   return (
     <main
-      className="ui20 min-h-screen bg-[var(--st-bg)] px-6 py-8"
+      className="20ui min-h-screen bg-[var(--st-bg)] px-6 py-8"
       style={brandVars}
     >
       <div className="mx-auto max-w-[1080px]">
@@ -373,7 +373,7 @@ async function PortalDashboardPageContent({ params }: PageProps) {
 
 export default function PortalDashboardPage({ params }: PageProps) {
   return (
-    <React.Suspense fallback={<div className="ui20 p-6 text-[var(--st-text-secondary)]">Loading...</div>}>
+    <React.Suspense fallback={<div className="20ui p-6 text-[var(--st-text-secondary)]">Loading...</div>}>
       <PortalDashboardPageContent params={params} />
     </React.Suspense>
   );

@@ -44,7 +44,7 @@ type Mode = 'login' | 'setup';
 export default function AdminLoginClient({ initialMode }: { initialMode: Mode }) {
     return (
         <ErrorBoundary fallback={
-            <div className="ui20 dark min-h-screen flex items-center justify-center p-4 bg-[var(--st-bg)]">
+            <div className="20ui dark min-h-screen flex items-center justify-center p-4 bg-[var(--st-bg)]">
                 <Card className="flex flex-col items-center gap-4 text-center max-w-md">
                     <AlertCircle className="h-10 w-10 text-[var(--st-danger)]" aria-hidden="true" />
                     <div>
@@ -102,7 +102,7 @@ function AdminLoginClientContent({ initialMode }: { initialMode: Mode }) {
     };
 
     return (
-        <div className="ui20 dark min-h-screen bg-[var(--st-bg)] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="20ui dark min-h-screen bg-[var(--st-bg)] flex items-center justify-center p-4 relative overflow-hidden">
             {/* Ambient glow blobs */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
                 <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[var(--st-accent)]/10 blur-[120px]" />

@@ -17,7 +17,7 @@
  * `--radix-tooltip-content-transform-origin` var, see tooltip-radix.css).
  *
  * Content portals to `<body>` through a wrapper that carries
- * `className="ui20 sabcrm-twenty"`, so the `--st-*` / `--u-*` tokens resolve no
+ * `className="20ui sabcrm-twenty"`, so the `--st-*` / `--u-*` tokens resolve no
  * matter where in the app the trigger lives.
  *
  *   <TooltipProvider>
@@ -78,7 +78,7 @@ export const TooltipContent = React.forwardRef<
     <RadixTooltip.Portal {...portalProps}>
       {/* The wrapper carries the system classes so tokens resolve in the body
           portal; `display: contents` keeps it out of Radix's positioning. */}
-      <div className="ui20 sabcrm-twenty u-tip__portal">
+      <div className="20ui sabcrm-twenty u-tip__portal">
         <RadixTooltip.Content
           ref={ref}
           sideOffset={sideOffset}

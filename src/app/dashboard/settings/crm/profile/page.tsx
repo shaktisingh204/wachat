@@ -116,7 +116,7 @@ export default function SabcrmProfileSettingsPage(): React.JSX.Element {
   const canSave = dirty && name.trim().length > 0 && !saving;
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-6">
         <PageHeader bordered={false}>
           <PageHeaderHeading>

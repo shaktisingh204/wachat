@@ -59,7 +59,7 @@ export default function IntegrationsZapierPage() {
     const [range, setRange] = useState<RangeValue>('7d');
 
     return (
-        <div className="ui20 flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+        <div className="20ui flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
             {/* Header */}
             <PageHeader className="px-8 py-6">
                 <PageHeaderHeading>

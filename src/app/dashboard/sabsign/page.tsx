@@ -240,7 +240,7 @@ export default function SabSignDashboard() {
   };
 
   return (
-    <div className="ui20 dark flex h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-sans overflow-hidden">
+    <div className="20ui dark flex h-screen bg-[var(--st-bg)] text-[var(--st-text)] font-sans overflow-hidden">
 
       {/* Sidebar Navigation */}
       <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} flex-shrink-0 border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] transition-all duration-300 flex flex-col z-10`}>

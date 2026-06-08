@@ -3,7 +3,7 @@ import { WaterLoaderScreen } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (
-    <div className="ui20 h-[calc(100vh-8rem)] w-full">
+    <div className="20ui h-[calc(100vh-8rem)] w-full">
       <WaterLoaderScreen
         inline
         caption="Loading Universal Inbox"

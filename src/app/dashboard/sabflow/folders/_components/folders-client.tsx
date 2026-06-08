@@ -183,7 +183,7 @@ export function FoldersClient() {
   );
 
   return (
-    <div className="ui20 flex flex-col h-full">
+    <div className="20ui flex flex-col h-full">
       {/* Header */}
       <PageHeader className="px-4 sm:px-6 py-4 shrink-0">
         <PageHeaderHeading className="flex-row items-center gap-3">

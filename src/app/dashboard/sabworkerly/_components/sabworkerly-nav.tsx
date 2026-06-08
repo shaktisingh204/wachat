@@ -30,7 +30,7 @@ export function SabworkerlyNav() {
     return (
         <nav
             aria-label="SabWorkerly sections"
-            className="ui20 flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3"
+            className="20ui flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3"
         >
             {items.map((it) => {
                 const active = it.exact

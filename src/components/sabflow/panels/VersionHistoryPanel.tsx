@@ -254,7 +254,7 @@ export function VersionHistoryPanel({ flowId, onClose, onRestore }: Props) {
         </AlertDialogContent>
       </AlertDialog>
 
-      <div className="ui20 w-[320px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
+      <div className="20ui w-[320px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] z-20 overflow-hidden flex flex-col">
 
         {/* ── Panel header ─────────────────────────────────────── */}
         <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--st-border)] shrink-0">

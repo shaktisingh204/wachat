@@ -20,7 +20,7 @@ export default function FeatureError({
   }, [error]);
 
   return (
-    <div className="ui20 relative min-h-screen overflow-x-clip antialiased bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+    <div className="20ui relative min-h-screen overflow-x-clip antialiased bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
       <FeatureHeader />
 
       <main className="flex-grow flex items-center justify-center p-6">

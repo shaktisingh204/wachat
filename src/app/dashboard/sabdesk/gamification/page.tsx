@@ -697,7 +697,7 @@ export default function GamificationPage(): React.JSX.Element {
   ];
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">

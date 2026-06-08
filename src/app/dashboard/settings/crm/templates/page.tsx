@@ -521,7 +521,7 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
   // ----- Render -----
 
   return (
-    <div className="ui20 sabcrm-twenty mx-auto flex min-h-0 w-full max-w-5xl flex-col gap-5 p-6">
+    <div className="20ui sabcrm-twenty mx-auto flex min-h-0 w-full max-w-5xl flex-col gap-5 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Templates</PageTitle>

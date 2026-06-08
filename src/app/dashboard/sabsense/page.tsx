@@ -17,7 +17,7 @@ export default function PagesenseHomePage() {
     return (
         <Suspense
             fallback={
-                <div className="ui20 flex items-center gap-3 p-8 text-sm text-[var(--st-text-secondary)]">
+                <div className="20ui flex items-center gap-3 p-8 text-sm text-[var(--st-text-secondary)]">
                     <Spinner size="sm" label="Loading sites" />
                     <span>Loading sites</span>
                 </div>

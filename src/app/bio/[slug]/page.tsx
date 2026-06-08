@@ -48,7 +48,7 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
 
   if (!profile) {
     return (
-      <div className="ui20 flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4">
+      <div className="20ui flex min-h-screen flex-col items-center justify-center bg-[var(--st-bg)] px-4">
         <div className="flex flex-col items-center gap-4 text-center max-w-md p-8 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] border border-[var(--st-border)]">
           <Avatar className="h-20 w-20 ring-4 ring-[var(--st-border)]">
             <AvatarFallback className="bg-[var(--st-bg-tertiary)] text-[var(--st-text-secondary)] uppercase text-2xl font-bold">
@@ -77,7 +77,7 @@ export default async function BioPage({ params }: { params: Promise<{ slug: stri
   const btnText = theme?.buttonTextColor || '#ffffff';
 
   return (
-    <div className="ui20 flex min-h-screen flex-col items-center py-16 px-4" style={{ backgroundColor: bgColor, color: textColor }}>
+    <div className="20ui flex min-h-screen flex-col items-center py-16 px-4" style={{ backgroundColor: bgColor, color: textColor }}>
       <div className="w-full max-w-md flex flex-col items-center gap-6 text-center">
         <Avatar className="h-24 w-24 ring-4 ring-black/10 shadow-xl overflow-hidden">
           {profile.avatarUrl ? (

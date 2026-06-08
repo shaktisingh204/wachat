@@ -28,7 +28,7 @@ export default function FormsPage(props: PageProps) {
     return (
         <Suspense
             fallback={
-                <div className="ui20 flex items-center gap-2 p-8 text-sm text-[var(--st-text-secondary)]">
+                <div className="20ui flex items-center gap-2 p-8 text-sm text-[var(--st-text-secondary)]">
                     <Spinner size="sm" label="Loading form analytics" />
                     Loading form analytics.
                 </div>

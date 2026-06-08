@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="ui20 mt-4">
+    <div className="20ui mt-4">
       <Card variant="outlined" padding="lg">
         <div className="flex min-h-[400px] items-center justify-center">
           <EmptyState

@@ -33,7 +33,7 @@ export default async function SablensPage() {
   const sessions = result.ok ? result.data.items : [];
 
   return (
-    <div className="ui20 flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>SabLens</PageTitle>

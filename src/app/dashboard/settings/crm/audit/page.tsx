@@ -216,7 +216,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
   const hasFilter = actionFilter !== ALL || objectFilter !== ALL;
 
   return (
-    <div className="ui20 flex flex-col gap-6 p-6">
+    <div className="20ui flex flex-col gap-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Audit Log</PageTitle>

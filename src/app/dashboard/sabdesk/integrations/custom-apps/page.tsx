@@ -63,7 +63,7 @@ export default function IntegrationsCustomAppsPage() {
   const [range, setRange] = useState<TimeRange>('7d');
 
   return (
-    <div className="ui20 dark flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
+    <div className="20ui dark flex flex-col w-full h-full min-h-screen bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
       <PageHeader className="px-8 py-6">
         <PageHeaderHeading>

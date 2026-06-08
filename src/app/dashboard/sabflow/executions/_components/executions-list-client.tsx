@@ -133,7 +133,7 @@ export function ExecutionsListClient() {
   }, [executions, search]);
 
   return (
-    <div className="ui20 flex flex-col h-full">
+    <div className="20ui flex flex-col h-full">
       {/* Header */}
       <PageHeader compact className="px-4 sm:px-6">
         <div className="flex items-center gap-3 min-w-0">

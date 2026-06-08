@@ -86,7 +86,7 @@ export function RecipeListClient({ initial }: Props) {
     );
 
     return (
-        <div className="ui20 flex flex-col gap-6 p-6">
+        <div className="20ui flex flex-col gap-6 p-6">
             <PageHeader className="flex-wrap items-end justify-between gap-4">
                 <PageHeaderHeading>
                     <PageTitle>DataPrep</PageTitle>

@@ -187,7 +187,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
             className="overflow-visible"
           >
             <div
-              className="ui20 mx-auto w-fit rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm"
+              className="20ui mx-auto w-fit rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-sm"
               onMouseEnter={() => setIsMouseOver(true)}
               onMouseLeave={() => setIsMouseOver(false)}
             >
@@ -227,7 +227,7 @@ export function Edge({ edge, fromGroupId, onDelete, onInsertNode }: Props) {
       {contextMenu &&
         createPortal(
           <div
-            className="ui20 fixed z-[9999] min-w-[120px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-md"
+            className="20ui fixed z-[9999] min-w-[120px] rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] p-1 shadow-md"
             style={{ left: contextMenu.x, top: contextMenu.y }}
             onClick={(e) => e.stopPropagation()}
           >

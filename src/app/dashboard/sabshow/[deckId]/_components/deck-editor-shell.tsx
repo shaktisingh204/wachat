@@ -340,7 +340,7 @@ export function DeckEditorShell({
 
     /* render */
     return (
-        <div className="ui20 flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
+        <div className="20ui flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
             {/* top bar */}
             <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-2">
                 <Input

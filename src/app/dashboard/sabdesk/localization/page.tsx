@@ -1070,7 +1070,7 @@ export default function LocalizationDashboard() {
   ] as const;
 
   return (
-    <div className="ui20 dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
+    <div className="20ui dark min-h-screen bg-[var(--st-bg)] text-[var(--st-text)] flex flex-col">
 
       {/* Header */}
       <header className="h-16 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] flex items-center justify-between px-6 shrink-0 z-20 sticky top-0">

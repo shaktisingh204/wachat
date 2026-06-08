@@ -725,7 +725,7 @@ export default function SabSignNotaryPage() {
   ];
 
   return (
-    <div className="ui20 min-h-screen bg-[var(--st-bg-secondary)] p-4 md:p-8">
+    <div className="20ui min-h-screen bg-[var(--st-bg-secondary)] p-4 md:p-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto mb-8">
         <PageHeader>

@@ -399,7 +399,7 @@ async function ClientCockpit({ clientId }: { clientId: string }) {
 export default async function ClientCockpitPage({ params }: Props) {
     const { clientId } = await params;
     return (
-        <div className="ui20">
+        <div className="20ui">
             <Suspense
                 fallback={
                     <div className="p-6 text-sm text-[var(--st-text-secondary)]">

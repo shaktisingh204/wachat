@@ -9,7 +9,7 @@ export default async function AdminSlaPage() {
     const items = resp.items ?? [];
 
     return (
-        <div className="ui20 flex-1 flex flex-col min-h-0 gap-6 p-6">
+        <div className="20ui flex-1 flex flex-col min-h-0 gap-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Service Level Agreements</PageTitle>

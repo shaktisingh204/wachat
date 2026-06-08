@@ -2,12 +2,12 @@
 
 /* The portal wrapper only exists to scope tokens in the body portal; it must
    not interfere with Radix's fixed positioning of the panel. */
-:is(.ui20, .sabcrm-twenty).u-select-rdx__portal {
+:is(.\32 0ui, .sabcrm-twenty).u-select-rdx__portal {
   display: contents;
 }
 
 /* ----- Trigger ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,42 +31,42 @@
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
 /* Keep the value text on one line; let the chevron hold its width. */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger > span {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger > span {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger:hover {
   border-color: var(--st-border-strong);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger[data-state='open'] {
   border-color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger:focus-visible {
   box-shadow: var(--u-focus-ring);
   border-color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 /* Placeholder ink (Radix sets data-placeholder on the trigger). */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger[data-placeholder] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger[data-placeholder] {
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__chevron {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__chevron {
   flex: 0 0 auto;
   width: 16px;
   height: 16px;
   color: var(--st-text-tertiary);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__trigger[data-state='open'] .u-select-rdx__chevron {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__trigger[data-state='open'] .u-select-rdx__chevron {
   color: var(--st-text-secondary);
 }
 
 /* ----- Panel ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx {
   position: relative;
   z-index: 1000;
   min-width: 8rem;
@@ -85,21 +85,21 @@
   transform-origin: var(--radix-select-content-transform-origin);
 }
 /* In popper mode, match the trigger width so the panel lines up under it. */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx--popper {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx--popper {
   width: var(--radix-select-trigger-width);
 }
 
 /* ----- Viewport ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__viewport {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__viewport {
   padding: var(--st-space-1);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__viewport--popper {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__viewport--popper {
   width: 100%;
   min-width: var(--radix-select-trigger-width);
 }
 
 /* ----- Item rows ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__item {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__item {
   position: relative;
   display: flex;
   align-items: center;
@@ -124,20 +124,20 @@
     color var(--u-dur-fast) var(--u-ease-out);
 }
 /* Radix sets data-highlighted on the roving-focus row (pointer OR keyboard). */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__item[data-highlighted] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__item[data-highlighted] {
   background: var(--st-hover);
   color: var(--st-text);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__item[data-state='checked'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__item[data-state='checked'] {
   background: var(--st-active);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__item[data-disabled] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__item[data-disabled] {
   pointer-events: none;
   opacity: 0.5;
 }
 
 /* ----- Selected indicator (trailing check) ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__indicator {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__indicator {
   position: absolute;
   right: var(--st-space-2);
   display: inline-flex;
@@ -147,13 +147,13 @@
   height: 16px;
   color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__indicator-check {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__indicator-check {
   width: 15px;
   height: 15px;
 }
 
 /* ----- Label ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__label {
   padding: var(--st-space-1) var(--st-space-2);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -163,14 +163,14 @@
 }
 
 /* ----- Separator ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__separator {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__separator {
   height: 1px;
   margin: var(--st-space-1) calc(var(--st-space-1) * -1);
   background: var(--st-border-light);
 }
 
 /* ----- Scroll buttons ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__scroll {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__scroll {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,30 +179,30 @@
   color: var(--st-text-tertiary);
   background: var(--st-bg);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx__scroll-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx__scroll-icon {
   width: 15px;
   height: 15px;
 }
 
 /* ----- Entrance (Emil: transform + opacity only, < 250ms, eased) ----- */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-state='open'] {
   animation: u-select-rdx-in var(--u-dur) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-state='closed'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-state='closed'] {
   animation: u-select-rdx-out var(--u-dur-fast) var(--u-ease-out);
 }
 
 /* Directional nudge: lean in from the anchored side, then settle. */
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='top'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='top'] {
   animation-name: u-select-rdx-in-top;
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='bottom'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='bottom'] {
   animation-name: u-select-rdx-in-bottom;
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='left'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='left'] {
   animation-name: u-select-rdx-in-left;
 }
-:is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='right'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='right'] {
   animation-name: u-select-rdx-in-right;
 }
 
@@ -269,12 +269,12 @@
 
 /* Reduced motion: fade only, no movement or scale. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-state='open'],
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-state='closed'],
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='top'],
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='bottom'],
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='left'],
-  :is(.ui20, .sabcrm-twenty) .u-select-rdx[data-side='right'] {
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-state='open'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-state='closed'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='top'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='bottom'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='left'],
+  :is(.\32 0ui, .sabcrm-twenty) .u-select-rdx[data-side='right'] {
     animation: u-select-rdx-fade var(--u-dur-fast) ease;
   }
   @keyframes u-select-rdx-fade {

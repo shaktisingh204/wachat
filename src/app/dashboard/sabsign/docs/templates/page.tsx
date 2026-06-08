@@ -69,7 +69,7 @@ export default function SabwriterTemplateGalleryPage() {
   };
 
   return (
-    <div className="ui20 p-6 max-w-5xl mx-auto">
+    <div className="20ui p-6 max-w-5xl mx-auto">
       <PageHeader>
         <div className="flex items-center gap-2">
           <IconButton

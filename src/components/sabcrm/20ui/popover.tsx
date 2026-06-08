@@ -9,7 +9,7 @@
  * surface panel on `--u-elev-3`, a large radius, and an Emil scale-in that grows
  * from whichever edge Radix anchored the panel to (driven by `data-side`).
  *
- * The portalled content root carries `className="ui20 sabcrm-twenty"` so the
+ * The portalled content root carries `className="20ui sabcrm-twenty"` so the
  * `--st-*` / `--u-*` tokens resolve no matter where in the app the trigger lives
  * (the panel renders to `document.body`, outside the CRM subtree).
  *
@@ -76,7 +76,7 @@ export const PopoverContent = React.forwardRef<
     <RadixPopover.Portal {...portalProps}>
       {/* The wrapper carries the system classes so tokens resolve in the body
           portal; the panel itself stays a pure positioned surface. */}
-      <div className="ui20 sabcrm-twenty u-popover__portal">
+      <div className="20ui sabcrm-twenty u-popover__portal">
         <RadixPopover.Content
           ref={ref}
           align={align}

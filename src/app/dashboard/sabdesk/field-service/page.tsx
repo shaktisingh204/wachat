@@ -153,7 +153,7 @@ export default function FieldServiceDashboard() {
   ];
 
   return (
-    <div className="ui20 dark flex h-screen w-full bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
+    <div className="20ui dark flex h-screen w-full bg-[var(--st-bg)] text-[var(--st-text)] overflow-hidden">
 
       {/* LEFT SIDEBAR NAVIGATION */}
       <aside className={`flex flex-col transition-all duration-300 border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)] ${isSidebarOpen ? 'w-64' : 'w-20'}`}>

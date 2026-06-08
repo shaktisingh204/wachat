@@ -21,7 +21,7 @@ export default async function SabChatInboxV2Page({
         : { items: [] as Awaited<ReturnType<typeof listConversations>>['items'] };
 
     return (
-        <div className="ui20 flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
+        <div className="20ui flex h-[calc(100vh-4rem)] flex-col gap-4 p-4">
             <Card>
                 <CardHeader>
                     <CardTitle>SabChat - Inbox v2</CardTitle>

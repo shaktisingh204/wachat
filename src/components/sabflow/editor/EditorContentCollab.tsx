@@ -495,7 +495,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
   return (
     <div
       ref={containerRef}
-      className="ui20 absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
+      className="20ui absolute inset-0 flex flex-col overflow-clip bg-[var(--st-bg-secondary)]"
     >
       {webhookBanner && webhookBanner.length > 0 && (
         <Alert

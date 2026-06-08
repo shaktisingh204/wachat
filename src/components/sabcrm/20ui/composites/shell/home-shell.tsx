@@ -276,7 +276,7 @@ function SabHomeShellContent({
   return (
     <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* App rail — 20ui, in its own theme-synced design-system root. */}
-      <div className={`ui20 ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
+      <div className={`20ui ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
         <AppRail items={railItems} label="SabNode apps" />
       </div>
       {!fullBleed && !sidebarless && (
@@ -292,7 +292,7 @@ function SabHomeShellContent({
         {/* Header — 20ui AppHeader, theme-synced. The brand + search +
             notifications + user menu keep their SabUI widgets (they re-theme
             via the SabUI dark tokens), with a quick light/dark toggle added. */}
-        <div className={`ui20 ${appDark ? "dark" : "light"}`}>
+        <div className={`20ui ${appDark ? "dark" : "light"}`}>
           <AppHeader
             sticky={false}
             leading={

@@ -10,7 +10,7 @@ export default async function AdminLoginPage() {
     }
 
     return (
-        <div className="ui20 min-h-screen bg-[var(--st-text)] text-white">
+        <div className="20ui min-h-screen bg-[var(--st-text)] text-white">
             <AdminLoginClient initialMode={configured ? 'login' : 'setup'} />
         </div>
     );

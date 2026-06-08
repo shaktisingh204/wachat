@@ -96,7 +96,7 @@ export function ConversationList({
   }, [hasMore, loadingMore, loading, onLoadMore]);
 
   return (
-    <div className="ui20 flex h-full min-h-0 flex-col bg-[var(--st-bg-secondary)]">
+    <div className="20ui flex h-full min-h-0 flex-col bg-[var(--st-bg-secondary)]">
       <div className="flex items-center gap-2 border-b border-[var(--st-border)] p-3">
         <Input
           value={query}

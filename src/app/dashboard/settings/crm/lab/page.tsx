@@ -84,7 +84,7 @@ export default function SabcrmLabSettingsPage(): React.JSX.Element {
   }, [enabledCount, resetAll, toast]);
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-8">
         <PageHeader>
           <PageHeaderHeading>

@@ -101,7 +101,7 @@ export function ItemNode({ item, block, blockType, groupId, onDelete, onMouseDow
             onMouseDown={closeContextMenu}
           />
           <div
-            className="ui20 fixed z-[9999] min-w-[140px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-lg p-1"
+            className="20ui fixed z-[9999] min-w-[140px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] shadow-lg p-1"
             style={{ left: contextMenuPos.x, top: contextMenuPos.y }}
           >
             <Button

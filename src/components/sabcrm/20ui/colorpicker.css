@@ -8,7 +8,7 @@
    foot disables every movement. */
 
 /* ----- Trigger: current-colour swatch + hex caption ----- */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger {
   display: inline-flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -29,21 +29,21 @@
     box-shadow var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger:hover:not(:disabled) {
   border-color: var(--st-border-strong);
   background: var(--st-hover);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger:active:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger:active:not(:disabled) {
   transform: scale(0.97);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger[data-state='open'] {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger[data-state='open'] {
   border-color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
@@ -51,14 +51,14 @@
 
 /* The little colour chip on the trigger. A subtle inset ring keeps a white or
    near-white fill from disappearing against the white surface. */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger-swatch {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger-swatch {
   flex: 0 0 auto;
   width: 22px;
   height: 22px;
   border-radius: var(--st-radius-sm);
   box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.16);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger-hex {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger-hex {
   font-family: var(--st-font-mono);
   font-size: var(--st-font-size-xs);
   text-transform: uppercase;
@@ -67,7 +67,7 @@
 }
 
 /* ----- Panel: extra class on the popover root; just sizes + stacks. ----- */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__panel {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__panel {
   display: flex;
   flex-direction: column;
   gap: var(--st-space-3);
@@ -76,14 +76,14 @@
 }
 
 /* Top row: native colour chip + hex text field. */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__row {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__row {
   display: flex;
   align-items: flex-end;
   gap: var(--st-space-2);
 }
 
 /* ----- Native input[type=color], skinned to a square chip ----- */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native {
   position: relative;
   flex: 0 0 auto;
   display: inline-flex;
@@ -97,12 +97,12 @@
     box-shadow var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native:active {
   transform: scale(0.96);
 }
 /* The real control sits invisibly on top so the whole chip is clickable and
    keyboard-focusable; we render the chosen colour via the label background. */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native-input {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native-input {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -113,14 +113,14 @@
   opacity: 0;
   cursor: pointer;
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native:focus-within {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native:focus-within {
   box-shadow:
     inset 0 0 0 1px rgba(16, 24, 40, 0.16),
     var(--u-focus-ring);
 }
 /* The pipette glyph rides on top of the fill; mix-blend keeps it readable on
    both light and dark colours without measuring luminance. */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native-icon {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native-icon {
   position: absolute;
   inset: 0;
   margin: auto;
@@ -129,7 +129,7 @@
   pointer-events: none;
 }
 /* Visually hidden label text for screen readers (the input has no caption). */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__native-srlabel {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native-srlabel {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -143,19 +143,19 @@
 }
 
 /* ----- Hex text field ----- */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--st-space-1);
   min-width: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-label {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-label {
   font-size: var(--st-font-size-xs);
   font-weight: var(--st-fw-medium);
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-input {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-input {
   width: 100%;
   height: 32px;
   padding: 0 var(--st-space-2);
@@ -172,28 +172,28 @@
     border-color var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-input::placeholder {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-input::placeholder {
   color: var(--st-text-tertiary);
   text-transform: uppercase;
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-input:focus {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-input:focus {
   border-color: var(--st-accent);
   box-shadow: 0 0 0 3px var(--st-accent-soft);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-input.is-invalid {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-input.is-invalid {
   border-color: var(--st-danger);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__hex-input.is-invalid:focus {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__hex-input.is-invalid:focus {
   box-shadow: 0 0 0 3px var(--st-danger-soft);
 }
 
 /* ----- Preset swatch grid ----- */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__grid {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: var(--st-space-1);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch {
   position: relative;
   aspect-ratio: 1 / 1;
   width: 100%;
@@ -207,30 +207,30 @@
     transform var(--u-dur-fast) var(--u-ease-out),
     box-shadow var(--u-dur-fast) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch:hover {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch:hover {
   transform: scale(1.12);
   box-shadow:
     inset 0 0 0 1px rgba(16, 24, 40, 0.16),
     var(--u-elev-1);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch:active {
   transform: scale(0.94);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch.is-selected {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch.is-selected {
   box-shadow:
     inset 0 0 0 1px rgba(16, 24, 40, 0.16),
     0 0 0 2px var(--st-bg),
     0 0 0 4px var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch.is-selected:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch.is-selected:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
 /* The active tick: white on dark fills, ink on light fills (via .is-light). */
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch-tick {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch-tick {
   position: absolute;
   inset: 0;
   margin: auto;
@@ -238,17 +238,17 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.35));
   pointer-events: none;
 }
-:is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch.is-light .u-colorpicker__swatch-tick {
+:is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch.is-light .u-colorpicker__swatch-tick {
   color: #000;
   filter: none;
 }
 
 /* ----- Reduced motion: kill every transform; keep colour/shadow feedback ----- */
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-colorpicker__trigger:active:not(:disabled),
-  :is(.ui20, .sabcrm-twenty) .u-colorpicker__native:active,
-  :is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch:hover,
-  :is(.ui20, .sabcrm-twenty) .u-colorpicker__swatch:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__trigger:active:not(:disabled),
+  :is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__native:active,
+  :is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch:hover,
+  :is(.\32 0ui, .sabcrm-twenty) .u-colorpicker__swatch:active {
     transform: none;
   }
 }

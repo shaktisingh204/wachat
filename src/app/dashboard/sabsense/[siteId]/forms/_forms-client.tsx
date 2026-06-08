@@ -58,7 +58,7 @@ export function FormsClient({ site, forms }: Props) {
 
     if (!site) {
         return (
-            <div className="ui20 p-8 text-sm text-[color:var(--st-text-secondary)]">
+            <div className="20ui p-8 text-sm text-[color:var(--st-text-secondary)]">
                 Site not found.
             </div>
         );
@@ -94,7 +94,7 @@ export function FormsClient({ site, forms }: Props) {
     };
 
     return (
-        <div className="ui20 p-8 space-y-6">
+        <div className="20ui p-8 space-y-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>{site.name}, Form analytics</PageTitle>

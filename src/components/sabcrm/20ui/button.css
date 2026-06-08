@@ -1,6 +1,6 @@
 /* 20ui · Button + IconButton + ButtonGroup */
 
-:is(.ui20, .sabcrm-twenty) .u-btn {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -26,14 +26,14 @@
     transform 80ms var(--u-ease-out);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-btn:active {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn:active {
   transform: scale(0.97);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn:disabled {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
@@ -45,36 +45,36 @@
    an icon + text child stay on one line and the button keeps sizing to content.
    (Icons passed via the `iconLeft`/`iconRight` props sit outside the label and
    are unaffected.) */
-:is(.ui20, .sabcrm-twenty) .u-btn__label {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn__label {
   display: inline-flex;
   align-items: center;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn svg {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn svg {
   flex-shrink: 0;
 }
 
 /* ----- Sizes ----- */
-:is(.ui20, .sabcrm-twenty) .u-btn--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--sm {
   height: 26px;
   padding: 0 var(--st-space-2);
   font-size: var(--st-font-size-sm);
   border-radius: var(--st-radius-sm);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--lg {
   height: 38px;
   padding: 0 var(--st-space-4);
   font-size: var(--st-font-size-lg);
   border-radius: var(--st-radius-lg);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--block {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--block {
   width: 100%;
 }
 
 /* ----- Variants ----- */
-:is(.ui20, .sabcrm-twenty) .u-btn--primary {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--primary {
   background: var(--st-accent-grad, var(--st-accent));
   border-color: transparent;
   color: var(--st-text-inverted);
@@ -82,50 +82,50 @@
     0 1px 2px rgba(16, 24, 40, 0.12),
     0 0 0 1px rgba(37, 99, 235, 0.4) inset;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--primary:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--primary:hover:not(:disabled) {
   filter: brightness(1.05);
   box-shadow:
     0 3px 10px var(--st-accent-ring, rgba(43, 110, 242, 0.25)),
     0 0 0 1px rgba(37, 99, 235, 0.5) inset;
 }
 
-:is(.ui20, .sabcrm-twenty) .u-btn--secondary:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--secondary:hover:not(:disabled) {
   background: var(--st-hover);
   border-color: var(--st-border-strong);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-btn--ghost {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--ghost {
   background: transparent;
   border-color: transparent;
   color: var(--st-text-secondary);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--ghost:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--ghost:hover:not(:disabled) {
   background: var(--st-hover);
   color: var(--st-text);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-btn--outline {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--outline {
   background: transparent;
   border-color: var(--st-accent);
   color: var(--st-accent);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--outline:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--outline:hover:not(:disabled) {
   background: var(--st-accent-soft);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-btn--danger {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--danger {
   background: var(--st-danger);
   border-color: transparent;
   color: #fff;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--danger:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--danger:hover:not(:disabled) {
   background: var(--st-danger-hover, #a8311f);
 }
 
 /* Premium brand-gradient pill (landing-inspired) — amber to rose, warm glow,
    a hover lift + a one-pass light sheen sweeping across. Opt-in for flagship
    CTAs, never the default. */
-:is(.ui20, .sabcrm-twenty) .u-btn--gradient {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient {
   position: relative;
   overflow: hidden;
   border: none;
@@ -139,34 +139,34 @@
     box-shadow var(--u-dur-fast) var(--u-ease-smooth),
     filter var(--u-dur-fast) var(--u-ease-smooth);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 14px 34px -8px var(--u-glow-orange);
   filter: saturate(1.05);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--gradient:active:not(:disabled) {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient:active:not(:disabled) {
   transform: scale(0.98);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--gradient > * {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient > * {
   position: relative;
   z-index: 1;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn__sheen {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn__sheen {
   position: absolute;
   inset: 0;
   z-index: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
   transform: translateX(-100%);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
   animation: u-sheen 700ms var(--u-ease-out);
 }
 
 /* ----- Loading spinner ----- */
-:is(.ui20, .sabcrm-twenty) .u-btn.is-loading {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn.is-loading {
   cursor: progress;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn__spinner {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn__spinner {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -182,54 +182,54 @@
 }
 
 /* ----- IconButton ----- */
-:is(.ui20, .sabcrm-twenty) .u-icon-btn {
+:is(.\32 0ui, .sabcrm-twenty) .u-icon-btn {
   padding: 0;
   width: 32px;
   height: 32px;
   flex: 0 0 auto;
 }
-:is(.ui20, .sabcrm-twenty) .u-icon-btn--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-icon-btn--sm {
   width: 26px;
   height: 26px;
 }
-:is(.ui20, .sabcrm-twenty) .u-icon-btn--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-icon-btn--lg {
   width: 38px;
   height: 38px;
 }
 
 /* ----- ButtonGroup — shared borders, no double seams ----- */
-:is(.ui20, .sabcrm-twenty) .u-btn-group {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group {
   display: inline-flex;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group > .u-btn {
   border-radius: 0;
   margin-left: -1px;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:first-child {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group > .u-btn:first-child {
   border-top-left-radius: var(--st-radius);
   border-bottom-left-radius: var(--st-radius);
   margin-left: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:last-child {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group > .u-btn:last-child {
   border-top-right-radius: var(--st-radius);
   border-bottom-right-radius: var(--st-radius);
 }
-:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:hover,
-:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group > .u-btn:hover,
+:is(.\32 0ui, .sabcrm-twenty) .u-btn-group > .u-btn:focus-visible {
   z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-btn:active {
+  :is(.\32 0ui, .sabcrm-twenty) .u-btn:active {
     transform: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
+  :is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
     transform: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
+  :is(.\32 0ui, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
     animation: none;
   }
-  :is(.ui20, .sabcrm-twenty) .u-btn__spinner {
+  :is(.\32 0ui, .sabcrm-twenty) .u-btn__spinner {
     animation-duration: 1.2s;
   }
 }

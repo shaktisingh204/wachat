@@ -180,7 +180,7 @@ export function AudioBubble({
   /* Missing URL / load error. */
   if (!url || typeof url !== 'string' || !url.trim() || errored) {
     return (
-      <div className="ui20 flex justify-start">
+      <div className="20ui flex justify-start">
         <div
           className="flex items-center gap-2 rounded-2xl rounded-tl-sm px-4 py-3 text-[12.5px]"
           style={{ backgroundColor, color, maxWidth }}
@@ -193,7 +193,7 @@ export function AudioBubble({
   }
 
   return (
-    <div className="ui20 flex justify-start">
+    <div className="20ui flex justify-start">
       <div
         className="flex w-full flex-col gap-2.5 rounded-2xl rounded-tl-sm px-3.5 py-3 shadow-sm"
         style={{ backgroundColor, color, maxWidth }}

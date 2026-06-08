@@ -28,7 +28,7 @@ export default async function SabshowIndexPage() {
     const { items: decks } = await listSabshowDecks({ status: 'all', limit: 50 });
 
     return (
-        <div className="ui20 mx-auto w-full max-w-6xl space-y-6 p-6">
+        <div className="20ui mx-auto w-full max-w-6xl space-y-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>SabShow</PageTitle>

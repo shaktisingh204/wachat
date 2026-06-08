@@ -669,7 +669,7 @@ export default function SabcrmAdminPanelPage(): React.JSX.Element {
   );
 
   return (
-    <div className="ui20 mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
+    <div className="20ui mx-auto flex w-full max-w-4xl flex-col gap-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>SabCRM workspace</PageEyebrow>

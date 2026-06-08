@@ -65,7 +65,7 @@ export default function EmbedClient({
   }
 
   return (
-    <div className="ui20 flex h-full flex-col">
+    <div className="20ui flex h-full flex-col">
       <ChatHeader
         widgetName={widgetName}
         primaryColor={primaryColor}

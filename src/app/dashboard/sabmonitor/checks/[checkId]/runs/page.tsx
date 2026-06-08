@@ -35,7 +35,7 @@ export default async function CheckRunsPage({ params }: PageProps): Promise<Reac
     const ascending = [...runs.items].reverse();
 
     return (
-        <div className="ui20 flex flex-col gap-4">
+        <div className="20ui flex flex-col gap-4">
             <PageHeader bordered={false} compact>
                 <PageHeaderHeading>
                     <PageTitle>Recent runs</PageTitle>

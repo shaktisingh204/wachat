@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/sabcrm/20ui';
 
 export default function Loading() {
   return (
-    <div className="ui20 w-full p-6 space-y-6 animate-in fade-in duration-500">
+    <div className="20ui w-full p-6 space-y-6 animate-in fade-in duration-500">
       {/* Page header placeholder */}
       <div className="space-y-2">
         <Skeleton className="h-8 w-[250px]" />

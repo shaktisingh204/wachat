@@ -332,7 +332,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
   );
 
   return (
-    <div className="ui20 flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
+    <div className="20ui flex h-full min-h-0 flex-1 gap-0 overflow-hidden border-t border-[var(--st-border)]">
       {/* LEFT: categories */}
       <aside className="flex h-full w-[280px] min-w-[240px] shrink-0 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
         <div className="flex items-center justify-between gap-2 border-b border-[var(--st-border)] px-3 py-3">

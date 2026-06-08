@@ -63,7 +63,7 @@ export function PresentView({
 
     if (!current) {
         return (
-            <div className="ui20 flex h-screen items-center justify-center bg-black">
+            <div className="20ui flex h-screen items-center justify-center bg-black">
                 <EmptyState
                     icon={MonitorOff}
                     title="No slides to present"
@@ -79,7 +79,7 @@ export function PresentView({
     }
 
     return (
-        <div className="ui20 flex h-screen w-screen flex-col bg-black text-white">
+        <div className="20ui flex h-screen w-screen flex-col bg-black text-white">
             <div className="flex items-center justify-between px-4 py-2 text-xs">
                 <span className="font-medium">{deckTitle}</span>
                 <span className="text-white/70">

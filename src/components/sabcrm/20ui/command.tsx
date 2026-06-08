@@ -293,7 +293,7 @@ export function CommandDialog({
 
   const overlay = (
     <div
-      className="ui20 sabcrm-twenty u-cmd-overlay"
+      className="20ui sabcrm-twenty u-cmd-overlay"
       onMouseDown={() => onOpenChange(false)}
     >
       <div

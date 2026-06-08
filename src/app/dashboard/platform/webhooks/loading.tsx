@@ -10,7 +10,7 @@ import {
 export default function WebhooksLoading() {
   return (
     <div
-      className="ui20 flex w-full flex-col gap-4 p-4 md:p-6"
+      className="20ui flex w-full flex-col gap-4 p-4 md:p-6"
       aria-busy="true"
       aria-live="polite"
     >

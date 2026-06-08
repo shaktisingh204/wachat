@@ -1,6 +1,6 @@
 /* 20ui · Modal — overlay scrim + centred dialog panel */
 
-:is(.ui20, .sabcrm-twenty).u-modal-overlay {
+:is(.\32 0ui, .sabcrm-twenty).u-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -13,11 +13,11 @@
   animation: u-modal-overlay-in var(--u-dur) var(--u-ease-out);
 }
 /* Darker scrim over the near-black dark shell (matches st-dialog). */
-:is(.ui20, .sabcrm-twenty).st-theme-dark.u-modal-overlay {
+:is(.\32 0ui, .sabcrm-twenty).st-theme-dark.u-modal-overlay {
   background: rgba(0, 0, 0, 0.6);
 }
 
-:is(.ui20, .sabcrm-twenty) .u-modal {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -34,23 +34,23 @@
   transform-origin: center;
   animation: u-modal-in var(--u-dur-slow) var(--u-ease-out);
 }
-:is(.ui20, .sabcrm-twenty) .u-modal:focus-visible {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal:focus-visible {
   box-shadow: var(--u-elev-3), var(--u-focus-ring);
 }
 
 /* ----- Sizes ----- */
-:is(.ui20, .sabcrm-twenty) .u-modal--sm {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal--sm {
   max-width: 380px;
 }
-:is(.ui20, .sabcrm-twenty) .u-modal--md {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal--md {
   max-width: 480px;
 }
-:is(.ui20, .sabcrm-twenty) .u-modal--lg {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal--lg {
   max-width: 680px;
 }
 
 /* ----- Header ----- */
-:is(.ui20, .sabcrm-twenty) .u-modal__header {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -58,10 +58,10 @@
   padding: var(--st-space-4) var(--st-space-5);
   border-bottom: 1px solid var(--st-border-light);
 }
-:is(.ui20, .sabcrm-twenty) .u-modal__heading {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__heading {
   min-width: 0;
 }
-:is(.ui20, .sabcrm-twenty) .u-modal__title {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
@@ -69,19 +69,19 @@
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
-:is(.ui20, .sabcrm-twenty) .u-modal__desc {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__desc {
   margin: var(--st-space-1) 0 0;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-:is(.ui20, .sabcrm-twenty) .u-modal__close {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__close {
   flex: 0 0 auto;
   margin: -2px -4px 0 0;
 }
 
 /* ----- Body (scrolls when content overflows) ----- */
-:is(.ui20, .sabcrm-twenty) .u-modal__body {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__body {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
@@ -92,7 +92,7 @@
 }
 
 /* ----- Footer ----- */
-:is(.ui20, .sabcrm-twenty) .u-modal__footer {
+:is(.\32 0ui, .sabcrm-twenty) .u-modal__footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -122,7 +122,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-modal {
+  :is(.\32 0ui, .sabcrm-twenty) .u-modal {
     /* Fade only — no scale. */
     animation: u-modal-overlay-in var(--u-dur-fast) ease;
   }

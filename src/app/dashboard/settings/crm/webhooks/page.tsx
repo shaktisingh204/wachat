@@ -948,7 +948,7 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="ui20">
+    <div className="20ui">
       <div className="mx-auto flex max-w-5xl flex-col gap-5 p-6">
         <PageHeader>
           <PageHeaderHeading>

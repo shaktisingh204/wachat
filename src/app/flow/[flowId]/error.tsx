@@ -18,7 +18,7 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="ui20 min-h-screen flex items-center justify-center bg-[var(--st-bg-secondary)] p-6">
+    <div className="20ui min-h-screen flex items-center justify-center bg-[var(--st-bg-secondary)] p-6">
       <Card variant="elevated" padding="lg" className="w-full max-w-sm">
         <EmptyState
           icon={AlertCircle}

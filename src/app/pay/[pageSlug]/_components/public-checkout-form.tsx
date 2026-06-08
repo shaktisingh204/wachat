@@ -165,7 +165,7 @@ export function PublicCheckoutForm({
   }
 
   return (
-    <main className="ui20 min-h-screen w-full bg-[var(--st-bg-secondary)] px-4 py-10">
+    <main className="20ui min-h-screen w-full bg-[var(--st-bg-secondary)] px-4 py-10">
       <div className="mx-auto max-w-xl space-y-6">
         <header className="flex flex-col items-center gap-3 text-center">
           {page.logoFileId ? (

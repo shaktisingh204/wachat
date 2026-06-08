@@ -212,7 +212,7 @@ export function BlocksSideBar() {
     .filter((e): e is BlockRegistryEntry => e !== undefined);
 
   return (
-    <div className="ui20 absolute left-0 top-0 h-full z-20 flex">
+    <div className="20ui absolute left-0 top-0 h-full z-20 flex">
       {/* Pinned-by-default panel. No hover reveal. Toggle via the pin button. */}
       <div
         className={cn(
