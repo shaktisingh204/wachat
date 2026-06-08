@@ -115,11 +115,12 @@ const nextConfig = {
   ],
   turbopack: {},
 
-  // Allow the dev server to be reached over the box's network IP. Next 16
-  // blocks cross-origin requests to /_next/* dev resources (CSS/JS chunks,
-  // HMR) by default — accessing the server via the LAN/public IP instead of
-  // localhost otherwise serves an unstyled, non-interactive page.
-  allowedDevOrigins: ['15.235.234.217'],
+  // The dev server runs behind a reverse proxy on the public domain, so
+  // requests for /_next/* dev resources (CSS/JS chunks, the webpack-hmr
+  // WebSocket) arrive with the sabnode.com origin. Next 16 blocks
+  // cross-origin dev resources by default — without whitelisting these the
+  // page loads unstyled and non-interactive (chunks + HMR are refused).
+  allowedDevOrigins: ['sabnode.com', 'www.sabnode.com', '15.235.234.217'],
 
   typescript: {
     ignoreBuildErrors: true,
