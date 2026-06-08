@@ -10,6 +10,7 @@ import {
   MoreVertical,
   Star,
   ShieldAlert,
+  Package,
 } from "lucide-react";
 import {
   Card,
@@ -36,102 +37,65 @@ import {
   SegmentedControl,
   EmptyState,
   Avatar,
-  AvatarFallback,
-  AvatarImage,
 } from "@/components/sabcrm/20ui";
 
 const mockReviews = [
   {
     id: "rev_1",
-    product: {
-      name: "SabShop Pro Sneakers",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100&h=100&fit=crop",
-    },
-    customer: {
-      name: "Alex Johnson",
-      email: "alex@example.com",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-    },
+    product: { name: "Aura pro sneakers" },
+    customer: { name: "Aanya Sharma", email: "aanya.s@example.com" },
     rating: 5,
-    title: "Best sneakers ever!",
+    title: "Best sneakers I have owned",
     content:
-      "Incredible comfort and they look exactly like the pictures. I've been wearing them daily for a week without any issues.",
+      "Incredible comfort and they look exactly like the pictures. I have worn them daily for a week without any issues.",
     status: "Approved",
-    date: "2026-06-02",
+    date: "Jun 2, 2026",
     verified: true,
   },
   {
     id: "rev_2",
-    product: {
-      name: "Classic Denim Jacket",
-      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=100&h=100&fit=crop",
-    },
-    customer: {
-      name: "Sarah Miller",
-      email: "sarah.m@example.com",
-      avatar: "https://i.pravatar.cc/150?u=a04258a2462d826712d",
-    },
+    product: { name: "Classic denim jacket" },
+    customer: { name: "Sarah Miller", email: "sarah.m@example.com" },
     rating: 2,
-    title: "Sizing is way off",
+    title: "Sizing runs small",
     content:
-      "I ordered a medium but it fits like an extra small. The material is nice but I can't even button it. Disappointed.",
+      "I ordered a medium but it fits like an extra small. The material is nice but I cannot button it. Disappointed.",
     status: "Pending",
-    date: "2026-06-03",
+    date: "Jun 3, 2026",
     verified: true,
   },
   {
     id: "rev_3",
-    product: {
-      name: "Minimalist Watch",
-      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop",
-    },
-    customer: {
-      name: "Mike Donovan",
-      email: "mike.d@spamdomain.com",
-      avatar: "",
-    },
+    product: { name: "Minimalist watch" },
+    customer: { name: "Mike Donovan", email: "mike.d@spamdomain.com" },
     rating: 1,
-    title: "Terrible quality do not buy!!!",
-    content: "Broke after 2 days. The company won't respond to my emails. Scam!!! #worstpurchase",
+    title: "Stopped working after two days",
+    content: "Broke after two days and support has not responded to my emails. Would not recommend.",
     status: "Rejected",
-    date: "2026-06-01",
+    date: "Jun 1, 2026",
     verified: false,
   },
   {
     id: "rev_4",
-    product: {
-      name: "Ceramic Coffee Mug",
-      image: "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=100&h=100&fit=crop",
-    },
-    customer: {
-      name: "Emma Wilson",
-      email: "emma.w@example.com",
-      avatar: "https://i.pravatar.cc/150?u=a04258114e29026322d",
-    },
+    product: { name: "Ceramic coffee mug" },
+    customer: { name: "Emma Wilson", email: "emma.w@example.com" },
     rating: 4,
     title: "Lovely design",
     content:
-      "Really cute mug, keeps my coffee warm. Only giving 4 stars because shipping took longer than expected.",
+      "A really nice mug that keeps my coffee warm. Giving four stars because shipping took longer than expected.",
     status: "Pending",
-    date: "2026-06-03",
+    date: "Jun 3, 2026",
     verified: true,
   },
   {
     id: "rev_5",
-    product: {
-      name: "Leather Backpack",
-      image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop",
-    },
-    customer: {
-      name: "David Chen",
-      email: "d.chen@example.com",
-      avatar: "https://i.pravatar.cc/150?u=333",
-    },
+    product: { name: "Leather backpack" },
+    customer: { name: "David Chen", email: "d.chen@example.com" },
     rating: 5,
     title: "Perfect for commuting",
-    content: "Fits my 15 inch laptop perfectly. The leather is premium and smells great. Worth every penny.",
+    content: "Fits my 15-inch laptop perfectly. The leather is premium and it has held up well. Worth it.",
     status: "Approved",
-    date: "2026-05-28",
+    date: "May 28, 2026",
     verified: true,
   },
 ];
@@ -152,17 +116,20 @@ const STATUS_TONE: Record<string, BadgeTone> = {
 function RatingStars({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-0.5" role="img" aria-label={`${rating} out of 5 stars`}>
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          aria-hidden="true"
-          className={`w-3.5 h-3.5 ${
-            star <= rating
-              ? "fill-amber-400 text-amber-400"
-              : "fill-[var(--st-bg-muted)] text-[var(--st-border-strong)]"
-          }`}
-        />
-      ))}
+      {[1, 2, 3, 4, 5].map((star) => {
+        const filled = star <= rating;
+        return (
+          <Star
+            key={star}
+            aria-hidden="true"
+            className="h-3.5 w-3.5"
+            style={{
+              fill: filled ? "var(--st-warn)" : "var(--st-bg-muted)",
+              color: filled ? "var(--st-warn)" : "var(--st-border-strong)",
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -173,29 +140,43 @@ export default function ReviewsModerationPage() {
   const filteredReviews = mockReviews.filter((r) => filter === "All" || r.status === filter);
 
   return (
-    <div className="20ui flex w-full flex-col gap-6 p-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeaderBlock />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <section aria-label="Review summary" className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <StatCard
-          label="Pending Review"
-          value="24"
+          label="Pending review"
+          value={<span className="tabular-nums">24</span>}
           icon={ShieldAlert}
-          accent="var(--st-warn)"
+          accent="#d97706"
           delta={{ value: "Needs action", tone: "neutral" }}
         />
-        <StatCard label="Approved Today" value="142" delta={{ value: "+12%", tone: "up" }} />
         <StatCard
-          label="Average Rating"
+          label="Approved today"
+          value={<span className="tabular-nums">142</span>}
+          icon={CheckCircle}
+          accent="#1f9d55"
+          delta={{ value: "+12% vs yesterday", tone: "up" }}
+        />
+        <StatCard
+          label="Average rating"
           value={
-            <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 tabular-nums">
               4.8
               <RatingStars rating={5} />
             </span>
           }
+          icon={Star}
+          accent="#7c3aed"
         />
-        <StatCard label="AI Sentiment" value="92%" delta={{ value: "Positive", tone: "up" }} />
-      </div>
+        <StatCard
+          label="Positive sentiment"
+          value={<span className="tabular-nums">92%</span>}
+          icon={MessageSquare}
+          accent="#3b7af5"
+          delta={{ value: "Up this week", tone: "up" }}
+        />
+      </section>
 
       <Card padding="none" className="flex-1 overflow-hidden flex flex-col">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -210,7 +191,7 @@ export default function ReviewsModerationPage() {
           </div>
           <div className="flex items-center gap-3">
             <Field className="w-full sm:w-64">
-              <Input placeholder="Search reviews..." iconLeft={Search} inputSize="sm" aria-label="Search reviews" />
+              <Input placeholder="Search reviews" iconLeft={Search} inputSize="sm" aria-label="Search reviews" />
             </Field>
             <IconButton label="More filters" icon={Filter} variant="outline" size="sm" className="shrink-0" />
           </div>
@@ -226,11 +207,13 @@ export default function ReviewsModerationPage() {
             <Table>
               <THead>
                 <Tr>
-                  <Th width={300}>Review & Product</Th>
+                  <Th width={300}>Review and product</Th>
                   <Th>Customer</Th>
                   <Th>Rating</Th>
                   <Th>Status</Th>
-                  <Th align="right">Actions</Th>
+                  <Th align="right">
+                    <span className="sr-only">Actions</span>
+                  </Th>
                 </Tr>
               </THead>
               <TBody>
@@ -239,12 +222,13 @@ export default function ReviewsModerationPage() {
                     <Td className="align-top">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center gap-2">
-                          <img
-                            src={review.product.image}
-                            alt={review.product.name}
-                            className="w-8 h-8 rounded-[var(--st-radius-sm)] object-cover border border-[var(--st-border)]"
-                          />
-                          <span className="text-xs font-medium text-[var(--st-text-secondary)] truncate w-48">
+                          <span
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] ring-1 ring-inset ring-[var(--st-border)]"
+                            aria-hidden="true"
+                          >
+                            <Package size={14} />
+                          </span>
+                          <span className="w-48 truncate text-xs font-medium text-[var(--st-text-secondary)]">
                             {review.product.name}
                           </span>
                         </div>
@@ -260,16 +244,13 @@ export default function ReviewsModerationPage() {
 
                     <Td className="align-top">
                       <div className="flex items-center gap-3">
-                        <Avatar className="w-8 h-8">
-                          <AvatarImage src={review.customer.avatar} alt={review.customer.name} />
-                          <AvatarFallback>{review.customer.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <Avatar name={review.customer.name} shape="round" size="sm" />
                         <div className="flex flex-col">
-                          <span className="text-sm font-medium text-[var(--st-text)] flex items-center gap-1">
+                          <span className="flex items-center gap-1 text-sm font-medium text-[var(--st-text)]">
                             {review.customer.name}
                             {review.verified && (
                               <CheckCircle
-                                className="w-3 h-3 text-[var(--st-status-ok)]"
+                                className="h-3 w-3 text-[var(--st-status-ok)]"
                                 aria-label="Verified buyer"
                               />
                             )}
@@ -319,17 +300,14 @@ function PageHeaderBlock() {
   return (
     <PageHeader>
       <PageHeaderHeading>
-        <PageTitle className="flex items-center gap-2">
-          <MessageSquare className="w-6 h-6 text-[var(--st-accent)]" aria-hidden="true" />
-          Reviews Moderation
-        </PageTitle>
+        <PageTitle>Reviews</PageTitle>
         <PageDescription>
-          Centralized hub for monitoring, approving, and replying to product reviews.
+          Monitor, approve, and reply to product reviews from your customers.
         </PageDescription>
       </PageHeaderHeading>
       <PageActions>
         <Button variant="outline" iconLeft={ShieldAlert}>
-          Auto-Moderation Rules
+          Auto-moderation rules
         </Button>
       </PageActions>
     </PageHeader>

@@ -192,7 +192,7 @@ function WorkflowCard({ workflow }: { workflow: Workflow }): React.JSX.Element {
             <Clock size={14} aria-hidden="true" />
             {workflow.lastRun}
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 tabular-nums">
             <CheckCircle2 size={14} className="text-[var(--st-success)]" aria-hidden="true" />
             {workflow.successRate}%
           </span>
@@ -217,56 +217,60 @@ export default function AutomationsPage(): React.JSX.Element {
 
   return (
     <TooltipProvider>
-      <div className="20ui flex w-full flex-col gap-8 pb-12">
+      <div className="flex w-full flex-col gap-6">
         <PageHeader>
           <PageHeading>
-            <PageEyebrow>SabShop Engine</PageEyebrow>
+            <PageEyebrow>SabShop engine</PageEyebrow>
             <PageTitle>Automations</PageTitle>
             <PageDescription>
-              Build visual workflows to automate tasks like order routing, inventory alerts, and cart recovery.
+              Build visual workflows to automate order routing, inventory alerts, and cart recovery.
             </PageDescription>
           </PageHeading>
           <PageActions>
             <Button variant="outline" iconLeft={Settings}>
-              Browse Templates
+              Browse templates
             </Button>
             <Button variant="primary" iconLeft={Plus}>
-              Create Workflow
+              Create workflow
             </Button>
           </PageActions>
         </PageHeader>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section aria-label="Automation summary" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            label="Active Workflows"
-            value="12"
+            label="Active workflows"
+            value={<span className="tabular-nums">12</span>}
             icon={Zap}
-            delta={{ value: "+15%", tone: "up" }}
+            accent="#3b7af5"
+            delta={{ value: "+15% this month", tone: "up" }}
           />
           <StatCard
-            label="Tasks Automated"
-            value="45.2k"
+            label="Tasks automated"
+            value={<span className="tabular-nums">45.2k</span>}
             icon={Activity}
-            delta={{ value: "+8.2%", tone: "up" }}
+            accent="#1f9d55"
+            delta={{ value: "+8.2% this month", tone: "up" }}
           />
           <StatCard
-            label="Avg Run Time"
-            value="1.4s"
+            label="Average run time"
+            value={<span className="tabular-nums">1.4s</span>}
             icon={Clock}
-            delta={{ value: "-5ms", tone: "up" }}
+            accent="#7c3aed"
+            delta={{ value: "-5ms vs last week", tone: "up" }}
           />
           <StatCard
-            label="Error Rate"
-            value="0.4%"
+            label="Error rate"
+            value={<span className="tabular-nums">0.4%</span>}
             icon={AlertCircle}
-            delta={{ value: "-1.2pts", tone: "up" }}
+            accent="#d97706"
+            delta={{ value: "-1.2 pts vs last week", tone: "up" }}
           />
-        </div>
+        </section>
 
         <Tabs defaultValue="workflows" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="workflows">Your Workflows</TabsTrigger>
-            <TabsTrigger value="history">Run History</TabsTrigger>
+            <TabsTrigger value="workflows">Your workflows</TabsTrigger>
+            <TabsTrigger value="history">Run history</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows">
@@ -284,7 +288,7 @@ export default function AutomationsPage(): React.JSX.Element {
                   description="Create your first automation to route orders, recover carts, and alert your team without lifting a finger."
                   action={
                     <Button variant="primary" iconLeft={Plus}>
-                      Create Workflow
+                      Create workflow
                     </Button>
                   }
                 />
@@ -312,7 +316,7 @@ export default function AutomationsPage(): React.JSX.Element {
                   <TBody>
                     {mockHistory.map((run) => (
                       <Tr key={run.id}>
-                        <Td className="font-mono text-xs text-[var(--st-text-secondary)]">
+                        <Td className="font-mono text-xs tabular-nums text-[var(--st-text-secondary)]">
                           {run.id}
                         </Td>
                         <Td className="font-medium text-[var(--st-text)]">{run.workflow}</Td>
@@ -333,7 +337,7 @@ export default function AutomationsPage(): React.JSX.Element {
                             {run.trigger}
                           </span>
                         </Td>
-                        <Td className="hidden text-sm text-[var(--st-text-secondary)] sm:table-cell">
+                        <Td className="hidden text-sm tabular-nums text-[var(--st-text-secondary)] sm:table-cell">
                           {run.time}
                         </Td>
                         <Td align="right" className="text-sm text-[var(--st-text-secondary)]">

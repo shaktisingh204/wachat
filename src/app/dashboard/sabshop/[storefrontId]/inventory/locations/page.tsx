@@ -130,61 +130,65 @@ function utilizationTone(percent: number): Ui20ProgressTone {
 
 export default function LocationsPage() {
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Locations</PageTitle>
           <PageDescription>
-            Manage your warehouses, distribution centers, and retail storage capacities.
+            Manage your warehouses, distribution centres, and retail storage capacity.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            Add Location
+            Add location
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Location summary" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Locations"
-          value="12"
+          label="Total locations"
+          value={<span className="tabular-nums">12</span>}
           icon={MapPin}
+          accent="#3b7af5"
           delta={{ value: "+1 from last month", tone: "up" }}
         />
         <StatCard
-          label="Total Capacity"
-          value="195,000"
+          label="Total capacity"
+          value={<span className="tabular-nums">195,000</span>}
           icon={Building2}
+          accent="#7c3aed"
           delta={{ value: "Pallet positions across all sites", tone: "neutral" }}
         />
         <StatCard
-          label="Global Utilization"
-          value="79%"
+          label="Global utilisation"
+          value={<span className="tabular-nums">79%</span>}
           icon={HardDrive}
+          accent="#d97706"
           delta={{ value: "+5% from last month", tone: "up" }}
         />
         <StatCard
-          label="Locations in Maint."
-          value="1"
+          label="In maintenance"
+          value={<span className="tabular-nums">1</span>}
           icon={Settings}
+          accent="#1f9d55"
           delta={{ value: "Down 1 from last week", tone: "down" }}
         />
-      </div>
+      </section>
 
       <Card>
         <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Inventory Locations</CardTitle>
+            <CardTitle>Inventory locations</CardTitle>
             <CardDescription>
-              View and manage your network of inventory storage facilities.
+              View and manage your network of storage facilities.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Field label="Search locations" className="w-[200px] sm:w-[300px]">
               <Input
                 type="search"
-                placeholder="Search locations..."
+                placeholder="Search locations"
                 iconLeft={Search}
               />
             </Field>
@@ -192,15 +196,17 @@ export default function LocationsPage() {
           </div>
         </CardHeader>
         <CardBody>
-          <Table>
+          <Table hover>
             <THead>
               <Tr>
-                <Th>Location Details</Th>
+                <Th>Location</Th>
                 <Th>Type</Th>
-                <Th>Capacity / Utilization</Th>
+                <Th>Capacity and utilisation</Th>
                 <Th>Manager</Th>
                 <Th>Status</Th>
-                <Th align="right">Actions</Th>
+                <Th align="right" width={56}>
+                  <span className="sr-only">Actions</span>
+                </Th>
               </Tr>
             </THead>
             <TBody>
@@ -228,11 +234,11 @@ export default function LocationsPage() {
                     <Td>
                       <div className="flex w-[150px] flex-col gap-2">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-[var(--st-text-secondary)]">
+                          <span className="tabular-nums text-[var(--st-text-secondary)]">
                             {location.used.toLocaleString()} /{" "}
                             {location.capacity.toLocaleString()}
                           </span>
-                          <span className="font-medium text-[var(--st-text)]">
+                          <span className="font-medium tabular-nums text-[var(--st-text)]">
                             {utilPercentage}%
                           </span>
                         </div>

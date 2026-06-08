@@ -35,6 +35,11 @@ import {
     BreadcrumbLink,
     BreadcrumbSeparator,
     BreadcrumbPage,
+    PageHeader,
+    PageHeaderHeading,
+    PageTitle,
+    PageDescription,
+    PageActions,
 } from '@/components/sabcrm/20ui';
 import { Plus, Trash2, Globe, Truck, Search, PlusCircle, ArrowLeft } from 'lucide-react';
 
@@ -105,8 +110,8 @@ export default function ShippingPage(): React.JSX.Element {
     }
 
     return (
-        <div className="20ui flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
-            <div className="flex flex-col gap-4">
+        <div className="20ui mx-auto flex w-full max-w-6xl flex-col gap-6">
+            <div className="flex flex-col gap-3">
                 <Breadcrumb>
                     <BreadcrumbList>
                         <BreadcrumbItem>
@@ -123,17 +128,19 @@ export default function ShippingPage(): React.JSX.Element {
                     </BreadcrumbList>
                 </Breadcrumb>
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-[var(--st-text)]">Shipping and Delivery</h1>
-                        <p className="text-[var(--st-text-secondary)] mt-1">Manage where you ship and how much you charge at checkout.</p>
-                    </div>
+                <PageHeader bordered={false}>
+                    <PageHeaderHeading>
+                        <PageTitle>Shipping and delivery</PageTitle>
+                        <PageDescription>Manage where you ship and how much you charge at checkout.</PageDescription>
+                    </PageHeaderHeading>
                     {!isCreating && (
-                        <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
-                            Create zone
-                        </Button>
+                        <PageActions>
+                            <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
+                                Create zone
+                            </Button>
+                        </PageActions>
                     )}
-                </div>
+                </PageHeader>
             </div>
 
             {isCreating ? (
@@ -145,11 +152,11 @@ export default function ShippingPage(): React.JSX.Element {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Zone Details</CardTitle>
-                                <CardDescription>Customers in these regions will see this zone's shipping rates at checkout.</CardDescription>
+                                <CardTitle>Zone details</CardTitle>
+                                <CardDescription>Customers in these regions see this zone&apos;s shipping rates at checkout.</CardDescription>
                             </CardHeader>
                             <CardBody className="space-y-6">
-                                <Field label="Zone Name">
+                                <Field label="Zone name">
                                     <Input
                                         placeholder="e.g. Domestic, Europe, Rest of World"
                                         value={draft.name}
@@ -194,8 +201,8 @@ export default function ShippingPage(): React.JSX.Element {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <CardTitle>Shipping Rates</CardTitle>
-                                    <CardDescription>Set up the rates for customers in this zone.</CardDescription>
+                                    <CardTitle>Shipping rates</CardTitle>
+                                    <CardDescription>Set the rates customers in this zone pay.</CardDescription>
                                 </div>
                                 <Button
                                     variant="outline"
@@ -233,10 +240,10 @@ export default function ShippingPage(): React.JSX.Element {
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <Field label="Rate Name">
+                                                    <Field label="Rate name">
                                                         <Input
                                                             value={rate.name}
-                                                            placeholder="e.g. Standard, Express"
+                                                            placeholder="e.g. Standard, express"
                                                             onChange={(e) => {
                                                                 const next = [...draft.rates];
                                                                 next[idx] = { ...rate, name: e.target.value };
@@ -244,7 +251,7 @@ export default function ShippingPage(): React.JSX.Element {
                                                             }}
                                                         />
                                                     </Field>
-                                                    <Field label="Pricing Strategy">
+                                                    <Field label="Pricing strategy">
                                                         <Select
                                                             value={rate.kind}
                                                             onValueChange={(v) => {
@@ -255,9 +262,9 @@ export default function ShippingPage(): React.JSX.Element {
                                                         >
                                                             <SelectTrigger aria-label="Pricing strategy"><SelectValue /></SelectTrigger>
                                                             <SelectContent>
-                                                                <SelectItem value="flat">Flat Rate</SelectItem>
-                                                                <SelectItem value="per_kg">Weight Based (Per kg)</SelectItem>
-                                                                <SelectItem value="free">Free Shipping</SelectItem>
+                                                                <SelectItem value="flat">Flat rate</SelectItem>
+                                                                <SelectItem value="per_kg">Weight based (per kg)</SelectItem>
+                                                                <SelectItem value="free">Free shipping</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </Field>
@@ -269,6 +276,7 @@ export default function ShippingPage(): React.JSX.Element {
                                                             <Input
                                                                 prefix="₹"
                                                                 type="number"
+                                                                className="tabular-nums"
                                                                 placeholder="0.00"
                                                                 value={rate.kind === 'per_kg' ? rate.perKg ?? '' : rate.flatPrice ?? ''}
                                                                 onChange={(e) => {
@@ -279,10 +287,11 @@ export default function ShippingPage(): React.JSX.Element {
                                                                 }}
                                                             />
                                                         </Field>
-                                                        <Field label="Free shipping over (Optional)">
+                                                        <Field label="Free shipping over (optional)">
                                                             <Input
                                                                 prefix="₹"
                                                                 type="number"
+                                                                className="tabular-nums"
                                                                 placeholder="e.g. 500"
                                                                 value={rate.minTotal ?? ''}
                                                                 onChange={(e) => {
@@ -303,7 +312,7 @@ export default function ShippingPage(): React.JSX.Element {
 
                         <div className="flex justify-end gap-3 pb-8">
                             <Button variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
-                            <Button variant="primary" onClick={onCreate}>Save Zone</Button>
+                            <Button variant="primary" onClick={onCreate}>Save zone</Button>
                         </div>
                     </div>
 
@@ -334,11 +343,13 @@ export default function ShippingPage(): React.JSX.Element {
                         <Table hover>
                             <THead>
                                 <Tr>
-                                    <Th>Zone Name</Th>
+                                    <Th>Zone</Th>
                                     <Th>Regions</Th>
                                     <Th>Rates</Th>
                                     <Th>Status</Th>
-                                    <Th align="right">Actions</Th>
+                                    <Th align="right" width={56}>
+                                        <span className="sr-only">Actions</span>
+                                    </Th>
                                 </Tr>
                             </THead>
                             <TBody>
@@ -364,7 +375,9 @@ export default function ShippingPage(): React.JSX.Element {
                                                 </span>
                                             </Td>
                                             <Td>
-                                                <Badge tone="neutral">{z.rates.length} rate(s)</Badge>
+                                                <Badge tone="neutral" className="tabular-nums">
+                                                    {z.rates.length} {z.rates.length === 1 ? 'rate' : 'rates'}
+                                                </Badge>
                                             </Td>
                                             <Td>
                                                 <Badge tone={z.active ? 'success' : 'neutral'}>

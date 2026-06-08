@@ -56,52 +56,52 @@ const giftCardData: GiftCard[] = [
   {
     id: "gc_001",
     code: "•••• •••• •••• 4A92",
-    customer: "Alice Johnson",
-    initialBalance: "$100.00",
-    currentBalance: "$45.50",
+    customer: "Aanya Sharma",
+    initialBalance: "₹10,000",
+    currentBalance: "₹4,550",
     status: "Active",
-    issueDate: "2026-05-20",
-    expiryDate: "2027-05-20",
+    issueDate: "May 20, 2026",
+    expiryDate: "May 20, 2027",
   },
   {
     id: "gc_002",
     code: "•••• •••• •••• 8B3F",
-    customer: "Mark Smith",
-    initialBalance: "$50.00",
-    currentBalance: "$0.00",
+    customer: "Mark Reyes",
+    initialBalance: "₹5,000",
+    currentBalance: "₹0",
     status: "Redeemed",
-    issueDate: "2026-04-15",
-    expiryDate: "2027-04-15",
+    issueDate: "Apr 15, 2026",
+    expiryDate: "Apr 15, 2027",
   },
   {
     id: "gc_003",
     code: "•••• •••• •••• 1C77",
     customer: "Unassigned",
-    initialBalance: "$200.00",
-    currentBalance: "$200.00",
+    initialBalance: "₹20,000",
+    currentBalance: "₹20,000",
     status: "Active",
-    issueDate: "2026-06-01",
-    expiryDate: "2027-06-01",
+    issueDate: "Jun 1, 2026",
+    expiryDate: "Jun 1, 2027",
   },
   {
     id: "gc_004",
     code: "•••• •••• •••• 9D21",
     customer: "Emily Davis",
-    initialBalance: "$25.00",
-    currentBalance: "$25.00",
+    initialBalance: "₹2,500",
+    currentBalance: "₹2,500",
     status: "Expired",
-    issueDate: "2025-05-01",
-    expiryDate: "2026-05-01",
+    issueDate: "May 1, 2025",
+    expiryDate: "May 1, 2026",
   },
   {
     id: "gc_005",
     code: "•••• •••• •••• 5E44",
-    customer: "John Doe",
-    initialBalance: "$150.00",
-    currentBalance: "$120.00",
+    customer: "Rohan Mehta",
+    initialBalance: "₹15,000",
+    currentBalance: "₹12,000",
     status: "Active",
-    issueDate: "2026-06-03",
-    expiryDate: "2027-06-03",
+    issueDate: "Jun 3, 2026",
+    expiryDate: "Jun 3, 2027",
   },
 ];
 
@@ -111,7 +111,7 @@ const STATUS_TONE: Record<string, BadgeTone> = {
   Expired: "warning",
 };
 
-export default function GiftCardsPage({ params }: { params: { storefrontId: string } }) {
+export default function GiftCardsPage() {
   const { toast } = useToast();
   const [query, setQuery] = React.useState("");
 
@@ -124,11 +124,11 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
   const columns: Array<DataTableColumn<GiftCard>> = [
     {
       key: "code",
-      header: "Gift Card Code",
+      header: "Gift card code",
       render: (row) => (
         <div className="flex items-center gap-2">
           <Gift className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-          <span className="font-medium font-mono">{row.code}</span>
+          <span className="font-mono font-medium tabular-nums">{row.code}</span>
         </div>
       ),
     },
@@ -144,19 +144,19 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
     },
     {
       key: "currentBalance",
-      header: "Current Balance",
+      header: "Current balance",
       align: "right",
-      render: (row) => <span className="font-semibold">{row.currentBalance}</span>,
+      render: (row) => <span className="font-semibold tabular-nums">{row.currentBalance}</span>,
     },
     {
       key: "initialBalance",
-      header: "Initial Balance",
+      header: "Initial balance",
       align: "right",
       render: (row) => (
-        <span className="text-[var(--st-text-secondary)]">{row.initialBalance}</span>
+        <span className="tabular-nums text-[var(--st-text-secondary)]">{row.initialBalance}</span>
       ),
     },
-    { key: "issueDate", header: "Issue Date" },
+    { key: "issueDate", header: "Issued" },
     {
       key: "actions",
       header: "",
@@ -171,20 +171,20 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
               iconLeft={Eye}
               onSelect={() => toast.success(`Opening ${row.code}`)}
             >
-              View Details
+              View details
             </DropdownMenuItem>
             <DropdownMenuItem
               iconLeft={Copy}
               onSelect={() => toast.success("Gift card code copied")}
             >
-              Copy Code
+              Copy code
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               iconLeft={RefreshCw}
               onSelect={() => toast.success("Gift card resent to customer")}
             >
-              Resend to Customer
+              Resend to customer
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -193,12 +193,12 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8 w-full max-w-7xl mx-auto">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeading>
-          <PageTitle>Gift Cards</PageTitle>
+          <PageTitle>Gift cards</PageTitle>
           <PageDescription>
-            Issue and track gift cards. Monitor current balances and redemptions.
+            Issue gift cards and track balances and redemptions.
           </PageDescription>
         </PageHeading>
         <PageActions>
@@ -211,36 +211,39 @@ export default function GiftCardsPage({ params }: { params: { storefrontId: stri
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section aria-label="Gift card summary" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
-          label="Total Issued (Value)"
-          value="$5,250.00"
+          label="Total issued value"
+          value={<span className="tabular-nums">₹52,500</span>}
           icon={CreditCard}
+          accent="#3b7af5"
           delta={{ value: "+8.2% vs last month", tone: "up" }}
         />
         <StatCard
-          label="Outstanding Balance"
-          value="$3,145.50"
+          label="Outstanding balance"
+          value={<span className="tabular-nums">₹31,455</span>}
           icon={Clock}
+          accent="#d97706"
           delta={{ value: "+2.4% vs last month", tone: "up" }}
         />
         <StatCard
-          label="Active Gift Cards"
-          value="48"
+          label="Active gift cards"
+          value={<span className="tabular-nums">48</span>}
           icon={Gift}
+          accent="#1f9d55"
           delta={{ value: "+5.0% vs last month", tone: "up" }}
         />
-      </div>
+      </section>
 
       <Card padding="none">
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>All Gift Cards</CardTitle>
+          <CardTitle>All gift cards</CardTitle>
           <Field label="Search gift cards" className="w-full sm:w-72">
             <Input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by gift card code..."
+              placeholder="Search by gift card code"
               iconLeft={Search}
             />
           </Field>

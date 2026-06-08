@@ -39,7 +39,7 @@ import {
   TabsTrigger,
   TabsContent,
   useToast,
-  type BadgeVariant,
+  type BadgeTone,
   type DataTableColumn,
 } from "@/components/sabcrm/20ui";
 import { SearchInput } from "@/components/sabcrm/20ui";
@@ -70,25 +70,25 @@ const discountData: DiscountCode[] = [
     value: "20%",
     status: "Active",
     usage: "145 / 500",
-    createdAt: "2026-05-10",
+    createdAt: "May 10, 2026",
   },
   {
     id: "d_002",
     code: "WELCOME10",
-    type: "Fixed Amount",
-    value: "$10.00",
+    type: "Fixed amount",
+    value: "₹500",
     status: "Active",
-    usage: "89 / ∞",
-    createdAt: "2026-05-15",
+    usage: "89 / unlimited",
+    createdAt: "May 15, 2026",
   },
   {
     id: "d_003",
     code: "FREESHIP",
-    type: "Free Shipping",
+    type: "Free shipping",
     value: "Shipping",
     status: "Expired",
     usage: "210 / 210",
-    createdAt: "2026-04-01",
+    createdAt: "Apr 1, 2026",
   },
   {
     id: "d_004",
@@ -97,43 +97,42 @@ const discountData: DiscountCode[] = [
     value: "50%",
     status: "Active",
     usage: "12 / 50",
-    createdAt: "2026-06-01",
+    createdAt: "Jun 1, 2026",
   },
 ];
 
 const automaticDiscountData: AutomaticDiscount[] = [
   {
     id: "ad_001",
-    title: "Buy 2 Get 1 Free",
+    title: "Buy 2 get 1 free",
     status: "Active",
     usage: "340",
-    createdAt: "2026-05-01",
+    createdAt: "May 1, 2026",
   },
   {
     id: "ad_002",
-    title: "15% off orders over $100",
+    title: "15% off orders over ₹5,000",
     status: "Active",
     usage: "1,204",
-    createdAt: "2026-03-12",
+    createdAt: "Mar 12, 2026",
   },
   {
     id: "ad_003",
-    title: "Free Gift with Purchase",
+    title: "Free gift with purchase",
     status: "Scheduled",
     usage: "0",
-    createdAt: "2026-06-02",
+    createdAt: "Jun 2, 2026",
   },
 ];
 
-function statusVariant(status: string): BadgeVariant {
+function statusTone(status: string): BadgeTone {
   if (status === "Active") return "success";
-  if (status === "Expired" || status === "Inactive") return "destructive";
+  if (status === "Expired" || status === "Inactive") return "danger";
   if (status === "Scheduled") return "warning";
-  return "outline";
+  return "neutral";
 }
 
-export default function DiscountsPage({ params }: { params: { storefrontId: string } }) {
-  void params;
+export default function DiscountsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("codes");
   const [codeQuery, setCodeQuery] = useState("");
@@ -154,12 +153,12 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
   const discountColumns: Array<DataTableColumn<DiscountCode>> = [
     {
       key: "code",
-      header: "Discount Code",
+      header: "Discount code",
       sortable: true,
       render: (row) => (
         <div className="flex items-center gap-2">
           <Ticket className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-          <span className="font-medium">{row.code}</span>
+          <span className="font-medium tabular-nums">{row.code}</span>
         </div>
       ),
     },
@@ -167,11 +166,19 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
       key: "status",
       header: "Status",
       sortable: true,
-      render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge>,
+      render: (row) => <Badge tone={statusTone(row.status)}>{row.status}</Badge>,
     },
     { key: "type", header: "Type", sortable: true },
-    { key: "value", header: "Value" },
-    { key: "usage", header: "Usage" },
+    {
+      key: "value",
+      header: "Value",
+      render: (row) => <span className="tabular-nums">{row.value}</span>,
+    },
+    {
+      key: "usage",
+      header: "Usage",
+      render: (row) => <span className="tabular-nums">{row.usage}</span>,
+    },
     {
       key: "actions",
       header: "",
@@ -218,9 +225,14 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
       key: "status",
       header: "Status",
       sortable: true,
-      render: (row) => <Badge variant={statusVariant(row.status)}>{row.status}</Badge>,
+      render: (row) => <Badge tone={statusTone(row.status)}>{row.status}</Badge>,
     },
-    { key: "usage", header: "Usage count", sortable: true },
+    {
+      key: "usage",
+      header: "Usage count",
+      sortable: true,
+      render: (row) => <span className="tabular-nums">{row.usage}</span>,
+    },
     { key: "createdAt", header: "Created", sortable: true },
     {
       key: "actions",
@@ -244,7 +256,7 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-6 md:p-8 w-full max-w-7xl mx-auto">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Discounts</PageTitle>
@@ -262,42 +274,45 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section aria-label="Discount summary" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
-          label="Total Redemptions"
-          value="1,544"
+          label="Total redemptions"
+          value={<span className="tabular-nums">1,544</span>}
           icon={Activity}
+          accent="#3b7af5"
           delta={{ value: "+12.5% vs last month", tone: "up" }}
         />
         <StatCard
-          label="Discount Revenue"
-          value="$12,450.00"
+          label="Discount value given"
+          value={<span className="tabular-nums">₹12,450</span>}
           icon={ArrowUpRight}
+          accent="#1f9d55"
           delta={{ value: "+5.2% vs last month", tone: "up" }}
         />
         <StatCard
-          label="Active Campaigns"
-          value="4"
+          label="Active campaigns"
+          value={<span className="tabular-nums">4</span>}
           icon={Tag}
+          accent="#7c3aed"
           delta={{ value: "-1 vs last month", tone: "down" }}
         />
-      </div>
+      </section>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-4">
-          <TabsTrigger value="codes">Discount Codes</TabsTrigger>
-          <TabsTrigger value="automatic">Automatic Discounts</TabsTrigger>
+          <TabsTrigger value="codes">Discount codes</TabsTrigger>
+          <TabsTrigger value="automatic">Automatic discounts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="codes" className="w-full">
           <Card padding="none">
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Active &amp; Expired Codes</CardTitle>
+              <CardTitle>Active and expired codes</CardTitle>
               <Field label="Search discount codes" className="sm:w-72" id="search-codes">
                 <SearchInput
                   value={codeQuery}
                   onValueChange={setCodeQuery}
-                  placeholder="Search discount codes..."
+                  placeholder="Search discount codes"
                   clearLabel="Clear discount code search"
                 />
               </Field>
@@ -320,12 +335,12 @@ export default function DiscountsPage({ params }: { params: { storefrontId: stri
         <TabsContent value="automatic" className="w-full">
           <Card padding="none">
             <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Automatic Discounts</CardTitle>
+              <CardTitle>Automatic discounts</CardTitle>
               <Field label="Search automatic discounts" className="sm:w-72" id="search-automatic">
                 <SearchInput
                   value={autoQuery}
                   onValueChange={setAutoQuery}
-                  placeholder="Search automatic discounts..."
+                  placeholder="Search automatic discounts"
                   clearLabel="Clear automatic discount search"
                 />
               </Field>

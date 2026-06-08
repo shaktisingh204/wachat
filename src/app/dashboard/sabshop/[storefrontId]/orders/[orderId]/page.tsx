@@ -1,12 +1,27 @@
 "use client";
 
 import React from "react";
+import { useParams, useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  CreditCard,
+  Mail,
+  MapPin,
+  MoreHorizontal,
+  Package,
+  Phone,
+  Printer,
+  Truck,
+} from "lucide-react";
 import {
   Card,
   CardBody,
   CardHeader,
   CardTitle,
   CardFooter,
+  Avatar,
   Badge,
   Button,
   IconButton,
@@ -17,74 +32,63 @@ import {
   THead,
   Tr,
   Separator,
-  Avatar,
-  AvatarFallback,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
   PageActions,
 } from "@/components/sabcrm/20ui";
-import {
-  ArrowLeft,
-  Package,
-  Truck,
-  CheckCircle2,
-  CreditCard,
-  MapPin,
-  Mail,
-  Phone,
-  Calendar,
-  MoreHorizontal,
-  Printer,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
 
-// Mock Order Details
-const ORDER_DETAILS = {
+const ORDER = {
   id: "ORD-7352",
   date: "June 3, 2026 at 2:30 PM",
   status: "Unfulfilled",
   payment: "Paid",
   customer: {
-    name: "Liam Smith",
-    email: "liam.smith@example.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "LS",
+    name: "Aanya Sharma",
+    email: "aanya.sharma@example.com",
+    phone: "+91 98765 43210",
+    orders: 12,
   },
   shippingAddress: {
-    line1: "123 Main Street",
-    line2: "Apt 4B",
-    city: "New York",
-    state: "NY",
-    zip: "10001",
-    country: "United States",
+    line1: "14 Koregaon Park Road",
+    line2: "Flat 4B",
+    city: "Pune",
+    state: "MH",
+    zip: "411001",
+    country: "India",
   },
   items: [
-    { id: "ITEM-1", name: "Premium Wireless Headphones", sku: "WH-1000", price: 299.0, quantity: 1, total: 299.0, image: "🎧" },
-    { id: "ITEM-2", name: "Ergonomic Mouse", sku: "EM-200", price: 79.0, quantity: 2, total: 158.0, image: "🖱️" },
+    { id: "ITEM-1", name: "Aura wireless headphones", sku: "WH-1000", price: 24999, quantity: 1, total: 24999 },
+    { id: "ITEM-2", name: "Ergonomic mouse", sku: "EM-200", price: 7900, quantity: 2, total: 15800 },
   ],
-  subtotal: 457.0,
-  tax: 38.85,
-  shipping: 15.0,
-  total: 510.85,
+  subtotal: 40799,
+  tax: 3471,
+  shipping: 150,
+  total: 44420,
   timeline: [
-    { id: 1, status: "Order Placed", date: "June 3, 2026, 2:30 PM", icon: Package, done: true },
-    { id: 2, status: "Payment Confirmed", date: "June 3, 2026, 2:32 PM", icon: CreditCard, done: true },
-    { id: 3, status: "Processing", date: "June 3, 2026, 3:00 PM", icon: Truck, done: false },
+    { id: 1, status: "Order placed", date: "Jun 3, 2026, 2:30 PM", icon: Package, done: true },
+    { id: 2, status: "Payment confirmed", date: "Jun 3, 2026, 2:32 PM", icon: CreditCard, done: true },
+    { id: 3, status: "Processing", date: "Jun 3, 2026, 3:00 PM", icon: Truck, done: false },
     { id: 4, status: "Delivered", date: "Pending", icon: CheckCircle2, done: false },
   ],
 };
 
-export default function OrderDetailsPage({ params }: { params: { storefrontId: string; orderId: string } }) {
-  const router = useRouter();
+function inr(n: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
-  // Use params.orderId to fetch real data later, using mock for now
-  const orderId = params.orderId || ORDER_DETAILS.id;
+export default function OrderDetailsPage() {
+  const router = useRouter();
+  const params = useParams<{ storefrontId: string; orderId: string }>();
+  const orderId = params.orderId || ORDER.id;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <PageHeader bordered={false} className="mb-2">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <PageHeader bordered={false}>
         <div className="flex items-center gap-4">
           <IconButton
             label="Go back"
@@ -96,11 +100,11 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
           <PageHeaderHeading>
             <div className="flex flex-wrap items-center gap-3">
               <PageTitle>Order {orderId}</PageTitle>
-              <Badge tone="neutral">{ORDER_DETAILS.status}</Badge>
-              <Badge tone="success">{ORDER_DETAILS.payment}</Badge>
+              <Badge tone="warning">{ORDER.status}</Badge>
+              <Badge tone="success">{ORDER.payment}</Badge>
             </div>
             <p className="mt-1 flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-              <Calendar className="w-4 h-4" aria-hidden="true" /> {ORDER_DETAILS.date}
+              <Calendar size={14} aria-hidden="true" /> {ORDER.date}
             </p>
           </PageHeaderHeading>
         </div>
@@ -109,22 +113,23 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
             Print
           </Button>
           <IconButton label="More order actions" icon={MoreHorizontal} variant="outline" />
-          <Button variant="primary">Fulfill Order</Button>
+          <Button variant="primary">Fulfill order</Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content - Left Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Order Items */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Order Items</CardTitle>
+              <div className="flex items-center gap-2">
+                <Package size={16} aria-hidden="true" className="text-[var(--st-text-secondary)]" />
+                <CardTitle>Order items</CardTitle>
+              </div>
             </CardHeader>
             <CardBody>
-              <div className="rounded-[var(--st-radius)] border border-[var(--st-border)] overflow-hidden">
+              <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
                 <Table>
-                  <THead className="bg-[var(--st-bg-secondary)]">
+                  <THead>
                     <Tr>
                       <Th>Product</Th>
                       <Th>SKU</Th>
@@ -134,169 +139,169 @@ export default function OrderDetailsPage({ params }: { params: { storefrontId: s
                     </Tr>
                   </THead>
                   <TBody>
-                    {ORDER_DETAILS.items.map((item) => (
+                    {ORDER.items.map((item) => (
                       <Tr key={item.id}>
                         <Td>
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] flex items-center justify-center text-xl border border-[var(--st-border)]">
-                              {item.image}
-                            </div>
+                            <span
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] ring-1 ring-inset ring-[var(--st-border)]"
+                              aria-hidden="true"
+                            >
+                              <Package size={16} />
+                            </span>
                             <span className="font-medium text-[var(--st-text)]">{item.name}</span>
                           </div>
                         </Td>
-                        <Td className="text-[var(--st-text-secondary)]">{item.sku}</Td>
-                        <Td align="right">${item.price.toFixed(2)}</Td>
-                        <Td align="center">{item.quantity}</Td>
-                        <Td align="right" className="font-medium">
-                          ${item.total.toFixed(2)}
-                        </Td>
+                        <Td className="tabular-nums text-[var(--st-text-secondary)]">{item.sku}</Td>
+                        <Td align="right" className="tabular-nums">{inr(item.price)}</Td>
+                        <Td align="center" className="tabular-nums">{item.quantity}</Td>
+                        <Td align="right" className="font-medium tabular-nums">{inr(item.total)}</Td>
                       </Tr>
                     ))}
                   </TBody>
                 </Table>
               </div>
 
-              <div className="mt-6 space-y-3">
+              <dl className="mt-6 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--st-text-secondary)]">Subtotal</span>
-                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.subtotal.toFixed(2)}</span>
+                  <dt className="text-[var(--st-text-secondary)]">Subtotal</dt>
+                  <dd className="font-medium tabular-nums text-[var(--st-text)]">{inr(ORDER.subtotal)}</dd>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--st-text-secondary)]">Shipping</span>
-                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.shipping.toFixed(2)}</span>
+                  <dt className="text-[var(--st-text-secondary)]">Shipping</dt>
+                  <dd className="font-medium tabular-nums text-[var(--st-text)]">{inr(ORDER.shipping)}</dd>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--st-text-secondary)]">Tax</span>
-                  <span className="text-[var(--st-text)] font-medium">${ORDER_DETAILS.tax.toFixed(2)}</span>
+                  <dt className="text-[var(--st-text-secondary)]">Tax</dt>
+                  <dd className="font-medium tabular-nums text-[var(--st-text)]">{inr(ORDER.tax)}</dd>
                 </div>
                 <Separator className="my-3" />
-                <div className="flex justify-between font-semibold text-lg text-[var(--st-text)]">
-                  <span>Total</span>
-                  <span>${ORDER_DETAILS.total.toFixed(2)}</span>
+                <div className="flex justify-between text-lg font-semibold text-[var(--st-text)]">
+                  <dt>Total</dt>
+                  <dd className="tabular-nums">{inr(ORDER.total)}</dd>
                 </div>
-              </div>
+              </dl>
             </CardBody>
             <CardFooter className="flex justify-end">
-              <Button variant="outline">Refund Order</Button>
+              <Button variant="outline">Refund order</Button>
             </CardFooter>
           </Card>
 
-          {/* Timeline */}
           <Card>
             <CardHeader>
-              <CardTitle>Timeline</CardTitle>
+              <div className="flex items-center gap-2">
+                <Truck size={16} aria-hidden="true" className="text-[var(--st-text-secondary)]" />
+                <CardTitle>Timeline</CardTitle>
+              </div>
             </CardHeader>
             <CardBody>
-              <div className="space-y-0">
-                {ORDER_DETAILS.timeline.map((event, index) => {
+              <ol className="space-y-0">
+                {ORDER.timeline.map((event, index) => {
                   const Icon = event.icon;
+                  const isLast = index === ORDER.timeline.length - 1;
                   return (
-                    <div key={event.id} className="flex gap-4 relative mb-6 last:mb-0">
-                      {/* Timeline connecting line */}
-                      {index !== ORDER_DETAILS.timeline.length - 1 && (
+                    <li key={event.id} className="relative mb-6 flex gap-4 last:mb-0">
+                      {!isLast ? (
                         <div
-                          className={`absolute top-8 left-4 w-px h-[calc(100%+1.5rem)] -ml-[0.5px] ${
+                          className={`absolute left-4 top-8 -ml-px h-[calc(100%+1.5rem)] w-px ${
                             event.done ? "bg-[var(--st-accent)]" : "bg-[var(--st-border)]"
                           }`}
                           aria-hidden="true"
                         />
-                      )}
-
+                      ) : null}
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-2 ${
+                        className={`z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 ${
                           event.done
-                            ? "bg-[var(--st-accent)] border-[var(--st-accent)] text-[var(--st-accent-contrast)]"
-                            : "bg-[var(--st-bg-secondary)] border-[var(--st-border)] text-[var(--st-text-secondary)]"
+                            ? "border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)]"
+                            : "border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
                         }`}
                         aria-hidden="true"
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon size={16} />
                       </div>
-
                       <div className="flex-1 pt-1">
-                        <p className={`font-medium ${event.done ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"}`}>
+                        <p
+                          className={`font-medium ${
+                            event.done ? "text-[var(--st-text)]" : "text-[var(--st-text-secondary)]"
+                          }`}
+                        >
                           {event.status}
                         </p>
-                        <p className="text-sm text-[var(--st-text-secondary)] mt-1">{event.date}</p>
+                        <p className="mt-1 text-sm text-[var(--st-text-secondary)]">{event.date}</p>
                       </div>
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ol>
             </CardBody>
           </Card>
         </div>
 
-        {/* Sidebar - Right Column */}
-        <div className="space-y-6">
-          {/* Customer info */}
+        <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Customer</CardTitle>
             </CardHeader>
             <CardBody className="space-y-6">
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-[var(--st-bg-secondary)] text-[var(--st-text)] font-semibold border border-[var(--st-border)]">
-                    {ORDER_DETAILS.customer.avatar}
-                  </AvatarFallback>
-                </Avatar>
+                <Avatar name={ORDER.customer.name} shape="round" />
                 <div>
-                  <p className="font-medium text-[var(--st-text)]">{ORDER_DETAILS.customer.name}</p>
-                  <p className="text-sm text-[var(--st-text-secondary)]">12 Orders</p>
+                  <p className="font-medium text-[var(--st-text)]">{ORDER.customer.name}</p>
+                  <p className="text-sm tabular-nums text-[var(--st-text-secondary)]">
+                    {ORDER.customer.orders} orders
+                  </p>
                 </div>
               </div>
 
               <Separator />
 
               <div className="space-y-3">
-                <h4 className="font-medium text-sm text-[var(--st-text)]">Contact Info</h4>
+                <h4 className="text-sm font-medium text-[var(--st-text)]">Contact</h4>
                 <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                  <Mail className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <Mail size={16} className="shrink-0" aria-hidden="true" />
                   <a
-                    href={`mailto:${ORDER_DETAILS.customer.email}`}
-                    className="hover:text-[var(--st-accent)] hover:underline transition-colors truncate"
+                    href={`mailto:${ORDER.customer.email}`}
+                    className="truncate transition-colors hover:text-[var(--st-accent)] hover:underline"
                   >
-                    {ORDER_DETAILS.customer.email}
+                    {ORDER.customer.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                  <Phone className="w-4 h-4 shrink-0" aria-hidden="true" />
-                  <span>{ORDER_DETAILS.customer.phone}</span>
+                  <Phone size={16} className="shrink-0" aria-hidden="true" />
+                  <span className="tabular-nums">{ORDER.customer.phone}</span>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          {/* Shipping Address */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Shipping Address</CardTitle>
+              <CardTitle>Shipping address</CardTitle>
               <IconButton label="Edit shipping address" icon={MoreHorizontal} variant="ghost" size="sm" />
             </CardHeader>
             <CardBody>
-              <div className="flex items-start gap-3 mt-2">
-                <MapPin className="w-4 h-4 text-[var(--st-text-secondary)] mt-1 shrink-0" aria-hidden="true" />
-                <div className="text-sm text-[var(--st-text-secondary)] space-y-1">
-                  <p className="text-[var(--st-text)] font-medium">{ORDER_DETAILS.customer.name}</p>
-                  <p>{ORDER_DETAILS.shippingAddress.line1}</p>
-                  <p>{ORDER_DETAILS.shippingAddress.line2}</p>
+              <address className="flex items-start gap-3 not-italic">
+                <MapPin size={16} className="mt-1 shrink-0 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                <div className="space-y-1 text-sm text-[var(--st-text-secondary)]">
+                  <p className="font-medium text-[var(--st-text)]">{ORDER.customer.name}</p>
+                  <p>{ORDER.shippingAddress.line1}</p>
+                  <p>{ORDER.shippingAddress.line2}</p>
                   <p>
-                    {ORDER_DETAILS.shippingAddress.city}, {ORDER_DETAILS.shippingAddress.state} {ORDER_DETAILS.shippingAddress.zip}
+                    {ORDER.shippingAddress.city}, {ORDER.shippingAddress.state}{" "}
+                    {ORDER.shippingAddress.zip}
                   </p>
-                  <p>{ORDER_DETAILS.shippingAddress.country}</p>
+                  <p>{ORDER.shippingAddress.country}</p>
                 </div>
-              </div>
+              </address>
             </CardBody>
           </Card>
 
-          {/* Billing Address */}
           <Card>
             <CardHeader>
-              <CardTitle>Billing Address</CardTitle>
+              <CardTitle>Billing address</CardTitle>
             </CardHeader>
             <CardBody>
-              <p className="text-sm text-[var(--st-text-secondary)] mt-2">Same as shipping address</p>
+              <p className="text-sm text-[var(--st-text-secondary)]">Same as shipping address.</p>
             </CardBody>
           </Card>
         </div>

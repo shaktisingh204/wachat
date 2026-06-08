@@ -1,135 +1,133 @@
 "use client";
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardBody, CardDescription } from '@/components/sabcrm/20ui';
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui';
-import { Table, THead, TBody, Th, Tr, Td } from '@/components/sabcrm/20ui';
-import { DollarSign, UserCheck, BarChart3, TrendingUp } from "lucide-react";
+import { BarChart3, IndianRupee, TrendingUp, UserCheck } from "lucide-react";
+import {
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
+
+const COHORT_DATA: Array<{ month: string; users: number; retention: Array<number | null> }> = [
+  { month: "Jan 2026", users: 1240, retention: [100, 45, 32, 28, 25, 22, 18] },
+  { month: "Feb 2026", users: 1450, retention: [100, 48, 35, 31, 28, 24, null] },
+  { month: "Mar 2026", users: 1820, retention: [100, 52, 38, 33, 29, null, null] },
+  { month: "Apr 2026", users: 2100, retention: [100, 55, 41, 36, null, null, null] },
+  { month: "May 2026", users: 2450, retention: [100, 58, 44, null, null, null, null] },
+  { month: "Jun 2026", users: 2890, retention: [100, 62, null, null, null, null, null] },
+  { month: "Jul 2026", users: 3200, retention: [100, null, null, null, null, null, null] },
+];
+
+/** Cell intensity scales the single accent token by retention strength. */
+function cellStyle(value: number): React.CSSProperties {
+  const alpha = 0.12 + (value / 100) * 0.78;
+  const strong = value >= 55;
+  return {
+    background: `color-mix(in srgb, var(--st-accent) ${Math.round(alpha * 100)}%, transparent)`,
+    color: strong ? "var(--st-text-inverted)" : "var(--st-text)",
+  };
+}
 
 export default function CohortsPage() {
-  // Generate mock cohort data
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];
-  const cohortData = [
-    { month: "Jan 2026", users: 1240, retention: [100, 45, 32, 28, 25, 22, 18] },
-    { month: "Feb 2026", users: 1450, retention: [100, 48, 35, 31, 28, 24, null] },
-    { month: "Mar 2026", users: 1820, retention: [100, 52, 38, 33, 29, null, null] },
-    { month: "Apr 2026", users: 2100, retention: [100, 55, 41, 36, null, null, null] },
-    { month: "May 2026", users: 2450, retention: [100, 58, 44, null, null, null, null] },
-    { month: "Jun 2026", users: 2890, retention: [100, 62, null, null, null, null, null] },
-    { month: "Jul 2026", users: 3200, retention: [100, null, null, null, null, null, null] },
-  ];
-
-  // Helper to determine cell color based on retention percentage
-  const getCellColor = (value: number | null) => {
-    if (value === null) return "bg-transparent";
-    if (value === 100) return "bg-blue-600 text-white font-medium";
-    if (value >= 60) return "bg-blue-500 text-white";
-    if (value >= 50) return "bg-blue-400 text-white";
-    if (value >= 40) return "bg-blue-300 text-slate-800";
-    if (value >= 30) return "bg-blue-200 text-slate-800";
-    if (value >= 20) return "bg-blue-100 text-slate-800";
-    return "bg-blue-50 text-slate-800";
-  };
-
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6 max-w-7xl mx-auto">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
-        <PageHeaderHeading>Cohorts & Retention</PageHeaderHeading>
-        <PageHeaderDescription>
-          Analyze customer lifecycle, retention rates, and Lifetime Value (LTV).
-        </PageHeaderDescription>
+        <PageHeaderHeading>
+          <PageTitle>Cohorts and retention</PageTitle>
+          <PageDescription>
+            Customer lifecycle, retention rates, and lifetime value.
+          </PageDescription>
+        </PageHeaderHeading>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average LTV</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold">$485.50</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              <span className="text-green-500 font-medium">+8%</span> vs last year
-            </p>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Orders/Customer</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold">3.2</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              <span className="text-green-500 font-medium">+0.4</span> vs last year
-            </p>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Day 30 Retention</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold">52.4%</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              <span className="text-green-500 font-medium">+12%</span> vs last year
-            </p>
-          </CardBody>
-        </Card>
+      <section aria-label="Retention summary" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Average lifetime value"
+          value={<span className="tabular-nums">₹48,550</span>}
+          icon={IndianRupee}
+          accent="#1f9d55"
+          delta={{ value: "+8% vs last year", tone: "up" }}
+        />
+        <StatCard
+          label="Orders per customer"
+          value={<span className="tabular-nums">3.2</span>}
+          icon={BarChart3}
+          accent="#3b7af5"
+          delta={{ value: "+0.4 vs last year", tone: "up" }}
+        />
+        <StatCard
+          label="Day 30 retention"
+          value={<span className="tabular-nums">52.4%</span>}
+          icon={UserCheck}
+          accent="#7c3aed"
+          delta={{ value: "+12% vs last year", tone: "up" }}
+        />
+        <StatCard
+          label="Repeat purchase rate"
+          value={<span className="tabular-nums">38%</span>}
+          icon={TrendingUp}
+          accent="#d97706"
+          delta={{ value: "+4% vs last year", tone: "up" }}
+        />
+      </section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Repeat Purchase Rate</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-3xl font-bold">38%</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-              <span className="text-green-500 font-medium">+4%</span> vs last year
-            </p>
-          </CardBody>
-        </Card>
-      </div>
-
-      <Card className="mt-6">
+      <Card>
         <CardHeader>
-          <CardTitle>Customer Retention Matrix</CardTitle>
+          <CardTitle>Customer retention matrix</CardTitle>
           <CardDescription>
-            Percentage of customers returning in subsequent months after their first purchase.
+            Percentage of customers returning in the months after their first purchase.
           </CardDescription>
         </CardHeader>
         <CardBody className="overflow-x-auto">
           <Table className="min-w-[800px]">
             <THead>
               <Tr>
-                <Th className="w-[150px]">Cohort</Th>
-                <Th className="w-[100px] text-right">Users</Th>
-                {months.map((_, i) => (
-                  <Th key={i} className="text-center w-[80px]">Month {i}</Th>
+                <Th width={150}>Cohort</Th>
+                <Th width={100} align="right">Users</Th>
+                {MONTHS.map((_, i) => (
+                  <Th key={i} align="center" width={80}>
+                    Month {i}
+                  </Th>
                 ))}
               </Tr>
             </THead>
             <TBody>
-              {cohortData.map((row, i) => (
-                <Tr key={i}>
+              {COHORT_DATA.map((row) => (
+                <Tr key={row.month}>
                   <Td className="font-medium">{row.month}</Td>
-                  <Td className="text-right font-medium">{row.users.toLocaleString()}</Td>
+                  <Td align="right" className="font-medium tabular-nums">
+                    {row.users.toLocaleString()}
+                  </Td>
                   {row.retention.map((val, j) => (
-                    <Td key={j} className="p-1 text-center">
+                    <Td key={j} align="center" className="p-1">
                       {val !== null ? (
-                        <div className={`w-full h-10 flex items-center justify-center rounded-sm text-sm ${getCellColor(val)}`}>
+                        <div
+                          className="flex h-10 w-full items-center justify-center rounded-[var(--st-radius-sm)] text-sm font-medium tabular-nums"
+                          style={cellStyle(val)}
+                        >
                           {val}%
                         </div>
                       ) : (
-                        <div className="w-full h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-900 rounded-sm text-slate-400 text-sm">
-                          -
+                        <div
+                          className="flex h-10 w-full items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-sm text-[var(--st-text-tertiary)]"
+                          aria-hidden="true"
+                        >
+                          &ndash;
                         </div>
                       )}
                     </Td>

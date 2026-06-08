@@ -37,7 +37,6 @@ import {
   type BadgeTone,
   StatCard,
   Avatar,
-  AvatarFallback,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -125,56 +124,68 @@ export default function SuppliersPage() {
         className="h-3 w-3 fill-current text-[var(--st-warn)]"
         aria-hidden="true"
       />
-      <span className="text-sm font-medium">{rating.toFixed(1)} out of 5</span>
+      <span className="text-sm font-medium tabular-nums">{rating.toFixed(1)} out of 5</span>
     </div>
   );
 
   return (
-    <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Suppliers</PageTitle>
           <PageDescription>
-            Manage your vendor relationships, contacts, and performance metrics.
+            Manage vendor relationships, contacts, and performance.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            Add Supplier
+            Add supplier
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Supplier summary" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Active Suppliers"
-          value="42"
+          label="Active suppliers"
+          value={<span className="tabular-nums">42</span>}
           icon={Building2}
-          delta={{ value: "+3 new this quarter", tone: "up" }}
+          accent="#1f9d55"
+          delta={{ value: "+3 this quarter", tone: "up" }}
         />
         <StatCard
-          label="Avg Lead Time"
-          value="18 days"
+          label="Average lead time"
+          value={<span className="tabular-nums">18 days</span>}
           icon={Clock}
-          delta={{ value: "-2 days from last year", tone: "up" }}
+          accent="#3b7af5"
+          delta={{ value: "-2 days vs last year", tone: "up" }}
         />
-        <StatCard label="Avg Supplier Rating" value="4.6 / 5" icon={Star} />
-        <StatCard label="Total Contacts" value="156" icon={Users} />
-      </div>
+        <StatCard
+          label="Average rating"
+          value={<span className="tabular-nums">4.6 / 5</span>}
+          icon={Star}
+          accent="#d97706"
+        />
+        <StatCard
+          label="Total contacts"
+          value={<span className="tabular-nums">156</span>}
+          icon={Users}
+          accent="#7c3aed"
+        />
+      </section>
 
       <Card>
         <CardHeader className="flex flex-col gap-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Supplier Database</CardTitle>
+            <CardTitle>Supplier directory</CardTitle>
             <CardDescription>
-              Directory of all vendors and manufacturing partners.
+              All vendors and manufacturing partners.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Input
               type="search"
               aria-label="Search suppliers"
-              placeholder="Search suppliers..."
+              placeholder="Search suppliers"
               iconLeft={Search}
               className="w-[200px] sm:w-[300px]"
             />
@@ -182,16 +193,18 @@ export default function SuppliersPage() {
           </div>
         </CardHeader>
         <CardBody>
-          <Table>
+          <Table hover>
             <THead>
               <Tr>
                 <Th>Supplier</Th>
-                <Th>Contact Info</Th>
+                <Th>Contact</Th>
                 <Th>Category</Th>
-                <Th>Lead Time</Th>
+                <Th>Lead time</Th>
                 <Th>Rating</Th>
                 <Th>Status</Th>
-                <Th align="right">Actions</Th>
+                <Th align="right" width={56}>
+                  <span className="sr-only">Actions</span>
+                </Th>
               </Tr>
             </THead>
             <TBody>
@@ -199,14 +212,10 @@ export default function SuppliersPage() {
                 <Tr key={supplier.id}>
                   <Td>
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8" data-shape="square">
-                        <AvatarFallback className="text-xs">
-                          {supplier.avatar}
-                        </AvatarFallback>
-                      </Avatar>
+                      <Avatar name={supplier.name} shape="square" size="sm" />
                       <div className="flex flex-col">
                         <span className="font-medium">{supplier.name}</span>
-                        <span className="text-xs text-[var(--st-text-secondary)]">
+                        <span className="text-xs tabular-nums text-[var(--st-text-secondary)]">
                           {supplier.id}
                         </span>
                       </div>
@@ -219,7 +228,7 @@ export default function SuppliersPage() {
                         <Mail className="mr-1 h-3 w-3" aria-hidden="true" />
                         {supplier.email}
                       </div>
-                      <div className="flex items-center text-xs text-[var(--st-text-secondary)]">
+                      <div className="flex items-center text-xs tabular-nums text-[var(--st-text-secondary)]">
                         <Phone className="mr-1 h-3 w-3" aria-hidden="true" />
                         {supplier.phone}
                       </div>

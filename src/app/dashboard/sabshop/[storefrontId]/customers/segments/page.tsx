@@ -42,8 +42,8 @@ import {
 const mockSegments = [
   {
     id: "seg_1",
-    name: "High Spenders",
-    description: "Customers who spent more than $1000 in the last 30 days",
+    name: "High spenders",
+    description: "Customers who spent more than ₹50,000 in the last 30 days",
     customerCount: 1245,
     status: "Active",
     lastUpdated: "2 hours ago",
@@ -51,7 +51,7 @@ const mockSegments = [
   },
   {
     id: "seg_2",
-    name: "Churn Risk",
+    name: "Churn risk",
     description: "No purchases in 90+ days, previously active",
     customerCount: 389,
     status: "Active",
@@ -60,17 +60,17 @@ const mockSegments = [
   },
   {
     id: "seg_3",
-    name: "VIP Members",
-    description: "Gold tier loyalty members",
+    name: "VIP members",
+    description: "Gold-tier loyalty members",
     customerCount: 150,
     status: "Active",
-    lastUpdated: "5 mins ago",
+    lastUpdated: "5 minutes ago",
     rules: 1,
   },
   {
     id: "seg_4",
-    name: "Holiday Shoppers",
-    description: "Purchased during Black Friday / Cyber Monday",
+    name: "Festive shoppers",
+    description: "Purchased during the Diwali sale",
     customerCount: 5200,
     status: "Inactive",
     lastUpdated: "2 months ago",
@@ -86,58 +86,55 @@ export default function CustomerSegmentsPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6 p-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle className="flex items-center gap-2">
-            <Filter className="w-6 h-6 text-[var(--st-accent)]" aria-hidden="true" />
-            Customer Segments
-          </PageTitle>
+          <PageTitle>Customer segments</PageTitle>
           <PageDescription>
-            Build dynamic segments using powerful rule criteria to target specific audiences.
+            Build dynamic segments with rule criteria to target specific audiences.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="outline" iconLeft={Sparkles}>
-            AI Generator
+            Generate with AI
           </Button>
           <Button variant="primary" iconLeft={Plus}>
-            Create Segment
+            Create segment
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section aria-label="Segment summary" className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <StatCard
           icon={Users}
-          label="Total Segmented"
-          value="6,984"
-          accent="var(--st-accent)"
+          label="Total segmented"
+          value={<span className="tabular-nums">6,984</span>}
+          accent="#3b7af5"
         />
         <StatCard
           icon={Activity}
-          label="Active Rules"
-          value="24"
-          accent="var(--st-status-ok)"
+          label="Active rules"
+          value={<span className="tabular-nums">24</span>}
+          accent="#1f9d55"
         />
         <StatCard
           icon={Settings}
-          label="Dynamic Updates"
+          label="Updates"
           value="Real-time"
-          accent="var(--st-info)"
+          accent="#7c3aed"
         />
-      </div>
+      </section>
 
       <Card padding="none">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--st-border)] pb-4">
           <div>
-            <CardTitle>All Segments</CardTitle>
+            <CardTitle>All segments</CardTitle>
             <CardDescription>Manage and track your customer segments.</CardDescription>
           </div>
           <Field className="w-full sm:w-72">
             <Input
               iconLeft={Search}
-              placeholder="Search segments..."
+              placeholder="Search segments"
               aria-label="Search segments"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -149,13 +146,15 @@ export default function CustomerSegmentsPage() {
             <Table>
               <THead>
                 <Tr>
-                  <Th>Segment Name</Th>
+                  <Th>Segment</Th>
                   <Th>Description</Th>
                   <Th>Rules</Th>
-                  <Th>Customers</Th>
+                  <Th align="right">Customers</Th>
                   <Th>Status</Th>
-                  <Th>Last Updated</Th>
-                  <Th align="right">Actions</Th>
+                  <Th>Last updated</Th>
+                  <Th align="right">
+                    <span className="sr-only">Actions</span>
+                  </Th>
                 </Tr>
               </THead>
               <TBody>
@@ -164,11 +163,13 @@ export default function CustomerSegmentsPage() {
                     <Td className="font-medium text-[var(--st-text)]">{segment.name}</Td>
                     <Td className="text-[var(--st-text-secondary)]">{segment.description}</Td>
                     <Td>
-                      <Badge tone="neutral" kind="outline" className="font-mono">
-                        {segment.rules} Rules
+                      <Badge tone="neutral" kind="outline" className="font-mono tabular-nums">
+                        {segment.rules} rules
                       </Badge>
                     </Td>
-                    <Td>{segment.customerCount.toLocaleString()}</Td>
+                    <Td align="right" className="tabular-nums">
+                      {segment.customerCount.toLocaleString()}
+                    </Td>
                     <Td>
                       <Badge tone={segment.status === "Active" ? "success" : "neutral"} dot>
                         {segment.status}
@@ -210,7 +211,7 @@ export default function CustomerSegmentsPage() {
               }
               action={
                 <Button variant="primary" iconLeft={Plus}>
-                  Create Segment
+                  Create segment
                 </Button>
               }
             />

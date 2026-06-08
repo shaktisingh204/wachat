@@ -47,12 +47,12 @@ export default function SettingsPage() {
     ] as const;
 
     const quickLinks = [
-        { id: 'shipping', label: 'Shipping & Delivery', icon: Truck, href: `/dashboard/sabshop/${params.storefrontId}/shipping`, description: 'Manage shipping zones and rates' },
-        { id: 'taxes', label: 'Taxes & Duties', icon: Receipt, href: `/dashboard/sabshop/${params.storefrontId}/taxes`, description: 'Configure regional tax overrides' },
+        { id: 'shipping', label: 'Shipping and delivery', icon: Truck, href: `/dashboard/sabshop/${params.storefrontId}/shipping`, description: 'Manage shipping zones and rates' },
+        { id: 'taxes', label: 'Taxes and duties', icon: Receipt, href: `/dashboard/sabshop/${params.storefrontId}/taxes`, description: 'Configure regional tax rules' },
     ];
 
     return (
-        <div className="flex h-full flex-col gap-6 p-8 max-w-7xl mx-auto w-full">
+        <div className="mx-auto flex h-full w-full max-w-7xl flex-col gap-6">
             <div className="flex flex-col gap-2">
                 <Breadcrumb>
                     <BreadcrumbList>
@@ -81,7 +81,7 @@ export default function SettingsPage() {
                             loading={isSaving}
                             iconLeft={isSaving ? RefreshCw : Save}
                         >
-                            Save Changes
+                            Save changes
                         </Button>
                     </PageActions>
                 </PageHeader>
@@ -102,7 +102,7 @@ export default function SettingsPage() {
                                     aria-pressed={isActive}
                                     onClick={() => setActiveTab(tab.id as TabKey)}
                                     iconLeft={Icon}
-                                    className={`justify-start ${isActive ? 'text-[var(--st-accent)] bg-[var(--st-accent)]/10' : 'text-[var(--st-text-secondary)]'}`}
+                                    className={`justify-start ${isActive ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]' : 'text-[var(--st-text-secondary)]'}`}
                                 >
                                     {tab.label}
                                 </Button>
@@ -138,24 +138,24 @@ export default function SettingsPage() {
                         <div className="space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Store Details</CardTitle>
+                                    <CardTitle>Store details</CardTitle>
                                     <CardDescription>Your customers will use this information to contact you.</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <Field label="Store Name">
+                                        <Field label="Store name">
                                             <Input defaultValue="SabShop Official" />
                                         </Field>
-                                        <Field label="Store Contact Email">
+                                        <Field label="Contact email">
                                             <Input defaultValue="support@sabshop.com" type="email" />
                                         </Field>
                                     </div>
-                                    <Field label="Phone Number">
-                                        <Input defaultValue="+1 (555) 123-4567" type="tel" />
+                                    <Field label="Phone number">
+                                        <Input defaultValue="+91 98765 43210" type="tel" className="tabular-nums" />
                                     </Field>
-                                    <Field label="Store Industry">
+                                    <Field label="Store industry">
                                         <Select defaultValue="apparel">
-                                            <SelectTrigger aria-label="Store Industry">
+                                            <SelectTrigger aria-label="Store industry">
                                                 <SelectValue placeholder="Select industry" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -172,26 +172,26 @@ export default function SettingsPage() {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Standards and Formats</CardTitle>
-                                    <CardDescription>Standards and formats are used to calculate product prices, shipping weights, and order times.</CardDescription>
+                                    <CardTitle>Standards and formats</CardTitle>
+                                    <CardDescription>Used to calculate product prices, shipping weights, and order times.</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <Field label="Timezone">
-                                            <Select defaultValue="pst">
+                                            <Select defaultValue="ist">
                                                 <SelectTrigger aria-label="Timezone">
                                                     <SelectValue placeholder="Select timezone" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="pst">(GMT-08:00) Pacific Time (US & Canada)</SelectItem>
-                                                    <SelectItem value="est">(GMT-05:00) Eastern Time (US & Canada)</SelectItem>
                                                     <SelectItem value="ist">(GMT+05:30) Indian Standard Time</SelectItem>
+                                                    <SelectItem value="pst">(GMT-08:00) Pacific Time (US and Canada)</SelectItem>
+                                                    <SelectItem value="est">(GMT-05:00) Eastern Time (US and Canada)</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </Field>
-                                        <Field label="Unit System">
+                                        <Field label="Unit system">
                                             <Select defaultValue="metric">
-                                                <SelectTrigger aria-label="Unit System">
+                                                <SelectTrigger aria-label="Unit system">
                                                     <SelectValue placeholder="Select unit system" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -202,18 +202,18 @@ export default function SettingsPage() {
                                         </Field>
                                     </div>
                                     <Field
-                                        label="Store Currency"
-                                        help="Changing your store currency can affect the pricing of your products and discounts."
+                                        label="Store currency"
+                                        help="Changing your store currency can affect product pricing and discounts."
                                     >
-                                        <Select defaultValue="usd">
-                                            <SelectTrigger aria-label="Store Currency">
+                                        <Select defaultValue="inr">
+                                            <SelectTrigger aria-label="Store currency">
                                                 <SelectValue placeholder="Select currency" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="usd">US Dollar (USD)</SelectItem>
-                                                <SelectItem value="inr">Indian Rupee (INR)</SelectItem>
+                                                <SelectItem value="inr">Indian rupee (INR)</SelectItem>
+                                                <SelectItem value="usd">US dollar (USD)</SelectItem>
                                                 <SelectItem value="eur">Euro (EUR)</SelectItem>
-                                                <SelectItem value="gbp">British Pound (GBP)</SelectItem>
+                                                <SelectItem value="gbp">British pound (GBP)</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </Field>
@@ -227,32 +227,32 @@ export default function SettingsPage() {
                             <Card>
                                 <CardHeader className="flex flex-row items-start justify-between">
                                     <div>
-                                        <CardTitle>Payment Providers</CardTitle>
+                                        <CardTitle>Payment providers</CardTitle>
                                         <CardDescription>Accept payments on your store using third-party providers.</CardDescription>
                                     </div>
                                     <Badge tone="success">Active</Badge>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
-                                    <div className="p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] bg-[var(--st-hover)] flex items-center justify-between">
+                                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-hover)] p-4">
                                         <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 rounded-md flex items-center justify-center bg-[#635BFF]">
-                                                <CreditCard className="text-white h-5 w-5" aria-hidden="true" />
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]" aria-hidden="true">
+                                                <CreditCard className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-[var(--st-text)]">Stripe</p>
-                                                <p className="text-sm text-[var(--st-text-secondary)]">Credit cards, Apple Pay, Google Pay</p>
+                                                <p className="font-medium text-[var(--st-text)]">Razorpay</p>
+                                                <p className="text-sm text-[var(--st-text-secondary)]">Cards, UPI, net banking, and wallets</p>
                                             </div>
                                         </div>
                                         <Button variant="outline" size="sm">Manage</Button>
                                     </div>
 
-                                    <div className="p-4 border border-[var(--st-border)] rounded-[var(--st-radius)] flex items-center justify-between opacity-70">
+                                    <div className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 opacity-70">
                                         <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 rounded-md flex items-center justify-center bg-[#00457C]">
-                                                <CreditCard className="text-white h-5 w-5" aria-hidden="true" />
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] ring-1 ring-inset ring-[var(--st-border)]" aria-hidden="true">
+                                                <CreditCard className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-[var(--st-text)]">PayPal Express Checkout</p>
+                                                <p className="font-medium text-[var(--st-text)]">PayPal express checkout</p>
                                                 <p className="text-sm text-[var(--st-text-secondary)]">Accept PayPal payments</p>
                                             </div>
                                         </div>
@@ -263,23 +263,23 @@ export default function SettingsPage() {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Manual Payments</CardTitle>
+                                    <CardTitle>Manual payments</CardTitle>
                                     <CardDescription>Payments that are made outside of your online store.</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
                                     <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--st-radius)]">
                                         <div className="space-y-1">
-                                            <p className="font-medium text-[var(--st-text)]">Cash on Delivery (COD)</p>
+                                            <p className="font-medium text-[var(--st-text)]">Cash on delivery</p>
                                             <p className="text-sm text-[var(--st-text-secondary)]">Collect payment when the order is delivered.</p>
                                         </div>
-                                        <Switch defaultChecked aria-label="Cash on Delivery (COD)" />
+                                        <Switch defaultChecked aria-label="Cash on delivery" />
                                     </div>
                                     <div className="flex items-center justify-between p-4 border border-[var(--st-border)] rounded-[var(--st-radius)]">
                                         <div className="space-y-1">
-                                            <p className="font-medium text-[var(--st-text)]">Bank Deposit</p>
+                                            <p className="font-medium text-[var(--st-text)]">Bank transfer</p>
                                             <p className="text-sm text-[var(--st-text-secondary)]">Customers transfer funds directly to your bank account.</p>
                                         </div>
-                                        <Switch aria-label="Bank Deposit" />
+                                        <Switch aria-label="Bank transfer" />
                                     </div>
                                 </CardBody>
                             </Card>
@@ -290,7 +290,7 @@ export default function SettingsPage() {
                         <div className="space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Customer Accounts</CardTitle>
+                                    <CardTitle>Customer accounts</CardTitle>
                                     <CardDescription>Choose how customers interact with accounts at checkout.</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                                                 <p className="text-xs text-[var(--st-text-secondary)]">Customers will only be able to check out as guests.</p>
                                             </div>
                                         </label>
-                                        <label className="flex items-start gap-3 p-3 border border-[var(--st-accent)] bg-[var(--st-accent)]/5 rounded-[var(--st-radius)] cursor-pointer transition-colors">
+                                        <label className="flex items-start gap-3 p-3 border border-[var(--st-accent)] bg-[var(--st-accent-soft)] rounded-[var(--st-radius)] cursor-pointer transition-colors">
                                             <Radio value="optional" className="mt-1" />
                                             <div>
                                                 <p className="font-medium text-[var(--st-text)] text-sm">Accounts are optional</p>
@@ -322,7 +322,7 @@ export default function SettingsPage() {
 
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Customer Contact Method</CardTitle>
+                                    <CardTitle>Customer contact method</CardTitle>
                                     <CardDescription>Choose how customers are contacted after placing an order.</CardDescription>
                                 </CardHeader>
                                 <CardBody className="space-y-4">
@@ -339,28 +339,28 @@ export default function SettingsPage() {
                         <div className="space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Customer Notifications</CardTitle>
+                                    <CardTitle>Customer notifications</CardTitle>
                                     <CardDescription>Customize the emails and SMS messages sent to your customers.</CardDescription>
                                 </CardHeader>
                                 <CardBody>
                                     <div className="divide-y divide-[var(--st-border)] border border-[var(--st-border)] rounded-[var(--st-radius)]">
                                         <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-[var(--st-text)] text-sm">Order Confirmation</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Order confirmation</p>
                                                 <p className="text-xs text-[var(--st-text-secondary)]">Sent automatically to the customer after they place their order.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
                                         <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-[var(--st-text)] text-sm">Shipping Confirmation</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Shipping confirmation</p>
                                                 <p className="text-xs text-[var(--st-text-secondary)]">Sent automatically when their order has been shipped.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
                                         </div>
                                         <div className="flex items-center justify-between p-4 hover:bg-[var(--st-hover)] transition-colors">
                                             <div>
-                                                <p className="font-medium text-[var(--st-text)] text-sm">Customer Account Invite</p>
+                                                <p className="font-medium text-[var(--st-text)] text-sm">Account invitation</p>
                                                 <p className="text-xs text-[var(--st-text-secondary)]">Sent to the customer with account activation instructions.</p>
                                             </div>
                                             <Button variant="outline" size="sm">Edit</Button>
@@ -379,7 +379,7 @@ export default function SettingsPage() {
                                         <CardTitle>Domains</CardTitle>
                                         <CardDescription>Manage your custom domains and subdomains.</CardDescription>
                                     </div>
-                                    <Button variant="primary" size="sm" iconLeft={Plus}>Add Domain</Button>
+                                    <Button variant="primary" size="sm" iconLeft={Plus}>Add domain</Button>
                                 </CardHeader>
                                 <CardBody>
                                     <div className="border border-[var(--st-border)] rounded-[var(--st-radius)] overflow-hidden">

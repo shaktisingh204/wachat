@@ -62,47 +62,47 @@ interface PurchaseOrder {
 
 const mockPurchaseOrders: PurchaseOrder[] = [
   {
-    id: "PO-2023-1042",
-    supplier: "Global Electronics Ltd.",
-    orderDate: "2023-10-15",
-    expectedDate: "2023-10-22",
-    totalAmount: 14500.0,
+    id: "PO-2026-1042",
+    supplier: "Global Electronics",
+    orderDate: "May 15, 2026",
+    expectedDate: "May 22, 2026",
+    totalAmount: 1450000,
     items: 450,
     status: "Pending",
   },
   {
-    id: "PO-2023-1043",
-    supplier: "Pacific Textiles Inc.",
-    orderDate: "2023-10-16",
-    expectedDate: "2023-10-25",
-    totalAmount: 8240.5,
+    id: "PO-2026-1043",
+    supplier: "Pacific Textiles",
+    orderDate: "May 16, 2026",
+    expectedDate: "May 25, 2026",
+    totalAmount: 824050,
     items: 1200,
     status: "Draft",
   },
   {
-    id: "PO-2023-1044",
+    id: "PO-2026-1044",
     supplier: "Nordic Home Goods",
-    orderDate: "2023-10-10",
-    expectedDate: "2023-10-18",
-    totalAmount: 22100.0,
+    orderDate: "May 10, 2026",
+    expectedDate: "May 18, 2026",
+    totalAmount: 2210000,
     items: 320,
     status: "Receiving",
   },
   {
-    id: "PO-2023-1045",
-    supplier: "TechSupply Co.",
-    orderDate: "2023-10-05",
-    expectedDate: "2023-10-12",
-    totalAmount: 4500.0,
+    id: "PO-2026-1045",
+    supplier: "Apex Manufacturing",
+    orderDate: "May 5, 2026",
+    expectedDate: "May 12, 2026",
+    totalAmount: 450000,
     items: 50,
     status: "Completed",
   },
   {
-    id: "PO-2023-1046",
-    supplier: "Global Electronics Ltd.",
-    orderDate: "2023-10-18",
-    expectedDate: "2023-11-01",
-    totalAmount: 56000.0,
+    id: "PO-2026-1046",
+    supplier: "Global Electronics",
+    orderDate: "May 18, 2026",
+    expectedDate: "Jun 1, 2026",
+    totalAmount: 5600000,
     items: 2000,
     status: "Pending",
   },
@@ -116,9 +116,10 @@ const STATUS_TONE: Record<string, BadgeTone> = {
 };
 
 function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 
@@ -139,62 +140,65 @@ export default function PurchaseOrdersPage() {
   }, [query, statusFilter]);
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Purchase Orders</PageTitle>
+          <PageTitle>Purchase orders</PageTitle>
           <PageDescription>
             Manage incoming procurement from your suppliers and vendors.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            Create PO
+            Create order
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Procurement summary" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Active POs"
-          value="24"
+          label="Active orders"
+          value={<span className="tabular-nums">24</span>}
           icon={FileText}
-          delta={{ value: "Pending and Receiving", tone: "neutral" }}
+          accent="#3b7af5"
+          delta={{ value: "Pending and receiving", tone: "neutral" }}
         />
         <StatCard
-          label="Pending Value"
-          value="$124,500"
+          label="Pending value"
+          value={<span className="tabular-nums">₹1,24,500</span>}
           icon={AlertCircle}
+          accent="#d97706"
           delta={{ value: "+12% from last month", tone: "up" }}
         />
         <StatCard
-          label="Expected Today"
-          value="3"
+          label="Expected today"
+          value={<span className="tabular-nums">3</span>}
           icon={Clock}
+          accent="#7c3aed"
           delta={{ value: "Shipments arriving today", tone: "neutral" }}
         />
         <StatCard
-          label="Received (MTD)"
-          value="18"
+          label="Received this month"
+          value={<span className="tabular-nums">18</span>}
           icon={PackageCheck}
+          accent="#1f9d55"
           delta={{ value: "+4 from last month", tone: "up" }}
         />
-      </div>
+      </section>
 
       <Card>
         <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Procurement Orders</CardTitle>
+            <CardTitle>Procurement orders</CardTitle>
             <CardDescription>
-              Track all your purchase orders and their current fulfillment
-              status.
+              Track every purchase order and its current fulfillment status.
             </CardDescription>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Field className="w-full sm:w-[300px]">
               <Input
                 type="search"
-                placeholder="Search POs..."
+                placeholder="Search orders"
                 iconLeft={Search}
                 aria-label="Search purchase orders"
                 value={query}
@@ -203,7 +207,7 @@ export default function PurchaseOrdersPage() {
             </Field>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger aria-label="Filter by status" className="sm:w-[160px]">
-                <SelectValue placeholder="Filter Status" />
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All statuses</SelectItem>
@@ -223,22 +227,24 @@ export default function PurchaseOrdersPage() {
               description="Try a different search term or clear the status filter."
             />
           ) : (
-            <Table>
+            <Table hover>
               <THead>
                 <Tr>
-                  <Th>PO Number</Th>
+                  <Th>Order</Th>
                   <Th>Supplier</Th>
-                  <Th>Order Date</Th>
-                  <Th>Expected Date</Th>
-                  <Th align="right">Total Amount</Th>
+                  <Th>Ordered</Th>
+                  <Th>Expected</Th>
+                  <Th align="right">Total</Th>
                   <Th>Status</Th>
-                  <Th align="right">Actions</Th>
+                  <Th align="right" width={56}>
+                    <span className="sr-only">Actions</span>
+                  </Th>
                 </Tr>
               </THead>
               <TBody>
                 {filtered.map((po) => (
                   <Tr key={po.id}>
-                    <Td className="font-medium">{po.id}</Td>
+                    <Td className="font-medium tabular-nums">{po.id}</Td>
                     <Td>{po.supplier}</Td>
                     <Td className="text-[var(--st-text-secondary)]">
                       {po.orderDate}
@@ -246,7 +252,9 @@ export default function PurchaseOrdersPage() {
                     <Td className="text-[var(--st-text-secondary)]">
                       {po.expectedDate}
                     </Td>
-                    <Td align="right">{formatCurrency(po.totalAmount)}</Td>
+                    <Td align="right" className="font-medium tabular-nums">
+                      {formatCurrency(po.totalAmount)}
+                    </Td>
                     <Td>
                       <Badge tone={STATUS_TONE[po.status] ?? "neutral"} dot>
                         {po.status}
@@ -265,11 +273,11 @@ export default function PurchaseOrdersPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem>View details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit PO</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as Received</DropdownMenuItem>
+                          <DropdownMenuItem>Edit order</DropdownMenuItem>
+                          <DropdownMenuItem>Mark as received</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem variant="danger">
-                            Cancel PO
+                            Cancel order
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

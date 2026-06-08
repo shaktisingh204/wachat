@@ -82,39 +82,42 @@ export default function WebhooksPage() {
     <div className="flex flex-col gap-8 pb-12 w-full">
       <PageHeader>
         <PageHeading>
-          <PageEyebrow>Developer Tools</PageEyebrow>
+          <PageEyebrow>Developer tools</PageEyebrow>
           <PageTitle>Webhooks</PageTitle>
           <PageDescription>
-            Subscribe to store events and receive real-time HTTP payloads to your external services and custom apps.
+            Subscribe to store events and receive real-time HTTP payloads in your external services and custom apps.
           </PageDescription>
         </PageHeading>
         <PageActions>
           <Button variant="outline" iconLeft={TerminalSquare}>
-            View Documentation
+            View documentation
           </Button>
           <Button variant="primary" iconLeft={Plus}>
-            Add Endpoint
+            Add endpoint
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 px-1">
+      <div className="grid gap-4 px-1 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
-          label="Active Endpoints"
-          value="3"
+          label="Active endpoints"
+          value={<span className="tabular-nums">3</span>}
           icon={Webhook}
+          accent="#3b7af5"
           delta={{ value: "+1 added this month", tone: "up" }}
         />
         <StatCard
-          label="Events Processed (24h)"
-          value="1,248"
+          label="Events processed (24h)"
+          value={<span className="tabular-nums">1,248</span>}
           icon={Activity}
+          accent="#1f9d55"
           delta={{ value: "+12.5% vs previous day", tone: "up" }}
         />
         <StatCard
-          label="Delivery Failures (24h)"
-          value="12"
+          label="Delivery failures (24h)"
+          value={<span className="tabular-nums">12</span>}
           icon={AlertTriangle}
+          accent="#c13c2c"
           delta={{ value: "+2 vs previous day", tone: "down" }}
         />
       </div>
@@ -122,7 +125,7 @@ export default function WebhooksPage() {
       <div className="flex flex-col gap-6 px-1 mt-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Configured Endpoints</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Configured endpoints</h2>
             <p className="text-sm text-[var(--st-text-secondary)]">Manage webhook subscriptions for this storefront.</p>
           </div>
         </div>
@@ -136,7 +139,9 @@ export default function WebhooksPage() {
                   <Th>Topics</Th>
                   <Th>Status</Th>
                   <Th className="hidden lg:table-cell">Secret</Th>
-                  <Th align="right">Actions</Th>
+                  <Th align="right">
+                    <span className="sr-only">Actions</span>
+                  </Th>
                 </Tr>
               </THead>
               <TBody>
@@ -153,8 +158,8 @@ export default function WebhooksPage() {
                             {webhook.url}
                           </span>
                         </div>
-                        <div className="text-xs text-[var(--st-text-tertiary)] ml-6 flex items-center gap-2">
-                          <span>Last delivery: {webhook.lastDelivery}</span>
+                        <div className="ml-6 flex items-center gap-2 text-xs text-[var(--st-text-tertiary)]">
+                          <span>Last delivery {webhook.lastDelivery}</span>
                           {webhook.failures > 0 && (
                             <span className="text-[var(--st-danger)] flex items-center gap-1">
                               <AlertTriangle className="h-3 w-3" aria-hidden="true" />
@@ -212,9 +217,9 @@ export default function WebhooksPage() {
                           />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem iconLeft={PenTool}>Edit Endpoint</DropdownMenuItem>
-                          <DropdownMenuItem iconLeft={Zap}>Send Test Event</DropdownMenuItem>
-                          <DropdownMenuItem iconLeft={TerminalSquare}>View Delivery Logs</DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={PenTool}>Edit endpoint</DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={Zap}>Send test event</DropdownMenuItem>
+                          <DropdownMenuItem iconLeft={TerminalSquare}>View delivery logs</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem variant="danger" iconLeft={Trash2}>
                             Delete
@@ -233,11 +238,11 @@ export default function WebhooksPage() {
       <div className="flex flex-col gap-6 px-1 mt-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Recent Deliveries</h2>
-            <p className="text-sm text-[var(--st-text-secondary)]">View recent webhook attempts across all endpoints.</p>
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">Recent deliveries</h2>
+            <p className="text-sm text-[var(--st-text-secondary)]">Recent webhook attempts across all endpoints.</p>
           </div>
           <Button variant="outline" size="sm">
-            View All Logs
+            View all logs
           </Button>
         </div>
 
@@ -249,7 +254,9 @@ export default function WebhooksPage() {
                   <Th>Topic</Th>
                   <Th>Status</Th>
                   <Th className="hidden md:table-cell">Time</Th>
-                  <Th align="right">Action</Th>
+                  <Th align="right">
+                    <span className="sr-only">Action</span>
+                  </Th>
                 </Tr>
               </THead>
               <TBody>
@@ -267,10 +274,10 @@ export default function WebhooksPage() {
                         </Badge>
                       )}
                     </Td>
-                    <Td className="hidden md:table-cell text-sm text-[var(--st-text-secondary)]">{log.time}</Td>
+                    <Td className="hidden text-sm text-[var(--st-text-secondary)] md:table-cell">{log.time}</Td>
                     <Td align="right">
                       <Button variant="ghost" size="sm">
-                        View Payload
+                        View payload
                       </Button>
                     </Td>
                   </Tr>

@@ -49,7 +49,7 @@ const mockTransfers = [
     id: "TRN-0091",
     origin: "Central US Distribution",
     destination: "West Coast Fulfillment",
-    date: "2023-10-24",
+    date: "May 24, 2026",
     items: 450,
     status: "In Transit",
     priority: "High",
@@ -58,7 +58,7 @@ const mockTransfers = [
     id: "TRN-0092",
     origin: "East Coast Hub",
     destination: "Central US Distribution",
-    date: "2023-10-25",
+    date: "May 25, 2026",
     items: 120,
     status: "Preparing",
     priority: "Normal",
@@ -67,7 +67,7 @@ const mockTransfers = [
     id: "TRN-0093",
     origin: "West Coast Fulfillment",
     destination: "South Retail Storage",
-    date: "2023-10-22",
+    date: "May 22, 2026",
     items: 85,
     status: "Delivered",
     priority: "Normal",
@@ -76,7 +76,7 @@ const mockTransfers = [
     id: "TRN-0094",
     origin: "European Depot",
     destination: "East Coast Hub",
-    date: "2023-10-20",
+    date: "May 20, 2026",
     items: 1500,
     status: "Delayed",
     priority: "Urgent",
@@ -85,7 +85,7 @@ const mockTransfers = [
     id: "TRN-0095",
     origin: "Central US Distribution",
     destination: "South Retail Storage",
-    date: "2023-10-26",
+    date: "May 26, 2026",
     items: 30,
     status: "Draft",
     priority: "Low",
@@ -127,61 +127,65 @@ export default function TransfersPage() {
   };
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Stock Transfers</PageTitle>
+          <PageTitle>Stock transfers</PageTitle>
           <PageDescription>
-            Manage inventory movement between your warehouses and retail locations.
+            Move inventory between your warehouses and retail locations.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            New Transfer
+            New transfer
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <section aria-label="Transfer summary" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Active Transfers"
-          value="12"
+          label="Active transfers"
+          value={<span className="tabular-nums">12</span>}
           icon={ArrowRightLeft}
-          delta={{ value: "Preparing or In Transit", tone: "neutral" }}
+          accent="#3b7af5"
+          delta={{ value: "Preparing or in transit", tone: "neutral" }}
         />
         <StatCard
-          label="Items In Transit"
-          value="2,450"
+          label="Items in transit"
+          value={<span className="tabular-nums">2,450</span>}
           icon={Truck}
+          accent="#7c3aed"
           delta={{ value: "+300 from last week", tone: "up" }}
         />
         <StatCard
-          label="Delivered (MTD)"
-          value="45"
+          label="Delivered this month"
+          value={<span className="tabular-nums">45</span>}
           icon={PackageCheck}
+          accent="#1f9d55"
           delta={{ value: "Successfully received", tone: "neutral" }}
         />
         <StatCard
-          label="Delayed Shipments"
-          value="2"
+          label="Delayed shipments"
+          value={<span className="tabular-nums">2</span>}
           icon={AlertTriangle}
+          accent="#c13c2c"
           delta={{ value: "Needs attention", tone: "down" }}
         />
-      </div>
+      </section>
 
       <Card>
         <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Transfer History</CardTitle>
+            <CardTitle>Transfer history</CardTitle>
             <CardDescription>
-              Track internal stock movements across your supply chain network.
+              Internal stock movements across your supply network.
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Field className="w-[200px] sm:w-[300px]">
               <Input
                 type="search"
-                placeholder="Search transfers..."
+                placeholder="Search transfers"
                 iconLeft={Search}
                 aria-label="Search transfers"
               />
@@ -190,34 +194,36 @@ export default function TransfersPage() {
           </div>
         </CardHeader>
         <CardBody>
-          <Table>
+          <Table hover>
             <THead>
               <Tr>
-                <Th>Transfer ID</Th>
+                <Th>Transfer</Th>
                 <Th>Route</Th>
                 <Th>Date</Th>
-                <Th>Items</Th>
+                <Th align="right">Items</Th>
                 <Th>Priority</Th>
                 <Th>Status</Th>
-                <Th align="right">Actions</Th>
+                <Th align="right" width={56}>
+                  <span className="sr-only">Actions</span>
+                </Th>
               </Tr>
             </THead>
             <TBody>
               {mockTransfers.map((transfer) => (
                 <Tr key={transfer.id}>
-                  <Td className="font-medium">{transfer.id}</Td>
+                  <Td className="font-medium tabular-nums">{transfer.id}</Td>
                   <Td>
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="truncate max-w-[120px]">{transfer.origin}</span>
+                      <span className="max-w-[120px] truncate">{transfer.origin}</span>
                       <ArrowRight
                         className="h-3 w-3 flex-shrink-0 text-[var(--st-text-secondary)]"
                         aria-hidden="true"
                       />
-                      <span className="truncate max-w-[120px]">{transfer.destination}</span>
+                      <span className="max-w-[120px] truncate">{transfer.destination}</span>
                     </div>
                   </Td>
                   <Td className="text-[var(--st-text-secondary)]">{transfer.date}</Td>
-                  <Td>{transfer.items}</Td>
+                  <Td align="right" className="tabular-nums">{transfer.items}</Td>
                   <Td>
                     <div className="flex items-center">
                       {getPriorityIcon(transfer.priority)}

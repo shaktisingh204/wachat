@@ -18,6 +18,7 @@ import {
     PageHeader,
     PageHeaderHeading,
     PageTitle,
+    PageDescription,
     PageActions,
     useToast,
 } from '@/components/sabcrm/20ui';
@@ -79,37 +80,46 @@ export default function ThemesPage(): React.JSX.Element {
     }
 
     return (
-        <div className="flex flex-col gap-4 p-6">
+        <div className="20ui mx-auto flex w-full max-w-5xl flex-col gap-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageTitle>Themes</PageTitle>
+                    <PageDescription>
+                        Create and apply custom themes that change how your storefront looks.
+                    </PageDescription>
                 </PageHeaderHeading>
                 <PageActions />
             </PageHeader>
 
-            <Card className="max-w-2xl">
-                <CardHeader><CardTitle>New custom theme</CardTitle></CardHeader>
-                <CardBody className="flex flex-col gap-3">
-                    <Field label="Name">
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
-                    </Field>
-                    <Field label="Config JSON">
-                        <Textarea rows={6} value={config} onChange={(e) => setConfig(e.target.value)} />
-                    </Field>
-                    <div className="flex justify-end">
-                        <Button variant="primary" onClick={onCreate}>Save theme</Button>
-                    </div>
-                </CardBody>
-            </Card>
+            <div className="grid gap-6 lg:grid-cols-5">
+                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Palette size={16} aria-hidden="true" className="text-[var(--st-text-secondary)]" />
+                            <CardTitle>New custom theme</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardBody className="flex flex-col gap-3">
+                        <Field label="Name">
+                            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Midnight" />
+                        </Field>
+                        <Field label="Config (JSON)" help="Theme tokens like primary colour and font.">
+                            <Textarea rows={6} value={config} onChange={(e) => setConfig(e.target.value)} className="font-mono" />
+                        </Field>
+                        <div className="flex justify-end">
+                            <Button variant="primary" onClick={onCreate}>Save theme</Button>
+                        </div>
+                    </CardBody>
+                </Card>
 
-            <Card>
-                <CardHeader><CardTitle>All themes</CardTitle></CardHeader>
-                <CardBody>
+                <Card className="lg:col-span-3">
+                    <CardHeader><CardTitle>All themes</CardTitle></CardHeader>
+                    <CardBody>
                     {themes.length === 0 ? (
                         <EmptyState
                             icon={Palette}
                             title="No themes yet"
-                            description="Create a custom theme above to get started."
+                            description="Create a custom theme to control how your storefront looks."
                         />
                     ) : (
                         <ul className="divide-y divide-[var(--st-border)]">
@@ -132,8 +142,9 @@ export default function ThemesPage(): React.JSX.Element {
                             ))}
                         </ul>
                     )}
-                </CardBody>
-            </Card>
+                    </CardBody>
+                </Card>
+            </div>
         </div>
     );
 }

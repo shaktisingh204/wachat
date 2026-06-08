@@ -96,7 +96,7 @@ export default function TaxesPage(): React.JSX.Element {
     );
 
     return (
-        <div className="20ui flex flex-col gap-6 p-8 max-w-6xl mx-auto w-full h-full">
+        <div className="20ui mx-auto flex w-full max-w-6xl flex-col gap-6">
             <div className="flex flex-col gap-3">
                 <Breadcrumb>
                     <BreadcrumbList>
@@ -109,20 +109,20 @@ export default function TaxesPage(): React.JSX.Element {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbPage>Taxes and Duties</BreadcrumbPage>
+                            <BreadcrumbPage>Taxes and duties</BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
 
                 <PageHeader bordered={false}>
                     <PageHeaderHeading>
-                        <PageTitle>Taxes and Duties</PageTitle>
-                        <PageDescription>Configure regional tax overrides and how taxes are applied to prices.</PageDescription>
+                        <PageTitle>Taxes and duties</PageTitle>
+                        <PageDescription>Configure regional tax rules and how taxes apply to prices.</PageDescription>
                     </PageHeaderHeading>
                     {!isCreating && (
                         <PageActions>
                             <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
-                                Add Tax Rule
+                                Add tax rule
                             </Button>
                         </PageActions>
                     )}
@@ -143,19 +143,19 @@ export default function TaxesPage(): React.JSX.Element {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tax Rule Details</CardTitle>
-                                <CardDescription>Specify the region and rate for this tax configuration.</CardDescription>
+                                <CardTitle>Tax rule details</CardTitle>
+                                <CardDescription>Set the region and rate for this tax rule.</CardDescription>
                             </CardHeader>
                             <CardBody className="space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Field label="Tax Name">
+                                    <Field label="Tax name">
                                         <Input
-                                            placeholder="e.g. GST, VAT, Sales Tax"
+                                            placeholder="e.g. GST, VAT, sales tax"
                                             value={draft.name}
                                             onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                                         />
                                     </Field>
-                                    <Field label="Region (Code)" help="Use ISO country or state codes.">
+                                    <Field label="Region code" help="Use ISO country or state codes.">
                                         <Input
                                             placeholder="e.g. IN, IN-MH, US, EU"
                                             value={draft.region}
@@ -164,9 +164,10 @@ export default function TaxesPage(): React.JSX.Element {
                                     </Field>
                                 </div>
 
-                                <Field label="Tax Rate" className="max-w-[200px]">
+                                <Field label="Tax rate" className="max-w-[200px]">
                                     <Input
                                         iconLeft={Percent}
+                                        className="tabular-nums"
                                         type="number"
                                         step="0.1"
                                         min="0"
@@ -183,7 +184,7 @@ export default function TaxesPage(): React.JSX.Element {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Tax Calculation</CardTitle>
+                                <CardTitle>Tax calculation</CardTitle>
                                 <CardDescription>How this tax behaves with your product prices.</CardDescription>
                             </CardHeader>
                             <CardBody>
@@ -205,7 +206,7 @@ export default function TaxesPage(): React.JSX.Element {
 
                         <div className="flex justify-end gap-3 pb-8">
                             <Button variant="outline" onClick={() => setIsCreating(false)}>Cancel</Button>
-                            <Button variant="primary" onClick={onCreate}>Save Tax Rule</Button>
+                            <Button variant="primary" onClick={onCreate}>Save tax rule</Button>
                         </div>
                     </div>
 
@@ -237,7 +238,7 @@ export default function TaxesPage(): React.JSX.Element {
                         <div className="max-w-sm">
                             <Input
                                 iconLeft={Search}
-                                placeholder="Search tax rules..."
+                                placeholder="Search tax rules"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 aria-label="Search tax rules"
@@ -254,7 +255,7 @@ export default function TaxesPage(): React.JSX.Element {
                                     description="Create a tax rule to start charging taxes on orders."
                                     action={
                                         <Button variant="primary" iconLeft={Plus} onClick={() => setIsCreating(true)}>
-                                            Add Tax Rule
+                                            Add tax rule
                                         </Button>
                                     }
                                 />
@@ -263,15 +264,17 @@ export default function TaxesPage(): React.JSX.Element {
                     ) : (
                         <Card padding="none">
                             <div className="overflow-x-auto">
-                                <Table>
+                                <Table hover>
                                     <THead>
                                         <Tr>
-                                            <Th>Tax Name</Th>
+                                            <Th>Tax name</Th>
                                             <Th>Region</Th>
-                                            <Th>Rate</Th>
+                                            <Th align="right">Rate</Th>
                                             <Th>Calculation</Th>
                                             <Th>Status</Th>
-                                            <Th align="right">Actions</Th>
+                                            <Th align="right" width={56}>
+                                                <span className="sr-only">Actions</span>
+                                            </Th>
                                         </Tr>
                                     </THead>
                                     <TBody>
@@ -286,9 +289,9 @@ export default function TaxesPage(): React.JSX.Element {
                                                 <Tr key={r._id}>
                                                     <Td className="font-medium text-[var(--st-text)]">{r.name}</Td>
                                                     <Td>
-                                                        <Badge variant="outline" className="font-mono">{r.region}</Badge>
+                                                        <Badge tone="neutral" kind="outline" className="font-mono">{r.region}</Badge>
                                                     </Td>
-                                                    <Td>{(r.rate * 100).toFixed(1)}%</Td>
+                                                    <Td align="right" className="tabular-nums">{(r.rate * 100).toFixed(1)}%</Td>
                                                     <Td className="text-[var(--st-text-secondary)]">
                                                         {r.inclusive ? 'Included in price' : 'Added at checkout'}
                                                     </Td>

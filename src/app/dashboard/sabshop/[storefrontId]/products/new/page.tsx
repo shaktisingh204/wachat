@@ -54,7 +54,7 @@ export default function NewProductPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-8 w-full max-w-5xl mx-auto">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <Button
         variant="ghost"
         size="sm"
@@ -62,38 +62,38 @@ export default function NewProductPage() {
         className="w-fit"
         onClick={() => router.back()}
       >
-        Back to Products
+        Back to products
       </Button>
 
       <PageHeader bordered={false}>
         <PageHeading>
-          <PageTitle>Add Product</PageTitle>
-          <PageDescription>Create a new product listing.</PageDescription>
+          <PageTitle>Add product</PageTitle>
+          <PageDescription>Create a new product listing for your store.</PageDescription>
         </PageHeading>
         <PageActions>
           <Button variant="outline" onClick={() => router.back()}>
             Discard
           </Button>
           <Button variant="primary" onClick={handleSave}>
-            Save Product
+            Save product
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Main Column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>Basic information</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
               <Field label="Title">
-                <Input placeholder="Short Sleeve T-Shirt" />
+                <Input placeholder="Short-sleeve cotton t-shirt" />
               </Field>
               <Field label="Description">
                 <Textarea
-                  placeholder="Describe your product in detail..."
+                  placeholder="Describe the product, its materials, and fit"
                   rows={6}
                   className="min-h-[150px]"
                 />
@@ -118,7 +118,7 @@ export default function NewProductPage() {
                   Add media from your library or upload a new file
                 </h3>
                 <p className="text-xs text-[var(--st-text-secondary)] max-w-[220px]">
-                  SVG, PNG, JPG or GIF up to 800x400px.
+                  SVG, PNG, JPG, or GIF up to 800x400px.
                 </p>
                 <SabFilePickerButton
                   accept="image"
@@ -126,7 +126,7 @@ export default function NewProductPage() {
                   className="mt-6"
                   onPick={handlePickMedia}
                 >
-                  <Upload /> Select Files
+                  <Upload /> Select files
                 </SabFilePickerButton>
               </div>
 
@@ -164,10 +164,10 @@ export default function NewProductPage() {
             <CardBody>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Price">
-                  <Input type="number" placeholder="0.00" prefix="$" />
+                  <Input type="number" placeholder="0.00" prefix="₹" />
                 </Field>
-                <Field label="Compare at price">
-                  <Input type="number" placeholder="0.00" prefix="$" />
+                <Field label="Compare-at price">
+                  <Input type="number" placeholder="0.00" prefix="₹" />
                 </Field>
               </div>
               <div className="mt-6 pt-6 border-t border-[var(--st-border)]">
@@ -196,7 +196,7 @@ export default function NewProductPage() {
                   iconLeft={hasVariants ? undefined : Plus}
                   onClick={() => setHasVariants(!hasVariants)}
                 >
-                  {hasVariants ? "Cancel" : "Add options like size or color"}
+                  {hasVariants ? "Cancel" : "Add options like size or colour"}
                 </Button>
               </div>
             </CardHeader>
@@ -283,13 +283,13 @@ export default function NewProductPage() {
             </CardHeader>
             <CardBody className="space-y-4">
               <Field label="Product type">
-                <Input placeholder="e.g. T-Shirt" />
+                <Input placeholder="e.g. T-shirt" />
               </Field>
               <Field label="Vendor">
-                <Input placeholder="e.g. Nike" />
+                <Input placeholder="e.g. Northwind" />
               </Field>
               <Field label="Collections">
-                <Input placeholder="Search collections..." />
+                <Input placeholder="Search collections" />
               </Field>
               <Field label="Tags">
                 <Input placeholder="Find or create tags" />
@@ -302,18 +302,18 @@ export default function NewProductPage() {
               <CardTitle>Inventory</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <Field label="SKU (Stock Keeping Unit)">
+              <Field label="SKU (stock keeping unit)">
                 <Input placeholder="e.g. TSHIRT-001" />
               </Field>
-              <Field label="Barcode (ISBN, UPC, GTIN, etc.)">
+              <Field label="Barcode (ISBN, UPC, GTIN)">
                 <Input placeholder="e.g. 123456789012" />
               </Field>
-              <div className="mt-4 pt-4 border-t border-[var(--st-border)] space-y-4">
+              <div className="mt-4 space-y-4 border-t border-[var(--st-border)] pt-4">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-medium text-[var(--st-text)]">Track quantity</p>
                   <Switch defaultChecked aria-label="Track quantity" />
                 </div>
-                <Field label="Quantity Available">
+                <Field label="Quantity available">
                   <Input type="number" defaultValue="0" />
                 </Field>
               </div>

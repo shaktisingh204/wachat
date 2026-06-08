@@ -1,185 +1,196 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Plus, Search, MoreHorizontal, LayoutGrid } from "lucide-react";
-import { PageHeader, PageHeading, PageTitle, PageDescription, PageActions, Button, Input, Card, CardBody, Table, THead, TBody, Tr, Th, Td, Badge, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/sabcrm/20ui';
+import { Folder, LayoutGrid, MoreHorizontal, Plus, Search } from "lucide-react";
+import {
+  PageHeader,
+  PageHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
+  Input,
+  Card,
+  CardBody,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Badge,
+  type BadgeTone,
+  EmptyState,
+  IconButton,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/sabcrm/20ui";
 
-const MOCK_COLLECTIONS = [
-  {
-    id: "COL-001",
-    title: "Summer Collection 2024",
-    type: "Manual",
-    productCount: 24,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80",
-    updatedAt: "Oct 24, 2023",
-  },
-  {
-    id: "COL-002",
-    title: "New Arrivals",
-    type: "Automated",
-    productCount: 156,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
-    updatedAt: "Today",
-  },
-  {
-    id: "COL-003",
-    title: "Clearance Sale",
-    type: "Automated",
-    productCount: 89,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80",
-    updatedAt: "Nov 12, 2023",
-  },
-  {
-    id: "COL-004",
-    title: "Home & Living",
-    type: "Manual",
-    productCount: 42,
-    status: "draft",
-    image: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=800&q=80",
-    updatedAt: "Dec 01, 2023",
-  },
-  {
-    id: "COL-005",
-    title: "Tech Gadgets",
-    type: "Automated",
-    productCount: 12,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80",
-    updatedAt: "Jan 15, 2024",
-  },
+type CollectionStatus = "active" | "draft";
+
+const COLLECTIONS: Array<{
+  id: string;
+  title: string;
+  type: "Manual" | "Automated";
+  productCount: number;
+  status: CollectionStatus;
+  updatedAt: string;
+}> = [
+  { id: "COL-001", title: "Summer 2026", type: "Manual", productCount: 24, status: "active", updatedAt: "Oct 24, 2025" },
+  { id: "COL-002", title: "New arrivals", type: "Automated", productCount: 156, status: "active", updatedAt: "Today" },
+  { id: "COL-003", title: "Clearance", type: "Automated", productCount: 89, status: "active", updatedAt: "Nov 12, 2025" },
+  { id: "COL-004", title: "Home and living", type: "Manual", productCount: 42, status: "draft", updatedAt: "Dec 1, 2025" },
+  { id: "COL-005", title: "Tech gadgets", type: "Automated", productCount: 12, status: "active", updatedAt: "Jan 15, 2026" },
 ];
+
+const STATUS_META: Record<CollectionStatus, { tone: BadgeTone; label: string }> = {
+  active: { tone: "success", label: "Active" },
+  draft: { tone: "neutral", label: "Draft" },
+};
 
 export default function CollectionsPage() {
   const params = useParams();
   const storefrontId = params.storefrontId as string;
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredCollections = MOCK_COLLECTIONS.filter((collection) =>
-    collection.title.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = useMemo(
+    () =>
+      COLLECTIONS.filter((collection) =>
+        collection.title.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [searchTerm],
   );
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge variant="success">Active</Badge>;
-      case "draft":
-        return <Badge variant="secondary">Draft</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   return (
-    <div className="flex-1 space-y-6 p-8 w-full max-w-7xl mx-auto">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader>
         <PageHeading>
           <PageTitle>Collections</PageTitle>
           <PageDescription>
-            Group your products into collections to make it easier for customers to find them by category.
+            Group products into collections so customers can browse by category.
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Button variant="outline" className="mr-2">
-            Import
+          <Button variant="outline">Import</Button>
+          <Button asChild variant="primary">
+            <Link href={`/dashboard/sabshop/${storefrontId}/collections/new`}>
+              <Plus size={14} aria-hidden="true" />
+              Create collection
+            </Link>
           </Button>
-          <Link href={`/dashboard/sabshop/${storefrontId}/collections/new`}>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Collection
-            </Button>
-          </Link>
         </PageActions>
       </PageHeader>
 
-      <Card>
-        <CardBody className="p-0">
-          <div className="flex items-center justify-between p-4 border-b border-[var(--st-border)]">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--st-text-tertiary)]" />
+      <Card padding="none">
+        <CardBody>
+          <div className="flex items-center justify-between gap-4 border-b border-[var(--st-border)] p-4">
+            <div className="w-full max-w-sm">
               <Input
-                placeholder="Search collections..."
-                className="pl-9 w-full"
+                type="search"
+                placeholder="Search collections"
+                aria-label="Search collections"
+                iconLeft={Search}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex items-center gap-2">
-               <Button variant="ghost" size="icon">
-                 <LayoutGrid className="h-4 w-4 text-[var(--st-text-secondary)]" />
-               </Button>
-            </div>
+            <IconButton label="Grid view" icon={LayoutGrid} variant="ghost" />
           </div>
-          
+
           <div className="overflow-x-auto">
-            <Table>
-              <THead>
-                <Tr>
-                  <Th className="w-[80px]">Image</Th>
-                  <Th>Title</Th>
-                  <Th>Products</Th>
-                  <Th>Type</Th>
-                  <Th>Status</Th>
-                  <Th>Last Updated</Th>
-                  <Th className="w-[50px]"></Th>
-                </Tr>
-              </THead>
-              <TBody>
-                {filteredCollections.length === 0 ? (
+            {filtered.length === 0 ? (
+              <EmptyState
+                icon={Folder}
+                title="No collections found"
+                description="Adjust your search, or create your first collection."
+                action={
+                  <Button asChild variant="primary">
+                    <Link href={`/dashboard/sabshop/${storefrontId}/collections/new`}>
+                      <Plus size={14} aria-hidden="true" />
+                      Create collection
+                    </Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <Table hover>
+                <THead>
                   <Tr>
-                    <Td colSpan={7} className="text-center h-32 text-[var(--st-text-secondary)]">
-                      No collections found.
-                    </Td>
+                    <Th>Collection</Th>
+                    <Th align="right">Products</Th>
+                    <Th>Type</Th>
+                    <Th>Status</Th>
+                    <Th>Last updated</Th>
+                    <Th width={56}>
+                      <span className="sr-only">Actions</span>
+                    </Th>
                   </Tr>
-                ) : (
-                  filteredCollections.map((collection) => (
+                </THead>
+                <TBody>
+                  {filtered.map((collection) => (
                     <Tr key={collection.id}>
                       <Td>
-                        <img 
-                          src={collection.image} 
-                          alt={collection.title}
-                          className="w-12 h-12 rounded-md object-cover border border-[var(--st-border)]"
-                        />
+                        <div className="flex items-center gap-3">
+                          <span
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)] ring-1 ring-inset ring-[var(--st-border)]"
+                            aria-hidden="true"
+                          >
+                            <Folder size={16} />
+                          </span>
+                          <div className="min-w-0">
+                            <div className="truncate font-medium text-[var(--st-text)]">
+                              {collection.title}
+                            </div>
+                            <div className="text-xs tabular-nums text-[var(--st-text-tertiary)]">
+                              {collection.id}
+                            </div>
+                          </div>
+                        </div>
+                      </Td>
+                      <Td align="right" className="tabular-nums text-[var(--st-text)]">
+                        {collection.productCount}
                       </Td>
                       <Td>
-                        <div className="font-medium text-[var(--st-text)]">{collection.title}</div>
-                        <div className="text-xs text-[var(--st-text-tertiary)]">{collection.id}</div>
-                      </Td>
-                      <Td>
-                        <span className="text-[var(--st-text)]">{collection.productCount}</span>
-                      </Td>
-                      <Td>
-                        <Badge variant="secondary" className="font-normal text-[11px]">
+                        <Badge tone="neutral" kind="outline">
                           {collection.type}
                         </Badge>
                       </Td>
-                      <Td>{getStatusBadge(collection.status)}</Td>
-                      <Td className="text-[var(--st-text-secondary)] text-sm">{collection.updatedAt}</Td>
+                      <Td>
+                        <Badge tone={STATUS_META[collection.status].tone}>
+                          {STATUS_META[collection.status].label}
+                        </Badge>
+                      </Td>
+                      <Td className="text-[var(--st-text-secondary)]">{collection.updatedAt}</Td>
                       <Td>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                            <IconButton
+                              label={`Actions for ${collection.title}`}
+                              icon={MoreHorizontal}
+                              variant="ghost"
+                              size="sm"
+                            />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>View on store</DropdownMenuItem>
-                            <DropdownMenuItem>Edit Collection</DropdownMenuItem>
+                            <DropdownMenuItem>Edit collection</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-[var(--st-danger)]">Delete</DropdownMenuItem>
+                            <DropdownMenuItem variant="danger">Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </Td>
                     </Tr>
-                  ))
-                )}
-              </TBody>
-            </Table>
+                  ))}
+                </TBody>
+              </Table>
+            )}
           </div>
         </CardBody>
       </Card>

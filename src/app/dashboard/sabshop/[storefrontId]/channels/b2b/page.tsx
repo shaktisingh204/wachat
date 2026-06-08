@@ -1,203 +1,264 @@
 "use client";
 
-import React, { useState } from "react";
-import { Card, CardBody, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/sabcrm/20ui';
-import { Button } from '@/components/sabcrm/20ui';
-import { Input } from '@/components/sabcrm/20ui';
-import { Label } from '@/components/sabcrm/20ui';
-import { Switch } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { Table, TBody, Td, Th, THead, Tr } from '@/components/sabcrm/20ui';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-import { 
-  Briefcase, 
-  Building2, 
-  FileText, 
-  CreditCard, 
-  CheckCircle, 
-  XCircle, 
+import React, { useMemo, useState } from "react";
+import {
+  Building2,
+  CheckCircle,
   Clock,
-  Search,
+  CreditCard,
   Download,
+  FileText,
+  Percent,
+  Search,
   Settings2,
-  Percent
 } from "lucide-react";
+import {
+  Badge,
+  type BadgeTone,
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Field,
+  IconButton,
+  Input,
+  Label,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Separator,
+  Switch,
+  Table,
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+} from "@/components/sabcrm/20ui";
+
+const COMPANIES: Array<{
+  id: string;
+  name: string;
+  tier: string;
+  status: "Approved" | "Pending";
+  netTerms: string;
+  creditLimit: string;
+}> = [
+  { id: "COMP-001", name: "Northwind Trading", tier: "Gold partner", status: "Approved", netTerms: "Net 30", creditLimit: "₹50,00,000" },
+  { id: "COMP-002", name: "Atlas Robotics", tier: "Silver partner", status: "Pending", netTerms: "None", creditLimit: "₹0" },
+  { id: "COMP-003", name: "Lumen Retail", tier: "Standard", status: "Approved", netTerms: "Net 15", creditLimit: "₹10,00,000" },
+];
+
+const PRICE_LISTS: Array<{
+  name: string;
+  discount: string;
+  companiesCount: number;
+  lastUpdated: string;
+}> = [
+  { name: "Wholesale tier 1", discount: "20% off retail", companiesCount: 45, lastUpdated: "2 days ago" },
+  { name: "Distributor premium", discount: "Custom fixed prices", companiesCount: 12, lastUpdated: "1 week ago" },
+  { name: "Volume movers", discount: "Tiered by quantity", companiesCount: 8, lastUpdated: "1 month ago" },
+];
+
+function statusTone(status: string): BadgeTone {
+  return status === "Approved" ? "success" : "warning";
+}
 
 export default function B2BPage() {
-  const companies = [
-    { id: "COMP-001", name: "Acme Corp", tier: "Gold Partner", status: "Approved", netTerms: "Net 30", creditLimit: "$50,000" },
-    { id: "COMP-002", name: "Global Tech LLC", tier: "Silver Partner", status: "Pending", netTerms: "None", creditLimit: "$0" },
-    { id: "COMP-003", name: "Retail Solutions Inc", tier: "Standard", status: "Approved", netTerms: "Net 15", creditLimit: "$10,000" },
-  ];
+  const [query, setQuery] = useState("");
 
-  const priceLists = [
-    { name: "Wholesale Tier 1", discount: "20% off retail", companiesCount: 45, lastUpdated: "2 days ago" },
-    { name: "Distributor Premium", discount: "Custom fixed prices", companiesCount: 12, lastUpdated: "1 week ago" },
-    { name: "Volume Movers", discount: "Tiered by quantity", companiesCount: 8, lastUpdated: "1 month ago" },
-  ];
+  const filtered = useMemo(
+    () =>
+      COMPANIES.filter((c) =>
+        c.name.toLowerCase().includes(query.trim().toLowerCase()),
+      ),
+    [query],
+  );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Briefcase className="h-8 w-8 text-primary" />
-            B2B Wholesale
-          </h1>
-          <p className="text-muted-foreground mt-1">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>B2B wholesale</PageTitle>
+          <PageDescription>
             Manage company accounts, custom price lists, and net payment terms.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Export</Button>
-          <Button><Building2 className="mr-2 h-4 w-4" /> Invite Company</Button>
-        </div>
-      </div>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="outline" iconLeft={Download}>
+            Export
+          </Button>
+          <Button variant="primary" iconLeft={Building2}>
+            Invite company
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Company Accounts */}
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <CardTitle className="flex items-center gap-2"><Building2 className="h-5 w-5" /> Company Accounts</CardTitle>
-                <CardDescription>Review and approve incoming wholesale applications.</CardDescription>
-              </div>
-              <div className="flex items-center gap-2 relative w-full sm:w-auto">
-                <Search className="h-4 w-4 absolute left-3 text-muted-foreground" />
-                <Input placeholder="Search companies..." className="pl-9 w-full sm:w-64" />
-              </div>
-            </div>
-          </CardHeader>
-          <CardBody>
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <THead className="bg-muted/50">
-                  <Tr>
-                    <Th>Company</Th>
-                    <Th>Tier / Price List</Th>
-                    <Th>Status</Th>
-                    <Th>Net Terms</Th>
-                    <Th className="text-right">Credit Limit</Th>
-                    <Th className="text-right">Actions</Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {companies.map((c) => (
-                    <Tr key={c.id}>
-                      <Td>
-                        <div className="font-medium">{c.name}</div>
-                        <div className="text-xs text-muted-foreground">{c.id}</div>
-                      </Td>
-                      <Td>
-                        <Badge variant="outline" className="bg-primary/5">{c.tier}</Badge>
-                      </Td>
-                      <Td>
+      <Card>
+        <CardHeader className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Company accounts
+            </CardTitle>
+            <CardDescription>Review and approve incoming wholesale applications.</CardDescription>
+          </div>
+          <Field label="Search companies" className="w-full sm:w-64">
+            <Input
+              iconLeft={Search}
+              placeholder="Search companies"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </Field>
+        </CardHeader>
+        <CardBody>
+          <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
+            <Table hover>
+              <THead>
+                <Tr>
+                  <Th>Company</Th>
+                  <Th>Tier</Th>
+                  <Th>Status</Th>
+                  <Th>Net terms</Th>
+                  <Th align="right">Credit limit</Th>
+                  <Th width={96}>
+                    <span className="sr-only">Actions</span>
+                  </Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {filtered.map((c) => (
+                  <Tr key={c.id}>
+                    <Td>
+                      <div className="font-medium text-[var(--st-text)]">{c.name}</div>
+                      <div className="text-xs tabular-nums text-[var(--st-text-tertiary)]">{c.id}</div>
+                    </Td>
+                    <Td>
+                      <Badge tone="accent" kind="outline">{c.tier}</Badge>
+                    </Td>
+                    <Td>
+                      <Badge tone={statusTone(c.status)} dot>
                         {c.status === "Approved" ? (
-                          <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20 border-green-500/20 flex items-center gap-1 w-max">
-                            <CheckCircle className="h-3 w-3" /> Approved
-                          </Badge>
+                          <CheckCircle className="h-3 w-3" aria-hidden="true" />
                         ) : (
-                          <Badge variant="secondary" className="text-yellow-600 bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/20 flex items-center gap-1 w-max">
-                            <Clock className="h-3 w-3" /> Pending Review
-                          </Badge>
+                          <Clock className="h-3 w-3" aria-hidden="true" />
                         )}
-                      </Td>
-                      <Td>{c.netTerms}</Td>
-                      <Td className="text-right font-medium">{c.creditLimit}</Td>
-                      <Td className="text-right">
-                        <Button variant="ghost" size="sm">Manage</Button>
-                      </Td>
-                    </Tr>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
-          </CardBody>
-        </Card>
+                        {c.status === "Approved" ? "Approved" : "Pending review"}
+                      </Badge>
+                    </Td>
+                    <Td className="text-[var(--st-text-secondary)]">{c.netTerms}</Td>
+                    <Td align="right" className="font-medium tabular-nums">{c.creditLimit}</Td>
+                    <Td align="right">
+                      <Button variant="ghost" size="sm">Manage</Button>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </div>
+        </CardBody>
+      </Card>
 
-        {/* Price Lists */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <div>
-                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" /> Price Lists</CardTitle>
-                <CardDescription>Custom pricing rules assigned to specific buyer groups.</CardDescription>
-              </div>
-              <Button variant="outline" size="sm">Create New</Button>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                Price lists
+              </CardTitle>
+              <CardDescription>Custom pricing rules assigned to specific buyer groups.</CardDescription>
             </div>
+            <Button variant="outline" size="sm">Create new</Button>
           </CardHeader>
           <CardBody>
-            <div className="space-y-4">
-              {priceLists.map((pl, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+            <ul className="space-y-3">
+              {PRICE_LISTS.map((pl) => (
+                <li
+                  key={pl.name}
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-4 transition-colors hover:bg-[var(--st-hover)]"
+                >
                   <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <span
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+                      aria-hidden="true"
+                    >
                       <Percent className="h-5 w-5" />
-                    </div>
+                    </span>
                     <div>
-                      <h4 className="font-medium">{pl.name}</h4>
-                      <p className="text-sm text-muted-foreground">{pl.discount} • {pl.companiesCount} companies</p>
+                      <h4 className="font-medium text-[var(--st-text)]">{pl.name}</h4>
+                      <p className="text-sm text-[var(--st-text-secondary)]">
+                        {pl.discount} &middot; <span className="tabular-nums">{pl.companiesCount}</span> companies
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className="text-xs text-muted-foreground hidden sm:inline-block">Updated {pl.lastUpdated}</span>
-                    <Button variant="ghost" size="icon"><Settings2 className="h-4 w-4" /></Button>
+                    <span className="hidden text-xs text-[var(--st-text-secondary)] sm:inline-block">
+                      Updated {pl.lastUpdated}
+                    </span>
+                    <IconButton label={`Configure ${pl.name}`} icon={Settings2} variant="ghost" size="sm" />
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </CardBody>
         </Card>
 
-        {/* B2B Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><CreditCard className="h-5 w-5" /> Global Settings</CardTitle>
-            <CardDescription>Configure store-wide B2B preferences.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Global settings
+            </CardTitle>
+            <CardDescription>Store-wide B2B preferences.</CardDescription>
           </CardHeader>
-          <CardBody className="space-y-6">
-            <div className="flex items-center justify-between">
+          <CardBody className="space-y-5">
+            <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <Label className="text-base">Enable Net Terms</Label>
-                <p className="text-sm text-muted-foreground">Allow delayed payments</p>
+                <Label className="text-sm">Enable net terms</Label>
+                <p className="text-xs text-[var(--st-text-secondary)]">Allow delayed payments</p>
               </div>
-              <Switch defaultChecked />
+              <Switch defaultChecked aria-label="Enable net terms" />
             </div>
-            
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <Label className="text-base">Auto-approve Accounts</Label>
-                <p className="text-sm text-muted-foreground">Skip manual review</p>
+                <Label className="text-sm">Auto-approve accounts</Label>
+                <p className="text-xs text-[var(--st-text-secondary)]">Skip manual review</p>
               </div>
-              <Switch />
+              <Switch aria-label="Auto-approve accounts" />
             </div>
-
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <Label className="text-base">Tax Exemption</Label>
-                <p className="text-sm text-muted-foreground">Allow tax ID uploads</p>
+                <Label className="text-sm">Tax exemption</Label>
+                <p className="text-xs text-[var(--st-text-secondary)]">Allow tax ID uploads</p>
               </div>
-              <Switch defaultChecked />
+              <Switch defaultChecked aria-label="Tax exemption" />
             </div>
-
-            <div className="pt-4 border-t space-y-3">
-              <Label>Default Price List for New Accounts</Label>
+            <Separator />
+            <Field label="Default price list for new accounts">
               <Select defaultValue="standard">
-                <SelectTrigger>
+                <SelectTrigger aria-label="Default price list">
                   <SelectValue placeholder="Select price list" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="standard">Standard Retail (No Discount)</SelectItem>
-                  <SelectItem value="tier1">Wholesale Tier 1</SelectItem>
-                  <SelectItem value="distributor">Distributor Premium</SelectItem>
+                  <SelectItem value="standard">Standard retail (no discount)</SelectItem>
+                  <SelectItem value="tier1">Wholesale tier 1</SelectItem>
+                  <SelectItem value="distributor">Distributor premium</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </Field>
           </CardBody>
         </Card>
-
       </div>
     </div>
   );

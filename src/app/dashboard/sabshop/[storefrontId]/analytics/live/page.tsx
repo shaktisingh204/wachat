@@ -1,181 +1,165 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Users, ShoppingCart, Globe, Activity, ArrowUpRight, ArrowDownRight, MapPin } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardBody, CardDescription, CardFooter } from '@/components/sabcrm/20ui';
-import { Badge } from '@/components/sabcrm/20ui';
-import { PageHeader, PageHeaderHeading, PageHeaderDescription } from '@/components/sabcrm/20ui';
-import { Progress } from '@/components/sabcrm/20ui';
+import React, { useEffect, useState } from "react";
+import { Activity, MapPin, ShoppingCart, Users } from "lucide-react";
+import {
+  Badge,
+  Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Dot,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  Progress,
+  StatCard,
+} from "@/components/sabcrm/20ui";
+
+const ACTIVE_COUNTRIES = [
+  { name: "India", visitors: 45, percentage: 32 },
+  { name: "United States", visitors: 28, percentage: 20 },
+  { name: "Germany", visitors: 22, percentage: 15 },
+  { name: "United Kingdom", visitors: 18, percentage: 13 },
+  { name: "Australia", visitors: 17, percentage: 12 },
+  { name: "Canada", visitors: 12, percentage: 8 },
+].sort((a, b) => b.visitors - a.visitors);
+
+const TOP_PAGES = [
+  { path: "/products/new-arrivals", visitors: 34 },
+  { path: "/checkout", visitors: 22 },
+  { path: "/products/summer-sale", visitors: 18 },
+  { path: "/", visitors: 15 },
+  { path: "/cart", visitors: 12 },
+];
+
+function inr(n: number): string {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+}
 
 export default function LiveAnalyticsPage() {
   const [activeVisitors, setActiveVisitors] = useState(142);
-  const [liveCartTotal, setLiveCartTotal] = useState(12450.50);
-  
+  const [liveCartTotal, setLiveCartTotal] = useState(124505);
+
   useEffect(() => {
-    // Simulate real-time updates
     const interval = setInterval(() => {
-      setActiveVisitors((prev) => prev + Math.floor(Math.random() * 5) - 2);
-      setLiveCartTotal((prev) => prev + (Math.random() * 50) - 20);
+      setActiveVisitors((prev) => Math.max(0, prev + Math.floor(Math.random() * 5) - 2));
+      setLiveCartTotal((prev) => Math.max(0, prev + Math.floor(Math.random() * 500) - 200));
     }, 3000);
-    
     return () => clearInterval(interval);
   }, []);
 
-  const activeCountries = [
-    { name: "United States", visitors: 45, percentage: 32 },
-    { name: "United Kingdom", visitors: 28, percentage: 20 },
-    { name: "Germany", visitors: 22, percentage: 15 },
-    { name: "Canada", visitors: 18, percentage: 13 },
-    { name: "Australia", visitors: 12, percentage: 8 },
-    { name: "India", visitors: 17, percentage: 12 },
-  ].sort((a, b) => b.visitors - a.visitors);
-
-  const topPages = [
-    { path: "/products/new-arrivals", visitors: 34 },
-    { path: "/checkout", visitors: 22 },
-    { path: "/products/summer-sale", visitors: 18 },
-    { path: "/", visitors: 15 },
-    { path: "/cart", visitors: 12 },
-  ];
-
   return (
-    <div className="flex-1 space-y-4 p-8 pt-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between space-y-2">
-        <PageHeader>
-          <PageHeaderHeading>Live Analytics</PageHeaderHeading>
-          <PageHeaderDescription>
-            Real-time monitoring of your storefront activity.
-          </PageHeaderDescription>
-        </PageHeader>
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-green-500 bg-green-50 border-green-200">
-            <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-            Live Connection
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageTitle>Live analytics</PageTitle>
+          <PageDescription>Real-time monitoring of your storefront activity.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Badge tone="success">
+            <Dot tone="success" pulse /> Live connection
           </Badge>
-        </div>
-      </div>
+        </PageActions>
+      </PageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Visitors
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold">{activeVisitors}</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <ArrowUpRight className="h-3 w-3 mr-1 text-green-500" />
-              <span className="text-green-500 font-medium">+12%</span> from last hour
-            </p>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Live Cart Total
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold">${liveCartTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <Activity className="h-3 w-3 mr-1 text-blue-500" />
-              <span>Updating in real-time</span>
-            </p>
-          </CardBody>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Carts
-            </CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold">{Math.floor(activeVisitors * 0.45)}</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <span className="font-medium">45%</span> of visitors
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Checkouts in Progress
-            </CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardBody>
-            <div className="text-4xl font-bold">14</div>
-            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-              <ArrowDownRight className="h-3 w-3 mr-1 text-red-500" />
-              <span className="text-red-500 font-medium">-2</span> from last 5 mins
-            </p>
-          </CardBody>
-        </Card>
-      </div>
+      <section aria-label="Live metrics" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Active visitors"
+          value={<span className="tabular-nums">{activeVisitors}</span>}
+          icon={Users}
+          accent="#3b7af5"
+          delta={{ value: "+12% vs last hour", tone: "up" }}
+        />
+        <StatCard
+          label="Live cart total"
+          value={<span className="tabular-nums">{inr(liveCartTotal)}</span>}
+          icon={ShoppingCart}
+          accent="#1f9d55"
+          delta={{ value: "Updating in real time", tone: "neutral" }}
+        />
+        <StatCard
+          label="Active carts"
+          value={<span className="tabular-nums">{Math.floor(activeVisitors * 0.45)}</span>}
+          icon={ShoppingCart}
+          accent="#7c3aed"
+          delta={{ value: "45% of visitors", tone: "neutral" }}
+        />
+        <StatCard
+          label="Checkouts in progress"
+          value={<span className="tabular-nums">14</span>}
+          icon={Activity}
+          accent="#d97706"
+          delta={{ value: "-2 in last 5 minutes", tone: "down" }}
+        />
+      </section>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="lg:col-span-4">
           <CardHeader>
-            <CardTitle>Active Countries</CardTitle>
-            <CardDescription>
-              Geographic distribution of your current visitors.
-            </CardDescription>
+            <CardTitle>Active countries</CardTitle>
+            <CardDescription>Where your current visitors are browsing from.</CardDescription>
           </CardHeader>
           <CardBody>
-            <div className="space-y-6">
-              {activeCountries.map((country, idx) => (
-                <div key={idx} className="flex items-center">
-                  <div className="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mr-4">
-                    <MapPin className="h-4 w-4 text-slate-500" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">{country.name}</p>
-                    <p className="text-sm text-muted-foreground">
+            <ul className="space-y-5">
+              {ACTIVE_COUNTRIES.map((country) => (
+                <li key={country.name} className="flex items-center gap-4">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]"
+                    aria-hidden="true"
+                  >
+                    <MapPin className="h-4 w-4" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium leading-none text-[var(--st-text)]">
+                      {country.name}
+                    </p>
+                    <p className="mt-1 text-sm tabular-nums text-[var(--st-text-secondary)]">
                       {country.visitors} active visitors
                     </p>
                   </div>
-                  <div className="w-1/3 flex items-center gap-2">
-                    <Progress value={country.percentage} className="h-2" />
-                    <span className="text-xs font-medium w-8 text-right">{country.percentage}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-        
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Top Active Pages</CardTitle>
-            <CardDescription>
-              Pages with the most active visitors right now.
-            </CardDescription>
-          </CardHeader>
-          <CardBody>
-            <div className="space-y-4">
-              {topPages.map((page, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium truncate max-w-[200px] sm:max-w-[250px]">
-                      {page.path}
+                  <div className="flex w-1/3 items-center gap-2">
+                    <Progress value={country.percentage} tone="accent" />
+                    <span className="w-8 text-right text-xs font-medium tabular-nums text-[var(--st-text)]">
+                      {country.percentage}%
                     </span>
                   </div>
-                  <Badge variant="secondary" className="ml-auto">
-                    {page.visitors}
-                  </Badge>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
+          </CardBody>
+        </Card>
+
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Top active pages</CardTitle>
+            <CardDescription>Pages with the most visitors right now.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <ul className="space-y-3">
+              {TOP_PAGES.map((page) => (
+                <li
+                  key={page.path}
+                  className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] p-3 transition-colors hover:bg-[var(--st-hover)]"
+                >
+                  <span className="max-w-[200px] truncate font-mono text-sm text-[var(--st-text)] sm:max-w-[250px]">
+                    {page.path}
+                  </span>
+                  <Badge tone="neutral">{page.visitors}</Badge>
+                </li>
+              ))}
+            </ul>
           </CardBody>
           <CardFooter>
-            <p className="text-xs text-muted-foreground text-center w-full">
+            <p className="w-full text-center text-xs text-[var(--st-text-secondary)]">
               Updated every 5 seconds
             </p>
           </CardFooter>

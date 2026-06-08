@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  Trophy,
   Settings,
   Gift,
   Star,
@@ -10,6 +9,7 @@ import {
   Crown,
   Medal,
   Award,
+  Plus,
 } from "lucide-react";
 import {
   Card,
@@ -38,7 +38,7 @@ const mockTiers = [
     icon: Medal,
     requirements: "0 - 499 points",
     multiplier: "1.0x",
-    benefits: ["Basic support", "Birthday reward ($5)", "Standard shipping"],
+    benefits: ["Basic support", "Birthday reward (₹250)", "Standard shipping"],
   },
   {
     id: "tier_silver",
@@ -48,7 +48,7 @@ const mockTiers = [
     multiplier: "1.25x",
     benefits: [
       "Priority support",
-      "Birthday reward ($15)",
+      "Birthday reward (₹750)",
       "Free standard shipping",
       "Early access to sales",
     ],
@@ -61,7 +61,7 @@ const mockTiers = [
     multiplier: "1.5x",
     benefits: [
       "24/7 VIP support",
-      "Birthday reward ($50)",
+      "Birthday reward (₹2,500)",
       "Free express shipping",
       "Exclusive VIP events",
       "Dedicated account manager",
@@ -74,34 +74,30 @@ export default function LoyaltyProgramPage() {
   const [vipEnabled, setVipEnabled] = useState(true);
 
   return (
-    <div className="flex w-full flex-col gap-8 p-6">
+    <div className="flex w-full flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle className="flex items-center gap-2">
-            <Trophy className="w-6 h-6 text-[var(--st-accent)]" aria-hidden="true" />
-            Loyalty &amp; Rewards
-          </PageTitle>
+          <PageTitle>Loyalty and rewards</PageTitle>
           <PageDescription>
-            Configure your points system and manage VIP tiers to maximize customer
-            retention.
+            Configure your points system and VIP tiers to improve customer retention.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="outline" iconLeft={Settings}>
-            Advanced Settings
+            Advanced settings
           </Button>
-          <Button variant="primary">Save Changes</Button>
+          <Button variant="primary">Save changes</Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Points Configuration */}
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
-                Points System
+                <Gift className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                Points system
               </CardTitle>
               <CardDescription>How customers earn and redeem points.</CardDescription>
             </div>
@@ -119,35 +115,35 @@ export default function LoyaltyProgramPage() {
             >
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-medium text-sm text-[var(--st-text)]">
-                    Earning Ratio
+                  <h4 className="text-sm font-medium text-[var(--st-text)]">
+                    Earning ratio
                   </h4>
-                  <p className="text-xs text-[var(--st-text-tertiary)] mt-0.5">
-                    Points earned per dollar spent
+                  <p className="mt-0.5 text-xs text-[var(--st-text-tertiary)]">
+                    Points earned per rupee spent
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-[var(--st-text-secondary)]">$1 =</span>
-                  <Field className="w-20" label="Points per dollar">
+                  <span className="text-sm tabular-nums text-[var(--st-text-secondary)]">₹1 =</span>
+                  <Field className="w-20" label="Points per rupee">
                     <Input
                       defaultValue="1"
                       inputSize="sm"
-                      className="text-center"
-                      aria-label="Points earned per dollar"
+                      className="text-center tabular-nums"
+                      aria-label="Points earned per rupee"
                     />
                   </Field>
                   <span className="text-sm text-[var(--st-text-secondary)]">pts</span>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-[var(--st-border)]" />
+              <div className="h-px w-full bg-[var(--st-border)]" />
 
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h4 className="font-medium text-sm text-[var(--st-text)]">
-                    Redemption Value
+                  <h4 className="text-sm font-medium text-[var(--st-text)]">
+                    Redemption value
                   </h4>
-                  <p className="text-xs text-[var(--st-text-tertiary)] mt-0.5">
+                  <p className="mt-0.5 text-xs text-[var(--st-text-tertiary)]">
                     Value of points at checkout
                   </p>
                 </div>
@@ -156,28 +152,28 @@ export default function LoyaltyProgramPage() {
                     <Input
                       defaultValue="100"
                       inputSize="sm"
-                      className="text-center"
+                      className="text-center tabular-nums"
                       aria-label="Points required to redeem"
                     />
                   </Field>
                   <span className="text-sm text-[var(--st-text-secondary)]">pts =</span>
                   <Field className="w-24" label="Redemption value">
                     <Input
-                      defaultValue="1.00"
+                      defaultValue="10.00"
                       inputSize="sm"
-                      prefix="$"
-                      className="text-center"
-                      aria-label="Redemption value in dollars"
+                      prefix="₹"
+                      className="text-center tabular-nums"
+                      aria-label="Redemption value in rupees"
                     />
                   </Field>
                 </div>
               </div>
 
-              <div className="w-full h-px bg-[var(--st-border)]" />
+              <div className="h-px w-full bg-[var(--st-border)]" />
 
               <div>
-                <h4 className="font-medium text-sm text-[var(--st-text)] mb-3">
-                  Bonus Earning Rules
+                <h4 className="mb-3 text-sm font-medium text-[var(--st-text)]">
+                  Bonus earning rules
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-3 bg-[var(--st-bg-secondary)] p-3 rounded-[var(--st-radius)] border border-[var(--st-border)]">
@@ -187,7 +183,7 @@ export default function LoyaltyProgramPage() {
                       </span>
                       <div>
                         <p className="text-sm font-medium text-[var(--st-text)]">
-                          Account Creation
+                          Account creation
                         </p>
                         <p className="text-xs text-[var(--st-text-tertiary)]">
                           Reward for signing up
@@ -213,7 +209,7 @@ export default function LoyaltyProgramPage() {
                       </span>
                       <div>
                         <p className="text-sm font-medium text-[var(--st-text)]">
-                          Leave a Review
+                          Leave a review
                         </p>
                         <p className="text-xs text-[var(--st-text-tertiary)]">
                           Reward per product review
@@ -236,12 +232,12 @@ export default function LoyaltyProgramPage() {
               </div>
             </div>
           </CardBody>
-          <CardFooter className="flex justify-between items-center">
+          <CardFooter className="flex items-center justify-between">
             <span className="text-xs text-[var(--st-text-secondary)]">
-              Last modified: 2 days ago
+              Last modified 2 days ago
             </span>
             <Button variant="outline" size="sm">
-              Manage Rules
+              Manage rules
             </Button>
           </CardFooter>
         </Card>
@@ -251,8 +247,8 @@ export default function LoyaltyProgramPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
-                <Crown className="w-5 h-5 text-[var(--st-accent)]" aria-hidden="true" />
-                VIP Tiers
+                <Crown className="h-5 w-5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                VIP tiers
               </CardTitle>
               <CardDescription>Exclusive benefits based on loyalty status.</CardDescription>
             </div>
@@ -285,7 +281,7 @@ export default function LoyaltyProgramPage() {
                             <h4 className="font-semibold text-base text-[var(--st-text)]">
                               {tier.name}
                             </h4>
-                            <Badge tone="accent">{tier.multiplier} Points</Badge>
+                            <Badge tone="accent">{tier.multiplier} points</Badge>
                           </div>
                           <p className="text-sm text-[var(--st-text-secondary)] font-medium mb-3">
                             {tier.requirements}
@@ -321,8 +317,8 @@ export default function LoyaltyProgramPage() {
             </div>
           </CardBody>
           <CardFooter className="flex justify-center">
-            <Button variant="ghost" block>
-              + Add New VIP Tier
+            <Button variant="ghost" block iconLeft={Plus}>
+              Add VIP tier
             </Button>
           </CardFooter>
         </Card>
