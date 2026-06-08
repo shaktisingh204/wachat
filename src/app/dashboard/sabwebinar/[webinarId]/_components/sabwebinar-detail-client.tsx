@@ -4,6 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import {
   Badge,
+  type BadgeTone,
+  type BadgeStyleKind,
   Button,
   Card,
   CardBody,
@@ -11,9 +13,11 @@ import {
   CardTitle,
   CardDescription,
   ColorPicker,
+  Dot,
   EmptyState,
   Field,
   Input,
+  Progress,
   Textarea,
   PageHeader,
   PageHeaderHeading,
@@ -31,11 +35,17 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  Recharts,
+  type ChartConfig,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   type Sabwebinar,
+  type SabwebinarStatus,
   type SabwebinarAnalytics,
   type SabwebinarPoll,
   type SabwebinarQnaItem,
@@ -47,7 +57,45 @@ import {
   setSabwebinarPollStatus,
   answerSabwebinarQuestion,
 } from '@/app/actions/sabwebinar.actions';
-import { ExternalLink, Play, StopCircle, Plus, Users, Inbox, MessageSquare } from 'lucide-react';
+import {
+  ExternalLink,
+  Play,
+  StopCircle,
+  Plus,
+  Users,
+  UserCheck,
+  Activity,
+  Clock,
+  Target,
+  Calendar,
+  Gauge,
+  Inbox,
+  MessageSquare,
+  BarChart3,
+} from 'lucide-react';
+
+const { BarChart, Bar, CartesianGrid, XAxis, YAxis } = Recharts;
+
+const STATUS_BADGE: Record<
+  SabwebinarStatus,
+  { tone: BadgeTone; kind: BadgeStyleKind; label: string; dot?: boolean }
+> = {
+  draft: { tone: 'neutral', kind: 'outline', label: 'Draft' },
+  scheduled: { tone: 'info', kind: 'soft', label: 'Scheduled' },
+  live: { tone: 'success', kind: 'solid', label: 'Live', dot: true },
+  ended: { tone: 'neutral', kind: 'soft', label: 'Ended' },
+  cancelled: { tone: 'danger', kind: 'soft', label: 'Cancelled' },
+};
+
+function StatusBadge({ status }: { status: SabwebinarStatus }) {
+  const badge = STATUS_BADGE[status] ?? STATUS_BADGE.draft;
+  return (
+    <Badge tone={badge.tone} kind={badge.kind}>
+      {badge.dot ? <Dot tone="success" pulse aria-hidden="true" /> : null}
+      {badge.label}
+    </Badge>
+  );
+}
 
 interface Props {
   webinar: Sabwebinar;
@@ -85,11 +133,16 @@ export function SabwebinarDetailClient({
         <PageHeaderHeading>
           <PageTitle>{webinar.title}</PageTitle>
           <PageDescription>
-            <Link href={publicUrl} className="inline-flex items-center gap-1 underline">
-              {publicUrl} <ExternalLink className="size-3" aria-hidden="true" />
-            </Link>{' '}
-            <span className="text-[var(--st-text-tertiary)]">·</span>{' '}
-            <Badge tone="neutral">{webinar.status}</Badge>
+            <span className="inline-flex flex-wrap items-center gap-2">
+              <Link
+                href={publicUrl}
+                className="inline-flex items-center gap-1 underline underline-offset-2 transition-colors hover:text-[var(--st-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)] rounded-sm"
+              >
+                {publicUrl} <ExternalLink className="size-3" aria-hidden="true" />
+              </Link>
+              <span className="text-[var(--st-text-tertiary)]" aria-hidden="true">·</span>
+              <StatusBadge status={webinar.status} />
+            </span>
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
@@ -167,34 +220,103 @@ function OverviewTab({
   webinar: Sabwebinar;
   analytics: SabwebinarAnalytics;
 }) {
+  const conversionPct = Math.round((analytics.conversionRate ?? 0) * 100);
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-      <StatCard label="Registered" value={analytics.registeredCount} />
-      <StatCard label="Attended" value={analytics.attendedCount} />
-      <StatCard label="Peak concurrent" value={analytics.peakConcurrent} />
-      <StatCard
-        label="Avg watch (min)"
-        value={analytics.avgWatchTimeMinutes.toFixed(1)}
-      />
-      <Card className="md:col-span-2 xl:col-span-4">
-        <CardHeader>
-          <CardTitle>Schedule</CardTitle>
-        </CardHeader>
-        <CardBody className="grid grid-cols-1 gap-2 md:grid-cols-3 text-sm">
-          <div>
-            <strong>Scheduled:</strong>{' '}
-            {webinar.scheduledStart
-              ? new Date(webinar.scheduledStart).toLocaleString()
-              : 'Not scheduled'}
-          </div>
-          <div>
-            <strong>Duration:</strong> {webinar.durationMinutes ?? '-'} minutes
-          </div>
-          <div>
-            <strong>Capacity:</strong> {webinar.capacity ?? 'Unlimited'}
-          </div>
-        </CardBody>
-      </Card>
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Registered"
+          value={analytics.registeredCount.toLocaleString()}
+          icon={Users}
+          accent="#3b7af5"
+        />
+        <StatCard
+          label="Attended"
+          value={analytics.attendedCount.toLocaleString()}
+          icon={UserCheck}
+          accent="#1f9d55"
+        />
+        <StatCard
+          label="Peak concurrent"
+          value={analytics.peakConcurrent.toLocaleString()}
+          icon={Activity}
+          accent="#7c3aed"
+        />
+        <StatCard
+          label="Avg watch time"
+          value={`${analytics.avgWatchTimeMinutes.toFixed(1)}m`}
+          icon={Clock}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Calendar size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+              <CardTitle>Schedule</CardTitle>
+            </div>
+            <CardDescription>When the broadcast runs and how many can attend.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-3">
+              <ScheduleRow
+                label="Scheduled"
+                value={
+                  webinar.scheduledStart
+                    ? new Date(webinar.scheduledStart).toLocaleString()
+                    : 'Not scheduled'
+                }
+              />
+              <ScheduleRow
+                label="Duration"
+                value={webinar.durationMinutes ? `${webinar.durationMinutes} minutes` : '—'}
+              />
+              <ScheduleRow
+                label="Capacity"
+                value={
+                  typeof webinar.capacity === 'number'
+                    ? webinar.capacity.toLocaleString()
+                    : 'Unlimited'
+                }
+              />
+            </dl>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Target size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+              <CardTitle>Conversion</CardTitle>
+            </div>
+            <CardDescription>Share of registrants who attended.</CardDescription>
+          </CardHeader>
+          <CardBody className="flex flex-col gap-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-semibold tabular-nums text-[var(--st-text)]">
+                {conversionPct}%
+              </span>
+              <span className="text-sm text-[var(--st-text-secondary)] tabular-nums">
+                {analytics.attendedCount.toLocaleString()} of{' '}
+                {analytics.registeredCount.toLocaleString()}
+              </span>
+            </div>
+            <Progress value={conversionPct} aria-label="Attendance conversion rate" />
+          </CardBody>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-xs font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+        {label}
+      </dt>
+      <dd className="text-sm tabular-nums text-[var(--st-text)]">{value}</dd>
     </div>
   );
 }
@@ -318,8 +440,17 @@ function RegistrationsTab({
   }
   return (
     <Card padding="none">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Users size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+          <CardTitle>Registrations</CardTitle>
+        </div>
+        <CardDescription>
+          {registrations.length.toLocaleString()} people signed up through the landing page.
+        </CardDescription>
+      </CardHeader>
       <CardBody className="p-0">
-        <Table>
+        <Table hover>
           <THead>
             <Tr>
               <Th>Name</Th>
@@ -327,18 +458,42 @@ function RegistrationsTab({
               <Th>Company</Th>
               <Th>Source</Th>
               <Th>Registered</Th>
-              <Th>Joined</Th>
+              <Th>Attendance</Th>
             </Tr>
           </THead>
           <TBody>
             {registrations.map((r) => (
               <Tr key={r._id}>
-                <Td>{r.name}</Td>
-                <Td>{r.email}</Td>
-                <Td>{r.company ?? '-'}</Td>
-                <Td>{r.source ?? 'direct'}</Td>
-                <Td>{new Date(r.registeredAt).toLocaleString()}</Td>
-                <Td>{r.joinedAt ? new Date(r.joinedAt).toLocaleString() : '-'}</Td>
+                <Td>
+                  <span className="font-medium text-[var(--st-text)]">{r.name}</span>
+                </Td>
+                <Td>
+                  <span className="text-[var(--st-text-secondary)]">{r.email}</span>
+                </Td>
+                <Td>
+                  <span className="text-[var(--st-text-secondary)]">{r.company ?? '—'}</span>
+                </Td>
+                <Td>
+                  <Badge tone="neutral" kind="soft">
+                    {r.source ?? 'direct'}
+                  </Badge>
+                </Td>
+                <Td>
+                  <span className="tabular-nums text-[var(--st-text-secondary)]">
+                    {new Date(r.registeredAt).toLocaleString()}
+                  </span>
+                </Td>
+                <Td>
+                  {r.joinedAt ? (
+                    <Badge tone="success" kind="soft" dot>
+                      Attended
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral" kind="outline">
+                      Registered
+                    </Badge>
+                  )}
+                </Td>
               </Tr>
             ))}
           </TBody>
@@ -634,25 +789,53 @@ function RecordingTab({ webinar }: { webinar: Sabwebinar }) {
   );
 }
 
+const SOURCE_CHART_CONFIG = {
+  count: { label: 'Registrations', color: 'var(--st-accent)' },
+} satisfies ChartConfig;
+
 function AnalyticsTab({ analytics }: { analytics: SabwebinarAnalytics }) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      <StatCard label="Registered" value={analytics.registeredCount} />
-      <StatCard label="Attended" value={analytics.attendedCount} />
-      <StatCard label="Peak concurrent" value={analytics.peakConcurrent} />
-      <StatCard
-        label="Avg watch (min)"
-        value={analytics.avgWatchTimeMinutes.toFixed(1)}
-      />
-      <StatCard
-        label="Conversion"
-        value={`${(analytics.conversionRate * 100).toFixed(1)}%`}
-      />
-      <StatCard label="Poll votes" value={analytics.pollEngagementCount} />
-      <StatCard label="Q&A items" value={analytics.qnaCount} />
-      <Card className="md:col-span-2 xl:col-span-3">
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <StatCard
+          label="Registered"
+          value={analytics.registeredCount.toLocaleString()}
+          icon={Users}
+          accent="#3b7af5"
+        />
+        <StatCard
+          label="Attended"
+          value={analytics.attendedCount.toLocaleString()}
+          icon={UserCheck}
+          accent="#1f9d55"
+        />
+        <StatCard
+          label="Peak concurrent"
+          value={analytics.peakConcurrent.toLocaleString()}
+          icon={Activity}
+          accent="#7c3aed"
+        />
+        <StatCard
+          label="Avg watch time"
+          value={`${analytics.avgWatchTimeMinutes.toFixed(1)}m`}
+          icon={Clock}
+        />
+        <StatCard
+          label="Conversion"
+          value={`${(analytics.conversionRate * 100).toFixed(1)}%`}
+          icon={Gauge}
+        />
+        <StatCard label="Poll votes" value={analytics.pollEngagementCount.toLocaleString()} icon={Inbox} />
+        <StatCard label="Q&A items" value={analytics.qnaCount.toLocaleString()} icon={MessageSquare} />
+      </div>
+
+      <Card>
         <CardHeader>
-          <CardTitle>Registrations by source</CardTitle>
+          <div className="flex items-center gap-2">
+            <BarChart3 size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+            <CardTitle>Registrations by source</CardTitle>
+          </div>
+          <CardDescription>Where your attendees came from.</CardDescription>
         </CardHeader>
         <CardBody>
           {analytics.registrationsBySource.length === 0 ? (
@@ -660,17 +843,29 @@ function AnalyticsTab({ analytics }: { analytics: SabwebinarAnalytics }) {
               icon={Users}
               size="sm"
               title="No registrations yet"
-              description="Source breakdown appears once people sign up."
+              description="The source breakdown appears once people sign up."
             />
           ) : (
-            <ul className="flex flex-col gap-1 text-sm">
-              {analytics.registrationsBySource.map((s) => (
-                <li key={s.source} className="flex justify-between">
-                  <span>{s.source}</span>
-                  <span className="text-[var(--st-text-secondary)]">{s.count}</span>
-                </li>
-              ))}
-            </ul>
+            <ChartContainer config={SOURCE_CHART_CONFIG} className="h-[280px] w-full">
+              <BarChart
+                data={analytics.registrationsBySource}
+                layout="vertical"
+                margin={{ left: 8, right: 16 }}
+              >
+                <CartesianGrid horizontal={false} stroke="var(--st-border)" strokeDasharray="3 3" />
+                <XAxis type="number" tickLine={false} axisLine={false} fontSize={12} allowDecimals={false} />
+                <YAxis
+                  type="category"
+                  dataKey="source"
+                  tickLine={false}
+                  axisLine={false}
+                  width={88}
+                  fontSize={12}
+                />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                <Bar dataKey="count" fill="var(--color-count)" radius={[0, 4, 4, 0]} barSize={20} />
+              </BarChart>
+            </ChartContainer>
           )}
         </CardBody>
       </Card>

@@ -32,10 +32,15 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  Recharts,
+  type ChartConfig,
 } from "@/components/sabcrm/20ui";
 import {
-  BarChart3,
-  LineChart,
   Activity,
   Clock,
   TrendingUp,
@@ -43,8 +48,11 @@ import {
   Download,
   ExternalLink,
   MoreHorizontal,
-  PresentationIcon,
+  Presentation,
 } from "lucide-react";
+
+const { AreaChart, Area, CartesianGrid, XAxis, YAxis, RadialBarChart, RadialBar, PolarAngleAxis } =
+  Recharts;
 
 type WebinarStatus = "completed" | "live" | "scheduled";
 
@@ -111,6 +119,26 @@ const STATUS_META: Record<
   scheduled: { label: "Scheduled", tone: "neutral", dot: false },
 };
 
+const ATTENDANCE_TREND = [
+  { month: "Jan", registered: 1240, attended: 812 },
+  { month: "Feb", registered: 1510, attended: 1018 },
+  { month: "Mar", registered: 1380, attended: 921 },
+  { month: "Apr", registered: 1720, attended: 1204 },
+  { month: "May", registered: 2090, attended: 1505 },
+  { month: "Jun", registered: 1840, attended: 1316 },
+];
+
+const ATTENDANCE_CONFIG = {
+  registered: { label: "Registered", color: "var(--st-text-tertiary)" },
+  attended: { label: "Attended", color: "var(--st-accent)" },
+} satisfies ChartConfig;
+
+const ENGAGEMENT_SCORE = [{ name: "engagement", value: 74 }];
+
+const ENGAGEMENT_CONFIG = {
+  value: { label: "Engagement", color: "var(--st-accent)" },
+} satisfies ChartConfig;
+
 export default function AnalyticsPage() {
   const [range, setRange] = React.useState("90d");
 
@@ -176,11 +204,50 @@ export default function AnalyticsPage() {
               <CardDescription>Registrations and live attendance over the past 6 months.</CardDescription>
             </CardHeader>
             <CardBody>
-              <ChartPlaceholder
-                icon={BarChart3}
-                label="Attendance chart"
-                hint="Connect a data source to plot attendance trends here."
-              />
+              <ChartContainer config={ATTENDANCE_CONFIG} className="h-[300px] w-full">
+                <AreaChart data={ATTENDANCE_TREND} margin={{ left: 4, right: 8, top: 8 }}>
+                  <defs>
+                    <linearGradient id="fillAttended" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-attended)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--color-attended)" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid vertical={false} stroke="var(--st-border)" strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    fontSize={12}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    width={36}
+                    fontSize={12}
+                    tickFormatter={(v: number) => `${v / 1000}k`}
+                  />
+                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Area
+                    dataKey="registered"
+                    type="monotone"
+                    stroke="var(--color-registered)"
+                    fill="transparent"
+                    strokeWidth={2}
+                    strokeDasharray="4 4"
+                    dot={false}
+                  />
+                  <Area
+                    dataKey="attended"
+                    type="monotone"
+                    stroke="var(--color-attended)"
+                    fill="url(#fillAttended)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                </AreaChart>
+              </ChartContainer>
             </CardBody>
           </Card>
 
@@ -189,12 +256,42 @@ export default function AnalyticsPage() {
               <CardTitle>Engagement score</CardTitle>
               <CardDescription>Based on polls, Q&amp;A, and chat activity.</CardDescription>
             </CardHeader>
-            <CardBody>
-              <ChartPlaceholder
-                icon={LineChart}
-                label="Engagement chart"
-                hint="Engagement is calculated once a webinar has live interactions."
-              />
+            <CardBody className="flex items-center justify-center">
+              <ChartContainer config={ENGAGEMENT_CONFIG} className="mx-auto aspect-square h-[260px]">
+                <RadialBarChart
+                  data={ENGAGEMENT_SCORE}
+                  startAngle={90}
+                  endAngle={90 - (360 * 74) / 100}
+                  innerRadius={90}
+                  outerRadius={120}
+                >
+                  <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+                  <RadialBar
+                    dataKey="value"
+                    background={{ fill: "var(--st-bg-secondary)" }}
+                    cornerRadius={8}
+                    fill="var(--color-value)"
+                  />
+                  <text
+                    x="50%"
+                    y="48%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-[var(--st-text)] text-3xl font-semibold tabular-nums"
+                  >
+                    74
+                  </text>
+                  <text
+                    x="50%"
+                    y="58%"
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="fill-[var(--st-text-tertiary)] text-xs"
+                  >
+                    out of 100
+                  </text>
+                </RadialBarChart>
+              </ChartContainer>
             </CardBody>
           </Card>
         </div>
@@ -207,11 +304,11 @@ export default function AnalyticsPage() {
           <CardBody className="!pt-0">
             {TOP_WEBINARS.length === 0 ? (
               <EmptyState
-                icon={PresentationIcon}
+                icon={Presentation}
                 title="No webinars yet"
                 description="Host your first webinar to start collecting attendance and engagement data."
                 action={
-                  <Button variant="primary" iconLeft={PresentationIcon}>
+                  <Button variant="primary" iconLeft={Presentation}>
                     Create webinar
                   </Button>
                 }
@@ -300,34 +397,5 @@ export default function AnalyticsPage() {
         </Card>
       </div>
     </TooltipProvider>
-  );
-}
-
-function ChartPlaceholder({
-  icon: Icon,
-  label,
-  hint,
-}: {
-  icon: typeof BarChart3;
-  label: string;
-  hint: string;
-}) {
-  return (
-    <div
-      className="flex h-[300px] flex-col items-center justify-center gap-3 rounded-[var(--st-radius)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 text-center"
-      role="img"
-      aria-label={`${label} placeholder`}
-    >
-      <span
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--st-bg)] text-[var(--st-text-tertiary)]"
-        aria-hidden="true"
-      >
-        <Icon className="h-6 w-6" />
-      </span>
-      <div className="space-y-1">
-        <p className="text-sm font-medium text-[var(--st-text-secondary)]">{label}</p>
-        <p className="text-xs text-[var(--st-text-tertiary)]">{hint}</p>
-      </div>
-    </div>
   );
 }
