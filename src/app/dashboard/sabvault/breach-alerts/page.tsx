@@ -12,8 +12,11 @@ import {
     StatCard,
     Badge,
     EmptyState,
+    Progress,
+    Separator,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
@@ -37,7 +40,15 @@ import {
     ShieldCheck,
     SearchCheck,
     Eye,
+    Globe,
 } from "lucide-react";
+
+/** StatCard accent chips need hex values, never token vars. */
+const ACCENT = {
+    danger: "#e0484e",
+    warn: "#d68a1e",
+    success: "#1f9d55",
+} as const;
 
 type Severity = "Critical" | "High" | "Medium";
 type Status = "Open" | "Investigating" | "Resolved";
@@ -73,53 +84,88 @@ export default function SabVaultBreachAlertsPage() {
     const openCount = alerts.filter((a) => a.status !== "Resolved").length;
     const criticalCount = alerts.filter((a) => a.severity === "Critical").length;
     const resolvedCount = alerts.filter((a) => a.status === "Resolved").length;
+    const resolvedPct = alerts.length
+        ? Math.round((resolvedCount / alerts.length) * 100)
+        : 100;
 
     return (
         <TooltipProvider>
-            <div className="20ui p-6 space-y-6">
+            <main className="20ui mx-auto flex max-w-6xl flex-col gap-6 p-6">
                 <PageHeader>
                     <PageHeaderHeading>
-                        <PageTitle>
-                            <span className="inline-flex items-center gap-2">
-                                <ShieldAlert className="h-5 w-5 text-[var(--st-danger)]" aria-hidden="true" />
-                                Breach Alerts
-                            </span>
-                        </PageTitle>
+                        <PageEyebrow>SabVault</PageEyebrow>
+                        <PageTitle>Breach alerts</PageTitle>
                         <PageDescription>
-                            Monitor leaked secrets and exposed credentials across public sources.
+                            Monitor leaked secrets and exposed credentials across public breach sources.
                         </PageDescription>
                     </PageHeaderHeading>
                     <PageActions>
                         <Button variant="danger" iconLeft={RadioTower}>
-                            Scan Now
+                            Scan now
                         </Button>
                     </PageActions>
                 </PageHeader>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <section
+                    aria-label="Breach summary"
+                    className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                >
                     <StatCard
                         label="Open alerts"
                         value={openCount}
                         icon={ShieldAlert}
-                        accent="var(--st-danger)"
+                        accent={ACCENT.danger}
+                        delta={{
+                            value: openCount > 0 ? "Action needed" : "All handled",
+                            tone: openCount > 0 ? "down" : "up",
+                        }}
                     />
                     <StatCard
                         label="Critical severity"
                         value={criticalCount}
                         icon={AlertTriangle}
-                        accent="var(--st-warn)"
+                        accent={ACCENT.warn}
                     />
                     <StatCard
                         label="Resolved"
                         value={resolvedCount}
                         icon={ShieldCheck}
-                        accent="var(--st-success)"
+                        accent={ACCENT.success}
+                        delta={{ value: `${resolvedPct}% of alerts`, tone: "neutral" }}
                     />
-                </div>
+                </section>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-sm">
+                            <ShieldCheck className="h-4 w-4 text-[var(--st-success)]" aria-hidden="true" />
+                            Remediation progress
+                        </CardTitle>
+                        <CardDescription>
+                            Share of flagged credentials that have been rotated or cleared.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardBody>
+                        <div className="flex items-center gap-3">
+                            <Progress value={resolvedPct} tone="success" className="flex-1" />
+                            <span className="w-12 text-right text-sm font-medium tabular-nums text-[var(--st-text)]">
+                                {resolvedPct}%
+                            </span>
+                        </div>
+                        <Separator className="my-3" />
+                        <p className="flex items-center gap-1.5 text-xs text-[var(--st-text-tertiary)]">
+                            <Globe className="h-3.5 w-3.5" aria-hidden="true" />
+                            Last scan ran Jun 3, 2026 at 10:15 against HaveIBeenPwned, dark web feeds, and public leaks.
+                        </p>
+                    </CardBody>
+                </Card>
 
                 <Card padding="none">
                     <CardHeader>
-                        <CardTitle>Recent alerts</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <ShieldAlert className="h-4 w-4 text-[var(--st-danger)]" aria-hidden="true" />
+                            Recent alerts
+                        </CardTitle>
                         <CardDescription>
                             Credentials flagged as exposed, newest first.
                         </CardDescription>
@@ -216,7 +262,7 @@ export default function SabVaultBreachAlertsPage() {
                         )}
                     </CardBody>
                 </Card>
-            </div>
+            </main>
         </TooltipProvider>
     );
 }

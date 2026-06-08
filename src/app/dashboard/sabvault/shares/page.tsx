@@ -12,6 +12,7 @@ import {
   Badge,
   StatCard,
   EmptyState,
+  Progress,
   Table,
   THead,
   TBody,
@@ -20,6 +21,7 @@ import {
   Td,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
@@ -30,6 +32,14 @@ import {
 } from "@/components/sabcrm/20ui";
 import { Plus, Share2, Eye, Clock, Ban, ShieldCheck, TimerReset, BarChart3 } from "lucide-react";
 import type { BadgeTone } from "@/components/sabcrm/20ui";
+
+/** StatCard accent chips need hex values, never token vars. */
+const ACCENT = {
+  brand: "#3b7af5",
+  success: "#1f9d55",
+  warn: "#d68a1e",
+  violet: "#7c3aed",
+} as const;
 
 type ShareStatus = "Active" | "Expiring Soon" | "Expired";
 
@@ -62,12 +72,13 @@ export default function SabVaultSharesPage() {
 
   return (
     <TooltipProvider>
-      <div className="20ui p-6 space-y-6">
+      <main className="20ui mx-auto flex max-w-6xl flex-col gap-6 p-6">
         <PageHeader>
           <PageHeaderHeading>
-            <PageTitle>Shared Secrets</PageTitle>
+            <PageEyebrow>SabVault</PageEyebrow>
+            <PageTitle>Shared secrets</PageTitle>
             <PageDescription>
-              Monitor and manage secrets shared securely with team members and external contacts.
+              Track secrets shared with teammates and external contacts. Every link enforces an access window and a view cap.
             </PageDescription>
           </PageHeaderHeading>
           <PageActions>
@@ -77,18 +88,35 @@ export default function SabVaultSharesPage() {
           </PageActions>
         </PageHeader>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Total shares" value={shares.length} icon={Share2} />
-          <StatCard label="Active" value={activeCount} icon={ShieldCheck} />
-          <StatCard label="Expiring soon" value={expiringCount} icon={TimerReset} />
-          <StatCard label="Total views" value={totalViews} icon={BarChart3} />
-        </div>
+        <section
+          aria-label="Sharing summary"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <StatCard label="Total shares" value={shares.length} icon={Share2} accent={ACCENT.brand} />
+          <StatCard
+            label="Active"
+            value={activeCount}
+            icon={ShieldCheck}
+            accent={ACCENT.success}
+          />
+          <StatCard
+            label="Expiring soon"
+            value={expiringCount}
+            icon={TimerReset}
+            accent={ACCENT.warn}
+            delta={expiringCount > 0 ? { value: "Review windows", tone: "down" } : undefined}
+          />
+          <StatCard label="Total views" value={totalViews} icon={BarChart3} accent={ACCENT.violet} />
+        </section>
 
         <Card padding="none">
           <CardHeader>
-            <CardTitle>Active shares</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+              Active shares
+            </CardTitle>
             <CardDescription>
-              Each link enforces an access window and a view limit. Revoke any share to cut off access immediately.
+              Revoke any share to cut off access immediately.
             </CardDescription>
           </CardHeader>
           <CardBody>
@@ -134,9 +162,16 @@ export default function SabVaultSharesPage() {
                         </span>
                       </Td>
                       <Td align="right">
-                        <span className="tabular-nums text-[var(--st-text-secondary)]">
-                          {share.views} / {share.maxViews}
-                        </span>
+                        <div className="ml-auto flex w-32 items-center gap-2">
+                          <Progress
+                            value={Math.round((share.views / Math.max(1, share.maxViews)) * 100)}
+                            tone={share.views >= share.maxViews ? "danger" : "accent"}
+                            size="sm"
+                          />
+                          <span className="w-10 text-right text-xs tabular-nums text-[var(--st-text-secondary)]">
+                            {share.views}/{share.maxViews}
+                          </span>
+                        </div>
                       </Td>
                       <Td>
                         <Badge tone={STATUS_TONE[share.status]} dot>
@@ -170,7 +205,7 @@ export default function SabVaultSharesPage() {
             )}
           </CardBody>
         </Card>
-      </div>
+      </main>
     </TooltipProvider>
   );
 }

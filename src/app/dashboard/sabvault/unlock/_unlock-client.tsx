@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Lock, LockKeyhole, ShieldCheck, KeyRound } from 'lucide-react';
+
 import {
     Button,
     Input,
@@ -13,6 +15,9 @@ import {
     CardDescription,
     CardBody,
     Alert,
+    Callout,
+    Progress,
+    Separator,
 } from '@/components/sabcrm/20ui';
 import {
     base64ToBytes,
@@ -21,6 +26,7 @@ import {
     makeCanary,
     newSalt,
     SABVAULT_CRYPTO_PARAMS,
+    scorePasswordStrength,
     verifyCanary,
 } from '@/lib/sabvault/crypto';
 import {
@@ -114,21 +120,42 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
         }
     }
 
-    return (
-        <div className="20ui mx-auto flex max-w-md flex-col gap-4 p-6">
-            <Card padding="lg">
-                <CardHeader>
-                    <CardTitle>{isSetup ? 'Set up your SabVault' : 'Unlock SabVault'}</CardTitle>
-                    <CardDescription>
-                        {isSetup
-                            ? 'Your master password derives the encryption key in this browser. It is never sent to our servers, losing it means losing access.'
-                            : 'Enter your master password. The key stays in this tab only and locks after 15 minutes of inactivity.'}
-                    </CardDescription>
-                </CardHeader>
+    const strength = isSetup && password ? scorePasswordStrength(password) : null;
+    const strengthPct = strength ? ((strength.score + 1) / 5) * 100 : 0;
+    const strengthTone: 'danger' | 'warning' | 'success' =
+        !strength ? 'success' : strength.score <= 1 ? 'danger' : strength.score <= 2 ? 'warning' : 'success';
+    const strengthLabel = strength ? strength.label.replace('_', ' ') : '';
 
+    return (
+        <main className="20ui mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col justify-center gap-5 p-6">
+            <div className="flex flex-col items-center gap-3 text-center">
+                <span
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-[var(--st-radius-lg,12px)] bg-[var(--st-accent-soft,var(--st-bg-secondary))] text-[var(--st-accent)]"
+                    aria-hidden="true"
+                >
+                    {isSetup ? <LockKeyhole className="h-6 w-6" /> : <Lock className="h-6 w-6" />}
+                </span>
+                <div>
+                    <h1 className="text-lg font-semibold text-[var(--st-text)]">
+                        {isSetup ? 'Set up your vault' : 'Unlock your vault'}
+                    </h1>
+                    <p className="mx-auto mt-1 max-w-sm text-sm text-[var(--st-text-secondary)]">
+                        {isSetup
+                            ? 'Your master password derives the encryption key in this browser. It never reaches our servers.'
+                            : 'The key stays in this tab only and re-locks after 15 minutes of inactivity.'}
+                    </p>
+                </div>
+            </div>
+
+            <Card padding="lg">
                 <CardBody>
-                    <form className="flex flex-col gap-3" onSubmit={isSetup ? onSetup : onUnlock}>
-                        <Field id="sv-master" label="Master password" required>
+                    <form className="flex flex-col gap-4" onSubmit={isSetup ? onSetup : onUnlock}>
+                        <Field
+                            id="sv-master"
+                            label="Master password"
+                            required
+                            help={isSetup ? 'Use at least 12 characters with a mix of types.' : undefined}
+                        >
                             <Input
                                 type="password"
                                 required
@@ -136,30 +163,53 @@ export function UnlockClient({ keyRecord }: { keyRecord: SabvaultUserKeyRecord |
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete={isSetup ? 'new-password' : 'current-password'}
+                                iconLeft={KeyRound}
                             />
                         </Field>
+
+                        {isSetup && strength ? (
+                            <div className="flex items-center gap-2">
+                                <Progress value={strengthPct} tone={strengthTone} size="sm" className="flex-1" />
+                                <span className="w-24 text-right text-xs font-medium capitalize tabular-nums text-[var(--st-text-secondary)]">
+                                    {strengthLabel}
+                                </span>
+                            </div>
+                        ) : null}
+
                         {isSetup ? (
-                            <Field id="sv-confirm" label="Confirm" required>
+                            <Field id="sv-confirm" label="Confirm password" required>
                                 <Input
                                     type="password"
                                     required
                                     value={confirm}
                                     onChange={(e) => setConfirm(e.target.value)}
                                     autoComplete="new-password"
+                                    iconLeft={KeyRound}
                                 />
                             </Field>
                         ) : null}
+
                         {error ? (
                             <Alert tone="danger" onClose={() => setError(null)}>
                                 {error}
                             </Alert>
                         ) : null}
-                        <Button type="submit" variant="primary" loading={busy}>
+
+                        <Button type="submit" variant="primary" loading={busy} iconLeft={isSetup ? LockKeyhole : Lock}>
                             {isSetup ? 'Create vault' : 'Unlock'}
                         </Button>
                     </form>
+
+                    {isSetup ? (
+                        <>
+                            <Separator className="my-4" />
+                            <Callout tone="info" icon={ShieldCheck} title="Zero-knowledge by design">
+                                We only store a salt and an encrypted canary. If you lose this password, your secrets cannot be recovered.
+                            </Callout>
+                        </>
+                    ) : null}
                 </CardBody>
             </Card>
-        </div>
+        </main>
     );
 }

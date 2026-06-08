@@ -3,7 +3,9 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
+import { Plus, KeyRound } from 'lucide-react';
+
+import { Button, Input, Label, Textarea, Progress, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/sabcrm/20ui';
 
 import {
     encryptPayload,
@@ -93,14 +95,25 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
         }
     }
 
+    const strength = kind === 'login' && password ? scorePasswordStrength(password) : null;
+    const strengthPct = strength ? ((strength.score + 1) / 5) * 100 : 0;
+    const strengthTone: 'danger' | 'warning' | 'success' =
+        !strength ? 'success' : strength.score <= 1 ? 'danger' : strength.score <= 2 ? 'warning' : 'success';
+    const strengthLabel = strength ? strength.label.replace('_', ' ') : '';
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button disabled={!keyRecord}>New secret</Button>
+                <Button disabled={!keyRecord} iconLeft={Plus}>
+                    New secret
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New secret</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2">
+                        <KeyRound className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        New secret
+                    </DialogTitle>
                     <DialogDescription>
                         Encrypted in your browser with your master key. Plaintext never reaches the server.
                     </DialogDescription>
@@ -151,6 +164,14 @@ export function CreateSecretDialog({ keyRecord }: { keyRecord: SabvaultUserKeyRe
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                {strength ? (
+                                    <div className="flex items-center gap-2 pt-0.5">
+                                        <Progress value={strengthPct} tone={strengthTone} size="sm" className="flex-1" />
+                                        <span className="w-24 text-right text-xs font-medium capitalize tabular-nums text-[var(--st-text-secondary)]">
+                                            {strengthLabel}
+                                        </span>
+                                    </div>
+                                ) : null}
                             </div>
                         </>
                     ) : null}
