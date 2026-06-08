@@ -25,25 +25,44 @@ export function UrlShortenerStats({
     return { total, totalClicks, active, expired, expiringSoon };
   }, [urls, getStatus]);
 
+  const ctr = stats.total > 0 ? stats.totalClicks / stats.total : 0;
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <StatCard label="Total Links" value={stats.total} icon={Link2} />
       <StatCard
-        label="Total Clicks"
-        value={stats.totalClicks.toLocaleString()}
-        icon={MousePointerClick}
-      />
-      <StatCard
-        label="Active"
-        value={stats.active}
-        icon={CheckCircle2}
+        label="Total links"
+        value={<span className="tabular-nums">{stats.total.toLocaleString()}</span>}
+        icon={Link2}
+        accent="#3b7af5"
         delta={
-          stats.expiringSoon > 0
-            ? { value: `${stats.expiringSoon} expiring soon`, tone: 'neutral' }
+          stats.total > 0
+            ? { value: `${ctr.toFixed(1)} avg clicks/link`, tone: 'neutral' }
             : undefined
         }
       />
-      <StatCard label="Expired" value={stats.expired} icon={CircleSlash} />
+      <StatCard
+        label="Total clicks"
+        value={<span className="tabular-nums">{stats.totalClicks.toLocaleString()}</span>}
+        icon={MousePointerClick}
+        accent="#7c3aed"
+      />
+      <StatCard
+        label="Active"
+        value={<span className="tabular-nums">{stats.active.toLocaleString()}</span>}
+        icon={CheckCircle2}
+        accent="#1f9d55"
+        delta={
+          stats.expiringSoon > 0
+            ? { value: `${stats.expiringSoon} expiring soon`, tone: 'down' }
+            : undefined
+        }
+      />
+      <StatCard
+        label="Expired"
+        value={<span className="tabular-nums">{stats.expired.toLocaleString()}</span>}
+        icon={CircleSlash}
+        accent="#e0484e"
+      />
     </div>
   );
 }

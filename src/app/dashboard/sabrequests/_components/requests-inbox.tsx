@@ -1,23 +1,38 @@
 'use client';
 
 /**
- * Tabbed inbox: "My requests" + "Awaiting my approval".
+ * Tabbed inbox: "Awaiting my approval" + "My requests".
  *
- * Filters by blueprint, status, and SLA breach. Stateless w.r.t. the
- * server — applies in-memory filters over the lists handed in from the
- * server page. Re-fetching on filter change is deferred (the lists are
- * small in practice — ~50 rows per tab).
+ * Filters by blueprint, status, and SLA breach in memory over the lists handed
+ * in from the server page (small in practice — about 50 rows per tab). A request
+ * row links through to its detail view.
  */
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Inbox, AlertTriangle } from 'lucide-react';
 
-import { Badge, Button, Card, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
-import type {
-    RequestBlueprintDoc,
-} from '@/lib/rust-client/sabrequests-blueprints';
-import type {
-    RequestInstanceDoc,
-} from '@/lib/rust-client/sabrequests-instances';
+import {
+    Badge,
+    Button,
+    Card,
+    EmptyState,
+    SearchInput,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    Tabs,
+    Table,
+    THead,
+    TBody,
+    Tr,
+    Th,
+    Td,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
+import type { RequestBlueprintDoc } from '@/lib/rust-client/sabrequests-blueprints';
+import type { RequestInstanceDoc } from '@/lib/rust-client/sabrequests-instances';
 
 interface Props {
     mine: RequestInstanceDoc[];
@@ -25,16 +40,18 @@ interface Props {
     blueprints: RequestBlueprintDoc[];
 }
 
-function statusVariant(s?: string) {
+function statusTone(s?: string): BadgeTone {
     switch (s) {
         case 'approved':
-            return 'success' as const;
+            return 'success';
         case 'rejected':
-            return 'destructive' as const;
+            return 'danger';
         case 'cancelled':
-            return 'secondary' as const;
+            return 'neutral';
+        case 'pending':
+            return 'warning';
         default:
-            return 'default' as const;
+            return 'neutral';
     }
 }
 
@@ -44,143 +61,173 @@ function isBreached(r: RequestInstanceDoc): boolean {
     return new Date(r.slaDeadlineAt).getTime() < Date.now();
 }
 
-function TabsToggle({
-    mine,
-    awaiting,
-}: {
-    mine: RequestInstanceDoc[];
-    awaiting: RequestInstanceDoc[];
-}) {
-    const [tab, setTab] = React.useState<'awaiting' | 'mine'>('awaiting');
-    return (
-        <>
-            <div className="mb-4 inline-flex gap-1 rounded-md border border-[var(--st-border)] p-1">
-                <Button
-                    variant={tab === 'awaiting' ? 'default' : 'ghost'}
-                    onClick={() => setTab('awaiting')}
-                >
-                    Awaiting my approval ({awaiting.length})
-                </Button>
-                <Button
-                    variant={tab === 'mine' ? 'default' : 'ghost'}
-                    onClick={() => setTab('mine')}
-                >
-                    My requests ({mine.length})
-                </Button>
-            </div>
-            {tab === 'awaiting' ? (
-                <RequestList rows={awaiting} showApprover={false} />
-            ) : (
-                <RequestList rows={mine} showApprover />
-            )}
-        </>
-    );
-}
-
-function RequestList({
+function RequestTable({
     rows,
-    showApprover = false,
+    showApprover,
 }: {
     rows: RequestInstanceDoc[];
-    showApprover?: boolean;
+    showApprover: boolean;
 }) {
+    const router = useRouter();
+
     if (rows.length === 0) {
         return (
-            <Card className="p-8 text-center text-sm text-[var(--st-text-secondary)]">
-                No requests yet.
-            </Card>
+            <EmptyState
+                icon={Inbox}
+                title="Nothing here yet"
+                description="Requests that match your filters will show up in this list."
+            />
         );
     }
+
     return (
-        <div className="flex flex-col gap-2">
-            {rows.map((r) => (
-                <Link
-                    key={r._id}
-                    href={`/dashboard/requests/${r._id}`}
-                    className="block"
-                >
-                    <Card className="flex items-center justify-between gap-4 p-4 transition hover:bg-[var(--st-bg-muted)]/40">
-                        <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2">
-                                <span className="font-medium">
-                                    {r.title || r.blueprintName || 'Untitled request'}
+        <Table hover>
+            <THead>
+                <Tr>
+                    <Th>Request</Th>
+                    <Th>Status</Th>
+                    <Th>Stage</Th>
+                    {showApprover ? <Th>Approver</Th> : null}
+                    <Th align="right">SLA</Th>
+                    <Th align="right">Created</Th>
+                </Tr>
+            </THead>
+            <TBody>
+                {rows.map((r) => {
+                    const breached = isBreached(r);
+                    return (
+                        <Tr
+                            key={r._id}
+                            onClick={() =>
+                                router.push(`/dashboard/sabrequests/${r._id}`)
+                            }
+                            className="cursor-pointer"
+                        >
+                            <Td>
+                                <div className="flex flex-col gap-0.5">
+                                    <span className="font-medium text-[var(--st-text)]">
+                                        {r.title || r.blueprintName || 'Untitled request'}
+                                    </span>
+                                    <span className="text-xs text-[var(--st-text-secondary)]">
+                                        {r.blueprintName ?? 'Blueprint'}
+                                    </span>
+                                </div>
+                            </Td>
+                            <Td>
+                                <div className="flex items-center gap-1.5">
+                                    <Badge tone={statusTone(r.status)}>
+                                        {r.status ?? 'unknown'}
+                                    </Badge>
+                                    {breached ? (
+                                        <Badge tone="danger" kind="soft" dot>
+                                            SLA breached
+                                        </Badge>
+                                    ) : null}
+                                </div>
+                            </Td>
+                            <Td>
+                                <span className="text-[var(--st-text-secondary)]">
+                                    Stage {(r.currentStageIdx ?? 0) + 1}
+                                    {r.currentStage?.name
+                                        ? ` · ${r.currentStage.name}`
+                                        : ''}
                                 </span>
-                                <Badge variant={statusVariant(r.status)}>
-                                    {r.status}
-                                </Badge>
-                                {isBreached(r) ? (
-                                    <Badge variant="destructive">SLA breached</Badge>
-                                ) : null}
-                            </div>
-                            <div className="text-xs text-[var(--st-text-secondary)]">
-                                {r.blueprintName ?? 'Blueprint'} · stage{' '}
-                                {(r.currentStageIdx ?? 0) + 1}
-                                {r.currentStage?.name
-                                    ? ` (${r.currentStage.name})`
-                                    : null}
-                                {showApprover && r.currentStage?.approverId
-                                    ? ` · approver ${r.currentStage.approverId.slice(0, 6)}…`
-                                    : null}
-                            </div>
-                        </div>
-                        <div className="text-right text-xs text-[var(--st-text-secondary)]">
-                            {r.slaDeadlineAt ? (
-                                <div>
-                                    SLA:{' '}
-                                    {new Date(r.slaDeadlineAt).toLocaleString()}
-                                </div>
+                            </Td>
+                            {showApprover ? (
+                                <Td>
+                                    <span className="text-[var(--st-text-secondary)]">
+                                        {r.currentStage?.approverId
+                                            ? `${r.currentStage.approverId.slice(0, 6)}…`
+                                            : '—'}
+                                    </span>
+                                </Td>
                             ) : null}
-                            {r.createdAt ? (
-                                <div>
-                                    Created:{' '}
-                                    {new Date(r.createdAt).toLocaleDateString()}
-                                </div>
-                            ) : null}
-                        </div>
-                    </Card>
-                </Link>
-            ))}
-        </div>
+                            <Td align="right">
+                                <span
+                                    className={[
+                                        'tabular-nums',
+                                        breached
+                                            ? 'text-[var(--st-danger)]'
+                                            : 'text-[var(--st-text-secondary)]',
+                                    ].join(' ')}
+                                >
+                                    {r.slaDeadlineAt
+                                        ? new Date(r.slaDeadlineAt).toLocaleDateString()
+                                        : '—'}
+                                </span>
+                            </Td>
+                            <Td align="right">
+                                <span className="tabular-nums text-[var(--st-text-secondary)]">
+                                    {r.createdAt
+                                        ? new Date(r.createdAt).toLocaleDateString()
+                                        : '—'}
+                                </span>
+                            </Td>
+                        </Tr>
+                    );
+                })}
+            </TBody>
+        </Table>
     );
 }
 
 export function RequestsInbox({ mine, awaiting, blueprints }: Props) {
+    const [tab, setTab] = React.useState<'awaiting' | 'mine'>('awaiting');
     const [q, setQ] = React.useState('');
     const [bpFilter, setBpFilter] = React.useState<string>('all');
     const [statusFilter, setStatusFilter] = React.useState<string>('all');
     const [breachedOnly, setBreachedOnly] = React.useState(false);
 
     const apply = React.useCallback(
-        (rows: RequestInstanceDoc[]) => {
-            return rows.filter((r) => {
-                if (q && !`${r.title} ${r.blueprintName}`.toLowerCase().includes(q.toLowerCase()))
+        (rows: RequestInstanceDoc[]) =>
+            rows.filter((r) => {
+                if (
+                    q &&
+                    !`${r.title ?? ''} ${r.blueprintName ?? ''}`
+                        .toLowerCase()
+                        .includes(q.toLowerCase())
+                )
                     return false;
                 if (bpFilter !== 'all' && r.blueprintId !== bpFilter) return false;
                 if (statusFilter !== 'all' && r.status !== statusFilter) return false;
                 if (breachedOnly && !isBreached(r)) return false;
                 return true;
-            });
-        },
+            }),
         [q, bpFilter, statusFilter, breachedOnly],
     );
 
     const filteredMine = React.useMemo(() => apply(mine), [apply, mine]);
-    const filteredAwaiting = React.useMemo(
-        () => apply(awaiting),
-        [apply, awaiting],
+    const filteredAwaiting = React.useMemo(() => apply(awaiting), [apply, awaiting]);
+
+    const breachedCount = React.useMemo(
+        () => [...mine, ...awaiting].filter(isBreached).length,
+        [mine, awaiting],
     );
 
     return (
-        <Card className="p-4">
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-                <Input
-                    placeholder="Search title or blueprint…"
+        <Card padding="md" className="flex flex-col gap-4">
+            <Tabs
+                value={tab}
+                onChange={(v) => setTab(v as 'awaiting' | 'mine')}
+                items={[
+                    {
+                        value: 'awaiting',
+                        label: 'Awaiting my approval',
+                        badge: awaiting.length,
+                    },
+                    { value: 'mine', label: 'My requests', badge: mine.length },
+                ]}
+            />
+
+            <div className="flex flex-wrap items-center gap-2">
+                <SearchInput
                     value={q}
-                    onChange={(e) => setQ(e.target.value)}
+                    onValueChange={setQ}
+                    placeholder="Search title or blueprint"
                     className="max-w-xs"
                 />
                 <Select value={bpFilter} onValueChange={setBpFilter}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-48" aria-label="Filter by blueprint">
                         <SelectValue placeholder="All blueprints" />
                     </SelectTrigger>
                     <SelectContent>
@@ -193,8 +240,8 @@ export function RequestsInbox({ mine, awaiting, blueprints }: Props) {
                     </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-36">
-                        <SelectValue placeholder="Status" />
+                    <SelectTrigger className="w-40" aria-label="Filter by status">
+                        <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">All statuses</SelectItem>
@@ -205,16 +252,20 @@ export function RequestsInbox({ mine, awaiting, blueprints }: Props) {
                     </SelectContent>
                 </Select>
                 <Button
-                    variant={breachedOnly ? 'default' : 'outline'}
+                    variant={breachedOnly ? 'danger' : 'outline'}
+                    iconLeft={AlertTriangle}
                     onClick={() => setBreachedOnly((v) => !v)}
+                    aria-pressed={breachedOnly}
                 >
-                    SLA breached only
+                    SLA breached{breachedCount ? ` (${breachedCount})` : ''}
                 </Button>
             </div>
-            <TabsToggle
-                mine={filteredMine}
-                awaiting={filteredAwaiting}
-            />
+
+            {tab === 'awaiting' ? (
+                <RequestTable rows={filteredAwaiting} showApprover={false} />
+            ) : (
+                <RequestTable rows={filteredMine} showApprover />
+            )}
         </Card>
     );
 }

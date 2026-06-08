@@ -12,6 +12,7 @@ import {
   EmptyState,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeading,
   PageTitle,
@@ -323,14 +324,15 @@ export default function UrlShortenerPage() {
 
         <PageHeader>
           <PageHeading>
-            <PageTitle>
-              <span className="inline-flex items-center gap-3">
-                <LinkIcon className="h-7 w-7" aria-hidden="true" />
-                URL Shortener
+            <PageEyebrow>
+              <span className="inline-flex items-center gap-1.5">
+                <LinkIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                Links
               </span>
-            </PageTitle>
+            </PageEyebrow>
+            <PageTitle>Short links</PageTitle>
             <PageDescription>
-              Create short, trackable links for your campaigns.
+              Create short, trackable links and watch clicks roll in across campaigns.
             </PageDescription>
           </PageHeading>
           <PageActions>

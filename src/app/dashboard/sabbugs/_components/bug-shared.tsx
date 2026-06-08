@@ -15,30 +15,51 @@ import type {
  * proxies. Re-exported here so existing `from './bug-shared'` imports in
  * client components keep working unchanged. */
 import {
-  severityVariant,
-  statusVariant,
+  severityTone,
+  statusTone,
   prettyStatus,
+  prettySeverity,
+  prettyPriority,
 } from './bug-constants';
 
 export {
   BUG_STATUSES,
   BUG_SEVERITIES,
   BUG_PRIORITIES,
-  severityVariant,
-  statusVariant,
+  severityTone,
+  statusTone,
+  statusLifecycle,
   prettyStatus,
+  prettySeverity,
+  prettyPriority,
   bugTitle,
 } from './bug-constants';
-export type { ProjectOption } from './bug-constants';
+export type { ProjectOption, BugLifecycle } from './bug-constants';
 
+/** Status badge — soft tone, with a leading dot for at-a-glance scanning. */
 export function BugStatusBadge({ status }: { status: BugStatus }) {
-  return <Badge variant={statusVariant(status)}>{prettyStatus(status)}</Badge>;
+  return (
+    <Badge tone={statusTone(status)} dot>
+      {prettyStatus(status)}
+    </Badge>
+  );
 }
 
+/** Severity badge — solid for the two hottest levels so they pop in a row. */
 export function BugSeverityBadge({ severity }: { severity: BugSeverity }) {
-  return <Badge variant={severityVariant(severity)}>{severity}</Badge>;
+  const hot = severity === 'blocker' || severity === 'critical';
+  return (
+    <Badge tone={severityTone(severity)} kind={hot ? 'solid' : 'soft'}>
+      {prettySeverity(severity)}
+    </Badge>
+  );
 }
 
+/** Priority badge — quiet outline; severity carries the visual weight. */
 export function BugPriorityBadge({ priority }: { priority: BugPriority }) {
-  return <Badge variant="outline">{priority}</Badge>;
+  return (
+    <Badge tone="neutral" kind="outline">
+      {prettyPriority(priority)}
+    </Badge>
+  );
 }

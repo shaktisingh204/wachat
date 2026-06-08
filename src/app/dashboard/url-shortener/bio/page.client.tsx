@@ -3,15 +3,24 @@
 import { useState, useEffect } from 'react';
 import {
   Button,
+  PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeading,
   PageTitle,
+  StatCard,
   EmptyState,
   Skeleton,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { FileWarning } from 'lucide-react';
+import {
+  FileWarning,
+  IdCard,
+  Link2,
+  MousePointerClick,
+  Save,
+} from 'lucide-react';
 import { BioState } from './types';
 import { fetchBioData, saveBioData } from './api';
 import { BioProfileForm } from './_components/BioProfileForm';
@@ -67,16 +76,61 @@ export default function BioBuilderPage() {
     }
   };
 
+  const totalClicks = state?.links.reduce((sum, l) => sum + (l.clicks ?? 0), 0) ?? 0;
+
   return (
     <div className="flex min-h-full flex-col gap-6">
       <PageHeader>
         <PageHeading>
-          <PageTitle>Link in Bio</PageTitle>
+          <PageEyebrow>
+            <span className="inline-flex items-center gap-1.5">
+              <IdCard className="h-3.5 w-3.5" aria-hidden="true" />
+              Bio page
+            </span>
+          </PageEyebrow>
+          <PageTitle>Link in bio</PageTitle>
           <PageDescription>
-            Build your public bio page with links and a personal profile.
+            Build a public profile that gathers all your links in one shareable page.
           </PageDescription>
         </PageHeading>
+        <PageActions>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={Save}
+            onClick={handleSave}
+            loading={saving}
+            disabled={!state}
+          >
+            Save changes
+          </Button>
+        </PageActions>
       </PageHeader>
+
+      {state ? (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <StatCard
+            label="Links"
+            value={<span className="tabular-nums">{state.links.length}</span>}
+            icon={Link2}
+            accent="#3b7af5"
+          />
+          <StatCard
+            label="Total clicks"
+            value={<span className="tabular-nums">{totalClicks.toLocaleString()}</span>}
+            icon={MousePointerClick}
+            accent="#7c3aed"
+          />
+          <StatCard
+            label="Public address"
+            value={
+              <span className="font-mono text-[15px]">/bio/{state.slug || 'your-name'}</span>
+            }
+            icon={IdCard}
+            accent="#1f9d55"
+          />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {loading ? (
@@ -101,8 +155,14 @@ export default function BioBuilderPage() {
             <BioProfileForm state={state} update={update} />
             <BioLinksForm state={state} update={update} />
 
-            <Button variant="primary" block onClick={handleSave} loading={saving}>
-              Save Changes
+            <Button
+              variant="primary"
+              block
+              iconLeft={Save}
+              onClick={handleSave}
+              loading={saving}
+            >
+              Save changes
             </Button>
           </div>
         )}
