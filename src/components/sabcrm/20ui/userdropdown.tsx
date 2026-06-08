@@ -74,8 +74,8 @@ export interface UserDropdownItem {
 
 export interface UserDropdownProps
   extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'children'> {
-  /** The signed-in account. */
-  user: UserDropdownUser;
+  /** The signed-in account. May be undefined before the session resolves. */
+  user?: UserDropdownUser;
   /** Navigation rows above the sign-out item. Defaults to none. */
   items?: UserDropdownItem[];
   /** Fired when the danger sign-out row is chosen. Omit to hide sign-out. */
@@ -140,7 +140,10 @@ export const UserDropdown = React.forwardRef<HTMLButtonElement, UserDropdownProp
     },
     ref,
   ) {
-    const { name, email, avatarUrl, role } = user;
+    // The shell can mount this before the session resolves, so `user` may be
+    // undefined — fall back to safe placeholders instead of crashing on the
+    // destructure (`name` also feeds the Avatar's initials).
+    const { name = 'Account', email, avatarUrl, role } = user ?? {};
 
     return (
       <DropdownMenu>

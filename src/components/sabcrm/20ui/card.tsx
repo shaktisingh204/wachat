@@ -125,11 +125,13 @@ export function StatCard({
   className,
   ...rest
 }: StatCardProps): React.JSX.Element {
-  // A bare Lucide component gets sized; an already-rendered node is used as-is.
-  const glyph =
-    typeof icon === 'function'
-      ? React.createElement(icon as LucideIcon, { size: 16 })
-      : icon;
+  // An already-rendered node is used as-is; a component type — including a
+  // Lucide icon (a forwardRef *object*, not a function) — is created sized.
+  const glyph = !icon
+    ? null
+    : React.isValidElement(icon)
+      ? icon
+      : React.createElement(icon as LucideIcon, { size: 16 });
   return (
     <div className={['u-card', 'u-statcard', className].filter(Boolean).join(' ')} {...rest}>
       {icon ? (

@@ -185,11 +185,14 @@ export function EmptyState({
   ...rest
 }: EmptyStateProps): React.JSX.Element {
   const cls = ['u-empty', `u-empty--${size}`, className].filter(Boolean).join(' ');
-  // A bare Lucide component gets sized; an already-rendered node is used as-is.
-  const glyph =
-    typeof icon === 'function'
-      ? React.createElement(icon as LucideIcon, { size: size === 'sm' ? 18 : 22 })
-      : icon;
+  // An already-rendered node (<Search />) is used as-is; a component type —
+  // including a Lucide icon (which is a forwardRef *object*, not a function,
+  // so we can't `typeof === 'function'` it) — is created with a sized prop.
+  const glyph = !icon
+    ? null
+    : React.isValidElement(icon)
+      ? icon
+      : React.createElement(icon as LucideIcon, { size: size === 'sm' ? 18 : 22 });
   return (
     <div className={cls} {...rest}>
       {icon ? (
