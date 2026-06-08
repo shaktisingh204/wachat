@@ -107,8 +107,8 @@ export function CardFooter({
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   value: React.ReactNode;
-  /** Optional leading icon. */
-  icon?: LucideIcon;
+  /** Optional leading icon — a Lucide component (`Activity`) or a rendered node (`<Activity />`). */
+  icon?: LucideIcon | React.ReactNode;
   /** A delta like "+12%" with a tone. */
   delta?: { value: string; tone?: 'up' | 'down' | 'neutral' };
   /** Tint the icon chip with a brand-ish accent. */
@@ -119,21 +119,26 @@ export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function StatCard({
   label,
   value,
-  icon: Icon,
+  icon,
   delta,
   accent,
   className,
   ...rest
 }: StatCardProps): React.JSX.Element {
+  // A bare Lucide component gets sized; an already-rendered node is used as-is.
+  const glyph =
+    typeof icon === 'function'
+      ? React.createElement(icon as LucideIcon, { size: 16 })
+      : icon;
   return (
     <div className={['u-card', 'u-statcard', className].filter(Boolean).join(' ')} {...rest}>
-      {Icon ? (
+      {icon ? (
         <span
           className="u-statcard__icon"
           style={accent ? { background: `${accent}1a`, color: accent } : undefined}
           aria-hidden="true"
         >
-          <Icon size={16} />
+          {glyph}
         </span>
       ) : null}
       <span className="u-statcard__label">{label}</span>

@@ -10,6 +10,7 @@
  */
 
 import * as React from 'react';
+import { Slot } from '@radix-ui/react-slot';
 import type { LucideIcon } from 'lucide-react';
 
 import './button.css';
@@ -46,6 +47,12 @@ export interface ButtonProps
   loading?: boolean;
   /** Stretch to the container width. */
   block?: boolean;
+  /**
+   * Render the single child as the button (Radix Slot), merging button
+   * styling onto it — e.g. `<Button asChild><Link …>…</Link></Button>`.
+   * Consumed here so it never leaks onto the DOM node.
+   */
+  asChild?: boolean;
 }
 
 const ICON_SIZE: Record<ButtonSize, number> = { sm: 13, md: 14, lg: 16 };
@@ -59,6 +66,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       iconRight: IconRight,
       loading = false,
       block = false,
+      asChild = false,
       className,
       children,
       type = 'button',
@@ -80,6 +88,19 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       .filter(Boolean)
       .join(' ');
     const s = ICON_SIZE[sz];
+
+    // asChild: render the caller's single child as the button via Slot. Native
+    // <button> attributes (type/disabled/aria-busy) are omitted so they don't
+    // land on a non-button child (e.g. an <a>), and the decoration spans are
+    // skipped since Slot requires exactly one child.
+    if (asChild) {
+      return (
+        <Slot ref={ref} className={cls} {...rest}>
+          {children}
+        </Slot>
+      );
+    }
+
     return (
       <button
         ref={ref}
