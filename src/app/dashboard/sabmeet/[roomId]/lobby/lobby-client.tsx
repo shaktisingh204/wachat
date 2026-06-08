@@ -2,8 +2,21 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Card, CardBody, CardHeader, CardTitle, CardDescription, Input, Label } from '@/components/sabcrm/20ui';
-import { Mic, MicOff, Video, VideoOff, Loader2 } from 'lucide-react';
+import {
+  Button,
+  IconButton,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  Input,
+  Field,
+  Badge,
+  Alert,
+  Separator,
+} from '@/components/sabcrm/20ui';
+import { Mic, MicOff, Video, VideoOff, Loader2, ShieldCheck } from 'lucide-react';
 import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 import { joinMeetRoom } from '@/app/actions/sabmeet.actions';
 
@@ -35,16 +48,16 @@ export function LobbyClient({ room }: LobbyClientProps) {
           audio: true,
         });
         if (cancelled) {
-          stream.getTracks().forEach(t => t.stop());
+          stream.getTracks().forEach((t) => t.stop());
           return;
         }
         streamRef.current = stream;
         if (videoRef.current) videoRef.current.srcObject = stream;
-        stream.getVideoTracks().forEach(t => (t.enabled = camOn));
-        stream.getAudioTracks().forEach(t => (t.enabled = micOn));
+        stream.getVideoTracks().forEach((t) => (t.enabled = camOn));
+        stream.getAudioTracks().forEach((t) => (t.enabled = micOn));
       } catch (e) {
         setError(
-          e instanceof Error ? e.message : 'Camera / microphone permission denied.',
+          e instanceof Error ? e.message : 'Camera and microphone access was denied.',
         );
       } finally {
         setRequesting(false);
@@ -53,27 +66,27 @@ export function LobbyClient({ room }: LobbyClientProps) {
     acquire();
     return () => {
       cancelled = true;
-      streamRef.current?.getTracks().forEach(t => t.stop());
+      streamRef.current?.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
-    streamRef.current?.getVideoTracks().forEach(t => (t.enabled = camOn));
+    streamRef.current?.getVideoTracks().forEach((t) => (t.enabled = camOn));
   }, [camOn]);
   React.useEffect(() => {
-    streamRef.current?.getAudioTracks().forEach(t => (t.enabled = micOn));
+    streamRef.current?.getAudioTracks().forEach((t) => (t.enabled = micOn));
   }, [micOn]);
 
   const handleJoin = async () => {
     setError(null);
     if (!displayName.trim()) {
-      setError('Please enter your name.');
+      setError('Enter your name before joining.');
       return;
     }
     if (room.passcode && passcode !== room.passcode) {
-      setError('Incorrect passcode.');
+      setError('That passcode is incorrect.');
       return;
     }
     setJoining(true);
@@ -91,30 +104,34 @@ export function LobbyClient({ room }: LobbyClientProps) {
         });
         // Pass stream through window so room can pick it up. The hand-off
         // is intentionally non-React because MediaStream isn't serializable.
-        (window as Window & { __MEET_LOCAL_STREAM__?: MediaStream | null }).__MEET_LOCAL_STREAM__ =
-          streamRef.current;
+        (
+          window as Window & { __MEET_LOCAL_STREAM__?: MediaStream | null }
+        ).__MEET_LOCAL_STREAM__ = streamRef.current;
         // Don't stop the stream here — the room reuses it.
         router.push(`/dashboard/meetings/${room._id}/room?${qs.toString()}`);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to join.');
+      setError(e instanceof Error ? e.message : 'Could not join the meeting.');
     } finally {
       setJoining(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[var(--st-bg)] p-6">
-      <div className="mx-auto max-w-4xl grid gap-6 md:grid-cols-2">
+    <main className="grid min-h-[calc(100dvh-4rem)] place-items-center bg-[var(--st-bg)] p-6">
+      <div className="grid w-full max-w-4xl gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Device check</CardTitle>
-            <CardDescription>Preview your camera and microphone.</CardDescription>
+            <CardDescription>Preview your camera and microphone before joining.</CardDescription>
           </CardHeader>
           <CardBody>
-            <div className="aspect-video w-full overflow-hidden rounded-lg bg-black grid place-items-center">
+            <div className="grid aspect-video w-full place-items-center overflow-hidden rounded-[var(--st-radius)] bg-black">
               {requesting ? (
-                <Loader2 className="h-6 w-6 animate-spin text-white" />
+                <Loader2
+                  className="h-6 w-6 animate-spin text-white/80"
+                  aria-label="Requesting camera access"
+                />
               ) : null}
               <video
                 ref={videoRef}
@@ -124,28 +141,25 @@ export function LobbyClient({ room }: LobbyClientProps) {
                 className={`h-full w-full object-cover ${camOn ? '' : 'hidden'}`}
               />
               {!camOn && !requesting ? (
-                <div className="text-white/60 text-sm">Camera off</div>
+                <div className="flex flex-col items-center gap-2 text-sm text-white/60">
+                  <VideoOff className="h-6 w-6" aria-hidden="true" />
+                  Camera off
+                </div>
               ) : null}
             </div>
             <div className="mt-4 flex items-center justify-center gap-2">
-              <Button
-                type="button"
-                variant={micOn ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setMicOn(v => !v)}
-                aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'}
-              >
-                {micOn ? <Mic className="h-4 w-4" /> : <MicOff className="h-4 w-4" />}
-              </Button>
-              <Button
-                type="button"
-                variant={camOn ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCamOn(v => !v)}
-                aria-label={camOn ? 'Stop camera' : 'Start camera'}
-              >
-                {camOn ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-              </Button>
+              <IconButton
+                icon={micOn ? Mic : MicOff}
+                variant={micOn ? 'secondary' : 'danger'}
+                onClick={() => setMicOn((v) => !v)}
+                label={micOn ? 'Mute microphone' : 'Unmute microphone'}
+              />
+              <IconButton
+                icon={camOn ? Video : VideoOff}
+                variant={camOn ? 'secondary' : 'danger'}
+                onClick={() => setCamOn((v) => !v)}
+                label={camOn ? 'Stop camera' : 'Start camera'}
+              />
             </div>
           </CardBody>
         </Card>
@@ -154,48 +168,64 @@ export function LobbyClient({ room }: LobbyClientProps) {
           <CardHeader>
             <CardTitle>{room.name}</CardTitle>
             <CardDescription>
-              {room.description ?? 'Join the meeting'}
+              {room.description ?? 'Set your name, then join the meeting.'}
             </CardDescription>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="displayName">Your name</Label>
+            <Field label="Your name" required>
               <Input
-                id="displayName"
                 value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                placeholder="e.g. Alex Chen"
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="e.g. Priya Nair"
                 autoFocus
               />
-            </div>
+            </Field>
             {room.passcode ? (
-              <div className="grid gap-2">
-                <Label htmlFor="passcode">Passcode</Label>
+              <Field label="Passcode" required>
                 <Input
-                  id="passcode"
                   type="password"
                   value={passcode}
-                  onChange={e => setPasscode(e.target.value)}
+                  onChange={(e) => setPasscode(e.target.value)}
+                  placeholder="Enter meeting passcode"
                 />
-              </div>
+              </Field>
             ) : null}
-            <div className="text-xs text-[var(--st-text-secondary)]">
-              Join code: <code className="font-mono">{room.joinCode}</code>
+
+            <Separator />
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--st-text-secondary)]">
+              <span>
+                Join code{' '}
+                <code className="rounded bg-[var(--st-bg-secondary)] px-1.5 py-0.5 font-mono text-[var(--st-text)]">
+                  {room.joinCode}
+                </code>
+              </span>
               {room.lobbyEnabled ? (
-                <span className="ml-2">• Host will admit you from the lobby</span>
+                <Badge tone="info" kind="soft">
+                  <ShieldCheck className="mr-1 h-3 w-3" aria-hidden="true" />
+                  Host admits from lobby
+                </Badge>
               ) : null}
             </div>
+
             {error ? (
-              <div className="rounded-md border border-[var(--st-border)]/40 bg-[var(--st-text)]/5 text-sm text-[var(--st-text)] px-3 py-2">
+              <Alert tone="danger" title="Cannot join yet">
                 {error}
-              </div>
+              </Alert>
             ) : null}
-            <Button onClick={handleJoin} disabled={joining || requesting} className="w-full">
-              {joining ? 'Joining…' : 'Join meeting'}
+
+            <Button
+              variant="primary"
+              onClick={handleJoin}
+              loading={joining}
+              disabled={joining || requesting}
+              block
+            >
+              {joining ? 'Joining' : 'Join meeting'}
             </Button>
           </CardBody>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }

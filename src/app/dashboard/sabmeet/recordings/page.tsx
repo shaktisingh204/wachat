@@ -20,9 +20,11 @@ import {
     EmptyState,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
+    Separator,
     Tooltip,
     TooltipProvider,
     TooltipTrigger,
@@ -51,9 +53,10 @@ export default function SabMeetRecordingsPage() {
     const totalDuration = "2h 30m";
 
     return (
-        <div className="20ui p-6 space-y-6">
+        <main className="space-y-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
+                    <PageEyebrow>SabMeet</PageEyebrow>
                     <PageTitle>Recordings</PageTitle>
                     <PageDescription>View, play, and download your saved meeting recordings.</PageDescription>
                 </PageHeaderHeading>
@@ -71,10 +74,14 @@ export default function SabMeetRecordingsPage() {
             </div>
 
             <Card padding="none">
-                <CardHeader>
-                    <CardTitle>Recent recordings</CardTitle>
-                    <CardDescription>Recordings are kept for 90 days, then archived automatically.</CardDescription>
+                <CardHeader className="flex items-center gap-2">
+                    <Video className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                    <div>
+                        <CardTitle>Recent recordings</CardTitle>
+                        <CardDescription>Recordings are kept for 90 days, then archived automatically.</CardDescription>
+                    </div>
                 </CardHeader>
+                <Separator />
                 <CardBody>
                     {recordings.length === 0 ? (
                         <EmptyState
@@ -158,6 +165,6 @@ export default function SabMeetRecordingsPage() {
                     )}
                 </CardBody>
             </Card>
-        </div>
+        </main>
     );
 }

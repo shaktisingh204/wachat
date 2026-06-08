@@ -11,6 +11,7 @@ import {
   Textarea,
   Field,
   EmptyState,
+  Progress,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -200,19 +201,25 @@ export function RoomClient({ room }: RoomClientProps) {
   return (
     <div className="20ui dark flex h-screen flex-col bg-[var(--st-bg)] text-[var(--st-text)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--st-border)]">
+      <header className="flex items-center justify-between border-b border-[var(--st-border)] px-4 py-2">
         <div className="flex items-center gap-3">
           <Badge tone="danger" kind="solid">
             <Dot tone="danger" pulse className="mr-1.5" />
-            LIVE
+            Live
           </Badge>
           <div>
             <div className="text-sm font-medium">{room.name}</div>
-            <div className="text-xs text-[var(--st-text-secondary)]">{room.joinCode}</div>
+            <div className="text-xs text-[var(--st-text-secondary)]">
+              Join code {room.joinCode}
+            </div>
           </div>
         </div>
-        <div className="text-xs text-[var(--st-text-secondary)]">{allTiles.length} in room</div>
-      </div>
+        <div className="flex items-center gap-1.5 text-xs text-[var(--st-text-secondary)]">
+          <Users className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="tabular-nums">{allTiles.length}</span>
+          <span>in room</span>
+        </div>
+      </header>
 
       {/* Tiles + side panel */}
       <div className="flex-1 flex overflow-hidden">
@@ -228,7 +235,7 @@ export function RoomClient({ room }: RoomClientProps) {
                 videoRef={localVideoRef}
               />
             ) : (
-              <RemoteTile key={t.id} participant={t as MeetRemoteParticipant} />
+              <RemoteTile key={t.id} participant={t as unknown as MeetRemoteParticipant} />
             ),
           )}
         </div>
@@ -246,7 +253,7 @@ export function RoomClient({ room }: RoomClientProps) {
       </div>
 
       {/* Controls bar */}
-      <div className="flex items-center justify-center gap-2 px-4 py-3 border-t border-[var(--st-border)] bg-[var(--st-bg)]">
+      <footer className="flex items-center justify-center gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-3">
         <IconButton
           icon={local.microphoneOn ? Mic : MicOff}
           variant={local.microphoneOn ? 'primary' : 'danger'}
@@ -304,7 +311,7 @@ export function RoomClient({ room }: RoomClientProps) {
         <Button onClick={leave} variant="danger" size="sm" iconLeft={PhoneOff}>
           Leave
         </Button>
-      </div>
+      </footer>
     </div>
   );
 }
@@ -611,27 +618,20 @@ function PollsPanel({ room, you }: { room: MeetRoom; you: string }) {
               {p.options.map(o => {
                 const pct = total ? Math.round(((o.voteCount ?? 0) / total) * 100) : 0;
                 return (
-                  <Button
+                  <button
                     key={o.id}
-                    variant="ghost"
+                    type="button"
                     onClick={() => vote(p._id, o.id)}
-                    className="block w-full text-left"
+                    className="block w-full rounded-[var(--st-radius)] px-1 py-1 text-left transition-colors hover:bg-[var(--st-bg-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
                   >
-                    <span className="block w-full">
-                      <span className="flex justify-between text-xs">
-                        <span>{o.label}</span>
-                        <span className="text-[var(--st-text-secondary)]">
-                          {o.voteCount ?? 0} ({pct}%)
-                        </span>
-                      </span>
-                      <span className="mt-1 block h-1 rounded-full bg-[var(--st-bg-secondary)] overflow-hidden">
-                        <span
-                          className="block h-full bg-[var(--st-accent)]"
-                          style={{ width: `${pct}%` }}
-                        />
+                    <span className="flex justify-between text-xs">
+                      <span className="text-[var(--st-text)]">{o.label}</span>
+                      <span className="tabular-nums text-[var(--st-text-secondary)]">
+                        {o.voteCount ?? 0} · {pct}%
                       </span>
                     </span>
-                  </Button>
+                    <Progress value={pct} size="sm" className="mt-1.5" />
+                  </button>
                 );
               })}
             </div>

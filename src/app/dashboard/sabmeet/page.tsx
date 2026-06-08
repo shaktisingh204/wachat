@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { listMeetRooms } from '@/app/actions/sabmeet.actions';
 import { MeetingsListClient } from './_components/sabmeet-list-client';
 
@@ -10,12 +9,5 @@ export default async function MeetingsPage() {
     listMeetRooms({ when: 'past' }),
   ]);
 
-  return (
-    <Suspense fallback={null}>
-      <MeetingsListClient
-        upcoming={upcoming.data}
-        past={past.data}
-      />
-    </Suspense>
-  );
+  return <MeetingsListClient upcoming={upcoming.data} past={past.data} />;
 }

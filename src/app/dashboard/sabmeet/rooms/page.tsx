@@ -4,6 +4,7 @@ import React from "react";
 import {
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
@@ -51,15 +52,16 @@ export default function SabMeetRoomsPage() {
 
   return (
     <TooltipProvider>
-      <div className="20ui p-6 space-y-6">
+      <main className="space-y-6 p-6">
         <PageHeader>
           <PageHeaderHeading>
-            <PageTitle>Meeting Rooms</PageTitle>
+            <PageEyebrow>SabMeet</PageEyebrow>
+            <PageTitle>Meeting rooms</PageTitle>
             <PageDescription>Manage your video conferencing rooms and see who is live.</PageDescription>
           </PageHeaderHeading>
           <PageActions>
             <Button variant="primary" iconLeft={Plus}>
-              Create Room
+              Create room
             </Button>
           </PageActions>
         </PageHeader>
@@ -71,9 +73,12 @@ export default function SabMeetRoomsPage() {
         </div>
 
         <Card padding="none">
-          <CardHeader>
-            <CardTitle>All Rooms</CardTitle>
-            <CardDescription>Every room in your workspace, with current activity.</CardDescription>
+          <CardHeader className="flex items-center gap-2">
+            <Video className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+            <div>
+              <CardTitle>All rooms</CardTitle>
+              <CardDescription>Every room in your workspace, with current activity.</CardDescription>
+            </div>
           </CardHeader>
           <CardBody>
             {rooms.length === 0 ? (
@@ -83,7 +88,7 @@ export default function SabMeetRoomsPage() {
                 description="Create your first room to start hosting video calls with your team."
                 action={
                   <Button variant="primary" iconLeft={Plus}>
-                    Create Room
+                    Create room
                   </Button>
                 }
               />
@@ -161,7 +166,7 @@ export default function SabMeetRoomsPage() {
             )}
           </CardBody>
         </Card>
-      </div>
+      </main>
     </TooltipProvider>
   );
 }

@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardHeader,
   CardTitle,
   Checkbox,
@@ -14,13 +13,15 @@ import {
   Textarea,
   Field,
   Alert,
+  SegmentedControl,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
 } from '@/components/sabcrm/20ui';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText, ShieldCheck, Zap } from 'lucide-react';
 import { createMeetRoom } from '@/app/actions/sabmeet.actions';
 
 export function NewMeetingForm() {
@@ -77,9 +78,10 @@ export function NewMeetingForm() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <main className="space-y-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
+          <PageEyebrow>SabMeet</PageEyebrow>
           <PageTitle>New meeting</PageTitle>
           <PageDescription>
             Create an instant or scheduled video conference.
@@ -96,40 +98,33 @@ export function NewMeetingForm() {
         </PageActions>
       </PageHeader>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 max-w-3xl">
+      <form onSubmit={handleSubmit} className="grid max-w-3xl gap-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Type</CardTitle>
-            <CardDescription>Start now or schedule for later.</CardDescription>
+          <CardHeader className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+            <CardTitle className="text-base">Meeting type</CardTitle>
           </CardHeader>
-          <CardBody className="flex gap-3">
-            <Button
-              variant={mode === 'instant' ? 'primary' : 'outline'}
-              aria-pressed={mode === 'instant'}
-              onClick={() => setMode('instant')}
-              className="flex-1 flex-col items-start text-left h-auto py-4"
-            >
-              <span className="font-medium">Instant</span>
-              <span className="text-xs text-[var(--st-text-secondary)] mt-1">
-                Start the meeting immediately.
-              </span>
-            </Button>
-            <Button
-              variant={mode === 'scheduled' ? 'primary' : 'outline'}
-              aria-pressed={mode === 'scheduled'}
-              onClick={() => setMode('scheduled')}
-              className="flex-1 flex-col items-start text-left h-auto py-4"
-            >
-              <span className="font-medium">Scheduled</span>
-              <span className="text-xs text-[var(--st-text-secondary)] mt-1">
-                Pick a start and end time and invite people.
-              </span>
-            </Button>
+          <CardBody className="space-y-2">
+            <SegmentedControl
+              aria-label="Meeting type"
+              value={mode}
+              onChange={setMode}
+              items={[
+                { value: 'scheduled', label: 'Scheduled' },
+                { value: 'instant', label: 'Instant' },
+              ]}
+            />
+            <p className="text-xs text-[var(--st-text-secondary)]">
+              {mode === 'instant'
+                ? 'Start the meeting immediately and bring people in from the lobby.'
+                : 'Pick a start and end time, then invite people by email.'}
+            </p>
           </CardBody>
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
             <CardTitle className="text-base">Details</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
@@ -164,7 +159,8 @@ export function NewMeetingForm() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
             <CardTitle className="text-base">Security and options</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
@@ -202,6 +198,6 @@ export function NewMeetingForm() {
           </Button>
         </div>
       </form>
-    </div>
+    </main>
   );
 }

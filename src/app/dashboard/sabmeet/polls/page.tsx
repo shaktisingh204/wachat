@@ -20,9 +20,11 @@ import {
     EmptyState,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
+    Separator,
     TooltipProvider,
     Tooltip,
     TooltipTrigger,
@@ -56,30 +58,35 @@ export default function SabMeetPollsPage() {
     const totalVotes = polls.reduce((sum, p) => sum + p.votes, 0);
 
     return (
-        <div className="20ui p-6 space-y-6">
+        <main className="space-y-6 p-6">
             <PageHeader>
                 <PageHeaderHeading>
-                    <PageTitle>Meeting Polls</PageTitle>
+                    <PageEyebrow>SabMeet</PageEyebrow>
+                    <PageTitle>Meeting polls</PageTitle>
                     <PageDescription>Manage interactive polls across your meeting rooms.</PageDescription>
                 </PageHeaderHeading>
                 <PageActions>
                     <Button variant="primary" iconLeft={Plus}>
-                        Create Poll
+                        Create poll
                     </Button>
                 </PageActions>
             </PageHeader>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <StatCard label="Total Polls" value={totalPolls} icon={ListChecks} />
-                <StatCard label="Active Polls" value={activePolls} icon={Radio} accent="#2e7d32" />
-                <StatCard label="Total Votes" value={totalVotes} icon={Vote} accent="#2b6ef2" />
+                <StatCard label="Total polls" value={totalPolls} icon={ListChecks} accent="#6366f1" />
+                <StatCard label="Active polls" value={activePolls} icon={Radio} accent="#16a34a" />
+                <StatCard label="Total votes" value={totalVotes} icon={Vote} accent="#0ea5e9" />
             </div>
 
             <Card padding="none">
-                <CardHeader>
-                    <CardTitle>All Polls</CardTitle>
-                    <CardDescription>Every poll created across your rooms, with live vote counts.</CardDescription>
+                <CardHeader className="flex items-center gap-2">
+                    <ListChecks className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                    <div>
+                        <CardTitle>All polls</CardTitle>
+                        <CardDescription>Every poll created across your rooms, with live vote counts.</CardDescription>
+                    </div>
                 </CardHeader>
+                <Separator />
                 <CardBody>
                     {polls.length === 0 ? (
                         <EmptyState
@@ -88,7 +95,7 @@ export default function SabMeetPollsPage() {
                             description="Create your first poll to gather votes from participants during a meeting."
                             action={
                                 <Button variant="primary" iconLeft={Plus}>
-                                    Create Poll
+                                    Create poll
                                 </Button>
                             }
                         />
@@ -147,6 +154,6 @@ export default function SabMeetPollsPage() {
                     )}
                 </CardBody>
             </Card>
-        </div>
+        </main>
     );
 }
