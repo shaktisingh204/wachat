@@ -2,14 +2,21 @@ import { notFound } from 'next/navigation';
 import { History } from 'lucide-react';
 
 import {
+  Badge,
   Card,
-  CardBody,
   EmptyState,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  TBody,
+  THead,
+  Table,
+  Td,
+  Th,
+  Tr,
 } from '@/components/sabcrm/20ui';
 import {
   getSabsheetWorkbook,
@@ -31,10 +38,11 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
   const versions = await listSabsheetVersions(workbookId);
 
   return (
-    <div className="20ui mx-auto w-full max-w-3xl space-y-4 p-6">
+    <div className="20ui mx-auto w-full max-w-3xl space-y-6 p-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>{workbook.title} history</PageTitle>
+          <PageEyebrow>{workbook.title}</PageEyebrow>
+          <PageTitle>Version history</PageTitle>
           <PageDescription>
             Saved snapshots of this workbook. Restore replays a version into the
             live workbook.
@@ -46,32 +54,50 @@ export default async function SabsheetHistoryPage({ params }: PageProps) {
       </PageHeader>
 
       {versions.length === 0 ? (
-        <Card padding="none">
-          <CardBody>
-            <EmptyState
-              icon={History}
-              title="No versions yet"
-              description='Use "Save version" in the editor to create a snapshot.'
-            />
-          </CardBody>
+        <Card variant="outlined">
+          <EmptyState
+            icon={History}
+            title="No versions yet"
+            description='Use "Save version" in the editor to create a snapshot.'
+          />
         </Card>
       ) : (
-        <ul className="space-y-2">
-          {versions.map((v) => (
-            <li key={v._id}>
-              <Card padding="sm" className="flex items-center justify-between gap-4 text-sm">
-                <div>
-                  <div className="font-medium text-[var(--st-text)]">v{v.version}</div>
-                  <div className="text-xs text-[var(--st-text-secondary)]">
+        <Card variant="outlined" padding="none">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Version</Th>
+                <Th>Saved</Th>
+                <Th>Comment</Th>
+                <Th align="right">Action</Th>
+              </Tr>
+            </THead>
+            <TBody>
+              {versions.map((v) => (
+                <Tr key={v._id}>
+                  <Td>
+                    <Badge tone="neutral" kind="soft" className="tabular-nums">
+                      v{v.version}
+                    </Badge>
+                  </Td>
+                  <Td className="tabular-nums text-[var(--st-text-secondary)]">
                     {new Date(v.savedAt).toLocaleString()}
-                    {v.comment ? `, ${v.comment}` : ''}
-                  </div>
-                </div>
-                <RestoreButton versionId={v._id} />
-              </Card>
-            </li>
-          ))}
-        </ul>
+                  </Td>
+                  <Td className="text-[var(--st-text)]">
+                    {v.comment || (
+                      <span className="text-[var(--st-text-secondary)]">
+                        No comment
+                      </span>
+                    )}
+                  </Td>
+                  <Td align="right">
+                    <RestoreButton versionId={v._id} />
+                  </Td>
+                </Tr>
+              ))}
+            </TBody>
+          </Table>
+        </Card>
       )}
     </div>
   );

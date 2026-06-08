@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Input, Label } from '@/components/sabcrm/20ui';
+import { Plus } from 'lucide-react';
+
+import { Button, Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, Field, Input } from '@/components/sabcrm/20ui';
 import { createSabsheetWorkbook } from '@/app/actions/sabsheet.actions';
 
 export function NewWorkbookButton() {
@@ -33,32 +35,33 @@ export function NewWorkbookButton() {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>+ New workbook</Button>
+      <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+        New workbook
+      </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>New workbook</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <Label htmlFor="sabsheet-title">Workbook title</Label>
-            <Input
-              id="sabsheet-title"
-              autoFocus
-              placeholder="e.g. Q4 forecast"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submit();
-              }}
-            />
-            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
+          <div className="py-4">
+            <Field label="Workbook title" error={error ?? undefined}>
+              <Input
+                autoFocus
+                placeholder="Q4 forecast"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submit();
+                }}
+              />
+            </Field>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
               Cancel
             </Button>
-            <Button onClick={submit} disabled={pending}>
-              {pending ? 'Creating…' : 'Create'}
+            <Button variant="primary" onClick={submit} loading={pending}>
+              {pending ? 'Creating' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>

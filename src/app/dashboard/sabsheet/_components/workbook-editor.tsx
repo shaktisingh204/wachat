@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import {
+  ChevronLeft,
+  FunctionSquare,
+  History,
+  MessageSquare,
+  Plus,
+  RefreshCw,
+  Save,
+  Table2,
+  Tag as TagIcon,
+} from 'lucide-react';
 
 import {
   Badge,
@@ -321,44 +331,34 @@ function Toolbar({
 }) {
   const router = useRouter();
   return (
-    <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
-      <Link href="/dashboard/sabsheet" className="text-sm text-[var(--st-text-secondary)] hover:underline">
-        SabSheet
+    <header className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
+      <Link
+        href="/dashboard/sabsheet"
+        aria-label="Back to workbooks"
+        className="inline-flex size-7 items-center justify-center rounded-[var(--st-radius)] text-[var(--st-text-secondary)] transition-colors hover:bg-[var(--st-bg)] hover:text-[var(--st-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
+      >
+        <ChevronLeft className="size-4" aria-hidden="true" />
       </Link>
-      <span className="text-sm text-[var(--st-text-secondary)]">/</span>
-      <span className="text-sm font-medium text-[var(--st-text)]">{workbookTitle}</span>
+      <h1 className="truncate text-sm font-semibold text-[var(--st-text)]">
+        {workbookTitle}
+      </h1>
       <div className="ml-auto flex items-center gap-1">
-        {/* TODO: implement number-format, font, bg/color, borders, freeze in a follow-up. */}
-        <Button variant="ghost" size="sm" disabled title="Bold formatting (coming soon)">
-          B
-        </Button>
-        <Button variant="ghost" size="sm" disabled title="Italic formatting (coming soon)">
-          I
-        </Button>
-        <Button variant="ghost" size="sm" disabled title="Number format (coming soon)">
-          123
-        </Button>
-        <Button variant="ghost" size="sm" disabled title="Borders (coming soon)">
-          Borders
-        </Button>
-        <Button variant="ghost" size="sm" disabled title="Freeze panes (coming soon)">
-          Freeze
-        </Button>
-        <Button variant="outline" size="sm" onClick={onRecompute}>
+        <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={onRecompute}>
           Recompute
         </Button>
-        <Button variant="outline" size="sm" onClick={onSaveVersion}>
+        <Button variant="outline" size="sm" iconLeft={Save} onClick={onSaveVersion}>
           Save version
         </Button>
         <Button
           variant="ghost"
           size="sm"
+          iconLeft={History}
           onClick={() => router.push(`/dashboard/sabsheet/${workbookId}/history`)}
         >
           History
         </Button>
       </div>
-    </div>
+    </header>
   );
 }
 
@@ -376,21 +376,24 @@ function FormulaBar({
   onEvaluate: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1">
-      <div className="w-16 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-center font-mono text-xs text-[var(--st-text)]">
+    <div className="flex items-center gap-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5">
+      <div className="w-16 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2 py-1 text-center font-mono text-xs font-medium tabular-nums text-[var(--st-text)]">
         {addr}
       </div>
-      <span className="font-mono text-sm text-[var(--st-text-secondary)]">fx</span>
-      <Field className="flex-1" label="Formula or value">
-        <Input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') onCommit();
-          }}
-          placeholder="Enter a value or =FORMULA(...)"
-        />
-      </Field>
+      <FunctionSquare
+        className="size-4 shrink-0 text-[var(--st-text-secondary)]"
+        aria-hidden="true"
+      />
+      <Input
+        className="flex-1"
+        aria-label="Formula or value"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onCommit();
+        }}
+        placeholder="Enter a value or =FORMULA(...)"
+      />
       <Button variant="ghost" size="sm" onClick={onEvaluate}>
         Evaluate
       </Button>
@@ -529,9 +532,18 @@ function SidePanels({
     <aside className="w-72 shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
       <Tabs defaultValue="comments" className="flex h-full flex-col">
         <TabsList className="m-2">
-          <TabsTrigger value="comments">Comments</TabsTrigger>
-          <TabsTrigger value="named">Named</TabsTrigger>
-          <TabsTrigger value="pivots">Pivots</TabsTrigger>
+          <TabsTrigger value="comments">
+            <MessageSquare className="size-3.5" aria-hidden="true" />
+            Comments
+          </TabsTrigger>
+          <TabsTrigger value="named">
+            <TagIcon className="size-3.5" aria-hidden="true" />
+            Named
+          </TabsTrigger>
+          <TabsTrigger value="pivots">
+            <Table2 className="size-3.5" aria-hidden="true" />
+            Pivots
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="comments" className="min-h-0 flex-1 space-y-3 overflow-auto p-3">
@@ -588,8 +600,8 @@ function SidePanels({
                 <Card padding="sm" className="text-xs">
                   <div className="flex items-center gap-2 font-mono text-[10px] text-[var(--st-text-secondary)]">
                     <span>{a1(c.row, c.col)}</span>
-                    <Badge tone={c.resolved ? 'success' : 'warning'} kind="soft">
-                      {c.resolved ? 'resolved' : 'open'}
+                    <Badge tone={c.resolved ? 'success' : 'warning'} kind="soft" dot>
+                      {c.resolved ? 'Resolved' : 'Open'}
                     </Badge>
                   </div>
                   <div className="mt-1 text-[var(--st-text)]">{c.body}</div>
