@@ -65,6 +65,51 @@
   background: var(--st-hover);
 }
 
+/* -------------------------------------------------------------------------
+   Table-cell density (Twenty parity)
+
+   Multi-value (chips) and multi-line (ADDRESS) field displays are allowed to
+   wrap/stack in record-detail panels, but inside a `.st-table` cell they must
+   collapse to a single clipped line so every row keeps a uniform 32px height.
+   Without this, a company with several domain chips or a multi-line address
+   balloons its row to several times the height of its neighbours. Scoped to
+   `.st-table td` so only the compact table view is affected.
+   ------------------------------------------------------------------------- */
+.st-table td .st-field-chips {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.st-table td .st-field-stack {
+  flex-direction: row;
+  gap: var(--st-space-2);
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.st-table td .st-field-stack__line {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* RAW_JSON renders a bordered, scrollable box — flatten to one inline,
+   clipped line in the compact table view (the full box still shows in the
+   record-detail panel). */
+.st-table td .st-field-json {
+  display: inline-block;
+  max-width: 100%;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ACTOR read value: avatar/initials chip + name + a muted source tag. */
 .st-field-actor {
   display: inline-flex;
