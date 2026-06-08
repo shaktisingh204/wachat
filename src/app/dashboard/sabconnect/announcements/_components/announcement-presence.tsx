@@ -32,26 +32,22 @@ export function AnnouncementPresence({ entityId }: { entityId: string }) {
             ws.onopen = () => {
                 setIsConnected(true);
                 ws.send(JSON.stringify({ type: 'presence_join', entityId, userId: '1' }));
-
-                // Simulate other users joining
-                setTimeout(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        setViewers((prev) => [...prev, { id: '2', name: 'Alice S.' }]);
-                    }
-                }, 3000);
-
-                setTimeout(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        setViewers((prev) => [...prev, { id: '3', name: 'Bob J.' }]);
-                    }
-                }, 8000);
             };
 
             ws.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.type === 'presence_join' && data.userId !== '1') {
-                        // In a real app we'd add the user here
+                    if (
+                        data.type === 'presence_join' &&
+                        typeof data.userId === 'string' &&
+                        data.userId !== '1' &&
+                        typeof data.name === 'string'
+                    ) {
+                        setViewers((prev) =>
+                            prev.some((v) => v.id === data.userId)
+                                ? prev
+                                : [...prev, { id: data.userId, name: data.name }],
+                        );
                     }
                 } catch (e) {
                     console.error('Failed to parse websocket message', e);

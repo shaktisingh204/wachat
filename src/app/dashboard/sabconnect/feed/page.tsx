@@ -9,10 +9,12 @@
  */
 
 import Link from 'next/link';
+import { Award, Megaphone } from 'lucide-react';
 
 import {
     PageHeader,
-    PageHeading,
+    PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
@@ -43,23 +45,26 @@ export default async function SabConnectFeedPage() {
     return (
         <div className="20ui flex w-full flex-col gap-6">
             <PageHeader>
-                <PageHeading>
-                    <PageTitle>Connect</PageTitle>
+                <PageHeaderHeading>
+                    <PageEyebrow>Connect</PageEyebrow>
+                    <PageTitle>Feed</PageTitle>
                     <PageDescription>
-                        One feed for posts, announcements, recognition and events across the workspace.
+                        One timeline for posts, announcements, recognition, and events across the workspace.
                     </PageDescription>
-                </PageHeading>
+                </PageHeaderHeading>
                 <PageActions>
                     <Link
                         href="/dashboard/sabconnect/announcements/new"
                         className="u-btn u-btn--outline u-btn--md"
                     >
+                        <Megaphone size={14} aria-hidden="true" />
                         <span className="u-btn__label">New announcement</span>
                     </Link>
                     <Link
                         href="/dashboard/crm/workspace/awards/new"
                         className="u-btn u-btn--outline u-btn--md"
                     >
+                        <Award size={14} aria-hidden="true" />
                         <span className="u-btn__label">Give recognition</span>
                     </Link>
                 </PageActions>
