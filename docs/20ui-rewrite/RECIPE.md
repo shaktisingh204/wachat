@@ -81,6 +81,36 @@ Apply all four skills on every page: `emil-design-eng`, `design-taste-frontend`,
 - No console errors. No RSC→client function-prop passing (Server Components must pass icon **elements** or move interactivity to a client child). No DOM prop leaks (`asChild`, slot props consumed). No icon component-vs-element crashes.
 - `next build` (turbo) exits 0. Grep guard: file has zero forbidden imports.
 
+## Premium design audit (from `redesign-existing-projects`, adapted to 20ui)
+
+Run this audit on every page and fix what you find — WITHIN the 20ui system (these
+override nothing in the hard rules above):
+
+- **Typography:** strong hierarchy via weight (use 500/600, not just 400/700);
+  tighter tracking on big titles; `tabular-nums` on all numeric/data cells; **sentence
+  case** headers (not Title Case); body width ~65ch in prose.
+- **Copy:** real, specific text — NO Lorem Ipsum, NO AI clichés ("Elevate/Seamless/
+  Unleash/Next-gen/Supercharge"), no "Oops!"/exclamation success messages, active voice,
+  realistic sample names/numbers (47.2%, not 99.99%).
+- **Color/surface (tokens only):** ONE accent (`--st-accent`); soft tints for status;
+  don't drop a random dark block into a light page; cards exist only when elevation
+  communicates hierarchy — otherwise use spacing/background, not border+shadow everywhere.
+- **Layout:** generous whitespace (let it breathe); avoid three-equal-cards as the only
+  motif — vary with asymmetric/2-col/zig-zag where it helps; max-width container; bottom-
+  align buttons in card rows; align shared baselines (titles/values/actions) across
+  side-by-side cards; vary radius (tighter inner, softer container).
+- **States/interactivity:** hover + active(`scale .98`/translate) + visible focus ring on
+  every control; transitions 150–250ms; skeleton loaders (not spinners); composed empty
+  states; inline errors (never `alert()`); active nav indication; transform/opacity
+  animations only (via `m.*`).
+- **Semantic HTML:** `<nav>/<main>/<section>/<article>`, real `alt` text, a clean z-index
+  scale (no `9999`), no commented-out dead code, no import hallucinations.
+
+20ui-specific EXCEPTIONS to the generic skill (do NOT apply these): keep Lucide icons
+(via 20ui), keep the shell left sidebar, and do NOT add background photos / picsum /
+noise textures — these are dense data app surfaces; create depth with 20ui tokens,
+spacing, and elevation, not imagery.
+
 ## Layout archetypes (pick one per page)
 
 1. **Overview / dashboard** — PageHeader + StatCard row + a few focused Cards.
