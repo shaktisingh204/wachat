@@ -2,8 +2,16 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { Mail, Phone } from 'lucide-react';
 
-import { Button, Field, Input, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Field,
+    Input,
+    Separator,
+    Textarea,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import {
     createSabpracticeFirm,
     updateSabpracticeFirm,
@@ -12,6 +20,14 @@ import type { SabPracticeFirmDoc } from '@/lib/rust-client/sabpractice-firms';
 
 interface Props {
     initial: SabPracticeFirmDoc | null;
+}
+
+function GroupLabel({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="text-xs font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
+            {children}
+        </p>
+    );
 }
 
 export function FirmForm({ initial }: Props) {
@@ -24,10 +40,14 @@ export function FirmForm({ initial }: Props) {
     const [website, setWebsite] = React.useState(initial?.website ?? '');
     const [address, setAddress] = React.useState(initial?.address ?? '');
     const [services, setServices] = React.useState((initial?.services ?? []).join(', '));
+    const [touched, setTouched] = React.useState(false);
     const [pending, start] = React.useTransition();
+
+    const nameError = touched && !name.trim() ? 'A firm name is required.' : undefined;
 
     function submit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        setTouched(true);
         if (!name.trim()) return;
         start(async () => {
             const payload = {
@@ -50,6 +70,7 @@ export function FirmForm({ initial }: Props) {
                     await createSabpracticeFirm(payload);
                     toast.success('Firm created');
                 }
+                setTouched(false);
                 router.refresh();
             } catch {
                 toast.error('Could not save the firm. Please try again.');
@@ -58,41 +79,75 @@ export function FirmForm({ initial }: Props) {
     }
 
     return (
-        <form className="space-y-3" onSubmit={submit}>
-            <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Firm name" required>
-                    <Input value={name} onChange={(e) => setName(e.target.value)} />
-                </Field>
-                <Field label="Registration no">
-                    <Input
-                        value={registrationNo}
-                        onChange={(e) => setRegistrationNo(e.target.value)}
-                    />
-                </Field>
-                <Field label="Email">
-                    <Input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </Field>
-                <Field label="Phone">
-                    <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </Field>
-                <Field label="Website" className="sm:col-span-2">
-                    <Input value={website} onChange={(e) => setWebsite(e.target.value)} />
-                </Field>
-                <Field label="Address" className="sm:col-span-2">
-                    <Textarea
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        rows={2}
-                    />
-                </Field>
+        <form className="space-y-6" onSubmit={submit}>
+            <div className="space-y-3">
+                <GroupLabel>Identity</GroupLabel>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Firm name" required error={nameError}>
+                        <Input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Mehta & Associates"
+                        />
+                    </Field>
+                    <Field label="Registration number">
+                        <Input
+                            value={registrationNo}
+                            onChange={(e) => setRegistrationNo(e.target.value)}
+                            placeholder="ICAI-123456"
+                        />
+                    </Field>
+                </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+                <GroupLabel>Contact</GroupLabel>
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Email">
+                        <Input
+                            type="email"
+                            iconLeft={Mail}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="hello@firm.example"
+                        />
+                    </Field>
+                    <Field label="Phone">
+                        <Input
+                            iconLeft={Phone}
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            placeholder="+91 22 4000 1234"
+                        />
+                    </Field>
+                    <Field label="Website" className="sm:col-span-2">
+                        <Input
+                            prefix="https://"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="firm.example"
+                        />
+                    </Field>
+                    <Field label="Address" className="sm:col-span-2">
+                        <Textarea
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            rows={2}
+                            placeholder="14 Marine Drive, Mumbai 400020"
+                        />
+                    </Field>
+                </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3">
+                <GroupLabel>Services</GroupLabel>
                 <Field
-                    label="Services (comma-separated)"
+                    label="Services offered"
                     help="Separate each service with a comma."
-                    className="sm:col-span-2"
                 >
                     <Input
                         value={services}
@@ -101,14 +156,12 @@ export function FirmForm({ initial }: Props) {
                     />
                 </Field>
             </div>
-            <Button
-                type="submit"
-                variant="primary"
-                loading={pending}
-                disabled={!name.trim()}
-            >
-                {initial ? 'Save changes' : 'Create firm'}
-            </Button>
+
+            <div className="flex justify-end border-t border-[var(--st-border-light)] pt-4">
+                <Button type="submit" variant="primary" loading={pending}>
+                    {initial ? 'Save changes' : 'Create firm'}
+                </Button>
+            </div>
         </form>
     );
 }

@@ -83,7 +83,11 @@ function revalidateClient(clientId?: string) {
   if (clientId) revalidatePath(`/dashboard/sabpractice/clients/${clientId}`);
 }
 
-function emptyList<T>() {
+// Fallback when a Rust list call fails. The default type arg is `any` so that,
+// when callers invoke `emptyList()` with no explicit type, the union with the
+// strongly-typed success branch resolves to the typed result rather than
+// widening item access to `unknown`.
+function emptyList<T = any>() {
   return { items: [] as T[], page: 0, limit: 25, hasMore: false };
 }
 

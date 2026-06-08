@@ -9,9 +9,11 @@ export const metadata = {
 
 export default function SabPracticeLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="mx-auto w-full max-w-7xl px-4 py-6">
-            <SabpracticeNav />
-            {children}
+        <div className="20ui">
+            <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6">
+                <SabpracticeNav />
+                <main>{children}</main>
+            </div>
         </div>
     );
 }

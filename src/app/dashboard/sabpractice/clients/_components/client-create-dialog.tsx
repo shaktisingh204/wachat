@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Plus } from 'lucide-react';
+
 import {
     Button,
     Dialog,
@@ -73,7 +75,9 @@ export function ClientCreateDialog() {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="primary">New client</Button>
+                <Button variant="primary" iconLeft={Plus}>
+                    New client
+                </Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
                 <DialogHeader>

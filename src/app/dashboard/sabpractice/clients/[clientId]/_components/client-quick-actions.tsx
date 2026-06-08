@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { Briefcase, CalendarPlus, CheckSquare, Lightbulb } from 'lucide-react';
 
 import {
     Button,
     Checkbox,
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -42,24 +44,30 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button>New engagement</Button>
+                <Button variant="primary" size="sm" iconLeft={Briefcase}>
+                    New engagement
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>New engagement</DialogTitle>
+                    <DialogDescription>
+                        A scoped block of work with its own billing terms.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <Field label="Name">
+                    <Field label="Name" required>
                         <Input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="FY26 audit"
+                            placeholder="FY26 statutory audit"
+                            autoFocus
                         />
                     </Field>
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Billing cadence">
                             <Select value={cadence} onValueChange={setCadence}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Billing cadence">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -69,7 +77,10 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                                 </SelectContent>
                             </Select>
                         </Field>
-                        <Field label="Hourly rate (minor)">
+                        <Field
+                            label="Hourly rate"
+                            help="In minor units, e.g. 500000 for 5,000.00."
+                        >
                             <Input
                                 inputMode="numeric"
                                 value={rate}
@@ -80,10 +91,11 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
+                    <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         loading={pending}
                         onClick={() =>
                             start(async () => {
@@ -102,13 +114,13 @@ export function CreateEngagementButton({ clientId }: { clientId: string }) {
                                     setRate('');
                                     router.refresh();
                                 } catch {
-                                    toast.error('Could not create engagement');
+                                    toast.error('Could not create the engagement');
                                 }
                             })
                         }
                         disabled={pending || !name.trim()}
                     >
-                        {pending ? 'Saving' : 'Create'}
+                        Create engagement
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -134,21 +146,33 @@ export function CreateTaskButton({
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">New task</Button>
+                <Button variant="outline" size="sm" iconLeft={CheckSquare}>
+                    New task
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>New task</DialogTitle>
+                    <DialogDescription>A work item inside an engagement.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <Field label="Title">
-                        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+                    <Field label="Title" required>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Reconcile bank ledger"
+                            autoFocus
+                        />
                     </Field>
-                    <Field label="Engagement ID">
+                    <Field
+                        label="Engagement"
+                        required
+                        help="Paste the engagement ID this task belongs to."
+                    >
                         <Input
                             value={eid}
                             onChange={(e) => setEid(e.target.value)}
-                            placeholder="engagement _id"
+                            placeholder="Engagement ID"
                         />
                     </Field>
                     <Checkbox
@@ -158,10 +182,11 @@ export function CreateTaskButton({
                     />
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
+                    <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         loading={pending}
                         onClick={() =>
                             start(async () => {
@@ -178,13 +203,13 @@ export function CreateTaskButton({
                                     setTitle('');
                                     router.refresh();
                                 } catch {
-                                    toast.error('Could not create task');
+                                    toast.error('Could not create the task');
                                 }
                             })
                         }
                         disabled={pending || !title.trim() || !eid.trim()}
                     >
-                        {pending ? 'Saving' : 'Create'}
+                        Create task
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -204,20 +229,30 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">New deadline</Button>
+                <Button variant="outline" size="sm" iconLeft={CalendarPlus}>
+                    New deadline
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>New compliance deadline</DialogTitle>
+                    <DialogDescription>
+                        A filing or compliance date to track for this client.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <Field label="Name">
-                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                    <Field label="Name" required>
+                        <Input
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="GST return, Q1"
+                            autoFocus
+                        />
                     </Field>
                     <div className="grid grid-cols-2 gap-3">
                         <Field label="Kind">
                             <Select value={kind} onValueChange={setKind}>
-                                <SelectTrigger>
+                                <SelectTrigger aria-label="Kind">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -229,7 +264,7 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                                 </SelectContent>
                             </Select>
                         </Field>
-                        <Field label="Due date">
+                        <Field label="Due date" required>
                             <Input
                                 type="date"
                                 value={due}
@@ -239,10 +274,11 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
+                    <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         loading={pending}
                         onClick={() =>
                             start(async () => {
@@ -260,13 +296,13 @@ export function CreateDeadlineButton({ clientId }: { clientId: string }) {
                                     setDue('');
                                     router.refresh();
                                 } catch {
-                                    toast.error('Could not create deadline');
+                                    toast.error('Could not create the deadline');
                                 }
                             })
                         }
                         disabled={pending || !name.trim() || !due}
                     >
-                        {pending ? 'Saving' : 'Create'}
+                        Create deadline
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -286,19 +322,29 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline">New advisory note</Button>
+                <Button variant="outline" size="sm" iconLeft={Lightbulb}>
+                    New advisory note
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>New advisory note</DialogTitle>
+                    <DialogDescription>
+                        Capture an insight, action, or risk. Share it to the portal later.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-3 py-2">
-                    <Field label="Title">
-                        <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+                    <Field label="Title" required>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Cash runway tightening in Q3"
+                            autoFocus
+                        />
                     </Field>
                     <Field label="Kind">
                         <Select value={kind} onValueChange={setKind}>
-                            <SelectTrigger>
+                            <SelectTrigger aria-label="Kind">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -308,19 +354,21 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
                             </SelectContent>
                         </Select>
                     </Field>
-                    <Field label="Body (markdown)">
+                    <Field label="Body" help="Markdown is supported.">
                         <Textarea
                             value={body}
                             onChange={(e) => setBody(e.target.value)}
                             rows={6}
+                            placeholder="Receivables aged over 90 days have grown to 18% of revenue..."
                         />
                     </Field>
                 </div>
                 <DialogFooter>
-                    <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
+                    <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
                     <Button
+                        variant="primary"
                         loading={pending}
                         onClick={() =>
                             start(async () => {
@@ -340,13 +388,13 @@ export function CreateAdvisoryNoteButton({ clientId }: { clientId: string }) {
                                     setBody('');
                                     router.refresh();
                                 } catch {
-                                    toast.error('Could not save advisory note');
+                                    toast.error('Could not save the advisory note');
                                 }
                             })
                         }
                         disabled={pending || !title.trim()}
                     >
-                        {pending ? 'Saving' : 'Save draft'}
+                        Save draft
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -371,7 +419,7 @@ export function ShareAdvisoryNoteButton({ id }: { id: string }) {
                         toast.success('Advisory note shared');
                         router.refresh();
                     } catch {
-                        toast.error('Could not share advisory note');
+                        toast.error('Could not share the advisory note');
                     }
                 })
             }

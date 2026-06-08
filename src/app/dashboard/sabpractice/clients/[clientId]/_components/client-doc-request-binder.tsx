@@ -10,9 +10,23 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, FilePlus2 } from 'lucide-react';
 
-import { Badge, Button, useToast } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    type BadgeTone,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    Field,
+    Input,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { uploadSabpracticeDocument } from '@/app/actions/sabpractice.actions';
 
@@ -22,6 +36,23 @@ interface Props {
     slotName: string;
     currentStatus?: string;
     currentFileUrl?: string;
+}
+
+function slotTone(status?: string): BadgeTone {
+    switch (status) {
+        case 'uploaded':
+        case 'approved':
+            return 'success';
+        case 'rejected':
+            return 'danger';
+        default:
+            return 'neutral';
+    }
+}
+
+function cap(s?: string): string {
+    if (!s) return '';
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export function ClientDocRequestBinder({
@@ -37,9 +68,11 @@ export function ClientDocRequestBinder({
 
     return (
         <div className="flex items-center justify-between gap-3 py-1">
-            <div className="flex items-center gap-2 text-sm text-[var(--st-text)]">
-                <span className="font-medium">{slotName}</span>
-                {currentStatus ? <Badge>{currentStatus}</Badge> : null}
+            <div className="flex min-w-0 items-center gap-2 text-sm text-[var(--st-text)]">
+                <span className="truncate font-medium">{slotName}</span>
+                {currentStatus ? (
+                    <Badge tone={slotTone(currentStatus)}>{cap(currentStatus)}</Badge>
+                ) : null}
                 {currentFileUrl ? (
                     <a
                         href={currentFileUrl}
@@ -79,42 +112,84 @@ export function ClientDocRequestBinder({
     );
 }
 
-export function NewDocRequestButton({
-    clientId,
-}: {
-    clientId: string;
-}) {
+export function NewDocRequestButton({ clientId }: { clientId: string }) {
     const router = useRouter();
     const { toast } = useToast();
-    const [pending, setPending] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
+    const [title, setTitle] = React.useState('');
+    const [due, setDue] = React.useState('');
+    const [pending, start] = React.useTransition();
+
+    function submit() {
+        if (!title.trim()) return;
+        start(async () => {
+            try {
+                const { requestSabpracticeDocument } = await import(
+                    '@/app/actions/sabpractice.actions'
+                );
+                await requestSabpracticeDocument({
+                    clientId,
+                    title: title.trim(),
+                    status: 'requested',
+                    dueDate: due ? new Date(due).toISOString() : undefined,
+                    requestedFiles: [{ name: title.trim(), status: 'pending' }],
+                });
+                toast.success('Document request created.');
+                setOpen(false);
+                setTitle('');
+                setDue('');
+                router.refresh();
+            } catch {
+                toast.error('Could not create the request. Please try again.');
+            }
+        });
+    }
+
     return (
-        <Button
-            variant="outline"
-            loading={pending}
-            onClick={async () => {
-                const title = window.prompt('Document request title');
-                if (!title) return;
-                setPending(true);
-                try {
-                    const { requestSabpracticeDocument } = await import(
-                        '@/app/actions/sabpractice.actions'
-                    );
-                    await requestSabpracticeDocument({
-                        clientId,
-                        title,
-                        status: 'requested',
-                        requestedFiles: [{ name: title, status: 'pending' }],
-                    });
-                    toast.success('Document request created.');
-                    router.refresh();
-                } catch {
-                    toast.error('Could not create the request. Please try again.');
-                } finally {
-                    setPending(false);
-                }
-            }}
-        >
-            Request document
-        </Button>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" iconLeft={FilePlus2}>
+                    Request document
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Request a document</DialogTitle>
+                    <DialogDescription>
+                        The client uploads the file into the bound slot from SabFiles.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 py-2">
+                    <Field label="Title" required>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Bank statement, March 2026"
+                            autoFocus
+                        />
+                    </Field>
+                    <Field label="Due date" help="Optional — leave blank for no deadline.">
+                        <Input
+                            type="date"
+                            value={due}
+                            onChange={(e) => setDue(e.target.value)}
+                        />
+                    </Field>
+                </div>
+                <DialogFooter>
+                    <Button variant="secondary" onClick={() => setOpen(false)} disabled={pending}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={submit}
+                        loading={pending}
+                        disabled={!title.trim()}
+                    >
+                        Create request
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
