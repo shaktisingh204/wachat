@@ -10,7 +10,7 @@ Legend: ⬜ todo · 🔄 in progress · ✅ done
 - ⬜ Grep-guard for forbidden imports (CI/script)
 
 ## Phase 1 — core surfaces
-- 🔄 user (7) — pilot
+- ✅ user (7 routes / 37 files) — pilot (commit 05a7692d4)
 - ⬜ settings (44)
 - ⬜ team (9) · platform (10) · api (8) · sabfiles (7) · analytics-workspace (7)
 
