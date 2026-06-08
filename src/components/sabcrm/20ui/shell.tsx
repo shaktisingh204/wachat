@@ -29,10 +29,10 @@
 
 import * as React from 'react';
 import { Menu as MenuIcon, ChevronDown } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 import { Tooltip } from './tooltip';
 import { IconButton } from './button';
+import { renderIcon, type IconProp } from './_icon';
 import './shell.css';
 
 /* ------------------------------------------------------------------------ *
@@ -147,7 +147,7 @@ export interface AppRailItem {
   id: string;
   /** Accessible name (shown as a tooltip + used for aria-label). */
   label: string;
-  icon: LucideIcon;
+  icon: IconProp;
   href?: string;
   active?: boolean;
   onClick?: () => void;
@@ -167,11 +167,10 @@ export interface AppRailProps extends Omit<React.HTMLAttributes<HTMLElement>, 'c
 }
 
 function RailButton({ item }: { item: AppRailItem }): React.JSX.Element {
-  const Icon = item.icon;
   const cls = cx('u-rail__item', item.active && 'is-active');
   const inner = (
     <>
-      <Icon aria-hidden="true" />
+      {renderIcon(item.icon, { 'aria-hidden': 'true' })}
       {item.badge != null ? (
         <span className="u-rail__badge" aria-hidden="true">
           {item.badge}
@@ -248,7 +247,7 @@ export interface SidebarLeaf {
   label: string;
   href?: string;
   active?: boolean;
-  icon?: LucideIcon;
+  icon?: IconProp;
   badge?: React.ReactNode;
   onClick?: () => void;
   /** Nested children render a collapsible sub-tree. */
@@ -331,7 +330,6 @@ function SidebarLeafRow({
   item: SidebarLeaf;
   depth?: number;
 }): React.JSX.Element {
-  const Icon = item.icon;
   const hasChildren = !!(item.children && item.children.length > 0);
   const childActive = hasChildren && item.children!.some((c) => c.active);
   const [open, setOpen] = React.useState(
@@ -346,7 +344,7 @@ function SidebarLeafRow({
 
   const body = (
     <>
-      {Icon ? <Icon aria-hidden="true" /> : null}
+      {renderIcon(item.icon, { 'aria-hidden': 'true' })}
       <span className="u-sidebar__leaf-label">{item.label}</span>
       {item.badge != null ? (
         <span className="u-sidebar__leaf-badge">{item.badge}</span>

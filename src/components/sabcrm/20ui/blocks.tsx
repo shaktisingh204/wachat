@@ -18,11 +18,11 @@
  */
 
 import * as React from 'react';
-import type { LucideIcon } from 'lucide-react';
 import { MapPin, Briefcase, ArrowRight, Quote } from 'lucide-react';
 
 import { Avatar } from './avatar';
 import { Button } from './button';
+import { renderIcon, type IconProp } from './_icon';
 
 import './blocks.css';
 
@@ -33,17 +33,11 @@ export type FeatureCardVariant = 'default' | 'soft' | 'outline';
 export interface FeatureCardProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   /** Leading icon — a lucide component (rendered) or any node. */
-  icon?: LucideIcon | React.ReactNode;
+  icon?: IconProp;
   title: React.ReactNode;
   description?: React.ReactNode;
   /** Visual treatment. */
   variant?: FeatureCardVariant;
-}
-
-function isLucideIcon(icon: unknown): icon is LucideIcon {
-  // lucide icons are forwardRef render functions (functions / objects with $$typeof),
-  // whereas already-rendered nodes are elements. Treat plain functions as components.
-  return typeof icon === 'function' || (typeof icon === 'object' && icon !== null && '$$typeof' in (icon as object) && !React.isValidElement(icon));
 }
 
 /** A single feature tile: icon chip, title, supporting copy. */
@@ -60,15 +54,7 @@ export function FeatureCard({
     .filter(Boolean)
     .join(' ');
 
-  let iconNode: React.ReactNode = null;
-  if (icon) {
-    if (isLucideIcon(icon)) {
-      const Icon = icon as LucideIcon;
-      iconNode = <Icon size={18} aria-hidden="true" />;
-    } else {
-      iconNode = icon;
-    }
-  }
+  const iconNode = renderIcon(icon, { size: 18, 'aria-hidden': true });
 
   return (
     <div className={cls} {...rest}>
@@ -91,7 +77,7 @@ export function FeatureCard({
 export interface FeatureItem {
   /** Stable key; falls back to the index when absent. */
   id?: string;
-  icon?: LucideIcon | React.ReactNode;
+  icon?: IconProp;
   title: React.ReactNode;
   description?: React.ReactNode;
   variant?: FeatureCardVariant;

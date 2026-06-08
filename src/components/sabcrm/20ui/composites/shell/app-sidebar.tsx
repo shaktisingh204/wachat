@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { cn } from "../lib/cn";
+import { renderIcon, type IconProp } from "../../_icon";
 import {
   SabCollapsible,
   SabCollapsibleContent,
@@ -17,7 +18,7 @@ export interface SabSidebarLeaf {
   label: string;
   href?: string;
   active?: boolean;
-  icon?: React.ReactNode;
+  icon?: IconProp;
   badge?: React.ReactNode;
   onClick?: () => void;
   children?: SabSidebarLeaf[];
@@ -248,7 +249,7 @@ function SuggestionRow({
         "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[var(--st-text-secondary)]",
       )}
     >
-      {item.icon}
+      {renderIcon(item.icon)}
       <div className="min-w-0 flex-1">
         <div className="truncate font-medium">
           {highlight(item.label, query)}
@@ -397,7 +398,7 @@ function SidebarLeaf({
 
   const inner = (
     <>
-      {item.icon}
+      {renderIcon(item.icon)}
       <span className="flex-1 truncate">{item.label}</span>
       {item.badge && (
         <span className="ml-auto inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-bg-muted)] px-1 text-[10px] font-semibold text-[var(--st-text-secondary)] group-hover:text-[var(--st-text)]">

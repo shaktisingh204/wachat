@@ -11,7 +11,8 @@
 
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
-import type { LucideIcon } from 'lucide-react';
+
+import { renderIcon, type IconProp } from './_icon';
 
 import './button.css';
 
@@ -40,9 +41,9 @@ export interface ButtonProps
   variant?: ButtonVariantCompat;
   size?: ButtonSizeCompat;
   /** Icon before the label. */
-  iconLeft?: LucideIcon;
+  iconLeft?: IconProp;
   /** Icon after the label. */
-  iconRight?: LucideIcon;
+  iconRight?: IconProp;
   /** Show a spinner + disable while an async action runs. */
   loading?: boolean;
   /** Stretch to the container width. */
@@ -62,8 +63,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       variant = 'secondary',
       size = 'md',
-      iconLeft: IconLeft,
-      iconRight: IconRight,
+      iconLeft,
+      iconRight,
       loading = false,
       block = false,
       asChild = false,
@@ -112,9 +113,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {variant === 'gradient' ? <span className="u-btn__sheen" aria-hidden="true" /> : null}
         {loading ? <span className="u-btn__spinner" aria-hidden="true" /> : null}
-        {!loading && IconLeft ? <IconLeft size={s} aria-hidden="true" /> : null}
+        {!loading ? renderIcon(iconLeft, { size: s, 'aria-hidden': true }) : null}
         {children != null ? <span className="u-btn__label">{children}</span> : null}
-        {!loading && IconRight ? <IconRight size={s} aria-hidden="true" /> : null}
+        {!loading ? renderIcon(iconRight, { size: s, 'aria-hidden': true }) : null}
       </button>
     );
   },
@@ -124,7 +125,7 @@ export interface IconButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** Required accessible name (icon-only control). */
   label: string;
-  icon: LucideIcon;
+  icon: IconProp;
   variant?: ButtonVariant;
   size?: ButtonSize;
 }
@@ -132,7 +133,7 @@ export interface IconButtonProps
 /** A square, icon-only pressable. `label` is mandatory for accessibility. */
 export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(
-    { label, icon: Icon, variant = 'ghost', size = 'md', className, type = 'button', ...rest },
+    { label, icon, variant = 'ghost', size = 'md', className, type = 'button', ...rest },
     ref,
   ) {
     const cls = [
@@ -146,7 +147,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
       .join(' ');
     return (
       <button ref={ref} type={type} className={cls} aria-label={label} title={label} {...rest}>
-        <Icon size={ICON_SIZE[size]} aria-hidden="true" />
+        {renderIcon(icon, { size: ICON_SIZE[size], 'aria-hidden': true })}
       </button>
     );
   },

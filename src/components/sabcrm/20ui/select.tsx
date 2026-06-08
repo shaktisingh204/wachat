@@ -27,6 +27,7 @@ import { Check, ChevronDown, Search, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
+import { renderIcon, type IconProp } from './_icon';
 import { useFieldContext } from './field';
 import './select.css';
 
@@ -40,7 +41,7 @@ export interface SelectOption {
   value: string;
   label: string;
   /** Optional leading icon (e.g. a status glyph). */
-  icon?: LucideIcon;
+  icon?: IconProp;
   disabled?: boolean;
 }
 
@@ -249,7 +250,6 @@ function Listbox({
           </div>
         ) : (
           filtered.map((opt, index) => {
-            const Icon = opt.icon;
             const isSelected = selected.has(opt.value);
             const isActive = index === activeIndex;
             return (
@@ -277,7 +277,7 @@ function Listbox({
                   if (closeOnPick) onClose();
                 }}
               >
-                {Icon ? <Icon size={15} className="u-select__option-icon" aria-hidden="true" /> : null}
+                {renderIcon(opt.icon, { size: 15, className: 'u-select__option-icon', 'aria-hidden': true })}
                 <span className="u-select__option-label">{opt.label}</span>
                 {isSelected ? (
                   <Check size={15} className="u-select__option-check" aria-hidden="true" />
@@ -396,8 +396,6 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function 
     }
   };
 
-  const CurrentIcon = current?.icon;
-
   return (
     <>
       <div
@@ -429,9 +427,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function 
           onKeyDown={onTriggerKeyDown}
           {...rest}
         >
-          {CurrentIcon ? (
-            <CurrentIcon size={15} className="u-select__value-icon" aria-hidden="true" />
-          ) : null}
+          {renderIcon(current?.icon, { size: 15, className: 'u-select__value-icon', 'aria-hidden': true })}
           <span className={cx('u-select__value', !current && 'is-placeholder')}>
             {current ? current.label : placeholder}
           </span>
@@ -613,10 +609,9 @@ export function MultiSelect({
           ) : (
             <span className="u-select__chips">
               {chips.map((opt) => {
-                const Icon = opt.icon;
                 return (
                   <span key={opt.value} className="u-select__chip">
-                    {Icon ? <Icon size={12} className="u-select__chip-icon" aria-hidden="true" /> : null}
+                    {renderIcon(opt.icon, { size: 12, className: 'u-select__chip-icon', 'aria-hidden': true })}
                     <span className="u-select__chip-label">{opt.label}</span>
                     {!disabled ? (
                       <span

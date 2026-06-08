@@ -3,10 +3,11 @@
 import * as React from "react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 
 export interface SabLimelightItem {
   id: string | number;
-  icon: React.ReactNode;
+  icon: IconProp;
   label?: string;
   onClick?: () => void;
 }
@@ -86,7 +87,7 @@ export function SabLimelightNav({
             itemClassName,
           )}
         >
-          {item.icon}
+          {renderIcon(item.icon)}
         </button>
       ))}
       <span

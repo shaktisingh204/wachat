@@ -15,6 +15,7 @@
 import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
 import './segmented.css';
 
 export type SegmentedSize = 'sm' | 'md';
@@ -22,7 +23,7 @@ export type SegmentedSize = 'sm' | 'md';
 export interface SegmentedItem<V extends string = string> {
   value: V;
   label: React.ReactNode;
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Disable this single segment. */
   disabled?: boolean;
 }
@@ -169,7 +170,6 @@ export function SegmentedControl<V extends string = string>({
         }}
       />
       {items.map((item, i) => {
-        const Icon = item.icon;
         const selected = item.value === value;
         const iconOnly = item.label == null || item.label === '';
         return (
@@ -188,7 +188,7 @@ export function SegmentedControl<V extends string = string>({
             onClick={() => !item.disabled && onChange(item.value)}
             onKeyDown={(e) => onKeyDown(e, i)}
           >
-            {Icon ? <Icon size={ICON_SIZE[size]} aria-hidden="true" /> : null}
+            {renderIcon(item.icon, { size: ICON_SIZE[size], 'aria-hidden': true })}
             {!iconOnly ? <span className="u-seg__label">{item.label}</span> : null}
           </button>
         );

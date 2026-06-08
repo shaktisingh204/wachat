@@ -1,9 +1,10 @@
 import * as React from "react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 
 export interface SabHeroPillProps extends React.HTMLAttributes<HTMLDivElement> {
-  icon?: React.ReactNode;
+  icon?: IconProp;
   text: React.ReactNode;
   /** Animate slide-up on mount. Defaults to true. */
   animate?: boolean;
@@ -24,7 +25,7 @@ export function SabHeroPill({
       <p className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-1 text-sm font-medium text-[var(--st-text)] shadow-[var(--st-shadow-sm)] transition-colors hover:bg-[var(--st-bg-muted)]">
         {icon && (
           <span className="mr-2 flex shrink-0 border-r border-[var(--st-border)] pr-2">
-            {icon}
+            {renderIcon(icon)}
           </span>
         )}
         {text}

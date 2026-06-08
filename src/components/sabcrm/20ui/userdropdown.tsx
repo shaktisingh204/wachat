@@ -27,10 +27,10 @@ import * as React from 'react';
 import {
   ChevronsUpDown,
   LogOut,
-  type LucideIcon,
 } from 'lucide-react';
 
 import { Avatar } from './avatar';
+import { renderIcon, type IconProp } from './_icon';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,7 +63,7 @@ export interface UserDropdownItem {
   /** The row label (e.g. "Settings"). */
   label: React.ReactNode;
   /** Leading icon (decorative; rendered `aria-hidden`). */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Internal route — wired onto the row as a real anchor. */
   href?: string;
   /** Fired when the row is chosen (click or keyboard). */
@@ -94,8 +94,10 @@ export interface UserDropdownProps
  * cmd-click / "open in new tab" all work, and the keyboard still activates it.
  */
 function UserMenuRow({ item }: { item: UserDropdownItem }): React.JSX.Element {
-  const Icon = item.icon;
-  const icon = Icon ? <Icon className="u-dropdown__item-icon" aria-hidden="true" /> : null;
+  const icon = renderIcon(item.icon, {
+    className: 'u-dropdown__item-icon',
+    'aria-hidden': 'true',
+  });
 
   // Radix forwards onSelect (click + keyboard) to the item; we run the caller's
   // handler from there so both anchors and plain rows fire the same callback.

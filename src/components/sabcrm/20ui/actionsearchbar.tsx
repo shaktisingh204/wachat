@@ -40,6 +40,7 @@
 import * as React from 'react';
 import { Search, X } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
 import './actionsearchbar.css';
 
 /** A runnable action surfaced by the search bar. */
@@ -48,8 +49,8 @@ export interface Action {
   id: string;
   /** What the user reads + what we rank against. */
   label: string;
-  /** Decorative leading glyph (rendered `aria-hidden`); pass a lucide icon element. */
-  icon?: React.ReactNode;
+  /** Decorative leading glyph (rendered `aria-hidden`); pass a lucide icon element or component. */
+  icon?: IconProp;
   /** Right-aligned keyboard hint, e.g. "C" or "Cmd N". */
   shortcut?: React.ReactNode;
   /** Invoked when the action is chosen (Enter or click). */
@@ -394,7 +395,7 @@ export const ActionSearchBar = React.forwardRef<HTMLInputElement, ActionSearchBa
                   >
                     {row.action.icon ? (
                       <span className="u-asb__option-icon" aria-hidden="true">
-                        {row.action.icon}
+                        {renderIcon(row.action.icon, { size: 16 })}
                       </span>
                     ) : (
                       <span className="u-asb__option-icon" aria-hidden="true" />

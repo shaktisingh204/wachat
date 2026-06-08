@@ -29,6 +29,7 @@ import { Bell, BellOff, Check } from 'lucide-react';
 
 import { Popover, PopoverTrigger, PopoverContent } from './popover';
 import { Button } from './button';
+import { renderIcon, type IconProp } from './_icon';
 
 import './notificationpopover.css';
 
@@ -45,7 +46,7 @@ export interface Notification {
   /** When it happened — Date, epoch ms, or ISO string. Renders relative. */
   time?: Date | number | string;
   /** Optional leading glyph (a lucide node). Decorative; never branded. */
-  icon?: React.ReactNode;
+  icon?: IconProp;
 }
 
 export interface NotificationPopoverProps
@@ -253,7 +254,9 @@ export const NotificationPopover = React.forwardRef<
                   >
                     <span className="u-notif__lead" aria-hidden="true">
                       {item.icon ? (
-                        <span className="u-notif__icon">{item.icon}</span>
+                        <span className="u-notif__icon">
+                          {renderIcon(item.icon, { size: 16 })}
+                        </span>
                       ) : (
                         <span
                           className={[

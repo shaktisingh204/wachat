@@ -1,10 +1,11 @@
 import * as React from "react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 
 export interface SabEmptyStateProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
-  icon?: React.ReactNode;
+  icon?: IconProp;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
@@ -37,7 +38,7 @@ export function EmptyState({
             compact ? "h-9 w-9 [&_svg]:size-4" : "h-12 w-12 [&_svg]:size-5",
           )}
         >
-          {icon}
+          {renderIcon(icon)}
         </div>
       )}
       <div className="flex flex-col gap-1">

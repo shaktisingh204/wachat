@@ -33,7 +33,8 @@
 
 import * as React from 'react';
 import * as Recharts from 'recharts';
-import type { LucideIcon } from 'lucide-react';
+
+import { renderIcon, type IconProp } from './_icon';
 
 import './chart.css';
 
@@ -60,7 +61,7 @@ export type ChartConfig = {
   [key: string]: {
     label?: React.ReactNode;
     /** Optional leading glyph in tooltip / legend rows. */
-    icon?: LucideIcon | React.ComponentType<{ className?: string }>;
+    icon?: IconProp;
   } & (
     | { color?: string; theme?: never }
     | { color?: never; theme: Record<keyof typeof THEMES, string> }
@@ -278,7 +279,7 @@ export const ChartTooltipContent = React.forwardRef<
           const itemConfig = getPayloadConfig(config, item, key);
           const indicatorColor =
             color || (item.payload?.fill as string | undefined) || item.color;
-          const Icon = itemConfig?.icon;
+          const icon = itemConfig?.icon;
 
           return (
             <div
@@ -292,8 +293,8 @@ export const ChartTooltipContent = React.forwardRef<
                 formatter(item.value, item.name, item, index, item.payload)
               ) : (
                 <>
-                  {Icon ? (
-                    <Icon className="u-chart-tt__icon" aria-hidden="true" />
+                  {icon ? (
+                    renderIcon(icon, { className: 'u-chart-tt__icon', 'aria-hidden': true })
                   ) : (
                     !hideIndicator && (
                       <span
@@ -392,15 +393,15 @@ export const ChartLegendContent = React.forwardRef<
       {payload.map((item, index) => {
         const key = `${nameKey || item.dataKey || 'value'}`;
         const itemConfig = getPayloadConfig(config, item, key);
-        const Icon = itemConfig?.icon;
+        const icon = itemConfig?.icon;
 
         return (
           <div
             key={`${item.value ?? item.dataKey ?? index}`}
             className="u-chart-legend__item"
           >
-            {Icon && !hideIcon ? (
-              <Icon className="u-chart-legend__icon" aria-hidden="true" />
+            {icon && !hideIcon ? (
+              renderIcon(icon, { className: 'u-chart-legend__icon', 'aria-hidden': true })
             ) : (
               <span
                 aria-hidden="true"

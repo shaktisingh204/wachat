@@ -2,6 +2,7 @@ import * as React from "react";
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 
 export interface SabStatisticsCard1Item {
   label: React.ReactNode;
@@ -19,7 +20,7 @@ export interface SabStatisticsCard1Props
   /** Sub-stats laid out horizontally beneath the headline. */
   items?: SabStatisticsCard1Item[];
   footer?: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: IconProp;
 }
 
 /**
@@ -55,7 +56,7 @@ export function SabStatisticsCard1({
         </div>
         {icon && (
           <span className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)] [&_svg]:size-5">
-            {icon}
+            {renderIcon(icon)}
           </span>
         )}
       </div>

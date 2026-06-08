@@ -21,7 +21,8 @@
 
 import * as React from 'react';
 import { Check, Search, Star, X } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+
+import { renderIcon, type IconProp } from './_icon';
 
 import './extras.css';
 
@@ -140,7 +141,7 @@ export interface RadioCardProps
   value: string;
   label: React.ReactNode;
   description?: React.ReactNode;
-  icon?: LucideIcon;
+  icon?: IconProp;
   disabled?: boolean;
   /** Indicator style: a check badge (default) or a filled dot. */
   indicator?: 'check' | 'dot';
@@ -149,7 +150,7 @@ export interface RadioCardProps
 /** A bordered, selectable tile. Must live inside a `RadioCardGroup`. */
 export const RadioCard = React.forwardRef<HTMLButtonElement, RadioCardProps>(
   function RadioCard(
-    { value, label, description, icon: Icon, disabled: cardDisabled, indicator = 'check', className, ...rest },
+    { value, label, description, icon, disabled: cardDisabled, indicator = 'check', className, ...rest },
     ref,
   ) {
     const group = React.useContext(RadioCardGroupContext);
@@ -216,9 +217,9 @@ export const RadioCard = React.forwardRef<HTMLButtonElement, RadioCardProps>(
         onKeyDown={onKeyDown}
         {...rest}
       >
-        {Icon ? (
+        {icon ? (
           <span className="u-radiocard__icon" aria-hidden="true">
-            <Icon size={18} />
+            {renderIcon(icon, { size: 18 })}
           </span>
         ) : null}
         <span className="u-radiocard__body">

@@ -15,6 +15,8 @@ import * as React from 'react';
 import { Info, CheckCircle2, AlertTriangle, AlertCircle, X } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
+
 import './feedback.css';
 
 export type FeedbackTone = 'info' | 'success' | 'warning' | 'danger' | 'neutral';
@@ -43,7 +45,7 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Bold lead-in above the body. */
   title?: React.ReactNode;
   /** Override the tone's default icon, or pass `null` to hide it. */
-  icon?: LucideIcon | null;
+  icon?: IconProp | null;
   /** Show a dismiss control; fires this on click. */
   onClose?: () => void;
   /** Accessible name for the dismiss control. */
@@ -64,7 +66,7 @@ export function Alert({
 }: AlertProps): React.JSX.Element {
   const resolvedTone: FeedbackTone =
     tone ?? (variant ? ALERT_VARIANT_TONE[variant] ?? 'info' : 'info');
-  const Icon = icon === null ? null : icon ?? TONE_ICON[resolvedTone];
+  const resolvedIcon: IconProp | null = icon === null ? null : icon ?? TONE_ICON[resolvedTone];
   const cls = ['u-alert', `u-alert--${resolvedTone}`, className].filter(Boolean).join(' ');
   return (
     <div
@@ -73,9 +75,9 @@ export function Alert({
       className={cls}
       {...rest}
     >
-      {Icon ? (
+      {resolvedIcon ? (
         <span className="u-alert__icon" aria-hidden="true">
-          <Icon size={16} />
+          {renderIcon(resolvedIcon, { size: 16 })}
         </span>
       ) : null}
       <div className="u-alert__content">
@@ -126,7 +128,7 @@ export function AlertDescription({
 export interface CalloutProps extends React.HTMLAttributes<HTMLDivElement> {
   tone?: FeedbackTone;
   /** Optional leading icon (defaults to the tone icon; pass `null` to hide). */
-  icon?: LucideIcon | null;
+  icon?: IconProp | null;
   /** Bold lead-in before the note. */
   title?: React.ReactNode;
 }
@@ -140,13 +142,13 @@ export function Callout({
   children,
   ...rest
 }: CalloutProps): React.JSX.Element {
-  const Icon = icon === null ? null : icon ?? TONE_ICON[tone];
+  const resolvedIcon: IconProp | null = icon === null ? null : icon ?? TONE_ICON[tone];
   const cls = ['u-callout', `u-callout--${tone}`, className].filter(Boolean).join(' ');
   return (
     <div className={cls} {...rest}>
-      {Icon ? (
+      {resolvedIcon ? (
         <span className="u-callout__icon" aria-hidden="true">
-          <Icon size={14} />
+          {renderIcon(resolvedIcon, { size: 14 })}
         </span>
       ) : null}
       <div className="u-callout__content">

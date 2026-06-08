@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { cn } from "../lib/cn";
+import { renderIcon, type IconProp } from "../../_icon";
 import {
   Tooltip,
   SabTooltipContent,
@@ -14,7 +15,7 @@ import {
 export interface SabAppRailItem {
   id: string;
   label: string;
-  icon: React.ReactNode;
+  icon: IconProp;
   href?: string;
   active?: boolean;
   onClick?: () => void;
@@ -85,7 +86,7 @@ function RailButton({ item }: { item: SabAppRailItem }) {
         "[&_svg]:size-[18px]",
       )}
     >
-      {item.icon}
+      {renderIcon(item.icon)}
       {item.badge && (
         <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--st-accent)] px-1 text-[9px] font-semibold text-[var(--st-text-inverted)]">
           {item.badge}

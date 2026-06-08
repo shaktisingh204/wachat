@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 import { Avatar, SabAvatarFallback, SabAvatarImage } from "./avatar";
 import {
   DropdownMenu,
@@ -24,7 +25,7 @@ import {
 export interface SabUserDropdownItem {
   id: string;
   label: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: IconProp;
   href?: string;
   onSelect?: () => void;
   destructive?: boolean;
@@ -105,7 +106,7 @@ function DropdownItem({ item }: { item: SabUserDropdownItem }) {
     return (
       <SabDropdownMenuItem asChild destructive={item.destructive}>
         <Link href={item.href} onSelect={handleSelect as never}>
-          {item.icon}
+          {renderIcon(item.icon)}
           <span>{item.label}</span>
         </Link>
       </SabDropdownMenuItem>
@@ -117,7 +118,7 @@ function DropdownItem({ item }: { item: SabUserDropdownItem }) {
       destructive={item.destructive}
       onSelect={handleSelect}
     >
-      {item.icon}
+      {renderIcon(item.icon)}
       <span>{item.label}</span>
     </SabDropdownMenuItem>
   );

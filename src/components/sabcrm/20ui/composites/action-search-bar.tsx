@@ -5,12 +5,13 @@ import { m, AnimatePresence } from "motion/react";
 import { Search, X } from "lucide-react";
 
 import { cn } from "./lib/cn";
+import { renderIcon, type IconProp } from "../_icon";
 import { SabKbd } from "./kbd";
 
 export interface SabActionSearchAction {
   id: string;
   label: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: IconProp;
   shortcut?: React.ReactNode;
   meta?: React.ReactNode;
   onSelect?: () => void;
@@ -124,7 +125,7 @@ export function SabActionSearchBar({
                         onClick={handleSelect}
                         className="flex w-full items-center gap-2 rounded-[var(--st-radius-sm)] px-2 py-1.5 text-left text-sm text-[var(--st-text)] transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:bg-[var(--st-bg-muted)] focus-visible:outline-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-[var(--st-text-secondary)]"
                       >
-                        {action.icon}
+                        {renderIcon(action.icon)}
                         <span className="flex-1 truncate">{action.label}</span>
                         {action.meta && (
                           <span className="text-xs text-[var(--st-text-secondary)]">

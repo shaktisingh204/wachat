@@ -44,6 +44,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { PanelLeft, type LucideIcon } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
 import './sidebar.css';
 
 const cx = (...parts: Array<string | false | null | undefined>): string =>
@@ -258,7 +259,7 @@ function CollapsedTooltip({ label, open, rect, id }: CollapsedTooltipProps): Rea
   };
 
   return createPortal(
-    <div className="ui20 sabcrm-twenty u-sidebar-tip__portal">
+    <div className="20ui sabcrm-twenty u-sidebar-tip__portal">
       <span id={id} role="tooltip" className="u-sidebar-tip" style={style}>
         {label}
       </span>
@@ -272,7 +273,7 @@ function CollapsedTooltip({ label, open, rect, id }: CollapsedTooltipProps): Rea
 export interface SidebarMenuButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   /** Leading icon (shown in both expanded and collapsed states). */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** The visible label. Also used as the collapsed tooltip text. */
   children: React.ReactNode;
   /** Marks the current destination — sets `aria-current` + active styling. */
@@ -302,7 +303,7 @@ export interface SidebarMenuButtonProps
  */
 export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   function SidebarMenuButton(
-    { icon: Icon, children, isActive = false, tooltip, render, className, type = 'button', onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
+    { icon, children, isActive = false, tooltip, render, className, type = 'button', onMouseEnter, onMouseLeave, onFocus, onBlur, ...rest },
     ref,
   ) {
     const { open } = useSidebar();
@@ -362,7 +363,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     const buttonCls = cx('u-sidebar__button', isActive && 'is-active', className);
     const inner = (
       <>
-        {Icon ? <Icon size={16} className="u-sidebar__button-icon" aria-hidden="true" /> : null}
+        {renderIcon(icon, { size: 16, className: 'u-sidebar__button-icon', 'aria-hidden': true })}
         <span className="u-sidebar__button-label">{children}</span>
       </>
     );
@@ -405,7 +406,7 @@ export interface SidebarTriggerProps
   /** Accessible name for the icon-only control. Defaults to "Toggle sidebar". */
   label?: string;
   /** Custom toggle glyph; defaults to a PanelLeft icon. */
-  icon?: LucideIcon;
+  icon?: IconProp;
 }
 
 /**
@@ -414,7 +415,7 @@ export interface SidebarTriggerProps
  */
 export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
   function SidebarTrigger(
-    { label = 'Toggle sidebar', icon: Icon = PanelLeft, className, onClick, type = 'button', ...rest },
+    { label = 'Toggle sidebar', icon = PanelLeft, className, onClick, type = 'button', ...rest },
     ref,
   ) {
     const { open, toggle, railId } = useSidebar();
@@ -437,7 +438,7 @@ export const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTrigger
         onClick={handleClick}
         {...rest}
       >
-        <Icon size={16} aria-hidden="true" />
+        {renderIcon(icon, { size: 16, 'aria-hidden': true })}
       </button>
     );
   },

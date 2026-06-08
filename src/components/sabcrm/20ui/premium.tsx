@@ -13,6 +13,7 @@
 import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
 import './premium.css';
 
 /** Brand-family gradients shared by the premium components. */
@@ -49,7 +50,7 @@ export function GradientText({
 /* --------------------------------------------------------------- GradientIcon */
 
 export interface GradientIconProps {
-  icon: LucideIcon;
+  icon: IconProp;
   tone?: GradientTone;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
@@ -57,7 +58,7 @@ export interface GradientIconProps {
 
 /** A gradient-filled rounded icon chip (the landing's module icon). */
 export function GradientIcon({
-  icon: Icon,
+  icon,
   tone = 'brand',
   size = 'md',
   className,
@@ -70,7 +71,7 @@ export function GradientIcon({
         .join(' ')}
       aria-hidden="true"
     >
-      <Icon size={px} />
+      {renderIcon(icon, { size: px })}
     </span>
   );
 }
@@ -78,19 +79,19 @@ export function GradientIcon({
 /* ---------------------------------------------------------------- GlassPill */
 
 export interface GlassPillProps extends React.HTMLAttributes<HTMLSpanElement> {
-  icon?: LucideIcon;
+  icon?: IconProp;
 }
 
 /** A frosted-glass eyebrow pill (the landing's hero label). */
 export function GlassPill({
-  icon: Icon,
+  icon,
   className,
   children,
   ...rest
 }: GlassPillProps): React.JSX.Element {
   return (
     <span className={['u-glasspill', className].filter(Boolean).join(' ')} {...rest}>
-      {Icon ? <Icon size={13} aria-hidden="true" /> : null}
+      {renderIcon(icon, { size: 13, 'aria-hidden': true })}
       {children}
     </span>
   );
@@ -169,7 +170,7 @@ export function SpotlightCard({
 
 export interface FeatureTileProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
-  icon: LucideIcon;
+  icon: IconProp;
   tone?: GradientTone;
   title: React.ReactNode;
   description?: React.ReactNode;
@@ -204,20 +205,20 @@ export function FeatureTile({
 
 export interface GlowBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   tone?: GradientTone;
-  icon?: LucideIcon;
+  icon?: IconProp;
 }
 
 /** A small gradient-filled badge for flagship labels ("New", "Pro"). */
 export function GlowBadge({
   tone = 'brand',
-  icon: Icon,
+  icon,
   className,
   children,
   ...rest
 }: GlowBadgeProps): React.JSX.Element {
   return (
     <span className={['u-glowbadge', `u-glowbadge--${tone}`, className].filter(Boolean).join(' ')} {...rest}>
-      {Icon ? <Icon size={11} aria-hidden="true" /> : null}
+      {renderIcon(icon, { size: 11, 'aria-hidden': true })}
       {children}
     </span>
   );

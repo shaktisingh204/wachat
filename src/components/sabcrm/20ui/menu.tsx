@@ -18,6 +18,7 @@ import type { LucideIcon } from 'lucide-react';
 
 import { StPortalPopover, type StPopoverAlign } from '@/components/sabcrm/twenty/st-portal-popover';
 
+import { renderIcon, type IconProp } from './_icon';
 import './menu.css';
 
 interface MenuContextValue {
@@ -186,7 +187,7 @@ export function Menu({
 export interface MenuItemProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect'> {
   /** Leading icon. */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Fired on click / Enter / Space. The menu closes afterwards. */
   onSelect: () => void;
   disabled?: boolean;
@@ -198,7 +199,7 @@ export interface MenuItemProps
 
 /** A single selectable row inside a `Menu`. */
 export function MenuItem({
-  icon: Icon,
+  icon,
   onSelect,
   disabled = false,
   danger = false,
@@ -240,7 +241,7 @@ export function MenuItem({
       }}
       {...rest}
     >
-      {Icon ? <Icon size={15} className="u-menu__item-icon" aria-hidden="true" /> : null}
+      {renderIcon(icon, { size: 15, className: 'u-menu__item-icon', 'aria-hidden': true })}
       <span className="u-menu__item-label">{children}</span>
       {hint != null ? <span className="u-menu__item-hint">{hint}</span> : null}
     </button>

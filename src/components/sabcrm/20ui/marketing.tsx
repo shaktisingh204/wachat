@@ -24,9 +24,9 @@
 
 import * as React from 'react';
 import { Sparkles, ArrowRight, Clock } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 import { Button, type ButtonVariant } from './button';
+import { renderIcon, type IconProp } from './_icon';
 
 import './marketing.css';
 
@@ -42,7 +42,7 @@ export interface HeroPillProps
    * Leading mark. Pass `false` to drop it, a {@link LucideIcon} component to
    * swap it, or leave undefined for the default sparkle. Decorative either way.
    */
-  icon?: LucideIcon | false;
+  icon?: IconProp | false;
   /** Turns the pill into a link (renders an <a>). e.g. "/changelog". */
   href?: string;
   /** Link target — only used when `href` is set. */
@@ -62,16 +62,16 @@ export const HeroPill = React.forwardRef<HTMLElement, HeroPillProps>(
     { label, icon, href, target, action, animate = true, className, ...rest },
     ref,
   ) {
-    const Icon: LucideIcon | null = icon === false ? null : icon ?? Sparkles;
+    const resolvedIcon: IconProp | null = icon === false ? null : icon ?? Sparkles;
     const cls = ['u-hero-pill', animate && 'u-hero-pill--animate', className]
       .filter(Boolean)
       .join(' ');
 
     const inner = (
       <>
-        {Icon ? (
+        {resolvedIcon ? (
           <span className="u-hero-pill__mark" aria-hidden="true">
-            <Icon size={13} />
+            {renderIcon(resolvedIcon, { size: 13 })}
           </span>
         ) : null}
         <span className="u-hero-pill__label">{label}</span>
@@ -343,7 +343,7 @@ export interface StatisticsCardProps
   /** Optional supporting line under the label. */
   description?: React.ReactNode;
   /** Optional leading icon (decorative). */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Optional trend chip. e.g. { value: "+8.2%", tone: "up" }. */
   trend?: { value: React.ReactNode; tone?: 'up' | 'down' | 'neutral' };
   /** Center the contents (for stat-grid hero rows). */
@@ -357,7 +357,7 @@ export interface StatisticsCardProps
  */
 export const StatisticsCard = React.forwardRef<HTMLDivElement, StatisticsCardProps>(
   function StatisticsCard(
-    { value, label, description, icon: Icon, trend, align = 'start', className, ...rest },
+    { value, label, description, icon, trend, align = 'start', className, ...rest },
     ref,
   ) {
     const cls = ['u-stats', `u-stats--${align}`, className]
@@ -365,9 +365,9 @@ export const StatisticsCard = React.forwardRef<HTMLDivElement, StatisticsCardPro
       .join(' ');
     return (
       <div ref={ref} className={cls} {...rest}>
-        {Icon ? (
+        {icon ? (
           <span className="u-stats__icon" aria-hidden="true">
-            <Icon size={18} />
+            {renderIcon(icon, { size: 18 })}
           </span>
         ) : null}
         <div className="u-stats__figure">
@@ -398,7 +398,7 @@ export interface RouteComingSoonProps
   /** Supporting copy under the title. */
   description?: React.ReactNode;
   /** Icon for the badge. Defaults to a clock (decorative). */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Optional action node (e.g. a Button or link back). */
   action?: React.ReactNode;
 }
@@ -413,7 +413,7 @@ export const RouteComingSoon = React.forwardRef<HTMLDivElement, RouteComingSoonP
     {
       title = 'Coming soon',
       description = 'This area is being built. Check back shortly to see it live.',
-      icon: Icon = Clock,
+      icon = Clock,
       action,
       className,
       ...rest
@@ -428,7 +428,7 @@ export const RouteComingSoon = React.forwardRef<HTMLDivElement, RouteComingSoonP
         {...rest}
       >
         <span className="u-soon__badge" aria-hidden="true">
-          <Icon size={22} />
+          {renderIcon(icon, { size: 22 })}
         </span>
         <h2 className="u-soon__title">{title}</h2>
         {description != null ? (

@@ -14,13 +14,14 @@
 import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
+import { renderIcon, type IconProp } from './_icon';
 import './tabs.css';
 
 export interface TabItem {
   value: string;
   label: React.ReactNode;
   /** Leading icon. */
-  icon?: LucideIcon;
+  icon?: IconProp;
   /** Trailing count/status badge (e.g. a number). */
   badge?: React.ReactNode;
   disabled?: boolean;
@@ -170,7 +171,6 @@ export function Tabs({
         <div className="u-tabs__list" role="tablist" ref={listRef}>
           {items.map((item) => {
             const isActive = item.value === value;
-            const Icon = item.icon;
             return (
               <button
                 key={item.value}
@@ -188,7 +188,7 @@ export function Tabs({
                 onClick={() => !item.disabled && onChange(item.value)}
                 onKeyDown={onKeyDown}
               >
-                {Icon ? <Icon size={ICON_SIZE[size]} aria-hidden="true" /> : null}
+                {renderIcon(item.icon, { size: ICON_SIZE[size], 'aria-hidden': true })}
                 <span className="u-tab__label">{item.label}</span>
                 {item.badge != null ? (
                   <span className="u-tab__badge">{item.badge}</span>
