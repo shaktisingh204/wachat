@@ -2,7 +2,7 @@
 
 import {
   Card,
-  Input,
+  CardBody,
   EmptyState,
   PageHeader,
   PageHeaderHeading,
@@ -11,11 +11,14 @@ import {
   PageDescription,
   PageActions,
   Button,
+  SearchInput,
+  Avatar,
+  Badge,
 } from '@/components/sabcrm/20ui';
 import { useEffect, useState, useMemo } from 'react';
 import { getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
-import { AlertCircle, Search, SearchX } from 'lucide-react';
+import { AlertCircle, SearchX, ShieldCheck, ShieldAlert, Languages } from 'lucide-react';
 
 import { ProfileForm } from './components/ProfileForm';
 import { BusinessProfileForm } from './components/BusinessProfileForm';
@@ -58,7 +61,7 @@ export default function ProfilePage() {
     return (
       <div className="mx-auto flex min-h-[400px] w-full max-w-4xl items-center justify-center px-4 py-6">
         <EmptyState
-          icon={<AlertCircle />}
+          icon={AlertCircle}
           tone="danger"
           title="Couldn't load your profile"
           description="Your session may have expired. Try signing in again."
@@ -85,22 +88,53 @@ export default function ProfilePage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <div className="relative w-full sm:w-64">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--st-text-secondary)]"
-            />
-            <Input
-              type="search"
-              aria-label="Search settings"
-              placeholder="Search settings…"
-              className="pl-8"
+          <div className="w-full sm:w-64">
+            <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onValueChange={setSearchQuery}
+              placeholder="Search settings"
+              aria-label="Search settings"
             />
           </div>
         </PageActions>
       </PageHeader>
+
+      {/* Identity summary band */}
+      <Card>
+        <CardBody className="flex items-center gap-4">
+          <Avatar
+            name={user.name || user.email}
+            src={user.image || undefined}
+            size="lg"
+            shape="round"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-semibold text-[var(--st-text)]">
+              {user.name || 'Anonymous user'}
+            </p>
+            <p className="truncate text-sm text-[var(--st-text-secondary)]">{user.email}</p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {user.emailVerified ? (
+              <Badge tone="success" kind="soft">
+                <ShieldCheck size={12} aria-hidden="true" />
+                Verified
+              </Badge>
+            ) : (
+              <Badge tone="warning" kind="soft">
+                <ShieldAlert size={12} aria-hidden="true" />
+                Unverified
+              </Badge>
+            )}
+            {user.language && (
+              <Badge tone="neutral" kind="outline">
+                <Languages size={12} aria-hidden="true" />
+                {user.language.toUpperCase()}
+              </Badge>
+            )}
+          </div>
+        </CardBody>
+      </Card>
 
       {anyMatch ? (
         <div className="space-y-6">
@@ -130,16 +164,18 @@ export default function ProfilePage() {
           )}
         </div>
       ) : (
-        <EmptyState
-          icon={<SearchX />}
-          title="No matching settings"
-          description={`Nothing matched “${searchQuery}”. Try a different term.`}
-          action={
-            <Button variant="outline" onClick={() => setSearchQuery('')}>
-              Clear search
-            </Button>
-          }
-        />
+        <Card>
+          <EmptyState
+            icon={SearchX}
+            title="No matching settings"
+            description={`Nothing matched "${searchQuery}". Try a different term.`}
+            action={
+              <Button variant="outline" onClick={() => setSearchQuery('')}>
+                Clear search
+              </Button>
+            }
+          />
+        </Card>
       )}
     </div>
   );

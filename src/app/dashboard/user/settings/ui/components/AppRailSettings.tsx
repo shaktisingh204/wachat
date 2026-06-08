@@ -1,30 +1,42 @@
 'use client';
 
-import { RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
+import { useState } from 'react';
+import { SegmentedControl } from '@/components/sabcrm/20ui';
+import { PanelLeft, PanelTop } from 'lucide-react';
 
 interface AppRailSettingsProps {
     currentPosition?: 'left' | 'top';
 }
 
+type RailPosition = 'left' | 'top';
+
 export function AppRailSettings({ currentPosition = 'left' }: AppRailSettingsProps) {
+    const [position, setPosition] = useState<RailPosition>(currentPosition);
+
     return (
-        <div className="space-y-2">
-            <p className="text-sm font-medium text-[var(--st-text)]" id="app-rail-label">
-                App rail position
-            </p>
-            <p className="text-sm text-[var(--st-text-secondary)]">
-                Choose where the main application navigation bar appears.
-            </p>
-            <RadioGroup
-                name="appRailPosition"
-                defaultValue={currentPosition}
-                orientation="horizontal"
-                aria-labelledby="app-rail-label"
-                className="pt-2"
-            >
-                <RadioGroupItem value="left" label="Left sidebar" />
-                <RadioGroupItem value="top" label="Top header" />
-            </RadioGroup>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-0.5">
+                <span className="text-sm font-semibold text-[var(--st-text)]" id="app-rail-label">
+                    App rail position
+                </span>
+                <span className="text-[0.8125rem] text-[var(--st-text-secondary)]">
+                    Where the main navigation bar appears.
+                </span>
+            </div>
+            <div className="flex-shrink-0">
+                <SegmentedControl<RailPosition>
+                    aria-label="App rail position"
+                    value={position}
+                    onChange={setPosition}
+                    size="sm"
+                    items={[
+                        { value: 'left', label: 'Left', icon: PanelLeft },
+                        { value: 'top', label: 'Top', icon: PanelTop },
+                    ]}
+                />
+                {/* Hidden input carries the selected value to the form action. */}
+                <input type="hidden" name="appRailPosition" value={position} />
+            </div>
         </div>
     );
 }

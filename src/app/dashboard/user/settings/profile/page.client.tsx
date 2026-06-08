@@ -54,7 +54,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex max-w-[960px] flex-col gap-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>Settings</PageEyebrow>
@@ -63,7 +63,7 @@ export default function ProfilePage() {
                 </PageHeaderHeading>
             </PageHeader>
 
-            <div className="grid items-start gap-6 md:grid-cols-2">
+            <div className="grid items-start gap-5 lg:grid-cols-2">
                 <Card>
                     <ProfileForm user={user} />
                 </Card>

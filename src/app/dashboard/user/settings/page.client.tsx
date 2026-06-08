@@ -8,12 +8,10 @@ import {
     PageDescription,
     PageActions,
     Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
     CardBody,
-    CardFooter,
     Button,
+    Badge,
+    Separator,
     EmptyState,
     Skeleton,
 } from '@/components/sabcrm/20ui';
@@ -24,39 +22,55 @@ import {
     User as UserIcon,
     Brush,
     CreditCard,
-    ArrowRight,
+    ChevronRight,
     Mail,
-    Building,
+    Building2,
     PanelLeft,
-    Receipt,
+    Languages,
     AlertCircle,
     LifeBuoy,
+    type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 
 function SettingsOverviewSkeleton() {
     return (
-        <div className="space-y-6">
+        <div className="flex max-w-[880px] flex-col gap-6">
             <div className="space-y-2">
-                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-8 w-44" />
                 <Skeleton className="h-4 w-72" />
             </div>
-            <div className="grid gap-4 md:grid-cols-3">
-                {[1, 2, 3].map((i) => (
-                    <Card key={i}>
-                        <CardHeader>
-                            <Skeleton className="h-6 w-32" />
-                            <Skeleton className="mt-2 h-4 w-full" />
-                        </CardHeader>
+            <Card padding="none">
+                {[0, 1, 2].map((i) => (
+                    <div key={i}>
+                        {i > 0 ? <Separator /> : null}
                         <CardBody>
-                            <Skeleton className="h-10 w-full" />
+                            <div className="flex items-center gap-3">
+                                <Skeleton className="h-9 w-9 rounded-[var(--st-radius)]" />
+                                <div className="min-w-0 flex-1 space-y-2">
+                                    <Skeleton className="h-4 w-32" />
+                                    <Skeleton className="h-3 w-56" />
+                                </div>
+                                <Skeleton className="h-4 w-4" />
+                            </div>
                         </CardBody>
-                    </Card>
+                    </div>
                 ))}
-            </div>
+            </Card>
         </div>
     );
 }
+
+type NavItem = {
+    key: string;
+    title: string;
+    description: string;
+    icon: LucideIcon;
+    accent: string;
+    href: string;
+    meta?: { icon: LucideIcon; text: string }[];
+};
 
 export default function UserSettingsOverviewPage() {
     const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
@@ -89,42 +103,46 @@ export default function UserSettingsOverviewPage() {
         );
     }
 
-    const settingsCards = [
+    const items: NavItem[] = [
         {
             key: 'profile',
             title: 'Profile',
             description: 'Personal details, business information, and password.',
             icon: UserIcon,
+            accent: 'var(--st-accent)',
             href: '/dashboard/user/settings/profile',
-            details: [
+            meta: [
                 { icon: Mail, text: user.email },
-                { icon: Building, text: user.businessProfile?.name || 'No business added' },
+                {
+                    icon: Building2,
+                    text: user.businessProfile?.name || 'No business added',
+                },
             ],
         },
         {
             key: 'ui',
-            title: 'UI Preferences',
+            title: 'UI preferences',
             description: 'Navigation layout and dashboard language.',
             icon: Brush,
+            accent: 'var(--st-success)',
             href: '/dashboard/user/settings/ui',
-            details: [
+            meta: [
                 { icon: PanelLeft, text: `App rail: ${user.appRailPosition || 'left'}` },
+                { icon: Languages, text: `Language: ${(user.language || 'en').toUpperCase()}` },
             ],
         },
         {
             key: 'billing',
-            title: 'Billing & Plans',
+            title: 'Billing & plans',
             description: 'Subscriptions, payment methods, and invoices.',
             icon: CreditCard,
+            accent: 'var(--st-warn)',
             href: '/dashboard/user/billing',
-            details: [
-                { icon: Receipt, text: 'Open billing portal' },
-            ],
         },
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="flex max-w-[880px] flex-col gap-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>Account</PageEyebrow>
@@ -141,46 +159,63 @@ export default function UserSettingsOverviewPage() {
                 </PageActions>
             </PageHeader>
 
-            <div className="grid gap-4 md:grid-cols-3">
-                {settingsCards.map((card) => {
-                    const Icon = card.icon;
-                    return (
-                    <Card key={card.key} className="flex h-full flex-col">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Icon size={18} aria-hidden="true" />
-                                {card.title}
-                            </CardTitle>
-                            <CardDescription>{card.description}</CardDescription>
-                        </CardHeader>
-                        <CardBody className="flex-1">
-                            <ul className="space-y-2">
-                                {card.details.map((detail, idx) => {
-                                    const DetailIcon = detail.icon;
-                                    return (
-                                    <li
-                                        key={idx}
-                                        className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]"
+            <nav aria-label="Settings sections">
+                <Card padding="none">
+                    {items.map((item, idx) => {
+                        const Icon = item.icon;
+                        return (
+                            <div key={item.key}>
+                                {idx > 0 ? <Separator /> : null}
+                                <Link
+                                    href={item.href}
+                                    className="group flex items-start gap-3 p-4 no-underline transition-colors hover:bg-[var(--st-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--st-accent)]"
+                                >
+                                    <span
+                                        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--st-radius)]"
+                                        style={{
+                                            background: `color-mix(in srgb, ${item.accent} 12%, transparent)`,
+                                            color: item.accent,
+                                        }}
+                                        aria-hidden="true"
                                     >
-                                        <DetailIcon size={14} aria-hidden="true" />
-                                        <span className="truncate">{detail.text}</span>
-                                    </li>
-                                    );
-                                })}
-                            </ul>
-                        </CardBody>
-                        <CardFooter>
-                            <Button asChild variant="outline" className="w-full justify-between">
-                                <Link href={card.href}>
-                                    Manage {card.title.split(' ')[0]}
-                                    <ArrowRight size={16} aria-hidden="true" />
+                                        <Icon size={18} />
+                                    </span>
+                                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                                        <span className="text-sm font-semibold text-[var(--st-text)]">
+                                            {item.title}
+                                        </span>
+                                        <span className="text-[0.8125rem] text-[var(--st-text-secondary)]">
+                                            {item.description}
+                                        </span>
+                                        {item.meta && item.meta.length > 0 ? (
+                                            <span className="mt-2 flex flex-wrap gap-1">
+                                                {item.meta.map((m, i) => {
+                                                    const MetaIcon = m.icon;
+                                                    return (
+                                                        <Badge
+                                                            key={i}
+                                                            variant="secondary"
+                                                            className="inline-flex max-w-full items-center gap-1 font-medium"
+                                                        >
+                                                            <MetaIcon size={11} aria-hidden="true" />
+                                                            <span className="truncate">{m.text}</span>
+                                                        </Badge>
+                                                    );
+                                                })}
+                                            </span>
+                                        ) : null}
+                                    </span>
+                                    <ChevronRight
+                                        size={16}
+                                        className="mt-0.5 flex-shrink-0 text-[var(--st-text-secondary)] transition-colors group-hover:text-[var(--st-text)]"
+                                        aria-hidden="true"
+                                    />
                                 </Link>
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                    );
-                })}
-            </div>
+                            </div>
+                        );
+                    })}
+                </Card>
+            </nav>
         </div>
     );
 }

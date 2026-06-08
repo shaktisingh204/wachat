@@ -3,19 +3,32 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, RadioGroup, RadioGroupItem, Separator } from '@/components/sabcrm/20ui';
-import { Save, LoaderCircle } from 'lucide-react';
+import {
+    CardBody,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Button,
+    SelectField,
+    RadioCardGroup,
+    RadioCard,
+    Separator,
+} from '@/components/sabcrm/20ui';
+import { Save, UserRound, PanelLeft, PanelTop, CalendarClock, Mail } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+import { useState } from 'react';
 import { UserProfileFormProps, ActionResponse } from './types';
 
 const profileInitialState: ActionResponse = { message: undefined, error: undefined };
 
-function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-            {children}
+        <Button type="submit" disabled={pending} loading={pending} iconLeft={Save}>
+            Save changes
         </Button>
     );
 }
@@ -23,6 +36,8 @@ function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; ico
 export function ProfileForm({ user }: UserProfileFormProps) {
     const [state, formAction] = useActionState(handleUpdateUserProfile, profileInitialState);
     const { toast } = useToast();
+    const [rail, setRail] = useState<string>(user.appRailPosition || 'left');
+    const [language, setLanguage] = useState<string | null>(user.language || 'en');
 
     useEffect(() => {
         if (state?.message) toast({ title: 'Success!', description: state.message });
@@ -41,71 +56,68 @@ export function ProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="businessAddress" value={user.businessProfile?.address || ''} />
             <input type="hidden" name="businessGstin" value={user.businessProfile?.gstin || ''} />
             <input type="hidden" name="businessPan" value={user.businessProfile?.pan || ''} />
+            <input type="hidden" name="appRailPosition" value={rail} />
+            <input type="hidden" name="language" value={language || 'en'} />
 
             <CardHeader>
-                <CardTitle>User Profile</CardTitle>
-                <CardDescription>Manage your name and view your account details.</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                    <UserRound size={16} aria-hidden="true" />
+                    User profile
+                </CardTitle>
+                <CardDescription>Manage your name, language and layout.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input 
-                        id="name" 
-                        name="name" 
-                        defaultValue={user.name} 
-                        required 
-                        maxLength={50} 
-                        pattern="^[a-zA-Z\s'-]+$" 
-                        title="Name can only contain letters, spaces, apostrophes, and hyphens." 
+                <Field label="Full name" required>
+                    <Input
+                        name="name"
+                        defaultValue={user.name}
+                        required
+                        maxLength={50}
+                        pattern="^[a-zA-Z\s'-]+$"
+                        title="Name can only contain letters, spaces, apostrophes, and hyphens."
                     />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" value={user.email} disabled />
-                </div>
-                <div className="space-y-2">
-                    <Label>Account Created</Label>
-                    <Input value={formattedCreatedAt} disabled />
-                </div>
-                
-                <Separator />
+                </Field>
+                <Field label="Email" help="Your email cannot be changed here.">
+                    <Input name="email" value={user.email} disabled iconLeft={Mail} />
+                </Field>
+                <Field label="Account created">
+                    <Input value={formattedCreatedAt} disabled iconLeft={CalendarClock} />
+                </Field>
 
-                <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-[var(--st-text)]">Preferences</h4>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="language">Language</Label>
-                            <Select name="language" defaultValue={user.language || 'en'}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Language" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="en">English</SelectItem>
-                                    <SelectItem value="hi">Hindi</SelectItem>
-                                    <SelectItem value="es">Spanish</SelectItem>
-                                    <SelectItem value="pt-BR">Portuguese (Brazil)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label>Sidebar Position</Label>
-                            <RadioGroup name="appRailPosition" defaultValue={user.appRailPosition || 'left'} className="flex items-center gap-4 mt-2">
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="left" id="r-left" />
-                                    <Label htmlFor="r-left">Left</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="top" id="r-top" />
-                                    <Label htmlFor="r-top">Top</Label>
-                                </div>
-                            </RadioGroup>
-                        </div>
-                    </div>
-                </div>
+                <Separator label="Preferences" />
+
+                <Field label="Language">
+                    <SelectField
+                        value={language}
+                        onChange={setLanguage}
+                        options={[
+                            { value: 'en', label: 'English' },
+                            { value: 'hi', label: 'Hindi' },
+                            { value: 'es', label: 'Spanish' },
+                            { value: 'pt-BR', label: 'Portuguese (Brazil)' },
+                        ]}
+                    />
+                </Field>
+
+                <Field label="Sidebar position">
+                    <RadioCardGroup value={rail} onChange={setRail} label="Sidebar position">
+                        <RadioCard
+                            value="left"
+                            label="Left"
+                            description="Vertical rail"
+                            icon={PanelLeft}
+                        />
+                        <RadioCard
+                            value="top"
+                            label="Top"
+                            description="Horizontal bar"
+                            icon={PanelTop}
+                        />
+                    </RadioCardGroup>
+                </Field>
             </CardBody>
             <CardFooter>
-                <SubmitButton icon={Save}>Save Changes</SubmitButton>
+                <SubmitButton />
             </CardFooter>
         </form>
     );

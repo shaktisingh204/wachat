@@ -6,6 +6,7 @@ import {
   CardTitle,
   CardDescription,
   CardBody,
+  StatCard,
   Button,
   Alert,
   AlertTitle,
@@ -19,6 +20,7 @@ import {
   SelectItem,
   Badge,
   EmptyState,
+  Separator,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
@@ -26,7 +28,28 @@ import {
   PageActions,
   cn,
 } from '@/components/sabcrm/20ui';
-import { Check, X, History, Search, PackageSearch } from 'lucide-react';
+import {
+  Check,
+  X,
+  History,
+  Search,
+  PackageSearch,
+  Crown,
+  Wallet,
+  Coins,
+  ShieldCheck,
+  Layers,
+  MessageCircle,
+  Mail,
+  Smartphone,
+  Link2,
+  QrCode,
+  Boxes,
+  Instagram,
+  Megaphone,
+  Sparkles,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
 import Link from 'next/link';
@@ -39,16 +62,16 @@ import { WalletCard } from '@/components/20ui-domain/wallet-card';
 import { PlanCategorySection } from './components/plan-category-section';
 import { BillingSkeleton } from './components/billing-skeleton';
 
-const CATEGORY_ORDER: { key: string; title: string }[] = [
-  { key: 'All-In-One', title: 'All-In-One Plans' },
-  { key: 'Wachat', title: 'Wachat Suite' },
-  { key: 'CRM', title: 'CRM Suite' },
-  { key: 'Meta Suite', title: 'Meta Suite' },
-  { key: 'Instagram Suite', title: 'Instagram Suite' },
-  { key: 'Email', title: 'Email Suite' },
-  { key: 'SMS', title: 'SMS Suite' },
-  { key: 'URL Shortener', title: 'URL Shortener' },
-  { key: 'QR Code Generator', title: 'QR Code Generator' },
+const CATEGORY_ORDER: { key: string; title: string; icon: LucideIcon }[] = [
+  { key: 'All-In-One', title: 'All-In-One Plans', icon: Boxes },
+  { key: 'Wachat', title: 'Wachat Suite', icon: MessageCircle },
+  { key: 'CRM', title: 'CRM Suite', icon: Layers },
+  { key: 'Meta Suite', title: 'Meta Suite', icon: Megaphone },
+  { key: 'Instagram Suite', title: 'Instagram Suite', icon: Instagram },
+  { key: 'Email', title: 'Email Suite', icon: Mail },
+  { key: 'SMS', title: 'SMS Suite', icon: Smartphone },
+  { key: 'URL Shortener', title: 'URL Shortener', icon: Link2 },
+  { key: 'QR Code Generator', title: 'QR Code Generator', icon: QrCode },
 ];
 
 export default function BillingPage() {
@@ -121,6 +144,33 @@ export default function BillingPage() {
 
   const userPlanId = sessionUser?.plan?._id;
 
+  // Pick a single tasteful "Popular" pick: the flagship (highest-priced)
+  // All-In-One plan, so exactly one card gets the recommended accent.
+  const popularPlanId = useMemo(() => {
+    const flagship = [...plans]
+      .filter((p) => (p.appCategory ?? 'All-In-One') === 'All-In-One' && (p.price ?? 0) > 0)
+      .sort((a, b) => (b.price || 0) - (a.price || 0))[0];
+    return flagship?._id?.toString();
+  }, [plans]);
+
+  // Hero usage stats — wallet + credits (representative metrics).
+  const walletCurrency = sessionUser?.wallet?.currency || 'INR';
+  const walletBalance = (sessionUser?.wallet?.balance ?? 0) / 100;
+  const walletDisplay = useMemo(
+    () =>
+      new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: walletCurrency,
+        maximumFractionDigits: 0,
+      }).format(walletBalance),
+    [walletBalance, walletCurrency],
+  );
+  const totalCredits = useMemo(() => {
+    const c = sessionUser?.credits;
+    if (!c) return 0;
+    return (c.broadcast || 0) + (c.sms || 0) + (c.meta || 0) + (c.email || 0) + (c.seo || 0);
+  }, [sessionUser?.credits]);
+
   if (!isClient || !sessionUser || isLoadingPlans) {
     return <BillingSkeleton />;
   }
@@ -128,7 +178,7 @@ export default function BillingPage() {
   const noPlansFound = CATEGORY_ORDER.every((c) => categorizedPlans[c.key].length === 0);
 
   return (
-    <div className="20ui flex flex-col gap-[var(--st-space-7)]">
+    <div className="20ui mx-auto flex w-full max-w-[1200px] flex-col gap-[var(--st-space-7)]">
       <PageHeader>
         <PageHeaderHeading>
           <PageTitle>Billing &amp; Plans</PageTitle>
@@ -137,6 +187,11 @@ export default function BillingPage() {
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
+          <a href="#upgrade">
+            <Button variant="primary" iconLeft={Sparkles}>
+              Upgrade plan
+            </Button>
+          </a>
           <Link href="/dashboard/user/billing/history">
             <Button variant="outline" iconLeft={History}>
               Billing history
@@ -174,15 +229,35 @@ export default function BillingPage() {
         </Alert>
       )}
 
-      {/* Current plan + wallet */}
+      {/* Hero: current plan + usage at a glance */}
+      <section aria-label="Account summary" className="grid grid-cols-1 gap-[var(--st-space-4)] sm:grid-cols-3">
+        <StatCard
+          icon={Crown}
+          label="Current plan"
+          value={sessionUser?.plan?.name || 'Free'}
+        />
+        <StatCard
+          icon={Wallet}
+          label="Wallet balance"
+          value={walletDisplay}
+        />
+        <StatCard
+          icon={Coins}
+          label="Available credits"
+          value={<span className="tabular-nums">{totalCredits.toLocaleString('en-IN')}</span>}
+        />
+      </section>
+
+      {/* Plan details + top-up */}
       <div className="grid grid-cols-1 gap-[var(--st-space-5)] lg:grid-cols-12">
-        <Card variant="outlined" padding="none" className="lg:col-span-8 flex flex-col overflow-hidden">
+        <Card variant="outlined" padding="none" className="flex flex-col overflow-hidden lg:col-span-7">
           <CardHeader className="border-b border-[var(--st-border)]">
             <CardTitle className="flex flex-wrap items-center gap-2">
-              Current plan
+              <ShieldCheck className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+              Plan features
               <Badge tone="accent">{sessionUser?.plan?.name || 'Free'}</Badge>
             </CardTitle>
-            <CardDescription>What is included in your active subscription.</CardDescription>
+            <CardDescription>Everything included in your active subscription.</CardDescription>
           </CardHeader>
           <CardBody>
             <ul className="grid grid-cols-1 gap-x-[var(--st-space-6)] gap-y-[var(--st-space-3)] sm:grid-cols-2">
@@ -191,27 +266,33 @@ export default function BillingPage() {
                   sessionUser?.plan?.features?.[
                     feature.id as keyof typeof sessionUser.plan.features
                   ] ?? true;
+                const FeatureIcon = feature.icon as LucideIcon;
                 return (
-                  <li key={feature.id} className="flex items-center gap-2">
-                    {isAllowed ? (
-                      <Check
-                        className="h-4 w-4 flex-shrink-0 text-[var(--st-status-ok)]"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      <X
-                        className="h-4 w-4 flex-shrink-0 text-[var(--st-text-tertiary)]"
-                        aria-hidden="true"
-                      />
-                    )}
+                  <li key={feature.id} className="flex items-center gap-2.5">
                     <span
                       className={cn(
-                        'text-sm text-[var(--st-text)]',
+                        'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-[var(--st-radius-sm)]',
+                        isAllowed
+                          ? 'bg-[var(--st-accent-soft)] text-[var(--st-accent)]'
+                          : 'bg-[var(--st-bg-secondary)] text-[var(--st-text-tertiary)]',
+                      )}
+                      aria-hidden="true"
+                    >
+                      {FeatureIcon ? <FeatureIcon className="h-3.5 w-3.5" /> : null}
+                    </span>
+                    <span
+                      className={cn(
+                        'flex-1 text-sm text-[var(--st-text)]',
                         !isAllowed && 'text-[var(--st-text-tertiary)] line-through',
                       )}
                     >
                       {feature.name}
                     </span>
+                    {isAllowed ? (
+                      <Check className="h-4 w-4 flex-shrink-0 text-[var(--st-status-ok)]" aria-hidden="true" />
+                    ) : (
+                      <X className="h-4 w-4 flex-shrink-0 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+                    )}
                   </li>
                 );
               })}
@@ -219,13 +300,15 @@ export default function BillingPage() {
           </CardBody>
         </Card>
 
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-5">
           <WalletCard user={sessionUser} />
         </div>
       </div>
 
-      {/* Plans */}
-      <section id="upgrade" className="flex flex-col gap-[var(--st-space-5)]">
+      <Separator />
+
+      {/* Plan catalog */}
+      <section id="upgrade" className="flex flex-col gap-[var(--st-space-5)] scroll-mt-6">
         <div className="flex flex-col gap-[var(--st-space-3)] sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">
@@ -262,7 +345,11 @@ export default function BillingPage() {
           <EmptyState
             icon={PackageSearch}
             title="No plans found"
-            description="No plans match your search. Try a different term or clear the filter."
+            description={
+              searchQuery
+                ? 'No plans match your search. Try a different term or clear the filter.'
+                : 'No plans are available right now. Check back soon.'
+            }
             action={
               searchQuery ? (
                 <Button variant="outline" onClick={() => setSearchQuery('')}>
@@ -276,8 +363,10 @@ export default function BillingPage() {
             <PlanCategorySection
               key={c.key}
               title={c.title}
+              icon={c.icon}
               plans={categorizedPlans[c.key]}
               currentPlanId={userPlanId?.toString()}
+              popularPlanId={popularPlanId}
               projectId={activeProjectId}
             />
           ))

@@ -2,14 +2,47 @@
 
 import { CardBody, CardDescription, CardHeader, CardTitle, Badge, Separator } from '@/components/sabcrm/20ui';
 import { UserProfileFormProps } from './types';
-import { 
-    CheckCircle2, 
-    Clock, 
-    User as UserIcon, 
-    Briefcase, 
-    Globe, 
-    Layers 
+import {
+    CheckCircle2,
+    Clock,
+    User as UserIcon,
+    Briefcase,
+    Globe,
+    Layers,
 } from 'lucide-react';
+
+function DefRow({ label, value }: { label: string; value: React.ReactNode }) {
+    return (
+        <div className="flex items-baseline justify-between gap-3 py-1">
+            <dt className="shrink-0 text-xs text-[var(--st-text-secondary)]">{label}</dt>
+            <dd className="min-w-0 truncate text-right text-sm font-medium text-[var(--st-text)]">
+                {value}
+            </dd>
+        </div>
+    );
+}
+
+function Section({
+    icon: Icon,
+    title,
+    children,
+}: {
+    icon: React.ElementType;
+    title: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div className="space-y-1">
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-[var(--st-text)]">
+                <Icon size={14} aria-hidden="true" className="text-[var(--st-text-secondary)]" />
+                {title}
+            </p>
+            <dl className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5">
+                {children}
+            </dl>
+        </div>
+    );
+}
 
 export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
     const ob = user.onboarding;
@@ -23,7 +56,7 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
         return new Date(dateString).toLocaleDateString(undefined, {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
         });
     };
 
@@ -31,109 +64,99 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
         <>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Layers className="h-5 w-5" />
-                    Onboarding Details
+                    <Layers size={16} aria-hidden="true" />
+                    Onboarding details
                 </CardTitle>
                 <CardDescription>
                     Setup information collected during your onboarding.
                 </CardDescription>
             </CardHeader>
-            <CardBody className="space-y-5">
+            <CardBody className="space-y-4">
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-[var(--st-text-secondary)]">Status</span>
-                    <Badge variant={isComplete ? 'default' : 'secondary'}>
-                        {isComplete ? (
-                            <><CheckCircle2 className="mr-1 h-3 w-3" /> Complete</>
-                        ) : (
-                            <><Clock className="mr-1 h-3 w-3" /> In progress ({ob.status})</>
-                        )}
-                    </Badge>
+                    {isComplete ? (
+                        <Badge tone="success" kind="soft">
+                            <CheckCircle2 size={12} aria-hidden="true" />
+                            Complete
+                        </Badge>
+                    ) : (
+                        <Badge tone="warning" kind="soft">
+                            <Clock size={12} aria-hidden="true" />
+                            In progress ({ob.status})
+                        </Badge>
+                    )}
                 </div>
 
                 <Separator />
 
-                {ob.profile && (
-                    <div className="space-y-2">
-                        <p className="text-sm font-semibold flex items-center gap-1.5">
-                            <UserIcon className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" /> Profile
-                        </p>
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                            {ob.profile.companyName && (
-                                <><span className="text-[var(--st-text-secondary)]">Company</span><span>{ob.profile.companyName}</span></>
-                            )}
-                            {ob.profile.role && (
-                                <><span className="text-[var(--st-text-secondary)]">Role</span><span>{ob.profile.role}</span></>
-                            )}
-                            {ob.profile.country && (
-                                <><span className="text-[var(--st-text-secondary)]">Country</span><span>{ob.profile.country}</span></>
-                            )}
-                            {ob.profile.phone && (
-                                <><span className="text-[var(--st-text-secondary)]">Phone</span><span>{ob.profile.phone}</span></>
-                            )}
-                            {ob.profile.website && (
-                                <><span className="text-[var(--st-text-secondary)]">Website</span><span>{ob.profile.website}</span></>
-                            )}
-                        </div>
-                    </div>
-                )}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    {ob.profile && (
+                        <Section icon={UserIcon} title="Profile">
+                            {ob.profile.companyName && <DefRow label="Company" value={ob.profile.companyName} />}
+                            {ob.profile.role && <DefRow label="Role" value={ob.profile.role} />}
+                            {ob.profile.country && <DefRow label="Country" value={ob.profile.country} />}
+                            {ob.profile.phone && <DefRow label="Phone" value={ob.profile.phone} />}
+                            {ob.profile.website && <DefRow label="Website" value={ob.profile.website} />}
+                        </Section>
+                    )}
 
-                {ob.business && (
-                    <div className="space-y-2">
-                        <p className="text-sm font-semibold flex items-center gap-1.5">
-                            <Briefcase className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" /> Business
-                        </p>
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                            {ob.business.industry && (
-                                <><span className="text-[var(--st-text-secondary)]">Industry</span><span>{ob.business.industry}</span></>
-                            )}
-                            {ob.business.teamSize && (
-                                <><span className="text-[var(--st-text-secondary)]">Team size</span><span>{ob.business.teamSize}</span></>
-                            )}
+                    {ob.business && (
+                        <Section icon={Briefcase} title="Business">
+                            {ob.business.industry && <DefRow label="Industry" value={ob.business.industry} />}
+                            {ob.business.teamSize && <DefRow label="Team size" value={ob.business.teamSize} />}
                             {ob.business.monthlyVolume && (
-                                <><span className="text-[var(--st-text-secondary)]">Monthly volume</span><span>{ob.business.monthlyVolume}</span></>
+                                <DefRow label="Monthly volume" value={ob.business.monthlyVolume} />
                             )}
                             {ob.business.useCases && ob.business.useCases.length > 0 && (
-                                <><span className="text-[var(--st-text-secondary)]">Use cases</span><span>{ob.business.useCases.join(', ')}</span></>
+                                <DefRow label="Use cases" value={ob.business.useCases.join(', ')} />
                             )}
-                        </div>
-                    </div>
-                )}
+                        </Section>
+                    )}
+                </div>
 
                 {(modules.length > 0 || ob.requirements) && (
                     <div className="space-y-2">
-                        <p className="text-sm font-semibold flex items-center gap-1.5">
-                            <Globe className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" /> Requirements
+                        <p className="flex items-center gap-1.5 text-sm font-semibold text-[var(--st-text)]">
+                            <Globe size={14} aria-hidden="true" className="text-[var(--st-text-secondary)]" />
+                            Requirements
                         </p>
                         {modules.length > 0 && (
                             <div className="flex flex-wrap gap-1.5">
                                 {modules.map((m) => (
-                                    <Badge key={m} variant="outline" className="text-xs">{m}</Badge>
+                                    <Badge key={m} tone="accent" kind="outline">
+                                        {m}
+                                    </Badge>
                                 ))}
                             </div>
                         )}
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-                            {ob.requirements?.primaryGoal && (
-                                <><span className="text-[var(--st-text-secondary)]">Primary goal</span><span>{ob.requirements.primaryGoal}</span></>
-                            )}
-                            {ob.requirements?.currentTools && (
-                                <><span className="text-[var(--st-text-secondary)]">Current tools</span><span>{ob.requirements.currentTools}</span></>
-                            )}
-                            {ob.requirements?.timeline && (
-                                <><span className="text-[var(--st-text-secondary)]">Timeline</span><span>{ob.requirements.timeline}</span></>
-                            )}
-                        </div>
+                        {(ob.requirements?.primaryGoal ||
+                            ob.requirements?.currentTools ||
+                            ob.requirements?.timeline) && (
+                            <dl className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] px-3 py-1.5">
+                                {ob.requirements?.primaryGoal && (
+                                    <DefRow label="Primary goal" value={ob.requirements.primaryGoal} />
+                                )}
+                                {ob.requirements?.currentTools && (
+                                    <DefRow label="Current tools" value={ob.requirements.currentTools} />
+                                )}
+                                {ob.requirements?.timeline && (
+                                    <DefRow label="Timeline" value={ob.requirements.timeline} />
+                                )}
+                            </dl>
+                        )}
                     </div>
                 )}
 
                 {(ob.startedAt || ob.completedAt) && (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm pt-3 border-t border-[var(--st-border)]">
-                        {ob.startedAt && (
-                            <><span className="text-[var(--st-text-secondary)]">Started</span><span>{formatSafeDate(ob.startedAt)}</span></>
-                        )}
-                        {ob.completedAt && (
-                            <><span className="text-[var(--st-text-secondary)]">Completed</span><span>{formatSafeDate(ob.completedAt)}</span></>
-                        )}
-                    </div>
+                    <>
+                        <Separator />
+                        <dl className="grid grid-cols-2 gap-x-6">
+                            {ob.startedAt && <DefRow label="Started" value={formatSafeDate(ob.startedAt)} />}
+                            {ob.completedAt && (
+                                <DefRow label="Completed" value={formatSafeDate(ob.completedAt)} />
+                            )}
+                        </dl>
+                    </>
                 )}
             </CardBody>
         </>

@@ -3,19 +3,29 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Separator } from '@/components/sabcrm/20ui';
-import { KeyRound, LoaderCircle } from 'lucide-react';
+import {
+    CardBody,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Button,
+    Callout,
+    Separator,
+} from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
+import { ShieldCheck, KeyRound, Lock } from 'lucide-react';
 import { ActionResponse } from './types';
 
 const passwordInitialState: ActionResponse = { message: undefined, error: undefined };
 
-function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-            {children}
+        <Button type="submit" disabled={pending} loading={pending} iconLeft={KeyRound}>
+            Update password
         </Button>
     );
 }
@@ -38,26 +48,44 @@ export function PasswordForm() {
     return (
         <form action={formAction} ref={formRef}>
             <CardHeader>
-                <CardTitle>Change Password</CardTitle>
-                <CardDescription>Enter your current and new password to update your credentials.</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck size={16} aria-hidden="true" />
+                    Change password
+                </CardTitle>
+                <CardDescription>Update the credentials you use to sign in.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
-                </div>
+                <Callout tone="info" title="Keep it strong">
+                    Use at least 8 characters with a mix of letters, numbers and symbols.
+                </Callout>
+                <Field label="Current password" required>
+                    <Input
+                        name="currentPassword"
+                        type="password"
+                        autoComplete="current-password"
+                        iconLeft={Lock}
+                    />
+                </Field>
                 <Separator />
-                <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" name="newPassword" type="password" required autoComplete="new-password" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
-                </div>
+                <Field label="New password" required>
+                    <Input
+                        name="newPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        iconLeft={KeyRound}
+                    />
+                </Field>
+                <Field label="Confirm new password" required>
+                    <Input
+                        name="confirmPassword"
+                        type="password"
+                        autoComplete="new-password"
+                        iconLeft={KeyRound}
+                    />
+                </Field>
             </CardBody>
             <CardFooter>
-                <SubmitButton icon={KeyRound}>Update Password</SubmitButton>
+                <SubmitButton />
             </CardFooter>
         </form>
     );

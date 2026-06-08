@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 import { handleUpdateUserProfile, getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Palette } from 'lucide-react';
 
 import { SubmitButton } from './components/SubmitButton';
 import { UIPageSkeleton } from './components/UIPageSkeleton';
@@ -89,7 +89,7 @@ export default function UiPreferencesPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex max-w-[720px] flex-col gap-6">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>Settings</PageEyebrow>
@@ -103,15 +103,23 @@ export default function UiPreferencesPage() {
                 <input type="hidden" name="name" value={user.name || ''} />
                 <Card>
                     <CardHeader>
-                        <CardTitle>Appearance</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <span
+                                className="flex h-[26px] w-[26px] items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+                                aria-hidden="true"
+                            >
+                                <Palette size={15} />
+                            </span>
+                            Appearance
+                        </CardTitle>
                         <CardDescription>Navigation layout and dashboard language.</CardDescription>
                     </CardHeader>
-                    <CardBody className="space-y-6">
+                    <CardBody className="flex flex-col gap-4">
                         <AppRailSettings currentPosition={user.appRailPosition} />
                         <Separator />
                         <LanguageSettings currentLanguage={user.language} />
                     </CardBody>
-                    <CardFooter>
+                    <CardFooter className="justify-end">
                         <SubmitButton />
                     </CardFooter>
                 </Card>

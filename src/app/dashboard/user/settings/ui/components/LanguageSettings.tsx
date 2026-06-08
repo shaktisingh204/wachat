@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Field, Select } from '@/components/sabcrm/20ui';
+import { useId, useState } from 'react';
+import { Select } from '@/components/sabcrm/20ui';
 
 interface Language {
     code: string;
@@ -21,14 +21,21 @@ const SUPPORTED_LANGUAGES: Language[] = [
 
 export function LanguageSettings({ currentLanguage }: { currentLanguage?: string }) {
     const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage || 'en');
+    const labelId = useId();
 
     return (
-        <div className="space-y-2">
-            <Field
-                label="Dashboard language"
-                help="The language used across the dashboard interface."
-            >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex min-w-0 flex-[1_1_240px] flex-col gap-0.5">
+                <span className="text-sm font-semibold text-[var(--st-text)]" id={labelId}>
+                    Dashboard language
+                </span>
+                <span className="text-[0.8125rem] text-[var(--st-text-secondary)]">
+                    The language used across the dashboard interface.
+                </span>
+            </div>
+            <div className="w-full max-w-[260px] flex-shrink-0">
                 <Select
+                    aria-labelledby={labelId}
                     value={selectedLanguage}
                     onChange={(value) => setSelectedLanguage(value || 'en')}
                     searchable
@@ -38,9 +45,9 @@ export function LanguageSettings({ currentLanguage }: { currentLanguage?: string
                         label: lang.name,
                     }))}
                 />
-            </Field>
-            {/* Hidden input passes the selected value to the form action. */}
-            <input type="hidden" name="language" value={selectedLanguage} />
+                {/* Hidden input passes the selected value to the form action. */}
+                <input type="hidden" name="language" value={selectedLanguage} />
+            </div>
         </div>
     );
 }

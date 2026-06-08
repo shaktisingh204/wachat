@@ -15,7 +15,7 @@ import {
     Button,
 } from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
-import { Save, LoaderCircle } from 'lucide-react';
+import { Save, LoaderCircle, Building2 } from 'lucide-react';
 import { UserProfileFormProps, ActionResponse } from './types';
 
 const profileInitialState: ActionResponse = { message: undefined, error: undefined };
@@ -24,9 +24,9 @@ function SubmitButton() {
     const { pending } = useFormStatus();
     const Icon = pending ? LoaderCircle : Save;
     return (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
             <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
-            Save business profile
+            {pending ? 'Saving…' : 'Save business profile'}
         </Button>
     );
 }
@@ -47,7 +47,15 @@ export function BusinessProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="appRailPosition" value={user.appRailPosition || 'left'} />
 
             <CardHeader>
-                <CardTitle>Business profile</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                    <span
+                        className="flex h-[26px] w-[26px] items-center justify-center rounded-[var(--st-radius)] bg-[color-mix(in_srgb,var(--st-success)_14%,transparent)] text-[var(--st-success)]"
+                        aria-hidden="true"
+                    >
+                        <Building2 size={15} />
+                    </span>
+                    Business profile
+                </CardTitle>
                 <CardDescription>Used on invoices, vouchers, and accounting documents.</CardDescription>
             </CardHeader>
             <CardBody className="grid gap-4 md:grid-cols-2">
@@ -61,7 +69,7 @@ export function BusinessProfileForm({ user }: UserProfileFormProps) {
                     <Textarea name="businessAddress" defaultValue={user.businessProfile?.address} />
                 </Field>
             </CardBody>
-            <CardFooter>
+            <CardFooter className="justify-end">
                 <SubmitButton />
             </CardFooter>
         </form>

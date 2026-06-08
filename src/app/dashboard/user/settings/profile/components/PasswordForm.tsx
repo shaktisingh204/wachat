@@ -15,7 +15,7 @@ import {
     Separator,
 } from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
-import { KeyRound, LoaderCircle } from 'lucide-react';
+import { KeyRound, LoaderCircle, Lock } from 'lucide-react';
 import { ActionResponse } from './types';
 
 const passwordInitialState: ActionResponse = { message: undefined, error: undefined };
@@ -24,9 +24,9 @@ function SubmitButton() {
     const { pending } = useFormStatus();
     const Icon = pending ? LoaderCircle : KeyRound;
     return (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
             <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
-            Update password
+            {pending ? 'Updating…' : 'Update password'}
         </Button>
     );
 }
@@ -49,7 +49,15 @@ export function PasswordForm() {
     return (
         <form action={formAction} ref={formRef}>
             <CardHeader>
-                <CardTitle>Change password</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                    <span
+                        className="flex h-[26px] w-[26px] items-center justify-center rounded-[var(--st-radius)] bg-[color-mix(in_srgb,var(--st-warn)_14%,transparent)] text-[var(--st-warn)]"
+                        aria-hidden="true"
+                    >
+                        <Lock size={15} />
+                    </span>
+                    Change password
+                </CardTitle>
                 <CardDescription>Enter your current and new password to update your credentials.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
@@ -64,7 +72,7 @@ export function PasswordForm() {
                     <Input name="confirmPassword" type="password" autoComplete="new-password" />
                 </Field>
             </CardBody>
-            <CardFooter>
+            <CardFooter className="justify-end">
                 <SubmitButton />
             </CardFooter>
         </form>

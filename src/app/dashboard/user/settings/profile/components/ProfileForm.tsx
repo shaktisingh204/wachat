@@ -14,7 +14,7 @@ import {
     Button,
 } from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
-import { Save, LoaderCircle } from 'lucide-react';
+import { Save, LoaderCircle, UserCircle } from 'lucide-react';
 import { UserProfileFormProps, ActionResponse } from './types';
 
 const profileInitialState: ActionResponse = { message: undefined, error: undefined };
@@ -23,9 +23,9 @@ function SubmitButton() {
     const { pending } = useFormStatus();
     const Icon = pending ? LoaderCircle : Save;
     return (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
             <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
-            Save changes
+            {pending ? 'Saving…' : 'Save changes'}
         </Button>
     );
 }
@@ -53,7 +53,15 @@ export function ProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="businessGstin" value={user.businessProfile?.gstin || ''} />
 
             <CardHeader>
-                <CardTitle>Personal details</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                    <span
+                        className="flex h-[26px] w-[26px] items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
+                        aria-hidden="true"
+                    >
+                        <UserCircle size={15} />
+                    </span>
+                    Personal details
+                </CardTitle>
                 <CardDescription>Your name and account information.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
@@ -73,7 +81,7 @@ export function ProfileForm({ user }: UserProfileFormProps) {
                     <Input value={formattedCreatedAt} disabled />
                 </Field>
             </CardBody>
-            <CardFooter>
+            <CardFooter className="justify-end">
                 <SubmitButton />
             </CardFooter>
         </form>

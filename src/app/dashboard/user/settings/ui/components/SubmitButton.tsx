@@ -8,9 +8,9 @@ export function SubmitButton() {
     const { pending } = useFormStatus();
     const Icon = pending ? LoaderCircle : Save;
     return (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} aria-busy={pending}>
             <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
-            Save preferences
+            {pending ? 'Saving…' : 'Save preferences'}
         </Button>
     );
 }

@@ -31,8 +31,13 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
         <>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <Layers className="h-5 w-5" />
-                    Onboarding Details
+                    <span
+                        className="flex h-[26px] w-[26px] items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-subtle)] text-[var(--st-text-secondary)]"
+                        aria-hidden="true"
+                    >
+                        <Layers size={15} />
+                    </span>
+                    Onboarding details
                 </CardTitle>
                 <CardDescription>
                     Setup information collected during your onboarding.
@@ -126,14 +131,17 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
                 )}
 
                 {(ob.startedAt || ob.completedAt) && (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm pt-2 border-t border-[var(--st-border)]">
-                        {ob.startedAt && (
-                            <><span className="text-[var(--st-text-secondary)]">Started</span><span>{formatSafeDate(ob.startedAt)}</span></>
-                        )}
-                        {ob.completedAt && (
-                            <><span className="text-[var(--st-text-secondary)]">Completed</span><span>{formatSafeDate(ob.completedAt)}</span></>
-                        )}
-                    </div>
+                    <>
+                        <Separator />
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                            {ob.startedAt && (
+                                <><span className="text-[var(--st-text-secondary)]">Started</span><span>{formatSafeDate(ob.startedAt)}</span></>
+                            )}
+                            {ob.completedAt && (
+                                <><span className="text-[var(--st-text-secondary)]">Completed</span><span>{formatSafeDate(ob.completedAt)}</span></>
+                            )}
+                        </div>
+                    </>
                 )}
             </CardBody>
         </>
