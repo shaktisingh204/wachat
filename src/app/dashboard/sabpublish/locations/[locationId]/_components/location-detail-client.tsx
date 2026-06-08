@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import {
+  ArrowLeft,
+  Plug,
+  Star,
+  Megaphone,
+  Link2,
+  History,
+  UserSquare,
+} from 'lucide-react';
 
 import {
   Badge,
@@ -11,10 +19,13 @@ import {
   PageHeader,
   PageHeading,
   PageTitle,
+  StatCard,
+  Button,
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
+  type BadgeTone,
 } from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
 import type { SabpublishProfileFieldDoc } from '@/lib/rust-client/sabpublish-profile-fields';
@@ -41,17 +52,39 @@ export interface SabpublishLocationDetailData {
   syncJobs: SabpublishSyncJobDoc[];
 }
 
+function statusTone(status: string | undefined): BadgeTone {
+  switch ((status ?? 'draft').toLowerCase()) {
+    case 'active':
+      return 'success';
+    case 'paused':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}
+
 export function SabpublishLocationDetailClient({
   data,
 }: {
   data: SabpublishLocationDetailData;
 }) {
   const { location } = data;
+
+  const connectedProviders = data.providers.filter(
+    (p) => p.connectionStatus === 'connected',
+  ).length;
+  const unrepliedReviews = data.reviews.filter((r) => !r.replyBody).length;
+
   return (
-    <div className="space-y-6">
+    <div className="20ui space-y-6">
       <PageHeader>
         <PageHeading>
-          <PageTitle>{location.name}</PageTitle>
+          <div className="flex items-center gap-2">
+            <PageTitle>{location.name}</PageTitle>
+            <Badge tone={statusTone(location.status)}>
+              {location.status ?? 'draft'}
+            </Badge>
+          </div>
           <PageDescription>
             {[location.addressLine1, location.city, location.region]
               .filter(Boolean)
@@ -59,25 +92,85 @@ export function SabpublishLocationDetailClient({
           </PageDescription>
         </PageHeading>
         <PageActions>
-          <Badge variant="outline">{location.status ?? 'draft'}</Badge>
-          <Link
-            href="/dashboard/sabpublish/locations"
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
-          >
-            <ArrowLeft size={14} aria-hidden="true" />
-            Back to locations
-          </Link>
+          <Button variant="ghost" iconLeft={ArrowLeft} asChild>
+            <Link href="/dashboard/sabpublish/locations">Back to locations</Link>
+          </Button>
         </PageActions>
       </PageHeader>
 
+      <section
+        aria-label="Location summary"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <StatCard
+          label="Providers connected"
+          value={connectedProviders}
+          icon={Plug}
+          accent="#3b7af5"
+        />
+        <StatCard
+          label="Unreplied reviews"
+          value={unrepliedReviews}
+          icon={Star}
+          accent="#e0484e"
+          delta={
+            unrepliedReviews > 0
+              ? { value: 'Needs a reply', tone: 'down' }
+              : { value: 'All caught up', tone: 'up' }
+          }
+        />
+        <StatCard
+          label="Posts"
+          value={data.posts.length}
+          icon={Megaphone}
+          accent="#7c3aed"
+        />
+        <StatCard
+          label="Citations"
+          value={data.citations.length}
+          icon={Link2}
+          accent="#1f9d55"
+        />
+      </section>
+
       <Tabs defaultValue="profile">
         <TabsList>
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="providers">Providers</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-          <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="citations">Citations</TabsTrigger>
-          <TabsTrigger value="history">Sync history</TabsTrigger>
+          <TabsTrigger value="profile">
+            <span className="inline-flex items-center gap-1.5">
+              <UserSquare size={14} aria-hidden="true" />
+              Profile
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="providers">
+            <span className="inline-flex items-center gap-1.5">
+              <Plug size={14} aria-hidden="true" />
+              Providers
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="reviews">
+            <span className="inline-flex items-center gap-1.5">
+              <Star size={14} aria-hidden="true" />
+              Reviews
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="posts">
+            <span className="inline-flex items-center gap-1.5">
+              <Megaphone size={14} aria-hidden="true" />
+              Posts
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="citations">
+            <span className="inline-flex items-center gap-1.5">
+              <Link2 size={14} aria-hidden="true" />
+              Citations
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            <span className="inline-flex items-center gap-1.5">
+              <History size={14} aria-hidden="true" />
+              Sync history
+            </span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile" className="pt-4">
@@ -96,10 +189,7 @@ export function SabpublishLocationDetailClient({
           <SabpublishReviewsTab initial={data.reviews} />
         </TabsContent>
         <TabsContent value="posts" className="pt-4">
-          <SabpublishPostsTab
-            locationId={location._id}
-            initial={data.posts}
-          />
+          <SabpublishPostsTab locationId={location._id} initial={data.posts} />
         </TabsContent>
         <TabsContent value="citations" className="pt-4">
           <SabpublishCitationsTab

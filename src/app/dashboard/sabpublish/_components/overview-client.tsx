@@ -2,6 +2,16 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  MapPin,
+  Plug,
+  MessageSquareReply,
+  CheckCircle2,
+  History,
+  Plus,
+  ChevronRight,
+} from 'lucide-react';
 
 import {
   Badge,
@@ -18,6 +28,12 @@ import {
   PageHeading,
   PageTitle,
   StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
   type BadgeTone,
 } from '@/components/sabcrm/20ui';
 import type { SabpublishLocationDoc } from '@/lib/rust-client/sabpublish-locations';
@@ -50,6 +66,17 @@ function jobStatusTone(status: string): BadgeTone {
   }
 }
 
+function locationStatusTone(status: string | undefined): BadgeTone {
+  switch ((status ?? 'draft').toLowerCase()) {
+    case 'active':
+      return 'success';
+    case 'paused':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}
+
 export function SabpublishOverviewClient({
   data,
 }: {
@@ -70,13 +97,14 @@ export function SabpublishOverviewClient({
         <PageHeading>
           <PageTitle>SabPublish</PageTitle>
           <PageDescription>
-            One console for your business listings across Google, Yelp,
-            Bing, Apple Maps and Facebook.
+            One console for your business listings across Google, Yelp, Bing,
+            Apple Maps and Facebook.
           </PageDescription>
         </PageHeading>
         <PageActions>
           <Button
             variant="primary"
+            iconLeft={Plus}
             onClick={() => router.push('/dashboard/sabpublish/locations/new')}
           >
             New location
@@ -84,57 +112,164 @@ export function SabpublishOverviewClient({
         </PageActions>
       </PageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Locations" value={String(data.locations.length)} />
+      <section
+        aria-label="Listing health"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <StatCard
+          label="Locations"
+          value={data.locations.length}
+          icon={MapPin}
+          accent="#3b7af5"
+          delta={
+            data.locations.length
+              ? { value: `${activeLocations} active`, tone: 'neutral' }
+              : undefined
+          }
+        />
         <StatCard
           label="Active locations"
-          value={String(activeLocations)}
+          value={activeLocations}
+          icon={CheckCircle2}
+          accent="#1f9d55"
         />
         <StatCard
           label="Providers connected"
-          value={String(connectedProviders)}
+          value={connectedProviders}
+          icon={Plug}
+          accent="#7c3aed"
         />
         <StatCard
           label="Unreplied reviews"
-          value={String(data.unrepliedReviewCount)}
+          value={data.unrepliedReviewCount}
+          icon={MessageSquareReply}
+          accent="#e0484e"
+          delta={
+            data.unrepliedReviewCount > 0
+              ? { value: 'Needs a reply', tone: 'down' }
+              : { value: 'All caught up', tone: 'up' }
+          }
         />
-      </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent sync activity</CardTitle>
-          <CardDescription>
-            Last 10 sync jobs across all of your locations and providers.
-          </CardDescription>
-        </CardHeader>
-        <CardBody>
-          {data.recentJobs.length === 0 ? (
-            <EmptyState
-              title="No sync jobs yet"
-              description="Connect a provider and push your profile to see activity here."
-            />
-          ) : (
-            <ul className="divide-y divide-[var(--st-border)]">
-              {data.recentJobs.slice(0, 10).map((j) => (
-                <li
-                  key={j._id}
-                  className="flex items-center justify-between py-3 text-sm"
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <History size={16} aria-hidden="true" />
+              <CardTitle>Recent sync activity</CardTitle>
+            </div>
+            <CardDescription>
+              The last 10 sync jobs across every location and provider.
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            {data.recentJobs.length === 0 ? (
+              <EmptyState
+                icon={History}
+                title="No sync jobs yet"
+                description="Connect a provider and push a profile to see activity here."
+                action={
+                  <Button
+                    variant="primary"
+                    iconLeft={Plus}
+                    onClick={() =>
+                      router.push('/dashboard/sabpublish/locations/new')
+                    }
+                  >
+                    Add a location
+                  </Button>
+                }
+              />
+            ) : (
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Provider</Th>
+                    <Th>Job</Th>
+                    <Th>Started</Th>
+                    <Th align="right">Status</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {data.recentJobs.slice(0, 10).map((j) => (
+                    <Tr key={j._id}>
+                      <Td>
+                        <span className="font-medium">{j.providerId}</span>
+                      </Td>
+                      <Td>{j.kind}</Td>
+                      <Td className="tabular-nums text-[var(--st-text-secondary)]">
+                        {new Date(j.startedAt).toLocaleString()}
+                      </Td>
+                      <Td align="right">
+                        <Badge tone={jobStatusTone(j.status)}>{j.status}</Badge>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <MapPin size={16} aria-hidden="true" />
+              <CardTitle>Locations</CardTitle>
+            </div>
+            <CardDescription>Jump straight to a storefront.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            {data.locations.length === 0 ? (
+              <EmptyState
+                icon={MapPin}
+                size="sm"
+                title="No locations"
+                description="Add your first storefront to get started."
+              />
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {data.locations.slice(0, 6).map((loc) => (
+                  <li key={loc._id}>
+                    <Link
+                      href={`/dashboard/sabpublish/locations/${loc._id}`}
+                      className="group flex items-center justify-between gap-2 rounded-[var(--st-radius-sm)] px-2 py-2 text-sm transition-colors hover:bg-[var(--st-bg-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--st-accent)]"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium">
+                          {loc.name}
+                        </span>
+                        <span className="block truncate text-xs text-[var(--st-text-secondary)]">
+                          {[loc.city, loc.region].filter(Boolean).join(', ') ||
+                            'No address yet'}
+                        </span>
+                      </span>
+                      <Badge tone={locationStatusTone(loc.status)}>
+                        {loc.status ?? 'draft'}
+                      </Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {data.locations.length > 0 ? (
+              <div className="mt-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconRight={ChevronRight}
+                  asChild
                 >
-                  <div>
-                    <div className="font-medium text-[var(--st-text)]">
-                      {j.providerId} · {j.kind}
-                    </div>
-                    <div className="text-[var(--st-text-secondary)]">
-                      {new Date(j.startedAt).toLocaleString()}
-                    </div>
-                  </div>
-                  <Badge tone={jobStatusTone(j.status)}>{j.status}</Badge>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardBody>
-      </Card>
+                  <Link href="/dashboard/sabpublish/locations">
+                    View all locations
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
 }

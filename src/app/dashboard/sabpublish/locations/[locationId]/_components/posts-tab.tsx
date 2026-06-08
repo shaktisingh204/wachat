@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { CalendarClock, ImagePlus, Megaphone, Send } from 'lucide-react';
 
 import {
   Alert,
@@ -8,6 +9,9 @@ import {
   Button,
   Card,
   CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Checkbox,
   EmptyState,
   Field,
@@ -62,7 +66,7 @@ export function SabpublishPostsTab({
   function handlePublish(scheduled: boolean) {
     setError(null);
     if (!body.trim()) {
-      setError('Body is required');
+      setError('Write something before publishing.');
       return;
     }
     const scheduleAtMs = scheduleAt ? new Date(scheduleAt).getTime() : undefined;
@@ -95,7 +99,16 @@ export function SabpublishPostsTab({
   return (
     <div className="space-y-6">
       <Card>
-        <CardBody className="space-y-4 p-6">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Megaphone size={16} aria-hidden="true" />
+            <CardTitle>New post</CardTitle>
+          </div>
+          <CardDescription>
+            Publish an update to every connected listing at once.
+          </CardDescription>
+        </CardHeader>
+        <CardBody className="space-y-4">
           <Field label="Post body">
             <Textarea
               rows={4}
@@ -104,9 +117,10 @@ export function SabpublishPostsTab({
               placeholder="What's new at your business?"
             />
           </Field>
-          <div>
+
+          <div className="space-y-2">
             <Label>Providers</Label>
-            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
               {ALL_SABPUBLISH_PROVIDER_IDS.map((p) => (
                 <Checkbox
                   key={p}
@@ -117,8 +131,9 @@ export function SabpublishPostsTab({
               ))}
             </div>
           </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Schedule for (optional)">
+            <Field label="Schedule for" help="Leave blank to publish immediately.">
               <Input
                 type="datetime-local"
                 value={scheduleAt}
@@ -126,37 +141,43 @@ export function SabpublishPostsTab({
               />
             </Field>
             <div className="space-y-2">
-              <Label>Media (from SabFiles)</Label>
+              <Label>Media</Label>
               <SabFilePickerButton
                 accept="image"
                 onPick={(pick) =>
                   setMediaFileIds((prev) => [...prev, pick.id])
                 }
               >
-                Add media from library
+                <ImagePlus size={14} aria-hidden="true" />
+                Add from library
               </SabFilePickerButton>
               {mediaFileIds.length > 0 ? (
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  {mediaFileIds.length} file(s) attached
-                </div>
+                <p className="text-xs text-[var(--st-text-secondary)] tabular-nums">
+                  {mediaFileIds.length} file
+                  {mediaFileIds.length === 1 ? '' : 's'} attached
+                </p>
               ) : null}
             </div>
           </div>
+
           {error ? (
             <Alert tone="danger" title="Could not save post">
               {error}
             </Alert>
           ) : null}
-          <div className="flex gap-2">
+
+          <div className="flex flex-wrap gap-2">
             <Button
               variant="primary"
+              iconLeft={Send}
               onClick={() => handlePublish(false)}
               loading={pending}
             >
-              {pending ? 'Publishing...' : 'Publish now'}
+              Publish now
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
+              iconLeft={CalendarClock}
               onClick={() => handlePublish(true)}
               disabled={pending || !scheduleAt}
             >
@@ -166,25 +187,33 @@ export function SabpublishPostsTab({
         </CardBody>
       </Card>
 
-      <div>
-        <h3 className="mb-3 text-sm font-semibold uppercase text-[var(--st-text-secondary)]">
-          Recent posts
-        </h3>
-        {posts.length === 0 ? (
-          <EmptyState
-            title="No posts yet"
-            description="Your published and scheduled posts will appear here."
-          />
-        ) : (
-          <div className="space-y-3">
-            {posts.map((p) => (
-              <Card key={p._id}>
-                <CardBody className="space-y-2 p-4">
-                  <div className="flex items-center justify-between">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <CalendarClock size={16} aria-hidden="true" />
+            <CardTitle>Recent posts</CardTitle>
+          </div>
+          <CardDescription>Everything you have drafted or sent.</CardDescription>
+        </CardHeader>
+        <CardBody>
+          {posts.length === 0 ? (
+            <EmptyState
+              icon={Megaphone}
+              title="No posts yet"
+              description="Your published and scheduled posts will appear here."
+            />
+          ) : (
+            <ul className="flex list-none flex-col gap-3 p-0">
+              {posts.map((p) => (
+                <li
+                  key={p._id}
+                  className="space-y-2 rounded-[var(--st-radius)] border border-[var(--st-border)] p-4"
+                >
+                  <div className="flex items-center justify-between gap-2">
                     <Badge tone={STATUS_TONE[p.status] ?? 'neutral'}>
                       {p.status}
                     </Badge>
-                    <span className="text-xs text-[var(--st-text-secondary)]">
+                    <span className="text-xs text-[var(--st-text-secondary)] tabular-nums">
                       {p.scheduleAt
                         ? `Scheduled for ${new Date(p.scheduleAt).toLocaleString()}`
                         : p.publishedAt
@@ -193,15 +222,15 @@ export function SabpublishPostsTab({
                     </span>
                   </div>
                   <p className="text-sm text-[var(--st-text)]">{p.body}</p>
-                  <div className="text-xs text-[var(--st-text-secondary)]">
-                    Providers: {(p.providerIds ?? []).join(', ') || '-'}
-                  </div>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                  <p className="text-xs text-[var(--st-text-secondary)]">
+                    Providers: {(p.providerIds ?? []).join(', ') || 'None'}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardBody>
+      </Card>
     </div>
   );
 }

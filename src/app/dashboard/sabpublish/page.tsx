@@ -6,6 +6,7 @@ import {
   listSabpublishReviews,
   listSabpublishSyncJobs,
 } from '@/app/actions/sabpublish.actions';
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui';
 import {
   SabpublishOverviewClient,
   type SabpublishOverviewData,
@@ -50,9 +51,38 @@ async function SabpublishOverviewLoader() {
   return <SabpublishOverviewClient data={data} />;
 }
 
+function OverviewSkeleton() {
+  return (
+    <div className="20ui space-y-6">
+      <div className="space-y-2">
+        <Skeleton width={180} height={26} />
+        <Skeleton width={420} height={14} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i}>
+            <CardBody className="space-y-3 p-4">
+              <Skeleton circle width={32} height={32} />
+              <Skeleton width="50%" height={12} />
+              <Skeleton width="70%" height={20} />
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+      <Card>
+        <CardBody className="space-y-3 p-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} width="100%" height={16} />
+          ))}
+        </CardBody>
+      </Card>
+    </div>
+  );
+}
+
 export default function SabpublishPage() {
   return (
-    <Suspense fallback={<div className="p-6">Loading SabPublish…</div>}>
+    <Suspense fallback={<OverviewSkeleton />}>
       <SabpublishOverviewLoader />
     </Suspense>
   );
