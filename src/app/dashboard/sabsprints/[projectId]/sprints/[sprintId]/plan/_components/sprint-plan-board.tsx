@@ -1,15 +1,37 @@
 'use client';
 
 /**
- * Two-pane sprint planner. Drag a backlog story into the sprint pane to
- * assign it; drag a sprint story back to detach it. Capacity meter shows
- * sum of points vs the sprint's `capacityPoints`.
+ * Two-pane sprint planner. Move a backlog story into the sprint pane to
+ * assign it; move a sprint story back to detach it. A capacity meter shows
+ * the sum of allocated points vs the sprint's declared `capacityPoints`.
  */
 import { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 
-import { Badge, Button, Card, Progress } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
+  Progress,
+  EmptyState,
+  type Ui20ProgressTone,
+} from '@/components/sabcrm/20ui';
 import { moveStory } from '@/app/actions/agile.actions';
+import {
+  Target,
+  Layers as LayersIcon,
+  ListChecks,
+  Play,
+  LayoutDashboard,
+  ArrowRight,
+  ArrowLeft,
+  Inbox,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { AgileSprintDoc } from '@/lib/rust-client/agile-sprints';
 import type { AgileStoryDoc } from '@/lib/rust-client/agile-stories';
 
@@ -38,6 +60,7 @@ export function SprintPlanBoard({
   const capacity = sprint.capacityPoints ?? 0;
   const pct = capacity > 0 ? Math.min(100, (allocated / capacity) * 100) : 0;
   const over = capacity > 0 && allocated > capacity;
+  const meterTone: Ui20ProgressTone = over ? 'danger' : 'accent';
 
   function moveToSprint(story: AgileStoryDoc) {
     setBacklog((prev) => prev.filter((s) => s._id !== story._id));
@@ -56,57 +79,92 @@ export function SprintPlanBoard({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold text-[var(--st-text)]">{sprint.name}</h2>
-            {sprint.goal ? (
-              <p className="text-sm text-[var(--st-text-secondary)]">{sprint.goal}</p>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="ghost">{sprint.status}</Badge>
-            {sprint.status === 'planned' ? (
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardBody>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-semibold tracking-tight text-[var(--st-text)]">
+                  {sprint.name}
+                </h2>
+                <Badge tone="neutral" dot>
+                  {sprint.status}
+                </Badge>
+              </div>
+              {sprint.goal ? (
+                <p className="max-w-prose text-sm text-[var(--st-text-secondary)]">
+                  {sprint.goal}
+                </p>
+              ) : null}
+            </div>
+            <Button
+              variant={sprint.status === 'planned' ? 'primary' : 'outline'}
+              asChild
+            >
               <Link
                 href={`/dashboard/sabsprints/${projectId}/sprints/${sprint._id}/board`}
               >
-                <Button>Start sprint</Button>
+                {sprint.status === 'planned' ? (
+                  <Play size={16} aria-hidden="true" />
+                ) : (
+                  <LayoutDashboard size={16} aria-hidden="true" />
+                )}
+                {sprint.status === 'planned' ? 'Start sprint' : 'Open board'}
               </Link>
-            ) : (
-              <Link
-                href={`/dashboard/sabsprints/${projectId}/sprints/${sprint._id}/board`}
-              >
-                <Button variant="outline">Open board</Button>
-              </Link>
-            )}
+            </Button>
           </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
-            <span>Allocated</span>
-            <span>
-              {allocated} / {capacity || '—'} pts
-              {over ? ' (over capacity)' : ''}
-            </span>
+          <div className="mt-4 flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-xs text-[var(--st-text-secondary)]">
+              <span>Allocated capacity</span>
+              <span className="tabular-nums font-medium text-[var(--st-text)]">
+                {allocated} / {capacity || '—'} pts
+                {over ? ' · over capacity' : ''}
+              </span>
+            </div>
+            <Progress
+              value={pct}
+              tone={meterTone}
+              size="sm"
+              aria-label="Allocated capacity"
+            />
           </div>
-          <Progress value={pct} />
-        </div>
+        </CardBody>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <section
+        aria-label="Planning summary"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <StatCard label="In sprint" value={sprintStories.length} icon={LayersIcon} />
+        <StatCard label="Allocated points" value={allocated} icon={Target} />
+        <StatCard label="Backlog left" value={backlog.length} icon={ListChecks} />
+        <StatCard
+          label="Capacity"
+          value={capacity || '—'}
+          icon={Target}
+        />
+      </section>
+
+      <div className="grid gap-6 lg:grid-cols-2">
         <Pane
           label="Backlog"
+          icon={Inbox}
           stories={backlog}
-          emptyHint="No backlog stories left to add."
+          emptyTitle="Backlog is clear"
+          emptyHint="Every story is already assigned to a sprint."
           actionLabel="Add to sprint"
+          actionIcon={ArrowRight}
           onAction={moveToSprint}
         />
         <Pane
           label={`In ${sprint.name}`}
+          icon={LayersIcon}
           stories={sprintStories}
-          emptyHint="Drag stories from the backlog to plan this sprint."
+          emptyTitle="Nothing planned yet"
+          emptyHint="Add stories from the backlog to build out this sprint."
           actionLabel="Move to backlog"
+          actionIcon={ArrowLeft}
           onAction={moveToBacklog}
         />
       </div>
@@ -116,47 +174,63 @@ export function SprintPlanBoard({
 
 function Pane({
   label,
+  icon: Icon,
   stories,
+  emptyTitle,
   emptyHint,
   actionLabel,
+  actionIcon: ActionIcon,
   onAction,
 }: {
   label: string;
+  icon: LucideIcon;
   stories: AgileStoryDoc[];
+  emptyTitle: string;
   emptyHint: string;
   actionLabel: string;
+  actionIcon: LucideIcon;
   onAction: (s: AgileStoryDoc) => void;
 }) {
   return (
-    <Card className="flex flex-col gap-2 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-[var(--st-text)]">{label}</h3>
-        <span className="text-xs text-[var(--st-text-tertiary)]">
-          {stories.length} &middot; {sumPoints(stories)} pts
-        </span>
-      </div>
-      {stories.length === 0 ? (
-        <p className="py-6 text-center text-xs text-[var(--st-text-tertiary)]">
-          {emptyHint}
-        </p>
-      ) : (
-        <ol className="flex flex-col gap-1.5">
-          {stories.map((s) => (
-            <li
-              key={s._id}
-              className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
-            >
-              <span className="flex-1 truncate text-sm text-[var(--st-text)]">
-                {s.title}
-              </span>
-              <Badge variant="ghost">{s.points ?? 0} pts</Badge>
-              <Button size="sm" variant="ghost" onClick={() => onAction(s)}>
-                {actionLabel}
-              </Button>
-            </li>
-          ))}
-        </ol>
-      )}
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+            <CardTitle>{label}</CardTitle>
+          </div>
+          <span className="tabular-nums text-xs text-[var(--st-text-tertiary)]">
+            {stories.length} · {sumPoints(stories)} pts
+          </span>
+        </div>
+      </CardHeader>
+      <CardBody>
+        {stories.length === 0 ? (
+          <EmptyState icon={Icon} title={emptyTitle} description={emptyHint} size="sm" />
+        ) : (
+          <ol className="flex flex-col gap-1.5">
+            {stories.map((s) => (
+              <li
+                key={s._id}
+                className="flex items-center gap-2 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 transition-colors duration-150 hover:border-[var(--st-border-strong)]"
+              >
+                <span className="flex-1 truncate text-sm text-[var(--st-text)]">
+                  {s.title}
+                </span>
+                <Badge tone="neutral">{s.points ?? 0} pts</Badge>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  iconLeft={ActionIcon}
+                  onClick={() => onAction(s)}
+                >
+                  {actionLabel}
+                </Button>
+              </li>
+            ))}
+          </ol>
+        )}
+      </CardBody>
     </Card>
   );
 }

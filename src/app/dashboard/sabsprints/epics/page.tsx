@@ -68,9 +68,7 @@ export default function SabSprintsEpicsPage() {
                     </PageDescription>
                 </PageHeaderHeading>
                 <PageActions>
-                    <Button variant="primary" iconLeft={Plus}>
-                        New Epic
-                    </Button>
+                    <Button variant="primary" iconLeft={Plus}>New epic</Button>
                 </PageActions>
             </PageHeader>
 
@@ -137,9 +135,7 @@ export default function SabSprintsEpicsPage() {
                         title="No epics yet"
                         description="Create your first epic to group related sprint work into a larger initiative."
                         action={
-                            <Button variant="primary" iconLeft={Plus}>
-                                New Epic
-                            </Button>
+                            <Button variant="primary" iconLeft={Plus}>New epic</Button>
                         }
                     />
                 </Card>

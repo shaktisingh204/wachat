@@ -78,7 +78,7 @@ export default function SabSprintsSprintsPage() {
           </PageHeaderHeading>
           <PageActions>
             <Button variant="primary" iconLeft={Plus}>
-              New Sprint
+              New sprint
             </Button>
           </PageActions>
         </PageHeader>
@@ -92,7 +92,7 @@ export default function SabSprintsSprintsPage() {
 
         <Card padding="none">
           <CardHeader>
-            <CardTitle>All Sprints</CardTitle>
+            <CardTitle>All sprints</CardTitle>
             <CardDescription>Every iteration across your team, newest planning first.</CardDescription>
           </CardHeader>
           <CardBody>
@@ -103,7 +103,7 @@ export default function SabSprintsSprintsPage() {
                 description="Plan your first iteration to start tracking scope, dates, and points."
                 action={
                   <Button variant="primary" iconLeft={Plus}>
-                    New Sprint
+                    New sprint
                   </Button>
                 }
               />
@@ -111,11 +111,11 @@ export default function SabSprintsSprintsPage() {
               <Table>
                 <THead>
                   <Tr>
-                    <Th>Sprint Name</Th>
-                    <Th>Start Date</Th>
-                    <Th>End Date</Th>
+                    <Th>Sprint</Th>
+                    <Th>Start date</Th>
+                    <Th>End date</Th>
                     <Th>Status</Th>
-                    <Th align="right">Total Points</Th>
+                    <Th align="right">Points</Th>
                     <Th align="right">Actions</Th>
                   </Tr>
                 </THead>

@@ -1,12 +1,12 @@
 'use client';
 
 /**
- * Backlog board - prioritised, drag-reorderable list grouped by epic.
+ * Backlog board — prioritised, drag-reorderable story list grouped by epic.
  *
  * Drag uses native HTML5 DnD (no extra dep). We commit reorder via a single
  * `reorderStories` action: each item gets a new linear `rank` derived from
  * its index. Points are edited inline via a number input that fires
- * `updateStory` on blur.
+ * `updateStory` on blur. A KPI strip summarises the grooming state.
  */
 import { useMemo, useState, useTransition } from 'react';
 
@@ -14,6 +14,11 @@ import {
   Badge,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  StatCard,
   Input,
   Select,
   SelectContent,
@@ -29,6 +34,15 @@ import {
   updateStory,
   moveStory,
 } from '@/app/actions/agile.actions';
+import {
+  ListChecks,
+  Target,
+  Flame,
+  Layers,
+  GripVertical,
+  Plus,
+  ArrowRight,
+} from 'lucide-react';
 import type { AgileEpicDoc } from '@/lib/rust-client/agile-epics';
 import type { AgileSprintDoc } from '@/lib/rust-client/agile-sprints';
 import type {
@@ -101,6 +115,23 @@ export function BacklogBoard({
 
   const grouped = useMemo(() => groupByEpic(stories, epics), [stories, epics]);
 
+  const totalPoints = useMemo(
+    () => stories.reduce((acc, s) => acc + (s.points ?? 0), 0),
+    [stories],
+  );
+  const urgentCount = useMemo(
+    () => stories.filter((s) => s.priority === 'urgent' || s.priority === 'high').length,
+    [stories],
+  );
+
+  const activeSprints = useMemo(
+    () =>
+      sprints.filter(
+        (sp) => sp.status !== 'completed' && sp.status !== 'cancelled',
+      ),
+    [sprints],
+  );
+
   function persistOrder(next: AgileStoryDoc[]) {
     setStories(next);
     const payload = next.map((s, i) => ({ id: s._id, rank: (i + 1) * 100 }));
@@ -149,132 +180,165 @@ export function BacklogBoard({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card className="flex flex-col gap-3 p-4">
-        <div className="flex items-center gap-2">
-          <Input
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="New story title"
-            aria-label="New story title"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleCreate();
-              }
-            }}
-          />
-          <Button
-            variant="primary"
-            onClick={handleCreate}
-            disabled={isPending || !newTitle.trim()}
-          >
-            Add story
-          </Button>
-        </div>
+    <div className="flex flex-col gap-6">
+      <section
+        aria-label="Backlog summary"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <StatCard label="Backlog stories" value={stories.length} icon={ListChecks} />
+        <StatCard label="Unplanned points" value={totalPoints} icon={Target} />
+        <StatCard label="High priority" value={urgentCount} icon={Flame} />
+        <StatCard label="Epics" value={epics.length} icon={Layers} />
+      </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add a story</CardTitle>
+          <CardDescription>
+            Capture a new item, then groom its priority, points, and epic below.
+          </CardDescription>
+        </CardHeader>
+        <CardBody>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Input
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              placeholder="As a user, I want to…"
+              aria-label="New story title"
+              className="flex-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleCreate();
+                }
+              }}
+            />
+            <Button
+              variant="primary"
+              iconLeft={Plus}
+              onClick={handleCreate}
+              disabled={isPending || !newTitle.trim()}
+            >
+              Add story
+            </Button>
+          </div>
+        </CardBody>
       </Card>
 
       {grouped.length === 0 ? (
-        <EmptyState
-          title="No backlog stories yet"
-          description="Add your first story above to start grooming the backlog."
-        />
+        <Card padding="lg">
+          <EmptyState
+            icon={ListChecks}
+            title="No backlog stories yet"
+            description="Add your first story above to start grooming the backlog into sprints."
+          />
+        </Card>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {grouped.map((row) => (
-            <section key={row.epicId ?? 'none'} className="flex flex-col gap-2">
-              <header className="flex items-center gap-2">
-                {row.color ? (
+            <Card key={row.epicId ?? 'none'} padding="none">
+              <CardHeader>
+                <div className="flex items-center gap-2.5">
                   <span
                     aria-hidden="true"
-                    className="inline-block h-2.5 w-2.5 rounded-full"
-                    style={{ backgroundColor: row.color }}
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{
+                      backgroundColor:
+                        row.color ?? 'var(--st-border-strong)',
+                    }}
                   />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--st-border-strong)]"
-                  />
-                )}
-                <h2 className="text-sm font-semibold text-[var(--st-text)]">
-                  {row.epicName}
-                </h2>
-                <span className="text-xs text-[var(--st-text-tertiary)]">
-                  {row.stories.length} stories
-                </span>
-              </header>
-              <ol className="flex flex-col gap-1.5">
-                {row.stories.map((s) => {
-                  const overallIdx = stories.findIndex(
-                    (x) => x._id === s._id,
-                  );
-                  const isDragging = draggingId === s._id;
-                  return (
-                    <li
-                      key={s._id}
-                      draggable
-                      onDragStart={() => setDraggingId(s._id)}
-                      onDragEnd={() => setDraggingId(null)}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={() => handleDrop(overallIdx)}
-                      aria-grabbed={isDragging}
-                      className="flex items-center gap-3 rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2 hover:border-[var(--st-border-strong)] cursor-grab"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="text-xs text-[var(--st-text-tertiary)] font-mono w-6"
+                  <CardTitle>{row.epicName}</CardTitle>
+                  <Badge tone="neutral">{row.stories.length} stories</Badge>
+                </div>
+              </CardHeader>
+              <CardBody>
+                <ol className="flex flex-col gap-1.5">
+                  {row.stories.map((s) => {
+                    const overallIdx = stories.findIndex(
+                      (x) => x._id === s._id,
+                    );
+                    const isDragging = draggingId === s._id;
+                    return (
+                      <li
+                        key={s._id}
+                        draggable
+                        onDragStart={() => setDraggingId(s._id)}
+                        onDragEnd={() => setDraggingId(null)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => handleDrop(overallIdx)}
+                        aria-grabbed={isDragging}
+                        className={[
+                          'flex items-center gap-3 rounded-[var(--st-radius-sm)] border bg-[var(--st-bg)] px-3 py-2 transition-colors duration-150 cursor-grab',
+                          isDragging
+                            ? 'border-[var(--st-accent)] opacity-60'
+                            : 'border-[var(--st-border)] hover:border-[var(--st-border-strong)] hover:bg-[var(--st-bg-secondary)]',
+                        ].join(' ')}
                       >
-                        #{overallIdx + 1}
-                      </span>
-                      <span className="flex-1 truncate text-sm text-[var(--st-text)]">
-                        {s.title}
-                      </span>
-                      <Badge tone={PRIORITY_TONES[s.priority] ?? 'neutral'}>
-                        {s.priority}
-                      </Badge>
-                      <Input
-                        type="number"
-                        min={0}
-                        step={1}
-                        inputSize="sm"
-                        className="w-16 text-right"
-                        defaultValue={s.points ?? ''}
-                        onBlur={(e) => {
-                          const v = Number(e.currentTarget.value);
-                          if (!Number.isNaN(v) && v !== s.points) {
-                            handlePointsChange(s._id, v);
+                        <GripVertical
+                          size={15}
+                          aria-hidden="true"
+                          className="shrink-0 text-[var(--st-text-tertiary)]"
+                        />
+                        <span className="w-7 shrink-0 font-mono text-xs tabular-nums text-[var(--st-text-tertiary)]">
+                          #{overallIdx + 1}
+                        </span>
+                        <span className="flex-1 truncate text-sm text-[var(--st-text)]">
+                          {s.title}
+                        </span>
+                        <Badge tone={PRIORITY_TONES[s.priority] ?? 'neutral'} dot>
+                          {s.priority}
+                        </Badge>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          inputSize="sm"
+                          className="w-16 text-right tabular-nums"
+                          defaultValue={s.points ?? ''}
+                          onBlur={(e) => {
+                            const v = Number(e.currentTarget.value);
+                            if (!Number.isNaN(v) && v !== s.points) {
+                              handlePointsChange(s._id, v);
+                            }
+                          }}
+                          aria-label={`Points for ${s.title}`}
+                        />
+                        <Select
+                          onValueChange={(value) =>
+                            handleMoveToSprint(s._id, value)
                           }
-                        }}
-                        aria-label={`Points for ${s.title}`}
-                      />
-                      <Select
-                        onValueChange={(value) => handleMoveToSprint(s._id, value)}
-                      >
-                        <SelectTrigger
-                          className="w-40"
-                          aria-label={`Move ${s.title} to sprint`}
                         >
-                          <SelectValue placeholder="Move to sprint" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {sprints
-                            .filter(
-                              (sp) =>
-                                sp.status !== 'completed' &&
-                                sp.status !== 'cancelled',
-                            )
-                            .map((sp) => (
-                              <SelectItem key={sp._id} value={sp._id}>
-                                {sp.name}
+                          <SelectTrigger
+                            className="w-44"
+                            aria-label={`Move ${s.title} to sprint`}
+                          >
+                            <ArrowRight
+                              size={14}
+                              aria-hidden="true"
+                              className="text-[var(--st-text-tertiary)]"
+                            />
+                            <SelectValue placeholder="Move to sprint" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {activeSprints.length === 0 ? (
+                              <SelectItem value="__none" disabled>
+                                No open sprints
                               </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
+                            ) : (
+                              activeSprints.map((sp) => (
+                                <SelectItem key={sp._id} value={sp._id}>
+                                  {sp.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </CardBody>
+            </Card>
           ))}
         </div>
       )}

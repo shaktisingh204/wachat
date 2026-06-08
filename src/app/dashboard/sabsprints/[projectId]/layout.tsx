@@ -1,14 +1,19 @@
 /**
  * Layout shell for the Scrum/Agile module. Mounts the section nav and lets
- * each page render its own 20ui `PageHeader` + body. Async params are
- * Next 16, so we await before reading `projectId`.
+ * each page render its own body inside a width-capped column. Async params
+ * are Next 16, so we await before reading `projectId`.
  */
 import {
   PageHeader,
   PageHeaderHeading,
   PageEyebrow,
   PageTitle,
+  PageDescription,
+  PageActions,
+  Button,
 } from '@/components/sabcrm/20ui';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 import { AgileNav } from './_components/agile-nav';
 
@@ -23,15 +28,28 @@ export default async function AgileLayout({
 }: AgileLayoutProps) {
   const { projectId } = await params;
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="20ui mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
       <PageHeader bordered={false}>
         <PageHeaderHeading>
-          <PageEyebrow>Project - Agile</PageEyebrow>
+          <PageEyebrow>SabSprints</PageEyebrow>
           <PageTitle>Scrum workspace</PageTitle>
+          <PageDescription>
+            Groom the backlog, plan sprints, and track delivery for this project.
+          </PageDescription>
         </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" asChild>
+            <Link href={`/dashboard/sabsprints/${projectId}/sprints/new`}>
+              <Plus size={16} aria-hidden="true" />
+              New sprint
+            </Link>
+          </Button>
+        </PageActions>
       </PageHeader>
+
       <AgileNav projectId={projectId} />
-      <div>{children}</div>
+
+      <main>{children}</main>
     </div>
   );
 }

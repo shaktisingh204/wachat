@@ -8,8 +8,21 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Card, Input, Label, Textarea, useToast } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
+  Field,
+  Input,
+  Textarea,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { createSprint } from '@/app/actions/agile.actions';
+import { Repeat } from 'lucide-react';
 
 export function SprintCreateForm({ projectId }: { projectId: string }) {
   const router = useRouter();
@@ -43,11 +56,11 @@ export function SprintCreateForm({ projectId }: { projectId: string }) {
         toast({
           title: 'Could not create sprint',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
-      toast({ title: 'Sprint created' });
+      toast({ title: 'Sprint created', tone: 'success' });
       router.push(
         `/dashboard/sabsprints/${projectId}/sprints/${res.data._id}/plan`,
       );
@@ -55,66 +68,78 @@ export function SprintCreateForm({ projectId }: { projectId: string }) {
   }
 
   return (
-    <Card className="max-w-xl p-6">
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="sprint-name">Name</Label>
-          <Input
-            id="sprint-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Sprint 1"
-            required
-          />
+    <Card className="mx-auto w-full max-w-xl">
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Repeat size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+          <CardTitle>New sprint</CardTitle>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="sprint-goal">Goal</Label>
-          <Textarea
-            id="sprint-goal"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            placeholder="What does success look like at the end of this sprint?"
-            rows={3}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sprint-start">Start date</Label>
-            <Input
-              id="sprint-start"
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
+        <CardDescription>
+          Set the scope window and capacity, then pull stories in from the backlog.
+        </CardDescription>
+      </CardHeader>
+      <form onSubmit={handleSubmit}>
+        <CardBody>
+          <div className="flex flex-col gap-4">
+            <Field label="Name" required>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Sprint 42"
+                required
+              />
+            </Field>
+            <Field label="Goal">
+              <Textarea
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+                placeholder="What does success look like at the end of this sprint?"
+                rows={3}
+              />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Start date">
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </Field>
+              <Field label="End date">
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
+              </Field>
+            </div>
+            <Field
+              label="Capacity (story points)"
+              help="The total points the team expects to deliver this sprint."
+            >
+              <Input
+                type="number"
+                min={0}
+                value={capacity}
+                onChange={(e) =>
+                  setCapacity(e.target.value === '' ? '' : Number(e.target.value))
+                }
+                placeholder="40"
+                className="tabular-nums"
+              />
+            </Field>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sprint-end">End date</Label>
-            <Input
-              id="sprint-end"
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="sprint-capacity">Capacity (story points)</Label>
-          <Input
-            id="sprint-capacity"
-            type="number"
-            min={0}
-            value={capacity}
-            onChange={(e) =>
-              setCapacity(e.target.value === '' ? '' : Number(e.target.value))
-            }
-            placeholder="e.g. 40"
-          />
-        </div>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button type="submit" disabled={isPending || !name.trim()}>
-            {isPending ? 'Creating…' : 'Create sprint'}
+        </CardBody>
+        <CardFooter className="justify-end">
+          <Button
+            type="submit"
+            variant="primary"
+            loading={isPending}
+            disabled={!name.trim()}
+          >
+            Create sprint
           </Button>
-        </div>
+        </CardFooter>
       </form>
     </Card>
   );
