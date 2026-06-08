@@ -301,7 +301,7 @@ export default async function HomePage() {
                 <div className="p-4">
                   <EmptyState
                     size="sm"
-                    icon={Megaphone}
+                    icon={<Megaphone className="h-7 w-7 text-white" />}
                     title="No broadcasts yet"
                     description="Create your first campaign to reach your audience."
                     action={

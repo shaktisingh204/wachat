@@ -133,7 +133,7 @@ export const NotificationPopover = React.forwardRef<
   NotificationPopoverProps
 >(function NotificationPopover(
   {
-    notifications,
+    notifications = [],
     unreadCount,
     onOpen,
     onItemClick,
