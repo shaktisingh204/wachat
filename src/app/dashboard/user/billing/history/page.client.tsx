@@ -3,13 +3,15 @@
 import {
     Card,
     CardBody,
-    CardHeader,
-    CardTitle,
     Alert,
+    AlertTitle,
+    AlertDescription,
     PageHeader,
     PageHeaderHeading,
     PageTitle,
     PageDescription,
+    PageActions,
+    Button,
 } from '@/components/sabcrm/20ui';
 import { ChevronLeft } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
@@ -93,37 +95,35 @@ export default function BillingHistoryPage() {
     }, [transactions, searchQuery, filterType, filterStatus, sortOption]);
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-4">
-                <Link
-                    href="/dashboard/user/billing"
-                    className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[var(--st-text-secondary)] transition-colors hover:text-[var(--st-text)]"
-                >
-                    <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                    Back to Billing
-                </Link>
-                <PageHeader bordered={false}>
-                    <PageHeaderHeading>
-                        <PageTitle>Billing History</PageTitle>
-                        <PageDescription>
-                            A record of all your plan upgrades and credit purchases.
-                        </PageDescription>
-                    </PageHeaderHeading>
-                </PageHeader>
-            </div>
+        <div className="20ui flex flex-col gap-[var(--st-space-6)]">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageTitle>Billing history</PageTitle>
+                    <PageDescription>
+                        A record of all your plan upgrades and credit purchases.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link href="/dashboard/user/billing">
+                        <Button variant="ghost" iconLeft={ChevronLeft}>
+                            Back to billing
+                        </Button>
+                    </Link>
+                </PageActions>
+            </PageHeader>
 
             {error && (
-                <Alert tone="danger" title="Error">
-                    {error}
+                <Alert tone="danger">
+                    <AlertTitle>Failed to load transactions</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
                 </Alert>
             )}
 
             {isInitialLoad ? (
                 <TransactionSkeleton />
             ) : (
-                <Card variant="outlined">
-                    <CardHeader className="pb-4">
-                        <CardTitle className="mb-4">Your Transactions</CardTitle>
+                <Card variant="outlined" padding="none">
+                    <CardBody className="flex flex-col gap-[var(--st-space-4)]">
                         <TransactionFilters
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
@@ -136,8 +136,6 @@ export default function BillingHistoryPage() {
                             onRefresh={fetchTransactions}
                             isRefreshing={isPending}
                         />
-                    </CardHeader>
-                    <CardBody>
                         <TransactionTable
                             transactions={filteredAndSortedTransactions}
                             isLoading={isPending}

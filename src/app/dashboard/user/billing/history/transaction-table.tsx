@@ -1,4 +1,4 @@
-import { Table, TBody, Td, Th, THead, Tr, Badge, EmptyState, type BadgeTone } from '@/components/sabcrm/20ui';
+import { Table, TBody, TCaption, Td, Th, THead, Tr, Badge, EmptyState, type BadgeTone } from '@/components/sabcrm/20ui';
 import { Receipt } from 'lucide-react';
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -29,11 +29,12 @@ export function TransactionTable({ transactions, isLoading }: TransactionTablePr
   return (
     <div className="overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
       <Table>
+        <TCaption className="sr-only">List of wallet transactions with date, description, amount, type, and status.</TCaption>
         <THead>
           <Tr>
             <Th>Date</Th>
             <Th>Description</Th>
-            <Th>Amount</Th>
+            <Th align="right">Amount</Th>
             <Th>Type</Th>
             <Th>Status</Th>
           </Tr>
@@ -43,7 +44,7 @@ export function TransactionTable({ transactions, isLoading }: TransactionTablePr
             <Tr key={t._id.toString()}>
               <Td className="whitespace-nowrap">{format(new Date(t.createdAt), 'PPpp')}</Td>
               <Td>{t.reason}</Td>
-              <Td className="whitespace-nowrap font-semibold">₹{(t.amount / 100).toFixed(2)}</Td>
+              <Td align="right" className="whitespace-nowrap font-semibold tabular-nums">₹{(t.amount / 100).toFixed(2)}</Td>
               <Td>
                 <Badge tone={t.type === 'CREDIT' ? 'accent' : 'neutral'}>{t.type}</Badge>
               </Td>

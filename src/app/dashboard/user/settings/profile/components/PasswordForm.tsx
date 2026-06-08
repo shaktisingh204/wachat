@@ -3,19 +3,30 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { handleChangePassword } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Separator } from '@/components/sabcrm/20ui';
-import { KeyRound, LoaderCircle } from 'lucide-react';
+import {
+    CardBody,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Button,
+    Separator,
+} from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
+import { KeyRound, LoaderCircle } from 'lucide-react';
 import { ActionResponse } from './types';
 
 const passwordInitialState: ActionResponse = { message: undefined, error: undefined };
 
-function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
+    const Icon = pending ? LoaderCircle : KeyRound;
     return (
         <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-            {children}
+            <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
+            Update password
         </Button>
     );
 }
@@ -38,26 +49,23 @@ export function PasswordForm() {
     return (
         <form action={formAction} ref={formRef}>
             <CardHeader>
-                <CardTitle>Change Password</CardTitle>
+                <CardTitle>Change password</CardTitle>
                 <CardDescription>Enter your current and new password to update your credentials.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
-                </div>
+                <Field label="Current password" required>
+                    <Input name="currentPassword" type="password" autoComplete="current-password" />
+                </Field>
                 <Separator />
-                <div className="space-y-2">
-                    <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" name="newPassword" type="password" required autoComplete="new-password" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
-                </div>
+                <Field label="New password" required>
+                    <Input name="newPassword" type="password" autoComplete="new-password" />
+                </Field>
+                <Field label="Confirm new password" required>
+                    <Input name="confirmPassword" type="password" autoComplete="new-password" />
+                </Field>
             </CardBody>
             <CardFooter>
-                <SubmitButton icon={KeyRound}>Update Password</SubmitButton>
+                <SubmitButton />
             </CardFooter>
         </form>
     );

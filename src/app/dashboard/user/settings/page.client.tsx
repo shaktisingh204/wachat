@@ -1,29 +1,55 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardBody, CardFooter, Button, Skeleton } from '@/components/sabcrm/20ui';
+import {
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardBody,
+    CardFooter,
+    Button,
+    EmptyState,
+    Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useEffect, useState } from 'react';
 import { getSession } from '@/app/actions/user.actions';
 import type { User } from '@/lib/definitions';
-import { User as UserIcon, Brush, CreditCard, ArrowRight, ShieldCheck, Mail, Building } from 'lucide-react';
+import {
+    User as UserIcon,
+    Brush,
+    CreditCard,
+    ArrowRight,
+    Mail,
+    Building,
+    PanelLeft,
+    Receipt,
+    AlertCircle,
+    LifeBuoy,
+} from 'lucide-react';
 import Link from 'next/link';
-import { AlertCircle } from 'lucide-react';
 
 function SettingsOverviewSkeleton() {
     return (
         <div className="space-y-6">
-            <div>
-                <Skeleton className="h-8 w-1/4 mb-2" />
-                <Skeleton className="h-4 w-1/3" />
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-72" />
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-4 md:grid-cols-3">
                 {[1, 2, 3].map((i) => (
                     <Card key={i}>
                         <CardHeader>
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full mt-2" />
+                            <Skeleton className="h-6 w-32" />
+                            <Skeleton className="mt-2 h-4 w-full" />
                         </CardHeader>
                         <CardBody>
-                            <Skeleton className="h-16 w-full" />
+                            <Skeleton className="h-10 w-full" />
                         </CardBody>
                     </Card>
                 ))}
@@ -33,15 +59,13 @@ function SettingsOverviewSkeleton() {
 }
 
 export default function UserSettingsOverviewPage() {
-    const [user, setUser] = useState<(Omit<User, 'password'>) | null>(null);
+    const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        document.title = "Settings | SabNode";
-        getSession().then(session => {
-            if (session?.user) {
-                setUser(session.user);
-            }
+        document.title = 'Settings | SabNode';
+        getSession().then((session) => {
+            if (session?.user) setUser(session.user);
             setLoading(false);
         });
     }, []);
@@ -52,102 +76,111 @@ export default function UserSettingsOverviewPage() {
 
     if (!user) {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><AlertCircle /> Error</CardTitle>
-                </CardHeader>
-                <CardBody>
-                    <p>Could not load settings overview. Please log in again.</p>
-                </CardBody>
-            </Card>
+            <EmptyState
+                icon={AlertCircle}
+                title="Could not load settings"
+                description="Your session may have expired. Please sign in again to manage your account."
+                action={
+                    <Button asChild>
+                        <Link href="/login">Sign in</Link>
+                    </Button>
+                }
+            />
         );
     }
 
     const settingsCards = [
         {
-            title: 'Profile Settings',
-            description: 'Update your personal details, business information, and change your password.',
+            key: 'profile',
+            title: 'Profile',
+            description: 'Personal details, business information, and password.',
             icon: UserIcon,
             href: '/dashboard/user/settings/profile',
             details: [
                 { icon: Mail, text: user.email },
                 { icon: Building, text: user.businessProfile?.name || 'No business added' },
-            ]
+            ],
         },
         {
+            key: 'ui',
             title: 'UI Preferences',
-            description: 'Customize the appearance of your dashboard and navigation rail.',
+            description: 'Navigation layout and dashboard language.',
             icon: Brush,
             href: '/dashboard/user/settings/ui',
             details: [
-                { icon: ShieldCheck, text: `App Rail: ${user.appRailPosition || 'left'}` },
-            ]
+                { icon: PanelLeft, text: `App rail: ${user.appRailPosition || 'left'}` },
+            ],
         },
         {
+            key: 'billing',
             title: 'Billing & Plans',
-            description: 'Manage your active subscriptions, payment methods, and billing history.',
+            description: 'Subscriptions, payment methods, and invoices.',
             icon: CreditCard,
             href: '/dashboard/user/billing',
             details: [
-                { icon: ShieldCheck, text: 'View Billing Portal' },
-            ]
-        }
+                { icon: Receipt, text: 'Open billing portal' },
+            ],
+        },
     ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Settings Overview</h1>
-                <p className="text-[var(--st-text-secondary)] mt-2">
-                    Manage your account settings, preferences, and billing.
-                </p>
-            </div>
+        <div className="space-y-6">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>Account</PageEyebrow>
+                    <PageTitle>Settings</PageTitle>
+                    <PageDescription>Manage your account, preferences, and billing.</PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Button asChild variant="ghost">
+                        <Link href="/dashboard/sabchat/faq">
+                            <LifeBuoy size={16} aria-hidden="true" />
+                            Help &amp; FAQ
+                        </Link>
+                    </Button>
+                </PageActions>
+            </PageHeader>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {settingsCards.map((card) => (
-                    <Card key={card.title} className="flex flex-col h-full hover:border-primary/50 transition-colors">
+            <div className="grid gap-4 md:grid-cols-3">
+                {settingsCards.map((card) => {
+                    const Icon = card.icon;
+                    return (
+                    <Card key={card.key} className="flex h-full flex-col">
                         <CardHeader>
-                            <div className="flex items-center gap-2 mb-2">
-                                <div className="p-2 bg-[var(--st-text)]/10 rounded-md">
-                                    <card.icon className="h-5 w-5 text-[var(--st-text)]" />
-                                </div>
-                                <CardTitle className="text-xl">{card.title}</CardTitle>
-                            </div>
+                            <CardTitle className="flex items-center gap-2">
+                                <Icon size={18} aria-hidden="true" />
+                                {card.title}
+                            </CardTitle>
                             <CardDescription>{card.description}</CardDescription>
                         </CardHeader>
                         <CardBody className="flex-1">
-                            <div className="space-y-2 mt-2">
-                                {card.details.map((detail, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                                        <detail.icon className="h-4 w-4" />
+                            <ul className="space-y-2">
+                                {card.details.map((detail, idx) => {
+                                    const DetailIcon = detail.icon;
+                                    return (
+                                    <li
+                                        key={idx}
+                                        className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]"
+                                    >
+                                        <DetailIcon size={14} aria-hidden="true" />
                                         <span className="truncate">{detail.text}</span>
-                                    </div>
-                                ))}
-                            </div>
+                                    </li>
+                                    );
+                                })}
+                            </ul>
                         </CardBody>
                         <CardFooter>
-                            <Button asChild variant="outline" className="w-full justify-between group">
+                            <Button asChild variant="outline" className="w-full justify-between">
                                 <Link href={card.href}>
                                     Manage {card.title.split(' ')[0]}
-                                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                                    <ArrowRight size={16} aria-hidden="true" />
                                 </Link>
                             </Button>
                         </CardFooter>
                     </Card>
-                ))}
+                    );
+                })}
             </div>
-            
-            <Card className="bg-[var(--st-bg-muted)]/30 border-dashed">
-                <CardHeader>
-                    <CardTitle>Need Help?</CardTitle>
-                    <CardDescription>If you have any questions about your account settings, our support team is here to help.</CardDescription>
-                </CardHeader>
-                <CardBody>
-                    <Button asChild variant="default">
-                        <Link href="/dashboard/sabchat/faq">View FAQ</Link>
-                    </Button>
-                </CardBody>
-            </Card>
         </div>
     );
 }

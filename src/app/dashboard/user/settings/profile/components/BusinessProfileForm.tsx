@@ -3,19 +3,30 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Textarea } from '@/components/sabcrm/20ui';
-import { Save, LoaderCircle } from 'lucide-react';
+import {
+    CardBody,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Textarea,
+    Button,
+} from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
+import { Save, LoaderCircle } from 'lucide-react';
 import { UserProfileFormProps, ActionResponse } from './types';
 
 const profileInitialState: ActionResponse = { message: undefined, error: undefined };
 
-function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
+    const Icon = pending ? LoaderCircle : Save;
     return (
         <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-            {children}
+            <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
+            Save business profile
         </Button>
     );
 }
@@ -36,25 +47,22 @@ export function BusinessProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="appRailPosition" value={user.appRailPosition || 'left'} />
 
             <CardHeader>
-                <CardTitle>Business Profile</CardTitle>
-                <CardDescription>This information will be used in invoices, vouchers, and other accounting documents.</CardDescription>
+                <CardTitle>Business profile</CardTitle>
+                <CardDescription>Used on invoices, vouchers, and accounting documents.</CardDescription>
             </CardHeader>
-            <CardBody className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="businessName">Business Name</Label>
-                    <Input id="businessName" name="businessName" defaultValue={user.businessProfile?.name} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="businessAddress">Address</Label>
-                    <Textarea id="businessAddress" name="businessAddress" defaultValue={user.businessProfile?.address} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="businessGstin">GSTIN</Label>
-                    <Input id="businessGstin" name="businessGstin" defaultValue={user.businessProfile?.gstin} />
-                </div>
+            <CardBody className="grid gap-4 md:grid-cols-2">
+                <Field label="Business name">
+                    <Input name="businessName" defaultValue={user.businessProfile?.name} />
+                </Field>
+                <Field label="GSTIN">
+                    <Input name="businessGstin" defaultValue={user.businessProfile?.gstin} />
+                </Field>
+                <Field label="Address" className="md:col-span-2">
+                    <Textarea name="businessAddress" defaultValue={user.businessProfile?.address} />
+                </Field>
             </CardBody>
             <CardFooter>
-                <SubmitButton icon={Save}>Save Business Profile</SubmitButton>
+                <SubmitButton />
             </CardFooter>
         </form>
     );

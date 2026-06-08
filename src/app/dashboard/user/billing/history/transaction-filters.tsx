@@ -40,8 +40,8 @@ export function TransactionFilters({
   isRefreshing
 }: TransactionFiltersProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-6">
-      <Field label="Search transactions" className="flex-1 [&>.u-field__label]:sr-only">
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <Field label="Search transactions" className="flex-1 [&_.u-field__label]:sr-only">
         <Input
           placeholder="Search descriptions..."
           iconLeft={Search}

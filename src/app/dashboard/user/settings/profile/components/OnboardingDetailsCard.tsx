@@ -126,7 +126,7 @@ export function OnboardingDetailsCard({ user }: UserProfileFormProps) {
                 )}
 
                 {(ob.startedAt || ob.completedAt) && (
-                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm pt-2 border-t border-[var(--st-border)]">
                         {ob.startedAt && (
                             <><span className="text-[var(--st-text-secondary)]">Started</span><span>{formatSafeDate(ob.startedAt)}</span></>
                         )}

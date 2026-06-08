@@ -15,13 +15,13 @@ export const PlanCategorySection = ({
 }) => {
   if (plans.length === 0) return null;
   return (
-    <section className="space-y-6 motion-safe:animate-slide-up">
+    <section className="flex flex-col gap-[var(--st-space-3)]">
       <div className="flex items-center gap-3">
-        <h2 className="text-2xl font-bold tracking-tight text-[var(--st-text)]">{title}</h2>
-        <div className="h-px flex-1 bg-gradient-to-r from-[var(--st-border)] to-transparent" />
+        <h3 className="text-sm font-semibold tracking-tight text-[var(--st-text)]">{title}</h3>
+        <div className="h-px flex-1 bg-[var(--st-border)]" />
       </div>
-      <ScrollArea className="w-full pb-8 -mb-8">
-        <div className="flex w-max space-x-6 pb-8 px-2 pt-2">
+      <ScrollArea className="w-full">
+        <div className="flex w-max gap-[var(--st-space-4)] pb-3">
           {plans.map((plan: WithId<Plan>) => (
             <PlanCard
               key={plan._id.toString()}
@@ -31,7 +31,7 @@ export const PlanCategorySection = ({
             />
           ))}
         </div>
-        <ScrollBar orientation="horizontal" className="opacity-50 hover:opacity-100 transition-opacity" />
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </section>
   );

@@ -6,10 +6,11 @@ import { LoaderCircle, Save } from 'lucide-react';
 
 export function SubmitButton() {
     const { pending } = useFormStatus();
+    const Icon = pending ? LoaderCircle : Save;
     return (
         <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Preferences
+            <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
+            Save preferences
         </Button>
-    )
+    );
 }

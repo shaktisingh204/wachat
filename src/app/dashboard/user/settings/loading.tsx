@@ -1,25 +1,23 @@
-'use client';
-
-import { Skeleton } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardBody, Skeleton } from '@/components/sabcrm/20ui';
 
 export default function SettingsLoading() {
     return (
         <div className="space-y-6">
-            <div>
-                <Skeleton className="h-8 w-1/4 mb-2" />
-                <Skeleton className="h-4 w-1/3" />
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-72" />
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-4 md:grid-cols-3">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="rounded-xl border bg-[var(--st-bg-secondary)] text-[var(--st-text)] shadow">
-                        <div className="flex flex-col space-y-1.5 p-6">
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-4 w-full mt-2" />
-                        </div>
-                        <div className="p-6 pt-0">
-                            <Skeleton className="h-16 w-full" />
-                        </div>
-                    </div>
+                    <Card key={i}>
+                        <CardHeader>
+                            <Skeleton className="h-6 w-32" />
+                            <Skeleton className="mt-2 h-4 w-full" />
+                        </CardHeader>
+                        <CardBody>
+                            <Skeleton className="h-10 w-full" />
+                        </CardBody>
+                    </Card>
                 ))}
             </div>
         </div>

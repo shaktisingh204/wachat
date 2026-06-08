@@ -3,19 +3,29 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button } from '@/components/sabcrm/20ui';
-import { Save, LoaderCircle } from 'lucide-react';
+import {
+    CardBody,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Button,
+} from '@/components/sabcrm/20ui';
 import { useFormStatus } from 'react-dom';
+import { Save, LoaderCircle } from 'lucide-react';
 import { UserProfileFormProps, ActionResponse } from './types';
 
 const profileInitialState: ActionResponse = { message: undefined, error: undefined };
 
-function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
+    const Icon = pending ? LoaderCircle : Save;
     return (
         <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
-            {children}
+            <Icon size={16} aria-hidden="true" className={pending ? 'animate-spin' : undefined} />
+            Save changes
         </Button>
     );
 }
@@ -43,33 +53,28 @@ export function ProfileForm({ user }: UserProfileFormProps) {
             <input type="hidden" name="businessGstin" value={user.businessProfile?.gstin || ''} />
 
             <CardHeader>
-                <CardTitle>User Profile</CardTitle>
-                <CardDescription>Manage your name and view your account details.</CardDescription>
+                <CardTitle>Personal details</CardTitle>
+                <CardDescription>Your name and account information.</CardDescription>
             </CardHeader>
             <CardBody className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input 
-                        id="name" 
-                        name="name" 
-                        defaultValue={user.name} 
-                        required 
-                        maxLength={50} 
-                        pattern="^[a-zA-Z\s'-]+$" 
-                        title="Name can only contain letters, spaces, apostrophes, and hyphens." 
+                <Field label="Full name" required>
+                    <Input
+                        name="name"
+                        defaultValue={user.name}
+                        maxLength={50}
+                        pattern="^[a-zA-Z\s'-]+$"
+                        title="Name can only contain letters, spaces, apostrophes, and hyphens."
                     />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" value={user.email} disabled />
-                </div>
-                <div className="space-y-2">
-                    <Label>Account Created</Label>
+                </Field>
+                <Field label="Email" help="Your sign-in email cannot be changed here.">
+                    <Input name="email" value={user.email} disabled />
+                </Field>
+                <Field label="Account created">
                     <Input value={formattedCreatedAt} disabled />
-                </div>
+                </Field>
             </CardBody>
             <CardFooter>
-                <SubmitButton icon={Save}>Save Changes</SubmitButton>
+                <SubmitButton />
             </CardFooter>
         </form>
     );

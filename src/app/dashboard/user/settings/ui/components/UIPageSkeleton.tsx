@@ -1,41 +1,36 @@
-import { Card, CardHeader, CardBody, CardFooter, Skeleton } from '@/components/sabcrm/20ui';
+import { Card, CardHeader, CardBody, CardFooter, Separator, Skeleton } from '@/components/sabcrm/20ui';
 
 export function UIPageSkeleton() {
     return (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-1/4 mb-2" />
-                <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardBody className="space-y-6">
-                <div className="space-y-2">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-4 w-64" />
-                    <div className="flex gap-4 pt-2">
-                        <Skeleton className="h-6 w-24" />
-                        <Skeleton className="h-6 w-24" />
-                    </div>
-                </div>
-                
-                <div className="space-y-4 pt-4 border-t border-[var(--st-border)]">
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-72" />
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="mt-2 h-4 w-56" />
+                </CardHeader>
+                <CardBody className="space-y-6">
                     <div className="space-y-2">
-                        <Skeleton className="h-5 w-40" />
-                        <Skeleton className="h-4 w-72" />
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-64" />
+                        <div className="flex gap-4 pt-2">
+                            <Skeleton className="h-6 w-28" />
+                            <Skeleton className="h-6 w-28" />
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-10" />
+                    <Separator />
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-36" />
+                        <Skeleton className="h-10 w-full max-w-sm" />
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {[1, 2, 3, 4, 5, 6].map((i) => (
-                            <Skeleton key={i} className="h-16 w-full rounded-md" />
-                        ))}
-                    </div>
-                </div>
-            </CardBody>
-            <CardFooter>
-                <Skeleton className="h-10 w-36" />
-            </CardFooter>
-        </Card>
+                </CardBody>
+                <CardFooter>
+                    <Skeleton className="h-10 w-36" />
+                </CardFooter>
+            </Card>
+        </div>
     );
 }

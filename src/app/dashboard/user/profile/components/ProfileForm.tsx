@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/user.actions';
 import { useToast } from '@/hooks/use-toast';
-import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, RadioGroup, RadioGroupItem } from '@/components/sabcrm/20ui';
+import { CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Input, Label, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, RadioGroup, RadioGroupItem, Separator } from '@/components/sabcrm/20ui';
 import { Save, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { UserProfileFormProps, ActionResponse } from './types';
@@ -68,9 +68,10 @@ export function ProfileForm({ user }: UserProfileFormProps) {
                     <Input value={formattedCreatedAt} disabled />
                 </div>
                 
-                <div className="pt-4 border-t border-[var(--st-border)]">
-                    <h3 className="text-lg font-medium mb-4">Preferences</h3>
-                    
+                <Separator />
+
+                <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-[var(--st-text)]">Preferences</h4>
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="language">Language</Label>
