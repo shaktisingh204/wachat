@@ -1,16 +1,25 @@
 'use client';
 
 /**
- * Create-deck dialog. Two affordances: blank deck + "From template",
- * which seeds the deck with the first SabShow built-in theme. We do NOT
- * navigate templates as a separate flow yet — the "from template" path
- * just picks the default built-in and creates the deck with that theme
- * attached. A richer template gallery is deferred.
+ * Create-deck dialog. Collects a title and creates a blank deck, then
+ * navigates into the editor. A richer template gallery is deferred — the
+ * old "From template" affordance was removed because it created an
+ * identical blank deck (no template was ever attached).
  */
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import { Plus } from 'lucide-react';
 
-import { Button, Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label } from '@/components/sabcrm/20ui';
+import {
+    Button,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Field,
+    Input,
+} from '@/components/sabcrm/20ui';
 import { createSabshowDeck } from '@/app/actions/sabshow.actions';
 
 export function NewDeckButton() {
@@ -20,7 +29,7 @@ export function NewDeckButton() {
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
 
-    function submit(_fromTemplate = false) {
+    function submit() {
         const t = title.trim() || 'Untitled deck';
         setError(null);
         startTransition(async () => {
@@ -30,53 +39,44 @@ export function NewDeckButton() {
                 setTitle('');
                 router.push(`/dashboard/sabshow/${deck._id}`);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Failed to create deck');
+                setError(e instanceof Error ? e.message : 'We could not create the deck. Please try again.');
             }
         });
     }
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>+ New deck</Button>
-            </DialogTrigger>
+            <Button iconLeft={Plus} onClick={() => setOpen(true)}>
+                New deck
+            </Button>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New SabShow deck</DialogTitle>
+                    <DialogTitle>New deck</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
-                    <Label htmlFor="sabshow-title">Deck title</Label>
-                    <Input
+                    <Field
+                        label="Deck title"
                         id="sabshow-title"
-                        autoFocus
-                        placeholder="e.g. Q1 board review"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') submit(false);
-                        }}
-                    />
-                    {error ? (
-                        <p className="text-sm text-[var(--st-text)]">{error}</p>
-                    ) : null}
+                        error={error ?? undefined}
+                        help="You can rename the deck any time from the editor."
+                    >
+                        <Input
+                            autoFocus
+                            placeholder="e.g. Q1 board review"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') submit();
+                            }}
+                        />
+                    </Field>
                 </div>
                 <DialogFooter>
-                    <Button
-                        variant="ghost"
-                        onClick={() => setOpen(false)}
-                        disabled={pending}
-                    >
+                    <Button variant="ghost" onClick={() => setOpen(false)} disabled={pending}>
                         Cancel
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={() => submit(true)}
-                        disabled={pending}
-                    >
-                        From template
-                    </Button>
-                    <Button onClick={() => submit(false)} disabled={pending}>
-                        {pending ? 'Creating…' : 'Create blank'}
+                    <Button iconLeft={Plus} onClick={submit} loading={pending} disabled={pending}>
+                        {pending ? 'Creating' : 'Create deck'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

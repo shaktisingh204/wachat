@@ -10,9 +10,9 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MonitorOff, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, MonitorOff, Presentation, X } from 'lucide-react';
 
-import { Button, EmptyState, Kbd } from '@/components/sabcrm/20ui';
+import { Button, EmptyState, IconButton, Kbd } from '@/components/sabcrm/20ui';
 import type { SabshowSlideDoc } from '@/lib/rust-client/sabshow-slides';
 import type { SabshowElementDoc } from '@/lib/rust-client/sabshow-elements';
 
@@ -80,16 +80,39 @@ export function PresentView({
 
     return (
         <div className="20ui flex h-screen w-screen flex-col bg-black text-white">
-            <div className="flex items-center justify-between px-4 py-2 text-xs">
-                <span className="font-medium">{deckTitle}</span>
-                <span className="text-white/70">
-                    {idx + 1} / {total}. Press <Kbd>n</Kbd> for presenter view, or{' '}
-                    <Kbd>esc</Kbd> to exit.
+            <header className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-2 text-xs">
+                <span className="flex items-center gap-2 font-medium">
+                    <Presentation size={14} aria-hidden="true" />
+                    <span className="truncate">{deckTitle}</span>
+                </span>
+                <span className="hidden items-center gap-2 text-white/70 sm:flex">
+                    <IconButton
+                        label="Previous slide"
+                        icon={ChevronLeft}
+                        size="sm"
+                        variant="ghost"
+                        disabled={idx === 0}
+                        onClick={() => advance(-1)}
+                    />
+                    <span className="tabular-nums">
+                        {idx + 1} / {total}
+                    </span>
+                    <IconButton
+                        label="Next slide"
+                        icon={ChevronRight}
+                        size="sm"
+                        variant="ghost"
+                        disabled={idx >= total - 1}
+                        onClick={() => advance(1)}
+                    />
+                    <span className="ml-2 text-white/50">
+                        <Kbd>n</Kbd> presenter · <Kbd>esc</Kbd> exit
+                    </span>
                 </span>
                 <Button size="sm" variant="ghost" iconLeft={X} onClick={() => router.back()}>
                     Exit
                 </Button>
-            </div>
+            </header>
 
             {presenterView ? (
                 <PresenterLayout

@@ -1,8 +1,19 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { Check, Copy, Globe, Link2, Send } from 'lucide-react';
 
-import { Button, Card, Input, Label, Textarea } from '@/components/sabcrm/20ui';
+import {
+    Badge,
+    Button,
+    Card,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+    Field,
+    Input,
+    Textarea,
+} from '@/components/sabcrm/20ui';
 import {
     publishSabshowDeck,
     unpublishSabshowDeck,
@@ -20,6 +31,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
     const [pending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);
     const [pub, setPub] = useState<SabshowPublicationDoc | null>(existing);
+    const [copied, setCopied] = useState(false);
 
     const shareUrl =
         typeof window !== 'undefined' && pub
@@ -30,7 +42,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
 
     function submit() {
         if (!slug.trim()) {
-            setError('slug is required');
+            setError('Enter a URL slug to publish.');
             return;
         }
         setError(null);
@@ -43,7 +55,7 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
                 });
                 setPub(next);
             } catch (e) {
-                setError(e instanceof Error ? e.message : 'Failed to publish');
+                setError(e instanceof Error ? e.message : 'We could not publish the deck. Please try again.');
             }
         });
     }
@@ -57,65 +69,99 @@ export function PublishForm({ deckId, existing }: PublishFormProps) {
         });
     }
 
+    function copyShareUrl() {
+        if (!shareUrl || typeof navigator === 'undefined') return;
+        void navigator.clipboard?.writeText(shareUrl).then(() => {
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1800);
+        });
+    }
+
     return (
-        <Card className="space-y-4 p-4">
-            <div className="space-y-2">
-                <Label htmlFor="slug">URL slug</Label>
-                <Input
+        <div className="space-y-4">
+            <Card padding="md" className="space-y-4">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Link2 size={16} aria-hidden="true" />
+                        Public link
+                    </CardTitle>
+                    <CardDescription>
+                        The slug becomes the path anyone can open without signing in.
+                    </CardDescription>
+                </CardHeader>
+
+                <Field
+                    label="URL slug"
                     id="slug"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="q1-board-review"
-                />
-                <p className="text-xs text-[var(--st-text-secondary)]">
-                    Public URL:{' '}
-                    <code>/present/{slug || '<slug>'}</code>
-                </p>
-            </div>
+                    error={error ?? undefined}
+                    help={
+                        <>
+                            Public URL: <code>/present/{slug || 'your-slug'}</code>
+                        </>
+                    }
+                >
+                    <Input
+                        prefix="/present/"
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                        placeholder="q1-board-review"
+                    />
+                </Field>
 
-            <div className="space-y-2">
-                <Label htmlFor="customCss">Custom CSS (optional)</Label>
-                <Textarea
+                <Field
+                    label="Custom CSS"
                     id="customCss"
-                    rows={5}
-                    value={customCss}
-                    onChange={(e) => setCustomCss(e.target.value)}
-                    placeholder=":root { --sabshow-accent: #000; }"
-                />
-            </div>
+                    help="Optional. Override theme variables for the published view only."
+                >
+                    <Textarea
+                        rows={5}
+                        value={customCss}
+                        onChange={(e) => setCustomCss(e.target.value)}
+                        placeholder=":root { --sabshow-accent: #4f46e5; }"
+                    />
+                </Field>
 
-            {error ? <p className="text-sm text-[var(--st-text)]">{error}</p> : null}
-
-            <div className="flex flex-wrap items-center gap-2">
-                <Button onClick={submit} disabled={pending}>
-                    {pub ? 'Update publication' : 'Publish'}
-                </Button>
-                {pub ? (
-                    <Button variant="ghost" onClick={unpublish} disabled={pending}>
-                        Unpublish
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button iconLeft={Send} onClick={submit} loading={pending} disabled={pending}>
+                        {pub ? 'Update publication' : 'Publish'}
                     </Button>
-                ) : null}
-                {shareUrl ? (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                            if (typeof navigator !== 'undefined') {
-                                void navigator.clipboard?.writeText(shareUrl);
-                            }
-                        }}
-                    >
-                        Copy share URL
-                    </Button>
-                ) : null}
-            </div>
+                    {pub ? (
+                        <Button variant="ghost" onClick={unpublish} disabled={pending}>
+                            Unpublish
+                        </Button>
+                    ) : null}
+                </div>
+            </Card>
 
             {pub ? (
-                <div className="rounded border bg-[var(--st-bg-muted)]/40 p-3 text-xs">
-                    Status: <strong>{pub.status ?? 'live'}</strong> · pinned to v
-                    {pub.publishedVersion}
-                </div>
+                <Card padding="md" className="space-y-3">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Globe size={16} aria-hidden="true" />
+                            Live publication
+                        </CardTitle>
+                    </CardHeader>
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--st-text-secondary)]">
+                        <Badge tone="success" kind="soft">
+                            {pub.status ?? 'live'}
+                        </Badge>
+                        <span className="tabular-nums">Pinned to v{pub.publishedVersion}</span>
+                    </div>
+                    {shareUrl ? (
+                        <div className="flex items-center gap-2">
+                            <Input readOnly value={shareUrl} aria-label="Share URL" />
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                iconLeft={copied ? Check : Copy}
+                                onClick={copyShareUrl}
+                            >
+                                {copied ? 'Copied' : 'Copy'}
+                            </Button>
+                        </div>
+                    ) : null}
+                </Card>
             ) : null}
-        </Card>
+        </div>
     );
 }

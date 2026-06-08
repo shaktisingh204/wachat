@@ -25,12 +25,25 @@ import { useRouter } from 'next/navigation';
 import {
     ArrowDown,
     ArrowUp,
+    BarChart3,
+    BringToFront,
+    Code2,
     Copy,
+    History,
+    Image as ImageIcon,
+    Play,
     Plus,
+    Save,
+    SendToBack,
+    Share2,
+    Shapes,
+    Type,
     Trash2,
+    Video,
 } from 'lucide-react';
 
 import {
+    Badge,
     Button,
     Card,
     EmptyState,
@@ -342,22 +355,24 @@ export function DeckEditorShell({
     return (
         <div className="20ui flex h-[calc(100vh-3rem)] w-full flex-col bg-[var(--st-bg-secondary)]">
             {/* top bar */}
-            <div className="flex items-center gap-3 border-b border-[var(--st-border)] px-4 py-2">
+            <header className="flex items-center gap-3 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-4 py-2">
                 <Input
                     aria-label="Deck title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={persistTitle}
-                    className="max-w-xs"
+                    className="max-w-xs font-medium"
                 />
-                <span className="text-xs text-[var(--st-text-secondary)]">
+                <Badge tone="neutral" kind="outline" className="tabular-nums">
                     v{deck.version ?? 1}
-                </span>
+                </Badge>
                 <div className="ml-auto flex items-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
+                        iconLeft={Save}
                         onClick={handleSaveVersion}
+                        loading={pending}
                         disabled={pending}
                     >
                         Save version
@@ -365,6 +380,7 @@ export function DeckEditorShell({
                     <Button
                         variant="ghost"
                         size="sm"
+                        iconLeft={History}
                         onClick={() =>
                             router.push(`/dashboard/sabshow/${deck._id}/history`)
                         }
@@ -374,6 +390,7 @@ export function DeckEditorShell({
                     <Button
                         variant="ghost"
                         size="sm"
+                        iconLeft={Share2}
                         onClick={() =>
                             router.push(`/dashboard/sabshow/${deck._id}/publish`)
                         }
@@ -382,6 +399,7 @@ export function DeckEditorShell({
                     </Button>
                     <Button
                         size="sm"
+                        iconLeft={Play}
                         onClick={() =>
                             router.push(`/dashboard/sabshow/${deck._id}/present`)
                         }
@@ -389,14 +407,20 @@ export function DeckEditorShell({
                         Present
                     </Button>
                 </div>
-            </div>
+            </header>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* slide sidebar */}
-                <aside className="flex w-56 flex-col border-r border-[var(--st-border)]">
+                <aside
+                    aria-label="Slides"
+                    className="flex w-56 flex-col border-r border-[var(--st-border)] bg-[var(--st-bg)]"
+                >
                     <div className="flex items-center justify-between gap-2 px-3 py-2">
-                        <span className="text-xs font-medium uppercase text-[var(--st-text-secondary)]">
+                        <span className="flex items-center gap-2 text-xs font-medium text-[var(--st-text-secondary)]">
                             Slides
+                            <Badge tone="neutral" kind="outline" className="tabular-nums">
+                                {slides.length}
+                            </Badge>
                         </span>
                         <IconButton
                             label="Add slide"
@@ -423,7 +447,7 @@ export function DeckEditorShell({
                                             }}
                                             className={`justify-start text-left ${
                                                 active
-                                                    ? 'bg-[var(--st-bg-muted)]'
+                                                    ? 'bg-[var(--st-bg-muted)] font-medium text-[var(--st-accent)]'
                                                     : ''
                                             }`}
                                         >
@@ -490,11 +514,15 @@ export function DeckEditorShell({
                 {/* canvas + toolbar */}
                 <main className="flex flex-1 flex-col overflow-hidden">
                     {/* toolbar */}
-                    <div className="flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] px-3 py-2">
+                    <div
+                        role="toolbar"
+                        aria-label="Insert and arrange elements"
+                        className="flex flex-wrap items-center gap-1.5 border-b border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
+                    >
                         <Button
                             size="sm"
                             variant="outline"
-                            iconLeft={Plus}
+                            iconLeft={Type}
                             onClick={() => handleInsertElement('text')}
                         >
                             Text
@@ -508,12 +536,13 @@ export function DeckEditorShell({
                                 })
                             }
                         >
-                            + Image
+                            <ImageIcon size={13} aria-hidden="true" />
+                            Image
                         </SabFilePickerButton>
                         <Button
                             size="sm"
                             variant="outline"
-                            iconLeft={Plus}
+                            iconLeft={Shapes}
                             onClick={() => handleInsertElement('shape')}
                         >
                             Shape
@@ -521,7 +550,7 @@ export function DeckEditorShell({
                         <Button
                             size="sm"
                             variant="outline"
-                            iconLeft={Plus}
+                            iconLeft={BarChart3}
                             onClick={() => handleInsertElement('chart')}
                         >
                             Chart
@@ -532,12 +561,13 @@ export function DeckEditorShell({
                                 handleInsertElement('video', { fileId: pick.id })
                             }
                         >
-                            + Video
+                            <Video size={13} aria-hidden="true" />
+                            Video
                         </SabFilePickerButton>
                         <Button
                             size="sm"
                             variant="outline"
-                            iconLeft={Plus}
+                            iconLeft={Code2}
                             onClick={() => handleInsertElement('code')}
                         >
                             Code
@@ -546,6 +576,7 @@ export function DeckEditorShell({
                         <Button
                             size="sm"
                             variant="ghost"
+                            iconLeft={BringToFront}
                             disabled={!selectedElement}
                             onClick={() =>
                                 selectedElement?._id &&
@@ -563,6 +594,7 @@ export function DeckEditorShell({
                         <Button
                             size="sm"
                             variant="ghost"
+                            iconLeft={SendToBack}
                             disabled={!selectedElement}
                             onClick={() =>
                                 selectedElement?._id &&
@@ -581,27 +613,46 @@ export function DeckEditorShell({
 
                     {/* canvas */}
                     <div
-                        className="flex-1 overflow-auto bg-[var(--st-bg-muted)]/30 p-6"
+                        className="flex-1 overflow-auto bg-[var(--st-bg-secondary)] p-6"
                         onMouseDown={() => setSelectedElementId(null)}
                     >
-                        <div className="mx-auto w-full max-w-[1280px]">
-                            <div
-                                ref={canvasRef}
-                                className="relative aspect-video w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white shadow-sm"
-                            >
-                                <CanvasInner
-                                    elements={elements}
-                                    selectedElementId={selectedElementId}
-                                    onSelectElement={(id) => setSelectedElementId(id)}
-                                    onStartDrag={startDrag}
-                                    onCommitText={(elementId, value) =>
-                                        handleUpdateElement(elementId, {
-                                            configJson: { value },
-                                        })
+                        {selectedSlideId ? (
+                            <div className="mx-auto w-full max-w-[1280px]">
+                                <div
+                                    ref={canvasRef}
+                                    className="relative aspect-video w-full overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-white shadow-sm"
+                                >
+                                    <CanvasInner
+                                        elements={elements}
+                                        selectedElementId={selectedElementId}
+                                        onSelectElement={(id) => setSelectedElementId(id)}
+                                        onStartDrag={startDrag}
+                                        onCommitText={(elementId, value) =>
+                                            handleUpdateElement(elementId, {
+                                                configJson: { value },
+                                            })
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="grid h-full place-items-center">
+                                <EmptyState
+                                    icon={Plus}
+                                    title="No slide selected"
+                                    description="Add a slide from the left panel, then drop in text, images, and shapes."
+                                    action={
+                                        <Button
+                                            iconLeft={Plus}
+                                            onClick={() => handleAddSlide('content')}
+                                            disabled={pending}
+                                        >
+                                            Add slide
+                                        </Button>
                                     }
                                 />
                             </div>
-                        </div>
+                        )}
                     </div>
 
                     {/* speaker notes */}
@@ -624,7 +675,10 @@ export function DeckEditorShell({
                 </main>
 
                 {/* properties panel */}
-                <aside className="w-72 border-l border-[var(--st-border)] p-3">
+                <aside
+                    aria-label="Properties"
+                    className="w-72 border-l border-[var(--st-border)] bg-[var(--st-bg)] p-3"
+                >
                     {selectedElement ? (
                         <PropertiesPanel
                             element={selectedElement}
@@ -816,7 +870,14 @@ function PropertiesPanel({
 }) {
     return (
         <Card className="space-y-3" padding="sm">
-            <div className="text-sm font-medium">{element.kind}</div>
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--st-text)]">
+                    Element
+                </span>
+                <Badge tone="neutral" kind="outline" className="capitalize">
+                    {element.kind}
+                </Badge>
+            </div>
             <div className="grid grid-cols-2 gap-2">
                 <Field label="X">
                     <Input
@@ -883,7 +944,14 @@ function SlidePropertiesPanel({
     }
     return (
         <Card className="space-y-3" padding="sm">
-            <div className="text-sm font-medium">Slide {slide.position + 1}</div>
+            <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--st-text)]">
+                    Slide
+                </span>
+                <Badge tone="neutral" kind="outline" className="tabular-nums">
+                    #{slide.position + 1}
+                </Badge>
+            </div>
             <Field label="Title">
                 <Input
                     inputSize="sm"
@@ -893,7 +961,7 @@ function SlidePropertiesPanel({
             </Field>
             <div className="space-y-1">
                 <Label>Layout</Label>
-                <div className="text-xs text-[var(--st-text-secondary)]">
+                <div className="text-xs capitalize text-[var(--st-text-secondary)]">
                     {slide.layoutKind ?? 'blank'}
                 </div>
             </div>
@@ -909,7 +977,7 @@ function NotesDrawer({
     onChange: (notes: string) => void | Promise<void>;
 }) {
     return (
-        <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-muted)]/40 px-3 py-2">
+        <div className="border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2">
             <Field label="Speaker notes">
                 <Textarea
                     key={slide?._id ?? 'none'}
