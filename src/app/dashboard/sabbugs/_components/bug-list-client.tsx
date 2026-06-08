@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { X } from 'lucide-react';
+import { Bug, CircleDot, Loader, ShieldAlert, X } from 'lucide-react';
 
 import {
   Alert,
@@ -20,10 +20,13 @@ import {
   Checkbox,
   Badge,
   EmptyState,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
   PageDescription,
+  Skeleton,
+  StatCard,
   Table,
   THead,
   TBody,
@@ -42,6 +45,7 @@ import {
   BugSeverityBadge,
   BugStatusBadge,
   bugTitle,
+  statusLifecycle,
   type ProjectOption,
 } from './bug-shared';
 import { BugFilters, toListParams, type BugFiltersValue } from './bug-filters';
@@ -87,18 +91,65 @@ export function BugListClient({
     };
   }, [filters]);
 
+  const counts = React.useMemo(() => {
+    let open = 0;
+    let inProgress = 0;
+    let resolved = 0;
+    for (const b of bugs) {
+      const bucket = statusLifecycle(b.status);
+      if (bucket === 'open') open += 1;
+      else if (bucket === 'in_progress') inProgress += 1;
+      else if (bucket === 'resolved') resolved += 1;
+    }
+    return { open, inProgress, resolved, total: bugs.length };
+  }, [bugs]);
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Bugs</PageTitle>
+          <PageEyebrow>Bug tracker</PageEyebrow>
+          <PageTitle>All bugs</PageTitle>
           <PageDescription>
-            Internal developer bug tracker. {bugs.length} result
-            {bugs.length === 1 ? '' : 's'}
-            {hasMore ? '+' : ''}
+            Internal developer bug tracker. Filter, save common views, and drill
+            into any report.
           </PageDescription>
         </PageHeaderHeading>
       </PageHeader>
+
+      <section
+        aria-label="Bug summary for the current view"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+      >
+        <StatCard
+          label="Open"
+          value={<span className="tabular-nums">{counts.open}</span>}
+          icon={CircleDot}
+          accent="#dc2626"
+        />
+        <StatCard
+          label="In progress"
+          value={<span className="tabular-nums">{counts.inProgress}</span>}
+          icon={Loader}
+          accent="#2563eb"
+        />
+        <StatCard
+          label="Resolved"
+          value={<span className="tabular-nums">{counts.resolved}</span>}
+          icon={Bug}
+          accent="#16a34a"
+        />
+        <StatCard
+          label={hasMore ? 'In view (more available)' : 'In view'}
+          value={
+            <span className="tabular-nums">
+              {counts.total}
+              {hasMore ? '+' : ''}
+            </span>
+          }
+          icon={ShieldAlert}
+        />
+      </section>
 
       <Card className="flex flex-col gap-4">
         <BugFilters
@@ -177,14 +228,35 @@ function SavedFilterChip({
 function BugListTable({ bugs, loading }: { bugs: BugDoc[]; loading: boolean }) {
   if (loading && bugs.length === 0) {
     return (
-      <Card className="text-sm text-[var(--st-text-secondary)]">Loading bugs...</Card>
+      <Card padding="none" className="overflow-hidden">
+        <div className="flex flex-col gap-3 p-4" aria-busy="true">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4">
+              <Skeleton height={14} className="flex-1" />
+              <Skeleton width={64} height={20} radius={999} />
+              <Skeleton width={64} height={20} radius={999} />
+              <Skeleton width={56} height={20} radius={999} />
+              <Skeleton width={72} height={14} />
+            </div>
+          ))}
+        </div>
+      </Card>
     );
   }
   if (bugs.length === 0) {
     return (
       <EmptyState
-        title="No bugs found"
-        description="Try clearing your filters, or report a new bug."
+        icon={Bug}
+        title="No bugs match this view"
+        description="Clear or widen your filters, or report a new bug to get started."
+        action={
+          <Button asChild variant="primary">
+            <Link href="/dashboard/sabbugs/new">
+              <Bug size={15} aria-hidden="true" />
+              New bug
+            </Link>
+          </Button>
+        }
       />
     );
   }

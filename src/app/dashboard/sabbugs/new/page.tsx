@@ -5,6 +5,13 @@
  */
 import { listVersions } from '@/app/actions/bug-tracker.actions';
 import { getWsProjects } from '@/app/actions/worksuite/projects.actions';
+import {
+  PageDescription,
+  PageEyebrow,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 
 import { BugForm } from '../_components/bug-form';
 
@@ -20,8 +27,17 @@ export default async function NewBugPage() {
     name: String(p.projectName ?? p.name ?? 'Untitled'),
   }));
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-semibold text-[var(--st-text)]">Report a bug</h1>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Bug tracker</PageEyebrow>
+          <PageTitle>Report a bug</PageTitle>
+          <PageDescription>
+            Capture what went wrong, how to reproduce it, and how badly it hurts
+            so the team can triage and fix it.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
       <BugForm
         bug={null}
         projectOptions={projectOptions}

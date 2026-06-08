@@ -6,14 +6,19 @@
  * a colour-graded matrix so triage can spot hotspots at a glance.
  */
 import Link from 'next/link';
+import { AlertTriangle, Flame, Grid3x3, ShieldAlert } from 'lucide-react';
 
 import {
   Alert,
   Card,
+  CardHeader,
+  CardTitle,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
+  StatCard,
   Table,
   TBody,
   THead,
@@ -28,7 +33,12 @@ import type {
   BugSeverity,
 } from '@/lib/rust-client/sabbugs-bugs';
 
-import { BUG_PRIORITIES, BUG_SEVERITIES } from '../_components/bug-constants';
+import {
+  BUG_PRIORITIES,
+  BUG_SEVERITIES,
+  prettyPriority,
+  prettySeverity,
+} from '../_components/bug-constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,14 +66,19 @@ export default async function SeverityMatrixPage() {
     ...BUG_SEVERITIES.flatMap((s) => BUG_PRIORITIES.map((p) => matrix[s][p])),
   );
 
+  const blockerCount = active.filter((b) => b.severity === 'blocker').length;
+  const criticalCount = active.filter((b) => b.severity === 'critical').length;
+  const urgentCount = active.filter((b) => b.priority === 'urgent').length;
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Severity x Priority matrix</PageTitle>
+          <PageEyebrow>Bug tracker</PageEyebrow>
+          <PageTitle>Severity and priority matrix</PageTitle>
           <PageDescription>
-            {active.length} active bug{active.length === 1 ? '' : 's'} grouped by
-            severity and priority.
+            Active bugs counted across the severity and priority grid so triage
+            can spot hotspots at a glance. Closed bugs are excluded.
           </PageDescription>
         </PageHeaderHeading>
       </PageHeader>
@@ -74,14 +89,50 @@ export default async function SeverityMatrixPage() {
         </Alert>
       ) : null}
 
-      <Card padding="md" className="overflow-x-auto">
+      <section
+        aria-label="Triage summary"
+        className="grid grid-cols-2 gap-3 lg:grid-cols-4"
+      >
+        <StatCard
+          label="Active bugs"
+          value={<span className="tabular-nums">{active.length}</span>}
+          icon={<Grid3x3 size={16} aria-hidden="true" />}
+        />
+        <StatCard
+          label="Blockers"
+          value={<span className="tabular-nums">{blockerCount}</span>}
+          icon={<Flame size={16} aria-hidden="true" />}
+          accent="#dc2626"
+        />
+        <StatCard
+          label="Critical"
+          value={<span className="tabular-nums">{criticalCount}</span>}
+          icon={<AlertTriangle size={16} aria-hidden="true" />}
+          accent="#ea580c"
+        />
+        <StatCard
+          label="Urgent priority"
+          value={<span className="tabular-nums">{urgentCount}</span>}
+          icon={<ShieldAlert size={16} aria-hidden="true" />}
+          accent="#d97706"
+        />
+      </section>
+
+      <Card padding="none" className="overflow-hidden">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Grid3x3 size={16} aria-hidden="true" />
+            Severity by priority
+          </CardTitle>
+        </CardHeader>
+        <div className="overflow-x-auto p-4 pt-0">
         <Table density="compact" hover={false}>
           <THead>
             <Tr>
               <Th align="left">Severity \ Priority</Th>
               {BUG_PRIORITIES.map((p) => (
                 <Th key={p} align="center">
-                  {p}
+                  {prettyPriority(p)}
                 </Th>
               ))}
             </Tr>
@@ -90,7 +141,7 @@ export default async function SeverityMatrixPage() {
             {BUG_SEVERITIES.map((s) => (
               <Tr key={s}>
                 <Th align="left" scope="row">
-                  {s}
+                  {prettySeverity(s)}
                 </Th>
                 {BUG_PRIORITIES.map((p) => {
                   const count = matrix[s][p];
@@ -106,7 +157,8 @@ export default async function SeverityMatrixPage() {
                     <Td key={p} align="center" className="p-0">
                       <Link
                         href={`/dashboard/sabbugs?severity=${s}&priority=${p}`}
-                        className={`block rounded-[var(--st-radius)] p-3 text-center font-semibold ${textClass}`}
+                        aria-label={`${count} ${prettySeverity(s)} bug${count === 1 ? '' : 's'} at ${prettyPriority(p)} priority`}
+                        className={`block rounded-[var(--st-radius)] p-3 text-center font-semibold tabular-nums transition-opacity duration-150 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-accent)] focus-visible:ring-inset ${textClass}`}
                         style={{ backgroundColor: cellColor(intensity) }}
                       >
                         {count}
@@ -118,6 +170,7 @@ export default async function SeverityMatrixPage() {
             ))}
           </TBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

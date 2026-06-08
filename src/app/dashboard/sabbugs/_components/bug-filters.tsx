@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import { Search, UserCheck } from 'lucide-react';
+
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import type {
   BugListParams,
@@ -14,6 +16,9 @@ import {
   BUG_PRIORITIES,
   BUG_SEVERITIES,
   BUG_STATUSES,
+  prettyPriority,
+  prettySeverity,
+  prettyStatus,
   type ProjectOption,
 } from './bug-shared';
 
@@ -44,7 +49,9 @@ export function BugFilters({
     <div className="flex flex-wrap items-end gap-2">
       <div className="min-w-[200px] flex-1">
         <Input
-          placeholder="Search bugs…"
+          aria-label="Search bugs"
+          iconLeft={Search}
+          placeholder="Search bugs by title…"
           value={value.q ?? ''}
           onChange={(e) => onChange({ ...value, q: e.target.value })}
         />
@@ -64,10 +71,10 @@ export function BugFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="active_visible">Active (default)</SelectItem>
-          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="all">All statuses</SelectItem>
           {BUG_STATUSES.map((s) => (
             <SelectItem key={s} value={s}>
-              {s}
+              {prettyStatus(s)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -89,7 +96,7 @@ export function BugFilters({
           <SelectItem value="any">Any severity</SelectItem>
           {BUG_SEVERITIES.map((s) => (
             <SelectItem key={s} value={s}>
-              {s}
+              {prettySeverity(s)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -111,7 +118,7 @@ export function BugFilters({
           <SelectItem value="any">Any priority</SelectItem>
           {BUG_PRIORITIES.map((p) => (
             <SelectItem key={p} value={p}>
-              {p}
+              {prettyPriority(p)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -138,7 +145,9 @@ export function BugFilters({
 
       <Button
         type="button"
-        variant={value.mine ? 'default' : 'outline'}
+        variant={value.mine ? 'primary' : 'outline'}
+        iconLeft={UserCheck}
+        aria-pressed={Boolean(value.mine)}
         onClick={() => onChange({ ...value, mine: !value.mine })}
       >
         My bugs

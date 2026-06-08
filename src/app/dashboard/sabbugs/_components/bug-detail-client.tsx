@@ -39,6 +39,7 @@ import {
   BugSeverityBadge,
   BugStatusBadge,
   bugTitle,
+  prettyStatus,
   type ProjectOption,
 } from './bug-shared';
 
@@ -124,7 +125,7 @@ function StatusActions({ bug }: { bug: BugDoc }) {
       toast.error(res.error);
       return;
     }
-    toast.success(`Status set to ${status}.`);
+    toast.success(`Status set to ${prettyStatus(status).toLowerCase()}.`);
     router.refresh();
   }
 
@@ -138,7 +139,7 @@ function StatusActions({ bug }: { bug: BugDoc }) {
           disabled={busy}
           onClick={() => setStatus(s)}
         >
-          Mark {s}
+          Mark {prettyStatus(s).toLowerCase()}
         </Button>
       ))}
     </div>
