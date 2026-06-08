@@ -1,34 +1,47 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, Skeleton } from '@/components/sabcrm/20ui';
 import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
+  Alert,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  Skeleton,
+  StatCard,
+} from '@/components/sabcrm/20ui';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  AlertCircle,
-  Clapperboard,
-  Eye,
+  ExternalLink,
   Heart,
   MessageSquare,
   Play,
   RefreshCw,
-  } from 'lucide-react';
+  Video,
+} from 'lucide-react';
 
 import {
   getInstagramReelInsights,
   getInstagramReels,
-  } from '@/app/actions/instagram.actions';
+} from '@/app/actions/instagram.actions';
 import { useProject } from '@/context/project-context';
 
 /**
- * /dashboard/instagram/reels — Published Reels for the connected IG account.
+ * /dashboard/instagram/reels — Published reels for the connected IG account.
  *
- * Grid of reel thumbnails with caption preview + engagement counters.
- * Clicking a tile opens a Sheet with the full caption and on-demand
- * insights (impressions, reach, plays, saves).
+ * A grid of reel thumbnails with caption preview + engagement counters.
+ * Clicking a tile opens a Sheet with the full caption and on-demand insights
+ * (impressions, reach, plays, saves).
  */
 
 import * as React from 'react';
@@ -46,6 +59,8 @@ interface Reel {
   comments_count?: number;
 }
 
+const tabular = { fontVariantNumeric: 'tabular-nums' } as const;
+
 function safeRelative(iso?: string): string {
   if (!iso) return '';
   const d = new Date(iso);
@@ -61,7 +76,7 @@ const INSIGHT_LABELS: Array<{ key: string; label: string }> = [
   { key: 'likes', label: 'Likes' },
   { key: 'comments', label: 'Comments' },
   { key: 'shares', label: 'Shares' },
-  { key: 'total_interactions', label: 'Total interactions' },
+  { key: 'total_interactions', label: 'Interactions' },
 ];
 
 export default function InstagramReelsPage(): React.JSX.Element {
@@ -95,6 +110,19 @@ export default function InstagramReelsPage(): React.JSX.Element {
     refresh();
   }, [refresh]);
 
+  const totals = useMemo(
+    () =>
+      reels.reduce(
+        (acc, r) => {
+          acc.likes += r.like_count || 0;
+          acc.comments += r.comments_count || 0;
+          return acc;
+        },
+        { likes: 0, comments: 0 },
+      ),
+    [reels],
+  );
+
   const openReel = (r: Reel) => {
     setActiveReel(r);
     setInsights({});
@@ -111,68 +139,83 @@ export default function InstagramReelsPage(): React.JSX.Element {
 
   if (!projectId) {
     return (
-      <div className="p-6">
-        <EmptyState
-          icon={<Clapperboard />}
-          title="No project selected"
-          description="Pick a project with a connected Instagram account to view its reels."
-        />
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <Card variant="outlined">
+          <EmptyState
+            icon={Video}
+            title="No project selected"
+            description="Pick a project with a connected Instagram account to view its reels."
+          />
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Reels</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Reels</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-6 pt-6 pb-10">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageDescription>Instagram</PageDescription>
+          <PageTitle>
+            <span className="inline-flex items-center gap-3">
+              <Video className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Reels
+            </span>
+          </PageTitle>
+          <PageDescription>
             Recent reels published from the connected Instagram Business account.
-          </p>
-        </div>
-        <Button variant="ghost" onClick={refresh} disabled={loading}>
-          <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
-          Refresh
-        </Button>
-      </header>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="ghost" iconLeft={RefreshCw} loading={loading} onClick={refresh}>
+            Refresh
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertCircle />
-          <AlertTitle>Could not load reels</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert tone="danger" title="Could not load reels">
+          {error}
         </Alert>
+      ) : null}
+
+      {!error && reels.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            label="Reels"
+            value={<span style={tabular}>{reels.length.toLocaleString()}</span>}
+            icon={Video}
+            accent="#d6249f"
+          />
+          <StatCard
+            label="Likes"
+            value={<span style={tabular}>{totals.likes.toLocaleString()}</span>}
+            icon={Heart}
+            accent="#7c3aed"
+          />
+          <StatCard
+            label="Comments"
+            value={<span style={tabular}>{totals.comments.toLocaleString()}</span>}
+            icon={MessageSquare}
+            accent="#3b7af5"
+          />
+        </div>
       ) : null}
 
       {loading && reels.length === 0 ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          <Skeleton className="aspect-[9/16] w-full" />
-          <Skeleton className="aspect-[9/16] w-full" />
-          <Skeleton className="aspect-[9/16] w-full" />
-          <Skeleton className="aspect-[9/16] w-full" />
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="aspect-[9/16] w-full" />
+          ))}
         </div>
-      ) : reels.length === 0 ? (
-        <EmptyState
-          icon={<Clapperboard />}
-          title="No reels yet"
-          description="This account hasn't published any reels."
-        />
+      ) : !error && reels.length === 0 ? (
+        <Card variant="outlined">
+          <EmptyState
+            icon={Video}
+            title="No reels yet"
+            description="This account hasn't published any reels."
+          />
+        </Card>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {reels.map((r) => {
@@ -180,32 +223,39 @@ export default function InstagramReelsPage(): React.JSX.Element {
             return (
               <Card
                 key={r.id}
-                className="flex cursor-pointer flex-col p-0"
+                variant="elevated"
+                padding="none"
+                role="button"
+                tabIndex={0}
                 onClick={() => openReel(r)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openReel(r);
+                  }
+                }}
+                className="flex cursor-pointer flex-col overflow-hidden outline-none transition-all hover:-translate-y-0.5 hover:shadow-md focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
               >
-                <div className="relative aspect-[9/16] w-full overflow-hidden rounded-t-[var(--st-radius-lg)] bg-[var(--st-bg-muted)]">
+                <div className="relative aspect-[9/16] w-full overflow-hidden bg-[var(--st-bg-muted)]">
                   {src ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={src} alt={r.caption ?? ''} className="h-full w-full object-cover" />
                   ) : null}
-                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-2 text-[11px] text-white">
-                    <span className="flex items-center gap-1">
-                      <Play className="h-3 w-3" />
-                      Reel
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/60 to-transparent p-2 text-[11px] text-white">
+                    <span className="inline-flex items-center gap-1">
+                      <Play className="h-3 w-3" aria-hidden="true" /> Reel
                     </span>
                     <span>{safeRelative(r.timestamp)}</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1 p-3">
-                  <p className="line-clamp-2 text-xs text-[var(--st-text)]">
-                    {r.caption ?? '(no caption)'}
-                  </p>
-                  <div className="mt-1 flex items-center gap-3 text-[11px] text-[var(--st-text-secondary)]">
-                    <span className="flex items-center gap-1">
-                      <Heart className="h-3 w-3" /> {r.like_count ?? 0}
+                <div className="flex flex-col gap-1.5 p-3">
+                  <p className="line-clamp-2 text-xs text-[var(--st-text)]">{r.caption ?? 'No caption'}</p>
+                  <div className="flex items-center gap-3 text-[11px] text-[var(--st-text-secondary)]" style={tabular}>
+                    <span className="inline-flex items-center gap-1">
+                      <Heart className="h-3 w-3" aria-hidden="true" /> {r.like_count ?? 0}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <MessageSquare className="h-3 w-3" /> {r.comments_count ?? 0}
+                    <span className="inline-flex items-center gap-1">
+                      <MessageSquare className="h-3 w-3" aria-hidden="true" /> {r.comments_count ?? 0}
                     </span>
                   </div>
                 </div>
@@ -219,9 +269,7 @@ export default function InstagramReelsPage(): React.JSX.Element {
         <SheetContent side="right" className="flex w-full max-w-md flex-col gap-4 overflow-y-auto sm:max-w-lg">
           <SheetHeader>
             <SheetTitle>Reel details</SheetTitle>
-            <SheetDescription>
-              {activeReel ? safeRelative(activeReel.timestamp) : ''}
-            </SheetDescription>
+            <SheetDescription>{activeReel ? safeRelative(activeReel.timestamp) : ''}</SheetDescription>
           </SheetHeader>
 
           {activeReel ? (
@@ -237,54 +285,56 @@ export default function InstagramReelsPage(): React.JSX.Element {
                 ) : null}
               </div>
 
-              <div>
-                <p className="text-sm text-[var(--st-text)] whitespace-pre-line">
-                  {activeReel.caption ?? '(no caption)'}
+              <div className="flex flex-col gap-2">
+                <p className="whitespace-pre-line text-sm text-[var(--st-text)]">
+                  {activeReel.caption ?? 'No caption'}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge variant="outline">♥ {activeReel.like_count ?? 0}</Badge>
-                  <Badge variant="outline">💬 {activeReel.comments_count ?? 0}</Badge>
+                <div className="flex flex-wrap items-center gap-2" style={tabular}>
+                  <Badge tone="neutral">
+                    <Heart className="mr-1 inline h-3 w-3" aria-hidden="true" />
+                    {activeReel.like_count ?? 0}
+                  </Badge>
+                  <Badge tone="neutral">
+                    <MessageSquare className="mr-1 inline h-3 w-3" aria-hidden="true" />
+                    {activeReel.comments_count ?? 0}
+                  </Badge>
                   {activeReel.permalink ? (
                     <Button asChild size="sm" variant="outline">
                       <a href={activeReel.permalink} target="_blank" rel="noopener noreferrer">
-                        <Eye className="mr-1 h-3 w-3" /> Open on Instagram
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                        Open on Instagram
                       </a>
                     </Button>
                   ) : null}
                 </div>
               </div>
 
-              <div>
-                <p className="text-sm text-[var(--st-text)]">Insights</p>
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-medium text-[var(--st-text)]">Insights</p>
                 {insightsError ? (
-                  <Alert variant="warning" className="mt-2">
-                    <AlertCircle />
-                    <AlertTitle>Insights unavailable</AlertTitle>
-                    <AlertDescription>{insightsError}</AlertDescription>
+                  <Alert tone="warning" title="Insights unavailable">
+                    {insightsError}
                   </Alert>
                 ) : insightsLoading ? (
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
+                  <div className="grid grid-cols-2 gap-2">
+                    {[...Array(4)].map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))}
                   </div>
                 ) : (
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                  <dl className="grid grid-cols-2 gap-2">
                     {INSIGHT_LABELS.map((m) => (
                       <div
                         key={m.key}
-                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2"
+                        className="rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-2.5"
                       >
-                        <p className="text-[11px] text-[var(--st-text-secondary)]">{m.label}</p>
-                        <p className="mt-0.5 text-sm text-[var(--st-text)]">
-                          {typeof insights[m.key] === 'number'
-                            ? insights[m.key].toLocaleString()
-                            : '—'}
-                        </p>
+                        <dt className="text-[11px] text-[var(--st-text-secondary)]">{m.label}</dt>
+                        <dd className="mt-0.5 text-sm font-semibold text-[var(--st-text)]" style={tabular}>
+                          {typeof insights[m.key] === 'number' ? insights[m.key].toLocaleString() : '—'}
+                        </dd>
                       </div>
                     ))}
-                  </div>
+                  </dl>
                 )}
               </div>
             </div>

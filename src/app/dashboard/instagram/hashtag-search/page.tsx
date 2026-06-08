@@ -1,32 +1,39 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, EmptyState, Input, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
-  useCallback,
-  useState,
-  useTransition } from 'react';
-import {
-  AlertCircle,
-  Hash,
-  RefreshCw,
-  Search,
-  } from 'lucide-react';
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  Field,
+  Input,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  toast,
+} from '@/components/sabcrm/20ui';
+import { useCallback, useState, useTransition } from 'react';
+import { Flame, Hash, Heart, MessageSquare, Search, Sparkles } from 'lucide-react';
 
 import {
   getHashtagRecentMedia,
   getHashtagTopMedia,
   searchInstagramHashtag,
-  } from '@/app/actions/instagram.actions';
+} from '@/app/actions/instagram.actions';
 import { useProject } from '@/context/project-context';
 
 /**
  * /dashboard/instagram/hashtag-search — Top + recent media for a hashtag.
  *
- * Workflow:
- *   1. Resolve the hashtag id via the Graph `ig_hashtag_search` endpoint.
- *   2. Fetch `/top_media` (highest performing) and `/recent_media`
- *      (most recent within the last 24h) in parallel.
- *   3. Render two media grids — no tab UI, just stacked sections.
+ * Resolves the hashtag id via `ig_hashtag_search`, then fetches `/top_media`
+ * (highest performing) and `/recent_media` (last 24h) in parallel and renders
+ * two stacked media sections.
  */
 
 import * as React from 'react';
@@ -43,22 +50,9 @@ interface HashtagMedia {
   timestamp?: string;
 }
 
-function MediaGrid({
-  items,
-  emptyTitle,
-}: {
-  items: HashtagMedia[];
-  emptyTitle: string;
-}): React.JSX.Element {
-  if (items.length === 0) {
-    return (
-      <EmptyState
-        icon={<Hash />}
-        title={emptyTitle}
-        description="Try a different hashtag, or check back later."
-      />
-    );
-  }
+const tabular = { fontVariantNumeric: 'tabular-nums' } as const;
+
+function MediaGrid({ items }: { items: HashtagMedia[] }): React.JSX.Element {
   return (
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
       {items.map((m) => {
@@ -69,29 +63,62 @@ function MediaGrid({
             href={m.permalink ?? '#'}
             target="_blank"
             rel="noopener noreferrer"
-            className="block overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)]"
+            className="group block overflow-hidden rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-bg)] outline-none transition-all hover:-translate-y-0.5 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-[var(--st-accent)]"
           >
-            <div className="aspect-square w-full">
+            <div className="aspect-square w-full bg-[var(--st-bg-muted)]">
               {src ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={src}
-                  alt={m.caption ?? ''}
-                  className="h-full w-full object-cover"
-                />
+                <img src={src} alt={m.caption ?? ''} className="h-full w-full object-cover" />
               ) : null}
             </div>
-            <div className="p-2 text-[11px] text-[var(--st-text-secondary)]">
-              <p className="line-clamp-2 text-[var(--st-text)]">{m.caption ?? '(no caption)'}</p>
-              <div className="mt-1 flex gap-3">
-                {typeof m.like_count === 'number' ? <span>♥ {m.like_count}</span> : null}
-                {typeof m.comments_count === 'number' ? <span>💬 {m.comments_count}</span> : null}
+            <div className="p-2.5">
+              <p className="line-clamp-2 text-[11px] text-[var(--st-text)]">{m.caption ?? 'No caption'}</p>
+              <div className="mt-1.5 flex gap-3 text-[11px] text-[var(--st-text-secondary)]" style={tabular}>
+                {typeof m.like_count === 'number' ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Heart className="h-3 w-3" aria-hidden="true" /> {m.like_count}
+                  </span>
+                ) : null}
+                {typeof m.comments_count === 'number' ? (
+                  <span className="inline-flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" aria-hidden="true" /> {m.comments_count}
+                  </span>
+                ) : null}
               </div>
             </div>
           </a>
         );
       })}
     </div>
+  );
+}
+
+function Section({
+  title,
+  icon: Icon,
+  items,
+}: {
+  title: string;
+  icon: React.ElementType;
+  items: HashtagMedia[];
+}): React.JSX.Element {
+  return (
+    <Card variant="outlined" padding="none">
+      <CardHeader>
+        <CardTitle className="inline-flex items-center gap-2">
+          <Icon className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+          {title}
+          <Badge tone="neutral">{items.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardBody>
+        {items.length === 0 ? (
+          <EmptyState icon={Hash} title="Nothing here yet" description="Try a different hashtag, or check back later." />
+        ) : (
+          <MediaGrid items={items} />
+        )}
+      </CardBody>
+    </Card>
   );
 }
 
@@ -125,7 +152,7 @@ export default function HashtagSearchPage(): React.JSX.Element {
 
         const idRes = await searchInstagramHashtag(projectId, cleaned);
         if (idRes.error || !idRes.hashtagId) {
-          setError(idRes.error ?? 'Could not resolve hashtag id.');
+          setError(idRes.error ?? 'Could not resolve the hashtag id.');
           return;
         }
         setHashtagId(idRes.hashtagId);
@@ -147,105 +174,85 @@ export default function HashtagSearchPage(): React.JSX.Element {
 
   if (!projectId) {
     return (
-      <div className="p-6">
-        <EmptyState
-          icon={<Hash />}
-          title="No project selected"
-          description="Pick a project with a connected Instagram account to search hashtags."
-        />
+      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+        <Card variant="outlined">
+          <EmptyState
+            icon={Hash}
+            title="No project selected"
+            description="Pick a project with a connected Instagram account to search hashtags."
+          />
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Hashtag search</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Hashtag search</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-6 pt-6 pb-10">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageDescription>Instagram</PageDescription>
+          <PageTitle>
+            <span className="inline-flex items-center gap-3">
+              <Hash className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Hashtag search
+            </span>
+          </PageTitle>
+          <PageDescription>
             Explore top-performing and recent public media for any hashtag.
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          onClick={() => runSearch(tag)}
-          disabled={loading || !tag}
-        >
-          <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
-          Refresh
-        </Button>
-      </header>
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <form
-        className="flex items-center gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          runSearch(tag);
-        }}
-      >
-        <Input
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
-          placeholder="e.g. travel"
-          aria-label="Hashtag"
-          className="max-w-md"
-        />
-        <Button type="submit" disabled={loading}>
-          <Search className="mr-2 h-4 w-4" />
-          Search
-        </Button>
-        {hashtagId ? (
-          <Badge variant="outline">id · {hashtagId}</Badge>
-        ) : null}
-      </form>
+      <Card variant="outlined">
+        <form
+          className="flex flex-col items-end gap-3 sm:flex-row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            runSearch(tag);
+          }}
+        >
+          <div className="w-full sm:max-w-md">
+            <Field label="Hashtag">
+              <Input
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="e.g. travel"
+                prefix="#"
+                aria-label="Hashtag"
+              />
+            </Field>
+          </div>
+          <Button type="submit" iconLeft={Search} loading={loading}>
+            Search
+          </Button>
+          {hashtagId ? <Badge tone="neutral">id · {hashtagId}</Badge> : null}
+        </form>
+      </Card>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertCircle />
-          <AlertTitle>Search failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert tone="danger" title="Search failed">
+          {error}
         </Alert>
       ) : null}
 
       {loading ? (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-          <Skeleton className="aspect-square w-full" />
-          <Skeleton className="aspect-square w-full" />
-          <Skeleton className="aspect-square w-full" />
-          <Skeleton className="aspect-square w-full" />
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="aspect-square w-full" />
+          ))}
         </div>
       ) : !hashtagId ? (
-        <EmptyState
-          icon={<Hash />}
-          title="Search a hashtag"
-          description="Enter a hashtag above to load top and recent media."
-        />
+        <Card variant="outlined">
+          <EmptyState
+            icon={Sparkles}
+            title="Search a hashtag"
+            description="Enter a hashtag above to load its top and recent media."
+          />
+        </Card>
       ) : (
         <>
-          <section className="flex flex-col gap-2">
-            <h2 className="text-sm text-[var(--st-text)]">Top media</h2>
-            <MediaGrid items={top} emptyTitle="No top media" />
-          </section>
-          <section className="mt-4 flex flex-col gap-2">
-            <h2 className="text-sm text-[var(--st-text)]">Recent media</h2>
-            <MediaGrid items={recent} emptyTitle="No recent media" />
-          </section>
+          <Section title="Top media" icon={Flame} items={top} />
+          <Section title="Recent media" icon={Sparkles} items={recent} />
         </>
       )}
     </div>

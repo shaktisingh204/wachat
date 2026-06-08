@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import { getProjects } from '@/app/actions/project.actions';
 import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import ConnectionsClient from './ConnectionsClient';
+import ConnectionsLoading from './loading';
 import type { WithId, Project } from '@/lib/definitions';
-import { LoaderCircle } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,12 +28,4 @@ async function ConnectionsDataLoader() {
   const initialProjects = projectsWithIg.filter(Boolean) as (WithId<Project> & { instagramProfile?: any })[];
 
   return <ConnectionsClient initialProjects={initialProjects} />;
-}
-
-function ConnectionsLoading() {
-  return (
-    <div className="flex h-[400px] items-center justify-center">
-      <LoaderCircle className="h-8 w-8 animate-spin text-[var(--st-text-secondary)]" />
-    </div>
-  );
 }

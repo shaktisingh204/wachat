@@ -2,31 +2,36 @@
 
 import {
   Avatar,
-  AvatarFallback,
-  AvatarImage,
+  Badge,
   Button,
   Card,
   CardBody,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-  PageDescription,
-  PageHeader,
-  PageHeading,
-  PageTitle,
-  PageActions,
-  Field,
-  Input,
   Checkbox,
   EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  SearchInput,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { WithId, Project } from '@/lib/definitions';
 import { InstagramIcon } from '@/components/20ui-domain/custom-sidebar-components';
-import { ArrowRight, Wrench, Download, Search } from 'lucide-react';
+import {
+  ArrowRight,
+  Download,
+  FileText,
+  Hash,
+  Users,
+  Wrench,
+} from 'lucide-react';
 import Link from 'next/link';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -35,7 +40,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 type ProjectWithIg = WithId<Project> & { instagramProfile?: any };
 
 function exportToCSV(data: ProjectWithIg[]) {
-  const headers = ['Account Name', 'IG User ID', 'Followers', 'Media Count'];
+  const headers = ['Account name', 'IG user ID', 'Followers', 'Posts'];
   const csvContent = [
     headers.join(','),
     ...data.map((p) => {
@@ -58,7 +63,7 @@ function exportToCSV(data: ProjectWithIg[]) {
 
 function exportToPDF(data: ProjectWithIg[]) {
   const doc = new jsPDF();
-  doc.text('Instagram Connections', 14, 15);
+  doc.text('Instagram connections', 14, 15);
 
   const tableData = data.map((p) => {
     const ig = p.instagramProfile || {};
@@ -71,13 +76,15 @@ function exportToPDF(data: ProjectWithIg[]) {
   });
 
   autoTable(doc, {
-    head: [['Account Name', 'IG User ID', 'Followers', 'Media Count']],
+    head: [['Account name', 'IG user ID', 'Followers', 'Posts']],
     body: tableData,
     startY: 20,
   });
 
   doc.save('instagram_connections.pdf');
 }
+
+const tabular = { fontVariantNumeric: 'tabular-nums' } as const;
 
 export default function ConnectionsClient({ initialProjects }: { initialProjects: ProjectWithIg[] }) {
   const [projects, setProjects] = useState<ProjectWithIg[]>(initialProjects);
@@ -88,7 +95,7 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
 
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Mock WebSocket for real-time updates
+  // Live updates: a project's IG profile can change server-side; reflect it.
   useEffect(() => {
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://echo.websocket.events';
     const ws = new WebSocket(wsUrl);
@@ -98,30 +105,32 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
         const data = JSON.parse(event.data);
         if (data.type === 'UPDATE_CONNECTION') {
           setProjects((prev) =>
-            prev.map((p) => (p._id.toString() === data.projectId ? { ...p, instagramProfile: { ...p.instagramProfile, ...data.payload } } : p))
+            prev.map((p) =>
+              p._id.toString() === data.projectId
+                ? { ...p, instagramProfile: { ...p.instagramProfile, ...data.payload } }
+                : p,
+            ),
           );
         }
-      } catch (e) {
-        // Ignore JSON parse errors from mock echo server
+      } catch {
+        // Ignore parse errors from the echo fallback server.
       }
     };
 
-    return () => {
-      ws.close();
-    };
+    return () => ws.close();
   }, []);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
-      const name = p.instagramProfile?.username || p.name;
-      return name.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const q = searchTerm.toLowerCase();
+    return projects.filter((p) =>
+      (p.instagramProfile?.username || p.name).toLowerCase().includes(q),
+    );
   }, [projects, searchTerm]);
 
   const rowVirtualizer = useVirtualizer({
-    count: Math.ceil(filteredProjects.length / 3), // 3 columns for lg, roughly
+    count: Math.ceil(filteredProjects.length / 3),
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 220, // estimated height of the card
+    estimateSize: () => 240,
     overscan: 5,
   });
 
@@ -129,6 +138,19 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const totals = useMemo(() => {
+    return projects.reduce(
+      (acc, p) => {
+        acc.followers += p.instagramProfile?.followers_count || 0;
+        acc.posts += p.instagramProfile?.media_count || 0;
+        return acc;
+      },
+      { followers: 0, posts: 0 },
+    );
+  }, [projects]);
+
+  const fmt = (n: number) => (mounted ? n.toLocaleString() : String(n));
 
   const handleSelectProject = (project: ProjectWithIg) => {
     localStorage.setItem('activeProjectId', project._id.toString());
@@ -140,181 +162,205 @@ export default function ConnectionsClient({ initialProjects }: { initialProjects
   };
 
   const toggleSelect = (id: string) => {
-    const newSet = new Set(selectedIds);
-    if (newSet.has(id)) newSet.delete(id);
-    else newSet.add(id);
-    setSelectedIds(newSet);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const handleBulkDisconnect = () => {
     if (selectedIds.size === 0) return;
-
-    // Optimistic UI Update
-    const newProjects = projects.filter((p) => !selectedIds.has(p._id.toString()));
-    setProjects(newProjects);
+    setProjects((prev) => prev.filter((p) => !selectedIds.has(p._id.toString())));
     setSelectedIds(new Set());
-
     toast.success({
       title: 'Accounts disconnected',
-      description: 'Successfully removed selected connections.',
+      description: 'The selected connections were removed.',
     });
   };
 
   return (
-    <div className="flex flex-col gap-8 h-[calc(100vh-100px)] overflow-hidden">
+    <div className="mx-auto flex h-[calc(100vh-90px)] w-full max-w-[1320px] flex-col gap-5 overflow-hidden px-6 pt-6 pb-4">
       <PageHeader>
-        <PageHeading>
+        <PageHeaderHeading>
+          <PageDescription>Instagram</PageDescription>
           <PageTitle>
             <span className="inline-flex items-center gap-3">
-              <InstagramIcon className="h-7 w-7" aria-hidden="true" />
-              Instagram Connections
+              <InstagramIcon className="h-6 w-6" aria-hidden="true" />
+              Connections
             </span>
           </PageTitle>
           <PageDescription>
-            Select an Instagram Business Account to manage or disconnect.
+            Choose an Instagram Business account to manage, or disconnect ones you no longer use.
           </PageDescription>
-        </PageHeading>
+        </PageHeaderHeading>
 
-        <PageActions>
-          <Button variant="outline" iconLeft={Download} onClick={() => exportToCSV(filteredProjects)}>
-            CSV
-          </Button>
-          <Button variant="outline" iconLeft={Download} onClick={() => exportToPDF(filteredProjects)}>
-            PDF
-          </Button>
-        </PageActions>
+        {projects.length > 0 ? (
+          <PageActions>
+            <Button variant="outline" iconLeft={Download} onClick={() => exportToCSV(filteredProjects)}>
+              CSV
+            </Button>
+            <Button variant="outline" iconLeft={FileText} onClick={() => exportToPDF(filteredProjects)}>
+              PDF
+            </Button>
+          </PageActions>
+        ) : null}
       </PageHeader>
 
       {projects.length > 0 ? (
         <>
-          <div className="flex flex-col md:flex-row items-center gap-4 justify-between bg-[var(--st-bg-secondary)] p-4 rounded-[var(--st-radius)] border border-[var(--st-border)] shadow-sm shrink-0">
-            <div className="w-full md:w-96">
-              <Field label="Search accounts">
-                <Input
-                  iconLeft={Search}
-                  placeholder="Search accounts..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </Field>
+          <div className="grid shrink-0 grid-cols-1 gap-3 sm:grid-cols-3">
+            <StatCard
+              label="Connected accounts"
+              value={<span style={tabular}>{fmt(projects.length)}</span>}
+              icon={<InstagramIcon />}
+              accent="#d6249f"
+            />
+            <StatCard
+              label="Total followers"
+              value={<span style={tabular}>{fmt(totals.followers)}</span>}
+              icon={Users}
+              accent="#7c3aed"
+            />
+            <StatCard
+              label="Total posts"
+              value={<span style={tabular}>{fmt(totals.posts)}</span>}
+              icon={Hash}
+              accent="#3b7af5"
+            />
+          </div>
+
+          <div className="flex shrink-0 flex-col items-stretch gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="w-full md:max-w-sm">
+              <SearchInput
+                value={searchTerm}
+                onValueChange={setSearchTerm}
+                placeholder="Search accounts by name"
+                aria-label="Search accounts"
+              />
             </div>
-            {selectedIds.size > 0 && (
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <span className="text-sm text-[var(--st-text-secondary)] whitespace-nowrap">
+            {selectedIds.size > 0 ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-[var(--st-text-secondary)]">
                   {selectedIds.size} selected
                 </span>
                 <Button variant="danger" onClick={handleBulkDisconnect}>
-                  Disconnect Selected
+                  Disconnect selected
                 </Button>
               </div>
-            )}
+            ) : null}
           </div>
 
-          <div ref={parentRef} className="flex-1 overflow-auto pr-4">
-            <div
-              className="relative w-full"
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-              }}
-            >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                const startIndex = virtualRow.index * 3;
-                const rowItems = filteredProjects.slice(startIndex, startIndex + 3);
+          {filteredProjects.length === 0 ? (
+            <Card variant="outlined">
+              <EmptyState
+                icon={<InstagramIcon />}
+                title="No accounts match your search"
+                description="Try a different name, or clear the search to see every connected account."
+              />
+            </Card>
+          ) : (
+            <div ref={parentRef} className="-mr-4 flex-1 overflow-auto pr-4">
+              <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const startIndex = virtualRow.index * 3;
+                  const rowItems = filteredProjects.slice(startIndex, startIndex + 3);
 
-                return (
-                  <div
-                    key={virtualRow.key}
-                    className="absolute top-0 left-0 w-full"
-                    style={{
-                      height: `${virtualRow.size}px`,
-                      transform: `translateY(${virtualRow.start}px)`,
-                    }}
-                  >
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
-                      {rowItems.map((p) => {
-                        const { instagramProfile } = p;
-                        const isSelected = selectedIds.has(p._id.toString());
-
-                        return (
-                          <Card
-                            key={p._id.toString()}
-                            padding="none"
-                            className={`flex flex-col transition-shadow ${isSelected ? 'ring-2 ring-[var(--st-accent)]' : ''}`}
-                          >
-                            <CardHeader className="flex flex-row items-center gap-4 pb-2">
-                              <div className="flex items-center gap-4 flex-1">
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      className="absolute left-0 top-0 w-full"
+                      style={{
+                        height: `${virtualRow.size}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <div className="grid gap-4 pb-4 md:grid-cols-2 lg:grid-cols-3">
+                        {rowItems.map((p) => {
+                          const ig = p.instagramProfile;
+                          const isSelected = selectedIds.has(p._id.toString());
+                          return (
+                            <Card
+                              key={p._id.toString()}
+                              variant={isSelected ? 'elevated' : 'outlined'}
+                              padding="none"
+                              className={`flex flex-col transition-shadow ${
+                                isSelected ? 'ring-2 ring-[var(--st-accent)]' : ''
+                              }`}
+                            >
+                              <CardHeader className="flex flex-row items-center gap-3">
                                 <Checkbox
                                   checked={isSelected}
                                   onChange={() => toggleSelect(p._id.toString())}
-                                  aria-label="Select account"
+                                  aria-label={`Select ${ig?.username || p.name}`}
                                 />
-                                <Avatar className="h-12 w-12">
-                                  <AvatarImage
-                                    src={instagramProfile?.profile_picture_url}
-                                    alt={instagramProfile?.username}
-                                  />
-                                  <AvatarFallback>
-                                    <InstagramIcon className="h-6 w-6" aria-hidden="true" />
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="overflow-hidden">
-                                  <CardTitle className="truncate">{instagramProfile?.username || p.name}</CardTitle>
-                                  <CardDescription className="truncate">IG User ID: {instagramProfile?.id}</CardDescription>
-                                </div>
-                              </div>
-                            </CardHeader>
-                            <CardBody className="flex-grow pt-2">
-                              <div className="grid grid-cols-2 gap-4 bg-[var(--st-bg-muted)] p-3 rounded-[var(--st-radius)]">
-                                <div>
-                                  <p className="text-xs text-[var(--st-text-secondary)] mb-1">Followers</p>
-                                  <p className="font-semibold text-sm">
-                                    {mounted ? (instagramProfile?.followers_count?.toLocaleString() || 'N/A') : (instagramProfile?.followers_count || 'N/A')}
+                                <Avatar
+                                  name={ig?.username || p.name}
+                                  src={ig?.profile_picture_url}
+                                  shape="round"
+                                  size="md"
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <CardTitle className="truncate text-sm">
+                                    @{ig?.username || p.name}
+                                  </CardTitle>
+                                  <p className="truncate text-xs text-[var(--st-text-secondary)]">
+                                    ID: {ig?.id || '—'}
                                   </p>
                                 </div>
-                                <div>
-                                  <p className="text-xs text-[var(--st-text-secondary)] mb-1">Media Count</p>
-                                  <p className="font-semibold text-sm">
-                                    {mounted ? (instagramProfile?.media_count?.toLocaleString() || 'N/A') : (instagramProfile?.media_count || 'N/A')}
-                                  </p>
-                                </div>
-                              </div>
-                            </CardBody>
-                            <CardFooter>
-                              <Button block iconRight={ArrowRight} onClick={() => handleSelectProject(p)}>
-                                Manage Account
-                              </Button>
-                            </CardFooter>
-                          </Card>
-                        );
-                      })}
+                                <Badge tone="success" dot>
+                                  Connected
+                                </Badge>
+                              </CardHeader>
+                              <CardBody className="flex-grow">
+                                <dl className="grid grid-cols-2 gap-3">
+                                  <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3">
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Followers</dt>
+                                    <dd className="mt-0.5 text-sm font-semibold text-[var(--st-text)]" style={tabular}>
+                                      {ig?.followers_count != null ? fmt(ig.followers_count) : 'N/A'}
+                                    </dd>
+                                  </div>
+                                  <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-3">
+                                    <dt className="text-xs text-[var(--st-text-secondary)]">Posts</dt>
+                                    <dd className="mt-0.5 text-sm font-semibold text-[var(--st-text)]" style={tabular}>
+                                      {ig?.media_count != null ? fmt(ig.media_count) : 'N/A'}
+                                    </dd>
+                                  </div>
+                                </dl>
+                              </CardBody>
+                              <CardFooter>
+                                <Button block iconRight={ArrowRight} onClick={() => handleSelectProject(p)}>
+                                  Manage account
+                                </Button>
+                              </CardFooter>
+                            </Card>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-
-          {filteredProjects.length === 0 && (
-            <EmptyState
-              icon={Search}
-              title="No accounts match your search"
-              description="Try a different name or clear the search to see every connected account."
-            />
           )}
         </>
       ) : (
-        <EmptyState
-          icon={InstagramIcon as any}
-          title="No Instagram Accounts Found"
-          description="We couldn't find any Instagram Business Accounts linked to your connected Facebook Pages. Please ensure they are properly connected in your Meta Business Suite."
-          action={
-            <Link href="/dashboard/instagram/setup">
-              <Button variant="outline" iconLeft={Wrench}>
-                Go to Setup
+        <Card variant="outlined">
+          <EmptyState
+            icon={<InstagramIcon />}
+            title="No Instagram accounts found"
+            description="We couldn't find any Instagram Business accounts linked to your Facebook Pages. Link them in Meta Business Suite, then return here."
+            action={
+              <Button asChild variant="outline">
+                <Link href="/dashboard/instagram/setup">
+                  <Wrench className="h-4 w-4" aria-hidden="true" />
+                  Go to setup
+                </Link>
               </Button>
-            </Link>
-          }
-        />
+            }
+          />
+        </Card>
       )}
     </div>
   );

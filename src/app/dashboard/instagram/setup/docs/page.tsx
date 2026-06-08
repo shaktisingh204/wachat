@@ -1,136 +1,151 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, PageDescription, PageHeader, PageHeading, PageTitle } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+} from '@/components/sabcrm/20ui';
 import Link from 'next/link';
-import { ChevronLeft, AlertCircle } from 'lucide-react';
+import { ChevronLeft, KeyRound, ListChecks, ShieldAlert } from 'lucide-react';
+
+const PREREQUISITES = [
+  'A Meta developer account.',
+  'A Meta app.',
+  'A Facebook Page connected to your Instagram Business account.',
+  'A System User with admin access to your Business Portfolio.',
+];
+
+const TOKEN_STEPS = [
+  <>Go to <strong>Meta Business Settings</strong> → <strong>Users</strong> → <strong>System Users</strong>.</>,
+  'Select an existing System User with the admin role, or create a new one.',
+  <>Click <strong>Add Assets</strong> and assign your app and Facebook Page to this System User with <strong>Full Control</strong>.</>,
+  <>With the System User selected, click <strong>Generate new token</strong>.</>,
+  'Select your app from the dropdown.',
+  <>For token expiration, choose <strong>Never</strong> so service is uninterrupted.</>,
+  'Under permissions, select everything related to pages_*, instagram_*, and business_management.',
+  <>Click <strong>Generate token</strong> and copy it immediately.</>,
+];
 
 export default function ManualInstagramSetupDocsPage() {
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Button variant="ghost" asChild className="mb-4 -ml-4">
-          <Link href="/dashboard/instagram/setup">
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Setup Options
-          </Link>
-        </Button>
-        <PageHeader>
-          <PageHeading>
-            <PageTitle>Manual Setup Guide for Instagram</PageTitle>
-            <PageDescription>
-              This guide is for advanced users who want to connect their Instagram Business
-              Account by providing credentials directly.
-            </PageDescription>
-          </PageHeading>
-        </PageHeader>
-      </div>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-6 pt-6 pb-10">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageDescription>Instagram · Setup</PageDescription>
+          <PageTitle>Manual setup guide</PageTitle>
+          <PageDescription>
+            For advanced users who connect an Instagram Business account by providing credentials directly.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button asChild variant="ghost">
+            <Link href="/dashboard/instagram/setup">
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              Back to setup
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      <Card className="p-6">
+      <Card variant="outlined" padding="none">
         <CardHeader>
-          <CardTitle>Prerequisites</CardTitle>
-          <CardDescription>
-            Before you begin, ensure you have the following set up in your Meta Business Suite:
-          </CardDescription>
+          <CardTitle className="inline-flex items-center gap-2">
+            <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            Prerequisites
+          </CardTitle>
         </CardHeader>
         <CardBody>
-          <ul className="list-disc space-y-2 pl-5 text-sm">
-            <li>A Meta Developer Account.</li>
-            <li>A Meta App.</li>
-            <li>A Facebook Page connected to your Instagram Business Account.</li>
-            <li>
-              A <strong>System User</strong> with Admin access to your Business Portfolio.
-            </li>
+          <ul className="flex flex-col gap-2">
+            {PREREQUISITES.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm text-[var(--st-text)]">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--st-accent)]" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
           </ul>
         </CardBody>
       </Card>
 
-      <Card className="p-6">
+      <Card variant="outlined" padding="none">
         <CardHeader>
-          <CardTitle>Step 1: Find Your IDs</CardTitle>
-          <CardDescription>
-            You&apos;ll need your Facebook Page ID and your Ad Account ID.
-          </CardDescription>
+          <CardTitle className="inline-flex items-center gap-2">
+            <Badge tone="accent">Step 1</Badge>
+            Find your IDs
+          </CardTitle>
         </CardHeader>
-        <CardBody className="space-y-4">
+        <CardBody className="flex flex-col gap-4">
           <div>
-            <h3 className="text-[var(--st-text)]">Facebook Page ID</h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-              Go to your Facebook Page. Click on &ldquo;About&rdquo; and then &ldquo;Page
-              Transparency&rdquo;. Your Page ID will be listed there.
+            <p className="text-sm font-medium text-[var(--st-text)]">Facebook Page ID</p>
+            <p className="mt-1 max-w-[65ch] text-sm text-[var(--st-text-secondary)]">
+              Open your Facebook Page, go to About, then Page transparency. Your Page ID is listed there.
             </p>
           </div>
           <div>
-            <h3 className="text-[var(--st-text)]">Ad Account ID</h3>
-            <p className="text-sm text-[var(--st-text-secondary)] mt-1">
-              Go to your Meta Ads Manager. The Ad Account ID (e.g., `act_12345...`) will be
-              visible in the URL or the account dropdown menu.
+            <p className="text-sm font-medium text-[var(--st-text)]">Ad Account ID</p>
+            <p className="mt-1 max-w-[65ch] text-sm text-[var(--st-text-secondary)]">
+              Open Meta Ads Manager. The Ad Account ID (for example, act_12345...) appears in the URL and the account dropdown.
             </p>
           </div>
         </CardBody>
       </Card>
 
-      <Card className="p-6">
+      <Card variant="outlined" padding="none">
         <CardHeader>
-          <CardTitle>Step 2: Generate a Permanent Access Token</CardTitle>
-          <CardDescription>
-            This is the most critical step. You must generate a non-expiring token using a System
-            User.
-          </CardDescription>
+          <CardTitle className="inline-flex items-center gap-2">
+            <Badge tone="accent">Step 2</Badge>
+            <KeyRound className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            Generate a permanent access token
+          </CardTitle>
         </CardHeader>
-        <CardBody className="space-y-4">
-          <ol className="list-decimal space-y-3 pl-5 text-sm">
-            <li>
-              Go to your <strong>Meta Business Settings</strong> &rarr; <strong>Users</strong>{' '}
-              &rarr; <strong>System Users</strong>.
-            </li>
-            <li>Select an existing System User (with Admin role) or create a new one.</li>
-            <li>
-              Click <strong>Add Assets</strong>. In the popup, assign your App and your Facebook
-              Page to this System User. Grant them <strong>Full Control</strong> permissions for
-              both.
-            </li>
-            <li>
-              With the System User selected, click <strong>Generate new token</strong>.
-            </li>
-            <li>Select your App from the dropdown menu.</li>
-            <li>
-              For Token Expiration, select <strong>Never</strong>. This is essential for
-              uninterrupted service.
-            </li>
-            <li>
-              Under Permissions, select all permissions related to `pages_...`, `instagram_...`,
-              and `business_management`.
-            </li>
-            <li>
-              Click <strong>Generate Token</strong> and copy it immediately.
-            </li>
+        <CardBody className="flex flex-col gap-4">
+          <p className="max-w-[65ch] text-sm text-[var(--st-text-secondary)]">
+            This is the most important step. Generate a non-expiring token using a System User.
+          </p>
+          <ol className="flex flex-col gap-2.5">
+            {TOKEN_STEPS.map((step, i) => (
+              <li key={i} className="flex items-start gap-3 text-sm text-[var(--st-text)]">
+                <span
+                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--st-accent-soft)] text-[11px] font-semibold text-[var(--st-accent)]"
+                  aria-hidden="true"
+                >
+                  {i + 1}
+                </span>
+                <span className="max-w-[60ch]">{step}</span>
+              </li>
+            ))}
           </ol>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Important: Store Your Token Securely</AlertTitle>
-            <AlertDescription>
-              The permanent access token is like a password. Treat it securely and do not share
-              it.
-            </AlertDescription>
-          </Alert>
+          <Callout tone="danger" title="Store your token securely" icon={ShieldAlert}>
+            The permanent access token works like a password. Keep it private and never share it.
+          </Callout>
         </CardBody>
       </Card>
 
-      <Card className="p-6">
+      <Card variant="outlined" padding="none">
         <CardHeader>
-          <CardTitle>Step 3: Connect to SabNode</CardTitle>
-          <CardDescription>
-            Enter the credentials you&apos;ve collected into the manual setup dialog.
-          </CardDescription>
+          <CardTitle className="inline-flex items-center gap-2">
+            <Badge tone="accent">Step 3</Badge>
+            Connect to SabNode
+          </CardTitle>
         </CardHeader>
         <CardBody>
-          <p className="text-sm">
-            Go back to the{' '}
-            <Link href="/dashboard/instagram/setup" className="text-[var(--st-text)] underline">
-              Setup Page
+          <p className="max-w-[65ch] text-sm text-[var(--st-text)]">
+            Go to the{' '}
+            <Link
+              href="/dashboard/instagram/setup"
+              className="text-[var(--st-accent)] underline-offset-2 hover:underline"
+            >
+              setup page
             </Link>
-            , open the &ldquo;Manual Setup&rdquo; dialog, and paste your credentials into the
-            respective fields.
+            , open the manual setup dialog, and paste your credentials into the matching fields.
           </p>
         </CardBody>
       </Card>

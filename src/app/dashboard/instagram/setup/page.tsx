@@ -1,11 +1,26 @@
 'use client';
 
-import { Alert, AlertDescription, AlertTitle, Avatar, AvatarFallback, AvatarImage, Badge, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, EmptyState, Skeleton, toast } from '@/components/sabcrm/20ui';
 import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Callout,
+  Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  PageActions,
+  PageDescription,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  Skeleton,
+  StatCard,
+  toast,
+} from '@/components/sabcrm/20ui';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
   AlertCircle,
@@ -13,14 +28,15 @@ import {
   CheckCircle2,
   ExternalLink,
   Instagram,
+  Link2,
   RefreshCw,
-  } from 'lucide-react';
+  Unplug,
+} from 'lucide-react';
 
 import { getProjects } from '@/app/actions/project.actions';
 import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
 import { useProject } from '@/context/project-context';
-import type { Project,
-  WithId } from '@/lib/definitions';
+import type { Project, WithId } from '@/lib/definitions';
 
 /**
  * /dashboard/instagram/setup — Instagram connection status per project.
@@ -30,9 +46,6 @@ import type { Project,
  * surface a "Connect" affordance that routes back to the canonical
  * Meta Suite onboarding wizard (`/dashboard/facebook/all-projects`),
  * which is the source of truth for OAuth and IG/FB pairing.
- *
- * Pure client surface: data is loaded via two server actions
- * (`getProjects` and `getInstagramAccountForPage`) — no axios in the page.
  */
 
 import * as React from 'react';
@@ -46,6 +59,8 @@ interface IgRowState {
   igPicture?: string;
   error?: string;
 }
+
+const tabular = { fontVariantNumeric: 'tabular-nums' } as const;
 
 export default function InstagramSetupPage(): React.JSX.Element {
   const { activeProject } = useProject();
@@ -68,7 +83,6 @@ export default function InstagramSetupPage(): React.JSX.Element {
         setProjects(list);
         setError(null);
 
-        // Hydrate each project's IG status in parallel — best-effort.
         const initial: Record<string, IgRowState> = {};
         for (const p of list) initial[p._id.toString()] = { status: 'loading' };
         setRows(initial);
@@ -102,48 +116,70 @@ export default function InstagramSetupPage(): React.JSX.Element {
     refresh();
   }, [refresh]);
 
-  const onConnectClick = () => {
-    toast.info('Opening Meta Suite onboarding…');
-  };
+  const counts = useMemo(() => {
+    const values = Object.values(rows);
+    return {
+      total: projects.length,
+      connected: values.filter((r) => r.status === 'connected').length,
+      missing: values.filter((r) => r.status === 'missing').length,
+    };
+  }, [rows, projects.length]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-4 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">SabNode</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard/instagram">Instagram</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Setup</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl text-[var(--st-text)]">Instagram setup</h1>
-          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
-            Connect Instagram Business accounts to your Facebook Pages. Each project
-            below shows its current connection status.
-          </p>
-        </div>
-        <Button variant="ghost" onClick={refresh} disabled={loading}>
-          <RefreshCw className={loading ? 'mr-2 h-4 w-4 animate-spin' : 'mr-2 h-4 w-4'} />
-          Refresh
-        </Button>
-      </header>
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-5 px-6 pt-6 pb-10">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageDescription>Instagram</PageDescription>
+          <PageTitle>
+            <span className="inline-flex items-center gap-3">
+              <Link2 className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
+              Setup
+            </span>
+          </PageTitle>
+          <PageDescription>
+            Each Facebook project below shows whether its Page has a linked Instagram Business account.
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="ghost" iconLeft={RefreshCw} loading={loading} onClick={refresh}>
+            Refresh
+          </Button>
+          <Button asChild>
+            <Link href="/dashboard/facebook/all-projects">
+              Open Meta Suite setup
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertCircle />
-          <AlertTitle>Could not load projects</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+        <Alert tone="danger" title="Could not load projects">
+          {error}
         </Alert>
+      ) : null}
+
+      {projects.length > 0 ? (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            label="Facebook projects"
+            value={<span style={tabular}>{counts.total}</span>}
+            icon={Instagram}
+            accent="#d6249f"
+          />
+          <StatCard
+            label="Instagram connected"
+            value={<span style={tabular}>{counts.connected}</span>}
+            icon={CheckCircle2}
+            accent="#1f9d55"
+          />
+          <StatCard
+            label="Not connected"
+            value={<span style={tabular}>{counts.missing}</span>}
+            icon={Unplug}
+            accent="#d4760a"
+          />
+        </div>
       ) : null}
 
       {loading && projects.length === 0 ? (
@@ -153,71 +189,77 @@ export default function InstagramSetupPage(): React.JSX.Element {
           <Skeleton className="h-20 w-full" />
         </div>
       ) : projects.length === 0 ? (
-        <EmptyState
-          icon={<Instagram />}
-          title="No Facebook projects"
-          description="Connect a Facebook Page first — your Instagram Business account links through the Page."
-          action={
-            <Button asChild>
-              <Link href="/dashboard/facebook/all-projects">
-                Open Meta Suite setup <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          }
-        />
+        <Card variant="outlined">
+          <EmptyState
+            icon={Instagram}
+            title="No Facebook projects"
+            description="Connect a Facebook Page first — your Instagram Business account links through the Page."
+            action={
+              <Button asChild>
+                <Link href="/dashboard/facebook/all-projects">
+                  Open Meta Suite setup
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            }
+          />
+        </Card>
       ) : (
         <ul className="flex flex-col gap-3">
           {projects.map((p) => {
             const id = p._id.toString();
             const row = rows[id] ?? { status: 'loading' as IgStatus };
             const isActive = id === activeId;
+            const connected = row.status === 'connected';
             return (
               <li key={id}>
-                <Card className="flex items-center gap-3 p-4">
-                  <Avatar className="h-12 w-12">
-                    {row.igPicture ? (
-                      <AvatarImage src={row.igPicture} alt="" />
-                    ) : null}
-                    <AvatarFallback>
-                      <Instagram className="h-5 w-5" />
-                    </AvatarFallback>
-                  </Avatar>
+                <Card className="flex items-center gap-3" padding="md">
+                  <Avatar
+                    name={row.igUsername || p.name}
+                    src={row.igPicture}
+                    shape="round"
+                    size="md"
+                  />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm text-[var(--st-text)]">{p.name}</p>
-                      {isActive ? (
-                        <Badge variant="outline">Active</Badge>
-                      ) : null}
+                      <p className="truncate text-sm font-medium text-[var(--st-text)]">{p.name}</p>
+                      {isActive ? <Badge tone="accent">Active</Badge> : null}
                     </div>
                     <p className="mt-0.5 truncate text-xs text-[var(--st-text-secondary)]">
                       Page ID: {p.facebookPageId || '—'}
                       {row.igUsername ? <> · @{row.igUsername}</> : null}
                     </p>
-                    {row.status === 'loading' ? (
-                      <Skeleton className="mt-2 h-3 w-32" />
-                    ) : row.status === 'connected' ? (
-                      <Badge variant="success" className="mt-2 gap-1">
-                        <CheckCircle2 className="h-3 w-3" />
-                        Instagram connected
-                      </Badge>
-                    ) : (
-                      <Badge variant="warning" className="mt-2 gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        Not connected
-                      </Badge>
-                    )}
+                    <div className="mt-1.5">
+                      {row.status === 'loading' ? (
+                        <Skeleton className="h-4 w-36" />
+                      ) : connected ? (
+                        <Badge tone="success" dot>
+                          Instagram connected
+                        </Badge>
+                      ) : (
+                        <Badge tone="warning" dot>
+                          Not connected
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
-                  {row.status === 'connected' ? (
+                  {connected ? (
                     <Button asChild variant="outline" size="sm">
                       <Link href="/dashboard/instagram">
-                        Open <ExternalLink className="h-3 w-3" />
+                        Open
+                        <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </Button>
                   ) : (
-                    <Button asChild size="sm" onClick={onConnectClick}>
+                    <Button
+                      asChild
+                      size="sm"
+                      onClick={() => toast.info('Opening Meta Suite onboarding')}
+                    >
                       <Link href="/dashboard/facebook/all-projects">
-                        Connect <ArrowRight className="h-3 w-3" />
+                        Connect
+                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                       </Link>
                     </Button>
                   )}
@@ -228,20 +270,27 @@ export default function InstagramSetupPage(): React.JSX.Element {
         </ul>
       )}
 
-      <Card className="mt-2 p-4">
-        <p className="text-sm text-[var(--st-text)]">Where do I connect Instagram?</p>
-        <p className="mt-1 text-xs text-[var(--st-text-secondary)]">
-          Instagram Business accounts must be linked to a Facebook Page in Meta
-          Business Suite. Once linked there, this page will detect the connection
-          and unlock the Instagram modules.
-        </p>
-        <div className="mt-3">
-          <Button asChild variant="outline" size="sm">
-            <Link href="/dashboard/facebook/all-projects">
-              Open Meta Suite onboarding <ExternalLink className="h-3 w-3" />
-            </Link>
-          </Button>
-        </div>
+      <Card variant="outlined" padding="none">
+        <CardHeader>
+          <CardTitle className="inline-flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            Where do I connect Instagram?
+          </CardTitle>
+        </CardHeader>
+        <CardBody className="flex flex-col gap-3">
+          <Callout tone="info">
+            Instagram Business accounts link to a Facebook Page in Meta Business Suite. Once linked
+            there, this page detects the connection and unlocks the Instagram modules.
+          </Callout>
+          <div>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/dashboard/facebook/all-projects">
+                Open Meta Suite onboarding
+                <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+        </CardBody>
       </Card>
     </div>
   );
