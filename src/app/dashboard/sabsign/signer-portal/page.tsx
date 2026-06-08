@@ -297,13 +297,13 @@ export default function SignerPortalPage() {
                             ${isCompleted
                               ? "!border-transparent !bg-transparent !text-black"
                               : field.required
-                                ? "!border-amber-400 !bg-amber-50/50 !text-amber-700 hover:!bg-amber-100"
+                                ? "!border-[var(--st-warn)] !bg-[color-mix(in_srgb,var(--st-warn)_12%,transparent)] !text-[var(--st-warn)] hover:!bg-[color-mix(in_srgb,var(--st-warn)_20%,transparent)]"
                                 : "!border-neutral-300 !bg-neutral-50/50 !text-neutral-600 hover:!bg-neutral-100"}
                           `}
                         >
                           {isCompleted ? (
                             <div className="flex flex-col items-center w-full">
-                              <span className={`text-3xl text-indigo-900 ${selectedFont}`}>{field.value}</span>
+                              <span className={`text-3xl text-[var(--st-accent)] ${selectedFont}`}>{field.value}</span>
                               <div className="text-[8px] text-neutral-400 mt-1 uppercase tracking-wider">SabSigned by: {field.label}</div>
                             </div>
                           ) : (
