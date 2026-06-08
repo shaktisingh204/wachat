@@ -16,6 +16,7 @@ import {
   Badge,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
@@ -65,19 +66,20 @@ export default function BankingReconciliationPage() {
     <div className="p-6 space-y-6 h-[calc(100vh-64px)] flex flex-col" ref={containerRef}>
       <PageHeader className="shrink-0">
         <PageHeaderHeading>
+          <PageEyebrow>Finance</PageEyebrow>
           <PageTitle className="flex items-center gap-2">
-            <Building2 className="w-7 h-7 text-[var(--st-text)]" aria-hidden="true" />
-            Open Banking and Reconciliation
+            <Building2 className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
+            Banking &amp; reconciliation
           </PageTitle>
           <PageDescription>
-            Algorithmic transaction matching powered by AI.
+            Live bank feeds matched to your ledger, with suggested matches ranked by confidence.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="outline" iconLeft={RefreshCw}>
-            Sync Feeds
+            Sync feeds
           </Button>
-          <Button variant="primary">Auto-Reconcile All</Button>
+          <Button variant="primary">Auto-reconcile all</Button>
         </PageActions>
       </PageHeader>
 
@@ -86,9 +88,9 @@ export default function BankingReconciliationPage() {
         <Card padding="none" className="animate-panel flex flex-col min-h-0">
           <CardHeader className="shrink-0">
             <div className="flex justify-between items-center gap-3">
-              <CardTitle>Live Bank Statement</CardTitle>
-              <Badge tone="info" kind="outline">
-                ICICI Connected Banking
+              <CardTitle>Live bank statement</CardTitle>
+              <Badge tone="info" kind="outline" dot>
+                ICICI connected
               </Badge>
             </div>
           </CardHeader>
@@ -126,8 +128,8 @@ export default function BankingReconciliationPage() {
                       align="right"
                       className={
                         txn.amount.startsWith('+')
-                          ? 'font-medium text-[var(--st-status-ok)]'
-                          : 'font-medium'
+                          ? 'font-medium tabular-nums text-[var(--st-status-ok)]'
+                          : 'font-medium tabular-nums'
                       }
                     >
                       {txn.amount}
@@ -142,7 +144,7 @@ export default function BankingReconciliationPage() {
         {/* Right Pane: Ledger Match */}
         <Card padding="none" className="animate-panel flex flex-col min-h-0 relative">
           <CardHeader className="shrink-0">
-            <CardTitle>SabFinance Ledger Match</CardTitle>
+            <CardTitle>Ledger match</CardTitle>
           </CardHeader>
           <CardBody className="flex-1 overflow-auto p-6 flex flex-col items-center justify-center gap-6">
             <Card
@@ -155,33 +157,33 @@ export default function BankingReconciliationPage() {
               </div>
               <div className="flex items-center gap-3 text-[var(--st-status-ok)]">
                 <CheckCircle2 className="w-6 h-6" aria-hidden="true" />
-                <h3 className="font-semibold text-lg">99% Confidence Match</h3>
+                <h3 className="font-semibold text-lg">99% confidence match</h3>
               </div>
               <div className="mt-4 space-y-2 relative z-10">
                 <div className="flex justify-between text-sm border-b border-[var(--st-border)] pb-2">
-                  <span className="text-[var(--st-text-secondary)]">Bank Line:</span>
-                  <span className="font-medium">RAZORPAY SETTLEMENT</span>
+                  <span className="text-[var(--st-text-secondary)]">Bank line</span>
+                  <span className="font-medium">Razorpay settlement</span>
                 </div>
                 <div className="flex justify-between text-sm border-b border-[var(--st-border)] pb-2">
-                  <span className="text-[var(--st-text-secondary)]">Ledger Voucher:</span>
-                  <span className="font-medium">RV-1024 (Multiple Invoices)</span>
+                  <span className="text-[var(--st-text-secondary)]">Ledger voucher</span>
+                  <span className="font-medium">RV-1024 · multiple invoices</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--st-text-secondary)]">Difference:</span>
-                  <span className="font-medium text-[var(--st-status-ok)]">₹0.00</span>
+                  <span className="text-[var(--st-text-secondary)]">Difference</span>
+                  <span className="font-medium tabular-nums text-[var(--st-status-ok)]">₹0.00</span>
                 </div>
               </div>
               <Button variant="primary" block className="mt-4">
-                Confirm and Reconcile (Enter)
+                Confirm and reconcile
               </Button>
             </Card>
 
             <div className="text-center space-y-2 w-full max-w-md">
               <p className="text-sm text-[var(--st-text-secondary)]">
-                Or search for a different ledger entry manually
+                Or pick a different ledger entry by hand.
               </p>
               <Button variant="outline" block>
-                Browse Ledger (Alt+L)
+                Browse ledger
               </Button>
             </div>
           </CardBody>

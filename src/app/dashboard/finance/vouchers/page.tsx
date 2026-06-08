@@ -11,9 +11,9 @@ import {
   Field,
   Input,
   Avatar,
-  AvatarImage,
   AvatarFallback,
   AvatarGroup,
+  PageEyebrow,
   Select,
   SelectContent,
   SelectItem,
@@ -61,28 +61,18 @@ export default function VouchersPage() {
     <div className="20ui p-6 space-y-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Voucher Entry</PageTitle>
+          <PageEyebrow>Finance</PageEyebrow>
+          <PageTitle>Voucher entry</PageTitle>
           <PageDescription>
-            Fast, keyboard-first data entry. Use Tab and Shift+Tab to navigate. Cmd+S to save.
+            Keyboard-first data entry — Tab and Shift+Tab to move between fields, Cmd+S to save.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Active editors</span>
-          <AvatarGroup max={2} size="sm" label="2 active editors, plus 2 more">
-            <Avatar>
-              <AvatarImage src="https://i.pravatar.cc/100?img=1" alt="Editor A" />
-              <AvatarFallback>A</AvatarFallback>
-            </Avatar>
-            <Avatar>
-              <AvatarImage src="https://i.pravatar.cc/100?img=2" alt="Editor B" />
-              <AvatarFallback>B</AvatarFallback>
-            </Avatar>
-            <Avatar>
-              <AvatarFallback>C</AvatarFallback>
-            </Avatar>
-            <Avatar>
-              <AvatarFallback>D</AvatarFallback>
-            </Avatar>
+          <span className="text-sm font-medium text-[var(--st-text-secondary)]">Editing now</span>
+          <AvatarGroup max={3} size="sm" label="3 people editing this voucher">
+            <Avatar><AvatarFallback>RS</AvatarFallback></Avatar>
+            <Avatar><AvatarFallback>KM</AvatarFallback></Avatar>
+            <Avatar><AvatarFallback>AT</AvatarFallback></Avatar>
           </AvatarGroup>
         </PageActions>
       </PageHeader>
@@ -91,10 +81,10 @@ export default function VouchersPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ScanLine size={18} aria-hidden="true" />
-            AI Zero-Data Entry (OCR)
+            Scan a receipt
           </CardTitle>
           <CardDescription>
-            Pick a receipt or invoice from SabFiles and AI will auto-fill the voucher below.
+            Pick a receipt or invoice from SabFiles and we'll read it into the voucher below.
           </CardDescription>
         </CardHeader>
         <CardBody>
@@ -112,7 +102,7 @@ export default function VouchersPage() {
 
       <Card variant="outlined" className="max-w-4xl">
         <CardHeader>
-          <CardTitle>New Voucher</CardTitle>
+          <CardTitle>New voucher</CardTitle>
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="grid grid-cols-3 gap-4">

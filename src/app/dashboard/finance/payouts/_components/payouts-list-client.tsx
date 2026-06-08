@@ -191,8 +191,8 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
 
   return (
     <EntityListShell
-      title="Direct Payouts"
-      subtitle="Manage and trigger direct payouts to employees or vendors."
+      title="Payouts"
+      subtitle="Trigger and track direct payouts to employees and vendors."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -266,9 +266,9 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
       }
     >
       <div className="mb-6 grid gap-4 md:grid-cols-3">
-        <StatCard label="Total Payouts" value={totalPayouts} icon={Wallet} />
-        <StatCard label="Pending" value={pendingPayouts} />
-        <StatCard label="Completed" value={completedPayouts} />
+        <StatCard label="Total payouts" value={totalPayouts} icon={Wallet} accent="#2563eb" />
+        <StatCard label="Pending" value={pendingPayouts} accent="#d97706" />
+        <StatCard label="Completed" value={completedPayouts} accent="#16a34a" />
       </div>
 
       <div className="mb-6 flex items-center gap-2">
@@ -287,13 +287,13 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
         <Table>
           <THead>
             <Tr>
-              <Th>Recipient ID</Th>
-              <Th>Recipient Type</Th>
+              <Th>Recipient</Th>
+              <Th>Type</Th>
               <Th align="right">Amount</Th>
-              <Th>Payment Method</Th>
-              <Th>Execution Date</Th>
+              <Th>Payment method</Th>
+              <Th>Execution date</Th>
               <Th>Status</Th>
-              <Th width={80}><span className="sr-only">Actions</span></Th>
+              <Th width={80} align="right"><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
           <TBody>
@@ -310,19 +310,19 @@ export function PayoutListClient({ initialItems }: { initialItems: Payout[] }) {
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.recipientId ?? '')}</Td>
-                  <Td>{String(item.recipientType ?? '')}</Td>
-                  <Td align="right">{fmtINR(item.amount)}</Td>
-                  <Td>{String(item.paymentMethod ?? '')}</Td>
-                  <Td>{item.executionDate ? fmtDate(item.executionDate.toString()) : ''}</Td>
+                  <Td className="font-medium">{String(item.recipientId ?? '—')}</Td>
+                  <Td>{String(item.recipientType ?? '—')}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(item.amount)}</Td>
+                  <Td>{String(item.paymentMethod ?? '—')}</Td>
+                  <Td>{item.executionDate ? fmtDate(item.executionDate.toString()) : '—'}</Td>
                   <Td>
                     {item.status ? (
                       <Badge tone={statusTone(item.status)} dot>
                         {String(item.status)}
                       </Badge>
-                    ) : null}
+                    ) : <Badge tone="neutral">—</Badge>}
                   </Td>
-                  <Td>
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton label="Open row actions" icon={MoreHorizontal} variant="ghost" size="sm" />

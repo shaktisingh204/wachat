@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
   Badge,
   Progress,
+  StatCard,
   EmptyState,
   Select,
   SelectContent,
@@ -33,7 +34,7 @@ import {
   SelectValue,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Mail, Phone, Building2, Store, Download, Gauge, CheckCircle2 } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createVendor, updateVendor, deleteVendor, Vendor } from '@/app/actions/finance/vendor-portal.actions';
 
@@ -67,6 +68,11 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const activeVendors = items.filter(i => (i.onboardingStatus as string ?? 'ACTIVE') === 'ACTIVE').length;
+  const avgPerformance = items.length
+    ? Math.round(items.reduce((a, i) => a + (Number(i.performanceScore) || 0), 0) / items.length)
+    : 0;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -136,8 +142,8 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
 
   return (
     <EntityListShell
-      title="Vendor Portal"
-      subtitle="A portal for vendors to see their invoices and POs."
+      title="Vendors"
+      subtitle="Vendor records, performance scores and onboarding status."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -237,6 +243,12 @@ export function VendorListClient({ initialItems, error }: { initialItems: Vendor
           {error}
         </div>
       )}
+
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Vendors" value={items.length} icon={Store} accent="#2563eb" />
+        <StatCard label="Active" value={activeVendors} icon={CheckCircle2} accent="#16a34a" />
+        <StatCard label="Avg. performance" value={`${avgPerformance}/100`} icon={Gauge} accent="#d97706" />
+      </div>
 
       <div className="mb-6 flex items-center gap-2">
         <div className="w-full max-w-sm">

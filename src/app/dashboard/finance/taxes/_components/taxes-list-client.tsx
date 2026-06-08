@@ -27,10 +27,12 @@ import {
   CardTitle,
   CardBody,
   StatCard,
+  Badge,
+  Alert,
   EmptyState,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Receipt } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Receipt, Wallet, Coins } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createTaxRecord, updateTaxRecord, deleteTaxRecord, exportTaxRecordsCSV, TaxRecord } from '@/app/actions/finance/taxes.actions';
 import { fmtINR } from '@/lib/utils';
@@ -175,8 +177,8 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
 
   return (
     <EntityListShell
-      title="Tax Filing"
-      subtitle="Manage and file your organization taxes."
+      title="Tax filing"
+      subtitle="Track taxable income and amounts owed across every jurisdiction."
       primaryAction={
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={handleExport}>
@@ -241,18 +243,18 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
       }
     >
       {error && (
-        <div className="mb-4 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-4 text-sm text-[var(--st-text)]">
+        <Alert tone="danger" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
-      {/* Summary Widgets */}
+      {/* Summary widgets */}
       <div className="grid gap-4 md:grid-cols-3 mb-6">
-        <StatCard label="Total Taxable Income" value={fmtINR(totalTaxable)} />
-        <StatCard label="Total Tax Owed" value={fmtINR(totalOwed)} />
-        <Card padding="md" className="max-h-[120px] overflow-y-auto">
+        <StatCard label="Total taxable income" value={fmtINR(totalTaxable)} icon={Wallet} accent="#2563eb" />
+        <StatCard label="Total tax owed" value={fmtINR(totalOwed)} icon={Coins} accent="#d97706" />
+        <Card variant="outlined" padding="md" className="max-h-[120px] overflow-y-auto">
           <CardHeader>
-            <CardTitle>By Jurisdiction (Owed)</CardTitle>
+            <CardTitle>By jurisdiction</CardTitle>
           </CardHeader>
           <CardBody>
             <div className="space-y-1">
@@ -296,8 +298,12 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
         <Table>
           <THead>
             <Tr>
-              <Th>Tax Period</Th><Th>Jurisdiction</Th><Th>Taxable Income</Th><Th>Tax Owed</Th><Th>Is Filed</Th>
-              <Th width={80}>{''}</Th>
+              <Th>Tax period</Th>
+              <Th>Jurisdiction</Th>
+              <Th align="right">Taxable income</Th>
+              <Th align="right">Tax owed</Th>
+              <Th>Filing status</Th>
+              <Th width={80} align="right"><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
           <TBody>
@@ -314,8 +320,21 @@ export function TaxRecordListClient({ initialItems, error, initialPeriod }: { in
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.taxPeriod ?? '')}</Td><Td>{String(item.jurisdiction ?? '')}</Td><Td>{fmtINR(item.taxableIncome)}</Td><Td>{fmtINR(item.taxOwed)}</Td><Td>{String(item.isFiled ?? '')}</Td>
+                  <Td className="font-medium">{String(item.taxPeriod ?? '—')}</Td>
+                  <Td>{String(item.jurisdiction ?? '—')}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(item.taxableIncome)}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(item.taxOwed)}</Td>
                   <Td>
+                    {(() => {
+                      const filed = item.isFiled === true || String(item.isFiled ?? '').toLowerCase() === 'true' || String(item.isFiled ?? '').toLowerCase() === 'filed';
+                      return (
+                        <Badge tone={filed ? 'success' : 'warning'} dot>
+                          {filed ? 'Filed' : 'Pending'}
+                        </Badge>
+                      );
+                    })()}
+                  </Td>
+                  <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <IconButton label="Open row actions" icon={MoreHorizontal} variant="ghost" size="sm" />

@@ -26,10 +26,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Alert,
+  Badge,
   EmptyState,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox, Target, Wallet, TrendingUp } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBudget, updateBudget, deleteBudget, Budget } from '@/app/actions/finance/budgets.actions';
 import { fmtINR } from '@/lib/utils';
@@ -79,6 +81,11 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalBudgeted = items.reduce((a, i) => a + (Number(i.budgetedAmount) || 0), 0);
+  const totalSpent = items.reduce((a, i) => a + (Number(i.actualSpent) || 0), 0);
+  const totalVariance = totalBudgeted - totalSpent;
+  const utilization = totalBudgeted > 0 ? Math.round((totalSpent / totalBudgeted) * 100) : 0;
 
   const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
@@ -148,8 +155,8 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
 
   return (
     <EntityListShell
-      title="Budget vs Actuals"
-      subtitle="Compare budgeted expenses against actuals."
+      title="Budgets"
+      subtitle="Budgeted spend against actuals, by department and fiscal year."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -224,6 +231,19 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
         </Alert>
       )}
 
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total budgeted" value={fmtINR(totalBudgeted)} icon={Target} accent="#2563eb" />
+        <StatCard label="Actual spent" value={fmtINR(totalSpent)} icon={Wallet} accent="#0891b2" />
+        <StatCard
+          label="Variance"
+          value={fmtINR(Math.abs(totalVariance))}
+          icon={TrendingUp}
+          accent={totalVariance >= 0 ? '#16a34a' : '#dc2626'}
+          delta={{ value: totalVariance >= 0 ? 'under budget' : 'over budget', tone: totalVariance >= 0 ? 'up' : 'down' }}
+        />
+        <StatCard label="Utilization" value={`${utilization}%`} icon={Target} accent="#d97706" />
+      </div>
+
       <div className="mb-6 flex items-center gap-2">
         <div className="w-full max-w-sm">
           <Input
@@ -240,10 +260,10 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
         <Table>
           <THead>
             <Tr>
-              <Th>Department ID</Th>
-              <Th>Fiscal Year</Th>
-              <Th align="right">Budgeted Amount</Th>
-              <Th align="right">Actual Spent</Th>
+              <Th>Department</Th>
+              <Th>Fiscal year</Th>
+              <Th align="right">Budgeted</Th>
+              <Th align="right">Spent</Th>
               <Th align="right">Variance</Th>
               <Th align="right" width={80}><span className="sr-only">Actions</span></Th>
             </Tr>
@@ -262,11 +282,20 @@ export function BudgetListClient({ initialItems, error }: { initialItems: Budget
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.departmentId ?? '')}</Td>
-                  <Td>{String(item.fiscalYear ?? '')}</Td>
-                  <Td align="right">{fmtINR(Number(item.budgetedAmount || 0))}</Td>
-                  <Td align="right">{fmtINR(Number(item.actualSpent || 0))}</Td>
-                  <Td align="right">{fmtINR(Number(item.variance || 0))}</Td>
+                  <Td className="font-medium">{String(item.departmentId ?? '—')}</Td>
+                  <Td>{String(item.fiscalYear ?? '—')}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.budgetedAmount || 0))}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.actualSpent || 0))}</Td>
+                  <Td align="right">
+                    {(() => {
+                      const v = Number(item.variance ?? (Number(item.budgetedAmount || 0) - Number(item.actualSpent || 0)));
+                      return (
+                        <Badge tone={v >= 0 ? 'success' : 'danger'}>
+                          <span className="tabular-nums">{v >= 0 ? '+' : '−'}{fmtINR(Math.abs(v))}</span>
+                        </Badge>
+                      );
+                    })()}
+                  </Td>
                   <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

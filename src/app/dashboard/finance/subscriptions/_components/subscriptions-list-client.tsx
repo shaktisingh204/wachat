@@ -28,17 +28,28 @@ import {
   SelectTrigger,
   SelectValue,
   Alert,
+  Badge,
+  type BadgeTone,
   EmptyState,
   StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, Download } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, DollarSign, Calendar, CreditCard, Download, TrendingUp } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createSubscription, updateSubscription, deleteSubscription, Subscription } from '@/app/actions/finance/subscriptions.actions';
 import { fmtINR, fmtDate } from '@/lib/utils';
 
 const BILLING_CYCLES = ['MONTHLY', 'YEARLY'] as const;
 const STATUSES = ['ACTIVE', 'PAUSED', 'CANCELLED'] as const;
+
+function subTone(status: string | undefined): BadgeTone {
+  switch (String(status ?? 'ACTIVE').toUpperCase()) {
+    case 'ACTIVE': return 'success';
+    case 'PAUSED': return 'warning';
+    case 'CANCELLED': return 'danger';
+    default: return 'neutral';
+  }
+}
 
 export function SubscriptionListClient({ initialItems, error }: { initialItems: Subscription[], error?: string }) {
   const router = useRouter();
@@ -164,8 +175,8 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
 
   return (
     <EntityListShell
-      title="Subscriptions Billing"
-      subtitle="Manage recurring billing and subscriptions."
+      title="Subscriptions"
+      subtitle="Recurring revenue, renewal dates and monthly run-rate."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -263,9 +274,9 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <StatCard label="MRR" value={fmtINR(mrr)} icon={DollarSign} />
-            <StatCard label="ARR" value={fmtINR(arr)} icon={DollarSign} />
-            <StatCard label="Upcoming Renewals (30 Days)" value={upcomingRenewals.toString()} icon={Calendar} />
+            <StatCard label="Monthly run-rate (MRR)" value={fmtINR(mrr)} icon={DollarSign} accent="#2563eb" />
+            <StatCard label="Annual run-rate (ARR)" value={fmtINR(arr)} icon={TrendingUp} accent="#16a34a" />
+            <StatCard label="Renewals in 30 days" value={upcomingRenewals.toString()} icon={Calendar} accent="#d97706" />
           </div>
 
           <div className="mb-6 flex items-center gap-2">
@@ -284,32 +295,36 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
             <Table>
               <THead>
                 <Tr>
-                  <Th>Customer ID</Th>
-                  <Th>Plan ID</Th>
-                  <Th>Billing Cycle</Th>
-                  <Th>Next Billing Date</Th>
+                  <Th>Customer</Th>
+                  <Th>Plan</Th>
+                  <Th>Billing cycle</Th>
+                  <Th>Next billing date</Th>
                   <Th align="right">Amount</Th>
                   <Th>Status</Th>
-                  <Th width={80}></Th>
+                  <Th width={80} align="right"><span className="sr-only">Actions</span></Th>
                 </Tr>
               </THead>
               <TBody>
                 {filteredItems.length === 0 ? (
                   <Tr>
-                    <Td colSpan={7} align="center">
-                      No results.
+                    <Td colSpan={7}>
+                      <EmptyState
+                        icon={Search}
+                        title="No matches"
+                        description="No subscriptions match your search."
+                      />
                     </Td>
                   </Tr>
                 ) : (
                   filteredItems.map((item) => (
                     <Tr key={item._id}>
-                      <Td>{String(item.customerId ?? '')}</Td>
-                      <Td>{String(item.planId ?? '')}</Td>
-                      <Td>{String(item.billingCycle ?? '')}</Td>
-                      <Td>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : ''}</Td>
-                      <Td align="right">{fmtINR(item.amount)}</Td>
-                      <Td>{String(item.status ?? '')}</Td>
-                      <Td>
+                      <Td className="font-medium">{String(item.customerId ?? '—')}</Td>
+                      <Td>{String(item.planId ?? '—')}</Td>
+                      <Td>{String(item.billingCycle ?? '—')}</Td>
+                      <Td>{item.nextBillingDate ? fmtDate(item.nextBillingDate.toString()) : '—'}</Td>
+                      <Td align="right" className="tabular-nums">{fmtINR(item.amount)}</Td>
+                      <Td><Badge tone={subTone(item.status)} dot>{String(item.status ?? 'ACTIVE')}</Badge></Td>
+                      <Td align="right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <IconButton label="Row actions" icon={MoreHorizontal} size="sm" />

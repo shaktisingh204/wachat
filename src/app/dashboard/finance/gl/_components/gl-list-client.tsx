@@ -25,10 +25,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Alert,
+  Badge,
   EmptyState,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox, BookOpen, Coins, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createGlEntry, updateGlEntry, deleteGlEntry, GlEntry } from '@/app/actions/finance/gl.actions';
 import { fmtDate, fmtINR } from '@/lib/utils';
@@ -84,6 +86,10 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalDebit = items.reduce((a, i) => a + (Number(i.debit) || 0), 0);
+  const totalCredit = items.reduce((a, i) => a + (Number(i.credit) || 0), 0);
+  const currencyCount = new Set(items.map(i => i.currency || 'INR')).size;
 
   const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
@@ -154,8 +160,8 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
   return (
     <div ref={containerRef}>
     <EntityListShell
-      title="Multi-Currency GL"
-      subtitle="Manage general ledger across multiple currencies."
+      title="General ledger"
+      subtitle="Multi-currency ledger entries with live exchange rates."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -244,6 +250,13 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
         </div>
       )}
 
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Entries" value={items.length} icon={BookOpen} accent="#2563eb" />
+        <StatCard label="Currencies" value={currencyCount} icon={Coins} accent="#0891b2" />
+        <StatCard label="Total debit" value={fmtINR(totalDebit)} icon={ArrowDownLeft} accent="#d97706" />
+        <StatCard label="Total credit" value={fmtINR(totalCredit)} icon={ArrowUpRight} accent="#16a34a" />
+      </div>
+
       <div className="mb-6 flex items-center gap-2">
         <div className="flex-1 max-w-sm">
           <Field label="Search records">
@@ -261,13 +274,13 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
         <Table>
           <THead>
             <Tr>
+              <Th>Account</Th>
               <Th>Currency</Th>
-              <Th>Base Amount</Th>
-              <Th>Exchange Rate</Th>
-              <Th>Account Id</Th>
-              <Th>Credit</Th>
-              <Th>Debit</Th>
-              <Th>Transaction Date</Th>
+              <Th align="right">Base amount</Th>
+              <Th align="right">Rate</Th>
+              <Th align="right">Debit</Th>
+              <Th align="right">Credit</Th>
+              <Th>Date</Th>
               <Th width={80} align="right"><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
@@ -285,13 +298,13 @@ export function GlEntryListClient({ initialItems, error }: { initialItems: GlEnt
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id} className="animate-row">
-                  <Td>{String(item.currency ?? '')}</Td>
-                  <Td>{fmtINR(Number(item.baseAmount || 0), item.currency || 'INR')}</Td>
-                  <Td>{String(item.exchangeRate ?? '')}</Td>
-                  <Td>{String(item.accountId ?? '')}</Td>
-                  <Td>{fmtINR(Number(item.credit || 0), item.currency || 'INR')}</Td>
-                  <Td>{fmtINR(Number(item.debit || 0), item.currency || 'INR')}</Td>
-                  <Td>{item.transactionDate ? fmtDate(new Date(item.transactionDate)) : ''}</Td>
+                  <Td className="font-medium">{String(item.accountId ?? '—')}</Td>
+                  <Td><Badge tone="neutral">{String(item.currency ?? 'INR')}</Badge></Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.baseAmount || 0), item.currency || 'INR')}</Td>
+                  <Td align="right" className="tabular-nums text-[var(--st-text-secondary)]">{item.exchangeRate ? Number(item.exchangeRate).toFixed(2) : '—'}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.debit || 0), item.currency || 'INR')}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.credit || 0), item.currency || 'INR')}</Td>
+                  <Td>{item.transactionDate ? fmtDate(new Date(item.transactionDate)) : '—'}</Td>
                   <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

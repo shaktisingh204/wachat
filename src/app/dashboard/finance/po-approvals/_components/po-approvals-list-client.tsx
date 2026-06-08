@@ -25,6 +25,7 @@ import {
   Badge,
   type BadgeTone,
   EmptyState,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -37,6 +38,8 @@ import {
   XCircle,
   Download,
   FileText,
+  Clock,
+  Wallet,
 } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder, PurchaseOrder } from '@/app/actions/finance/po-approvals.actions';
@@ -81,6 +84,12 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const pendingCount = items.filter(i => !i.status || String(i.status).toLowerCase() === 'pending').length;
+  const approvedCount = items.filter(i => String(i.status).toLowerCase() === 'approved').length;
+  const pendingValue = items
+    .filter(i => !i.status || String(i.status).toLowerCase() === 'pending')
+    .reduce((a, i) => a + (Number(i.totalAmount) || 0), 0);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -180,8 +189,8 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
 
   return (
     <EntityListShell
-      title="PO Approvals"
-      subtitle="Approve purchase orders from vendors."
+      title="Purchase order approvals"
+      subtitle="Review and approve purchase orders raised against your vendors."
       primaryAction={
         <div className="flex gap-2">
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -237,6 +246,12 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
         </div>
       }
     >
+      <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <StatCard label="Awaiting approval" value={pendingCount} icon={Clock} accent="#d97706" />
+        <StatCard label="Approved" value={approvedCount} icon={CheckCircle} accent="#16a34a" />
+        <StatCard label="Pending value" value={fmtINR(pendingValue)} icon={Wallet} accent="#2563eb" />
+      </div>
+
       <div className="mb-6 flex items-center gap-2">
         <div className="w-full max-w-sm">
           <Field label="Search records">
@@ -254,11 +269,11 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
         <Table>
           <THead>
             <Tr>
-              <Th>Vendor ID</Th>
-              <Th>Total Amount</Th>
-              <Th>Approved By</Th>
+              <Th>Vendor</Th>
+              <Th align="right">Total amount</Th>
+              <Th>Approved by</Th>
               <Th>Status</Th>
-              <Th align="right" width={120}>Actions</Th>
+              <Th align="right" width={120}><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
           <TBody>
@@ -277,11 +292,11 @@ export function PurchaseOrderListClient({ initialItems }: { initialItems: Purcha
                 const status = String(item.status ?? 'pending');
                 return (
                   <Tr key={item._id}>
-                    <Td>{String(item.vendorId ?? '')}</Td>
-                    <Td>{fmtINR(item.totalAmount)}</Td>
-                    <Td>{String(item.approvedBy ?? '')}</Td>
+                    <Td className="font-medium">{String(item.vendorId ?? '—')}</Td>
+                    <Td align="right" className="tabular-nums">{fmtINR(item.totalAmount)}</Td>
+                    <Td>{String(item.approvedBy ?? '—')}</Td>
                     <Td>
-                      <Badge tone={STATUS_TONE[status] ?? 'neutral'}>{status}</Badge>
+                      <Badge tone={STATUS_TONE[status] ?? 'warning'} dot>{status}</Badge>
                     </Td>
                     <Td align="right">
                       <div className="flex items-center justify-end gap-1">

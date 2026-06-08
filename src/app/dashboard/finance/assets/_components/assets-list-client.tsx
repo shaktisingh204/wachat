@@ -26,14 +26,16 @@ import {
   Card,
   EmptyState,
   Alert,
+  StatCard,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Eye, Inbox, Building, TrendingDown, Wallet } from 'lucide-react';
 import { createAsset, updateAsset, deleteAsset, Asset } from '@/app/actions/finance/assets.actions';
 import { fmtINR } from '@/lib/utils';
 
@@ -71,6 +73,10 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const grossValue = items.reduce((a, i) => a + (Number(i.purchasePrice) || 0), 0);
+  const accumDep = items.reduce((a, i) => a + (Number(i.accumulatedDepreciation) || 0), 0);
+  const netBookValue = grossValue - accumDep;
 
   const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
@@ -142,8 +148,9 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
     <div className="flex w-full flex-col gap-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Asset Depreciation</PageTitle>
-          <PageDescription>Track assets and their depreciation over time.</PageDescription>
+          <PageEyebrow>Finance</PageEyebrow>
+          <PageTitle>Fixed assets</PageTitle>
+          <PageDescription>Track assets and their depreciation over their useful life.</PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button variant="outline" size="sm" iconLeft={Download} onClick={exportToCsv}>
@@ -213,6 +220,13 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
         <Alert tone="danger">{error}</Alert>
       ) : null}
 
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Assets tracked" value={items.length} icon={Building} accent="#2563eb" />
+        <StatCard label="Gross value" value={fmtINR(grossValue)} icon={Wallet} accent="#0891b2" />
+        <StatCard label="Accumulated depreciation" value={fmtINR(accumDep)} icon={TrendingDown} accent="#d97706" />
+        <StatCard label="Net book value" value={fmtINR(netBookValue)} icon={Wallet} accent="#16a34a" />
+      </div>
+
       <div className="w-full max-w-sm">
         <Field label="Search records">
           <Input
@@ -228,11 +242,11 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
         <Table>
           <THead>
             <Tr>
-              <Th>Name</Th>
-              <Th>Purchase Price</Th>
-              <Th>Salvage Value</Th>
-              <Th>Useful Life Years</Th>
-              <Th>Accumulated Depreciation</Th>
+              <Th>Asset</Th>
+              <Th align="right">Purchase price</Th>
+              <Th align="right">Salvage value</Th>
+              <Th align="right">Useful life</Th>
+              <Th align="right">Accumulated depreciation</Th>
               <Th width={80} align="right">
                 <span className="sr-only">Actions</span>
               </Th>
@@ -252,11 +266,11 @@ export function AssetListClient({ initialItems, error }: { initialItems: Asset[]
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.name ?? '')}</Td>
-                  <Td>{fmtINR(Number(item.purchasePrice || 0))}</Td>
-                  <Td>{fmtINR(Number(item.salvageValue || 0))}</Td>
-                  <Td>{String(item.usefulLifeYears ?? '')}</Td>
-                  <Td>{fmtINR(Number(item.accumulatedDepreciation || 0))}</Td>
+                  <Td className="font-medium">{String(item.name ?? '')}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.purchasePrice || 0))}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.salvageValue || 0))}</Td>
+                  <Td align="right" className="tabular-nums">{item.usefulLifeYears ? `${item.usefulLifeYears} yr` : '—'}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.accumulatedDepreciation || 0))}</Td>
                   <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

@@ -22,15 +22,26 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   Alert,
+  Badge,
+  type BadgeTone,
   EmptyState,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Inbox } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash, Search, Download, Inbox, Landmark, Scale, BookOpen } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { createBankRecon, updateBankRecon, deleteBankRecon, BankRecon } from '@/app/actions/finance/bank-reconciliation.actions';
 import { fmtDate, fmtINR } from '@/lib/utils';
 
 const OPTIONAL_FIELDS = ['credit', 'debit', 'exchangeRate', 'salvageValue', 'accumulatedDepreciation', 'approvedBy', 'variance', 'status'];
+
+function reconTone(status: string | undefined): BadgeTone {
+  const s = String(status ?? '').toLowerCase();
+  if (s.includes('reconcil') || s.includes('match') || s.includes('clear')) return 'success';
+  if (s.includes('pending') || s.includes('review')) return 'warning';
+  if (s.includes('discrep') || s.includes('fail')) return 'danger';
+  return 'neutral';
+}
 
 export function BankReconListClient({ initialItems, error }: { initialItems: BankRecon[], error?: string }) {
   const router = useRouter();
@@ -66,6 +77,10 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
   const filteredItems = items.filter(item =>
     JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalStatement = items.reduce((a, i) => a + (Number(i.statementBalance) || 0), 0);
+  const totalBook = items.reduce((a, i) => a + (Number(i.bookBalance) || 0), 0);
+  const difference = totalStatement - totalBook;
 
   const editingItem = editingId ? items.find(i => i._id === editingId) : undefined;
 
@@ -207,6 +222,18 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
         </Alert>
       )}
 
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Reconciliations" value={items.length} icon={BookOpen} accent="#2563eb" />
+        <StatCard label="Statement balance" value={fmtINR(totalStatement)} icon={Landmark} accent="#0891b2" />
+        <StatCard label="Book balance" value={fmtINR(totalBook)} icon={BookOpen} accent="#16a34a" />
+        <StatCard
+          label="Difference"
+          value={fmtINR(Math.abs(difference))}
+          icon={Scale}
+          accent={Math.abs(difference) < 1 ? '#16a34a' : '#d97706'}
+        />
+      </div>
+
       <div className="mb-6 flex items-center gap-2">
         <div className="w-full max-w-sm">
           <Input
@@ -214,6 +241,7 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
             iconLeft={Search}
             value={search}
             onChange={e => setSearch(e.target.value)}
+            aria-label="Search records"
           />
         </div>
       </div>
@@ -222,12 +250,12 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
         <Table>
           <THead>
             <Tr>
-              <Th>Account ID</Th>
-              <Th>Statement Date</Th>
-              <Th align="right">Statement Balance</Th>
-              <Th align="right">Book Balance</Th>
+              <Th>Account</Th>
+              <Th>Statement date</Th>
+              <Th align="right">Statement balance</Th>
+              <Th align="right">Book balance</Th>
               <Th>Status</Th>
-              <Th align="right" width={80}>Actions</Th>
+              <Th align="right" width={80}><span className="sr-only">Actions</span></Th>
             </Tr>
           </THead>
           <TBody>
@@ -244,11 +272,15 @@ export function BankReconListClient({ initialItems, error }: { initialItems: Ban
             ) : (
               filteredItems.map((item) => (
                 <Tr key={item._id}>
-                  <Td>{String(item.accountId ?? '')}</Td>
-                  <Td>{item.statementDate ? fmtDate(new Date(item.statementDate)) : ''}</Td>
-                  <Td align="right">{fmtINR(Number(item.statementBalance || 0))}</Td>
-                  <Td align="right">{fmtINR(Number(item.bookBalance || 0))}</Td>
-                  <Td>{String(item.status ?? '')}</Td>
+                  <Td className="font-medium">{String(item.accountId ?? '—')}</Td>
+                  <Td>{item.statementDate ? fmtDate(new Date(item.statementDate)) : '—'}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.statementBalance || 0))}</Td>
+                  <Td align="right" className="tabular-nums">{fmtINR(Number(item.bookBalance || 0))}</Td>
+                  <Td>
+                    {item.status ? (
+                      <Badge tone={reconTone(item.status)} dot>{String(item.status)}</Badge>
+                    ) : '—'}
+                  </Td>
                   <Td align="right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
