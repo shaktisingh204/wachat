@@ -1,14 +1,31 @@
 'use client';
 
 /**
- * "+ New project" CTA on the SabCatalyst home — opens a dialog and
+ * "New project" CTA on the SabCatalyst home — opens a dialog and
  * calls the `createSabcatalystProject` server action.
  */
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus } from 'lucide-react';
 
 import { createSabcatalystProject } from '@/app/actions/sabcatalyst.actions';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Button,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    Field,
+    Input,
+    Textarea,
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from '@/components/sabcrm/20ui';
 import type { ProjectRuntime } from '@/lib/rust-client/sabcatalyst-projects';
 
 const RUNTIMES: ProjectRuntime[] = ['nodejs20', 'python311', 'deno', 'bun'];
@@ -36,7 +53,7 @@ export function NewProjectButton() {
             setOpen(false);
             router.push(`/dashboard/sabcatalyst/${created._id}`);
         } catch (e: unknown) {
-            setErr(e instanceof Error ? e.message : 'Failed to create project');
+            setErr(e instanceof Error ? e.message : 'Could not create the project.');
         } finally {
             setBusy(false);
         }
@@ -44,46 +61,43 @@ export function NewProjectButton() {
 
     return (
         <>
-            <Button onClick={() => setOpen(true)}>+ New project</Button>
+            <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+                New project
+            </Button>
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Create SabCatalyst project</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="name">Name</Label>
+                        <Field label="Name" required>
                             <Input
-                                id="name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="My Backend"
+                                autoFocus
                             />
-                        </div>
-                        <div>
-                            <Label htmlFor="slug">Slug</Label>
+                        </Field>
+                        <Field
+                            label="Slug"
+                            required
+                            help={`Used in the runtime URL: /api/catalyst/${slug || 'your-slug'}/...`}
+                        >
                             <Input
-                                id="slug"
                                 value={slug}
                                 onChange={(e) => setSlug(e.target.value.toLowerCase())}
                                 placeholder="my-backend"
                             />
-                            <p className="text-xs text-[var(--st-text-secondary)] mt-1">
-                                Used in the runtime URL:{' '}
-                                <code>/api/catalyst/{slug || 'your-slug'}/...</code>
-                            </p>
-                        </div>
-                        <div>
-                            <Label htmlFor="description">Description</Label>
+                        </Field>
+                        <Field label="Description">
                             <Textarea
-                                id="description"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 rows={3}
+                                placeholder="What this backend powers"
                             />
-                        </div>
-                        <div>
-                            <Label>Runtime</Label>
+                        </Field>
+                        <Field label="Runtime">
                             <Select value={runtime} onValueChange={(v) => setRuntime(v as ProjectRuntime)}>
                                 <SelectTrigger>
                                     <SelectValue />
@@ -96,15 +110,24 @@ export function NewProjectButton() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                        </div>
-                        {err ? <p className="text-sm text-[var(--st-text)]">{err}</p> : null}
+                        </Field>
+                        {err ? (
+                            <Alert tone="danger" title="Could not create project">
+                                {err}
+                            </Alert>
+                        ) : null}
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setOpen(false)} disabled={busy}>
                             Cancel
                         </Button>
-                        <Button onClick={submit} disabled={busy || !name.trim() || !slug.trim()}>
-                            {busy ? 'Creating…' : 'Create'}
+                        <Button
+                            variant="primary"
+                            onClick={submit}
+                            loading={busy}
+                            disabled={busy || !name.trim() || !slug.trim()}
+                        >
+                            Create project
                         </Button>
                     </DialogFooter>
                 </DialogContent>

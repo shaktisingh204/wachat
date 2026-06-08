@@ -7,6 +7,7 @@
  */
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { Plus, Play, Trash2, UploadCloud, Zap } from 'lucide-react';
 
 import {
     createSabcatalystFunction,
@@ -14,7 +15,27 @@ import {
     invokeSabcatalystFunction,
     deleteSabcatalystFunction,
 } from '@/app/actions/sabcatalyst.actions';
-import { Button, Card, Input, Label, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Badge, EmptyState, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/sabcrm/20ui';
+import {
+    Alert,
+    Badge,
+    Button,
+    Card,
+    CardBody,
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    EmptyState,
+    Field,
+    Input,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    useToast,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type {
     SabcatalystFunction,
@@ -32,6 +53,7 @@ interface Props {
 
 export function FunctionsTab({ projectId, initialItems }: Props) {
     const router = useRouter();
+    const { toast } = useToast();
     const [items, setItems] = React.useState(initialItems);
     const [open, setOpen] = React.useState(false);
     const [busy, setBusy] = React.useState(false);
@@ -61,15 +83,18 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
             setName('');
             setSchedule('');
             setCodeBlobFileId(null);
+            toast.success('Function created');
         } catch (e: unknown) {
-            setErr(e instanceof Error ? e.message : 'Failed');
+            const message = e instanceof Error ? e.message : 'Could not create the function.';
+            setErr(message);
         } finally {
             setBusy(false);
         }
     }
 
-    async function deploy(fnId: string, codeBlobFileId: string) {
-        await deploySabcatalystFunction({ functionId: fnId, codeBlobFileId });
+    async function deploy(fnId: string, codeFileId: string) {
+        await deploySabcatalystFunction({ functionId: fnId, codeBlobFileId: codeFileId });
+        toast.success('Deploy started');
         router.refresh();
     }
 
@@ -79,57 +104,88 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
             method: 'POST',
             bodyText: JSON.stringify({ test: true }),
         });
-        alert(`Invocation: ${result.invocationStatus} (${result.durationMs}ms)\n\n${result.bodyText}`);
+        toast({
+            tone: result.invocationStatus === 'success' ? 'success' : 'danger',
+            title: `Invocation ${result.invocationStatus}`,
+            description: `${result.durationMs}ms · ${result.bodyText}`,
+        });
     }
 
     async function remove(fnId: string) {
         if (!confirm('Delete this function?')) return;
         await deleteSabcatalystFunction(fnId, projectId);
         setItems((s) => s.filter((x) => x._id !== fnId));
+        toast.success('Function deleted');
     }
 
     return (
         <div className="space-y-4">
             <div className="flex justify-end">
-                <Button onClick={() => setOpen(true)}>+ New function</Button>
+                <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+                    New function
+                </Button>
             </div>
             {items.length === 0 ? (
-                <EmptyState
-                    title="No functions yet"
-                    description="Create your first cloud function — HTTP, cron, event or queue."
-                />
+                <Card>
+                    <CardBody className="p-6">
+                        <EmptyState
+                            icon={Zap}
+                            title="No functions yet"
+                            description="Create your first cloud function: HTTP, cron, event, or queue."
+                            action={
+                                <Button variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+                                    New function
+                                </Button>
+                            }
+                        />
+                    </CardBody>
+                </Card>
             ) : (
-                <div className="space-y-2">
+                <ul className="flex list-none flex-col gap-2 p-0">
                     {items.map((fn) => (
-                        <Card key={fn._id} className="p-4 flex items-center justify-between gap-4">
-                            <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold truncate">{fn.name}</h3>
-                                    <Badge variant="outline">{fn.kind}</Badge>
-                                    <Badge variant="secondary">{fn.runtime}</Badge>
-                                    {fn.status === 'paused' ? <Badge variant="destructive">paused</Badge> : null}
-                                </div>
-                                <p className="text-xs text-[var(--st-text-secondary)] font-mono mt-1 truncate">
-                                    {fn.entrypoint}
-                                    {fn.schedule ? ` • ${fn.schedule}` : ''}
-                                </p>
-                            </div>
-                            <div className="flex gap-2 shrink-0">
-                                <SabFilePickerButton
-                                    onPick={(p) => deploy(fn._id, p.id)}
-                                >
-                                    Deploy ZIP
-                                </SabFilePickerButton>
-                                <Button variant="outline" onClick={() => invoke(fn._id)}>
-                                    Test
-                                </Button>
-                                <Button variant="destructive" onClick={() => remove(fn._id)}>
-                                    Delete
-                                </Button>
-                            </div>
-                        </Card>
+                        <li key={fn._id}>
+                            <Card>
+                                <CardBody className="flex items-center justify-between gap-4 p-4">
+                                    <div className="min-w-0">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3 className="truncate font-semibold">{fn.name}</h3>
+                                            <Badge tone="info">{fn.kind}</Badge>
+                                            <Badge tone="neutral">{fn.runtime}</Badge>
+                                            {fn.status === 'paused' ? (
+                                                <Badge tone="warning">paused</Badge>
+                                            ) : null}
+                                        </div>
+                                        <p className="mt-1 truncate font-mono text-xs text-[var(--st-text-secondary)]">
+                                            {fn.entrypoint}
+                                            {fn.schedule ? ` · ${fn.schedule}` : ''}
+                                        </p>
+                                    </div>
+                                    <div className="flex shrink-0 gap-2">
+                                        <SabFilePickerButton onPick={(p) => deploy(fn._id, p.id)}>
+                                            <UploadCloud size={14} aria-hidden="true" />
+                                            Deploy ZIP
+                                        </SabFilePickerButton>
+                                        <Button
+                                            variant="secondary"
+                                            iconLeft={Play}
+                                            onClick={() => invoke(fn._id)}
+                                        >
+                                            Test
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            iconLeft={Trash2}
+                                            onClick={() => remove(fn._id)}
+                                            aria-label={`Delete ${fn.name}`}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </CardBody>
+                            </Card>
+                        </li>
                     ))}
-                </div>
+                </ul>
             )}
 
             <Dialog open={open} onOpenChange={setOpen}>
@@ -138,18 +194,16 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
                         <DialogTitle>New function</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="fn-name">Name</Label>
+                        <Field label="Name" required>
                             <Input
-                                id="fn-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="hello-world"
+                                autoFocus
                             />
-                        </div>
+                        </Field>
                         <div className="grid grid-cols-2 gap-3">
-                            <div>
-                                <Label>Kind</Label>
+                            <Field label="Kind">
                                 <Select value={kind} onValueChange={(v) => setKind(v as FunctionKind)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -158,9 +212,8 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                            <div>
-                                <Label>Runtime</Label>
+                            </Field>
+                            <Field label="Runtime">
                                 <Select value={runtime} onValueChange={(v) => setRuntime(v as FunctionRuntime)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -169,46 +222,47 @@ export function FunctionsTab({ projectId, initialItems }: Props) {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
+                            </Field>
                         </div>
-                        <div>
-                            <Label htmlFor="entry">Entrypoint</Label>
+                        <Field label="Entrypoint">
                             <Input
-                                id="entry"
                                 value={entrypoint}
                                 onChange={(e) => setEntrypoint(e.target.value)}
                                 placeholder="index.handler"
                             />
-                        </div>
+                        </Field>
                         {kind === 'cron' ? (
-                            <div>
-                                <Label htmlFor="schedule">Cron schedule</Label>
+                            <Field label="Cron schedule">
                                 <Input
-                                    id="schedule"
                                     value={schedule}
                                     onChange={(e) => setSchedule(e.target.value)}
                                     placeholder="*/5 * * * *"
                                 />
-                            </div>
+                            </Field>
                         ) : null}
-                        <div>
-                            <Label>Code ZIP (optional, deploy later if blank)</Label>
-                            <div className="mt-1">
-                                <SabFilePickerButton
-                                    onPick={(p) => setCodeBlobFileId(p.id)}
-                                >
-                                    {codeBlobFileId ? 'ZIP attached' : 'Choose ZIP from SabFiles'}
-                                </SabFilePickerButton>
-                            </div>
-                        </div>
-                        {err ? <p className="text-sm text-[var(--st-text)]">{err}</p> : null}
+                        <Field label="Code ZIP" help="Optional. You can deploy code later.">
+                            <SabFilePickerButton onPick={(p) => setCodeBlobFileId(p.id)}>
+                                <UploadCloud size={14} aria-hidden="true" />
+                                {codeBlobFileId ? 'ZIP attached' : 'Choose ZIP from SabFiles'}
+                            </SabFilePickerButton>
+                        </Field>
+                        {err ? (
+                            <Alert tone="danger" title="Could not create function">
+                                {err}
+                            </Alert>
+                        ) : null}
                     </div>
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setOpen(false)} disabled={busy}>
                             Cancel
                         </Button>
-                        <Button onClick={create} disabled={busy || !name.trim()}>
-                            {busy ? 'Creating…' : 'Create'}
+                        <Button
+                            variant="primary"
+                            onClick={create}
+                            loading={busy}
+                            disabled={busy || !name.trim()}
+                        >
+                            Create function
                         </Button>
                     </DialogFooter>
                 </DialogContent>

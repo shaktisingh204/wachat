@@ -35,11 +35,15 @@ export function UsageTab({ initialRows }: Props) {
 
     if (!latest) {
         return (
-            <EmptyState
-                icon={Activity}
-                title="No usage yet"
-                description="Once your functions run and your datastore writes happen, monthly rollups appear here."
-            />
+            <Card>
+                <CardBody className="p-6">
+                    <EmptyState
+                        icon={Activity}
+                        title="No usage yet"
+                        description="Once your functions run and your datastore writes land, monthly rollups appear here."
+                    />
+                </CardBody>
+            </Card>
         );
     }
 
@@ -56,7 +60,10 @@ export function UsageTab({ initialRows }: Props) {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Monthly history</CardTitle>
+                    <div className="flex items-center gap-2">
+                        <Activity size={16} aria-hidden="true" />
+                        <CardTitle>Monthly history</CardTitle>
+                    </div>
                 </CardHeader>
                 <CardBody>
                     <div className="overflow-auto">

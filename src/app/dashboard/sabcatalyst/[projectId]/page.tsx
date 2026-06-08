@@ -3,7 +3,19 @@
  * Auth / File Store / API Keys / Domains / Usage tabs.
  */
 import React from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import {
+    ArrowLeft,
+    KeyRound,
+    Database,
+    Globe,
+    HardDrive,
+    LayoutDashboard,
+    Activity,
+    Users,
+    Zap,
+} from 'lucide-react';
 
 import {
     getSabcatalystProject,
@@ -21,10 +33,13 @@ import {
     TabsTrigger,
     TabsContent,
     Badge,
+    Button,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
+    PageActions,
 } from '@/components/sabcrm/20ui';
 
 import { OverviewTab } from './_components/overview-tab';
@@ -41,6 +56,17 @@ export const dynamic = 'force-dynamic';
 interface PageProps {
     params: Promise<{ projectId: string }>;
 }
+
+const TRIGGERS: { value: string; label: string; icon: React.ElementType }[] = [
+    { value: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { value: 'functions', label: 'Functions', icon: Zap },
+    { value: 'datastore', label: 'Datastore', icon: Database },
+    { value: 'auth', label: 'Auth', icon: Users },
+    { value: 'files', label: 'File store', icon: HardDrive },
+    { value: 'apikeys', label: 'API keys', icon: KeyRound },
+    { value: 'domains', label: 'Domains', icon: Globe },
+    { value: 'usage', label: 'Usage', icon: Activity },
+];
 
 export default async function ProjectConsolePage({ params }: PageProps) {
     const { projectId } = await params;
@@ -60,12 +86,13 @@ export default async function ProjectConsolePage({ params }: PageProps) {
     ]);
 
     return (
-        <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-            <PageHeader bordered={false}>
+        <div className="20ui flex-1 space-y-6 p-4 pt-6 md:p-8">
+            <PageHeader>
                 <PageHeaderHeading>
+                    <PageEyebrow>SabCatalyst project</PageEyebrow>
                     <div className="flex items-center gap-2">
                         <PageTitle>{project.name}</PageTitle>
-                        <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+                        <Badge tone={project.status === 'active' ? 'success' : 'neutral'}>
                             {project.status}
                         </Badge>
                     </div>
@@ -73,18 +100,23 @@ export default async function ProjectConsolePage({ params }: PageProps) {
                         /api/catalyst/{project.slug}/...
                     </PageDescription>
                 </PageHeaderHeading>
+                <PageActions>
+                    <Button variant="ghost" iconLeft={ArrowLeft} asChild>
+                        <Link href="/dashboard/sabcatalyst">All projects</Link>
+                    </Button>
+                </PageActions>
             </PageHeader>
 
             <Tabs defaultValue="overview" className="w-full">
                 <TabsList className="flex flex-wrap">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="functions">Functions</TabsTrigger>
-                    <TabsTrigger value="datastore">Datastore</TabsTrigger>
-                    <TabsTrigger value="auth">Auth</TabsTrigger>
-                    <TabsTrigger value="files">File Store</TabsTrigger>
-                    <TabsTrigger value="apikeys">API Keys</TabsTrigger>
-                    <TabsTrigger value="domains">Domains</TabsTrigger>
-                    <TabsTrigger value="usage">Usage</TabsTrigger>
+                    {TRIGGERS.map(({ value, label, icon: Icon }) => (
+                        <TabsTrigger key={value} value={value}>
+                            <span className="inline-flex items-center gap-1.5">
+                                <Icon size={14} aria-hidden="true" />
+                                {label}
+                            </span>
+                        </TabsTrigger>
+                    ))}
                 </TabsList>
 
                 <TabsContent value="overview" className="mt-6">

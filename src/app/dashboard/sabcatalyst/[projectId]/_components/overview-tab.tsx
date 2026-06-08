@@ -1,8 +1,25 @@
 'use client';
 
-/** Overview tab — KPI cards. */
+/** Overview tab — KPI strip + project details. */
 import React from 'react';
-import { Card } from '@/components/sabcrm/20ui';
+import {
+    Database,
+    FileBox,
+    Globe,
+    Info,
+    KeyRound,
+    Users,
+    Zap,
+} from 'lucide-react';
+
+import {
+    Badge,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    StatCard,
+} from '@/components/sabcrm/20ui';
 import type { SabcatalystProject } from '@/lib/rust-client/sabcatalyst-projects';
 
 interface Props {
@@ -19,47 +36,72 @@ interface Props {
 
 export function OverviewTab({ project, counts }: Props) {
     const kpis = [
-        { label: 'Functions deployed', value: counts.functions },
-        { label: 'Datastore tables', value: counts.tables },
-        { label: 'Auth users', value: counts.authUsers },
-        { label: 'File entries', value: counts.files },
-        { label: 'API keys', value: counts.apiKeys },
-        { label: 'Custom domains', value: counts.domains },
+        { label: 'Functions deployed', value: counts.functions, icon: Zap, accent: '#3b7af5' },
+        { label: 'Datastore tables', value: counts.tables, icon: Database, accent: '#1f9d55' },
+        { label: 'Auth users', value: counts.authUsers, icon: Users, accent: '#7c3aed' },
+        { label: 'File entries', value: counts.files, icon: FileBox, accent: '#c77700' },
+        { label: 'API keys', value: counts.apiKeys, icon: KeyRound, accent: '#0891b2' },
+        { label: 'Custom domains', value: counts.domains, icon: Globe, accent: '#e0484e' },
     ];
+
+    const details: { term: string; value: React.ReactNode; mono?: boolean }[] = [
+        { term: 'Slug', value: project.slug, mono: true },
+        { term: 'Runtime', value: project.runtime },
+        {
+            term: 'Status',
+            value: (
+                <Badge tone={project.status === 'active' ? 'success' : 'neutral'}>
+                    {project.status}
+                </Badge>
+            ),
+        },
+        { term: 'Region', value: project.region || '—' },
+        { term: 'Description', value: project.description || '—' },
+    ];
+
     return (
         <div className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <section
+                aria-label="Resource counts"
+                className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
                 {kpis.map((k) => (
-                    <Card key={k.label} className="p-4">
-                        <p className="text-xs text-[var(--st-text-secondary)]">{k.label}</p>
-                        <p className="text-3xl font-bold mt-2">{k.value}</p>
-                    </Card>
+                    <StatCard
+                        key={k.label}
+                        label={k.label}
+                        value={k.value}
+                        icon={k.icon}
+                        accent={k.accent}
+                    />
                 ))}
-            </div>
-            <Card className="p-4">
-                <h3 className="font-semibold mb-3">Project details</h3>
-                <dl className="grid sm:grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <dt className="text-[var(--st-text-secondary)]">Slug</dt>
-                        <dd className="font-mono">{project.slug}</dd>
+            </section>
+
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center gap-2">
+                        <Info size={16} aria-hidden="true" />
+                        <CardTitle>Project details</CardTitle>
                     </div>
-                    <div>
-                        <dt className="text-[var(--st-text-secondary)]">Runtime</dt>
-                        <dd>{project.runtime}</dd>
-                    </div>
-                    <div>
-                        <dt className="text-[var(--st-text-secondary)]">Status</dt>
-                        <dd>{project.status}</dd>
-                    </div>
-                    <div>
-                        <dt className="text-[var(--st-text-secondary)]">Region</dt>
-                        <dd>{project.region || '—'}</dd>
-                    </div>
-                    <div className="sm:col-span-2">
-                        <dt className="text-[var(--st-text-secondary)]">Description</dt>
-                        <dd>{project.description || '—'}</dd>
-                    </div>
-                </dl>
+                </CardHeader>
+                <CardBody>
+                    <dl className="divide-y divide-[var(--st-border)]">
+                        {details.map((d) => (
+                            <div
+                                key={d.term}
+                                className="grid grid-cols-3 gap-3 py-2.5 text-sm"
+                            >
+                                <dt className="text-[var(--st-text-secondary)]">{d.term}</dt>
+                                <dd
+                                    className={
+                                        d.mono ? 'col-span-2 font-mono' : 'col-span-2'
+                                    }
+                                >
+                                    {d.value}
+                                </dd>
+                            </div>
+                        ))}
+                    </dl>
+                </CardBody>
             </Card>
         </div>
     );

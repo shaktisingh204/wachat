@@ -111,29 +111,39 @@ export function DatastoreTab({ projectId, initialTables }: Props) {
                     }
                 />
             ) : (
-                <div className="space-y-2">
+                <ul className="flex list-none flex-col gap-2 p-0">
                     {tables.map((t) => (
-                        <Card key={t._id} variant="outlined" padding="md" className="flex items-center justify-between gap-4">
-                            <div className="min-w-0">
-                                <CardTitle>{t.name}</CardTitle>
-                                <p className="text-xs text-[var(--st-text-secondary)] mt-1">
-                                    {t.schemaJson.fields.length} fields, {t.recordsCount} records
-                                </p>
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                    {t.schemaJson.fields.map((f) => (
-                                        <Badge key={f.name} variant="outline">
-                                            {f.name}:{f.type}
-                                            {f.indexed ? '*' : ''}
-                                        </Badge>
-                                    ))}
+                        <li key={t._id}>
+                            <Card variant="outlined" padding="md" className="flex items-center justify-between gap-4">
+                                <div className="min-w-0">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <Database size={16} aria-hidden="true" />
+                                        {t.name}
+                                    </CardTitle>
+                                    <p className="mt-1 text-xs text-[var(--st-text-secondary)] tabular-nums">
+                                        {t.schemaJson.fields.length} fields · {t.recordsCount} records
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-1">
+                                        {t.schemaJson.fields.map((f) => (
+                                            <Badge key={f.name} tone="neutral">
+                                                {f.name}:{f.type}
+                                                {f.indexed ? ' (indexed)' : ''}
+                                            </Badge>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                            <Button variant="danger" iconLeft={Trash2} onClick={() => remove(t._id)}>
-                                Delete
-                            </Button>
-                        </Card>
+                                <Button
+                                    variant="ghost"
+                                    iconLeft={Trash2}
+                                    onClick={() => remove(t._id)}
+                                    aria-label={`Delete ${t.name}`}
+                                >
+                                    Delete
+                                </Button>
+                            </Card>
+                        </li>
                     ))}
-                </div>
+                </ul>
             )}
 
             <Dialog open={open} onOpenChange={setOpen}>
