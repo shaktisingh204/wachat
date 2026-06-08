@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, Table, TBody, Td, Th, THead, Tr, Textarea, useToast, Badge, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger, Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, Button, Card, Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, EmptyState, IconButton, Input, Label, PageActions, PageDescription, PageHeader, PageHeading, PageTitle, StatCard, Table, TBody, Td, Th, THead, Tr, Textarea, useToast, Badge, Checkbox, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from "react";
@@ -19,7 +19,9 @@ import {
   Search,
   Eye,
   ThumbsUp,
-  FolderOpen
+  FolderOpen,
+  BookOpen,
+  CheckCircle2
   } from "lucide-react";
 
 import {
@@ -93,7 +95,7 @@ function FaqFormDialog({
           )}
           <DialogHeader>
             <DialogTitle>
-              {faqItem ? "Edit FAQ Article" : "Create FAQ Article"}
+              {faqItem ? "Edit article" : "Create article"}
             </DialogTitle>
             <DialogDescription>
               This article will be used by the AI to answer customer questions automatically.
@@ -237,29 +239,60 @@ export default function SabChatFaqPage() {
 
       <PageHeader>
         <PageHeading>
-          <PageTitle>Knowledge Base FAQs</PageTitle>
+          <PageTitle>Knowledge base</PageTitle>
           <PageDescription>
-            Manage articles used by the AI assistant to resolve customer queries instantly.
+            Manage articles the AI assistant uses to resolve customer questions instantly.
           </PageDescription>
         </PageHeading>
         <PageActions className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">More Actions</Button>
+              <Button variant="outline">More actions</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem><Upload className="h-4 w-4 mr-2" /> Import CSV</DropdownMenuItem>
               <DropdownMenuItem><Download className="h-4 w-4 mr-2" /> Export CSV</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem><FolderOpen className="h-4 w-4 mr-2" /> Manage Categories</DropdownMenuItem>
+              <DropdownMenuItem><FolderOpen className="h-4 w-4 mr-2" /> Manage categories</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="mr-2 h-4 w-4" />
-            Add Article
+            Add article
           </Button>
         </PageActions>
       </PageHeader>
+
+      {faqs.length > 0 && (
+        <section
+          aria-label="Knowledge base summary"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          <StatCard
+            label="Total articles"
+            value={faqs.length}
+            icon={BookOpen}
+            accent="#6366f1"
+          />
+          <StatCard
+            label="Published"
+            value={faqs.length}
+            icon={CheckCircle2}
+            accent="#10b981"
+          />
+          <StatCard
+            label="Matching search"
+            value={searchQuery ? filteredFaqs.length : faqs.length}
+            icon={Search}
+          />
+          <StatCard
+            label="Selected"
+            value={selectedBulk.length}
+            icon={ThumbsUp}
+            accent="#0ea5e9"
+          />
+        </section>
+      )}
 
       {/* Advanced Filter Toolbar */}
       {faqs.length > 0 && (
@@ -315,8 +348,11 @@ export default function SabChatFaqPage() {
             <THead className="bg-[var(--st-bg-muted)]/50">
               <Tr>
                 <Th className="w-12 text-center">
-                  <Checkbox checked={selectedBulk.length === filteredFaqs.length && filteredFaqs.length > 0} 
-                            onCheckedChange={() => setSelectedBulk(selectedBulk.length === filteredFaqs.length ? [] : filteredFaqs.map(f => f._id.toString()))} />
+                  <Checkbox
+                    aria-label="Select all articles"
+                    checked={selectedBulk.length === filteredFaqs.length && filteredFaqs.length > 0}
+                    onChange={() => setSelectedBulk(selectedBulk.length === filteredFaqs.length ? [] : filteredFaqs.map(f => f._id.toString()))}
+                  />
                 </Th>
                 <Th className="w-8"></Th>
                 <Th className="w-[40%]">Article</Th>
@@ -336,12 +372,19 @@ export default function SabChatFaqPage() {
                 return (
                   <Tr key={faq._id.toString()} className="group">
                     <Td className="text-center">
-                      <Checkbox checked={selectedBulk.includes(faq._id.toString())} onCheckedChange={() => toggleBulk(faq._id.toString())} />
+                      <Checkbox
+                        aria-label={`Select ${faq.question}`}
+                        checked={selectedBulk.includes(faq._id.toString())}
+                        onChange={() => toggleBulk(faq._id.toString())}
+                      />
                     </Td>
                     <Td>
-                      <Button variant="ghost" size="icon-sm" className="h-6 w-6 cursor-grab active:cursor-grabbing text-[var(--st-text-tertiary)] hover:text-[var(--st-text)]">
+                      <span
+                        className="flex h-6 w-6 cursor-grab items-center justify-center text-[var(--st-text-tertiary)] active:cursor-grabbing"
+                        aria-hidden="true"
+                      >
                         <GripVertical className="h-4 w-4" />
-                      </Button>
+                      </span>
                     </Td>
                     <Td>
                       <div className="flex flex-col gap-1 pr-4">
@@ -367,25 +410,27 @@ export default function SabChatFaqPage() {
                     </Td>
                     <Td className="text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon-sm" onClick={() => handleOpenDialog(faq)} aria-label="Edit FAQ">
-                          <Pencil />
-                        </Button>
+                        <IconButton
+                          icon={Pencil}
+                          label="Edit article"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleOpenDialog(faq)}
+                        />
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon-sm" className="text-[var(--st-text)] hover:text-[var(--st-text)] hover:bg-[var(--st-bg-muted)]">
-                              <Trash2 />
-                            </Button>
+                            <IconButton icon={Trash2} label="Delete article" variant="ghost" size="sm" />
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Article?</AlertDialogTitle>
+                              <AlertDialogTitle>Delete article?</AlertDialogTitle>
                               <AlertDialogDescription>
                                 Are you sure you want to delete this FAQ? The AI will no longer use it for resolving chats.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction destructive onClick={() => handleDelete(faq._id.toString())}>
+                              <AlertDialogAction intent="danger" onClick={() => handleDelete(faq._id.toString())}>
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>

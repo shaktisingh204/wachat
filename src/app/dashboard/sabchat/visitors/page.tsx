@@ -20,6 +20,7 @@ import {
   PageHeading,
   PageTitle,
   Skeleton,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -63,6 +64,8 @@ import {
   Send,
   MoreHorizontal,
   History,
+  Wifi,
+  MousePointerClick,
 } from "lucide-react";
 
 import { getLiveVisitors } from "@/app/actions/sabchat.actions";
@@ -135,6 +138,18 @@ export default function SabChatVisitorsPage() {
     );
   });
 
+  // Derived KPIs from the live session list (5-minute activity window).
+  const activeCutoff = Date.now() - 5 * 60 * 1000;
+  const onlineCount = visitors.filter(
+    (v) => new Date(v.updatedAt).getTime() > activeCutoff,
+  ).length;
+  const identifiedCount = visitors.filter(
+    (v) => v.visitorInfo?.email || v.visitorInfo?.name,
+  ).length;
+  const pagesInView = new Set(
+    visitors.map((v) => v.visitorInfo?.page).filter(Boolean),
+  ).size;
+
   return (
     <div className="20ui mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
       <Breadcrumb>
@@ -180,6 +195,31 @@ export default function SabChatVisitorsPage() {
           </Button>
         </PageActions>
       </PageHeader>
+
+      <section
+        aria-label="Visitor summary"
+        className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        <StatCard
+          label="Visitors on site"
+          value={visitors.length}
+          icon={Users}
+          accent="#6366f1"
+        />
+        <StatCard
+          label="Active now"
+          value={onlineCount}
+          icon={Wifi}
+          accent="#10b981"
+        />
+        <StatCard label="Identified" value={identifiedCount} icon={History} />
+        <StatCard
+          label="Pages in view"
+          value={pagesInView}
+          icon={MousePointerClick}
+          accent="#0ea5e9"
+        />
+      </section>
 
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <Tabs defaultValue="all" className="w-[400px]">

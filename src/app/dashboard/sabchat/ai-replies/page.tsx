@@ -261,7 +261,7 @@ export default function SabChatAiRepliesPage() {
                         </>
                       }
                     >
-                      <Select value={persona} onValueChange={setPersona}>
+                      <Select value={persona} onValueChange={(v) => setPersona(v as typeof persona)}>
                         <SelectTrigger aria-label="Brand tone and persona">
                           <SelectValue placeholder="Select persona" />
                         </SelectTrigger>

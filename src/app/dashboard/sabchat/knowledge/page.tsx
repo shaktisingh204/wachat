@@ -68,8 +68,8 @@ export default async function SabChatKnowledgePage({
                     selectedPortalId={portalId ?? ''}
                     status={status}
                     q={q ?? ''}
-                    categories={categoriesResp.items ?? []}
-                    articles={articlesResp.items ?? []}
+                    categories={[...(categoriesResp.items ?? [])]}
+                    articles={[...(articlesResp.items ?? [])]}
                     initialSelectedArticleId={sp.selected}
                 />
             </div>
