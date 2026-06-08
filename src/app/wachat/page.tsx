@@ -201,6 +201,9 @@ function ProjectRow({
 
 const PAGE_SIZE = 24;
 
+/** `kind` values that belong to other modules and must not appear in WaChat. */
+const WACHAT_EXCLUDED_KINDS = new Set(['crm', 'sabwa', 'telegram']);
+
 export default function SelectProjectPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -212,7 +215,22 @@ export default function SelectProjectPage() {
   } = useProject();
   const [, startHealthTransition] = useTransition();
 
-  const projects = allProjects;
+  // The shared `projects` collection is multi-module: SabCRM (kind:'crm'),
+  // SabWa (kind:'sabwa'), Telegram (kind:'telegram') and Meta Suite (Facebook
+  // pages) all live alongside WhatsApp projects. WhatsApp projects don't set a
+  // `kind` (it's left undefined), so we can't positively select them — instead
+  // we exclude the other modules' discriminators, plus Facebook-only projects
+  // (a Page connected with no WABA). Unconnected WhatsApp projects (no kind,
+  // no wabaId yet) are intentionally kept so users can resume WABA setup.
+  const projects = useMemo(
+    () =>
+      allProjects.filter((p) => {
+        if (p.kind && WACHAT_EXCLUDED_KINDS.has(p.kind)) return false;
+        if (p.facebookPageId && !p.wabaId) return false;
+        return true;
+      }),
+    [allProjects],
+  );
 
   const [search, setSearch] = useState(searchParams.get('query') || '');
   const [page, setPage] = useState(1);
