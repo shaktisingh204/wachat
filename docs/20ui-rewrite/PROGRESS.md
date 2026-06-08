@@ -1,36 +1,26 @@
 # 20ui page-rewrite progress
 
 Recipe: [RECIPE.md](./RECIPE.md). Scope: in-app pages only. Hidden modules skipped.
+Working directly on `main` (all other branches consolidated/deleted; `dezoru` archived as tag `archive/dezoru-20ui-migration`).
 
-Legend: ⬜ todo · 🔄 in progress · ✅ done
+Legend: ⬜ todo · 🔄 in progress · ✅ done (premium redesign + on main)
 
-## Phase 0 — foundations
-- ✅ Hide CRM/HRM/SEO/SabWa/Website Builder from nav (commit 62850e2c2)
-- ✅ Recipe + progress tracker
-- ⬜ Grep-guard for forbidden imports (CI/script)
+## Phase 0 — foundations ✅
+- ✅ Hide CRM/HRM/SEO/SabWa/Website Builder from nav
+- ✅ Recipe + premium-audit + progress tracker
+- ✅ Consolidate to main, delete all other branches
 
-## Phase 1 — core surfaces
-- 🔄 user (7 routes) — first pass done compact (05a7692d4); REDESIGN pass pending under the stronger mandate (rearrange + color + icons)
-- ⬜ settings (44)
-- ⬜ team (9) · platform (10) · api (8) · sabfiles (7) · analytics-workspace (7)
+## Redesigned & on main ✅
+user · team · platform · api · sabfiles · analytics-workspace · email · instagram ·
+sabsign · sabshop · sabconnect · sabvoice · sabbigin · finance · sabmonitor ·
+sabworkerly · sabsprints · sabmeet · sabcreator · sabvault · sabtables · sabpractice
 
-## Phase 2+ — module waves (by page count)
-- ⬜ sabdesk (85)
-- ⬜ facebook (61)
-- ⬜ sabcheckout (44)
-- ⬜ sabbi (36)
-- ⬜ sabsense (34)
-- ⬜ ad-manager (30)
-- ⬜ sabshop (29)
-- ⬜ sabflow (28)
-- ⬜ email (27)
-- ⬜ telegram (23)
-- ⬜ sabsign (22)
-- ⬜ sabmonitor (21) · sabchat (21)
-- ⬜ finance (15) · sabworkerly (14) · sabbigin (13) · sabsprints (12) · instagram (12)
-- ⬜ sabvoice (11) · sabconnect (11) · sabmeet (9) · sabcreator (9)
-- ⬜ sabvault (8) · sabtables (8) · sabpractice (8) · sabrequests (7) · mailbox (7)
-- ⬜ url-shortener (6) · …remaining smaller modules
+## Remaining (todo)
+Big (need split into multiple agents):
+- ⬜ telegram (88) · sabdesk (85) · facebook (61) · settings (44, excl /crm) · sabcheckout (44) · sabbi (36) · sabsense (34) · ad-manager (30) · sabflow (28) · sabchat (21)
+
+Small/medium:
+- ⬜ mailbox (7) · sabrequests (7) · url-shortener (6) · sabwebinar (6) · sabthrive (6) · sabbugs (6) · marketing (6) · sabshow (5) · sabrewards (5) · sabsheet (4) · sabpublish (4) · sabops (4) · sablens (4) · qr-code-maker · sabcampaigns · sabmail · sabcatalyst · sabprep · sabbigin-done · …remaining singles
 
 ## Phase final
 - ⬜ auth (login/signup/forgot/onboarding) · account · embeds
