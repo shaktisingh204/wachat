@@ -7,11 +7,10 @@ import { CalendarOff } from 'lucide-react';
 import {
     Badge,
     Button,
-    Card,
-    CardBody,
     EmptyState,
     Field,
     Input,
+    Label,
     Select,
     SelectContent,
     SelectItem,
@@ -89,60 +88,57 @@ export function NewTimesheetForm({ placements }: { placements: PlacementOpt[] })
     };
 
     return (
-        <Card>
-            <CardBody>
-                <form onSubmit={onSubmit} className="flex flex-col gap-4">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <div className="md:col-span-2 flex flex-col gap-1.5">
-                            <span className="text-xs font-medium text-[var(--st-text-secondary)]">
-                                Placement
-                            </span>
-                            <Select value={placementId} onValueChange={setPlacementId}>
-                                <SelectTrigger aria-label="Placement">
-                                    <SelectValue placeholder="Pick a placement" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {placements.map((p) => (
-                                        <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Field label="Week starting (Mon)">
-                            <Input
-                                type="date"
-                                value={weekStart}
-                                onChange={(e) => setWeekStart(e.target.value)}
-                            />
-                        </Field>
-                    </div>
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <div className="flex flex-col gap-1.5 md:col-span-2">
+                    <Label htmlFor="ts-placement">Placement</Label>
+                    <Select value={placementId} onValueChange={setPlacementId}>
+                        <SelectTrigger id="ts-placement" aria-label="Placement">
+                            <SelectValue placeholder="Pick a placement" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {placements.map((p) => (
+                                <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <Field label="Week starting (Mon)">
+                    <Input
+                        type="date"
+                        value={weekStart}
+                        onChange={(e) => setWeekStart(e.target.value)}
+                    />
+                </Field>
+            </div>
 
-                    <div className="grid grid-cols-7 gap-2">
-                        {DAYS.map((d) => (
-                            <Field key={d} label={<span className="uppercase">{d}</span>}>
-                                <Input
-                                    type="number"
-                                    step="0.25"
-                                    min="0"
-                                    max="24"
-                                    value={hours[d]}
-                                    onChange={(e) => setHours((prev) => ({ ...prev, [d]: e.target.value }))}
-                                />
-                            </Field>
-                        ))}
-                    </div>
+            <div className="grid grid-cols-7 gap-2">
+                {DAYS.map((d) => (
+                    <Field key={d} label={<span className="uppercase">{d}</span>}>
+                        <Input
+                            type="number"
+                            step="0.25"
+                            min="0"
+                            max="24"
+                            className="tabular-nums"
+                            value={hours[d]}
+                            onChange={(e) => setHours((prev) => ({ ...prev, [d]: e.target.value }))}
+                        />
+                    </Field>
+                ))}
+            </div>
 
-                    <div className="flex items-center justify-between pt-2">
-                        <span className="flex items-center gap-2 text-sm text-[var(--st-text-secondary)]">
-                            Total
-                            <Badge tone="info">{total.toFixed(2)} h</Badge>
-                        </span>
-                        <Button type="submit" variant="primary" loading={pending}>
-                            {pending ? 'Saving' : 'Save draft'}
-                        </Button>
-                    </div>
-                </form>
-            </CardBody>
-        </Card>
+            <div className="flex items-center justify-between border-t border-[color:var(--st-border)] pt-3">
+                <span className="flex items-center gap-2 text-sm text-[color:var(--st-text-secondary)]">
+                    Total this week
+                    <Badge tone="info" kind="soft">
+                        <span className="tabular-nums">{total.toFixed(2)} h</span>
+                    </Badge>
+                </span>
+                <Button type="submit" variant="primary" loading={pending}>
+                    {pending ? 'Saving' : 'Save draft'}
+                </Button>
+            </div>
+        </form>
     );
 }

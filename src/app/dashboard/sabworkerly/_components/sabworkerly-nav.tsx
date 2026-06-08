@@ -30,8 +30,9 @@ export function SabworkerlyNav() {
     return (
         <nav
             aria-label="SabWorkerly sections"
-            className="20ui flex flex-wrap items-center gap-1 border-b border-[color:var(--st-border)] px-6 pt-3"
+            className="20ui border-b border-[color:var(--st-border)] px-6"
         >
+            <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-1 pt-3">
             {items.map((it) => {
                 const active = it.exact
                     ? pathname === it.href
@@ -43,7 +44,8 @@ export function SabworkerlyNav() {
                         href={it.href}
                         aria-current={active ? 'page' : undefined}
                         className={cn(
-                            'flex items-center gap-2 rounded-t-[var(--st-radius)] border-b-2 px-3 py-2 text-sm transition-colors',
+                            'flex items-center gap-2 rounded-t-[var(--st-radius)] border-b-2 px-3 py-2 text-sm font-medium transition-colors',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--st-accent)] focus-visible:ring-offset-1',
                             active
                                 ? 'border-[color:var(--st-accent)] text-[color:var(--st-text)]'
                                 : 'border-transparent text-[color:var(--st-text-secondary)] hover:text-[color:var(--st-text)]',
@@ -54,6 +56,7 @@ export function SabworkerlyNav() {
                     </Link>
                 );
             })}
+            </div>
         </nav>
     );
 }
