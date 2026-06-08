@@ -1,11 +1,24 @@
-import { Server, ShieldAlert, Package, Send } from "lucide-react";
+import { Package, Send, Server, ShieldAlert } from "lucide-react";
 
-import { Card, CardBody, CardHeader, CardTitle, PageHeader, PageHeading, PageTitle, PageDescription, StatCard } from '@/components/sabcrm/20ui';
 import {
-    listSabopsEndpoints,
+    Card,
+    CardBody,
+    CardHeader,
+    CardTitle,
+    Dot,
+    PageDescription,
+    PageEyebrow,
+    PageHeader,
+    PageHeading,
+    PageTitle,
+    StatCard,
+    type BadgeTone,
+} from '@/components/sabcrm/20ui';
+import {
     listSabopsAlerts,
-    listSabopsPatches,
+    listSabopsEndpoints,
     listSabopsMdmCommands,
+    listSabopsPatches,
 } from "@/app/actions/sabops.actions";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +31,20 @@ function countBy<T, K extends string>(rows: T[], key: (r: T) => K): Record<K, nu
     }
     return out;
 }
+
+const ENDPOINT_TONE: Record<string, BadgeTone> = {
+    online: "success",
+    offline: "danger",
+    stale: "warning",
+    disabled: "neutral",
+};
+
+const SEVERITY_TONE: Record<string, BadgeTone> = {
+    critical: "danger",
+    high: "warning",
+    medium: "info",
+    low: "neutral",
+};
 
 export default async function SabopsOverviewPage() {
     const [endpoints, alerts, patches, commands] = await Promise.all([
@@ -36,77 +63,100 @@ export default async function SabopsOverviewPage() {
         <div className="flex flex-col gap-6">
             <PageHeader>
                 <PageHeading>
-                    <PageTitle>SabOps</PageTitle>
+                    <PageEyebrow>SabOps</PageEyebrow>
+                    <PageTitle>Fleet overview</PageTitle>
                     <PageDescription>
-                        Endpoint management, MDM, Active Directory, and patching for your fleet.
+                        Endpoint management, MDM, Active Directory, and patching across your fleet.
                     </PageDescription>
                 </PageHeading>
             </PageHeader>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <section
+                aria-label="Fleet metrics"
+                className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4"
+            >
                 <StatCard
                     label="Online endpoints"
                     value={byStatus.online ?? 0}
-                    helper={`${endpoints.items.length} total`}
                     icon={<Server className="size-4" />}
+                    accent="#1f9d55"
+                    delta={{ value: `${endpoints.items.length} total`, tone: "neutral" }}
                 />
                 <StatCard
                     label="Open alerts"
                     value={alerts.items.length}
-                    helper={`${bySeverity.critical ?? 0} critical · ${bySeverity.high ?? 0} high`}
                     icon={<ShieldAlert className="size-4" />}
+                    accent="#e0484e"
+                    delta={{
+                        value: `${bySeverity.critical ?? 0} critical, ${bySeverity.high ?? 0} high`,
+                        tone: (bySeverity.critical ?? 0) > 0 ? "down" : "neutral",
+                    }}
                 />
                 <StatCard
                     label="Pending patches"
                     value={patches.items.length}
-                    helper="Severity-prioritized"
                     icon={<Package className="size-4" />}
+                    accent="#d97706"
+                    delta={{ value: "Severity-prioritized", tone: "neutral" }}
                 />
                 <StatCard
                     label="Recent MDM commands"
                     value={commands.items.length}
-                    helper="Last 10 issued"
                     icon={<Send className="size-4" />}
+                    accent="#3b7af5"
+                    delta={{ value: "Last 10 issued", tone: "neutral" }}
                 />
-            </div>
+            </section>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <Card>
+                <Card variant="outlined">
                     <CardHeader>
-                        <CardTitle>Endpoints by status</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <Server className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                            Endpoints by status
+                        </CardTitle>
                     </CardHeader>
                     <CardBody>
-                        <ul className="grid grid-cols-2 gap-3 text-sm">
+                        <ul className="grid grid-cols-2 gap-2 text-sm">
                             {(["online", "offline", "stale", "disabled"] as const).map((s) => (
                                 <li
                                     key={s}
-                                    className="flex items-center justify-between rounded border border-[var(--st-border)] px-3 py-2"
+                                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2"
                                 >
-                                    <span className="capitalize text-[var(--st-text-secondary)]">
+                                    <span className="inline-flex items-center gap-2 capitalize text-[var(--st-text-secondary)]">
+                                        <Dot tone={ENDPOINT_TONE[s]} />
                                         {s}
                                     </span>
-                                    <span className="font-semibold">{byStatus[s] ?? 0}</span>
+                                    <span className="font-semibold tabular-nums text-[var(--st-text)]">
+                                        {byStatus[s] ?? 0}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
                     </CardBody>
                 </Card>
 
-                <Card>
+                <Card variant="outlined">
                     <CardHeader>
-                        <CardTitle>Alerts by severity</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                            <ShieldAlert className="size-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                            Alerts by severity
+                        </CardTitle>
                     </CardHeader>
                     <CardBody>
-                        <ul className="grid grid-cols-2 gap-3 text-sm">
+                        <ul className="grid grid-cols-2 gap-2 text-sm">
                             {(["critical", "high", "medium", "low"] as const).map((s) => (
                                 <li
                                     key={s}
-                                    className="flex items-center justify-between rounded border border-[var(--st-border)] px-3 py-2"
+                                    className="flex items-center justify-between rounded-[var(--st-radius)] border border-[var(--st-border)] px-3 py-2"
                                 >
-                                    <span className="capitalize text-[var(--st-text-secondary)]">
+                                    <span className="inline-flex items-center gap-2 capitalize text-[var(--st-text-secondary)]">
+                                        <Dot tone={SEVERITY_TONE[s]} />
                                         {s}
                                     </span>
-                                    <span className="font-semibold">{bySeverity[s] ?? 0}</span>
+                                    <span className="font-semibold tabular-nums text-[var(--st-text)]">
+                                        {bySeverity[s] ?? 0}
+                                    </span>
                                 </li>
                             ))}
                         </ul>
