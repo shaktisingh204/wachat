@@ -1,8 +1,23 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Badge, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  Badge,
+  Card,
+  SelectField,
+  StatCard,
+  EmptyState,
+  Skeleton,
+  SearchInput,
+  Field,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import { Voicemail, Play, Check, Archive, MessageSquare } from 'lucide-react';
 import {
   listVoicemails,
@@ -28,7 +43,14 @@ function fmtDate(iso: string) {
   return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 }
 
+const STATUS_TONE: Record<VmRow['status'], React.ComponentProps<typeof Badge>['tone']> = {
+  new: 'accent',
+  listened: 'success',
+  archived: 'neutral',
+};
+
 export default function VoicemailInboxPage() {
+  const { toast } = useToast();
   const [data, setData] = React.useState<VmRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -56,105 +78,111 @@ export default function VoicemailInboxPage() {
   };
 
   const handleArchive = async (id: string) => {
-    if (!confirm('Archive this voicemail?')) return;
-    await deleteVoicemail(id);
-    void load();
+    try {
+      await deleteVoicemail(id);
+      toast.success('Voicemail archived');
+      void load();
+    } catch (e) {
+      toast.error(`Archive failed: ${(e as Error).message}`);
+    }
   };
 
   const newCount = data.filter((v) => v.status === 'new').length;
   const listenedCount = data.filter((v) => v.status === 'listened').length;
 
   return (
-    <EntityListShell
-      title="Voicemail Inbox"
-      subtitle="Listen, transcribe, and triage missed-call voicemails."
-      search={{ value: search, onChange: setSearch, placeholder: 'Search voicemails...' }}
-      loading={loading}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatCard
-          label="New"
-          value={newCount}
-          icon={<Voicemail className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Listened"
-          value={listenedCount}
-          icon={<Check className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Total"
-          value={data.length}
-          icon={<MessageSquare className="h-4 w-4" />}
-        />
+    <main className="mx-auto flex w-full max-w-4xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageTitle>Voicemail</PageTitle>
+          <PageDescription>Listen, read transcripts, and triage missed-call voicemails.</PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
+
+      <section aria-label="Voicemail metrics" className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-3">
+        <StatCard label="New" value={newCount} icon={Voicemail} accent="#3b7af5" />
+        <StatCard label="Listened" value={listenedCount} icon={Check} accent="#1f9d55" />
+        <StatCard label="Total" value={data.length} icon={MessageSquare} accent="#7c3aed" />
+      </section>
+
+      <div className="flex flex-wrap items-end gap-[var(--st-space-3)]">
+        <div className="min-w-[220px] flex-1">
+          <Field label="Search">
+            <SearchInput value={search} onValueChange={setSearch} placeholder="Search voicemails" />
+          </Field>
+        </div>
+        <Field label="Status">
+          <SelectField
+            value={statusFilter}
+            onChange={(v) => setStatusFilter(v ?? 'new')}
+            options={[
+              { value: 'new', label: 'New' },
+              { value: 'listened', label: 'Listened' },
+              { value: 'archived', label: 'Archived' },
+              { value: 'all', label: 'All' },
+            ]}
+          />
+        </Field>
       </div>
 
-      <div className="flex items-center gap-2 mb-4">
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="listened">Listened</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
-            <SelectItem value="all">All</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-3">
-        {data.map((v) => (
-          <Card key={v._id} className="p-4 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Voicemail className="h-4 w-4 text-[var(--st-accent)]" />
-                <span className="font-mono">{v.fromNumber}</span>
-                <span className="text-xs text-[var(--st-text-secondary)]">
-                  {fmtDate(v.createdAt)}
-                </span>
+      {loading ? (
+        <div className="flex flex-col gap-[var(--st-space-3)]" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full" />
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <Card variant="outlined">
+          <EmptyState
+            icon={Voicemail}
+            title="Inbox is clear"
+            description="No voicemails in this view. New messages land here when a caller leaves one."
+          />
+        </Card>
+      ) : (
+        <div className="flex flex-col gap-[var(--st-space-3)]">
+          {data.map((v) => (
+            <Card key={v._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)]"
+                    style={{ background: '#3b7af51a', color: '#3b7af5' }}
+                  >
+                    <Voicemail className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="font-mono tabular-nums text-[var(--st-text)]">{v.fromNumber}</span>
+                  <span className="text-xs tabular-nums text-[var(--st-text-secondary)]">
+                    {fmtDate(v.createdAt)}
+                  </span>
+                </div>
+                <Badge tone={STATUS_TONE[v.status]} className="capitalize">
+                  {v.status}
+                </Badge>
               </div>
-              <Badge
-                variant={
-                  v.status === 'new'
-                    ? 'destructive'
-                    : v.status === 'listened'
-                      ? 'default'
-                      : 'outline'
-                }
-              >
-                {v.status}
-              </Badge>
-            </div>
-            {activeId === v._id && (
-              <audio src={v.audioFileId} controls autoPlay className="w-full" />
-            )}
-            {v.transcript && (
-              <div className="text-sm bg-[var(--st-bg-muted)] rounded p-2 text-[var(--st-text-secondary)] italic">
-                "{v.transcript}"
+              {activeId === v._id ? (
+                <audio src={v.audioFileId} controls autoPlay className="w-full">
+                  <track kind="captions" />
+                </audio>
+              ) : null}
+              {v.transcript ? (
+                <blockquote className="rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] p-2 text-sm italic text-[var(--st-text-secondary)]">
+                  &ldquo;{v.transcript}&rdquo;
+                </blockquote>
+              ) : null}
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" iconLeft={Play} onClick={() => handleListen(v._id)}>
+                  Listen
+                </Button>
+                <Button size="sm" variant="ghost" iconLeft={Archive} onClick={() => handleArchive(v._id)}>
+                  Archive
+                </Button>
               </div>
-            )}
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => handleListen(v._id)}>
-                <Play className="h-3 w-3 mr-1" /> Listen
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-[var(--st-text)]"
-                onClick={() => handleArchive(v._id)}
-              >
-                <Archive className="h-3 w-3 mr-1" /> Archive
-              </Button>
-            </div>
-          </Card>
-        ))}
-        {data.length === 0 && (
-          <Card className="p-8 text-center text-[var(--st-text-secondary)]">
-            No voicemails in this view.
-          </Card>
-        )}
-      </div>
-    </EntityListShell>
+            </Card>
+          ))}
+        </div>
+      )}
+    </main>
   );
 }

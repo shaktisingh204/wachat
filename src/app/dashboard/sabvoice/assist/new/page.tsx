@@ -9,21 +9,20 @@ import {
   Input,
   Textarea,
   Field,
-  RadioGroup,
-  Radio,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
+  RadioCardGroup,
+  RadioCard,
+  SelectField,
   Badge,
   Alert,
   AlertTitle,
   AlertDescription,
+  IconButton,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
+  PageActions,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { ScreenShare, KeyRound, ServerCog, ArrowLeft, Copy } from 'lucide-react';
@@ -105,10 +104,9 @@ export default function SabassistNewSessionPage() {
         sessionId: created.id,
         ttlSecs: 1800,
         requirePin: mode === 'attended',
-        deviceFingerprint:
-          mode === 'unattended' ? device?.deviceFingerprint : undefined,
+        deviceFingerprint: mode === 'unattended' ? device?.deviceFingerprint : undefined,
       });
-      if (!token.success) throw new Error('Session created, but issuing token failed.');
+      if (!token.success) throw new Error('Session created, but issuing the token failed.');
       setIssued({
         id: token.id,
         token: token.token,
@@ -133,74 +131,75 @@ export default function SabassistNewSessionPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <main className="mx-auto flex w-full max-w-2xl flex-col gap-[var(--st-space-5)]">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>New SabAssist session</PageTitle>
+          <PageEyebrow>Remote assist</PageEyebrow>
+          <PageTitle>New session</PageTitle>
           <PageDescription>
-            Pick mode, optionally link to an existing call, and issue a one-time access token.
+            Pick a mode, optionally link an existing call, and issue a one-time access token.
           </PageDescription>
         </PageHeaderHeading>
+        <PageActions>
+          <Button asChild variant="ghost">
+            <Link href="/dashboard/sabvoice/assist">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              All sessions
+            </Link>
+          </Button>
+        </PageActions>
       </PageHeader>
 
-      <div>
-        <Link
-          href="/dashboard/sabvoice/assist"
-          className="inline-flex items-center gap-1 text-sm text-[var(--st-text-secondary)]"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All sessions
-        </Link>
-      </div>
-
       {issued ? (
-        <Card padding="lg" className="max-w-2xl space-y-4">
+        <Card variant="outlined" padding="lg" className="flex flex-col gap-[var(--st-space-4)]">
           <div className="flex items-center gap-2">
             <ScreenShare className="h-5 w-5 text-[var(--st-accent)]" aria-hidden="true" />
-            <div className="font-medium text-[var(--st-text)]">Session ready</div>
+            <span className="font-medium text-[var(--st-text)]">Session ready</span>
             <Badge tone="success">Token issued</Badge>
           </div>
 
           <Alert tone="info">
             <AlertTitle>Share with the customer</AlertTitle>
             <AlertDescription>
-              The customer must open this link in their browser and click "Allow technician to view your screen".
-              {issued.oneTimePin && ' They will also need the PIN below.'}
+              The customer opens this link and clicks &ldquo;Allow technician to view your
+              screen&rdquo;.
+              {issued.oneTimePin ? ' They will also need the PIN below.' : ''}
             </AlertDescription>
           </Alert>
 
-          <div className="grid gap-3">
-            <Field label="Share URL">
-              <div className="mt-1 flex gap-2">
-                <Input readOnly value={shareUrl} />
-                <Button
+          <Field label="Share URL">
+            <div className="flex gap-2">
+              <Input readOnly value={shareUrl} />
+              <IconButton
+                variant="outline"
+                icon={Copy}
+                label="Copy share URL"
+                onClick={() => copy(shareUrl, 'Share URL')}
+              />
+            </div>
+          </Field>
+
+          {issued.oneTimePin ? (
+            <Field label="One-time PIN">
+              <div className="flex items-center gap-2">
+                <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-4 py-2 font-mono text-2xl tabular-nums tracking-widest text-[var(--st-text)]">
+                  {issued.oneTimePin}
+                </div>
+                <IconButton
                   variant="outline"
-                  iconLeft={Copy}
-                  aria-label="Copy share URL"
-                  onClick={() => copy(shareUrl, 'Share URL')}
+                  icon={Copy}
+                  label="Copy one-time PIN"
+                  onClick={() => copy(issued.oneTimePin ?? '', 'PIN')}
                 />
               </div>
             </Field>
-            {issued.oneTimePin && (
-              <Field label="One-time PIN">
-                <div className="mt-1 flex items-center gap-2">
-                  <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-4 py-2 font-mono text-2xl tracking-widest text-[var(--st-text)]">
-                    {issued.oneTimePin}
-                  </div>
-                  <Button
-                    variant="outline"
-                    iconLeft={Copy}
-                    aria-label="Copy one-time PIN"
-                    onClick={() => copy(issued.oneTimePin ?? '', 'PIN')}
-                  />
-                </div>
-              </Field>
-            )}
-            <div className="text-xs text-[var(--st-text-secondary)]">
-              Expires {new Date(issued.expiresAt).toLocaleString()}
-            </div>
+          ) : null}
+
+          <div className="text-xs tabular-nums text-[var(--st-text-secondary)]">
+            Expires {new Date(issued.expiresAt).toLocaleString()}
           </div>
 
-          <div className="flex gap-2 pt-2">
+          <div className="flex gap-2 pt-1">
             <Button
               variant="primary"
               onClick={() => router.push(`/dashboard/sabvoice/assist/${issued.sessionId}`)}
@@ -213,60 +212,38 @@ export default function SabassistNewSessionPage() {
           </div>
         </Card>
       ) : (
-        <Card padding="lg" className="max-w-2xl space-y-4">
+        <Card variant="outlined" padding="lg" className="flex flex-col gap-[var(--st-space-4)]">
           <Field label="Mode">
-            <RadioGroup
+            <RadioCardGroup
               value={mode}
-              onValueChange={(v) => setMode(v as Mode)}
-              orientation="horizontal"
-              aria-label="Session mode"
-              className="mt-1 grid grid-cols-2 gap-2"
+              onChange={(v) => setMode(v as Mode)}
+              label="Session mode"
+              className="grid grid-cols-1 gap-2 sm:grid-cols-2"
             >
-              <label
-                className={`flex cursor-pointer flex-col gap-1 rounded-[var(--st-radius)] border p-3 transition-colors ${
-                  mode === 'attended'
-                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
-                    : 'border-[var(--st-border)]'
-                }`}
-              >
-                <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
-                  <Radio value="attended" aria-label="Attended" />
-                  <KeyRound className="h-4 w-4" aria-hidden="true" /> Attended
-                </span>
-                <span className="text-xs text-[var(--st-text-secondary)]">
-                  Customer must enter a 6-digit PIN and click allow.
-                </span>
-              </label>
-              <label
-                className={`flex cursor-pointer flex-col gap-1 rounded-[var(--st-radius)] border p-3 transition-colors ${
-                  mode === 'unattended'
-                    ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
-                    : 'border-[var(--st-border)]'
-                }`}
-              >
-                <span className="flex items-center gap-2 font-medium text-[var(--st-text)]">
-                  <Radio value="unattended" aria-label="Unattended" />
-                  <ServerCog className="h-4 w-4" aria-hidden="true" /> Unattended
-                </span>
-                <span className="text-xs text-[var(--st-text-secondary)]">
-                  Pre-registered device with cached consent.
-                </span>
-              </label>
-            </RadioGroup>
+              <RadioCard
+                value="attended"
+                label="Attended"
+                description="Customer enters a 6-digit PIN and clicks allow."
+                icon={KeyRound}
+              />
+              <RadioCard
+                value="unattended"
+                label="Unattended"
+                description="Pre-registered device with cached consent."
+                icon={ServerCog}
+              />
+            </RadioCardGroup>
           </Field>
 
           <Field label="Customer name">
             <Input
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Acme Corp - Alice"
+              placeholder="Acme Corp — Alice"
             />
           </Field>
 
-          <Field
-            label="Customer email"
-            required={mode === 'attended'}
-          >
+          <Field label="Customer email" required={mode === 'attended'}>
             <Input
               type="email"
               value={customerEmail}
@@ -275,34 +252,30 @@ export default function SabassistNewSessionPage() {
             />
           </Field>
 
-          <Field label="Link to existing call (optional)">
-            <Select value={callId} onValueChange={setCallId}>
-              <SelectTrigger aria-label="Linked call">
-                <SelectValue placeholder="No linked call" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No linked call</SelectItem>
-                {calls.map((c) => (
-                  <SelectItem key={c._id} value={c._id}>
-                    {c.fromNumber} - {c.toNumber} . {new Date(c.startedAt).toLocaleString()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Field label="Link to an existing call">
+            <SelectField
+              value={callId}
+              onChange={(v) => setCallId(v ?? 'none')}
+              placeholder="No linked call"
+              options={[
+                { value: 'none', label: 'No linked call' },
+                ...calls.map((c) => ({
+                  value: c._id,
+                  label: `${c.fromNumber} → ${c.toNumber} · ${new Date(c.startedAt).toLocaleString()}`,
+                })),
+              ]}
+            />
           </Field>
 
-          {mode === 'unattended' && (
+          {mode === 'unattended' ? (
             <Field
               label="Target device"
               required
               help={
                 devices.length === 0 ? (
                   <span>
-                    No devices yet -{' '}
-                    <Link
-                      href="/dashboard/sabvoice/assist/devices"
-                      className="text-[var(--st-accent)]"
-                    >
+                    No devices yet —{' '}
+                    <Link href="/dashboard/sabvoice/assist/devices" className="text-[var(--st-accent)]">
                       register one
                     </Link>
                     .
@@ -310,26 +283,17 @@ export default function SabassistNewSessionPage() {
                 ) : undefined
               }
             >
-              <Select value={deviceId} onValueChange={setDeviceId}>
-                <SelectTrigger aria-label="Target device">
-                  <SelectValue placeholder="Pick a registered device" />
-                </SelectTrigger>
-                <SelectContent>
-                  {devices.length === 0 ? (
-                    <SelectItem value="__no_devices" disabled>
-                      No registered devices.
-                    </SelectItem>
-                  ) : (
-                    devices.map((d) => (
-                      <SelectItem key={d._id} value={d._id}>
-                        {d.label} {d.online ? '(online)' : '(offline)'}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              <SelectField
+                value={deviceId}
+                onChange={(v) => setDeviceId(v ?? '')}
+                placeholder="Pick a registered device"
+                options={devices.map((d) => ({
+                  value: d._id,
+                  label: `${d.label} ${d.online ? '(online)' : '(offline)'}`,
+                }))}
+              />
             </Field>
-          )}
+          ) : null}
 
           <Field label="Notes">
             <Textarea
@@ -340,22 +304,22 @@ export default function SabassistNewSessionPage() {
             />
           </Field>
 
-          {error && (
+          {error ? (
             <Alert tone="danger">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          )}
+          ) : null}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <Button variant="primary" onClick={handleSubmit} loading={submitting}>
-              {submitting ? 'Creating...' : 'Create session & issue token'}
+              Create session and issue token
             </Button>
-            <Link href="/dashboard/sabvoice/assist">
-              <Button variant="outline">Cancel</Button>
-            </Link>
+            <Button asChild variant="outline">
+              <Link href="/dashboard/sabvoice/assist">Cancel</Link>
+            </Button>
           </div>
         </Card>
       )}
-    </div>
+    </main>
   );
 }

@@ -1,10 +1,29 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Badge, Card, Textarea, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui';
+import {
+  Button,
+  Modal,
+  Input,
+  Field,
+  Badge,
+  Card,
+  Textarea,
+  SelectField,
+  StatCard,
+  EmptyState,
+  Skeleton,
+  SearchInput,
+  useToast,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { Plus, Edit2, Trash2, Users, Layers } from 'lucide-react';
+import { Plus, Edit2, Trash2, Users, Layers, Clock, Shuffle } from 'lucide-react';
 import {
   listVoiceQueues,
   createVoiceQueue,
@@ -24,7 +43,14 @@ type QueueRow = {
   status: 'active' | 'archived';
 };
 
+const STRATEGY_LABEL: Record<QueueRow['strategy'], string> = {
+  round_robin: 'Round robin',
+  least_busy: 'Least busy',
+  simultaneous: 'Ring all',
+};
+
 export default function VoiceQueuesPage() {
+  const { toast } = useToast();
   const [data, setData] = React.useState<QueueRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -101,168 +127,197 @@ export default function VoiceQueuesPage() {
         await createVoiceQueue(payload);
       }
       setOpen(false);
+      toast.success(editing ? 'Queue updated' : 'Queue created');
       void load();
     } catch (e) {
-      alert(`Save failed: ${(e as Error).message}`);
+      toast.error(`Save failed: ${(e as Error).message}`);
     } finally {
       setSubmitting(false);
     }
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Archive this queue?')) return;
-    await deleteVoiceQueue(id);
-    void load();
+    try {
+      await deleteVoiceQueue(id);
+      toast.success('Queue archived');
+      void load();
+    } catch (e) {
+      toast.error(`Archive failed: ${(e as Error).message}`);
+    }
   };
 
   const activeQueues = data.filter((q) => q.status === 'active').length;
   const totalAgents = data.reduce((s, q) => s + q.agentIds.length, 0);
 
   return (
-    <>
-      <EntityListShell
-        title="Call Queues"
-        subtitle="Distribute incoming calls across agents."
-        primaryAction={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Queue
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageTitle>Call queues</PageTitle>
+          <PageDescription>Distribute incoming calls across your agents.</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+            New queue
           </Button>
-        }
-        search={{ value: search, onChange: setSearch, placeholder: 'Search queues...' }}
-        loading={loading}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <StatCard
-            label="Active Queues"
-            value={activeQueues}
-            icon={<Layers className="h-4 w-4" />}
-          />
-          <StatCard
-            label="Total Agent Assignments"
-            value={totalAgents}
-            icon={<Users className="h-4 w-4" />}
-          />
+        </PageActions>
+      </PageHeader>
+
+      <section aria-label="Queue metrics" className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2">
+        <StatCard label="Active queues" value={activeQueues} icon={Layers} accent="#1f9d55" />
+        <StatCard label="Agent assignments" value={totalAgents} icon={Users} accent="#3b7af5" />
+      </section>
+
+      <div className="max-w-sm">
+        <Field label="Search">
+          <SearchInput value={search} onValueChange={setSearch} placeholder="Search queues" />
+        </Field>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full" />
+          ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      ) : data.length === 0 ? (
+        <Card variant="outlined">
+          <EmptyState
+            icon={Layers}
+            title="No queues yet"
+            description="Create a queue to route inbound calls to the right group of agents."
+            action={
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                New queue
+              </Button>
+            }
+          />
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2">
           {data.map((q) => (
-            <Card key={q._id} className="p-4 flex flex-col gap-2">
+            <Card key={q._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
               <div className="flex items-center justify-between">
-                <span className="font-medium">{q.name}</span>
-                <Badge variant={q.status === 'active' ? 'default' : 'outline'}>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)]"
+                    style={{ background: '#1f9d551a', color: '#1f9d55' }}
+                  >
+                    <Layers className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="font-medium text-[var(--st-text)]">{q.name}</span>
+                </div>
+                <Badge tone={q.status === 'active' ? 'success' : 'neutral'} className="capitalize">
                   {q.status}
                 </Badge>
               </div>
-              {q.description && (
+              {q.description ? (
                 <p className="text-sm text-[var(--st-text-secondary)]">{q.description}</p>
-              )}
-              <div className="grid grid-cols-2 gap-2 text-xs text-[var(--st-text-secondary)]">
-                <div>Strategy: <span className="text-[var(--st-text)]">{q.strategy}</span></div>
-                <div>Wait: <span className="text-[var(--st-text)]">{q.maxWaitSecs}s</span></div>
-                <div>Agents: <span className="text-[var(--st-text)]">{q.agentIds.length}</span></div>
-                <div>Fallback: <span className="text-[var(--st-text)]">{q.fallback ?? '—'}</span></div>
-              </div>
-              <div className="flex gap-2 mt-1">
-                <Button size="sm" variant="outline" onClick={() => openEdit(q)}>
-                  <Edit2 className="h-3 w-3 mr-1" /> Edit
+              ) : null}
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-[var(--st-text-secondary)]">
+                <div className="flex items-center gap-1.5">
+                  <Shuffle className="h-3 w-3" aria-hidden="true" />
+                  <dt className="sr-only">Strategy</dt>
+                  <dd className="text-[var(--st-text)]">{STRATEGY_LABEL[q.strategy]}</dd>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-3 w-3" aria-hidden="true" />
+                  <dt className="sr-only">Max wait</dt>
+                  <dd className="tabular-nums text-[var(--st-text)]">{q.maxWaitSecs}s wait</dd>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3 w-3" aria-hidden="true" />
+                  <dt className="sr-only">Agents</dt>
+                  <dd className="tabular-nums text-[var(--st-text)]">{q.agentIds.length} agents</dd>
+                </div>
+                <div>
+                  <dt className="inline">Fallback: </dt>
+                  <dd className="inline capitalize text-[var(--st-text)]">{q.fallback ?? 'none'}</dd>
+                </div>
+              </dl>
+              <div className="mt-auto flex gap-2 pt-1">
+                <Button size="sm" variant="outline" iconLeft={Edit2} onClick={() => openEdit(q)}>
+                  Edit
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-[var(--st-text)]"
-                  onClick={() => remove(q._id)}
-                >
-                  <Trash2 className="h-3 w-3 mr-1" /> Archive
+                <Button size="sm" variant="ghost" iconLeft={Trash2} onClick={() => remove(q._id)}>
+                  Archive
                 </Button>
               </div>
             </Card>
           ))}
         </div>
-      </EntityListShell>
+      )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[560px]">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Queue' : 'New Queue'}</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-3 py-2">
-            <div>
-              <Label className="mb-1.5 block">Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Description</Label>
-              <Textarea
-                rows={2}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="mb-1.5 block">Strategy</Label>
-                <Select value={strategy} onValueChange={(v) => setStrategy(v as never)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="round_robin">Round Robin</SelectItem>
-                    <SelectItem value="least_busy">Least Busy</SelectItem>
-                    <SelectItem value="simultaneous">Simultaneous Ring</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="mb-1.5 block">Max Wait (s)</Label>
-                <Input
-                  type="number"
-                  value={maxWait}
-                  onChange={(e) => setMaxWait(Number(e.target.value))}
-                />
-              </div>
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Agent IDs (comma-separated)</Label>
-              <Textarea
-                rows={2}
-                value={agentIdsCsv}
-                onChange={(e) => setAgentIdsCsv(e.target.value)}
-                placeholder="60d5f...a1, 60d5f...b2"
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Fallback</Label>
-              <Select value={fallback} onValueChange={setFallback}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="voicemail">Voicemail</SelectItem>
-                  <SelectItem value="hangup">Hangup</SelectItem>
-                  <SelectItem value="forward">Forward</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Hold Music (audio)</Label>
-              <SabFilePickerButton
-                accept="audio"
-                onPick={(p) => setHoldMusicFileId(p.url)}
-              >
-                {holdMusicFileId ? 'Change Audio' : 'Pick from SabFiles'}
-              </SabFilePickerButton>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={editing ? 'Edit queue' : 'New queue'}
+        description="Set the routing strategy and assign agents to this queue."
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={save} disabled={submitting || !name.trim()}>
-              {submitting ? 'Saving...' : 'Save Queue'}
+            <Button onClick={save} loading={submitting} disabled={submitting || !name.trim()}>
+              {editing ? 'Save queue' : 'Create queue'}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-[var(--st-space-3)]">
+          <Field label="Name" required>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Sales line" />
+          </Field>
+          <Field label="Description">
+            <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
+          </Field>
+          <div className="grid grid-cols-2 gap-[var(--st-space-3)]">
+            <Field label="Strategy">
+              <SelectField
+                value={strategy}
+                onChange={(v) => setStrategy((v as QueueRow['strategy']) ?? 'round_robin')}
+                options={[
+                  { value: 'round_robin', label: 'Round robin' },
+                  { value: 'least_busy', label: 'Least busy' },
+                  { value: 'simultaneous', label: 'Ring all' },
+                ]}
+              />
+            </Field>
+            <Field label="Max wait (seconds)">
+              <Input
+                type="number"
+                value={maxWait}
+                onChange={(e) => setMaxWait(Number(e.target.value))}
+              />
+            </Field>
+          </div>
+          <Field label="Agent IDs" help="Comma-separated user IDs.">
+            <Textarea
+              rows={2}
+              value={agentIdsCsv}
+              onChange={(e) => setAgentIdsCsv(e.target.value)}
+              placeholder="60d5f...a1, 60d5f...b2"
+            />
+          </Field>
+          <Field label="Fallback">
+            <SelectField
+              value={fallback}
+              onChange={(v) => setFallback(v ?? 'voicemail')}
+              options={[
+                { value: 'voicemail', label: 'Voicemail' },
+                { value: 'hangup', label: 'Hang up' },
+                { value: 'forward', label: 'Forward' },
+              ]}
+            />
+          </Field>
+          <Field label="Hold music">
+            <SabFilePickerButton accept="audio" onPick={(p) => setHoldMusicFileId(p.url)}>
+              {holdMusicFileId ? 'Change audio' : 'Pick from SabFiles'}
+            </SabFilePickerButton>
+          </Field>
+        </div>
+      </Modal>
+    </main>
   );
 }

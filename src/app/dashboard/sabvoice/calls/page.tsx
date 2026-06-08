@@ -6,12 +6,8 @@ import {
   Card,
   EmptyState,
   IconButton,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Field,
+  SelectField,
   StatCard,
   Table,
   TBody,
@@ -19,8 +15,14 @@ import {
   THead,
   Th,
   Tr,
+  Skeleton,
+  SearchInput,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
 } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   Phone,
   PhoneIncoming,
@@ -28,6 +30,7 @@ import {
   PhoneMissed,
   Play,
   Pause,
+  Timer,
 } from 'lucide-react';
 import { listVoiceCallCdrs } from '@/app/actions/sabvoice.actions';
 
@@ -57,6 +60,14 @@ function fmtDate(iso: string) {
   const d = new Date(iso);
   return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 }
+
+const STATUS_TONE: Record<CallRow['status'], React.ComponentProps<typeof Badge>['tone']> = {
+  completed: 'success',
+  voicemail: 'info',
+  failed: 'danger',
+  missed: 'warning',
+  abandoned: 'neutral',
+};
 
 export default function VoiceCallsLogPage() {
   const [data, setData] = React.useState<CallRow[]>([]);
@@ -91,57 +102,73 @@ export default function VoiceCallsLogPage() {
   const avgDuration = completed > 0 ? Math.round(totalDuration / completed) : 0;
 
   return (
-    <EntityListShell
-      title="Call Log"
-      subtitle="Every inbound, outbound, missed and voicemail call."
-      search={{ value: search, onChange: setSearch, placeholder: 'Search by number or notes...' }}
-      loading={loading}
-    >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Completed" value={completed} icon={Phone} />
-        <StatCard label="Missed/Abandoned" value={missed} icon={PhoneMissed} />
-        <StatCard label="Inbound" value={inbound} icon={PhoneIncoming} />
-        <StatCard label="Avg Duration" value={fmtDuration(avgDuration)} icon={Phone} />
-      </div>
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageTitle>Call log</PageTitle>
+          <PageDescription>
+            Every inbound, outbound, missed, and voicemail call with playback.
+          </PageDescription>
+        </PageHeaderHeading>
+      </PageHeader>
 
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div>
-          <Label className="text-xs mb-1 block">Status</Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36" aria-label="Filter by status">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="missed">Missed</SelectItem>
-              <SelectItem value="abandoned">Abandoned</SelectItem>
-              <SelectItem value="voicemail">Voicemail</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label className="text-xs mb-1 block">Direction</Label>
-          <Select value={directionFilter} onValueChange={setDirectionFilter}>
-            <SelectTrigger className="w-36" aria-label="Filter by direction">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="inbound">Inbound</SelectItem>
-              <SelectItem value="outbound">Outbound</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <section aria-label="Call metrics" className="grid grid-cols-2 gap-[var(--st-space-3)] md:grid-cols-4">
+        <StatCard label="Completed" value={completed} icon={Phone} accent="#1f9d55" />
+        <StatCard label="Missed or abandoned" value={missed} icon={PhoneMissed} accent="#e0484e" />
+        <StatCard label="Inbound" value={inbound} icon={PhoneIncoming} accent="#3b7af5" />
+        <StatCard label="Avg duration" value={fmtDuration(avgDuration)} icon={Timer} accent="#7c3aed" />
+      </section>
 
-      <Card className="overflow-hidden">
-        {data.length === 0 ? (
+      <Card variant="outlined" padding="none" className="overflow-hidden">
+        <div className="flex flex-wrap items-end gap-[var(--st-space-3)] border-b border-[var(--st-border)] p-[var(--st-space-4)]">
+          <div className="min-w-[220px] flex-1">
+            <Field label="Search">
+              <SearchInput
+                value={search}
+                onValueChange={setSearch}
+                placeholder="Search by number or notes"
+              />
+            </Field>
+          </div>
+          <Field label="Status">
+            <SelectField
+              value={statusFilter}
+              onChange={(v) => setStatusFilter(v ?? 'all')}
+              options={[
+                { value: 'all', label: 'All statuses' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'missed', label: 'Missed' },
+                { value: 'abandoned', label: 'Abandoned' },
+                { value: 'voicemail', label: 'Voicemail' },
+                { value: 'failed', label: 'Failed' },
+              ]}
+            />
+          </Field>
+          <Field label="Direction">
+            <SelectField
+              value={directionFilter}
+              onChange={(v) => setDirectionFilter(v ?? 'all')}
+              options={[
+                { value: 'all', label: 'All directions' },
+                { value: 'inbound', label: 'Inbound' },
+                { value: 'outbound', label: 'Outbound' },
+              ]}
+            />
+          </Field>
+        </div>
+
+        {loading ? (
+          <div className="flex flex-col gap-2 p-[var(--st-space-4)]" aria-busy="true">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full" />
+            ))}
+          </div>
+        ) : data.length === 0 ? (
           <EmptyState
             icon={Phone}
             title="No calls logged"
-            description="Inbound, outbound, missed and voicemail calls will appear here once they happen."
+            description="Inbound, outbound, missed, and voicemail calls appear here as they happen."
           />
         ) : (
           <Table density="compact">
@@ -151,7 +178,7 @@ export default function VoiceCallsLogPage() {
                 <Th>From</Th>
                 <Th>To</Th>
                 <Th>Started</Th>
-                <Th>Duration</Th>
+                <Th align="right">Duration</Th>
                 <Th>Status</Th>
                 <Th>Recording</Th>
               </Tr>
@@ -161,28 +188,27 @@ export default function VoiceCallsLogPage() {
                 <Tr key={c._id}>
                   <Td>
                     {c.direction === 'inbound' ? (
-                      <PhoneIncoming className="h-4 w-4 text-[var(--st-text)]" aria-label="Inbound" />
+                      <PhoneIncoming
+                        className="h-4 w-4 text-[var(--st-text-secondary)]"
+                        aria-label="Inbound"
+                      />
                     ) : (
-                      <PhoneOutgoing className="h-4 w-4 text-[var(--st-text)]" aria-label="Outbound" />
+                      <PhoneOutgoing
+                        className="h-4 w-4 text-[var(--st-text-secondary)]"
+                        aria-label="Outbound"
+                      />
                     )}
                   </Td>
-                  <Td className="font-mono">{c.fromNumber}</Td>
-                  <Td className="font-mono">{c.toNumber}</Td>
-                  <Td className="text-xs text-[var(--st-text-secondary)]">{fmtDate(c.startedAt)}</Td>
-                  <Td>{fmtDuration(c.durationSecs)}</Td>
+                  <Td className="font-mono tabular-nums">{c.fromNumber}</Td>
+                  <Td className="font-mono tabular-nums">{c.toNumber}</Td>
+                  <Td className="text-xs text-[var(--st-text-secondary)] tabular-nums">
+                    {fmtDate(c.startedAt)}
+                  </Td>
+                  <Td align="right" className="tabular-nums">
+                    {fmtDuration(c.durationSecs)}
+                  </Td>
                   <Td>
-                    <Badge
-                      tone={
-                        c.status === 'completed'
-                          ? 'success'
-                          : c.status === 'voicemail'
-                            ? 'info'
-                            : c.status === 'failed'
-                              ? 'danger'
-                              : 'neutral'
-                      }
-                      className="capitalize"
-                    >
+                    <Badge tone={STATUS_TONE[c.status]} className="capitalize">
                       {c.status}
                     </Badge>
                   </Td>
@@ -197,11 +223,13 @@ export default function VoiceCallsLogPage() {
                           onClick={() => setPlayingId(playingId === c._id ? null : c._id)}
                         />
                         {playingId === c._id ? (
-                          <audio src={c.recordingFileId} controls autoPlay className="mt-1" />
+                          <audio src={c.recordingFileId} controls autoPlay className="mt-1">
+                            <track kind="captions" />
+                          </audio>
                         ) : null}
                       </div>
                     ) : (
-                      <span className="text-xs text-[var(--st-text-secondary)]">-</span>
+                      <span className="text-xs text-[var(--st-text-tertiary)]">None</span>
                     )}
                   </Td>
                 </Tr>
@@ -210,6 +238,6 @@ export default function VoiceCallsLogPage() {
           </Table>
         )}
       </Card>
-    </EntityListShell>
+    </main>
   );
 }

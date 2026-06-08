@@ -2,8 +2,23 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, Card, Badge, Input, StatCard, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  Card,
+  Badge,
+  StatCard,
+  SelectField,
+  SearchInput,
+  Field,
+  EmptyState,
+  Skeleton,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import {
   ScreenShare,
   Plus,
@@ -32,23 +47,23 @@ type SessionRow = {
 };
 
 function fmtDuration(secs?: number | null) {
-  if (secs == null) return '—';
+  if (secs == null) return 'n/a';
   const m = Math.floor(secs / 60);
   const r = secs % 60;
   return `${m}m ${r}s`;
 }
 
 function fmtWhen(iso?: string | null) {
-  if (!iso) return '—';
+  if (!iso) return 'not started';
   const d = new Date(iso);
   return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 }
 
-function statusBadge(s: SabassistSessionStatus) {
-  if (s === 'active') return <Badge variant="default">Active</Badge>;
-  if (s === 'scheduled') return <Badge variant="outline">Scheduled</Badge>;
-  return <Badge variant="secondary">Ended</Badge>;
-}
+const STATUS_TONE: Record<SabassistSessionStatus, React.ComponentProps<typeof Badge>['tone']> = {
+  active: 'success',
+  scheduled: 'info',
+  ended: 'neutral',
+};
 
 export default function SabassistSessionsListPage() {
   const [rows, setRows] = React.useState<SessionRow[]>([]);
@@ -83,101 +98,134 @@ export default function SabassistSessionsListPage() {
   }, [rows]);
 
   return (
-    <EntityListShell
-      title="Remote Assist"
-      subtitle="SabAssist screen-share sessions — attended (PIN-gated) or unattended (registered device)."
-      loading={loading}
-    >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Active" value={kpis.active} icon={<ScreenShare className="h-4 w-4" />} />
-        <StatCard label="Scheduled" value={kpis.scheduled} icon={<ListChecks className="h-4 w-4" />} />
-        <StatCard label="Ended" value={kpis.ended} icon={<ShieldCheck className="h-4 w-4" />} />
-        <Link href="/dashboard/sabvoice/assist/devices">
-          <StatCard
-            label="Registered devices"
-            value="Manage"
-            icon={<ServerCog className="h-4 w-4" />}
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageTitle>Remote assist</PageTitle>
+          <PageDescription>
+            SabAssist screen-share sessions, attended (PIN-gated) or unattended (registered device).
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button asChild variant="outline">
+            <Link href="/dashboard/sabvoice/assist/devices">
+              <ServerCog className="h-4 w-4" aria-hidden="true" />
+              Devices
+            </Link>
+          </Button>
+          <Button asChild variant="primary">
+            <Link href="/dashboard/sabvoice/assist/new">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New session
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      <section aria-label="Session metrics" className="grid grid-cols-1 gap-[var(--st-space-3)] sm:grid-cols-3">
+        <StatCard label="Active" value={kpis.active} icon={ScreenShare} accent="#1f9d55" />
+        <StatCard label="Scheduled" value={kpis.scheduled} icon={ListChecks} accent="#3b7af5" />
+        <StatCard label="Ended" value={kpis.ended} icon={ShieldCheck} accent="#64748b" />
+      </section>
+
+      <div className="flex flex-wrap items-end gap-[var(--st-space-3)]">
+        <div className="min-w-[220px] flex-1">
+          <Field label="Search">
+            <SearchInput value={q} onValueChange={setQ} placeholder="Search by customer name, email, or notes" />
+          </Field>
+        </div>
+        <Field label="Status">
+          <SelectField
+            value={status}
+            onChange={(v) => setStatus((v as typeof status) ?? 'all')}
+            options={[
+              { value: 'all', label: 'All statuses' },
+              { value: 'scheduled', label: 'Scheduled' },
+              { value: 'active', label: 'Active' },
+              { value: 'ended', label: 'Ended' },
+            ]}
           />
-        </Link>
+        </Field>
+        <Field label="Mode">
+          <SelectField
+            value={mode}
+            onChange={(v) => setMode((v as typeof mode) ?? 'all')}
+            options={[
+              { value: 'all', label: 'All modes' },
+              { value: 'attended', label: 'Attended' },
+              { value: 'unattended', label: 'Unattended' },
+            ]}
+          />
+        </Field>
       </div>
 
-      <Card className="p-4 mb-4 flex flex-col md:flex-row gap-3 md:items-end">
-        <div className="flex-1">
-          <Input
-            placeholder="Search by customer name / email / notes…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+      {loading ? (
+        <div className="flex flex-col gap-[var(--st-space-3)]" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-20 w-full" />
+          ))}
         </div>
-        <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
-          <SelectTrigger className="md:w-[160px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="scheduled">Scheduled</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="ended">Ended</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={mode} onValueChange={(v) => setMode(v as typeof mode)}>
-          <SelectTrigger className="md:w-[160px]">
-            <SelectValue placeholder="Mode" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All modes</SelectItem>
-            <SelectItem value="attended">Attended</SelectItem>
-            <SelectItem value="unattended">Unattended</SelectItem>
-          </SelectContent>
-        </Select>
-        <Link href="/dashboard/sabvoice/assist/new">
-          <Button>
-            <Plus className="h-4 w-4 mr-1" /> New session
-          </Button>
-        </Link>
-      </Card>
-
-      {rows.length === 0 ? (
-        <Card className="p-8 text-center text-[var(--st-text-secondary)]">
-          No SabAssist sessions yet. Start one from{' '}
-          <Link className="text-[var(--st-accent)]" href="/dashboard/sabvoice/assist/new">
-            New session
-          </Link>
-          .
+      ) : rows.length === 0 ? (
+        <Card variant="outlined">
+          <EmptyState
+            icon={ScreenShare}
+            title="No sessions yet"
+            description="Start a screen-share session to help a customer in real time."
+            action={
+              <Button asChild variant="primary">
+                <Link href="/dashboard/sabvoice/assist/new">
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  New session
+                </Link>
+              </Button>
+            }
+          />
         </Card>
       ) : (
-        <div className="grid gap-3">
+        <div className="flex flex-col gap-[var(--st-space-3)]">
           {rows.map((s) => (
-            <Link
-              key={s._id}
-              href={`/dashboard/sabvoice/assist/${s._id}`}
-              className="group"
-            >
-              <Card className="p-4 flex items-center gap-4 hover:border-[var(--st-accent)] transition-colors">
-                <div className="w-10 h-10 rounded-lg bg-[var(--st-bg-muted)] flex items-center justify-center text-[var(--st-accent)]">
-                  <ScreenShare className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium truncate">
+            <Link key={s._id} href={`/dashboard/sabvoice/assist/${s._id}`} className="group block focus:outline-none">
+              <Card
+                variant="interactive"
+                className="flex items-center gap-4 group-focus-visible:ring-2 group-focus-visible:ring-[var(--st-accent)]"
+              >
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
+                  style={{ background: '#0d94881a', color: '#0d9488' }}
+                >
+                  <ScreenShare className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate font-medium text-[var(--st-text)]">
                       {s.customerName || s.customerEmail || 'Unnamed customer'}
                     </span>
-                    {statusBadge(s.status)}
-                    <Badge variant="outline">{s.mode}</Badge>
-                    {s.callId && (
-                      <Badge variant="outline">linked to call</Badge>
-                    )}
+                    <Badge tone={STATUS_TONE[s.status]} className="capitalize">
+                      {s.status}
+                    </Badge>
+                    <Badge tone="neutral" kind="outline" className="capitalize">
+                      {s.mode}
+                    </Badge>
+                    {s.callId ? (
+                      <Badge tone="info" kind="outline">
+                        linked to call
+                      </Badge>
+                    ) : null}
                   </div>
-                  <div className="text-xs text-[var(--st-text-secondary)] mt-1">
+                  <div className="mt-1 text-xs tabular-nums text-[var(--st-text-secondary)]">
                     Started {fmtWhen(s.startedAt)} · Duration {fmtDuration(s.durationSecs)}
                   </div>
                 </div>
-                <ChevronRight className="h-4 w-4 text-[var(--st-text-secondary)] group-hover:text-[var(--st-accent)]" />
+                <ChevronRight
+                  className="h-4 w-4 text-[var(--st-text-tertiary)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--st-accent)]"
+                  aria-hidden="true"
+                />
               </Card>
             </Link>
           ))}
         </div>
       )}
-    </EntityListShell>
+    </main>
   );
 }

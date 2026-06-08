@@ -1,8 +1,26 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Input, Label, Badge, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, StatCard } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  Modal,
+  Input,
+  Field,
+  Badge,
+  Card,
+  SelectField,
+  StatCard,
+  SearchInput,
+  EmptyState,
+  Skeleton,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Phone,
   PhoneCall,
@@ -10,6 +28,7 @@ import {
   ShoppingCart,
   Trash2,
   Globe,
+  DollarSign,
 } from 'lucide-react';
 import {
   listVoiceDids,
@@ -39,7 +58,14 @@ type AvailableNumber = {
   provider: 'mock';
 };
 
+const STATUS_TONE: Record<DidRow['status'], React.ComponentProps<typeof Badge>['tone']> = {
+  active: 'success',
+  pending: 'warning',
+  released: 'neutral',
+};
+
 export default function VoiceDidsPage() {
+  const { toast } = useToast();
   const [data, setData] = React.useState<DidRow[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [search, setSearch] = React.useState('');
@@ -51,6 +77,7 @@ export default function VoiceDidsPage() {
   const [searchResults, setSearchResults] = React.useState<AvailableNumber[]>([]);
   const [searching, setSearching] = React.useState(false);
   const [purchasingNum, setPurchasingNum] = React.useState<string | null>(null);
+  const [releasingId, setReleasingId] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     setLoading(true);
@@ -94,18 +121,26 @@ export default function VoiceDidsPage() {
       });
       setIsSearchOpen(false);
       setSearchResults([]);
+      toast.success(`${n.number} added to your numbers`);
       void load();
     } catch (e) {
-      alert(`Purchase failed: ${(e as Error).message}`);
+      toast.error(`Purchase failed: ${(e as Error).message}`);
     } finally {
       setPurchasingNum(null);
     }
   };
 
-  const handleRelease = async (id: string) => {
-    if (!confirm('Release this number? It can no longer receive calls.')) return;
-    await releaseVoiceDid(id);
-    void load();
+  const handleRelease = async (id: string, number: string) => {
+    setReleasingId(id);
+    try {
+      await releaseVoiceDid(id);
+      toast.success(`${number} released`);
+      void load();
+    } catch (e) {
+      toast.error(`Release failed: ${(e as Error).message}`);
+    } finally {
+      setReleasingId(null);
+    }
   };
 
   const active = data.filter((d) => d.status === 'active').length;
@@ -116,155 +151,186 @@ export default function VoiceDidsPage() {
     .reduce((s, d) => s + (d.monthlyCost ?? 0), 0);
 
   return (
-    <>
-      <EntityListShell
-        title="Phone Numbers (DIDs)"
-        subtitle="Provision, route, and release voice numbers."
-        primaryAction={
-          <Button onClick={() => setIsSearchOpen(true)}>
-            <Search className="h-4 w-4 mr-2" />
-            Buy New Number
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>SabVoice</PageEyebrow>
+          <PageTitle>Phone numbers</PageTitle>
+          <PageDescription>Provision, route, and release voice numbers (DIDs).</PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)}>
+            Buy a number
+          </Button>
+        </PageActions>
+      </PageHeader>
+
+      <section aria-label="Number metrics" className="grid grid-cols-2 gap-[var(--st-space-3)] md:grid-cols-4">
+        <StatCard label="Active" value={active} icon={Phone} accent="#1f9d55" />
+        <StatCard label="Pending" value={pending} icon={PhoneCall} accent="#d97706" />
+        <StatCard label="Released" value={released} icon={Trash2} accent="#64748b" />
+        <StatCard
+          label="Monthly cost"
+          value={`$${monthlyTotal.toFixed(2)}`}
+          icon={DollarSign}
+          accent="#3b7af5"
+        />
+      </section>
+
+      <Card variant="outlined" padding="none" className="overflow-hidden">
+        <div className="flex flex-wrap items-end gap-[var(--st-space-3)] border-b border-[var(--st-border)] p-[var(--st-space-4)]">
+          <div className="min-w-[220px] flex-1">
+            <Field label="Search">
+              <SearchInput
+                value={search}
+                onValueChange={setSearch}
+                placeholder="Search numbers, labels, or refs"
+              />
+            </Field>
+          </div>
+          <Field label="Status">
+            <SelectField
+              value={statusFilter}
+              onChange={(v) => setStatusFilter(v ?? 'all')}
+              options={[
+                { value: 'all', label: 'All statuses' },
+                { value: 'active', label: 'Active' },
+                { value: 'pending', label: 'Pending' },
+                { value: 'released', label: 'Released' },
+              ]}
+            />
+          </Field>
+        </div>
+
+        <div className="p-[var(--st-space-4)]">
+          {loading ? (
+            <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-36 w-full" />
+              ))}
+            </div>
+          ) : data.length === 0 ? (
+            <EmptyState
+              icon={Phone}
+              title="No numbers yet"
+              description="Buy your first number to start routing inbound and outbound calls."
+              action={
+                <Button variant="primary" iconLeft={Search} onClick={() => setIsSearchOpen(true)}>
+                  Buy a number
+                </Button>
+              }
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-[var(--st-space-3)] md:grid-cols-2 lg:grid-cols-3">
+              {data.map((d) => (
+                <Card key={d._id} variant="outlined" className="flex flex-col gap-[var(--st-space-2)]">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-lg tabular-nums text-[var(--st-text)]">
+                      {d.number}
+                    </span>
+                    <Badge tone={STATUS_TONE[d.status]} className="capitalize">
+                      {d.status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-[var(--st-text-secondary)]">
+                    <Globe className="h-3 w-3" aria-hidden="true" />
+                    {d.country} · {d.provider}
+                  </div>
+                  {d.label ? <div className="text-sm text-[var(--st-text)]">{d.label}</div> : null}
+                  {(d.capabilities ?? []).length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {(d.capabilities ?? []).map((cap) => (
+                        <Badge key={cap} tone="neutral" kind="outline" className="capitalize">
+                          {cap}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
+                  <div className="text-xs tabular-nums text-[var(--st-text-secondary)]">
+                    ${(d.monthlyCost ?? 0).toFixed(2)} {d.currency ?? 'USD'} / month
+                  </div>
+                  {d.status !== 'released' ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      iconLeft={Trash2}
+                      className="mt-auto self-start"
+                      loading={releasingId === d._id}
+                      onClick={() => handleRelease(d._id, d.number)}
+                    >
+                      Release
+                    </Button>
+                  ) : null}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <Modal
+        open={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        title="Search available numbers"
+        description="Pick a country and area code, then buy a number instantly."
+        footer={
+          <Button variant="secondary" onClick={() => setIsSearchOpen(false)}>
+            Close
           </Button>
         }
-        search={{
-          value: search,
-          onChange: setSearch,
-          placeholder: 'Search numbers, labels, refs...',
-        }}
-        loading={loading}
       >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Active" value={active} icon={<Phone className="h-4 w-4" />} />
-          <StatCard label="Pending" value={pending} icon={<PhoneCall className="h-4 w-4" />} />
-          <StatCard label="Released" value={released} icon={<Trash2 className="h-4 w-4" />} />
-          <StatCard
-            label="Monthly Cost"
-            value={`$${monthlyTotal.toFixed(2)}`}
-            icon={<Globe className="h-4 w-4" />}
-          />
-        </div>
-
-        <div className="flex items-center gap-2 mb-4">
-          <Label className="text-sm">Status:</Label>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="released">Released</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.map((d) => (
-            <Card key={d._id} className="p-4 flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-lg">{d.number}</span>
-                <Badge
-                  variant={
-                    d.status === 'active'
-                      ? 'default'
-                      : d.status === 'pending'
-                        ? 'secondary'
-                        : 'outline'
-                  }
-                  className="capitalize"
-                >
-                  {d.status}
-                </Badge>
-              </div>
-              <div className="text-xs text-[var(--st-text-secondary)] uppercase tracking-wide">
-                {d.country} · {d.provider}
-              </div>
-              {d.label && <div className="text-sm">{d.label}</div>}
-              <div className="text-xs text-[var(--st-text-secondary)]">
-                {(d.capabilities ?? []).join(', ')}
-              </div>
-              <div className="text-xs">
-                ${(d.monthlyCost ?? 0).toFixed(2)} {d.currency ?? 'USD'} / mo
-              </div>
-              {d.status !== 'released' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 text-[var(--st-text)]"
-                  onClick={() => handleRelease(d._id)}
-                >
-                  <Trash2 className="h-3 w-3 mr-1" /> Release
-                </Button>
-              )}
-            </Card>
-          ))}
-        </div>
-      </EntityListShell>
-
-      <Dialog open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-        <DialogContent className="sm:max-w-[640px]">
-          <DialogHeader>
-            <DialogTitle>Search Available Numbers</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-3 py-2">
-            <div>
-              <Label className="mb-1.5 block">Country</Label>
-              <Select value={searchCountry} onValueChange={setSearchCountry}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="us">United States</SelectItem>
-                  <SelectItem value="ca">Canada</SelectItem>
-                  <SelectItem value="gb">United Kingdom</SelectItem>
-                  <SelectItem value="in">India</SelectItem>
-                  <SelectItem value="au">Australia</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="mb-1.5 block">Area Code</Label>
+        <div className="flex flex-col gap-[var(--st-space-3)]">
+          <div className="grid grid-cols-2 gap-[var(--st-space-3)]">
+            <Field label="Country">
+              <SelectField
+                value={searchCountry}
+                onChange={(v) => setSearchCountry(v ?? 'us')}
+                options={[
+                  { value: 'us', label: 'United States' },
+                  { value: 'ca', label: 'Canada' },
+                  { value: 'gb', label: 'United Kingdom' },
+                  { value: 'in', label: 'India' },
+                  { value: 'au', label: 'Australia' },
+                ]}
+              />
+            </Field>
+            <Field label="Area code">
               <Input value={searchArea} onChange={(e) => setSearchArea(e.target.value)} />
-            </div>
+            </Field>
           </div>
-          <div className="flex justify-end pb-2">
-            <Button onClick={handleSearch} disabled={searching}>
-              {searching ? 'Searching...' : 'Search'}
+          <div className="flex justify-end">
+            <Button iconLeft={Search} onClick={handleSearch} loading={searching}>
+              Search
             </Button>
           </div>
-          {searchResults.length > 0 && (
-            <div className="border-t border-[var(--st-border)] pt-2 max-h-80 overflow-y-auto">
+
+          {searchResults.length > 0 ? (
+            <div className="max-h-80 divide-y divide-[var(--st-border)] overflow-y-auto rounded-[var(--st-radius)] border border-[var(--st-border)]">
               {searchResults.map((n) => (
                 <div
                   key={n.number}
-                  className="flex items-center justify-between py-2 border-b border-[var(--st-border)] last:border-0"
+                  className="flex items-center justify-between gap-3 p-[var(--st-space-3)]"
                 >
                   <div>
-                    <div className="font-mono">{n.number}</div>
+                    <div className="font-mono tabular-nums text-[var(--st-text)]">{n.number}</div>
                     <div className="text-xs text-[var(--st-text-secondary)]">
                       {n.capabilities.join(', ')} · ${n.monthlyCost.toFixed(2)}/mo
                     </div>
                   </div>
                   <Button
                     size="sm"
+                    iconLeft={ShoppingCart}
                     onClick={() => handlePurchase(n)}
-                    disabled={purchasingNum === n.number}
+                    loading={purchasingNum === n.number}
                   >
-                    <ShoppingCart className="h-3 w-3 mr-1" />
-                    {purchasingNum === n.number ? 'Buying...' : 'Buy'}
+                    Buy
                   </Button>
                 </div>
               ))}
             </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsSearchOpen(false)}>
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+          ) : null}
+        </div>
+      </Modal>
+    </main>
   );
 }

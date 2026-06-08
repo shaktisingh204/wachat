@@ -3,8 +3,23 @@
 import * as React from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Button, Card, Badge, Input, Label, Alert, AlertDescription } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  Badge,
+  Alert,
+  AlertDescription,
+  Skeleton,
+  Separator,
+  PageHeader,
+  PageHeaderHeading,
+  PageEyebrow,
+  PageTitle,
+  PageDescription,
+  PageActions,
+} from '@/components/sabcrm/20ui';
 import {
   ScreenShare,
   ArrowLeft,
@@ -48,6 +63,12 @@ type ActionRow = {
   ts: string;
   action: SabassistActionKind;
   payloadJson?: unknown;
+};
+
+const STATUS_TONE: Record<SessionDoc['status'], React.ComponentProps<typeof Badge>['tone']> = {
+  active: 'success',
+  scheduled: 'info',
+  ended: 'neutral',
 };
 
 export default function SabassistTechnicianConsolePage() {
@@ -165,118 +186,126 @@ export default function SabassistTechnicianConsolePage() {
 
   if (!session) {
     return (
-      <EntityListShell title="Loading…" loading>
-        <span />
-      </EntityListShell>
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
+        <Skeleton className="h-12 w-64" />
+        <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-3">
+          <Skeleton className="h-80 w-full lg:col-span-2" />
+          <Skeleton className="h-80 w-full" />
+        </div>
+      </main>
     );
   }
 
   return (
-    <EntityListShell
-      title={
-        session.customerName ||
-        session.customerEmail ||
-        'SabAssist technician console'
-      }
-      subtitle={`Mode: ${session.mode} · Status: ${session.status}`}
-    >
-      <div className="mb-4 flex items-center justify-between">
-        <Link
-          href="/dashboard/sabvoice/assist"
-          className="text-sm text-[var(--st-text-secondary)] inline-flex items-center gap-1"
-        >
-          <ArrowLeft className="h-4 w-4" /> All sessions
-        </Link>
-        <div className="flex items-center gap-2">
-          {session.status === 'active' && <Badge variant="default">Active</Badge>}
-          {session.status === 'scheduled' && <Badge variant="outline">Scheduled</Badge>}
-          {session.status === 'ended' && <Badge variant="secondary">Ended</Badge>}
-        </div>
-      </div>
+    <main className="mx-auto flex w-full max-w-6xl flex-col gap-[var(--st-space-5)]">
+      <PageHeader>
+        <PageHeaderHeading>
+          <PageEyebrow>Technician console</PageEyebrow>
+          <PageTitle>
+            {session.customerName || session.customerEmail || 'SabAssist session'}
+          </PageTitle>
+          <PageDescription>
+            Mode: <span className="capitalize">{session.mode}</span>
+          </PageDescription>
+        </PageHeaderHeading>
+        <PageActions>
+          <Badge tone={STATUS_TONE[session.status]} className="capitalize">
+            {session.status}
+          </Badge>
+          <Button asChild variant="ghost">
+            <Link href="/dashboard/sabvoice/assist">
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              All sessions
+            </Link>
+          </Button>
+        </PageActions>
+      </PageHeader>
 
-      {error && (
-        <Alert variant="destructive" className="mb-4">
+      {error ? (
+        <Alert tone="danger" onClose={() => setError(null)}>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )}
+      ) : null}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-2 p-4">
-          <div className="aspect-video bg-[var(--st-bg-muted)] rounded-lg border border-[var(--st-border)] flex items-center justify-center text-[var(--st-text-secondary)]">
+      <div className="grid grid-cols-1 gap-[var(--st-space-4)] lg:grid-cols-3">
+        <Card variant="outlined" className="lg:col-span-2">
+          <div className="flex aspect-video items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
             {streaming ? (
-              <div className="flex flex-col items-center gap-2">
-                <ScreenShare className="h-12 w-12 text-[var(--st-accent)]" />
-                <div className="font-medium">Live (mock) — customer screen</div>
-                <div className="text-xs">
-                  Replace with WebRTC &lt;video&gt; when the real transport ships.
-                </div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <ScreenShare className="h-12 w-12 text-[var(--st-accent)]" aria-hidden="true" />
+                <div className="font-medium text-[var(--st-text)]">Live — customer screen</div>
+                <div className="text-xs">WebRTC video renders here once the transport ships.</div>
               </div>
             ) : (
-              <div className="text-center">
-                <ScreenShare className="h-12 w-12 mx-auto opacity-50" />
-                <div className="mt-2">Not streaming.</div>
-                <div className="text-xs">Click &ldquo;Start&rdquo; to request the customer screen.</div>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <ScreenShare className="h-12 w-12 opacity-50" aria-hidden="true" />
+                <div className="font-medium text-[var(--st-text)]">Not streaming</div>
+                <div className="text-xs">Start to request the customer screen.</div>
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-2 mt-4">
+          <div className="mt-[var(--st-space-4)] flex flex-wrap gap-2">
             {streaming ? (
-              <Button variant="outline" onClick={handleStop}>
-                <PowerOff className="h-4 w-4 mr-1" /> Stop stream
+              <Button variant="outline" iconLeft={PowerOff} onClick={handleStop}>
+                Stop stream
               </Button>
             ) : (
-              <Button onClick={handleStart}>
-                <Power className="h-4 w-4 mr-1" /> Start
+              <Button variant="primary" iconLeft={Power} onClick={handleStart}>
+                Start
               </Button>
             )}
-            <Button variant="outline" onClick={() => handleAnnotation('pen')}>
-              <Pen className="h-4 w-4 mr-1" /> Pen
+            <Button variant="outline" iconLeft={Pen} onClick={() => handleAnnotation('pen')}>
+              Pen
             </Button>
-            <Button variant="outline" onClick={() => handleAnnotation('arrow')}>
-              <ArrowUpRight className="h-4 w-4 mr-1" /> Arrow
+            <Button variant="outline" iconLeft={ArrowUpRight} onClick={() => handleAnnotation('arrow')}>
+              Arrow
             </Button>
-            <Button variant="outline" onClick={() => handleAnnotation('highlight')}>
-              <Highlighter className="h-4 w-4 mr-1" /> Highlight
+            <Button variant="outline" iconLeft={Highlighter} onClick={() => handleAnnotation('highlight')}>
+              Highlight
             </Button>
-            <Button variant="outline" onClick={() => handleAnnotation('erase')}>
-              <Eraser className="h-4 w-4 mr-1" /> Erase
+            <Button variant="outline" iconLeft={Eraser} onClick={() => handleAnnotation('erase')}>
+              Erase
             </Button>
-            <Button variant="outline" onClick={handleFileTransfer}>
-              <Upload className="h-4 w-4 mr-1" /> File transfer
+            <Button variant="outline" iconLeft={Upload} onClick={handleFileTransfer}>
+              File transfer
             </Button>
-            <Button variant="outline" onClick={handleElevate}>
-              <ShieldAlert className="h-4 w-4 mr-1" /> Elevate
+            <Button variant="outline" iconLeft={ShieldAlert} onClick={handleElevate}>
+              Elevate
             </Button>
-            <Button variant="outline" onClick={handleReboot}>
-              <RefreshCw className="h-4 w-4 mr-1" /> Reboot request
+            <Button variant="outline" iconLeft={RefreshCw} onClick={handleReboot}>
+              Reboot request
             </Button>
             <div className="flex-1" />
-            <Button variant="destructive" onClick={handleEnd}>
+            <Button variant="danger" onClick={handleEnd}>
               End session
             </Button>
           </div>
         </Card>
 
-        <Card className="p-4">
-          <div className="font-medium mb-2">Action log</div>
+        <Card variant="outlined">
+          <CardHeader>
+            <CardTitle>Action log</CardTitle>
+          </CardHeader>
           {actions.length === 0 ? (
-            <div className="text-sm text-[var(--st-text-secondary)]">No actions yet.</div>
+            <p className="text-sm text-[var(--st-text-secondary)]">No actions recorded yet.</p>
           ) : (
-            <ol className="text-sm space-y-2 max-h-[480px] overflow-y-auto">
+            <ol className="max-h-[480px] space-y-2 overflow-y-auto text-sm">
               {actions.map((a) => (
                 <li key={a._id} className="border-l-2 border-[var(--st-border)] pl-2">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{a.action}</Badge>
-                    <span className="text-xs text-[var(--st-text-secondary)]">
+                    <Badge tone="neutral" kind="outline">
+                      {a.action}
+                    </Badge>
+                    <span className="text-xs tabular-nums text-[var(--st-text-secondary)]">
                       {new Date(a.ts).toLocaleTimeString()}
                     </span>
                   </div>
-                  {a.payloadJson != null && (
-                    <pre className="text-xs text-[var(--st-text-secondary)] mt-1 whitespace-pre-wrap">
+                  {a.payloadJson != null ? (
+                    <pre className="mt-1 whitespace-pre-wrap text-xs text-[var(--st-text-tertiary)]">
                       {JSON.stringify(a.payloadJson, null, 2)}
                     </pre>
-                  )}
+                  ) : null}
                 </li>
               ))}
             </ol>
@@ -284,30 +313,41 @@ export default function SabassistTechnicianConsolePage() {
         </Card>
       </div>
 
-      <Card className="p-4 mt-4">
-        <div className="font-medium mb-1">Session metadata</div>
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-          <dt className="text-[var(--st-text-secondary)]">Customer</dt>
-          <dd>{session.customerName || session.customerEmail || '—'}</dd>
-          <dt className="text-[var(--st-text-secondary)]">Mode</dt>
-          <dd>{session.mode}</dd>
-          <dt className="text-[var(--st-text-secondary)]">Linked call</dt>
-          <dd>
-            {session.callId ? (
-              <Link
-                href={`/dashboard/sabvoice/calls`}
-                className="text-[var(--st-accent)]"
-              >
-                {session.callId}
-              </Link>
-            ) : (
-              '—'
-            )}
-          </dd>
-          <dt className="text-[var(--st-text-secondary)]">Started</dt>
-          <dd>{session.startedAt ? new Date(session.startedAt).toLocaleString() : '—'}</dd>
+      <Card variant="outlined">
+        <CardHeader>
+          <CardTitle>Session details</CardTitle>
+        </CardHeader>
+        <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+          <div className="flex justify-between gap-4 border-b border-[var(--st-border)] py-1">
+            <dt className="text-[var(--st-text-secondary)]">Customer</dt>
+            <dd className="text-[var(--st-text)]">
+              {session.customerName || session.customerEmail || 'n/a'}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4 border-b border-[var(--st-border)] py-1">
+            <dt className="text-[var(--st-text-secondary)]">Mode</dt>
+            <dd className="capitalize text-[var(--st-text)]">{session.mode}</dd>
+          </div>
+          <div className="flex justify-between gap-4 border-b border-[var(--st-border)] py-1">
+            <dt className="text-[var(--st-text-secondary)]">Linked call</dt>
+            <dd>
+              {session.callId ? (
+                <Link href="/dashboard/sabvoice/calls" className="text-[var(--st-accent)]">
+                  {session.callId}
+                </Link>
+              ) : (
+                <span className="text-[var(--st-text)]">n/a</span>
+              )}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-4 border-b border-[var(--st-border)] py-1">
+            <dt className="text-[var(--st-text-secondary)]">Started</dt>
+            <dd className="tabular-nums text-[var(--st-text)]">
+              {session.startedAt ? new Date(session.startedAt).toLocaleString() : 'not started'}
+            </dd>
+          </div>
         </dl>
       </Card>
-    </EntityListShell>
+    </main>
   );
 }
