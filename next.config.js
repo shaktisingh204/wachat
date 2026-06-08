@@ -113,7 +113,17 @@ const nextConfig = {
     '@n8n/tournament',
     '@n8n/expression-runtime',
   ],
-  turbopack: {},
+  // Pin the workspace root. Multiple lockfiles exist on the deploy host
+  // (/var/package-lock.json, /var/www/package-lock.json, …), so Next.js
+  // mis-infers the root as /var and resolves modules/assets from the wrong
+  // place. Anchor it to this project dir.
+  turbopack: { root: __dirname },
+
+  // Allow the dev server to be reached over the box's network IP. Next 16
+  // blocks cross-origin requests to /_next/* dev resources (CSS/JS chunks,
+  // HMR) by default — accessing the server via the LAN/public IP instead of
+  // localhost otherwise serves an unstyled, non-interactive page.
+  allowedDevOrigins: ['15.235.234.217'],
 
   typescript: {
     ignoreBuildErrors: true,
