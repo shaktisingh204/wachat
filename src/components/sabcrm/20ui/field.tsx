@@ -99,16 +99,24 @@ export interface InputProps
   /** Static text affixes (e.g. "https://", "%"). */
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
+  /**
+   * Free-form leading/trailing content (already-rendered nodes, e.g.
+   * `<Search />` or `<Kbd>⌘K</Kbd>`). Distinct from `iconLeft`/`iconRight`,
+   * which take a Lucide component. Consumed here so they never leak onto the
+   * <input> DOM node.
+   */
+  leadingSlot?: React.ReactNode;
+  trailingSlot?: React.ReactNode;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
-  { inputSize = 'md', invalid, iconLeft: IconLeft, iconRight: IconRight, prefix, suffix, className, id, ...rest },
+  { inputSize = 'md', invalid, iconLeft: IconLeft, iconRight: IconRight, prefix, suffix, leadingSlot, trailingSlot, className, id, ...rest },
   ref,
 ) {
   const field = React.useContext(FieldContext);
   const resolvedId = id ?? field?.controlId;
   const isInvalid = invalid ?? field?.invalid ?? false;
-  const hasAffix = Boolean(IconLeft || IconRight || prefix || suffix);
+  const hasAffix = Boolean(IconLeft || IconRight || prefix || suffix || leadingSlot || trailingSlot);
   const iconSize = inputSize === 'sm' ? 13 : inputSize === 'lg' ? 16 : 14;
 
   const input = (
@@ -137,7 +145,9 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     >
       {prefix ? <span className="u-input__affix">{prefix}</span> : null}
       {IconLeft ? <IconLeft size={iconSize} className="u-input__icon" aria-hidden="true" /> : null}
+      {leadingSlot ? <span className="u-input__icon" aria-hidden="true">{leadingSlot}</span> : null}
       {input}
+      {trailingSlot ? <span className="u-input__icon" aria-hidden="true">{trailingSlot}</span> : null}
       {IconRight ? <IconRight size={iconSize} className="u-input__icon" aria-hidden="true" /> : null}
       {suffix ? <span className="u-input__affix">{suffix}</span> : null}
     </div>
