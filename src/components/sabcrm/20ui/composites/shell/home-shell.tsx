@@ -18,7 +18,12 @@ import { cn } from "../lib/cn";
 // The app rail + header are now the 20ui primitives (dark-mode capable),
 // scoped to their own `.ui20 light|dark` root and kept in lock-step with the
 // app theme via useHtmlDark(). The grouped module sidebar stays SabUI.
-import { AppRail, AppHeader, type AppRailItem } from "@/components/sabcrm/20ui";
+// Import directly from the shell module (not the barrel): home-shell is itself
+// re-exported by the 20ui barrel, so importing AppRail/AppHeader back through
+// the barrel forms a circular `export *` cycle that Turbopack resolves to an
+// empty namespace object — rendering <AppRail> then throws "Element type is
+// invalid ... got: object" on every dashboard route. The relative path breaks it.
+import { AppRail, AppHeader, type AppRailItem } from "../../shell";
 import { useHtmlDark, AppThemeToggle } from "./app-theme";
 import {
   SabAppSidebar,
