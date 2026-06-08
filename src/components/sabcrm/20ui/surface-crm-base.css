@@ -307,6 +307,7 @@
   flex: 0 0 auto;
   width: 36px;
   height: 36px;
+  min-height: 40px !important;
   border-radius: var(--st-radius);
   color: var(--st-text-secondary);
   text-decoration: none;

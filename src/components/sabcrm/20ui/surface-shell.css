@@ -30,6 +30,7 @@
    a depth ring (replacing the flat `--st-accent` fill).
    ========================================================================= */
 .sabcrm-twenty .st-rail__item {
+  min-height: 40px !important;
   border-radius: var(--st-radius);
   transition:
     background var(--u-dur-fast) var(--u-ease-out),
