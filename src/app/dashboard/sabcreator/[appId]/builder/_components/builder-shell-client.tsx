@@ -14,6 +14,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  ArrowLeft,
   Database,
   FileText,
   LayoutGrid,
@@ -38,6 +39,7 @@ import {
   Input,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
@@ -84,6 +86,15 @@ const NAV: Array<{ key: Tab; label: string; icon: React.ReactNode }> = [
   { key: 'roles', label: 'Roles', icon: <Shield className="size-4" aria-hidden="true" /> },
   { key: 'data', label: 'Data', icon: <Database className="size-4" aria-hidden="true" /> },
 ];
+
+/** A small count chip rendered at the end of a nav item. */
+function NavCount({ value }: { value: number }) {
+  return (
+    <Badge tone="neutral" kind="soft" className="ml-auto tabular-nums">
+      {value}
+    </Badge>
+  );
+}
 
 /** A Link styled as a 20ui secondary/outline button (Button has no asChild). */
 function LinkButton({
@@ -134,22 +145,41 @@ export function BuilderShellClient({
     });
   };
 
+  const isPublished = app.status === 'published';
+  const counts: Record<Tab, number | null> = {
+    forms: forms.length,
+    pages: pages.length,
+    workflows: workflows.length,
+    roles: roles.length,
+    data: null,
+  };
+
   return (
-    <div className="20ui min-h-screen flex flex-col">
-      <PageHeader>
+    <div className="20ui min-h-screen flex flex-col px-6 py-8">
+      <PageHeader className="mx-auto w-full max-w-[1280px]">
         <PageHeaderHeading>
+          <PageEyebrow>
+            <Link
+              href="/dashboard/sabcreator"
+              className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
+            >
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              All apps
+            </Link>
+          </PageEyebrow>
           <PageTitle>{app.name}</PageTitle>
           <PageDescription>
-            App builder, slug{' '}
+            App builder · slug{' '}
             <code className="text-[var(--st-text)]">/{app.slug}</code>
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Badge
-            tone={app.status === 'published' ? 'success' : 'neutral'}
-            kind={app.status === 'published' ? 'solid' : 'outline'}
+            tone={isPublished ? 'success' : 'neutral'}
+            kind={isPublished ? 'soft' : 'outline'}
+            dot
           >
-            {app.status}
+            {isPublished ? 'Published' : 'Draft'}
           </Badge>
           <LinkButton href={`/dashboard/sabcreator/${app._id}/preview`}>
             Preview
@@ -160,34 +190,31 @@ export function BuilderShellClient({
             loading={publishing}
             iconLeft={Rocket}
           >
-            {publishing ? 'Publishing...' : 'Publish'}
+            {publishing ? 'Publishing…' : 'Publish'}
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="flex-1 grid grid-cols-[220px_1fr] gap-6 px-6 pb-10">
+      <div className="flex-1 mx-auto w-full max-w-[1280px] grid grid-cols-[220px_1fr] gap-6">
         <nav className="space-y-1" aria-label="Builder sections">
-          {NAV.map((n) => (
-            <Button
-              key={n.key}
-              variant={tab === n.key ? 'primary' : 'ghost'}
-              block
-              aria-current={tab === n.key ? 'page' : undefined}
-              onClick={() => setTab(n.key)}
-              className="justify-start"
-            >
-              {n.icon}
-              {n.label}
-            </Button>
-          ))}
-          <div className="pt-4 border-t border-[var(--st-border)] mt-4">
-            <Link
-              href="/dashboard/sabcreator"
-              className="block px-3 py-2 text-xs text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
-            >
-              All apps
-            </Link>
-          </div>
+          {NAV.map((n) => {
+            const active = tab === n.key;
+            const count = counts[n.key];
+            return (
+              <Button
+                key={n.key}
+                variant={active ? 'primary' : 'ghost'}
+                block
+                aria-current={active ? 'page' : undefined}
+                onClick={() => setTab(n.key)}
+                className="justify-start"
+              >
+                {n.icon}
+                {n.label}
+                {count !== null ? <NavCount value={count} /> : null}
+              </Button>
+            );
+          })}
         </nav>
 
         <main className="space-y-4">
@@ -284,12 +311,24 @@ function FormsPanel({
       ) : (
         <ul className="divide-y divide-[var(--st-border)]">
           {forms.map((f) => (
-            <li key={f._id} className="py-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-[var(--st-text)]">{f.name}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  to {f.submitAction}
-                  {f.sabtablesTableId ? `, table ${f.sabtablesTableId.slice(-6)}` : ''}
+            <li
+              key={f._id}
+              className="py-3 flex items-center justify-between gap-3 -mx-2 px-2 rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)] transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className="size-9 rounded-[var(--st-radius)] flex items-center justify-center shrink-0"
+                  style={{ background: '#6366f11a', color: '#6366f1' }}
+                  aria-hidden="true"
+                >
+                  <FileText className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="font-medium text-[var(--st-text)] truncate">{f.name}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    On submit: {f.submitAction}
+                    {f.sabtablesTableId ? ` · table ${f.sabtablesTableId.slice(-6)}` : ''}
+                  </div>
                 </div>
               </div>
               <LinkButton href={`/dashboard/sabcreator/${appId}/builder/forms/${f._id}`}>
@@ -395,11 +434,23 @@ function PagesPanel({
       ) : (
         <ul className="divide-y divide-[var(--st-border)]">
           {pages.map((p) => (
-            <li key={p._id} className="py-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-[var(--st-text)]">{p.name}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  {p.kind}, /{p.slug}
+            <li
+              key={p._id}
+              className="py-3 flex items-center justify-between gap-3 -mx-2 px-2 rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)] transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className="size-9 rounded-[var(--st-radius)] flex items-center justify-center shrink-0"
+                  style={{ background: '#0891b21a', color: '#0891b2' }}
+                  aria-hidden="true"
+                >
+                  <LayoutGrid className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="font-medium text-[var(--st-text)] truncate">{p.name}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    {p.kind} · /{p.slug}
+                  </div>
                 </div>
               </div>
               <LinkButton href={`/dashboard/sabcreator/${appId}/builder/pages/${p._id}`}>
@@ -516,15 +567,29 @@ function WorkflowsPanel({
       ) : (
         <ul className="divide-y divide-[var(--st-border)]">
           {workflows.map((w) => (
-            <li key={w._id} className="py-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-[var(--st-text)]">{w.name}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  trigger: {w.trigger.kind}
-                  {w.sabflowRefId ? `, sabflow ${w.sabflowRefId.slice(-6)}` : ', inline'}
+            <li
+              key={w._id}
+              className="py-3 flex items-center justify-between gap-3 -mx-2 px-2 rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)] transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className="size-9 rounded-[var(--st-radius)] flex items-center justify-center shrink-0"
+                  style={{ background: '#7c3aed1a', color: '#7c3aed' }}
+                  aria-hidden="true"
+                >
+                  <Workflow className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="font-medium text-[var(--st-text)] truncate">{w.name}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    Trigger: {w.trigger.kind}
+                    {w.sabflowRefId ? ` · sabflow ${w.sabflowRefId.slice(-6)}` : ' · inline'}
+                  </div>
                 </div>
               </div>
-              <Badge kind="outline">{w.status}</Badge>
+              <Badge tone="neutral" kind="outline">
+                {w.status}
+              </Badge>
             </li>
           ))}
         </ul>
@@ -646,15 +711,29 @@ function RolesPanel({
       ) : (
         <ul className="divide-y divide-[var(--st-border)]">
           {roles.map((r) => (
-            <li key={r._id} className="py-3 flex items-center justify-between">
-              <div>
-                <div className="font-medium text-[var(--st-text)]">{r.name}</div>
-                <div className="text-xs text-[var(--st-text-secondary)]">
-                  read: {r.recordsCanRead.rule}, edit: {r.recordsCanEdit.rule},
-                  delete: {r.recordsCanDelete.rule}
+            <li
+              key={r._id}
+              className="py-3 flex items-center justify-between gap-3 -mx-2 px-2 rounded-[var(--st-radius)] hover:bg-[var(--st-bg-secondary)] transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className="size-9 rounded-[var(--st-radius)] flex items-center justify-center shrink-0"
+                  style={{ background: '#0d94881a', color: '#0d9488' }}
+                  aria-hidden="true"
+                >
+                  <Shield className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <div className="font-medium text-[var(--st-text)] truncate">{r.name}</div>
+                  <div className="text-xs text-[var(--st-text-secondary)]">
+                    Read: {r.recordsCanRead.rule} · edit: {r.recordsCanEdit.rule} · delete:{' '}
+                    {r.recordsCanDelete.rule}
+                  </div>
                 </div>
               </div>
-              <Badge kind="outline">{r.formsCanSubmit?.length ?? 0} forms</Badge>
+              <Badge tone="neutral" kind="outline">
+                {r.formsCanSubmit?.length ?? 0} forms
+              </Badge>
             </li>
           ))}
         </ul>
@@ -728,19 +807,28 @@ function RoleRuleRow({
 function DataPanel({ app }: { app: SabcreatorAppDoc }) {
   return (
     <Card padding="lg">
-      <h2 className="font-semibold mb-2 text-[var(--st-text)]">Data source</h2>
-      <p className="text-sm text-[var(--st-text-secondary)] mb-4">
+      <div className="flex items-center gap-2 mb-2">
+        <span
+          className="size-9 rounded-[var(--st-radius)] flex items-center justify-center shrink-0"
+          style={{ background: '#0891b21a', color: '#0891b2' }}
+          aria-hidden="true"
+        >
+          <Database className="size-4" />
+        </span>
+        <h2 className="font-semibold text-[var(--st-text)]">Data source</h2>
+      </div>
+      <p className="text-sm text-[var(--st-text-secondary)] mb-4 max-w-prose">
         SabCreator stores app records in SabTables. Each form points at one table; pages
         read from the same base.
       </p>
       {app.sabtablesBaseId ? (
-        <div className="text-sm text-[var(--st-text)]">
+        <div className="flex items-center gap-2 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text)]">
           Linked SabTables base:{' '}
           <code className="text-[var(--st-text)]">{app.sabtablesBaseId}</code>
         </div>
       ) : (
-        <div className="text-sm text-[var(--st-text-secondary)]">
-          No SabTables base linked yet. Update the app to link one, forms can still target
+        <div className="rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] px-3 py-2 text-sm text-[var(--st-text-secondary)]">
+          No SabTables base linked yet. Update the app to link one — forms can still target
           individual tables in the meantime.
         </div>
       )}

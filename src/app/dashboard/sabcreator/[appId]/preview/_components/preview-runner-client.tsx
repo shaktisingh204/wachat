@@ -108,9 +108,11 @@ function FormRuntime({ form }: { form: SabcreatorFormDoc }) {
       <CardHeader className="flex items-start justify-between gap-3">
         <div>
           <CardTitle>{form.name}</CardTitle>
-          <CardDescription>on submit: {form.submitAction}</CardDescription>
+          <CardDescription>On submit: {form.submitAction}</CardDescription>
         </div>
-        <Badge variant="outline">{form.status}</Badge>
+        <Badge tone="neutral" kind="outline">
+          {form.status}
+        </Badge>
       </CardHeader>
       <CardBody>
         {fields.length === 0 ? (
@@ -160,10 +162,12 @@ function PageStub({ page }: { page: SabcreatorPageDoc }) {
         <div>
           <CardTitle>{page.name}</CardTitle>
           <CardDescription>
-            {page.kind} / {page.slug} . visibility {page.roleVisibility}
+            {page.kind} · /{page.slug} · visibility {page.roleVisibility}
           </CardDescription>
         </div>
-        <Badge variant="outline">{count} widgets</Badge>
+        <Badge tone="neutral" kind="outline" className="tabular-nums">
+          {count} widgets
+        </Badge>
       </CardHeader>
       <CardBody>
         <p className="text-xs text-[var(--st-text-secondary)]">

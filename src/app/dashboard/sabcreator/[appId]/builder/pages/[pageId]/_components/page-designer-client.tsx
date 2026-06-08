@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowDown,
+  ArrowLeft,
   ArrowUp,
   BarChart3,
   LayoutGrid,
@@ -44,7 +45,9 @@ import {
   Textarea,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
+  PageHeaderHeading,
   PageTitle,
   useToast,
 } from '@/components/sabcrm/20ui';
@@ -161,29 +164,34 @@ export function PageDesignerClient({ app, page }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col px-6 py-8">
       <PageHeader>
-        <div>
-          <PageTitle>{page.name}</PageTitle>
-          <PageDescription>
-            Page designer, {page.kind},{' '}
+        <PageHeaderHeading>
+          <PageEyebrow>
             <Link
               href={`/dashboard/sabcreator/${app._id}/builder`}
-              className="underline"
+              className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
             >
-              back to builder
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              {app.name}
             </Link>
+          </PageEyebrow>
+          <PageTitle>{page.name}</PageTitle>
+          <PageDescription>
+            Page designer · {page.kind}. Add widgets from the palette and set visibility.
           </PageDescription>
-        </div>
+        </PageHeaderHeading>
         <PageActions>
-          <Badge variant="outline">{page.status}</Badge>
+          <Badge tone="neutral" kind="outline">
+            {page.status}
+          </Badge>
           <Button variant="primary" iconLeft={Save} onClick={save} loading={pending}>
-            {pending ? 'Saving...' : 'Save'}
+            {pending ? 'Saving…' : 'Save'}
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
+      <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4">
         <aside>
           <Card padding="sm">
             <CardHeader>
@@ -315,9 +323,12 @@ export function PageDesignerClient({ app, page }: Props) {
                 </Button>
               </div>
             ) : (
-              <p className="text-xs text-[var(--st-text-secondary)]">
-                Select a widget on the canvas to edit it.
-              </p>
+              <EmptyState
+                icon={MousePointerClick}
+                size="sm"
+                title="No widget selected"
+                description="Select a widget on the canvas to edit it."
+              />
             )}
           </Card>
 

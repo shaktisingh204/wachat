@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowDown,
+  ArrowLeft,
   ArrowUp,
   CalendarDays,
   Hash,
@@ -40,6 +41,7 @@ import {
   Input,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
@@ -180,29 +182,34 @@ export function FormDesignerClient({ app, form }: Props) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col px-6 py-8">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>{form.name}</PageTitle>
-          <PageDescription>
-            Form designer, {app.name},{' '}
+          <PageEyebrow>
             <Link
               href={`/dashboard/sabcreator/${app._id}/builder`}
-              className="underline"
+              className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
             >
-              back to builder
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              {app.name}
             </Link>
+          </PageEyebrow>
+          <PageTitle>{form.name}</PageTitle>
+          <PageDescription>
+            Form designer · drag fields from the palette and configure submit behaviour.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
-          <Badge kind="outline">{form.status}</Badge>
+          <Badge tone="neutral" kind="outline">
+            {form.status}
+          </Badge>
           <Button variant="primary" onClick={save} loading={pending} iconLeft={Save}>
             {pending ? 'Saving…' : 'Save'}
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4 px-6 pb-10">
+      <div className="flex-1 grid grid-cols-[200px_1fr_320px] gap-4">
         {/* Palette */}
         <aside>
           <Card padding="sm">

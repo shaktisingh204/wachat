@@ -13,6 +13,7 @@ import {
   EmptyState,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
@@ -54,12 +55,21 @@ export default async function SabcreatorPreviewPage({
   const builderHref = `/dashboard/sabcreator/${app._id}/builder`;
 
   return (
-    <div className="px-6 py-8 space-y-6">
+    <main className="mx-auto max-w-[960px] px-6 py-8 space-y-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageTitle>Preview · {app.name}</PageTitle>
+          <PageEyebrow>
+            <Link
+              href={builderHref}
+              className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
+            >
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              {app.name}
+            </Link>
+          </PageEyebrow>
+          <PageTitle>Preview</PageTitle>
           <PageDescription>
-            How an end-user would see the app today.
+            How an end user would see this app today.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
@@ -68,7 +78,7 @@ export default async function SabcreatorPreviewPage({
             kind={isPublished ? 'soft' : 'outline'}
             dot
           >
-            {app.status}
+            {isPublished ? 'Published' : 'Draft'}
           </Badge>
           <Link
             href={builderHref}
@@ -99,6 +109,6 @@ export default async function SabcreatorPreviewPage({
           <PreviewRunnerClient forms={forms.items} pages={pages.items} />
         </Card>
       )}
-    </div>
+    </main>
   );
 }

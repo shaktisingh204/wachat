@@ -10,7 +10,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, UserPlus, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, UserPlus, ShieldCheck } from 'lucide-react';
 
 import {
   Badge,
@@ -26,6 +26,7 @@ import {
   Label,
   PageActions,
   PageDescription,
+  PageEyebrow,
   PageHeader,
   PageHeaderHeading,
   PageTitle,
@@ -144,24 +145,34 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col px-6 py-8">
       <PageHeader>
         <PageHeaderHeading>
+          <PageEyebrow>
+            <Link
+              href={`/dashboard/sabcreator/${app._id}/builder`}
+              className="inline-flex items-center gap-1.5 text-[var(--st-text-secondary)] hover:text-[var(--st-text)] transition-colors"
+            >
+              <ArrowLeft className="size-3.5" aria-hidden="true" />
+              {app.name}
+            </Link>
+          </PageEyebrow>
           <PageTitle>Roles and access</PageTitle>
           <PageDescription>
-            {app.name}. Row-level security and per-user assignments.
+            Row-level security and per-user assignments for this app.
           </PageDescription>
         </PageHeaderHeading>
         <PageActions>
           <Button asChild variant="outline">
             <Link href={`/dashboard/sabcreator/${app._id}/builder`}>
+              <ArrowLeft className="size-4" aria-hidden="true" />
               Back to builder
             </Link>
           </Button>
         </PageActions>
       </PageHeader>
 
-      <div className="grid grid-cols-[260px_1fr] gap-4 px-6 pb-10 flex-1">
+      <div className="grid grid-cols-[260px_1fr] gap-4 flex-1">
         <aside>
           <Card padding="sm" className="space-y-3">
             <div className="flex items-end gap-2">
@@ -193,7 +204,7 @@ export function RolesEditorClient({ app, initialRoles, initialAssignments }: Pro
                       className="justify-between"
                     >
                       <span>{r.name}</span>
-                      <Badge variant="outline" className="shrink-0">
+                      <Badge tone="neutral" kind="soft" className="shrink-0 tabular-nums">
                         {assignments.filter((a) => a.roleId === r._id).length}
                       </Badge>
                     </Button>

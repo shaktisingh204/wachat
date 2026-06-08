@@ -1,7 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Workflow, Plus, Play, MoreHorizontal, Settings, Clock } from 'lucide-react';
+import {
+  Workflow,
+  Plus,
+  Play,
+  MoreHorizontal,
+  Settings,
+  Clock,
+  Zap,
+  CircleDot,
+} from 'lucide-react';
 import {
   PageHeader,
   PageHeaderHeading,
@@ -14,6 +23,7 @@ import {
   IconButton,
   Badge,
   type BadgeTone,
+  StatCard,
   Table,
   THead,
   Tr,
@@ -80,8 +90,11 @@ const STATUS_TONE: Record<WorkflowStatus, BadgeTone> = {
 };
 
 export default function SabCreatorWorkflowsPage() {
+  const active = MOCK_WORKFLOWS.filter((w) => w.status === 'active').length;
+  const drafts = MOCK_WORKFLOWS.filter((w) => w.status === 'draft').length;
+
   return (
-    <div className="20ui p-6 md:p-10 space-y-8">
+    <main className="20ui mx-auto max-w-[1200px] p-6 md:p-10 space-y-8">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>
@@ -95,10 +108,31 @@ export default function SabCreatorWorkflowsPage() {
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            New Workflow
+            New workflow
           </Button>
         </PageActions>
       </PageHeader>
+
+      <section aria-label="Workflow summary" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Total workflows"
+          value={<span className="tabular-nums">{MOCK_WORKFLOWS.length}</span>}
+          icon={Zap}
+          accent="#6366f1"
+        />
+        <StatCard
+          label="Active"
+          value={<span className="tabular-nums">{active}</span>}
+          icon={CircleDot}
+          accent="#16a34a"
+        />
+        <StatCard
+          label="Drafts"
+          value={<span className="tabular-nums">{drafts}</span>}
+          icon={Clock}
+          accent="#d97706"
+        />
+      </section>
 
       <Card padding="none" className="overflow-hidden">
         <Table>
@@ -108,7 +142,7 @@ export default function SabCreatorWorkflowsPage() {
               <Th>App</Th>
               <Th>Trigger</Th>
               <Th>Status</Th>
-              <Th>Last Run</Th>
+              <Th>Last run</Th>
               <Th align="right">Actions</Th>
             </Tr>
           </THead>
@@ -134,10 +168,10 @@ export default function SabCreatorWorkflowsPage() {
                 </Td>
                 <Td>
                   <Badge tone={STATUS_TONE[wf.status]} dot>
-                    {wf.status}
+                    {wf.status.charAt(0).toUpperCase() + wf.status.slice(1)}
                   </Badge>
                 </Td>
-                <Td className="text-sm text-[var(--st-text-secondary)]">{wf.lastRun}</Td>
+                <Td className="text-sm tabular-nums text-[var(--st-text-secondary)]">{wf.lastRun}</Td>
                 <Td align="right">
                   <div className="flex justify-end gap-1">
                     <IconButton label={`Run ${wf.name}`} icon={Play} variant="ghost" size="sm" />
@@ -160,6 +194,6 @@ export default function SabCreatorWorkflowsPage() {
           </TBody>
         </Table>
       </Card>
-    </div>
+    </main>
   );
 }

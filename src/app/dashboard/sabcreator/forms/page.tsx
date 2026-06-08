@@ -1,7 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { FileText, Plus, Database, Edit, Eye, MoreHorizontal } from 'lucide-react';
+import {
+  FileText,
+  Plus,
+  Database,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Inbox,
+  Send,
+} from 'lucide-react';
 import {
   PageHeader,
   PageHeaderHeading,
@@ -13,6 +22,7 @@ import {
   Button,
   IconButton,
   Badge,
+  StatCard,
   Table,
   THead,
   TBody,
@@ -61,8 +71,11 @@ const MOCK_FORMS = [
 ];
 
 export default function SabCreatorFormsPage() {
+  const totalSubmissions = MOCK_FORMS.reduce((sum, f) => sum + f.submissions, 0);
+  const published = MOCK_FORMS.filter((f) => f.status === 'published').length;
+
   return (
-    <div className="p-6 md:p-10 space-y-8">
+    <main className="20ui mx-auto max-w-[1200px] p-6 md:p-10 space-y-8">
       <PageHeader>
         <PageHeaderHeading>
           <PageEyebrow>
@@ -78,20 +91,42 @@ export default function SabCreatorFormsPage() {
         </PageHeaderHeading>
         <PageActions>
           <Button variant="primary" iconLeft={Plus}>
-            Create Form
+            Create form
           </Button>
         </PageActions>
       </PageHeader>
+
+      <section aria-label="Forms summary" className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Total forms"
+          value={<span className="tabular-nums">{MOCK_FORMS.length}</span>}
+          icon={FileText}
+          accent="#6366f1"
+        />
+        <StatCard
+          label="Published"
+          value={<span className="tabular-nums">{published}</span>}
+          icon={Send}
+          accent="#16a34a"
+        />
+        <StatCard
+          label="Submissions"
+          value={<span className="tabular-nums">{totalSubmissions.toLocaleString()}</span>}
+          icon={Inbox}
+          accent="#0891b2"
+        />
+      </section>
 
       <Card padding="none" className="overflow-hidden">
         <Table>
           <THead>
             <Tr>
-              <Th>Form Name</Th>
-              <Th>Target App</Th>
-              <Th>Database Table</Th>
-              <Th>Submissions</Th>
+              <Th>Form name</Th>
+              <Th>Target app</Th>
+              <Th>Database table</Th>
+              <Th align="right">Submissions</Th>
               <Th>Status</Th>
+              <Th>Updated</Th>
               <Th align="right">Actions</Th>
             </Tr>
           </THead>
@@ -105,26 +140,38 @@ export default function SabCreatorFormsPage() {
                   <span className="text-sm text-[var(--st-text-secondary)]">{form.app}</span>
                 </Td>
                 <Td>
-                  <div className="flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)]">
-                    <Database className="w-4 h-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1.5 text-sm text-[var(--st-text-secondary)]">
+                    <Database className="w-4 h-4" aria-hidden="true" />
                     {form.table}
-                  </div>
+                  </span>
                 </Td>
-                <Td>
-                  <span className="text-sm text-[var(--st-text-secondary)]">
+                <Td align="right">
+                  <span className="text-sm tabular-nums text-[var(--st-text)]">
                     {form.submissions.toLocaleString()}
                   </span>
                 </Td>
                 <Td>
-                  <Badge tone={form.status === 'published' ? 'success' : 'neutral'} dot>
-                    {form.status}
+                  <Badge
+                    tone={form.status === 'published' ? 'success' : 'neutral'}
+                    kind={form.status === 'published' ? 'soft' : 'outline'}
+                    dot
+                  >
+                    {form.status === 'published' ? 'Published' : 'Draft'}
                   </Badge>
+                </Td>
+                <Td>
+                  <span className="text-sm text-[var(--st-text-secondary)]">{form.updatedAt}</span>
                 </Td>
                 <Td align="right">
                   <div className="flex justify-end gap-1">
-                    <IconButton label={`Preview ${form.name}`} icon={Eye} size="sm" />
-                    <IconButton label={`Edit ${form.name}`} icon={Edit} size="sm" />
-                    <IconButton label={`More actions for ${form.name}`} icon={MoreHorizontal} size="sm" />
+                    <IconButton label={`Preview ${form.name}`} icon={Eye} variant="ghost" size="sm" />
+                    <IconButton label={`Edit ${form.name}`} icon={Edit} variant="ghost" size="sm" />
+                    <IconButton
+                      label={`More actions for ${form.name}`}
+                      icon={MoreHorizontal}
+                      variant="ghost"
+                      size="sm"
+                    />
                   </div>
                 </Td>
               </Tr>
@@ -132,6 +179,6 @@ export default function SabCreatorFormsPage() {
           </TBody>
         </Table>
       </Card>
-    </div>
+    </main>
   );
 }
