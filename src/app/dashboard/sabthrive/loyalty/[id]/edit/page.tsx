@@ -25,9 +25,9 @@ export default async function EditLoyaltyProgramPage({
 
     return (
         <EntityDetailShell
-            eyebrow="LOYALTY PROGRAM"
+            eyebrow="Loyalty"
             title={`Edit ${program.name ?? 'loyalty program'}`}
-            back={{ href: '/dashboard/sabthrive/loyalty', label: 'Loyalty' }}
+            back={{ href: `/dashboard/sabthrive/loyalty/${id}`, label: program.name ?? 'Program' }}
         >
             <EditLoyaltyForm loyaltyId={id} initial={program} />
         </EntityDetailShell>

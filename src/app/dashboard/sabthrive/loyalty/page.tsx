@@ -446,21 +446,25 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
               label="Total members"
               value={kpis.totalMembers.toLocaleString()}
               icon={Users}
+              accent="#3b7af5"
             />
             <StatCard
               label="Points outstanding"
               value={kpis.pointsOutstanding.toLocaleString()}
               icon={Coins}
+              accent="#d97706"
             />
             <StatCard
               label="Top-tier members"
               value={kpis.topTierMembers.toLocaleString()}
               icon={Crown}
+              accent="#7c3aed"
             />
             <StatCard
               label="Redemption rate"
               value={`${kpis.redemptionRate.toLocaleString()}%`}
               icon={RefreshCcw}
+              accent="#1f9d55"
             />
           </div>
 

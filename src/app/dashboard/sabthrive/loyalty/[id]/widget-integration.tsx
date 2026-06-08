@@ -1,42 +1,56 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card, Button } from '@/components/sabcrm/20ui';
-import { Check, Copy } from 'lucide-react';
+import * as React from 'react';
+import { Check, Code2, Copy } from 'lucide-react';
 
-export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }) {
-    const [copied, setCopied] = useState(false);
+import {
+  Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/sabcrm/20ui';
 
-    const snippet = `<script src="https://sabnode.com/widgets/loyalty.js" data-loyalty-id="${loyaltyId}" defer></script>`;
+export function WidgetIntegration({ loyaltyId }: { loyaltyId: string }): React.JSX.Element {
+  const [copied, setCopied] = React.useState(false);
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(snippet);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
+  const snippet = `<script src="https://sabnode.com/widgets/loyalty.js" data-loyalty-id="${loyaltyId}" defer></script>`;
 
-    return (
-        <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-[var(--st-text-secondary)]">
-                Portal Widget Integration
-            </h2>
-            <p className="text-[13px] text-[var(--st-text)] mb-4">
-                Embed this loyalty portal directly into your website. The widget allows customers to view their point balance, current tier, and redeem rewards.
-            </p>
-            <div className="relative">
-                <pre className="bg-[var(--st-bg-secondary)] border border-[var(--st-border)] rounded-md p-4 text-[12px] text-[var(--st-text)] overflow-x-auto">
-                    <code>{snippet}</code>
-                </pre>
-                <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="absolute top-2 right-2 h-7 w-7 p-0" 
-                    onClick={copyToClipboard}
-                    title="Copy snippet"
-                >
-                    {copied ? <Check className="h-4 w-4 text-[var(--st-text)]" /> : <Copy className="h-4 w-4" />}
-                </Button>
-            </div>
-        </Card>
-    );
+  const copyToClipboard = React.useCallback(() => {
+    navigator.clipboard.writeText(snippet);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [snippet]);
+
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <div className="flex items-center gap-[var(--st-space-2)]">
+          <Code2 className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+          <CardTitle>Embed widget</CardTitle>
+        </div>
+        <CardDescription>
+          Drop this snippet into your site so customers can check their balance,
+          tier, and redeem rewards.
+        </CardDescription>
+      </CardHeader>
+      <CardBody>
+        <div className="relative">
+          <pre className="overflow-x-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-[var(--st-space-4)] pr-12 text-[12px] leading-relaxed text-[var(--st-text)]">
+            <code>{snippet}</code>
+          </pre>
+          <Button
+            variant={copied ? 'secondary' : 'outline'}
+            size="sm"
+            iconLeft={copied ? Check : Copy}
+            className="absolute right-2 top-2"
+            onClick={copyToClipboard}
+          >
+            {copied ? 'Copied' : 'Copy'}
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
+  );
 }
