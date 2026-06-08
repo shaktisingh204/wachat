@@ -52,7 +52,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                 const data = await getShortUrlAnalyticsGeo(url._id.toString());
                 setGeoData(data);
             } catch {
-                toast({ title: 'Error', description: 'Failed to fetch geo analytics', tone: 'danger' });
+                toast({ title: 'Could not load analytics', description: 'Failed to fetch geo analytics. Please try again.', tone: 'danger' });
                 setGeoData([]);
             }
         });
@@ -63,14 +63,14 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             try {
                 const res = await updateShortUrl(url._id.toString(), { splitTargets });
                 if (res.success) {
-                    toast({ title: 'Success', description: 'A/B test settings updated.', tone: 'success' });
+                    toast({ title: 'A/B test updated', description: 'Traffic split was saved.', tone: 'success' });
                     setIsAbOpen(false);
                     onUpdate();
                 } else {
-                    toast({ title: 'Error', description: res.error || 'Failed to update', tone: 'danger' });
+                    toast({ title: 'Could not save', description: res.error || 'Failed to update', tone: 'danger' });
                 }
             } catch {
-                toast({ title: 'Error', description: 'API Error: Failed to save A/B test', tone: 'danger' });
+                toast({ title: 'Could not save', description: 'We could not save the A/B test. Please try again.', tone: 'danger' });
             }
         });
     };
@@ -103,10 +103,10 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenuItem iconLeft={BarChart} onClick={handleOpenGeo}>
-                        Geo Analytics
+                        Geo analytics
                     </DropdownMenuItem>
                     <DropdownMenuItem iconLeft={Settings} onClick={() => setIsAbOpen(true)}>
-                        A/B Testing
+                        A/B testing
                     </DropdownMenuItem>
                     <DropdownMenuItem iconLeft={QrCodeIcon} onClick={() => setIsQrOpen(true)}>
                         Generate QR
@@ -118,7 +118,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             <Dialog open={isGeoOpen} onOpenChange={setIsGeoOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Geographic Analytics</DialogTitle>
+                        <DialogTitle>Clicks by country</DialogTitle>
                         <DialogDescription>
                             Clicks by country for /{url.shortCode}
                         </DialogDescription>
@@ -159,7 +159,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             <Dialog open={isAbOpen} onOpenChange={setIsAbOpen}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle>A/B Testing (Split Targets)</DialogTitle>
+                        <DialogTitle>A/B testing (split targets)</DialogTitle>
                         <DialogDescription>
                             Distribute traffic among multiple destination URLs.
                         </DialogDescription>
@@ -191,7 +191,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                             </div>
                         ))}
                         <Button variant="outline" size="sm" block iconLeft={Plus} onClick={handleAddTarget}>
-                            Add Target
+                            Add target
                         </Button>
                     </div>
                     <DialogFooter>
@@ -199,7 +199,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                             Cancel
                         </Button>
                         <Button variant="primary" loading={isPending} onClick={handleSaveAbTest}>
-                            {isPending ? 'Saving...' : 'Save A/B Test'}
+                            {isPending ? 'Saving' : 'Save A/B test'}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -209,7 +209,7 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
             <Dialog open={isQrOpen} onOpenChange={setIsQrOpen}>
                 <DialogContent className="sm:max-w-sm text-center">
                     <DialogHeader>
-                        <DialogTitle>QR Code for /{url.shortCode}</DialogTitle>
+                        <DialogTitle>QR code for /{url.shortCode}</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col items-center justify-center py-6 space-y-6">
                         <div className="bg-white p-4 rounded-[var(--st-radius)] shadow-[var(--st-shadow)]">
@@ -224,10 +224,10 @@ export function LinkItemActions({ url, onUpdate }: LinkItemActionsProps) {
                             variant="secondary"
                             iconLeft={Download}
                             onClick={() => {
-                                toast({ title: 'Info', description: 'Right-click the QR code to save image.', tone: 'info' });
+                                toast({ title: 'Save the QR code', description: 'Right-click the QR code, then choose Save image.', tone: 'info' });
                             }}
                         >
-                            Download Instructions
+                            How to download
                         </Button>
                     </div>
                 </DialogContent>

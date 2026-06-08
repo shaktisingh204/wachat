@@ -58,7 +58,7 @@ export function ShortUrlSettings({
         <CardHeader className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Settings className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-            <CardTitle className="text-[13px]">Link Details</CardTitle>
+            <CardTitle className="text-[13px]">Link details</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <LinkHistoryDrawer
@@ -70,11 +70,11 @@ export function ShortUrlSettings({
         </CardHeader>
         <CardBody>
           <dl className="space-y-3 text-[13px]">
-            <DetailRow label="Short Code">
+            <DetailRow label="Short code">
               <span className="font-mono">{shortUrl.shortCode}</span>
             </DetailRow>
             {shortUrl.customSlug && (
-              <DetailRow label="Custom Alias">
+              <DetailRow label="Custom alias">
                 <span className="font-mono">{shortUrl.customSlug}</span>
               </DetailRow>
             )}
@@ -95,7 +95,7 @@ export function ShortUrlSettings({
                 : 'Never'}
             </DetailRow>
             {shortUrl.clickLimit && (
-              <DetailRow label="Click Limit">{shortUrl.clickLimit.toLocaleString()}</DetailRow>
+              <DetailRow label="Click limit">{shortUrl.clickLimit.toLocaleString()}</DetailRow>
             )}
           </dl>
 
@@ -103,7 +103,7 @@ export function ShortUrlSettings({
             <div className="mt-6">
               <div className="pt-4 border-t border-[var(--st-border)]">
                 <p className="text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)] mb-3">
-                  UTM Parameters
+                  UTM parameters
                 </p>
               </div>
               <dl className="space-y-3 text-[13px]">
@@ -146,7 +146,7 @@ export function ShortUrlSettings({
             {shortUrl.splitTargets && shortUrl.splitTargets.length > 0 && (
               <Card padding="none">
                 <CardHeader>
-                  <CardTitle className="text-[13px]">A/B Testing (Split Targets)</CardTitle>
+                  <CardTitle className="text-[13px]">A/B testing (split targets)</CardTitle>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-3">
@@ -172,7 +172,7 @@ export function ShortUrlSettings({
             {shortUrl.geoTargets && shortUrl.geoTargets.length > 0 && (
               <Card padding="none">
                 <CardHeader>
-                  <CardTitle className="text-[13px]">Geographic Routing</CardTitle>
+                  <CardTitle className="text-[13px]">Geographic routing</CardTitle>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-3">
@@ -198,7 +198,7 @@ export function ShortUrlSettings({
             {shortUrl.deviceTargets && shortUrl.deviceTargets.length > 0 && (
               <Card padding="none">
                 <CardHeader>
-                  <CardTitle className="text-[13px]">Device Routing</CardTitle>
+                  <CardTitle className="text-[13px]">Device routing</CardTitle>
                 </CardHeader>
                 <CardBody>
                   <div className="space-y-3">
@@ -224,7 +224,7 @@ export function ShortUrlSettings({
           <Card variant="outlined" className="h-full">
             <EmptyState
               icon={Route}
-              title="Advanced Routing Not Active"
+              title="No advanced routing yet"
               description="Configure A/B testing, geographic routing, or device-specific links to see them here."
               action={<EditLinkDrawer shortUrl={shortUrl} />}
             />

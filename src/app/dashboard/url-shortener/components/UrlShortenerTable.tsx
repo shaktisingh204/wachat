@@ -72,13 +72,13 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string; onDeleted: () => vo
       try {
         const result = await deleteShortUrl(urlId);
         if (result.success) {
-          toast({ title: 'Success', description: 'URL deleted.', tone: 'success' });
+          toast({ title: 'Link deleted', tone: 'success' });
           onDeleted();
         } else {
-          toast({ title: 'Error', description: result.error || 'Failed to delete URL.', tone: 'danger' });
+          toast({ title: 'Could not delete link', description: result.error || 'Failed to delete this link.', tone: 'danger' });
         }
       } catch {
-        toast({ title: 'Error', description: 'Network error occurred.', tone: 'danger' });
+        toast({ title: 'Could not delete link', description: 'A network error occurred. Please try again.', tone: 'danger' });
       }
     });
   };
@@ -167,10 +167,10 @@ export function UrlShortenerTable({
           toast({ title: 'Deleted', description: `${result.deleted ?? ids.length} links removed.`, tone: 'success' });
           fetchUrls();
         } else {
-          toast({ title: 'Error', description: result.error || 'Failed to delete URLs.', tone: 'danger' });
+          toast({ title: 'Could not delete links', description: result.error || 'Failed to delete the selected links.', tone: 'danger' });
         }
       } catch {
-        toast({ title: 'Error', description: 'Network error occurred.', tone: 'danger' });
+        toast({ title: 'Could not delete links', description: 'A network error occurred. Please try again.', tone: 'danger' });
       }
     });
   };

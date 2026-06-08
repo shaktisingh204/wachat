@@ -139,7 +139,7 @@ export default function UrlShortenerPage() {
         setCollections(cols);
         setSelectedIds(new Set());
       } catch (err) {
-        toast({ title: 'Error', description: 'Failed to fetch links.', tone: 'danger' });
+        toast({ title: 'Could not load links', description: 'We could not fetch your links. Please refresh and try again.', tone: 'danger' });
       }
     });
   }, [toast]);

@@ -49,11 +49,11 @@ export function QrCodeModal({ url }: { url: string }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Button variant="outline" size="sm" iconLeft={QrCodeIcon} onClick={() => setIsOpen(true)}>
-        QR Code
+        QR code
       </Button>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>QR Code for Short URL</DialogTitle>
+          <DialogTitle>QR code for this link</DialogTitle>
         </DialogHeader>
         <div className="mt-4 flex flex-col items-center justify-center gap-6 rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] p-6">
           <div className="rounded-[var(--st-radius)] bg-white p-4 shadow-[var(--st-shadow-sm)]">
@@ -72,7 +72,7 @@ export function QrCodeModal({ url }: { url: string }) {
         </div>
         <DialogFooter>
           <Button variant="outline" iconLeft={Copy} onClick={copyToClipboard}>
-            Copy Link
+            Copy link
           </Button>
           <Button variant="primary" iconLeft={Download} onClick={downloadQrCode}>
             Download PNG

@@ -9,7 +9,7 @@ export function GeoAnalyticsTable({ data }: { data: { country: string; count: nu
       <div className="flex items-center gap-2 mb-4">
         <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
         <CardTitle className="text-[13px] text-[var(--st-text)] font-medium">
-          Detailed Geographic Analytics
+          Clicks by country
         </CardTitle>
       </div>
       {data.length > 0 ? (

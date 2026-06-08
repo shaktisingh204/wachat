@@ -1,11 +1,10 @@
 'use client';
 
-import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, Input } from '@/components/sabcrm/20ui';
+import { Card, CardBody, CardDescription, CardFooter, CardHeader, CardTitle, Button, IconButton, Input, useToast } from '@/components/sabcrm/20ui';
 import { useState, useEffect, useActionState } from 'react';
 import { handleUpdateUserProfile } from '@/app/actions/index.ts';
 import type { User, Tag } from '@/lib/definitions';
-import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
+import { Tags, Plus, Save, Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
 const updateTagsInitialState: any = { message: null, error: null };
@@ -17,13 +16,8 @@ interface TagsSettingsTabProps {
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
-        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
-      ) : (
-        <Save className="mr-2 h-4 w-4" aria-hidden="true" />
-      )}
-      Save Tags
+    <Button type="submit" loading={pending} disabled={pending} iconLeft={Save}>
+      Save tags
     </Button>
   );
 }
@@ -39,10 +33,10 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success', description: state.message });
+      toast({ title: 'Tags saved', description: state.message, tone: 'success' });
     }
     if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({ title: 'Could not save tags', description: state.error, tone: 'danger' });
     }
   }, [state, toast]);
 
@@ -75,24 +69,28 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
       />
       <Card>
         <CardHeader>
-          <CardTitle>Manage Your Tags</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Tags className="h-5 w-5" aria-hidden="true" /> Tags
+          </CardTitle>
           <CardDescription>
-            Create and manage colored tags to organize your short links and QR codes.
+            Create colored tags to organize your short links and QR codes.
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-4">
-          <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b border-[var(--st-border)] font-medium text-sm text-[var(--st-text-secondary)]">
-            <span>Tag Name</span>
-            <span className="text-center">Color</span>
-            <span className="w-10" aria-hidden="true" />
-          </div>
+          {tags.length > 0 ? (
+            <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 px-2 pb-2 border-b border-[var(--st-border)] font-medium text-[11px] uppercase tracking-wider text-[var(--st-text-secondary)]">
+              <span>Tag name</span>
+              <span className="text-center">Color</span>
+              <span className="w-10" aria-hidden="true" />
+            </div>
+          ) : null}
           <div className="space-y-2">
             {tags.map((tag) => (
               <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
                 <Input
                   value={tag.name}
                   onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
-                  placeholder="Enter tag name"
+                  placeholder="e.g. Newsletter, Q3 campaign"
                   aria-label="Tag name"
                 />
                 <Input
@@ -102,21 +100,18 @@ export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
                   className="h-9 w-14 p-1"
                   aria-label="Tag color"
                 />
-                <Button
+                <IconButton
                   type="button"
                   variant="ghost"
-                  size="icon"
+                  icon={Trash2}
                   onClick={() => handleRemoveTag(tag._id)}
-                  aria-label="Remove tag"
-                >
-                  <Trash2 className="h-4 w-4 text-[var(--st-text)]" aria-hidden="true" />
-                </Button>
+                  label="Remove tag"
+                />
               </div>
             ))}
           </div>
-          <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
-            <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
-            Add Tag
+          <Button type="button" variant="outline" block onClick={handleAddTag} iconLeft={Plus}>
+            Add tag
           </Button>
         </CardBody>
         <CardFooter>

@@ -8,13 +8,14 @@ import {
   CardTitle,
   PageHeader,
   PageHeaderHeading,
+  PageEyebrow,
   PageTitle,
   PageDescription,
   Separator,
   Skeleton,
 } from '@/components/sabcrm/20ui';
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Settings as SettingsIcon } from 'lucide-react';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { getSession } from '@/app/actions/index.ts';
 import type { WithId, CustomDomain, User, Tag } from '@/lib/definitions';
@@ -59,7 +60,13 @@ export default function UrlShortenerSettingsPage() {
     <div className="flex flex-col gap-8 max-w-5xl">
       <PageHeader bordered={false}>
         <PageHeaderHeading>
-          <PageTitle>URL Shortener Settings</PageTitle>
+          <PageEyebrow>
+            <span className="inline-flex items-center gap-1.5">
+              <SettingsIcon className="h-3.5 w-3.5" aria-hidden="true" />
+              URL shortener
+            </span>
+          </PageEyebrow>
+          <PageTitle>Settings</PageTitle>
           <PageDescription>
             Configure custom domains, tags, and developer settings for your short links.
           </PageDescription>
@@ -69,7 +76,7 @@ export default function UrlShortenerSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" aria-hidden="true" /> Custom Domains
+            <Globe className="h-5 w-5" aria-hidden="true" /> Custom domains
           </CardTitle>
           <CardDescription>
             Use your own domain for branded short links (e.g. links.mybrand.com). You must own the domain and be able to configure its DNS records.

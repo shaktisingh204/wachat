@@ -72,7 +72,7 @@ export function ShortUrlHeader({
           />
           <Link href="/dashboard/url-shortener">
             <Button variant="ghost" size="sm" iconLeft={ArrowLeft}>
-              All Links
+              All links
             </Button>
           </Link>
         </div>

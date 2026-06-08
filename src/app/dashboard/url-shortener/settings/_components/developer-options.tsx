@@ -22,15 +22,15 @@ export function DeveloperOptions() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" aria-hidden="true" /> Developer Options
+            <Key className="h-5 w-5" aria-hidden="true" /> Developer options
           </CardTitle>
           <CardDescription>
-            Proprietary access for programmatic URL shortening.
+            Programmatic access for creating short links from your own apps.
           </CardDescription>
         </CardHeader>
         <CardBody className="space-y-4">
           <Field
-            label="API Key (Read-only)"
+            label="API key (read-only)"
             help="API access for creating short links is currently in closed beta."
           >
             <div className="flex gap-2">
@@ -49,7 +49,7 @@ export function DeveloperOptions() {
         </CardBody>
         <CardFooter>
           <Button type="button" variant="outline" iconLeft={BookOpen} disabled>
-            View API Docs
+            View API docs
           </Button>
         </CardFooter>
       </Card>
@@ -76,7 +76,7 @@ export function DeveloperOptions() {
             className="w-full sm:w-auto"
             onClick={() => router.push('/dashboard/url-shortener/settings/webhooks')}
           >
-            Manage Webhooks
+            Manage webhooks
           </Button>
         </CardFooter>
       </Card>

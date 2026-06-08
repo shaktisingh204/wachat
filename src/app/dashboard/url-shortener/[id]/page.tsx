@@ -106,12 +106,12 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
           <EmptyState
             tone="danger"
             icon={AlertTriangle}
-            title="Failed to load data"
-            description="An error occurred while fetching the short URL data. Please try again later."
+            title="Could not load this link"
+            description="Something went wrong while fetching analytics for this link. Please try again."
             action={
               <Link href="/dashboard/url-shortener">
                 <Button variant="outline" size="sm" iconLeft={ArrowLeft}>
-                  Back to All Links
+                  Back to all links
                 </Button>
               </Link>
             }
@@ -134,7 +134,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
             action={
               <Link href="/dashboard/url-shortener">
                 <Button variant="outline" size="sm" iconLeft={ArrowLeft}>
-                  Back to All Links
+                  Back to all links
                 </Button>
               </Link>
             }

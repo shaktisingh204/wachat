@@ -156,7 +156,7 @@ export function UrlShortenerForm({
 
   useEffect(() => {
     if (state?.message) {
-      toast.success({ title: 'Success', description: state.message });
+      toast.success({ title: 'Link created', description: state.message });
       formRef.current?.reset();
       setCreateTagIds([]);
       setExpiresAt(undefined);
@@ -166,7 +166,7 @@ export function UrlShortenerForm({
       onSuccess();
     }
     if (state?.error) {
-      toast.error({ title: 'Error', description: state.error });
+      toast.error({ title: 'Could not create link', description: state.error });
     }
   }, [state, toast, onSuccess]);
 

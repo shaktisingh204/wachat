@@ -24,14 +24,16 @@ import {
   PageTitle,
   PageDescription,
   PageActions,
+  PageEyebrow,
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
+  StatCard,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Plus, Trash2, Webhook, Search, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Webhook, Search, AlertCircle, Zap, Pause, Radio } from 'lucide-react';
 
 const STORAGE_KEY = 'url-shortener-webhooks';
 
@@ -72,7 +74,7 @@ const apiFetchWebhooks = async (): Promise<ApiResponse<WebhookRow[]>> => {
       } catch (err: any) {
         resolve({ data: null, error: err.message || 'Failed to fetch', success: false });
       }
-    }, 600); // Artificial delay for skeleton loading
+    }, 600);
   });
 };
 
@@ -85,7 +87,7 @@ const apiSaveWebhooks = async (webhooks: WebhookRow[]): Promise<ApiResponse<Webh
       } catch (err: any) {
         resolve({ data: null, error: err.message || 'Failed to save', success: false });
       }
-    }, 400); // Artificial delay for saving
+    }, 400);
   });
 };
 
@@ -153,7 +155,9 @@ function WebhookForm({
 
   return (
     <Card padding="lg" className="space-y-4">
-      <CardTitle>New Webhook Config</CardTitle>
+      <CardTitle className="flex items-center gap-2">
+        <Webhook className="h-4 w-4" aria-hidden="true" /> New webhook
+      </CardTitle>
       <Field label="Endpoint URL">
         <Input
           placeholder="https://yourserver.com/webhook"
@@ -162,7 +166,7 @@ function WebhookForm({
           disabled={isSaving}
         />
       </Field>
-      <Field label="Secret (Optional)">
+      <Field label="Secret (optional)">
         <Input
           placeholder="Signing secret for payload verification"
           value={formSecret}
@@ -191,7 +195,7 @@ function WebhookForm({
       </Field>
       <div className="flex items-center gap-2 pt-1">
         <Button size="sm" variant="primary" onClick={handleSave} loading={isSaving}>
-          {isSaving ? 'Saving...' : 'Save Webhook'}
+          {isSaving ? 'Saving' : 'Save webhook'}
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel} disabled={isSaving}>Cancel</Button>
       </div>
@@ -278,7 +282,7 @@ export default function UrlShortenerWebhooksPage() {
     setIsLoading(true);
     const res = await apiFetchWebhooks();
     if (!res.success || !res.data) {
-      toast({ title: 'Error', description: res.error || 'Failed to load webhooks', tone: 'danger' });
+      toast({ title: 'Could not load webhooks', description: res.error || 'Failed to load webhooks.', tone: 'danger' });
       setWebhooks([]);
     } else {
       setWebhooks(res.data);
@@ -302,11 +306,11 @@ export default function UrlShortenerWebhooksPage() {
 
     setIsSaving(false);
     if (!res.success) {
-      toast({ title: 'Error', description: res.error || 'Failed to save', tone: 'danger' });
+      toast({ title: 'Could not save webhook', description: res.error || 'Failed to save.', tone: 'danger' });
     } else {
       setWebhooks(res.data || []);
       setShowForm(false);
-      toast({ title: 'Webhook added successfully', tone: 'success' });
+      toast({ title: 'Webhook added', tone: 'success' });
     }
   };
 
@@ -317,7 +321,7 @@ export default function UrlShortenerWebhooksPage() {
 
     const res = await apiSaveWebhooks(next);
     if (!res.success) {
-      toast({ title: 'Error', description: 'Failed to update status', tone: 'danger' });
+      toast({ title: 'Could not update webhook', description: 'Failed to update its status. Please try again.', tone: 'danger' });
       // Revert on failure
       setWebhooks(webhooks);
     }
@@ -330,7 +334,7 @@ export default function UrlShortenerWebhooksPage() {
 
     const res = await apiSaveWebhooks(next);
     if (!res.success) {
-      toast({ title: 'Error', description: 'Failed to delete webhook', tone: 'danger' });
+      toast({ title: 'Could not delete webhook', description: 'Please try again in a moment.', tone: 'danger' });
       setWebhooks(webhooks);
     } else {
       toast({ title: 'Webhook removed', tone: 'success' });
@@ -373,7 +377,13 @@ export default function UrlShortenerWebhooksPage() {
     return result;
   }, [webhooks, searchQuery, statusFilter, sortOption]);
 
-  if (!isMounted) return null; // Prevent hydration mismatch
+  const stats = useMemo(() => {
+    const active = webhooks.filter((w) => w.active).length;
+    const events = webhooks.reduce((sum, w) => sum + w.events.length, 0);
+    return { total: webhooks.length, active, paused: webhooks.length - active, events };
+  }, [webhooks]);
+
+  if (!isMounted) return null; // prevent hydration mismatch
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -399,17 +409,52 @@ export default function UrlShortenerWebhooksPage() {
 
       <PageHeader>
         <PageHeading>
+          <PageEyebrow>
+            <span className="inline-flex items-center gap-1.5">
+              <Webhook className="h-3.5 w-3.5" aria-hidden="true" />
+              Developer
+            </span>
+          </PageEyebrow>
           <PageTitle>Webhooks</PageTitle>
           <PageDescription>
-            Receive HTTP callbacks when link events occur. Keep your CRM up to date in real-time.
+            Receive HTTP callbacks when link events occur, so downstream systems stay in sync.
           </PageDescription>
         </PageHeading>
         <PageActions>
           <Button size="sm" variant="primary" iconLeft={Plus} onClick={() => setShowForm((v) => !v)}>
-            Add Webhook
+            Add webhook
           </Button>
         </PageActions>
       </PageHeader>
+
+      {!isLoading && webhooks.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            label="Endpoints"
+            value={<span className="tabular-nums">{stats.total}</span>}
+            icon={Webhook}
+            accent="#3b7af5"
+          />
+          <StatCard
+            label="Active"
+            value={<span className="tabular-nums">{stats.active}</span>}
+            icon={Zap}
+            accent="#1f9d55"
+          />
+          <StatCard
+            label="Paused"
+            value={<span className="tabular-nums">{stats.paused}</span>}
+            icon={Pause}
+            accent="#b78103"
+          />
+          <StatCard
+            label="Event triggers"
+            value={<span className="tabular-nums">{stats.events}</span>}
+            icon={Radio}
+            accent="#7c3aed"
+          />
+        </div>
+      )}
 
       {showForm && (
         <WebhookForm
@@ -425,7 +470,7 @@ export default function UrlShortenerWebhooksPage() {
           <div className="flex-1 min-w-[200px]">
             <Input
               iconLeft={Search}
-              placeholder="Search by URL..."
+              placeholder="Search by URL"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               aria-label="Search webhooks by URL"
@@ -437,7 +482,7 @@ export default function UrlShortenerWebhooksPage() {
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="all">All status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="paused">Paused</SelectItem>
             </SelectContent>
@@ -448,10 +493,10 @@ export default function UrlShortenerWebhooksPage() {
               <SelectValue placeholder="Sort" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="az">A-Z</SelectItem>
-              <SelectItem value="za">Z-A</SelectItem>
+              <SelectItem value="newest">Newest first</SelectItem>
+              <SelectItem value="oldest">Oldest first</SelectItem>
+              <SelectItem value="az">A to Z</SelectItem>
+              <SelectItem value="za">Z to A</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -468,7 +513,7 @@ export default function UrlShortenerWebhooksPage() {
             description="Add a webhook to receive real-time notifications when link events occur."
             action={
               <Button size="sm" variant="primary" iconLeft={Plus} onClick={() => setShowForm(true)}>
-                Configure First Webhook
+                Add your first webhook
               </Button>
             }
           />
@@ -501,7 +546,7 @@ export default function UrlShortenerWebhooksPage() {
                   setStatusFilter('all');
                 }}
               >
-                Clear Filters
+                Clear filters
               </Button>
             }
           />

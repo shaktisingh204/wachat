@@ -43,7 +43,7 @@ export default function CollectionsPage() {
                 setCollections(cols || []);
                 setUrls(urlData?.urls || []);
             } catch (error) {
-                toast({ title: 'Error', description: 'Failed to load collections or URLs', tone: 'danger' });
+                toast({ title: 'Could not load collections', description: 'Failed to load your collections and links. Please refresh.', tone: 'danger' });
             } finally {
                 setIsLoading(false);
             }
@@ -67,7 +67,7 @@ export default function CollectionsPage() {
                 }
                 loadData();
             } catch (error) {
-                toast({ title: 'Error', description: 'Failed to update collection', tone: 'danger' });
+                toast({ title: 'Could not update collection', description: 'Failed to update this collection. Please try again.', tone: 'danger' });
             }
         });
     };

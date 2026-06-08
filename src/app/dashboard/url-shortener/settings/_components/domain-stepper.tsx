@@ -175,7 +175,7 @@ export function DomainStepper({
       });
     }
     if (addState.error) {
-      toast({ title: 'Error', description: addState.error, tone: 'danger' });
+      toast({ title: 'Could not add domain', description: addState.error, tone: 'danger' });
     }
   }, [addState, toast, onDomainAdded]);
 
