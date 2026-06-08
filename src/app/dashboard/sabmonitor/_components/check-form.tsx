@@ -4,9 +4,13 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 
+import { Tag, Globe, Clock, ShieldCheck } from 'lucide-react';
+
 import {
     Button,
     Card,
+    CardHeader,
+    CardTitle,
     CardBody,
     Field,
     Input,
@@ -16,6 +20,7 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    Separator,
     useToast,
 } from '@/components/sabcrm/20ui';
 
@@ -105,36 +110,51 @@ export function CheckForm({
     const showUrl = kind === 'http' || kind === 'ssl';
     const showHostPort = kind === 'tcp' || kind === 'ping' || kind === 'dns';
 
-    return (
-        <Card>
-            <CardBody>
-                <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <Field label="Name" required>
-                            <Input
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </Field>
-                        <Field label="Kind" id="kind">
-                            <Select
-                                value={kind}
-                                onValueChange={(v) => setKind(v as SabmonitorCheckKind)}
-                            >
-                                <SelectTrigger id="kind" aria-label="Kind">
-                                    <SelectValue placeholder="Select a kind" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {KIND_OPTIONS.map((o) => (
-                                        <SelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </Field>
-                    </div>
+    const showValidation = kind === 'http' || kind === 'ssl';
 
+    return (
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Tag className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Identity
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="grid gap-3 md:grid-cols-2">
+                    <Field label="Name" required>
+                        <Input value={name} onChange={(e) => setName(e.target.value)} />
+                    </Field>
+                    <Field label="Kind" id="kind">
+                        <Select
+                            value={kind}
+                            onValueChange={(v) => setKind(v as SabmonitorCheckKind)}
+                        >
+                            <SelectTrigger id="kind" aria-label="Kind">
+                                <SelectValue placeholder="Select a kind" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {KIND_OPTIONS.map((o) => (
+                                    <SelectItem key={o.value} value={o.value}>
+                                        {o.label}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Globe className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Target
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="flex flex-col gap-3">
                     {showUrl && (
                         <Field label="URL">
                             <Input
@@ -148,10 +168,7 @@ export function CheckForm({
                     {showHostPort && (
                         <div className="grid gap-3 md:grid-cols-2">
                             <Field label="Host">
-                                <Input
-                                    value={host}
-                                    onChange={(e) => setHost(e.target.value)}
-                                />
+                                <Input value={host} onChange={(e) => setHost(e.target.value)} />
                             </Field>
                             <Field label="Port">
                                 <Input
@@ -165,85 +182,121 @@ export function CheckForm({
                         </div>
                     )}
 
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <Field label="Interval (seconds)">
-                            <Input
-                                type="number"
-                                value={intervalSecs}
-                                onChange={(e) => setIntervalSecs(Number(e.target.value))}
-                                min={30}
-                            />
-                        </Field>
-                        <Field label="Regions (comma-separated)">
-                            <Input
-                                value={regions}
-                                onChange={(e) => setRegions(e.target.value)}
-                                placeholder="us-east, eu-west"
-                            />
-                        </Field>
-                    </div>
+                    {!showUrl && !showHostPort && (
+                        <p className="text-[13px] text-[var(--st-text-secondary)]">
+                            This monitor kind runs a scripted target — no host or URL is needed
+                            here.
+                        </p>
+                    )}
+                </CardBody>
+            </Card>
 
-                    {kind === 'http' && (
-                        <>
-                            <div className="grid gap-3 md:grid-cols-2">
-                                <Field label="Expected status">
-                                    <Input
-                                        type="number"
-                                        value={expectedStatus}
-                                        onChange={(e) =>
-                                            setExpectedStatus(
-                                                e.target.value === '' ? '' : Number(e.target.value),
-                                            )
-                                        }
-                                        placeholder="200"
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Clock className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Schedule
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="grid gap-3 md:grid-cols-2">
+                    <Field label="Interval (seconds)">
+                        <Input
+                            type="number"
+                            value={intervalSecs}
+                            onChange={(e) => setIntervalSecs(Number(e.target.value))}
+                            min={30}
+                        />
+                    </Field>
+                    <Field label="Regions (comma-separated)">
+                        <Input
+                            value={regions}
+                            onChange={(e) => setRegions(e.target.value)}
+                            placeholder="us-east, eu-west"
+                        />
+                    </Field>
+                </CardBody>
+            </Card>
+
+            {showValidation && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-sm">
+                            <ShieldCheck
+                                className="h-4 w-4 text-[var(--st-accent)]"
+                                aria-hidden="true"
+                            />
+                            Validation
+                        </CardTitle>
+                    </CardHeader>
+                    <Separator />
+                    <CardBody className="flex flex-col gap-3">
+                        {kind === 'http' && (
+                            <>
+                                <div className="grid gap-3 md:grid-cols-2">
+                                    <Field label="Expected status">
+                                        <Input
+                                            type="number"
+                                            value={expectedStatus}
+                                            onChange={(e) =>
+                                                setExpectedStatus(
+                                                    e.target.value === ''
+                                                        ? ''
+                                                        : Number(e.target.value),
+                                                )
+                                            }
+                                            placeholder="200"
+                                        />
+                                    </Field>
+                                    <Field label="Expected body contains">
+                                        <Input
+                                            value={expectedBodyContains}
+                                            onChange={(e) =>
+                                                setExpectedBodyContains(e.target.value)
+                                            }
+                                        />
+                                    </Field>
+                                </div>
+                                <Field label="Headers (JSON)">
+                                    <Textarea
+                                        value={headersJson}
+                                        onChange={(e) => setHeadersJson(e.target.value)}
+                                        rows={3}
                                     />
                                 </Field>
-                                <Field label="Expected body contains">
-                                    <Input
-                                        value={expectedBodyContains}
-                                        onChange={(e) => setExpectedBodyContains(e.target.value)}
+                                <Field label="Body (JSON)">
+                                    <Textarea
+                                        value={bodyJson}
+                                        onChange={(e) => setBodyJson(e.target.value)}
+                                        rows={3}
                                     />
                                 </Field>
-                            </div>
-                            <Field label="Headers (JSON)">
-                                <Textarea
-                                    value={headersJson}
-                                    onChange={(e) => setHeadersJson(e.target.value)}
-                                    rows={3}
+                            </>
+                        )}
+
+                        {kind === 'ssl' && (
+                            <Field label="SSL expiry warn (days)" className="md:max-w-xs">
+                                <Input
+                                    type="number"
+                                    value={sslExpiryWarnDays}
+                                    onChange={(e) =>
+                                        setSslExpiryWarnDays(
+                                            e.target.value === '' ? '' : Number(e.target.value),
+                                        )
+                                    }
+                                    placeholder="14"
                                 />
                             </Field>
-                            <Field label="Body (JSON)">
-                                <Textarea
-                                    value={bodyJson}
-                                    onChange={(e) => setBodyJson(e.target.value)}
-                                    rows={3}
-                                />
-                            </Field>
-                        </>
-                    )}
+                        )}
+                    </CardBody>
+                </Card>
+            )}
 
-                    {kind === 'ssl' && (
-                        <Field label="SSL expiry warn (days)" className="md:max-w-xs">
-                            <Input
-                                type="number"
-                                value={sslExpiryWarnDays}
-                                onChange={(e) =>
-                                    setSslExpiryWarnDays(
-                                        e.target.value === '' ? '' : Number(e.target.value),
-                                    )
-                                }
-                                placeholder="14"
-                            />
-                        </Field>
-                    )}
-
-                    <div className="flex justify-end">
-                        <Button type="submit" variant="primary" loading={pending} disabled={pending}>
-                            {pending ? 'Saving' : initial ? 'Save check' : 'Create check'}
-                        </Button>
-                    </div>
-                </form>
-            </CardBody>
-        </Card>
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
+                <Button type="submit" variant="primary" loading={pending} disabled={pending}>
+                    {pending ? 'Saving' : initial ? 'Save monitor' : 'Create monitor'}
+                </Button>
+            </div>
+        </form>
     );
 }

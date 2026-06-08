@@ -33,7 +33,7 @@ export function TraceWaterfall({
     const total = Math.max(maxEnd - minStart, 1);
 
     return (
-        <ul className="flex flex-col gap-1.5">
+        <ul className="flex flex-col gap-1.5" aria-label="Span timing waterfall">
             {spans.map((s) => {
                 const start = new Date(s.startedAt).getTime() - minStart;
                 const pctStart = (start / total) * 100;
@@ -53,7 +53,7 @@ export function TraceWaterfall({
                                 title={`${s.durationMs}ms`}
                             />
                         </div>
-                        <div className="w-16 text-right text-[11px] text-[var(--st-text-secondary)]">
+                        <div className="w-16 text-right text-[11px] tabular-nums text-[var(--st-text-secondary)]">
                             {s.durationMs}ms
                         </div>
                     </li>

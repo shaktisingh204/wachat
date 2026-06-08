@@ -4,17 +4,19 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Globe2, ListChecks, Paintbrush } from 'lucide-react';
+
 import {
     Button,
     Card,
     CardHeader,
     CardTitle,
-    CardDescription,
     CardBody,
     Field,
     Input,
     Textarea,
     Switch,
+    Separator,
     useToast,
 } from '@/components/sabcrm/20ui';
 
@@ -70,33 +72,54 @@ export function StatusPageForm({
     };
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{initial ? 'Edit status page' : 'New status page'}</CardTitle>
-                <CardDescription>
-                    Configure the public status page slug, title, and the checks it surfaces.
-                </CardDescription>
-            </CardHeader>
-            <CardBody>
-                <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <Field label="Slug" required>
-                            <Input
-                                value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
-                                required
-                                placeholder="acme"
-                            />
-                        </Field>
-                        <Field label="Title" required>
-                            <Input
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                required
-                            />
-                        </Field>
-                    </div>
-                    <Field label="Check IDs" help="Comma-separated list of check IDs to display.">
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Globe2 className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Basics
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="grid gap-3 md:grid-cols-2">
+                    <Field
+                        label="Slug"
+                        required
+                        help="Used in the public URL: /uptime/<slug>."
+                    >
+                        <Input
+                            value={slug}
+                            onChange={(e) => setSlug(e.target.value)}
+                            required
+                            placeholder="acme"
+                        />
+                    </Field>
+                    <Field label="Title" required>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                        />
+                    </Field>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <ListChecks
+                            className="h-4 w-4 text-[var(--st-accent)]"
+                            aria-hidden="true"
+                        />
+                        Monitors
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="flex flex-col gap-3">
+                    <Field
+                        label="Check IDs"
+                        help="Comma-separated list of monitor IDs to display."
+                    >
                         <Input
                             value={checkIds}
                             onChange={(e) => setCheckIds(e.target.value)}
@@ -107,7 +130,22 @@ export function StatusPageForm({
                         onCheckedChange={setShowUptime}
                         label="Show historical uptime"
                     />
-                    <Field label="Custom header" help="Rendered as Markdown above the checks.">
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Paintbrush
+                            className="h-4 w-4 text-[var(--st-accent)]"
+                            aria-hidden="true"
+                        />
+                        Appearance
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="flex flex-col gap-3">
+                    <Field label="Custom header" help="Rendered as Markdown above the monitors.">
                         <Textarea
                             rows={3}
                             value={customHeader}
@@ -121,13 +159,14 @@ export function StatusPageForm({
                             onChange={(e) => setCustomCss(e.target.value)}
                         />
                     </Field>
-                    <div className="flex justify-end">
-                        <Button type="submit" variant="primary" loading={pending}>
-                            {initial ? 'Save page' : 'Create page'}
-                        </Button>
-                    </div>
-                </form>
-            </CardBody>
-        </Card>
+                </CardBody>
+            </Card>
+
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
+                <Button type="submit" variant="primary" loading={pending}>
+                    {pending ? 'Saving' : initial ? 'Save page' : 'Create page'}
+                </Button>
+            </div>
+        </form>
     );
 }

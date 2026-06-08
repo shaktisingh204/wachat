@@ -4,13 +4,18 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { BellRing, Target, SlidersHorizontal, Send } from 'lucide-react';
+
 import {
     Button,
     Card,
+    CardHeader,
+    CardTitle,
     CardBody,
     Field,
     Input,
     Textarea,
+    Separator,
     useToast,
 } from '@/components/sabcrm/20ui';
 
@@ -83,9 +88,16 @@ export function AlertPolicyForm({
     };
 
     return (
-        <Card>
-            <CardBody>
-                <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <BellRing className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Identity
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody>
                     <Field label="Name" required>
                         <Input
                             value={name}
@@ -93,42 +105,80 @@ export function AlertPolicyForm({
                             required
                         />
                     </Field>
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <Field label="Check IDs (comma-separated)">
-                            <Input
-                                value={checkIds}
-                                onChange={(e) => setCheckIds(e.target.value)}
-                            />
-                        </Field>
-                        <Field label="Or tag selector">
-                            <Input
-                                value={tagSelector}
-                                onChange={(e) => setTagSelector(e.target.value)}
-                                placeholder="prod, public-api"
-                            />
-                        </Field>
-                    </div>
-                    <div className="grid gap-3 md:grid-cols-2">
-                        <Field label="Consecutive down runs">
-                            <Input
-                                type="number"
-                                value={downCount}
-                                onChange={(e) =>
-                                    setDownCount(e.target.value === '' ? '' : Number(e.target.value))
-                                }
-                            />
-                        </Field>
-                        <Field label="Slow threshold (ms)">
-                            <Input
-                                type="number"
-                                value={slowMs}
-                                onChange={(e) =>
-                                    setSlowMs(e.target.value === '' ? '' : Number(e.target.value))
-                                }
-                            />
-                        </Field>
-                    </div>
-                    <Field label="Channels (JSON)">
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Target className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Scope
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="grid gap-3 md:grid-cols-2">
+                    <Field label="Check IDs (comma-separated)">
+                        <Input
+                            value={checkIds}
+                            onChange={(e) => setCheckIds(e.target.value)}
+                        />
+                    </Field>
+                    <Field label="Or tag selector">
+                        <Input
+                            value={tagSelector}
+                            onChange={(e) => setTagSelector(e.target.value)}
+                            placeholder="prod, public-api"
+                        />
+                    </Field>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <SlidersHorizontal
+                            className="h-4 w-4 text-[var(--st-accent)]"
+                            aria-hidden="true"
+                        />
+                        Conditions
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="grid gap-3 md:grid-cols-2">
+                    <Field label="Consecutive down runs">
+                        <Input
+                            type="number"
+                            value={downCount}
+                            onChange={(e) =>
+                                setDownCount(e.target.value === '' ? '' : Number(e.target.value))
+                            }
+                        />
+                    </Field>
+                    <Field label="Slow threshold (ms)">
+                        <Input
+                            type="number"
+                            value={slowMs}
+                            onChange={(e) =>
+                                setSlowMs(e.target.value === '' ? '' : Number(e.target.value))
+                            }
+                        />
+                    </Field>
+                </CardBody>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Send className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Channels
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody>
+                    <Field
+                        label="Channels (JSON)"
+                        help="One entry per destination — email, Slack, or webhook."
+                    >
                         <Textarea
                             value={channels}
                             onChange={(e) => setChannels(e.target.value)}
@@ -136,13 +186,14 @@ export function AlertPolicyForm({
                             placeholder='[{"kind":"email","config":{"to":"oncall@acme.com"}}]'
                         />
                     </Field>
-                    <div className="flex justify-end">
-                        <Button type="submit" variant="primary" loading={pending}>
-                            {pending ? 'Saving...' : initial ? 'Save policy' : 'Create policy'}
-                        </Button>
-                    </div>
-                </form>
-            </CardBody>
-        </Card>
+                </CardBody>
+            </Card>
+
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
+                <Button type="submit" variant="primary" loading={pending}>
+                    {pending ? 'Saving' : initial ? 'Save policy' : 'Create policy'}
+                </Button>
+            </div>
+        </form>
     );
 }

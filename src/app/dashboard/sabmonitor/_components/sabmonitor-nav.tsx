@@ -17,7 +17,14 @@ import {
 
 import { cn } from '@/components/sabcrm/20ui';
 
-const ITEMS = [
+interface NavItem {
+    href: string;
+    label: string;
+    icon: typeof LayoutDashboard;
+    exact?: boolean;
+}
+
+const ITEMS: readonly NavItem[] = [
     { href: '/dashboard/sabmonitor', label: 'Overview', icon: LayoutDashboard, exact: true },
     { href: '/dashboard/sabmonitor/checks', label: 'Checks', icon: Activity },
     { href: '/dashboard/sabmonitor/incidents', label: 'Incidents', icon: AlertTriangle },

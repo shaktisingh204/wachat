@@ -1,4 +1,6 @@
 import * as React from 'react';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 import {
     PageHeader,
@@ -6,6 +8,7 @@ import {
     PageEyebrow,
     PageTitle,
     PageDescription,
+    PageActions,
 } from '@/components/sabcrm/20ui';
 
 import { SabmonitorNav } from './_components/sabmonitor-nav';
@@ -31,6 +34,15 @@ export default function SabmonitorLayout({
                         transactions, and trace internal service spans, all in one place.
                     </PageDescription>
                 </PageHeaderHeading>
+                <PageActions>
+                    <Link
+                        href="/dashboard/sabmonitor/checks/new"
+                        className="u-btn u-btn--primary u-btn--md"
+                    >
+                        <Plus size={14} aria-hidden="true" />
+                        <span className="u-btn__label">New monitor</span>
+                    </Link>
+                </PageActions>
             </PageHeader>
             <SabmonitorNav />
             <div>{children}</div>

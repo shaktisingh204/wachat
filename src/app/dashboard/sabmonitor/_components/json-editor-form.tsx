@@ -4,14 +4,19 @@ import * as React from 'react';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
+import { Braces } from 'lucide-react';
+
 import {
     Button,
     Card,
+    CardHeader,
+    CardTitle,
     CardBody,
     Field,
     Input,
     Switch,
     Textarea,
+    Separator,
     useToast,
 } from '@/components/sabcrm/20ui';
 
@@ -77,9 +82,16 @@ export function JsonEditorForm({
     };
 
     return (
-        <Card>
-            <CardBody>
-                <form className="flex flex-col gap-4" onSubmit={submit}>
+        <form className="flex flex-col gap-4" onSubmit={submit}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Braces className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Definition
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
+                <CardBody className="flex flex-col gap-4">
                     <Field label="Name" required>
                         <Input
                             value={name}
@@ -89,9 +101,11 @@ export function JsonEditorForm({
                     </Field>
                     <Field
                         label="Steps (JSON array)"
+                        help="An ordered array of step objects, run top to bottom."
                         error={stepsError ?? undefined}
                     >
                         <Textarea
+                            className="font-mono text-[12px]"
                             rows={12}
                             value={stepsRaw}
                             onChange={(e) => {
@@ -107,13 +121,14 @@ export function JsonEditorForm({
                             label="Capture screenshot on failure"
                         />
                     )}
-                    <div className="flex justify-end">
-                        <Button type="submit" variant="primary" loading={pending}>
-                            {submitLabel}
-                        </Button>
-                    </div>
-                </form>
-            </CardBody>
-        </Card>
+                </CardBody>
+            </Card>
+
+            <div className="sticky bottom-0 flex justify-end gap-2 border-t border-[var(--st-border)] bg-[var(--st-bg)] py-3">
+                <Button type="submit" variant="primary" loading={pending}>
+                    {submitLabel}
+                </Button>
+            </div>
+        </form>
     );
 }

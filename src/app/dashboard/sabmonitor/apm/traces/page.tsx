@@ -1,11 +1,13 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Activity } from 'lucide-react';
+import { Activity, Network, AlertTriangle, Timer, Filter } from 'lucide-react';
 
 import {
     Badge,
     Button,
     Card,
+    CardHeader,
+    CardTitle,
     CardBody,
     Checkbox,
     EmptyState,
@@ -14,7 +16,8 @@ import {
     PageHeader,
     PageHeaderHeading,
     PageTitle,
-    PageActions,
+    StatCard,
+    Separator,
     Table,
     THead,
     TBody,
@@ -39,13 +42,53 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
         service: sp.service,
         limit: 100,
     });
+
+    const erroredCount = res.items.filter((t) => t.errored).length;
+    const avgDuration =
+        res.items.length > 0
+            ? Math.round(
+                  res.items.reduce((s, t) => s + (t.durationMs ?? 0), 0) / res.items.length,
+              )
+            : 0;
+
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex max-w-[1200px] flex-col gap-5">
             <PageHeader compact>
                 <PageHeaderHeading>
                     <PageTitle>APM traces</PageTitle>
                 </PageHeaderHeading>
-                <PageActions>
+            </PageHeader>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+                <StatCard
+                    label="Traces"
+                    value={<span className="tabular-nums">{res.items.length}</span>}
+                    icon={<Network aria-hidden="true" />}
+                    accent="#3b7af5"
+                />
+                <StatCard
+                    label="Errored"
+                    value={<span className="tabular-nums">{erroredCount}</span>}
+                    icon={<AlertTriangle aria-hidden="true" />}
+                    accent="#dc2626"
+                />
+                <StatCard
+                    label="Avg duration"
+                    value={
+                        <span className="tabular-nums">
+                            {avgDuration}
+                            <span className="ml-0.5 text-[13px] font-normal text-[var(--st-text-secondary)]">
+                                ms
+                            </span>
+                        </span>
+                    }
+                    icon={<Timer aria-hidden="true" />}
+                    accent="#7c3aed"
+                />
+            </div>
+
+            <Card>
+                <CardBody className="py-3">
                     <form className="flex flex-wrap items-end gap-3">
                         <Checkbox
                             name="erroredOnly"
@@ -59,7 +102,7 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                                 type="number"
                                 inputSize="sm"
                                 defaultValue={sp.slowMs}
-                                placeholder="slow ms"
+                                placeholder="e.g. 500"
                             />
                         </Field>
                         <Field label="Service">
@@ -67,22 +110,34 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                                 name="service"
                                 inputSize="sm"
                                 defaultValue={sp.service}
-                                placeholder="service"
+                                placeholder="checkout-api"
                             />
                         </Field>
                         <Button type="submit" variant="secondary">
-                            Filter
+                            <Filter size={14} aria-hidden="true" />
+                            Apply filters
                         </Button>
                     </form>
-                </PageActions>
-            </PageHeader>
+                </CardBody>
+            </Card>
+
             <Card padding="none">
+                <CardHeader className="px-4 py-3">
+                    <CardTitle className="flex items-center gap-2 text-sm">
+                        <Network
+                            className="h-4 w-4 text-[var(--st-accent)]"
+                            aria-hidden="true"
+                        />
+                        Recent traces
+                    </CardTitle>
+                </CardHeader>
+                <Separator />
                 <CardBody className="p-0">
                     {res.items.length === 0 ? (
                         <EmptyState
                             icon={Activity}
                             title="No traces yet"
-                            description="Traces will appear here once your services start reporting spans."
+                            description="Traces appear here once your services start reporting spans to SabMonitor."
                         />
                     ) : (
                         <Table density="compact">
@@ -94,36 +149,56 @@ export default async function ApmTracesPage({ searchParams }: PageProps): Promis
                                     <Th>Operation</Th>
                                     <Th align="right">Duration</Th>
                                     <Th align="right">Spans</Th>
-                                    <Th align="right">Errored</Th>
+                                    <Th align="right">Result</Th>
                                 </Tr>
                             </THead>
                             <TBody>
                                 {res.items.map((t) => (
                                     <Tr key={t.traceId}>
                                         <Td className="text-[var(--st-text-secondary)]">
-                                            {t.startedAt ? new Date(t.startedAt).toLocaleString() : '-'}
+                                            {t.startedAt ? (
+                                                <time dateTime={t.startedAt}>
+                                                    {new Date(t.startedAt).toLocaleString()}
+                                                </time>
+                                            ) : (
+                                                '—'
+                                            )}
                                         </Td>
                                         <Td>
                                             <Link
-                                                className="font-mono text-[12px] text-[var(--st-accent)] hover:underline"
+                                                className="font-mono text-[12px] text-[var(--st-accent)] transition-colors hover:text-[var(--st-accent-hover)]"
                                                 href={`/dashboard/sabmonitor/apm/traces/${t.traceId}`}
                                             >
-                                                {t.traceId.slice(0, 16)}...
+                                                {t.traceId.slice(0, 16)}…
                                             </Link>
                                         </Td>
-                                        <Td className="text-[var(--st-text-secondary)]">{t.rootService ?? '-'}</Td>
-                                        <Td className="text-[var(--st-text-secondary)]">{t.rootOperation ?? '-'}</Td>
-                                        <Td align="right" className="text-[var(--st-text-secondary)]">
-                                            {t.durationMs}ms
+                                        <Td className="text-[var(--st-text-secondary)]">
+                                            {t.rootService ?? '—'}
                                         </Td>
-                                        <Td align="right" className="text-[var(--st-text-secondary)]">
+                                        <Td className="text-[var(--st-text-secondary)]">
+                                            {t.rootOperation ?? '—'}
+                                        </Td>
+                                        <Td
+                                            align="right"
+                                            className="tabular-nums text-[var(--st-text)]"
+                                        >
+                                            {t.durationMs} ms
+                                        </Td>
+                                        <Td
+                                            align="right"
+                                            className="tabular-nums text-[var(--st-text-secondary)]"
+                                        >
                                             {t.spanCount}
                                         </Td>
                                         <Td align="right">
                                             {t.errored ? (
-                                                <Badge tone="danger">error</Badge>
+                                                <Badge tone="danger" kind="soft" dot>
+                                                    Error
+                                                </Badge>
                                             ) : (
-                                                <Badge tone="success">ok</Badge>
+                                                <Badge tone="success" kind="soft" dot>
+                                                    OK
+                                                </Badge>
                                             )}
                                         </Td>
                                     </Tr>
