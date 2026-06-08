@@ -68,7 +68,20 @@ export interface SabAppDescriptor {
  * field as a module finishes its SabUI port — the sidebar listing
  * derives from this directly.
  */
-export const SAB_APPS: SabAppDescriptor[] = [
+/**
+ * Modules hidden from ALL navigation per product decision (their code + routes
+ * stay intact, they're just no longer surfaced).
+ */
+const HIDDEN_APP_IDS = new Set([
+  "sabwa",
+  "crm",
+  "sabcrm",
+  "hrm",
+  "seo",
+  "website-builder",
+]);
+
+const SAB_APPS_ALL: SabAppDescriptor[] = [
   {
     id: "home",
     name: "Home",
@@ -496,6 +509,11 @@ export const SAB_APPS: SabAppDescriptor[] = [
       p === "/dashboard/settings" || !!p?.startsWith("/dashboard/settings/"),
   },
 ];
+
+/** The navigable app registry — hidden modules filtered out at the source. */
+export const SAB_APPS: SabAppDescriptor[] = SAB_APPS_ALL.filter(
+  (app) => !HIDDEN_APP_IDS.has(app.id),
+);
 
 export const SAB_MIGRATED_APPS = SAB_APPS.filter(
   (app) => app.migration === "done",

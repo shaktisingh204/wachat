@@ -54,12 +54,8 @@ const QUICK_LAUNCH: Array<{
 }> = [
   { name: "Wachat", href: "/dashboard/wachat", dot: "bg-emerald-500", ring: "ring-emerald-200", hint: "WhatsApp Business" },
   { name: "SabFlow", href: "/dashboard/sabflow", dot: "bg-sky-500", ring: "ring-sky-200", hint: "Automations" },
-  { name: "CRM", href: "/dashboard/crm", dot: "bg-violet-500", ring: "ring-violet-200", hint: "Leads + Deals" },
-  { name: "SEO", href: "/dashboard/seo", dot: "bg-amber-500", ring: "ring-amber-200", hint: "Audits + Keywords" },
-  { name: "HRM", href: "/dashboard/hrm", dot: "bg-rose-500", ring: "ring-rose-200", hint: "People Ops" },
   { name: "Email", href: "/dashboard/email", dot: "bg-indigo-500", ring: "ring-indigo-200", hint: "Campaigns" },
   { name: "SabChat", href: "/dashboard/sabchat", dot: "bg-cyan-500", ring: "ring-cyan-200", hint: "Live Chat" },
-  { name: "Sites", href: "/dashboard/website-builder", dot: "bg-fuchsia-500", ring: "ring-fuchsia-200", hint: "Web Builder" },
 ];
 
 function broadcastBadgeTone(status: string): BadgeTone {
