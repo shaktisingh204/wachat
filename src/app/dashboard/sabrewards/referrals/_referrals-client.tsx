@@ -8,12 +8,16 @@
  */
 
 import * as React from 'react';
-import { Plus, Share2, Trash2 } from 'lucide-react';
+import { Plus, Share2, Trash2, Ticket, Trophy, TrendingUp, Crown } from 'lucide-react';
 
 import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   Dialog,
   DialogContent,
   DialogFooter,
@@ -24,16 +28,12 @@ import {
   IconButton,
   Input,
   Label,
-  PageActions,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -48,6 +48,8 @@ import {
   deleteRewardsReferral,
 } from '@/app/actions/rewards.actions';
 import type { RewardsReferralDoc } from '@/lib/rust-client/rewards-referrals';
+
+import { SectionToolbar } from '../_components/section-toolbar';
 
 interface ProgramOption {
   id: string;
@@ -169,22 +171,31 @@ export function ReferralsClient({
     [referrals],
   );
 
+  const stats = React.useMemo(() => {
+    const active = referrals.filter((r) => r.active).length;
+    const conversions = referrals.reduce((sum, r) => sum + (r.conversions?.length ?? 0), 0);
+    const points = referrals.reduce((sum, r) => sum + (r.rewardPoints ?? 0), 0);
+    return { active, conversions, points };
+  }, [referrals]);
+
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader bordered={false} compact>
-        <PageHeaderHeading>
-          <PageTitle>Referrals</PageTitle>
-          <PageDescription>
-            Each code is owned by a member. Conversions and reward credits are
-            tracked per code.
-          </PageDescription>
-        </PageHeaderHeading>
-        <PageActions>
+    <div className="20ui flex flex-col gap-5">
+      <SectionToolbar
+        icon={Ticket}
+        title="Referrals"
+        description="Each code is owned by a member. Conversions and reward credits are tracked per code."
+        actions={
           <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
             New code
           </Button>
-        </PageActions>
-      </PageHeader>
+        }
+      />
+
+      <section aria-label="Referral metrics" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard label="Active codes" value={stats.active.toLocaleString()} icon={<Ticket />} accent="#0891b2" />
+        <StatCard label="Conversions" value={stats.conversions.toLocaleString()} icon={<TrendingUp />} accent="#16a34a" />
+        <StatCard label="Points awarded" value={stats.points.toLocaleString()} icon={<Trophy />} accent="#d97706" />
+      </section>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card padding="none" className="lg:col-span-2">
@@ -206,8 +217,14 @@ export function ReferralsClient({
                   <Tr>
                     <Td colSpan={7} className="p-0">
                       <EmptyState
+                        icon={Ticket}
                         title="No referral codes yet"
-                        description="Create the first code and share its link via the customer portal."
+                        description="Create a code and share its link through the customer portal."
+                        action={
+                          <Button variant="primary" iconLeft={Plus} onClick={() => setDialogOpen(true)}>
+                            New code
+                          </Button>
+                        }
                       />
                     </Td>
                   </Tr>
@@ -223,10 +240,10 @@ export function ReferralsClient({
                       <Td className="text-[var(--st-text)]">
                         {r.programId ? programNameById.get(r.programId) ?? '-' : '-'}
                       </Td>
-                      <Td className="text-[var(--st-text)]">
+                      <Td className="tabular-nums text-[var(--st-text)]">
                         {(r.conversions?.length ?? 0).toLocaleString()}
                       </Td>
-                      <Td className="text-[var(--st-text)]">
+                      <Td className="tabular-nums text-[var(--st-text)]">
                         {(r.rewardPoints ?? 0).toLocaleString()}
                       </Td>
                       <Td>
@@ -254,30 +271,45 @@ export function ReferralsClient({
           </div>
         </Card>
 
-        <Card padding="md">
-          <h3 className="text-sm font-semibold text-[var(--st-text)]">Attribution leaderboard</h3>
-          <p className="mt-0.5 text-[12px] text-[var(--st-text-secondary)]">
-            Top codes by total points awarded.
-          </p>
-          <ol className="mt-3 flex flex-col divide-y divide-[var(--st-border)]">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Crown size={16} aria-hidden="true" className="text-[var(--st-accent)]" />
+              <div>
+                <CardTitle>Attribution leaderboard</CardTitle>
+                <CardDescription>Top codes by total points awarded.</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardBody>
             {leaderboard.length === 0 ? (
-              <li className="py-3 text-[13px] text-[var(--st-text-secondary)]">No conversions yet.</li>
+              <EmptyState
+                size="sm"
+                icon={Trophy}
+                title="No conversions yet"
+                description="Codes climb this board as referrals convert."
+              />
             ) : (
-              leaderboard.map((r, idx) => (
-                <li key={r._id} className="flex items-center justify-between py-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] font-semibold text-[var(--st-text)]">
-                      {idx + 1}
+              <ol className="flex flex-col divide-y divide-[var(--st-border)]">
+                {leaderboard.map((r, idx) => (
+                  <li key={r._id} className="flex items-center justify-between py-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] font-semibold tabular-nums text-[var(--st-text)]"
+                      >
+                        {idx + 1}
+                      </span>
+                      <code className="font-mono text-[var(--st-text)]">{r.code}</code>
+                    </div>
+                    <span className="font-semibold tabular-nums text-[var(--st-text)]">
+                      {(r.rewardPoints ?? 0).toLocaleString()}
                     </span>
-                    <code className="font-mono text-[var(--st-text)]">{r.code}</code>
-                  </div>
-                  <span className="font-semibold text-[var(--st-text)]">
-                    {(r.rewardPoints ?? 0).toLocaleString()}
-                  </span>
-                </li>
-              ))
+                  </li>
+                ))}
+              </ol>
             )}
-          </ol>
+          </CardBody>
         </Card>
       </div>
 

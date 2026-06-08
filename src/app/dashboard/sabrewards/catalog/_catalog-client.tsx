@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Gift, Coins, CheckCircle2 } from 'lucide-react';
 
 import {
   Badge,
@@ -22,16 +22,12 @@ import {
   Field,
   IconButton,
   Input,
-  PageActions,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StatCard,
   Switch,
   Table,
   TBody,
@@ -43,6 +39,8 @@ import {
   useToast,
 } from '@/components/sabcrm/20ui';
 import { SabFilePickerButton } from '@/components/sabfiles';
+
+import { SectionToolbar } from '../_components/section-toolbar';
 
 import {
   createRewardsCatalogItem,
@@ -187,22 +185,38 @@ export function CatalogClient({
     return m;
   }, [programs]);
 
+  const stats = React.useMemo(() => {
+    const active = items.filter((i) => i.active).length;
+    const cheapest = items.reduce<number | null>(
+      (min, i) => (min === null ? i.pointsCost : Math.min(min, i.pointsCost)),
+      null,
+    );
+    return { total: items.length, active, cheapest };
+  }, [items]);
+
   return (
-    <div className="20ui flex flex-col gap-4">
-      <PageHeader>
-        <PageHeaderHeading>
-          <PageTitle>Catalog</PageTitle>
-          <PageDescription>
-            Rewards customers can redeem with their points. Images come from
-            SabFiles, never free-text URLs.
-          </PageDescription>
-        </PageHeaderHeading>
-        <PageActions>
+    <div className="20ui flex flex-col gap-5">
+      <SectionToolbar
+        icon={Gift}
+        title="Catalog"
+        description="Rewards customers can redeem with their points. Images come from SabFiles."
+        actions={
           <Button variant="primary" iconLeft={Plus} onClick={openNew}>
             New reward
           </Button>
-        </PageActions>
-      </PageHeader>
+        }
+      />
+
+      <section aria-label="Catalog metrics" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard label="Rewards" value={stats.total.toLocaleString()} icon={<Gift />} accent="#7c3aed" />
+        <StatCard label="Active" value={stats.active.toLocaleString()} icon={<CheckCircle2 />} accent="#16a34a" />
+        <StatCard
+          label="Lowest cost"
+          value={stats.cheapest === null ? '—' : `${stats.cheapest.toLocaleString()} pts`}
+          icon={<Coins />}
+          accent="#d97706"
+        />
+      </section>
 
       <Card padding="none">
         <div className="overflow-x-auto rounded-[var(--st-radius)]">
@@ -222,8 +236,14 @@ export function CatalogClient({
                 <Tr>
                   <Td colSpan={6} className="p-0">
                     <EmptyState
+                      icon={Gift}
                       title="No rewards yet"
-                      description="Create your first catalog item to let customers redeem points."
+                      description="Create a catalog item so customers can redeem their points."
+                      action={
+                        <Button variant="primary" iconLeft={Plus} onClick={openNew}>
+                          New reward
+                        </Button>
+                      }
                     />
                   </Td>
                 </Tr>
@@ -245,10 +265,10 @@ export function CatalogClient({
                         ? programNameById.get(item.programId) ?? '-'
                         : '-'}
                     </Td>
-                    <Td className="text-[var(--st-text)]">
-                      {item.pointsCost.toLocaleString()}
+                    <Td className="tabular-nums text-[var(--st-text)]">
+                      {item.pointsCost.toLocaleString()} pts
                     </Td>
-                    <Td className="text-[var(--st-text)]">
+                    <Td className="tabular-nums text-[var(--st-text)]">
                       {item.stock == null ? 'Unlimited' : item.stock.toLocaleString()}
                     </Td>
                     <Td>

@@ -11,9 +11,10 @@ import {
 import { RewardsNav } from './_components/rewards-nav';
 
 /**
- * Rewards module shell. Holds the section sub-nav so every page under
- * `/dashboard/sabrewards/*` shares a consistent header and the
- * deep-link surface stays predictable.
+ * Rewards module shell. Owns the single page-level header (one h1 for the
+ * whole module) plus the section sub-nav, so every page under
+ * `/dashboard/sabrewards/*` shares consistent chrome. Section pages render
+ * their own toolbars (not headers) to keep one logical heading order.
  */
 export default function RewardsLayout({
   children,
@@ -21,14 +22,14 @@ export default function RewardsLayout({
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-6">
+    <div className="20ui flex flex-col gap-5 p-4 md:p-6">
       <PageHeader>
         <PageHeaderHeading>
-          <PageEyebrow>CRM / Sales</PageEyebrow>
+          <PageEyebrow>Sales / loyalty</PageEyebrow>
           <PageTitle>Rewards</PageTitle>
           <PageDescription>
-            Unified loyalty, referral and redemption surface. Programs reuse the
-            existing tier engine; catalog images come from SabFiles.
+            Points, tiers, redemptions and referrals in one place. Programs
+            reuse the loyalty tier engine; catalog images come from SabFiles.
           </PageDescription>
         </PageHeaderHeading>
       </PageHeader>

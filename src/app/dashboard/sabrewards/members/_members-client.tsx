@@ -8,7 +8,7 @@
  */
 
 import * as React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Users, Coins, Trophy } from 'lucide-react';
 
 import {
   Badge,
@@ -22,15 +22,12 @@ import {
   EmptyState,
   Field,
   Input,
-  PageDescription,
-  PageHeader,
-  PageHeaderHeading,
-  PageTitle,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StatCard,
   Table,
   TBody,
   Td,
@@ -42,6 +39,8 @@ import {
 
 import { adjustRewardsMember } from '@/app/actions/rewards.actions';
 import type { RewardsMemberDoc } from '@/lib/rust-client/rewards-members';
+
+import { SectionToolbar } from '../_components/section-toolbar';
 
 interface ProgramOption {
   id: string;
@@ -75,6 +74,12 @@ export function MembersClient({
     if (programFilter === 'all') return members;
     return members.filter((m) => m.programId === programFilter);
   }, [members, programFilter]);
+
+  const stats = React.useMemo(() => {
+    const activePoints = filtered.reduce((sum, m) => sum + (m.currentPoints ?? 0), 0);
+    const tiered = filtered.filter((m) => m.currentTier).length;
+    return { count: filtered.length, activePoints, tiered };
+  }, [filtered]);
 
   const openAdjust = React.useCallback((m: RewardsMemberDoc) => {
     setTarget(m);
@@ -119,31 +124,35 @@ export function MembersClient({
   }, [target, delta, newTier, toast]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader bordered={false} compact className="flex items-center justify-between gap-4">
-        <PageHeaderHeading>
-          <PageTitle>Members</PageTitle>
-          <PageDescription>
-            Each customer who has joined a rewards program. Adjust balances or
-            promote tiers manually here.
-          </PageDescription>
-        </PageHeaderHeading>
-        <div className="w-48">
-          <Select value={programFilter} onValueChange={setProgramFilter}>
-            <SelectTrigger aria-label="Filter by program">
-              <SelectValue placeholder="All programs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All programs</SelectItem>
-              {programs.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </PageHeader>
+    <div className="20ui flex flex-col gap-5">
+      <SectionToolbar
+        icon={Users}
+        title="Members"
+        description="Customers enrolled in a rewards program. Adjust balances or promote tiers manually."
+        actions={
+          <div className="w-48">
+            <Select value={programFilter} onValueChange={setProgramFilter}>
+              <SelectTrigger aria-label="Filter by program">
+                <SelectValue placeholder="All programs" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All programs</SelectItem>
+                {programs.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        }
+      />
+
+      <section aria-label="Member metrics" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatCard label="Members" value={stats.count.toLocaleString()} icon={<Users />} accent="#2b6ef2" />
+        <StatCard label="Active points" value={stats.activePoints.toLocaleString()} icon={<Coins />} accent="#d97706" />
+        <StatCard label="Tiered members" value={stats.tiered.toLocaleString()} icon={<Trophy />} accent="#16a34a" />
+      </section>
 
       <Card padding="none">
         <div className="overflow-x-auto rounded-[var(--st-radius)]">
@@ -164,8 +173,9 @@ export function MembersClient({
                 <Tr>
                   <Td colSpan={7} className="p-0">
                     <EmptyState
+                      icon={Users}
                       title="No members"
-                      description="Once customers join a program they will appear here."
+                      description="Customers appear here once they join a program."
                     />
                   </Td>
                 </Tr>
@@ -183,10 +193,10 @@ export function MembersClient({
                         {m.currentTier ?? 'Base'}
                       </Badge>
                     </Td>
-                    <Td align="right" className="text-[var(--st-text)]">
+                    <Td align="right" className="tabular-nums text-[var(--st-text)]">
                       {(m.currentPoints ?? 0).toLocaleString()}
                     </Td>
-                    <Td align="right" className="text-[var(--st-text)]">
+                    <Td align="right" className="tabular-nums text-[var(--st-text)]">
                       {(m.lifetimePoints ?? 0).toLocaleString()}
                     </Td>
                     <Td className="text-[var(--st-text)]">
