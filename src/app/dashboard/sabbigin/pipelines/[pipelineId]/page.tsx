@@ -10,7 +10,7 @@ import {
   notFound,
   redirect,
 } from 'next/navigation';
-import { Layers } from 'lucide-react';
+import { Layers, ListOrdered } from 'lucide-react';
 
 import {
   Badge,
@@ -19,6 +19,7 @@ import {
   CardTitle,
   CardBody,
   EmptyState,
+  StatCard,
 } from '@/components/sabcrm/20ui';
 import {
   EntityDetailShell,
@@ -65,14 +66,31 @@ export default async function PipelineDetailPage({
         back={{ href: BASE, label: 'Pipelines' }}
         actions={<PipelineEditButton href={`${BASE}/${pipelineId}/edit`} />}
       >
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+          <StatCard label="Stages" value={stages.length} icon={ListOrdered} accent="#3b7af5" />
+          <StatCard
+            label="Status"
+            value={<span className="capitalize">{status}</span>}
+            icon={Layers}
+            accent="#1f9d55"
+          />
+        </div>
+
         {/* Summary card */}
         <Card padding="lg">
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <CardTitle>Overview</CardTitle>
-              {pipeline.isDefault ? <Badge variant="info">Default</Badge> : null}
+              {pipeline.isDefault ? (
+                <Badge tone="info" kind="soft">
+                  Default
+                </Badge>
+              ) : null}
               {pipeline.entityKind ? (
-                <Badge variant="outline">Applies to: {pipeline.entityKind}</Badge>
+                <Badge tone="neutral" kind="outline">
+                  Applies to: {pipeline.entityKind}
+                </Badge>
               ) : null}
             </div>
           </CardHeader>
@@ -80,7 +98,7 @@ export default async function PipelineDetailPage({
             <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
               <div>
                 <div className="text-[var(--st-text-secondary)]">Stages</div>
-                <div className="font-mono text-[var(--st-text)]">{stages.length}</div>
+                <div className="font-mono tabular-nums text-[var(--st-text)]">{stages.length}</div>
               </div>
               <div>
                 <div className="text-[var(--st-text-secondary)]">Accent color</div>

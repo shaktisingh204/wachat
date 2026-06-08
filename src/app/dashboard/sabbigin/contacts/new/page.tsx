@@ -12,16 +12,20 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Briefcase, Building2, Mail, Phone, User } from 'lucide-react';
 
 import {
     Button,
     Card,
+    CardHeader,
+    CardTitle,
     CardBody,
+    CardFooter,
     Field,
     Input,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
@@ -55,13 +59,14 @@ export default function SabbiginNewContactPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-4">
-            <SabbiginNav active={CONTACTS_HREF} />
-
+        <div className="20ui flex w-full flex-col gap-5">
             <PageHeader>
                 <PageHeaderHeading>
+                    <PageEyebrow>SabBigin contact</PageEyebrow>
                     <PageTitle>New contact</PageTitle>
-                    <PageDescription>Just the essentials.</PageDescription>
+                    <PageDescription>
+                        Capture the essentials now. You can add more in the full CRM later.
+                    </PageDescription>
                 </PageHeaderHeading>
                 <PageActions>
                     <Button
@@ -75,34 +80,62 @@ export default function SabbiginNewContactPage() {
                 </PageActions>
             </PageHeader>
 
-            <Card>
-                <CardBody>
-                    <form
-                        action={handleSubmit}
-                        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-                    >
+            <SabbiginNav active={CONTACTS_HREF} />
+
+            <Card padding="none" className="max-w-2xl">
+                <form action={handleSubmit}>
+                    <CardHeader>
+                        <CardTitle className="inline-flex items-center gap-2">
+                            <User className="h-4 w-4 text-[var(--st-accent)]" strokeWidth={2} aria-hidden="true" />
+                            Contact details
+                        </CardTitle>
+                    </CardHeader>
+                    <CardBody className="grid grid-cols-1 gap-4 pt-0 sm:grid-cols-2">
                         <Field label="Name" required>
-                            <Input name="name" type="text" />
+                            <Input name="name" type="text" iconLeft={User} placeholder="Aanya Sharma" />
                         </Field>
                         <Field label="Email" required>
-                            <Input name="email" type="email" />
+                            <Input
+                                name="email"
+                                type="email"
+                                iconLeft={Mail}
+                                placeholder="aanya@example.com"
+                            />
                         </Field>
                         <Field label="Phone">
-                            <Input name="phone" type="text" />
+                            <Input name="phone" type="text" iconLeft={Phone} placeholder="+91 98765 43210" />
                         </Field>
                         <Field label="Company">
-                            <Input name="company" type="text" />
+                            <Input
+                                name="company"
+                                type="text"
+                                iconLeft={Building2}
+                                placeholder="Northwind Trading"
+                            />
                         </Field>
-                        <Field label="Job title">
-                            <Input name="jobTitle" type="text" />
+                        <Field label="Job title" className="sm:col-span-2">
+                            <Input
+                                name="jobTitle"
+                                type="text"
+                                iconLeft={Briefcase}
+                                placeholder="Head of operations"
+                            />
                         </Field>
-                        <div className="flex justify-end sm:col-span-2">
-                            <Button type="submit" size="sm" loading={pending}>
-                                {pending ? 'Saving' : 'Save contact'}
-                            </Button>
-                        </div>
-                    </form>
-                </CardBody>
+                    </CardBody>
+                    <CardFooter className="justify-end gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => router.push(CONTACTS_HREF)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button type="submit" size="sm" loading={pending}>
+                            {pending ? 'Saving' : 'Save contact'}
+                        </Button>
+                    </CardFooter>
+                </form>
             </Card>
         </div>
     );

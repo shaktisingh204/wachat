@@ -5,25 +5,31 @@
  */
 
 import Link from 'next/link';
-import { Phone, Plus } from 'lucide-react';
+import { CheckCircle2, Phone, PhoneCall, Plus } from 'lucide-react';
 
 import {
     Badge,
     Card,
     EmptyState,
+    PageHeader,
+    PageHeaderHeading,
+    PageEyebrow,
+    PageTitle,
+    PageDescription,
+    PageActions,
+    StatCard,
     Table,
     THead,
     TBody,
     Tr,
     Th,
     Td,
-    cn,
     type BadgeTone,
 } from '@/components/sabcrm/20ui';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listCrmActivities } from '@/app/actions/crm-activity.actions';
 
 import { SabbiginNav } from '../_components/sabbigin-shell';
+import { formatDateTime } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +49,11 @@ function statusTone(status: string): BadgeTone {
     }
 }
 
+function isDone(status: string): boolean {
+    const s = status.toLowerCase();
+    return s === 'completed' || s === 'done';
+}
+
 export default async function SabbiginCallsPage() {
     const { items, total } = await listCrmActivities({
         type: 'call',
@@ -50,24 +61,40 @@ export default async function SabbiginCallsPage() {
         pageSize: 50,
     });
 
-    return (
-        <EntityListShell
-            title="Calls"
-            subtitle={`${total.toLocaleString()} call${total === 1 ? '' : 's'} logged`}
-            primaryAction={
-                <Link
-                    href="/dashboard/crm/activity/new?type=call"
-                    className={cn('u-btn', 'u-btn--outline', 'u-btn--sm')}
-                >
-                    <Plus size={13} aria-hidden="true" />
-                    <span className="u-btn__label">Log a call</span>
-                </Link>
-            }
-        >
-            <div className="flex flex-col gap-4">
-                <SabbiginNav active="/dashboard/sabbigin/calls" />
+    const completed = items.filter((a) =>
+        isDone((a as { status?: string }).status ?? ''),
+    ).length;
 
-                {items.length === 0 ? (
+    return (
+        <div className="20ui flex w-full flex-col gap-5">
+            <PageHeader>
+                <PageHeaderHeading>
+                    <PageEyebrow>SabBigin</PageEyebrow>
+                    <PageTitle>Calls</PageTitle>
+                    <PageDescription>
+                        {total.toLocaleString()} call{total === 1 ? '' : 's'} logged against your records.
+                    </PageDescription>
+                </PageHeaderHeading>
+                <PageActions>
+                    <Link
+                        href="/dashboard/crm/activity/new?type=call"
+                        className="u-btn u-btn--primary u-btn--sm"
+                    >
+                        <Plus size={13} aria-hidden="true" />
+                        <span className="u-btn__label">Log a call</span>
+                    </Link>
+                </PageActions>
+            </PageHeader>
+
+            <SabbiginNav active="/dashboard/sabbigin/calls" />
+
+            <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+                <StatCard label="Calls logged" value={total} icon={PhoneCall} accent="#3b7af5" />
+                <StatCard label="Completed" value={completed} icon={CheckCircle2} accent="#1f9d55" />
+            </div>
+
+            {items.length === 0 ? (
+                <Card padding="none" className="flex min-h-[240px] items-center justify-center">
                     <EmptyState
                         icon={Phone}
                         title="No calls logged yet"
@@ -75,55 +102,58 @@ export default async function SabbiginCallsPage() {
                         action={
                             <Link
                                 href="/dashboard/crm/activity/new?type=call"
-                                className={cn('u-btn', 'u-btn--outline', 'u-btn--sm')}
+                                className="u-btn u-btn--outline u-btn--sm"
                             >
                                 <Plus size={13} aria-hidden="true" />
                                 <span className="u-btn__label">Log a call</span>
                             </Link>
                         }
                     />
-                ) : (
-                    <Card padding="none" className="overflow-hidden">
-                        <Table>
-                            <THead>
-                                <Tr>
-                                    <Th>Subject</Th>
-                                    <Th>Status</Th>
-                                    <Th>Date</Th>
-                                </Tr>
-                            </THead>
-                            <TBody>
-                                {items.map((a) => {
-                                    const id = String((a as { _id: string })._id);
-                                    const subject = (a as { subject?: string }).subject ?? 'Call';
-                                    const due = (a as { dueDate?: string }).dueDate;
-                                    const status = (a as { status?: string }).status ?? 'open';
-                                    return (
-                                        <Tr key={id}>
-                                            <Td truncate>
-                                                <Link
-                                                    href={`/dashboard/crm/activity/${id}`}
-                                                    className="font-medium text-[var(--st-text)] hover:underline"
-                                                >
-                                                    {subject}
-                                                </Link>
-                                            </Td>
-                                            <Td>
-                                                <Badge tone={statusTone(status)}>{status}</Badge>
-                                            </Td>
-                                            <Td>
-                                                <span className="text-[var(--st-text-secondary)]">
-                                                    {due ? new Date(due).toLocaleString() : 'No date'}
+                </Card>
+            ) : (
+                <Card padding="none" className="overflow-hidden">
+                    <Table density="comfortable" hover>
+                        <THead>
+                            <Tr>
+                                <Th>Subject</Th>
+                                <Th>Status</Th>
+                                <Th align="right">Date</Th>
+                            </Tr>
+                        </THead>
+                        <TBody>
+                            {items.map((a) => {
+                                const id = String((a as { _id: string })._id);
+                                const subject = (a as { subject?: string }).subject ?? 'Call';
+                                const due = (a as { dueDate?: string }).dueDate;
+                                const status = (a as { status?: string }).status ?? 'open';
+                                return (
+                                    <Tr key={id}>
+                                        <Td truncate>
+                                            <Link
+                                                href={`/dashboard/crm/activity/${id}`}
+                                                className="-mx-1 flex items-center gap-2.5 rounded-[var(--st-radius-sm)] px-1 py-0.5 font-medium text-[var(--st-text)] transition-colors hover:text-[var(--st-accent)]"
+                                            >
+                                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]">
+                                                    <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                                                 </span>
-                                            </Td>
-                                        </Tr>
-                                    );
-                                })}
-                            </TBody>
-                        </Table>
-                    </Card>
-                )}
-            </div>
-        </EntityListShell>
+                                                <span className="truncate">{subject}</span>
+                                            </Link>
+                                        </Td>
+                                        <Td>
+                                            <Badge tone={statusTone(status)} kind="soft">
+                                                {status}
+                                            </Badge>
+                                        </Td>
+                                        <Td align="right" className="tabular-nums text-[var(--st-text-secondary)]">
+                                            {formatDateTime(due)}
+                                        </Td>
+                                    </Tr>
+                                );
+                            })}
+                        </TBody>
+                    </Table>
+                </Card>
+            )}
+        </div>
     );
 }

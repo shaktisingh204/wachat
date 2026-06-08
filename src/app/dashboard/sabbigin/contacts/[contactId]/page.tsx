@@ -3,14 +3,23 @@
  * full CRM contact detail page so we do not duplicate the rich form.
  */
 
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Pencil } from 'lucide-react';
+import {
+    ArrowLeft,
+    Briefcase,
+    Building2,
+    Mail,
+    Pencil,
+    Phone,
+    Radar,
+    Tag,
+} from 'lucide-react';
 
 import {
+    Avatar,
     Badge,
-    Button,
     Card,
     CardHeader,
     CardTitle,
@@ -36,71 +45,96 @@ export default async function SabbiginContactDetailPage({ params }: PageProps) {
     const contact = await getCrmContactById(contactId);
     if (!contact) notFound();
 
+    const name = contact.name ?? 'Contact';
     const statusValue = String(contact.status ?? '').trim();
     const sourceValue = contact.leadSource ?? contact.source;
 
     return (
-        <div className="flex w-full flex-col gap-4">
+        <div className="20ui flex w-full flex-col gap-5">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>SabBigin contact</PageEyebrow>
-                    <PageTitle>{contact.name ?? 'Contact'}</PageTitle>
+                    <PageTitle>{name}</PageTitle>
                 </PageHeaderHeading>
                 <PageActions>
-                    <Link href={`/dashboard/crm/sales-crm/contacts/${contactId}`}>
-                        <Button variant="outline" size="sm" iconLeft={Pencil}>
-                            Edit in full CRM
-                        </Button>
+                    <Link
+                        href="/dashboard/sabbigin/contacts"
+                        className="u-btn u-btn--ghost u-btn--sm"
+                    >
+                        <ArrowLeft size={13} aria-hidden="true" />
+                        <span className="u-btn__label">Back</span>
+                    </Link>
+                    <Link
+                        href={`/dashboard/crm/sales-crm/contacts/${contactId}`}
+                        className="u-btn u-btn--primary u-btn--sm"
+                    >
+                        <Pencil size={13} aria-hidden="true" />
+                        <span className="u-btn__label">Edit in full CRM</span>
                     </Link>
                 </PageActions>
             </PageHeader>
 
-            <div className="flex flex-col gap-4">
-                <SabbiginNav active="/dashboard/sabbigin/contacts" />
-                <Link href="/dashboard/sabbigin/contacts" className="self-start">
-                    <Button variant="ghost" size="sm" iconLeft={ArrowLeft}>
-                        Back to contacts
-                    </Button>
-                </Link>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Details</CardTitle>
-                    </CardHeader>
-                    <CardBody>
-                        <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-                            <Field label="Email" value={contact.email} />
-                            <Field label="Phone" value={contact.phone} />
-                            <Field label="Company" value={contact.company} />
-                            <Field label="Job title" value={contact.jobTitle} />
-                            <Field
-                                label="Status"
-                                value={
-                                    statusValue.length > 0 ? (
-                                        <Badge tone="neutral">{statusValue}</Badge>
-                                    ) : null
-                                }
-                            />
-                            <Field label="Source" value={sourceValue} />
-                        </dl>
-                    </CardBody>
-                </Card>
-            </div>
+            <SabbiginNav active="/dashboard/sabbigin/contacts" />
+
+            <Card padding="none" className="max-w-3xl">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <Avatar name={name} size="md" shape="round" />
+                        <div className="min-w-0">
+                            <CardTitle>{name}</CardTitle>
+                            {contact.company ? (
+                                <p className="truncate text-xs text-[var(--st-text-secondary)]">
+                                    {contact.company}
+                                </p>
+                            ) : null}
+                        </div>
+                    </div>
+                    {statusValue.length > 0 ? (
+                        <Badge tone="neutral" kind="soft">
+                            {statusValue}
+                        </Badge>
+                    ) : null}
+                </CardHeader>
+                <CardBody className="pt-0">
+                    <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+                        <DetailField icon={Mail} label="Email" value={contact.email} />
+                        <DetailField icon={Phone} label="Phone" value={contact.phone} />
+                        <DetailField icon={Building2} label="Company" value={contact.company} />
+                        <DetailField icon={Briefcase} label="Job title" value={contact.jobTitle} />
+                        <DetailField icon={Tag} label="Status" value={statusValue || undefined} />
+                        <DetailField icon={Radar} label="Source" value={sourceValue} />
+                    </dl>
+                </CardBody>
+            </Card>
         </div>
     );
 }
 
-function Field({ label, value }: { label: string; value?: ReactNode }) {
+function DetailField({
+    icon: Icon,
+    label,
+    value,
+}: {
+    icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+    label: string;
+    value?: ReactNode;
+}) {
     const isEmpty =
         value === null ||
         value === undefined ||
         (typeof value === 'string' && value.length === 0);
     return (
         <div>
-            <dt className="text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+            <dt className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                <Icon className="h-3.5 w-3.5" aria-hidden />
                 {label}
             </dt>
             <dd className="mt-1 text-sm text-[var(--st-text)]">
-                {isEmpty ? <span className="text-[var(--st-text-tertiary)]">Not set</span> : value}
+                {isEmpty ? (
+                    <span className="text-[var(--st-text-tertiary)]">Not set</span>
+                ) : (
+                    value
+                )}
             </dd>
         </div>
     );

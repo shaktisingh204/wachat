@@ -21,7 +21,7 @@ import {
   Tr,
   useToast,
 } from '@/components/sabcrm/20ui';
-import { Columns3, Download, ListChecks, Trash2, X } from 'lucide-react';
+import { Columns3, Crown, Download, Gauge, ListChecks, Trash2, Wallet, X } from 'lucide-react';
 import { useTransition } from 'react';
 import Link from 'next/link';
 
@@ -162,14 +162,16 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
     filtered.length === 0 ? (
       <EmptyState
         icon={Columns3}
-        title="No Pipelines Found"
+        title={search ? 'No matching pipelines' : 'No pipelines yet'}
         description={
-          search ? 'No pipelines match your search.' : "You haven't created any pipelines yet."
+          search
+            ? 'No pipelines match your search. Try a different term.'
+            : 'Create a pipeline to start tracking deals through their stages.'
         }
         action={
           !search ? (
-            <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-              Create Your First Pipeline
+            <Button variant="primary" iconLeft={Columns3} onClick={() => setIsCreateOpen(true)}>
+              Create your first pipeline
             </Button>
           ) : undefined
         }
@@ -198,18 +200,25 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
       <div className="space-y-5">
         {/* KPI strip */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Total Pipelines" value={kpi.total} icon={Columns3} />
+          <StatCard label="Total pipelines" value={kpi.total} icon={Columns3} accent="#3b7af5" />
           <StatCard
-            label="In-flight Value"
+            label="In-flight value"
             value={fmtMoney(kpi.inFlightValue, kpi.currency)}
+            icon={Wallet}
+            accent="#1f9d55"
           />
-          <StatCard label="Avg Velocity (days)" value={kpi.avgVelocityDays} />
-          <StatCard label="Top Pipeline" value={kpi.topPipelineName} />
+          <StatCard
+            label="Avg velocity (days)"
+            value={kpi.avgVelocityDays}
+            icon={Gauge}
+            accent="#7c3aed"
+          />
+          <StatCard label="Top pipeline" value={kpi.topPipelineName} icon={Crown} accent="#0891b2" />
         </div>
 
         <EntityListShell
-          title="Sales Pipelines"
-          subtitle="Create and manage multiple sales pipelines to track your deals."
+          title="Sales pipelines"
+          subtitle="Create and manage pipelines to track your deals through every stage."
           search={{ value: search, onChange: setSearch, placeholder: 'Search pipelines...' }}
           primaryAction={
             <div className="flex items-center gap-2">
@@ -217,10 +226,10 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                 Export CSV
               </Button>
               <Button variant="outline" onClick={() => setIsEditOpen(true)}>
-                Edit Pipelines
+                Edit pipelines
               </Button>
-              <Button variant="primary" onClick={() => setIsCreateOpen(true)}>
-                New Pipeline
+              <Button variant="primary" iconLeft={Columns3} onClick={() => setIsCreateOpen(true)}>
+                New pipeline
               </Button>
             </div>
           }
@@ -243,8 +252,8 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                         aria-label="Select all"
                       />
                     </Th>
-                    <Th>Pipeline Name</Th>
-                    <Th>Stages</Th>
+                    <Th>Pipeline name</Th>
+                    <Th align="right">Stages</Th>
                     <Th className="w-24">Actions</Th>
                   </Tr>
                 </THead>
@@ -265,7 +274,7 @@ export function PipelinesClient({ pipelines: initialPipelines, kpi }: Props) {
                           label={p.name}
                         />
                       </Td>
-                      <Td className="font-mono text-[12px] text-[var(--st-text-secondary)]">
+                      <Td align="right" className="font-mono text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                         {p.stages?.length ?? 0}
                       </Td>
                       <Td>

@@ -12,12 +12,15 @@
 
 import { ObjectId, type WithId } from 'mongodb';
 
+import { Handshake, Wallet } from 'lucide-react';
+
 import {
     PageHeader,
     PageHeaderHeading,
     PageEyebrow,
     PageTitle,
     PageDescription,
+    StatCard,
 } from '@/components/sabcrm/20ui';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -29,6 +32,7 @@ import type { DealListRow } from '@/app/dashboard/crm/sales-crm/deals/_component
 import { getSabbiginConfig } from '@/app/actions/sabbigin.actions';
 
 import { SabbiginNav } from '../_components/sabbigin-shell';
+import { formatCurrency } from '../_components/sabbigin-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -107,8 +111,10 @@ export default async function SabbiginPipelinePage() {
         }
     }
 
+    const openValue = deals.reduce((sum, d) => sum + (typeof d.amount === 'number' ? d.amount : 0), 0);
+
     return (
-        <div className="20ui flex w-full flex-col gap-4">
+        <div className="20ui flex w-full flex-col gap-5">
             <PageHeader>
                 <PageHeaderHeading>
                     <PageEyebrow>SabBigin</PageEyebrow>
@@ -120,6 +126,17 @@ export default async function SabbiginPipelinePage() {
             </PageHeader>
 
             <SabbiginNav active="/dashboard/sabbigin/pipeline" />
+
+            <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+                <StatCard label="Deals on board" value={deals.length} icon={Handshake} accent="#3b7af5" />
+                <StatCard
+                    label="Total value"
+                    value={formatCurrency(openValue)}
+                    icon={Wallet}
+                    accent="#1f9d55"
+                />
+            </div>
+
             <DealKanban deals={deals} stages={stages} currency="INR" />
         </div>
     );

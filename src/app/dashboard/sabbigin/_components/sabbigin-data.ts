@@ -119,3 +119,32 @@ export function formatCurrency(value: number, currency = 'INR'): string {
         return `${currency} ${value}`;
     }
 }
+
+/** Short, human date for list rows (e.g. "8 Jun, 14:30"). */
+export function formatDateTime(value?: string | Date | null): string {
+    if (!value) return 'No date';
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return 'No date';
+    return new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(d);
+}
+
+/**
+ * Map a deal/pipeline stage name to a 20ui Badge tone so colour only ever
+ * carries meaning. Closing stages read green, lost/dead stages read danger,
+ * everything mid-funnel stays informational.
+ */
+export type StageTone = 'success' | 'danger' | 'info' | 'warning' | 'neutral';
+
+export function stageTone(stage?: string | null): StageTone {
+    const s = (stage ?? '').toLowerCase();
+    if (!s) return 'neutral';
+    if (/(won|closed|deal done|complete)/.test(s)) return 'success';
+    if (/(lost|dead|not serviceable|cancel)/.test(s)) return 'danger';
+    if (/(negotiat|proposal|qualif)/.test(s)) return 'warning';
+    return 'info';
+}
