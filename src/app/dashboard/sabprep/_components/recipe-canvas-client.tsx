@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Play, Save } from 'lucide-react';
+import { Play, Save, Workflow, ArrowLeft, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 import {
     Button,
@@ -190,43 +191,92 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
         [sourceRows],
     );
 
+    const status = classifyStatus(statusMsg);
+    const hasSource = sourceRows.length > 0;
+
     return (
         <div className="20ui flex h-full flex-col">
-            <header className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] px-6 py-4">
-                <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    aria-label="Recipe name"
-                    className="max-w-md text-base font-medium"
-                />
-                <Badge tone="neutral" kind="outline">{steps.length} step(s)</Badge>
-                <SourceDatasetPicker
-                    datasets={datasets}
-                    value={sourceId}
-                    onPick={onPickSource}
-                />
-                <CsvUploadButton onParsed={onUploadedCsv} />
-                <div className="ml-auto flex items-center gap-2">
-                    {statusMsg ? (
-                        <span className="text-xs text-[var(--st-text-secondary)]">{statusMsg}</span>
-                    ) : null}
-                    <Button variant="outline" iconLeft={Save} onClick={onSave} disabled={busy}>
-                        Save
+            <header className="flex flex-col gap-3 border-b border-[var(--st-border)] px-4 py-3 md:px-6">
+                <div className="flex flex-wrap items-center gap-3">
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/dashboard/sabprep" aria-label="Back to recipes">
+                            <ArrowLeft size={16} aria-hidden="true" />
+                        </Link>
                     </Button>
-                    <Button
-                        variant="primary"
-                        iconLeft={Play}
-                        onClick={onRun}
-                        disabled={busy || sourceRows.length === 0}
+                    <span
+                        aria-hidden="true"
+                        className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-accent-soft)] text-[var(--st-accent)]"
                     >
-                        Run recipe
-                    </Button>
+                        <Workflow size={16} />
+                    </span>
+                    <Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        aria-label="Recipe name"
+                        className="max-w-md text-base font-medium"
+                    />
+                    <Badge tone="neutral" kind="outline">
+                        {steps.length} step{steps.length === 1 ? '' : 's'}
+                    </Badge>
+                    {hasSource ? (
+                        <Badge tone="success" dot>
+                            Source ready
+                        </Badge>
+                    ) : (
+                        <Badge tone="warning" dot>
+                            No source
+                        </Badge>
+                    )}
+
+                    <div className="ml-auto flex flex-wrap items-center gap-2">
+                        {status ? (
+                            <span
+                                className={`inline-flex items-center gap-1.5 text-xs ${
+                                    status.tone === 'danger'
+                                        ? 'text-[var(--st-danger)]'
+                                        : status.tone === 'success'
+                                          ? 'text-[var(--st-success)]'
+                                          : 'text-[var(--st-text-secondary)]'
+                                }`}
+                                role="status"
+                            >
+                                {status.tone === 'danger' ? (
+                                    <AlertTriangle size={13} aria-hidden="true" />
+                                ) : status.tone === 'success' ? (
+                                    <CheckCircle2 size={13} aria-hidden="true" />
+                                ) : (
+                                    <Loader2 size={13} aria-hidden="true" />
+                                )}
+                                {statusMsg}
+                            </span>
+                        ) : null}
+                        <Button variant="outline" iconLeft={Save} onClick={onSave} disabled={busy}>
+                            Save
+                        </Button>
+                        <Button
+                            variant="primary"
+                            iconLeft={Play}
+                            onClick={onRun}
+                            disabled={busy || !hasSource}
+                        >
+                            Run recipe
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                    <SourceDatasetPicker
+                        datasets={datasets}
+                        value={sourceId}
+                        onPick={onPickSource}
+                    />
+                    <CsvUploadButton onParsed={onUploadedCsv} />
                 </div>
             </header>
 
             <div className="grid flex-1 grid-cols-12 gap-4 overflow-hidden p-4">
-                {/* Left, source preview */}
-                <div className="col-span-12 lg:col-span-4 overflow-auto">
+                {/* Left, source preview + profiler */}
+                <section aria-label="Source" className="col-span-12 lg:col-span-4 overflow-auto">
                     <SourcePreviewPanel rows={sourceRows} />
                     <div className="mt-4">
                         <ColumnProfilerPanel
@@ -234,10 +284,10 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                             onAddSuggestion={onAddSuggestionStep}
                         />
                     </div>
-                </div>
+                </section>
 
                 {/* Center, step stack */}
-                <div className="col-span-12 lg:col-span-4 overflow-auto">
+                <section aria-label="Steps" className="col-span-12 lg:col-span-4 overflow-auto">
                     <StepStack
                         steps={steps}
                         columns={sourceColumns}
@@ -245,15 +295,26 @@ export function RecipeCanvasClient({ recipe, datasets: initialDatasets, sourcePr
                         summaries={summaries}
                         onChange={setSteps}
                     />
-                </div>
+                </section>
 
                 {/* Right, output preview */}
-                <div className="col-span-12 lg:col-span-4 overflow-auto">
+                <section aria-label="Output" className="col-span-12 lg:col-span-4 overflow-auto">
                     <OutputPreviewPanel rows={outputRows} summaries={summaries} />
-                </div>
+                </section>
             </div>
         </div>
     );
+}
+
+/** Map a free-text status line to a tone for the inline indicator. */
+function classifyStatus(
+    msg: string | null,
+): { tone: 'success' | 'danger' | 'neutral' } | null {
+    if (!msg) return null;
+    const lower = msg.toLowerCase();
+    if (lower.includes('fail')) return { tone: 'danger' };
+    if (lower.startsWith('saved') || lower.startsWith('run ')) return { tone: 'success' };
+    return { tone: 'neutral' };
 }
 
 const NO_SOURCE = '__none__';

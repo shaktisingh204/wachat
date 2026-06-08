@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Play, Trash2, Sparkles } from 'lucide-react';
+import { Plus, Play, Trash2, Layers, Clock, CalendarClock, FileSpreadsheet } from 'lucide-react';
 
 import {
     Button,
@@ -14,14 +14,15 @@ import {
     CardBody,
     CardFooter,
     EmptyState,
-    Field,
-    Input,
     Badge,
+    StatCard,
     PageHeader,
     PageHeaderHeading,
+    PageEyebrow,
     PageTitle,
     PageDescription,
     PageActions,
+    SearchInput,
     useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -35,6 +36,15 @@ import type {
 
 interface Props {
     initial: DataprepRecipeListResult;
+}
+
+const RECIPE_BASE = '/dashboard/sabprep/recipes';
+
+function formatDate(value?: string): string {
+    if (!value) return 'Not recorded';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function RecipeListClient({ initial }: Props) {
@@ -54,6 +64,12 @@ export function RecipeListClient({ initial }: Props) {
         );
     }, [items, query]);
 
+    const stats = React.useMemo(() => {
+        const scheduled = items.filter((r) => r.scheduleCron).length;
+        const steps = items.reduce((sum, r) => sum + (r.steps ?? []).length, 0);
+        return { total: items.length, scheduled, steps };
+    }, [items]);
+
     const onCreate = React.useCallback(async () => {
         setBusy(true);
         try {
@@ -61,7 +77,7 @@ export function RecipeListClient({ initial }: Props) {
                 name: `Untitled recipe ${new Date().toLocaleTimeString()}`,
                 steps: [],
             });
-            router.push(`/dashboard/dataprep/recipes/${res.id}`);
+            router.push(`${RECIPE_BASE}/${res.id}`);
         } catch (e) {
             console.error('createRecipe failed', e);
             toast.error('Could not create recipe. Please try again.');
@@ -86,80 +102,112 @@ export function RecipeListClient({ initial }: Props) {
     );
 
     return (
-        <div className="20ui flex flex-col gap-6 p-6">
-            <PageHeader className="flex-wrap items-end justify-between gap-4">
+        <div className="20ui flex flex-col gap-6 p-4 md:p-6">
+            <PageHeader>
                 <PageHeaderHeading>
+                    <PageEyebrow>Data tools</PageEyebrow>
                     <PageTitle>DataPrep</PageTitle>
                     <PageDescription>
-                        Clean, transform, join, and profile tabular data before sending it to BI.
+                        Clean, transform, join, and profile tabular data before it reaches BI.
                     </PageDescription>
                 </PageHeaderHeading>
                 <PageActions>
-                    <Field className="w-64">
-                        <Input
+                    <div className="w-64">
+                        <SearchInput
                             placeholder="Search recipes"
                             aria-label="Search recipes"
                             value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                            onValueChange={setQuery}
                         />
-                    </Field>
-                    <Button
-                        variant="primary"
-                        iconLeft={Plus}
-                        onClick={onCreate}
-                        loading={busy}
-                    >
+                    </div>
+                    <Button variant="primary" iconLeft={Plus} onClick={onCreate} loading={busy}>
                         New recipe
                     </Button>
                 </PageActions>
             </PageHeader>
 
+            <section aria-label="Recipe metrics" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <StatCard label="Recipes" value={stats.total.toLocaleString()} icon={<Layers />} accent="#2b6ef2" />
+                <StatCard label="Scheduled" value={stats.scheduled.toLocaleString()} icon={<CalendarClock />} accent="#7c3aed" />
+                <StatCard label="Total steps" value={stats.steps.toLocaleString()} icon={<FileSpreadsheet />} accent="#16a34a" />
+            </section>
+
             {filtered.length === 0 ? (
-                <EmptyState
-                    icon={Sparkles}
-                    title="No recipes yet"
-                    description="Create a recipe to start cleaning and transforming a dataset."
-                />
-            ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {filtered.map((r) => (
-                        <Card key={r._id} className="flex flex-col">
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-between gap-2">
-                                    <span className="truncate">{r.name}</span>
-                                    {r.scheduleCron ? (
-                                        <Badge tone="info">scheduled</Badge>
-                                    ) : null}
-                                </CardTitle>
-                                <CardDescription>
-                                    {r.description ?? `${(r.steps ?? []).length} step(s)`}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardBody className="flex-1 text-xs text-[var(--st-text-secondary)]">
-                                <p>Updated: {r.updatedAt ?? r.createdAt}</p>
-                                {r.lastRunId ? <p>Last run: {r.lastRunId}</p> : null}
-                            </CardBody>
-                            <CardFooter className="flex items-center justify-between">
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    iconLeft={Play}
-                                    onClick={() =>
-                                        router.push(`/dashboard/dataprep/recipes/${r._id}`)
-                                    }
-                                >
-                                    Open
+                <Card>
+                    <CardBody>
+                        <EmptyState
+                            icon={Layers}
+                            title={query ? 'No matching recipes' : 'No recipes yet'}
+                            description={
+                                query
+                                    ? 'Try a different search term, or create a new recipe.'
+                                    : 'Create a recipe to start cleaning and transforming a dataset.'
+                            }
+                            action={
+                                <Button variant="primary" iconLeft={Plus} onClick={onCreate} loading={busy}>
+                                    New recipe
                                 </Button>
-                                <IconButton
-                                    label="Archive recipe"
-                                    icon={Trash2}
-                                    size="sm"
-                                    variant="ghost"
-                                    onClick={() => onDelete(String(r._id))}
-                                />
-                            </CardFooter>
-                        </Card>
-                    ))}
+                            }
+                        />
+                    </CardBody>
+                </Card>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {filtered.map((r) => {
+                        const stepCount = (r.steps ?? []).length;
+                        return (
+                            <Card key={r._id} variant="interactive" className="flex flex-col">
+                                <CardHeader>
+                                    <div className="flex items-start justify-between gap-2">
+                                        <CardTitle className="truncate">{r.name}</CardTitle>
+                                        {r.scheduleCron ? (
+                                            <Badge tone="info" dot>
+                                                Scheduled
+                                            </Badge>
+                                        ) : (
+                                            <Badge tone="neutral">{stepCount} steps</Badge>
+                                        )}
+                                    </div>
+                                    <CardDescription className="line-clamp-2">
+                                        {r.description ?? `${stepCount} transformation step(s).`}
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardBody className="flex-1">
+                                    <dl className="flex flex-col gap-1.5 text-xs text-[var(--st-text-secondary)]">
+                                        <div className="flex items-center gap-1.5">
+                                            <Clock size={13} aria-hidden="true" />
+                                            <dt className="sr-only">Updated</dt>
+                                            <dd>Updated {formatDate(r.updatedAt ?? r.createdAt)}</dd>
+                                        </div>
+                                        {r.lastRunId ? (
+                                            <div className="flex items-center gap-1.5">
+                                                <Play size={13} aria-hidden="true" />
+                                                <dt className="sr-only">Last run</dt>
+                                                <dd className="truncate font-mono">Run {r.lastRunId}</dd>
+                                            </div>
+                                        ) : null}
+                                    </dl>
+                                </CardBody>
+                                <CardFooter className="flex items-center justify-between">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        iconLeft={Play}
+                                        onClick={() => router.push(`${RECIPE_BASE}/${r._id}`)}
+                                    >
+                                        Open
+                                    </Button>
+                                    <IconButton
+                                        label="Archive recipe"
+                                        icon={Trash2}
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => onDelete(String(r._id))}
+                                    />
+                                </CardFooter>
+                            </Card>
+                        );
+                    })}
                 </div>
             )}
         </div>

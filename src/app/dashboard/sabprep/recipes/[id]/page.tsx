@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 
+import { Card, CardBody, Skeleton } from '@/components/sabcrm/20ui';
 import {
     getRecipe,
     listDatasets,
@@ -49,10 +50,40 @@ async function Canvas({ id }: { id: string }) {
     );
 }
 
+function CanvasFallback() {
+    return (
+        <div className="20ui flex h-full flex-col">
+            <div className="flex flex-wrap items-center gap-3 border-b border-[var(--st-border)] px-4 py-3 md:px-6">
+                <Skeleton circle width={32} height={32} />
+                <Skeleton width={240} height={34} />
+                <Skeleton width={70} height={22} />
+                <div className="ml-auto flex gap-2">
+                    <Skeleton width={84} height={34} />
+                    <Skeleton width={110} height={34} />
+                </div>
+            </div>
+            <div className="grid flex-1 grid-cols-12 gap-4 p-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="col-span-12 lg:col-span-4">
+                        <Card>
+                            <CardBody className="flex flex-col gap-3">
+                                <Skeleton width="50%" height={14} />
+                                {Array.from({ length: 5 }).map((__, j) => (
+                                    <Skeleton key={j} width="100%" height={12} />
+                                ))}
+                            </CardBody>
+                        </Card>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export default async function RecipePage({ params }: Props) {
     const { id } = await params;
     return (
-        <Suspense fallback={<div className="p-6 text-sm opacity-60">Loading recipe…</div>}>
+        <Suspense fallback={<CanvasFallback />}>
             <Canvas id={id} />
         </Suspense>
     );

@@ -43,11 +43,18 @@ export function OutputPreviewPanel({
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center justify-between gap-2 text-sm">
-                    <span>Output preview · {rows.length} rows</span>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                    <Table2 size={15} aria-hidden="true" className="text-[var(--st-accent)]" />
+                    <span>Output preview</span>
                     {totalErrors > 0 ? (
-                        <Badge tone="danger">{totalErrors} error(s)</Badge>
-                    ) : null}
+                        <Badge tone="danger" dot className="ml-auto tabular-nums">
+                            {totalErrors} error{totalErrors === 1 ? '' : 's'}
+                        </Badge>
+                    ) : (
+                        <Badge tone="success" dot className="ml-auto tabular-nums">
+                            {rows.length.toLocaleString()} rows
+                        </Badge>
+                    )}
                 </CardTitle>
             </CardHeader>
             <CardBody>

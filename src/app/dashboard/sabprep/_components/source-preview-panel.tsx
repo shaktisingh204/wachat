@@ -7,6 +7,7 @@ import {
     CardHeader,
     CardTitle,
     CardBody,
+    Badge,
     Table,
     THead,
     TBody,
@@ -29,8 +30,12 @@ export function SourcePreviewPanel({ rows }: { rows: Row[] }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-sm">
-                    Source preview · {rows.length} rows
+                <CardTitle className="flex items-center gap-2 text-sm">
+                    <Database size={15} aria-hidden="true" className="text-[var(--st-accent)]" />
+                    <span>Source preview</span>
+                    <Badge tone="neutral" className="ml-auto tabular-nums">
+                        {rows.length.toLocaleString()} rows
+                    </Badge>
                 </CardTitle>
             </CardHeader>
             <CardBody>

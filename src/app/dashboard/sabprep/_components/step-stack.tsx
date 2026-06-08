@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronDown, ChevronUp, Trash2, Plus, EyeOff, Eye } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash2, Plus, EyeOff, Eye, Layers } from 'lucide-react';
 
 import { Card, CardHeader, CardTitle, CardBody, Button, Badge, EmptyState } from '@/components/sabcrm/20ui';
 import { STEP_CATALOG, type Step, type StepKind, type StepRunSummary } from '@/lib/rust-client/sabprep-steps';
@@ -71,12 +71,19 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-sm">Steps</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-sm">
+                    <Layers size={15} aria-hidden="true" className="text-[var(--st-accent)]" />
+                    <span>Steps</span>
+                    <Badge tone="neutral" className="ml-auto tabular-nums">
+                        {steps.length} step{steps.length === 1 ? '' : 's'}
+                    </Badge>
+                </CardTitle>
             </CardHeader>
             <CardBody className="space-y-3">
                 {steps.length === 0 ? (
                     <EmptyState
-                        icon={<Plus className="h-5 w-5" />}
+                        size="sm"
+                        icon={Layers}
                         title="No steps yet"
                         description="Add a step below to start transforming the source dataset."
                     />
@@ -91,8 +98,13 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
                                         <span className="text-sm font-medium">
                                             {labelForKind(step.kind)}
                                         </span>
-                                        {summary ? (
-                                            <Badge variant="secondary">
+                                        {step.disabled ? (
+                                            <Badge tone="neutral">Disabled</Badge>
+                                        ) : summary ? (
+                                            <Badge
+                                                tone={(summary.errors?.length ?? 0) > 0 ? 'danger' : 'info'}
+                                                className="tabular-nums"
+                                            >
                                                 {summary.rowsIn} → {summary.rowsOut}
                                             </Badge>
                                         ) : null}
@@ -159,19 +171,22 @@ export function StepStack({ steps, columns, datasets, summaries, onChange }: Pro
 
 function AddStepBar({ onAdd }: { onAdd: (kind: StepKind) => void }) {
     return (
-        <div className="flex flex-wrap items-center gap-2 pt-2">
-            <span className="text-xs opacity-70">Add step:</span>
-            {STEP_CATALOG.map((s) => (
-                <Button
-                    key={s.kind}
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onAdd(s.kind)}
-                    title={s.description}
-                >
-                    {s.label}
-                </Button>
-            ))}
+        <div className="flex flex-col gap-2 border-t border-[var(--st-border)] pt-3">
+            <span className="text-xs font-medium text-[var(--st-text-secondary)]">Add a step</span>
+            <div className="flex flex-wrap gap-1.5">
+                {STEP_CATALOG.map((s) => (
+                    <Button
+                        key={s.kind}
+                        size="sm"
+                        variant="outline"
+                        iconLeft={Plus}
+                        onClick={() => onAdd(s.kind)}
+                        title={s.description}
+                    >
+                        {s.label}
+                    </Button>
+                ))}
+            </div>
         </div>
     );
 }
