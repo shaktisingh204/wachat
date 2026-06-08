@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import type { SVGProps } from "react"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, m } from "motion/react"
 import { useOnClickOutside } from "usehooks-ts"
 
 export interface Job {
@@ -135,7 +135,7 @@ export default function JobListingComponent({
     <>
       <AnimatePresence>
         {activeItem ? (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -147,33 +147,33 @@ export default function JobListingComponent({
         {activeItem ? (
           <>
             <div className="group absolute inset-0 z-10 grid place-items-center">
-              <motion.div
+              <m.div
                 className="bg-[var(--st-surface)] flex h-fit w-[90%] cursor-pointer flex-col items-start gap-4 overflow-hidden p-4 shadow-md"
                 ref={ref}
                 layoutId={`workItem-${activeItem.company}`}
                 style={{ borderRadius: 12 }}
               >
                 <div className="flex w-full items-center gap-4">
-                  <motion.div layoutId={`workItemLogo-${activeItem.company}`}>
+                  <m.div layoutId={`workItemLogo-${activeItem.company}`}>
                     {activeItem.logo}
-                  </motion.div>
+                  </m.div>
                   <div className="flex grow items-center justify-between">
                     <div className="flex w-full flex-col gap-0.5">
                       <div className="flex w-full flex-row justify-between gap-0.5">
-                        <motion.div
+                        <m.div
                           className="text-[var(--st-text)] text-sm font-medium"
                           layoutId={`workItemCompany-${activeItem.company}`}
                         >
                           {activeItem.company}
-                        </motion.div>
+                        </m.div>
                       </div>
-                      <motion.p
+                      <m.p
                         layoutId={`workItemTitle-${activeItem.company}`}
                         className="text-[var(--st-text)] text-sm"
                       >
                         {activeItem.title} / {activeItem.salary}
-                      </motion.p>
-                      <motion.div
+                      </m.p>
+                      <m.div
                         className="text-[var(--st-text)] flex flex-row gap-2 text-xs"
                         layoutId={`workItemExtras-${activeItem.company}`}
                       >
@@ -184,11 +184,11 @@ export default function JobListingComponent({
                         {activeItem.remote === "Hybrid" &&
                           ` ${activeItem.remote} / ${activeItem.location} `}
                         | {activeItem.job_time}
-                      </motion.div>
+                      </m.div>
                     </div>
                   </div>
                 </div>
-                <motion.p
+                <m.p
                   layout
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -196,8 +196,8 @@ export default function JobListingComponent({
                   className="text-[var(--st-text)] text-sm"
                 >
                   {activeItem.job_description}
-                </motion.p>
-              </motion.div>
+                </m.p>
+              </m.div>
             </div>
           </>
         ) : null}
@@ -205,7 +205,7 @@ export default function JobListingComponent({
       <div className={`relative flex items-start p-6 ${className || ""}`}>
         <div className="relative flex w-full flex-col items-center gap-4 px-2">
           {jobs.map((role) => (
-            <motion.div
+            <m.div
               layoutId={`workItem-${role.company}`}
               key={role.company}
               className="group bg-[var(--st-surface)] flex w-full cursor-pointer flex-row items-center gap-4 p-2 shadow-sm md:p-4"
@@ -215,24 +215,24 @@ export default function JobListingComponent({
               }}
               style={{ borderRadius: 8 }}
             >
-              <motion.div layoutId={`workItemLogo-${role.company}`}>
+              <m.div layoutId={`workItemLogo-${role.company}`}>
                 {role.logo}
-              </motion.div>
+              </m.div>
               <div className="flex w-full flex-col items-start justify-between gap-0.5">
-                <motion.div
+                <m.div
                   className="text-[var(--st-text)]  font-medium"
                   layoutId={`workItemCompany-${role.company}`}
                 >
                   {role.company}
-                </motion.div>
-                <motion.div
+                </m.div>
+                <m.div
                   className="text-[var(--st-text)] text-xs"
                   layoutId={`workItemTitle-${role.company}`}
                 >
                   {role.title} / {role.salary}
-                </motion.div>
+                </m.div>
 
-                <motion.div
+                <m.div
                   className="text-[var(--st-text)] flex flex-row gap-2 text-xs"
                   layoutId={`workItemExtras-${role.company}`}
                 >
@@ -241,9 +241,9 @@ export default function JobListingComponent({
                   {role.remote === "Hybrid" &&
                     ` ${role.remote} / ${role.location} `}
                   | {role.job_time}
-                </motion.div>
+                </m.div>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>

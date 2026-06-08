@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { Badge, Button, EmptyState, StatCard } from '@/components/sabcrm/20ui';
 import {
   Briefcase,
@@ -211,7 +211,7 @@ export function EmployeeDashboardClient({
           ) : (
             <ul className="divide-y divide-zinc-100">
               {tasks.slice(0, 6).map((t, i) => (
-                <motion.li
+                <m.li
                   key={String(t._id)}
                   custom={i}
                   initial={reduce ? undefined : 'hidden'}
@@ -236,7 +236,7 @@ export function EmployeeDashboardClient({
                       {t.priority || 'normal'}
                     </Badge>
                   </Link>
-                </motion.li>
+                </m.li>
               ))}
             </ul>
           )}

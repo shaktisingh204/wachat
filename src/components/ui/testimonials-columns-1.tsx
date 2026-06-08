@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { motion } from "motion/react";
+import { m } from "motion/react";
 
 type TestimonialItem = {
   text: string;
@@ -16,7 +16,7 @@ export const TestimonialsColumn = (props: {
 }) => {
   return (
     <div className={props.className}>
-      <motion.div
+      <m.div
         animate={{
           translateY: "-50%",
         }}
@@ -53,7 +53,7 @@ export const TestimonialsColumn = (props: {
             </React.Fragment>
           )),
         ]}
-      </motion.div>
+      </m.div>
     </div>
   );
 };

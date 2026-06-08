@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { m, AnimatePresence } from "motion/react";
 import { Search, X } from "lucide-react";
 
 import { cn } from "./lib/cn";
@@ -97,7 +97,7 @@ export function SabActionSearchBar({
 
       <AnimatePresence>
         {showPanel && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -142,7 +142,7 @@ export function SabActionSearchBar({
                 })}
               </ul>
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

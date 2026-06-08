@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { Badge, Button, EmptyState, StatCard } from '@/components/sabcrm/20ui';
 import {
   Users,
@@ -249,7 +249,7 @@ export function HrmAdminDashboardClient({
             ) : (
               <ul className="divide-y divide-zinc-100">
                 {leavesList.map((leave, i) => (
-                  <motion.li
+                  <m.li
                     key={leave._id}
                     custom={i}
                     initial={reduce ? undefined : 'hidden'}
@@ -309,7 +309,7 @@ export function HrmAdminDashboardClient({
                         <UserX className="mr-1 h-3 w-3" /> Reject
                       </Button>
                     </div>
-                  </motion.li>
+                  </m.li>
                 ))}
               </ul>
             )}
@@ -344,7 +344,7 @@ export function HrmAdminDashboardClient({
               {todayAttendanceFeed.map((r, i) => {
                 const { tone, label } = attendanceTone(r.status);
                 return (
-                  <motion.li
+                  <m.li
                     key={r._id || `${r.employeeId}-${i}`}
                     custom={i}
                     initial={reduce ? undefined : 'hidden'}
@@ -370,7 +370,7 @@ export function HrmAdminDashboardClient({
                     <Badge tone={tone} className="ml-2 rounded-full px-2 py-0 text-[10px] capitalize">
                       {label}
                     </Badge>
-                  </motion.li>
+                  </m.li>
                 );
               })}
             </ul>

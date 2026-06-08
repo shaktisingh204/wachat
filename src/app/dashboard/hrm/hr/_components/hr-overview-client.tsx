@@ -2,7 +2,7 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'motion/react';
+import { m, useReducedMotion } from 'motion/react';
 import { fmtDate } from '@/lib/utils';
 import { Badge, Button, EmptyState, StatCard } from '@/components/sabcrm/20ui';
 import {
@@ -278,7 +278,7 @@ export function HrOverviewClient({
                   const progress = Math.max(0, Math.min(100, o.progress ?? 0));
                   const started = daysSince(o.joiningDate);
                   return (
-                    <motion.li
+                    <m.li
                       key={o._id}
                       custom={i}
                       initial={reduce ? undefined : 'hidden'}
@@ -320,7 +320,7 @@ export function HrOverviewClient({
                           <span className="font-mono text-[10px] text-zinc-500">{progress}%</span>
                         </div>
                       </div>
-                    </motion.li>
+                    </m.li>
                   );
                 })}
               </ul>
@@ -429,7 +429,7 @@ export function HrOverviewClient({
             ) : (
               <ul className="divide-y divide-zinc-100">
                 {announcements.slice(0, 4).map((a, i) => (
-                  <motion.li
+                  <m.li
                     key={a._id}
                     custom={i}
                     initial={reduce ? undefined : 'hidden'}
@@ -455,7 +455,7 @@ export function HrOverviewClient({
                       <span>Aud: {a.audience || 'all'}</span>
                       <span>By {a.authorName || 'Ops'}</span>
                     </div>
-                  </motion.li>
+                  </m.li>
                 ))}
               </ul>
             )}
