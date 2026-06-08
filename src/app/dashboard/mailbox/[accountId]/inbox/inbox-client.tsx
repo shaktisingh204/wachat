@@ -44,6 +44,7 @@ import {
     SelectTrigger,
     SelectValue,
     Separator,
+    Skeleton,
     cn,
     useToast,
 } from '@/components/sabcrm/20ui';
@@ -85,10 +86,18 @@ export function InboxClient({
     const [sortKey, setSortKey] = React.useState<SortKey>('date');
     const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
     const [busy, setBusy] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const firstRun = React.useRef(true);
 
     // Refetch when folder changes
     React.useEffect(() => {
         let cancelled = false;
+        // Skip the loading flash on initial mount (messages came from the server).
+        if (firstRun.current) {
+            firstRun.current = false;
+            return;
+        }
+        setLoading(true);
         void listMailMessages({
             accountId,
             folderId: activeFolderId ?? undefined,
@@ -97,6 +106,7 @@ export function InboxClient({
             if (cancelled) return;
             setMessages(rows);
             setSelectedId(null);
+            setLoading(false);
         });
         return () => {
             cancelled = true;
@@ -255,12 +265,29 @@ export function InboxClient({
                     />
                 </div>
                 <div className="flex-1 overflow-auto">
-                    {filtered.length === 0 ? (
+                    {loading ? (
+                        <ul className="divide-y divide-[var(--st-border)]">
+                            {Array.from({ length: 6 }).map((_, i) => (
+                                <li key={i} className="flex flex-col gap-2 px-3 py-2.5">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <Skeleton width="40%" height={12} />
+                                        <Skeleton width={40} height={10} />
+                                    </div>
+                                    <Skeleton width="70%" height={12} />
+                                    <Skeleton width="90%" height={10} />
+                                </li>
+                            ))}
+                        </ul>
+                    ) : filtered.length === 0 ? (
                         <EmptyState
                             size="sm"
                             icon={Mail}
-                            title="No messages"
-                            description="When mail arrives, it will land here."
+                            title={search.trim() ? 'No matching messages' : 'No messages'}
+                            description={
+                                search.trim()
+                                    ? 'Try a different subject, sender, or keyword.'
+                                    : 'When mail arrives, it will land here.'
+                            }
                         />
                     ) : (
                         <ul className="divide-y divide-[var(--st-border)]">
@@ -271,23 +298,37 @@ export function InboxClient({
                                     <li
                                         key={id}
                                         className={cn(
-                                            'cursor-pointer px-3 py-2 text-sm hover:bg-[var(--st-bg-muted)]',
+                                            'cursor-pointer px-3 py-2 text-sm transition-colors duration-150 hover:bg-[var(--st-bg-muted)]',
                                             isSelected && 'bg-[var(--st-bg-muted)]',
                                         )}
                                         onClick={() => handleSelect(m)}
                                     >
                                         <div className="flex items-center justify-between gap-2">
-                                            <span
-                                                className={cn(
-                                                    'truncate',
-                                                    m.unread
-                                                        ? 'font-semibold text-[var(--st-text)]'
-                                                        : 'text-[var(--st-text-secondary)]',
-                                                )}
-                                            >
-                                                {m.fromAddr?.name ?? m.fromAddr?.email ?? 'Unknown'}
+                                            <span className="flex min-w-0 items-center gap-1.5">
+                                                {m.unread ? (
+                                                    <span
+                                                        className="h-2 w-2 shrink-0 rounded-full bg-[var(--st-accent)]"
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : null}
+                                                {m.starred ? (
+                                                    <Star
+                                                        className="h-3 w-3 shrink-0 fill-current text-[var(--st-warn)]"
+                                                        aria-hidden="true"
+                                                    />
+                                                ) : null}
+                                                <span
+                                                    className={cn(
+                                                        'truncate',
+                                                        m.unread
+                                                            ? 'font-semibold text-[var(--st-text)]'
+                                                            : 'text-[var(--st-text-secondary)]',
+                                                    )}
+                                                >
+                                                    {m.fromAddr?.name ?? m.fromAddr?.email ?? 'Unknown'}
+                                                </span>
                                             </span>
-                                            <span className="shrink-0 text-xs text-[var(--st-text-secondary)]">
+                                            <span className="shrink-0 text-xs tabular-nums text-[var(--st-text-secondary)]">
                                                 {formatTime(m.receivedAt ?? m.createdAt)}
                                             </span>
                                         </div>

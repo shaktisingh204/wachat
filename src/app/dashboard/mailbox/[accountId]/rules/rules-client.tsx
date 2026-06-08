@@ -10,7 +10,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Filter, Plus, Trash2 } from 'lucide-react';
+import { Filter, ListChecks, Plus, Trash2, Zap } from 'lucide-react';
 
 import {
     createMailRule,
@@ -26,7 +26,7 @@ import type {
     MailRuleDoc,
 } from '@/lib/rust-client/mail-rules';
 import type { MailFolderDoc } from '@/lib/rust-client/mail-folders';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Field, IconButton, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Separator, Switch, useToast } from '@/components/sabcrm/20ui';
 
 const FIELDS: { id: MailRuleConditionField; label: string }[] = [
     { id: 'from', label: 'From' },
@@ -103,7 +103,7 @@ export function RulesClient({
 
     const handleCreate = async () => {
         if (!name.trim()) {
-            toast({ title: 'Name required', variant: 'destructive' });
+            toast({ title: 'Name required', tone: 'danger' });
             return;
         }
         setSubmitting(true);
@@ -117,7 +117,7 @@ export function RulesClient({
         });
         setSubmitting(false);
         if (!res.ok) {
-            toast({ title: 'Save failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Save failed', description: res.error, tone: 'danger' });
             return;
         }
         toast({ title: 'Rule created' });
@@ -131,7 +131,7 @@ export function RulesClient({
         const res = await updateMailRule(id, accountId, { enabled });
         setBusyId(null);
         if (!res.ok) {
-            toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Update failed', description: res.error, tone: 'danger' });
             return;
         }
         router.refresh();
@@ -143,7 +143,7 @@ export function RulesClient({
         const res = await deleteMailRule(rule._id!, accountId);
         setBusyId(null);
         if (!res.ok) {
-            toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Delete failed', description: res.error, tone: 'danger' });
             return;
         }
         toast({ title: 'Rule deleted' });
@@ -155,26 +155,24 @@ export function RulesClient({
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Filter className="h-4 w-4" />
+                        <Filter className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
                         New rule
                     </CardTitle>
                     <CardDescription>
-                        When conditions match, run the listed actions on incoming mail.
+                        When the conditions match, run the listed actions on incoming mail.
                     </CardDescription>
                 </CardHeader>
                 <CardBody className="flex flex-col gap-4">
                     <div className="grid gap-3 sm:grid-cols-2">
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="rule-name">Name</Label>
+                        <Field label="Name" id="rule-name">
                             <Input
                                 id="rule-name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="Newsletters → Archive"
                             />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <Label>Match mode</Label>
+                        </Field>
+                        <Field label="Match mode">
                             <Select
                                 value={matchMode}
                                 onValueChange={(v) => setMatchMode(v as 'all' | 'any')}
@@ -183,15 +181,18 @@ export function RulesClient({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Match ALL conditions</SelectItem>
-                                    <SelectItem value="any">Match ANY condition</SelectItem>
+                                    <SelectItem value="all">Match all conditions</SelectItem>
+                                    <SelectItem value="any">Match any condition</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </Field>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label>Conditions</Label>
+                        <Label className="flex items-center gap-1.5">
+                            <ListChecks className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                            Conditions
+                        </Label>
                         {conditions.map((c, idx) => (
                             <div
                                 key={c.key}
@@ -250,24 +251,24 @@ export function RulesClient({
                                         )
                                     }
                                 />
-                                <Button
+                                <IconButton
                                     type="button"
                                     variant="ghost"
-                                    size="icon"
+                                    icon={Trash2}
                                     onClick={() =>
                                         setConditions((prev) => prev.filter((_, i) => i !== idx))
                                     }
                                     disabled={conditions.length === 1}
-                                    aria-label="Remove condition"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                    label="Remove condition"
+                                />
                             </div>
                         ))}
                         <Button
                             type="button"
                             variant="outline"
                             size="sm"
+                            iconLeft={Plus}
+                            className="self-start"
                             onClick={() =>
                                 setConditions((prev) => [
                                     ...prev,
@@ -280,13 +281,15 @@ export function RulesClient({
                                 ])
                             }
                         >
-                            <Plus className="mr-1 h-3 w-3" />
                             Add condition
                         </Button>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <Label>Actions</Label>
+                        <Label className="flex items-center gap-1.5">
+                            <Zap className="h-3.5 w-3.5 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                            Actions
+                        </Label>
                         {actions.map((a, idx) => {
                             const needsFolder = a.type === 'move';
                             const needsText = a.type === 'label' || a.type === 'forward';
@@ -351,18 +354,16 @@ export function RulesClient({
                                     ) : (
                                         <div />
                                     )}
-                                    <Button
+                                    <IconButton
                                         type="button"
                                         variant="ghost"
-                                        size="icon"
+                                        icon={Trash2}
                                         onClick={() =>
                                             setActions((prev) => prev.filter((_, i) => i !== idx))
                                         }
                                         disabled={actions.length === 1}
-                                        aria-label="Remove action"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                        label="Remove action"
+                                    />
                                 </div>
                             );
                         })}
@@ -370,6 +371,8 @@ export function RulesClient({
                             type="button"
                             variant="outline"
                             size="sm"
+                            iconLeft={Plus}
+                            className="self-start"
                             onClick={() =>
                                 setActions((prev) => [
                                     ...prev,
@@ -377,82 +380,104 @@ export function RulesClient({
                                 ])
                             }
                         >
-                            <Plus className="mr-1 h-3 w-3" />
                             Add action
                         </Button>
                     </div>
 
                     <Separator />
                     <div>
-                        <Button type="button" onClick={handleCreate} disabled={submitting}>
-                            <Plus className="mr-2 h-4 w-4" />
+                        <Button
+                            type="button"
+                            variant="primary"
+                            iconLeft={Plus}
+                            loading={submitting}
+                            disabled={submitting}
+                            onClick={handleCreate}
+                        >
                             {submitting ? 'Saving…' : 'Save rule'}
                         </Button>
                     </div>
                 </CardBody>
             </Card>
 
-            {initialRules.length === 0 ? (
-                <EmptyState
-                    icon={<Filter className="h-8 w-8" />}
-                    title="No rules yet"
-                    description="Create a rule above to triage incoming mail automatically."
-                />
-            ) : (
-                <div className="flex flex-col gap-3">
-                    {initialRules.map((r) => {
-                        const id = r._id!;
-                        const busy = busyId === id;
-                        return (
-                            <Card key={id}>
-                                <CardBody className="flex flex-col gap-2 p-4">
-                                    <div className="flex flex-wrap items-center justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-medium">{r.name}</span>
-                                                <Badge variant="secondary">
-                                                    {r.matchMode === 'any' ? 'any' : 'all'}
-                                                </Badge>
-                                            </div>
-                                            <div className="mt-1 flex flex-wrap gap-1">
-                                                {(r.conditions ?? []).map((c, i) => (
-                                                    <Badge key={i} variant="outline">
-                                                        {c.field} {c.op} {c.value ?? ''}
+            <section className="flex flex-col gap-3">
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+                    <ListChecks className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    Active rules
+                    <span className="font-normal tabular-nums text-[var(--st-text-secondary)]">
+                        ({initialRules.length})
+                    </span>
+                </h2>
+
+                {initialRules.length === 0 ? (
+                    <EmptyState
+                        icon={Filter}
+                        title="No rules yet"
+                        description="Create a rule above to triage incoming mail automatically."
+                    />
+                ) : (
+                    <ul className="flex flex-col gap-3">
+                        {initialRules.map((r) => {
+                            const id = r._id!;
+                            const busy = busyId === id;
+                            const enabled = r.enabled !== false;
+                            return (
+                                <li key={id}>
+                                  <Card>
+                                    <CardBody className="flex flex-col gap-2 p-4">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-medium text-[var(--st-text)]">{r.name}</span>
+                                                    <Badge tone={enabled ? 'success' : 'neutral'} dot>
+                                                        {enabled ? 'Enabled' : 'Disabled'}
                                                     </Badge>
-                                                ))}
-                                            </div>
-                                            <div className="mt-1 flex flex-wrap gap-1">
-                                                {(r.actions ?? []).map((a, i) => (
-                                                    <Badge key={i}>
-                                                        {a.type} {renderActionValue(a)}
+                                                    <Badge tone="neutral">
+                                                        Match {r.matchMode === 'any' ? 'any' : 'all'}
                                                     </Badge>
-                                                ))}
+                                                </div>
+                                                <div className="mt-2 flex flex-wrap gap-1">
+                                                    {(r.conditions ?? []).map((c, i) => (
+                                                        <Badge key={i} tone="info" kind="outline">
+                                                            {c.field} {c.op} {c.value ?? ''}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-1 flex flex-wrap gap-1">
+                                                    {(r.actions ?? []).map((a, i) => (
+                                                        <Badge key={i} tone="accent">
+                                                            {a.type} {renderActionValue(a)}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <Switch
+                                                    checked={enabled}
+                                                    disabled={busy}
+                                                    onCheckedChange={(v) => handleToggleEnabled(r, v)}
+                                                    label="Enabled"
+                                                    aria-label={`Enable rule ${r.name}`}
+                                                />
+                                                <IconButton
+                                                    type="button"
+                                                    variant="danger"
+                                                    icon={Trash2}
+                                                    size="sm"
+                                                    disabled={busy}
+                                                    onClick={() => handleDelete(r)}
+                                                    label={`Delete rule ${r.name}`}
+                                                />
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <Label className="text-xs">Enabled</Label>
-                                            <Switch
-                                                checked={r.enabled !== false}
-                                                disabled={busy}
-                                                onCheckedChange={(v) => handleToggleEnabled(r, v)}
-                                            />
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                size="icon"
-                                                disabled={busy}
-                                                onClick={() => handleDelete(r)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        );
-                    })}
-                </div>
-            )}
+                                    </CardBody>
+                                  </Card>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </section>
         </div>
     );
 }

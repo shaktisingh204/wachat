@@ -17,6 +17,7 @@ import {
     CheckCircle2,
     Clock,
     Copy,
+    Globe,
     Plus,
     RefreshCw,
     Trash2,
@@ -28,9 +29,16 @@ import {
     recheckMailDomainDns,
 } from '@/app/actions/mailbox.actions';
 import type { MailDomainDoc } from '@/lib/rust-client/mail-domains';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, Separator, useToast } from '@/components/sabcrm/20ui';
+import type { BadgeTone } from '@/components/sabcrm/20ui';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Field, Input, Separator, useToast } from '@/components/sabcrm/20ui';
 
 type Status = 'pending' | 'verified' | 'failed';
+
+const STATUS_LABEL: Record<Status, string> = {
+    verified: 'Verified',
+    failed: 'Failed',
+    pending: 'Pending',
+};
 
 function StatusPill({
     label,
@@ -40,13 +48,13 @@ function StatusPill({
     status?: Status;
 }) {
     const s: Status = status ?? 'pending';
-    const variant: 'default' | 'secondary' | 'destructive' | 'outline' =
-        s === 'verified' ? 'default' : s === 'failed' ? 'destructive' : 'secondary';
+    const tone: BadgeTone =
+        s === 'verified' ? 'success' : s === 'failed' ? 'danger' : 'warning';
     const Icon = s === 'verified' ? CheckCircle2 : s === 'failed' ? AlertTriangle : Clock;
     return (
-        <Badge variant={variant} className="inline-flex items-center gap-1">
-            <Icon className="h-3 w-3" />
-            {label}: {s}
+        <Badge tone={tone} className="inline-flex items-center gap-1">
+            <Icon className="h-3 w-3" aria-hidden="true" />
+            {label} · {STATUS_LABEL[s]}
         </Badge>
     );
 }
@@ -91,7 +99,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
             toast({
                 title: 'Could not add domain',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -111,7 +119,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
             toast({
                 title: 'Recheck failed',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -132,7 +140,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
             toast({
                 title: 'Delete failed',
                 description: res.error,
-                variant: 'destructive',
+                tone: 'danger',
             });
             return;
         }
@@ -151,7 +159,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
             toast({
                 title: 'Copy failed',
                 description: 'Clipboard not available in this browser.',
-                variant: 'destructive',
+                tone: 'danger',
             });
         }
     };
@@ -160,27 +168,37 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
         <div className="flex flex-col gap-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Add a domain</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        Add a domain
+                    </CardTitle>
                     <CardDescription>
-                        Enter the apex domain (e.g. <code>acme.com</code>). DNS records will
-                        appear below once it&apos;s saved.
+                        Enter the apex domain (for example, <code>acme.com</code>). DNS records
+                        appear below once it is saved.
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
                     <form onSubmit={handleCreate} className="flex flex-col gap-3 sm:flex-row sm:items-end">
                         <div className="flex-1">
-                            <Label htmlFor="mail-domain-name">Domain</Label>
-                            <Input
-                                id="mail-domain-name"
-                                value={domainName}
-                                onChange={(e) => setDomainName(e.target.value)}
-                                placeholder="acme.com"
-                                autoComplete="off"
-                                required
-                            />
+                            <Field label="Domain" id="mail-domain-name">
+                                <Input
+                                    id="mail-domain-name"
+                                    value={domainName}
+                                    onChange={(e) => setDomainName(e.target.value)}
+                                    placeholder="acme.com"
+                                    autoComplete="off"
+                                    iconLeft={Globe}
+                                    required
+                                />
+                            </Field>
                         </div>
-                        <Button type="submit" disabled={submitting || !domainName.trim()}>
-                            <Plus className="mr-2 h-4 w-4" />
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            iconLeft={Plus}
+                            loading={submitting}
+                            disabled={submitting || !domainName.trim()}
+                        >
                             {submitting ? 'Adding…' : 'Add domain'}
                         </Button>
                     </form>
@@ -189,18 +207,21 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
 
             {initialDomains.length === 0 ? (
                 <EmptyState
+                    icon={Globe}
                     title="No domains yet"
-                    description="Add a domain to start receiving mail."
+                    description="Add a domain to start receiving mail and provisioning mailboxes."
                 />
             ) : (
-                <div className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-4">
                     {initialDomains.map((d) => {
                         const id = d._id!;
                         const busy = busyId === id;
                         return (
-                            <Card key={id}>
+                            <li key={id}>
+                              <Card>
                                 <CardHeader>
                                     <CardTitle className="flex flex-wrap items-center gap-2">
+                                        <Globe className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
                                         <span className="font-mono">{d.domain}</span>
                                     </CardTitle>
                                     <CardDescription className="flex flex-wrap gap-2 pt-2">
@@ -211,7 +232,7 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                                     </CardDescription>
                                 </CardHeader>
                                 <CardBody className="flex flex-col gap-3">
-                                    <pre className="max-h-48 overflow-auto rounded-md border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs text-[var(--st-text-secondary)]">
+                                    <pre className="max-h-48 overflow-auto rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-muted)] p-3 text-xs leading-relaxed text-[var(--st-text-secondary)]">
                                         {dnsRecordsFor(d)}
                                     </pre>
                                     <Separator />
@@ -220,38 +241,40 @@ export function DomainsClient({ initialDomains }: DomainsClientProps) {
                                             type="button"
                                             variant="outline"
                                             size="sm"
+                                            iconLeft={Copy}
                                             disabled={busy}
                                             onClick={() => handleCopy(d)}
                                         >
-                                            <Copy className="mr-2 h-4 w-4" />
                                             Copy DNS records
                                         </Button>
                                         <Button
                                             type="button"
                                             variant="outline"
                                             size="sm"
+                                            iconLeft={RefreshCw}
+                                            loading={busy}
                                             disabled={busy}
                                             onClick={() => handleRecheck(id)}
                                         >
-                                            <RefreshCw className="mr-2 h-4 w-4" />
                                             {busy ? 'Checking…' : 'Recheck DNS'}
                                         </Button>
                                         <Button
                                             type="button"
-                                            variant="destructive"
+                                            variant="danger"
                                             size="sm"
+                                            iconLeft={Trash2}
                                             disabled={busy}
                                             onClick={() => handleDelete(id, d.domain)}
                                         >
-                                            <Trash2 className="mr-2 h-4 w-4" />
                                             Remove
                                         </Button>
                                     </div>
                                 </CardBody>
-                            </Card>
+                              </Card>
+                            </li>
                         );
                     })}
-                </div>
+                </ul>
             )}
         </div>
     );

@@ -10,7 +10,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Plus, Trash2 } from 'lucide-react';
+import { Filter, Mail, Plus, Trash2, UserPlus } from 'lucide-react';
 
 import {
     createMailAccount,
@@ -136,9 +136,12 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
         <div className="flex flex-col gap-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>New mailbox</CardTitle>
+                    <CardTitle className="flex items-center gap-2">
+                        <UserPlus className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
+                        New mailbox
+                    </CardTitle>
                     <CardDescription>
-                        Pick a domain, choose a local part, set a quota and (optional) password.
+                        Pick a domain, choose a local part, set a quota and an optional password.
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
@@ -211,23 +214,33 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                 </CardBody>
             </Card>
 
-            <div className="flex items-center gap-3">
-                <Label htmlFor="mail-filter-domain" className="text-sm">
-                    Filter by domain
-                </Label>
-                <Select value={filterDomain} onValueChange={setFilterDomain}>
-                    <SelectTrigger id="mail-filter-domain" aria-label="Filter by domain" className="w-64">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="__all">All domains</SelectItem>
-                        {domains.map((d) => (
-                            <SelectItem key={d._id} value={d._id!}>
-                                {d.domain}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+            <div className="flex items-center justify-between gap-3">
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+                    <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    Mailboxes
+                    <span className="font-normal tabular-nums text-[var(--st-text-secondary)]">
+                        ({accounts.length})
+                    </span>
+                </h2>
+                <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                    <Label htmlFor="mail-filter-domain" className="sr-only">
+                        Filter by domain
+                    </Label>
+                    <Select value={filterDomain} onValueChange={setFilterDomain}>
+                        <SelectTrigger id="mail-filter-domain" aria-label="Filter by domain" className="w-56">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__all">All domains</SelectItem>
+                            {domains.map((d) => (
+                                <SelectItem key={d._id} value={d._id!}>
+                                    {d.domain}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
 
             {accounts.length === 0 ? (
@@ -237,27 +250,34 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                     description="Create your first mailbox above."
                 />
             ) : (
-                <div className="grid gap-3">
+                <ul className="grid gap-3">
                     {accounts.map((a) => {
                         const id = a._id!;
                         const email = a.emailAddress ?? `${a.localPart}@${domainOf(a.domainId)}`;
                         const active = (a.status ?? 'active') === 'active';
                         const busy = busyId === id;
+                        const quota =
+                            a.quotaMb && a.quotaMb >= 1024
+                                ? `${(a.quotaMb / 1024).toFixed(1)} GB`
+                                : a.quotaMb
+                                  ? `${a.quotaMb} MB`
+                                  : null;
                         return (
-                            <Card key={id}>
+                            <li key={id}>
+                              <Card>
                                 <CardBody className="flex flex-wrap items-center justify-between gap-3 p-4">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
                                             <Mail className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
-                                            <span className="font-medium">{a.displayName ?? email}</span>
-                                            <Badge tone={active ? 'success' : 'neutral'}>
-                                                {a.status ?? 'active'}
+                                            <span className="font-medium text-[var(--st-text)]">{a.displayName ?? email}</span>
+                                            <Badge tone={active ? 'success' : 'neutral'} dot>
+                                                {active ? 'Active' : 'Suspended'}
                                             </Badge>
                                         </div>
                                         <div className="truncate text-sm text-[var(--st-text-secondary)]">{email}</div>
-                                        {a.quotaMb ? (
-                                            <div className="text-xs text-[var(--st-text-secondary)]">
-                                                Quota: {a.quotaMb} MB
+                                        {quota ? (
+                                            <div className="text-xs tabular-nums text-[var(--st-text-secondary)]">
+                                                Quota {quota}
                                             </div>
                                         ) : null}
                                     </div>
@@ -287,10 +307,11 @@ export function AccountsClient({ domains, initialAccounts }: AccountsClientProps
                                         />
                                     </div>
                                 </CardBody>
-                            </Card>
+                              </Card>
+                            </li>
                         );
                     })}
-                </div>
+                </ul>
             )}
         </div>
     );

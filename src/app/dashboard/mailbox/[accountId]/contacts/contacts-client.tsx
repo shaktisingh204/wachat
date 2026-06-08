@@ -10,7 +10,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Search, Trash2, Users } from 'lucide-react';
+import { Plus, Search, Trash2, UserPlus, Users } from 'lucide-react';
 
 import {
     createMailContact,
@@ -18,7 +18,7 @@ import {
     listMailContacts,
 } from '@/app/actions/mailbox.actions';
 import type { MailContactDoc } from '@/lib/rust-client/mail-contacts-sync';
-import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Input, Label, useToast } from '@/components/sabcrm/20ui';
+import { Badge, Button, Card, CardBody, CardDescription, CardHeader, CardTitle, EmptyState, Field, IconButton, Input, useToast } from '@/components/sabcrm/20ui';
 
 export interface ContactsClientProps {
     accountId: string;
@@ -59,10 +59,10 @@ export function ContactsClient({
         });
         setSubmitting(false);
         if (!res.ok) {
-            toast({ title: 'Could not add', description: res.error, variant: 'destructive' });
+            toast({ title: 'Could not add', description: res.error, tone: 'danger' });
             return;
         }
-        toast({ title: 'Contact added' });
+        toast({ title: 'Contact added', tone: 'success' });
         setEmail('');
         setDisplayName('');
         router.refresh();
@@ -75,11 +75,11 @@ export function ContactsClient({
         const res = await deleteMailContact(id, accountId);
         setBusyId(null);
         if (!res.ok) {
-            toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+            toast({ title: 'Delete failed', description: res.error, tone: 'danger' });
             return;
         }
         setContacts((prev) => prev.filter((x) => x._id !== id));
-        toast({ title: 'Removed' });
+        toast({ title: 'Contact removed', tone: 'success' });
     };
 
     return (
@@ -87,11 +87,11 @@ export function ContactsClient({
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
+                        <UserPlus className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
                         Add contact
                     </CardTitle>
                     <CardDescription>
-                        Quick add — full contact record lives in the CRM module.
+                        A quick entry for this mailbox. The full contact record lives in the CRM.
                     </CardDescription>
                 </CardHeader>
                 <CardBody>
@@ -99,17 +99,15 @@ export function ContactsClient({
                         onSubmit={handleCreate}
                         className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
                     >
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="contact-name">Display name</Label>
+                        <Field label="Display name" id="contact-name">
                             <Input
                                 id="contact-name"
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Ada Lovelace"
                             />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <Label htmlFor="contact-email">Email</Label>
+                        </Field>
+                        <Field label="Email" id="contact-email">
                             <Input
                                 id="contact-email"
                                 type="email"
@@ -118,70 +116,94 @@ export function ContactsClient({
                                 placeholder="ada@example.com"
                                 required
                             />
-                        </div>
-                        <Button type="submit" disabled={submitting || !email.trim()}>
-                            <Plus className="mr-1 h-4 w-4" />
+                        </Field>
+                        <Button
+                            type="submit"
+                            variant="primary"
+                            iconLeft={Plus}
+                            loading={submitting}
+                            disabled={submitting || !email.trim()}
+                        >
                             Add
                         </Button>
                     </form>
                 </CardBody>
             </Card>
 
-            <div className="flex items-center gap-2">
-                <Search className="h-4 w-4 text-[var(--st-text-secondary)]" />
-                <Input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search contacts…"
-                />
-            </div>
-
-            {contacts.length === 0 ? (
-                <EmptyState
-                    icon={<Users className="h-8 w-8" />}
-                    title="No contacts yet"
-                    description="Address book entries appear here as you send and receive mail."
-                />
-            ) : (
-                <div className="grid gap-2">
-                    {contacts.map((c) => {
-                        const id = c._id!;
-                        const busy = busyId === id;
-                        return (
-                            <Card key={id}>
-                                <CardBody className="flex flex-wrap items-center justify-between gap-3 p-3">
-                                    <div className="min-w-0">
-                                        <div className="font-medium">
-                                            {c.displayName ?? c.emails?.[0] ?? '(unnamed)'}
-                                        </div>
-                                        <div className="flex flex-wrap gap-1 pt-1">
-                                            {(c.emails ?? []).map((e) => (
-                                                <Badge key={e} variant="secondary">
-                                                    {e}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                        {(c.sendCount ?? 0) + (c.receiveCount ?? 0) > 0 ? (
-                                            <div className="pt-1 text-xs text-[var(--st-text-secondary)]">
-                                                Sent {c.sendCount ?? 0} · Received {c.receiveCount ?? 0}
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        disabled={busy}
-                                        onClick={() => handleDelete(c)}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </CardBody>
-                            </Card>
-                        );
-                    })}
+            <section className="flex flex-col gap-3">
+                <div className="flex items-center justify-between gap-3">
+                    <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--st-text)]">
+                        <Users className="h-4 w-4 text-[var(--st-text-secondary)]" aria-hidden="true" />
+                        Address book
+                        <span className="font-normal tabular-nums text-[var(--st-text-secondary)]">
+                            ({contacts.length})
+                        </span>
+                    </h2>
+                    <Input
+                        inputSize="sm"
+                        iconLeft={Search}
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Search contacts"
+                        aria-label="Search contacts"
+                        className="w-64"
+                    />
                 </div>
-            )}
+
+                {contacts.length === 0 ? (
+                    <EmptyState
+                        icon={Users}
+                        title={query.trim() ? 'No matching contacts' : 'No contacts yet'}
+                        description={
+                            query.trim()
+                                ? 'Try a different name or email address.'
+                                : 'Address book entries appear here as you send and receive mail.'
+                        }
+                    />
+                ) : (
+                    <ul className="grid gap-2">
+                        {contacts.map((c) => {
+                            const id = c._id!;
+                            const busy = busyId === id;
+                            const interactions =
+                                (c.sendCount ?? 0) + (c.receiveCount ?? 0);
+                            return (
+                                <li key={id}>
+                                  <Card>
+                                    <CardBody className="flex flex-wrap items-center justify-between gap-3 p-3">
+                                        <div className="min-w-0">
+                                            <div className="font-medium text-[var(--st-text)]">
+                                                {c.displayName ?? c.emails?.[0] ?? '(unnamed)'}
+                                            </div>
+                                            <div className="flex flex-wrap gap-1 pt-1">
+                                                {(c.emails ?? []).map((e) => (
+                                                    <Badge key={e} tone="neutral">
+                                                        {e}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                            {interactions > 0 ? (
+                                                <div className="pt-1 text-xs tabular-nums text-[var(--st-text-secondary)]">
+                                                    Sent {c.sendCount ?? 0} · Received {c.receiveCount ?? 0}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                        <IconButton
+                                            label={`Remove ${c.displayName ?? c.emails?.[0] ?? 'contact'}`}
+                                            icon={Trash2}
+                                            variant="danger"
+                                            size="sm"
+                                            disabled={busy}
+                                            onClick={() => handleDelete(c)}
+                                        />
+                                    </CardBody>
+                                  </Card>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </section>
         </div>
     );
 }
