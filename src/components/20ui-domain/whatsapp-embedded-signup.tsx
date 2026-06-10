@@ -119,6 +119,7 @@ export default function WhatsAppEmbeddedSignup({
         data?: { waba_id?: string; phone_number_id?: string; current_step?: string; error_message?: string };
       };
       if (data?.type !== 'WA_EMBEDDED_SIGNUP') return;
+      console.log('[WhatsApp ES][client] WA_EMBEDDED_SIGNUP event:', data.event, data.data);
 
       if (data.event === 'FINISH' || data.event === 'FINISH_ONLY_WABA' || data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING') {
         sessionInfoRef.current = {
@@ -126,7 +127,7 @@ export default function WhatsAppEmbeddedSignup({
           phoneNumberId: data.data?.phone_number_id,
         };
       } else if (data.event === 'CANCEL') {
-        console.warn(`[WhatsApp ES] User cancelled at step: ${data.data?.current_step ?? 'unknown'}`);
+        console.warn(`[WhatsApp ES][client] User cancelled at step: ${data.data?.current_step ?? 'unknown'}`);
       } else if (data.event === 'ERROR') {
         setError(data.data?.error_message || 'Facebook reported an error during signup. Please try again.');
       }
@@ -139,19 +140,26 @@ export default function WhatsAppEmbeddedSignup({
   const finalize = useCallback(
     (code: string) => {
       const info = sessionInfoRef.current;
+      console.log('[WhatsApp ES][client] finalize() running server exchange. wabaId=%s phoneNumberId=%s', info.wabaId, info.phoneNumberId);
       startTransition(async () => {
-        const result = await completeWhatsAppEmbeddedSignup({
-          code,
-          wabaId: info.wabaId,
-          phoneNumberId: info.phoneNumberId,
-          includeCatalog,
-        });
-        if (result.success) {
-          setDone(true);
-          router.push(result.redirectPath || '/wachat');
-          router.refresh();
-        } else {
-          setError(result.error || 'Onboarding failed. Please try again.');
+        try {
+          const result = await completeWhatsAppEmbeddedSignup({
+            code,
+            wabaId: info.wabaId,
+            phoneNumberId: info.phoneNumberId,
+            includeCatalog,
+          });
+          console.log('[WhatsApp ES][client] server action result:', result);
+          if (result.success) {
+            setDone(true);
+            router.push(result.redirectPath || '/wachat');
+            router.refresh();
+          } else {
+            setError(result.error || 'Onboarding failed. Please try again.');
+          }
+        } catch (e) {
+          console.error('[WhatsApp ES][client] server action threw:', e);
+          setError('Something went wrong finishing setup. Please try again.');
         }
       });
     },
@@ -167,15 +175,17 @@ export default function WhatsAppEmbeddedSignup({
       return;
     }
 
+    console.log('[WhatsApp ES][client] launching FB.login with config_id=%s', configId);
     window.FB.login(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (response: any) => {
+        console.log('[WhatsApp ES][client] FB.login callback fired. status=%s authResponse=%o', response?.status, response?.authResponse);
         const code = response?.authResponse?.code;
         if (code) {
           finalize(code);
         } else {
           // No code means the user closed the popup before finishing.
-          setError((prev) => prev || 'Signup was closed before completing. Please connect again and finish every step.');
+          setError((prev) => prev || 'Signup was closed before Facebook returned an authorization code. Please connect again and click "Finish" on the last step.');
         }
       },
       {
