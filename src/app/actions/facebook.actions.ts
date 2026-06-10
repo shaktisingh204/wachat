@@ -206,71 +206,91 @@ async function handleWhatsAppOnboardingCallback(
 
         const wabaIds: string[] = [];
         const seen = new Set<string>();
+        const addWaba = (id: string | undefined) => {
+            if (id && !seen.has(id)) {
+                seen.add(id);
+                wabaIds.push(id);
+            }
+        };
 
         // Primary discovery: Embedded-Signup tokens only carry the
         // permissions from the Meta configuration (no business_management),
         // so the WABAs the user selected live in the token's granular
         // scopes, not behind me/businesses.
+        let grantedScopes: string[] = [];
+        let businessIdsFromToken: string[] = [];
         try {
             const debug = await metaGraphGet<{
-                data?: { granular_scopes?: { scope: string; target_ids?: string[] }[] };
+                data?: {
+                    scopes?: string[];
+                    granular_scopes?: { scope: string; target_ids?: string[] }[];
+                };
             }>('debug_token', {
                 input_token: accessToken,
                 access_token: `${appId}|${appSecret}`,
             });
-            const ids = (debug.data?.granular_scopes ?? [])
-                .filter((s) => s.scope === 'whatsapp_business_management' || s.scope === 'whatsapp_business_messaging')
-                .flatMap((s) => s.target_ids ?? []);
-            for (const id of ids) {
-                if (id && !seen.has(id)) {
-                    seen.add(id);
-                    wabaIds.push(id);
+            const granular = debug.data?.granular_scopes ?? [];
+            grantedScopes = debug.data?.scopes ?? granular.map((s) => s.scope);
+            console.log(`[WhatsApp OAuth] Token scopes: ${JSON.stringify(grantedScopes)}`);
+            console.log(`[WhatsApp OAuth] Token granular scopes: ${JSON.stringify(granular)}`);
+            for (const s of granular) {
+                if (s.scope === 'whatsapp_business_management' || s.scope === 'whatsapp_business_messaging') {
+                    for (const id of s.target_ids ?? []) addWaba(id);
                 }
             }
+            businessIdsFromToken = granular
+                .filter((s) => s.scope === 'business_management')
+                .flatMap((s) => s.target_ids ?? []);
             if (wabaIds.length > 0) {
                 console.log(`[WhatsApp OAuth] Found ${wabaIds.length} WABA(s) via token granular scopes.`);
             }
         } catch (e) {
-            console.warn(`[WhatsApp OAuth] debug_token introspection failed: ${getErrorMessage(e)}`);
+            console.error(`[WhatsApp OAuth] debug_token introspection failed: ${getErrorMessage(e)}`);
         }
 
-        // Fallback for tokens that DO have business_management (classic
-        // OAuth dialog): enumerate businesses and their WABA edges.
+        // Fallback: enumerate businesses and their WABA edges. Business ids
+        // can come from the token's business_management granular scope (works
+        // without the me/businesses call) or from me/businesses for classic
+        // OAuth tokens.
         if (wabaIds.length === 0) {
+            const businessIds = new Set<string>(businessIdsFromToken);
             try {
                 const businesses = await metaGraphGet<{ data?: { id: string; name?: string }[] }>(
                     'me/businesses',
                     { access_token: accessToken },
                 );
-                console.log(`[WhatsApp OAuth] Fallback: found ${businesses.data?.length ?? 0} business(es); discovering WABAs...`);
                 for (const business of businesses.data ?? []) {
-                    // Owned covers WABAs created via Embedded Signup; client
-                    // covers WABAs shared with the business by a partner.
-                    for (const edge of ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const) {
-                        try {
-                            const wabas = await metaGraphGet<{ data?: { id: string }[] }>(
-                                `${business.id}/${edge}`,
-                                { access_token: accessToken },
-                            );
-                            for (const waba of wabas.data ?? []) {
-                                if (waba.id && !seen.has(waba.id)) {
-                                    seen.add(waba.id);
-                                    wabaIds.push(waba.id);
-                                }
-                            }
-                        } catch (e) {
-                            console.warn(`[WhatsApp OAuth] Could not fetch ${edge} for business ${business.id}: ${getErrorMessage(e)}`);
-                        }
-                    }
+                    if (business.id) businessIds.add(business.id);
                 }
             } catch (e) {
                 console.warn(`[WhatsApp OAuth] me/businesses discovery failed: ${getErrorMessage(e)}`);
             }
+            console.log(`[WhatsApp OAuth] Fallback: checking WABA edges of ${businessIds.size} business(es)...`);
+            for (const businessId of businessIds) {
+                // Owned covers WABAs created via Embedded Signup; client
+                // covers WABAs shared with the business by a partner.
+                for (const edge of ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const) {
+                    try {
+                        const wabas = await metaGraphGet<{ data?: { id: string }[] }>(
+                            `${businessId}/${edge}`,
+                            { access_token: accessToken },
+                        );
+                        for (const waba of wabas.data ?? []) addWaba(waba.id);
+                    } catch (e) {
+                        console.warn(`[WhatsApp OAuth] Could not fetch ${edge} for business ${businessId}: ${getErrorMessage(e)}`);
+                    }
+                }
+            }
         }
 
         if (wabaIds.length === 0) {
-            console.error('[WhatsApp OAuth] No WABAs found across owned/client edges.');
-            return { success: false, error: 'No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions.' };
+            const hasWhatsAppScope = grantedScopes.includes('whatsapp_business_management')
+                || grantedScopes.includes('whatsapp_business_messaging');
+            const error = hasWhatsAppScope
+                ? 'Facebook login completed, but no WhatsApp Business Account was shared with SabNode. Please click Connect again and, inside the Facebook popup, create or select a WhatsApp Business Account and finish every step of the signup.'
+                : `Facebook login completed without WhatsApp permissions (granted: ${grantedScopes.join(', ') || 'none'}). The Meta app's Embedded Signup configuration (NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID) must be a WhatsApp Embedded Signup configuration that requests whatsapp_business_management and whatsapp_business_messaging.`;
+            console.error(`[WhatsApp OAuth] ${error}`);
+            return { success: false, error };
         }
         console.log(`[WhatsApp OAuth] Creating projects for ${wabaIds.length} WABA(s): ${wabaIds.join(', ')}`);
 
