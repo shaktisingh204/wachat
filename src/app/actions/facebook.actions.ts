@@ -190,35 +190,135 @@ async function handleWhatsAppOnboardingCallback(
             return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
         }
 
-        // Mirror the Rust handler: keep the user-level long-lived token on
-        // the user document so sync cycles can reuse it.
-        try {
-            const { connectToDatabase } = await import('@/lib/mongodb');
-            const { ObjectId } = await import('mongodb');
-            const { db } = await connectToDatabase();
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(userId) },
-                { $set: { metaSuiteAccessToken: accessToken } },
-            );
-        } catch (e) {
-            console.warn(`[WhatsApp OAuth] Could not persist user token: ${getErrorMessage(e)}`);
+        return finishWhatsAppOnboarding(accessToken, {
+            userId,
+            appId,
+            appSecret,
+            includeCatalog,
+            wabaIdsFromEvent: [],
+        });
+    } catch (e) {
+        console.error(`[WhatsApp OAuth] Unhandled error: ${getErrorMessage(e)}`);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * WhatsApp Embedded Signup completion via the Facebook JavaScript SDK.
+ *
+ * This is the correct, working onboarding path. The legacy
+ * `handleWhatsAppOnboardingCallback` redirect flow could never request the
+ * WhatsApp scopes: `config_id` / `override_default_response_type` are ignored
+ * by the plain `dialog/oauth` redirect endpoint and only take effect inside
+ * `FB.login()`. The JS SDK launches the real Embedded Signup popup, returns a
+ * one-time `code` (response_type=code), and — via the WA_EMBEDDED_SIGNUP
+ * `message` event — the exact WABA + phone-number ids the user selected.
+ *
+ * The ES `code` is exchanged WITHOUT a `redirect_uri` and WITHOUT the
+ * `fb_exchange_token` step: it yields a business-integration system-user token
+ * that is already long-lived.
+ */
+export async function completeWhatsAppEmbeddedSignup(input: {
+    code: string;
+    wabaId?: string;
+    phoneNumberId?: string;
+    includeCatalog?: boolean;
+}): Promise<{ success: boolean; error?: string; redirectPath?: string }> {
+    const { getSession } = await import('./user.actions');
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Access denied. Please sign in again.' };
+    const userId = session.user._id.toString();
+
+    const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+    const appSecret = process.env.META_ONBOARDING_APP_SECRET;
+
+    console.log(`[WhatsApp ES] Completing embedded signup for user ${userId} (wabaId=${input.wabaId ?? 'none'}, phoneNumberId=${input.phoneNumberId ?? 'none'}, includeCatalog=${!!input.includeCatalog})`);
+
+    if (!appId || !appSecret) {
+        console.error(`[WhatsApp ES] Missing onboarding app credentials (appId set: ${!!appId}, secret set: ${!!appSecret}).`);
+        return { success: false, error: 'WhatsApp onboarding is not configured on the server.' };
+    }
+    if (!input.code) {
+        return { success: false, error: 'Facebook did not return an authorization code. Please try connecting again.' };
+    }
+
+    try {
+        // Embedded Signup exchange: no redirect_uri, no fb_exchange_token.
+        const exchanged = await metaGraphGet<{ access_token?: string }>('oauth/access_token', {
+            client_id: appId,
+            client_secret: appSecret,
+            code: input.code,
+        });
+        const accessToken = exchanged.access_token;
+        if (!accessToken) {
+            console.error('[WhatsApp ES] Code exchange returned no access token.');
+            return { success: false, error: 'Failed to exchange the Facebook authorization code for an access token.' };
         }
 
-        const wabaIds: string[] = [];
-        const seen = new Set<string>();
-        const addWaba = (id: string | undefined) => {
-            if (id && !seen.has(id)) {
-                seen.add(id);
-                wabaIds.push(id);
-            }
-        };
+        return finishWhatsAppOnboarding(accessToken, {
+            userId,
+            appId,
+            appSecret,
+            includeCatalog: !!input.includeCatalog,
+            wabaIdsFromEvent: input.wabaId ? [input.wabaId] : [],
+        });
+    } catch (e) {
+        console.error(`[WhatsApp ES] Unhandled error: ${getErrorMessage(e)}`);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
 
-        // Primary discovery: Embedded-Signup tokens only carry the
-        // permissions from the Meta configuration (no business_management),
-        // so the WABAs the user selected live in the token's granular
-        // scopes, not behind me/businesses.
-        let grantedScopes: string[] = [];
-        let businessIdsFromToken: string[] = [];
+/**
+ * Shared tail of both WhatsApp onboarding paths: persist the user token,
+ * discover the connected WABA(s), and create a WaChat project per WABA.
+ * `wabaIdsFromEvent` lets the Embedded-Signup JS flow short-circuit discovery
+ * with the ids Meta returned in the WA_EMBEDDED_SIGNUP event.
+ */
+async function finishWhatsAppOnboarding(
+    accessToken: string,
+    opts: {
+        userId: string;
+        appId: string;
+        appSecret: string;
+        includeCatalog: boolean;
+        wabaIdsFromEvent: string[];
+    },
+): Promise<{ success: boolean; error?: string; redirectPath?: string }> {
+    const { userId, appId, appSecret, includeCatalog, wabaIdsFromEvent } = opts;
+
+    // Mirror the Rust handler: keep the user-level long-lived token on the
+    // user document so sync cycles can reuse it.
+    try {
+        const { connectToDatabase } = await import('@/lib/mongodb');
+        const { ObjectId } = await import('mongodb');
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { metaSuiteAccessToken: accessToken } },
+        );
+    } catch (e) {
+        console.warn(`[WhatsApp OAuth] Could not persist user token: ${getErrorMessage(e)}`);
+    }
+
+    const wabaIds: string[] = [];
+    const seen = new Set<string>();
+    const addWaba = (id: string | undefined) => {
+        if (id && !seen.has(id)) {
+            seen.add(id);
+            wabaIds.push(id);
+        }
+    };
+
+    // Most reliable source: the WABA the user just selected in the ES popup.
+    for (const id of wabaIdsFromEvent) addWaba(id);
+
+    // Primary discovery: Embedded-Signup tokens only carry the permissions
+    // from the Meta configuration (no business_management), so the WABAs the
+    // user selected live in the token's granular scopes, not behind
+    // me/businesses.
+    let grantedScopes: string[] = [];
+    let businessIdsFromToken: string[] = [];
+    if (wabaIds.length === 0) {
         try {
             const debug = await metaGraphGet<{
                 data?: {
@@ -247,73 +347,69 @@ async function handleWhatsAppOnboardingCallback(
         } catch (e) {
             console.error(`[WhatsApp OAuth] debug_token introspection failed: ${getErrorMessage(e)}`);
         }
-
-        // Fallback: enumerate businesses and their WABA edges. Business ids
-        // can come from the token's business_management granular scope (works
-        // without the me/businesses call) or from me/businesses for classic
-        // OAuth tokens.
-        if (wabaIds.length === 0) {
-            const businessIds = new Set<string>(businessIdsFromToken);
-            try {
-                const businesses = await metaGraphGet<{ data?: { id: string; name?: string }[] }>(
-                    'me/businesses',
-                    { access_token: accessToken },
-                );
-                for (const business of businesses.data ?? []) {
-                    if (business.id) businessIds.add(business.id);
-                }
-            } catch (e) {
-                console.warn(`[WhatsApp OAuth] me/businesses discovery failed: ${getErrorMessage(e)}`);
-            }
-            console.log(`[WhatsApp OAuth] Fallback: checking WABA edges of ${businessIds.size} business(es)...`);
-            for (const businessId of businessIds) {
-                // Owned covers WABAs created via Embedded Signup; client
-                // covers WABAs shared with the business by a partner.
-                for (const edge of ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const) {
-                    try {
-                        const wabas = await metaGraphGet<{ data?: { id: string }[] }>(
-                            `${businessId}/${edge}`,
-                            { access_token: accessToken },
-                        );
-                        for (const waba of wabas.data ?? []) addWaba(waba.id);
-                    } catch (e) {
-                        console.warn(`[WhatsApp OAuth] Could not fetch ${edge} for business ${businessId}: ${getErrorMessage(e)}`);
-                    }
-                }
-            }
-        }
-
-        if (wabaIds.length === 0) {
-            const hasWhatsAppScope = grantedScopes.includes('whatsapp_business_management')
-                || grantedScopes.includes('whatsapp_business_messaging');
-            const error = hasWhatsAppScope
-                ? 'Facebook login completed, but no WhatsApp Business Account was shared with SabNode. Please click Connect again and, inside the Facebook popup, create or select a WhatsApp Business Account and finish every step of the signup.'
-                : `Facebook login completed without WhatsApp permissions (granted: ${grantedScopes.join(', ') || 'none'}). The Meta app's Embedded Signup configuration (NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID) must be a WhatsApp Embedded Signup configuration that requests whatsapp_business_management and whatsapp_business_messaging.`;
-            console.error(`[WhatsApp OAuth] ${error}`);
-            return { success: false, error };
-        }
-        console.log(`[WhatsApp OAuth] Creating projects for ${wabaIds.length} WABA(s): ${wabaIds.join(', ')}`);
-
-        const failures: string[] = [];
-        for (const wabaId of wabaIds) {
-            const result = await _createProjectFromWaba({ wabaId, appId, accessToken, includeCatalog, userId });
-            if (result.error) {
-                console.warn(`[WhatsApp OAuth] Failed to create project for WABA ${wabaId}: ${result.error}`);
-                failures.push(result.error);
-            }
-        }
-        if (failures.length === wabaIds.length) {
-            console.error(`[WhatsApp OAuth] All ${wabaIds.length} project creations failed. First error: ${failures[0]}`);
-            return { success: false, error: `Could not create a project for any connected WhatsApp Business Account. ${failures[0]}` };
-        }
-
-        console.log(`[WhatsApp OAuth] Onboarding complete: ${wabaIds.length - failures.length}/${wabaIds.length} project(s) created.`);
-        revalidatePath('/wachat');
-        return { success: true, redirectPath: '/wachat' };
-    } catch (e) {
-        console.error(`[WhatsApp OAuth] Unhandled error: ${getErrorMessage(e)}`);
-        return { success: false, error: getErrorMessage(e) };
     }
+
+    // Fallback: enumerate businesses and their WABA edges. Business ids can
+    // come from the token's business_management granular scope (works without
+    // the me/businesses call) or from me/businesses for classic OAuth tokens.
+    if (wabaIds.length === 0) {
+        const businessIds = new Set<string>(businessIdsFromToken);
+        try {
+            const businesses = await metaGraphGet<{ data?: { id: string; name?: string }[] }>(
+                'me/businesses',
+                { access_token: accessToken },
+            );
+            for (const business of businesses.data ?? []) {
+                if (business.id) businessIds.add(business.id);
+            }
+        } catch (e) {
+            console.warn(`[WhatsApp OAuth] me/businesses discovery failed: ${getErrorMessage(e)}`);
+        }
+        console.log(`[WhatsApp OAuth] Fallback: checking WABA edges of ${businessIds.size} business(es)...`);
+        for (const businessId of businessIds) {
+            // Owned covers WABAs created via Embedded Signup; client covers
+            // WABAs shared with the business by a partner.
+            for (const edge of ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const) {
+                try {
+                    const wabas = await metaGraphGet<{ data?: { id: string }[] }>(
+                        `${businessId}/${edge}`,
+                        { access_token: accessToken },
+                    );
+                    for (const waba of wabas.data ?? []) addWaba(waba.id);
+                } catch (e) {
+                    console.warn(`[WhatsApp OAuth] Could not fetch ${edge} for business ${businessId}: ${getErrorMessage(e)}`);
+                }
+            }
+        }
+    }
+
+    if (wabaIds.length === 0) {
+        const hasWhatsAppScope = grantedScopes.includes('whatsapp_business_management')
+            || grantedScopes.includes('whatsapp_business_messaging');
+        const error = hasWhatsAppScope
+            ? 'Facebook login completed, but no WhatsApp Business Account was shared with SabNode. Please click Connect again and, inside the Facebook popup, create or select a WhatsApp Business Account and finish every step of the signup.'
+            : `Facebook login completed without WhatsApp permissions (granted: ${grantedScopes.join(', ') || 'none'}). The Meta app's Embedded Signup configuration (NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID) must be a WhatsApp Embedded Signup configuration that requests whatsapp_business_management and whatsapp_business_messaging.`;
+        console.error(`[WhatsApp OAuth] ${error}`);
+        return { success: false, error };
+    }
+    console.log(`[WhatsApp OAuth] Creating projects for ${wabaIds.length} WABA(s): ${wabaIds.join(', ')}`);
+
+    const failures: string[] = [];
+    for (const wabaId of wabaIds) {
+        const result = await _createProjectFromWaba({ wabaId, appId, accessToken, includeCatalog, userId });
+        if (result.error) {
+            console.warn(`[WhatsApp OAuth] Failed to create project for WABA ${wabaId}: ${result.error}`);
+            failures.push(result.error);
+        }
+    }
+    if (failures.length === wabaIds.length) {
+        console.error(`[WhatsApp OAuth] All ${wabaIds.length} project creations failed. First error: ${failures[0]}`);
+        return { success: false, error: `Could not create a project for any connected WhatsApp Business Account. ${failures[0]}` };
+    }
+
+    console.log(`[WhatsApp OAuth] Onboarding complete: ${wabaIds.length - failures.length}/${wabaIds.length} project(s) created.`);
+    revalidatePath('/wachat');
+    return { success: true, redirectPath: '/wachat' };
 }
 
 export async function handleManualFacebookPageSetup(

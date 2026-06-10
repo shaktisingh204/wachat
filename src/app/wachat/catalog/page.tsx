@@ -36,7 +36,7 @@ import { getCatalogs } from '@/app/actions/catalog.actions';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { Catalog } from '@/lib/definitions';
 import { SyncCatalogsButton } from '@/components/20ui-domain/sync-catalogs-button';
-import EmbeddedSignup from '@/components/20ui-domain/embedded-signup';
+import EmbeddedSignup from '@/components/20ui-domain/whatsapp-embedded-signup';
 import { useProject } from '@/context/project-context';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 

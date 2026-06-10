@@ -16,7 +16,7 @@ import {
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useState, useEffect, useMemo } from 'react';
-import EmbeddedSignup from '@/components/20ui-domain/embedded-signup';
+import EmbeddedSignup from '@/components/20ui-domain/whatsapp-embedded-signup';
 import {
   AlertCircle,
   ArrowRight,

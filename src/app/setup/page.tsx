@@ -7,7 +7,7 @@ import { useState } from 'react';
  * ✅ FIX: EmbeddedSignup is a DEFAULT export
  * DO NOT use `{ EmbeddedSignup }`
  */
-import EmbeddedSignup from '@/components/20ui-domain/embedded-signup';
+import EmbeddedSignup from '@/components/20ui-domain/whatsapp-embedded-signup';
 
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
