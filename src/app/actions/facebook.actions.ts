@@ -153,10 +153,14 @@ async function handleWhatsAppOnboardingCallback(
     const appSecret = process.env.META_ONBOARDING_APP_SECRET;
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
+    console.log(`[WhatsApp OAuth] Handling onboarding callback for user ${userId} (includeCatalog=${includeCatalog})`);
+
     if (!appUrl) {
+        console.error('[WhatsApp OAuth] NEXT_PUBLIC_APP_URL is not set.');
         return { success: false, error: 'Server is not configured for authentication. NEXT_PUBLIC_APP_URL is not set.' };
     }
     if (!appId || !appSecret) {
+        console.error(`[WhatsApp OAuth] Missing onboarding app credentials (appId set: ${!!appId}, secret set: ${!!appSecret}).`);
         return { success: false, error: 'Server is not configured for whatsapp authentication. Please ensure credentials are set in your environment variables.' };
     }
 
@@ -170,6 +174,7 @@ async function handleWhatsAppOnboardingCallback(
             code,
         });
         if (!shortLived.access_token) {
+            console.error('[WhatsApp OAuth] Code exchange returned no access token.');
             return { success: false, error: 'Failed to obtain access token from Facebook.' };
         }
 
@@ -181,6 +186,7 @@ async function handleWhatsAppOnboardingCallback(
         });
         const accessToken = longLived.access_token;
         if (!accessToken) {
+            console.error('[WhatsApp OAuth] Long-lived token exchange returned no access token.');
             return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
         }
 
@@ -203,8 +209,10 @@ async function handleWhatsAppOnboardingCallback(
             { access_token: accessToken },
         );
         if (!businesses.data || businesses.data.length === 0) {
+            console.error('[WhatsApp OAuth] me/businesses returned no businesses for this user.');
             return { success: false, error: 'No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite.' };
         }
+        console.log(`[WhatsApp OAuth] Found ${businesses.data.length} business(es); discovering WABAs...`);
 
         const wabaIds: string[] = [];
         const seen = new Set<string>();
@@ -230,8 +238,10 @@ async function handleWhatsAppOnboardingCallback(
         }
 
         if (wabaIds.length === 0) {
+            console.error('[WhatsApp OAuth] No WABAs found across owned/client edges.');
             return { success: false, error: 'No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions.' };
         }
+        console.log(`[WhatsApp OAuth] Creating projects for ${wabaIds.length} WABA(s): ${wabaIds.join(', ')}`);
 
         const failures: string[] = [];
         for (const wabaId of wabaIds) {
@@ -242,12 +252,15 @@ async function handleWhatsAppOnboardingCallback(
             }
         }
         if (failures.length === wabaIds.length) {
+            console.error(`[WhatsApp OAuth] All ${wabaIds.length} project creations failed. First error: ${failures[0]}`);
             return { success: false, error: `Could not create a project for any connected WhatsApp Business Account. ${failures[0]}` };
         }
 
+        console.log(`[WhatsApp OAuth] Onboarding complete: ${wabaIds.length - failures.length}/${wabaIds.length} project(s) created.`);
         revalidatePath('/wachat');
         return { success: true, redirectPath: '/wachat' };
     } catch (e) {
+        console.error(`[WhatsApp OAuth] Unhandled error: ${getErrorMessage(e)}`);
         return { success: false, error: getErrorMessage(e) };
     }
 }
