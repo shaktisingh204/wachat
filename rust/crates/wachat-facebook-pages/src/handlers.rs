@@ -484,62 +484,107 @@ pub async fn handle_facebook_oauth_callback(
                 });
             }
 
-            // ----- WABA discovery: me/businesses → owned/client WABAs -----
-            let businesses: AccountsEnvelope =
-                match s.meta.get_json("me/businesses", &long_token).await {
-                    Ok(r) => r,
-                    Err(e) => {
-                        return Json(AckResult {
-                            error: Some(err_msg(e)),
-                            ..Default::default()
-                        });
-                    }
-                };
-            if businesses.data.is_empty() {
-                return Json(AckResult {
-                    error: Some(
-                        "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite."
-                            .to_owned(),
-                    ),
-                    ..Default::default()
-                });
-            }
-
-            let first_business_id = businesses
-                .data
-                .first()
-                .and_then(|b| b.get("id"))
-                .and_then(|v| v.as_str())
-                .map(str::to_owned);
-
             let mut waba_ids: Vec<String> = Vec::new();
             let mut seen = HashSet::new();
-            for business in &businesses.data {
-                let Some(bid) = business.get("id").and_then(|v| v.as_str()) else {
-                    continue;
-                };
-                // Owned covers WABAs created via Embedded Signup; client
-                // covers WABAs shared with the business by a partner.
-                for edge in [
-                    "owned_whatsapp_business_accounts",
-                    "client_whatsapp_business_accounts",
-                ] {
-                    let path = format!("{bid}/{edge}");
-                    match s.meta.get_json::<AccountsEnvelope>(&path, &long_token).await {
-                        Ok(r) => {
-                            for waba in r.data {
-                                if let Some(id) = waba.get("id").and_then(|v| v.as_str())
-                                    && seen.insert(id.to_owned())
+            let mut first_business_id: Option<String> = None;
+
+            // Primary discovery: Embedded-Signup tokens only carry the
+            // permissions from the Meta configuration (no
+            // business_management), so the WABAs the user selected live in
+            // the token's granular scopes, not behind me/businesses.
+            let app_token = format!("{app_id}|{app_secret}");
+            let debug_path = format!(
+                "debug_token?input_token={}&access_token={}",
+                urlencoding::encode(&long_token),
+                urlencoding::encode(&app_token),
+            );
+            match s.meta.get_json::<Value>(&debug_path, "").await {
+                Ok(envelope) => {
+                    let scopes = envelope
+                        .get("data")
+                        .and_then(|d| d.get("granular_scopes"))
+                        .and_then(|g| g.as_array())
+                        .cloned()
+                        .unwrap_or_default();
+                    for scope in &scopes {
+                        let name = scope.get("scope").and_then(|v| v.as_str()).unwrap_or("");
+                        if name != "whatsapp_business_management"
+                            && name != "whatsapp_business_messaging"
+                        {
+                            continue;
+                        }
+                        let Some(ids) = scope.get("target_ids").and_then(|v| v.as_array()) else {
+                            continue;
+                        };
+                        for id in ids {
+                            if let Some(id) = id.as_str()
+                                && seen.insert(id.to_owned())
+                            {
+                                waba_ids.push(id.to_owned());
+                            }
+                        }
+                    }
+                }
+                Err(e) => warn!(
+                    "[OAuth Callback] debug_token introspection failed: {}",
+                    err_msg(e)
+                ),
+            }
+
+            // Fallback for tokens that DO have business_management (classic
+            // OAuth dialog): enumerate businesses and their WABA edges.
+            if waba_ids.is_empty() {
+                match s
+                    .meta
+                    .get_json::<AccountsEnvelope>("me/businesses", &long_token)
+                    .await
+                {
+                    Ok(businesses) => {
+                        first_business_id = businesses
+                            .data
+                            .first()
+                            .and_then(|b| b.get("id"))
+                            .and_then(|v| v.as_str())
+                            .map(str::to_owned);
+                        for business in &businesses.data {
+                            let Some(bid) = business.get("id").and_then(|v| v.as_str()) else {
+                                continue;
+                            };
+                            // Owned covers WABAs created via Embedded Signup;
+                            // client covers WABAs shared with the business by
+                            // a partner.
+                            for edge in [
+                                "owned_whatsapp_business_accounts",
+                                "client_whatsapp_business_accounts",
+                            ] {
+                                let path = format!("{bid}/{edge}");
+                                match s
+                                    .meta
+                                    .get_json::<AccountsEnvelope>(&path, &long_token)
+                                    .await
                                 {
-                                    waba_ids.push(id.to_owned());
+                                    Ok(r) => {
+                                        for waba in r.data {
+                                            if let Some(id) =
+                                                waba.get("id").and_then(|v| v.as_str())
+                                                && seen.insert(id.to_owned())
+                                            {
+                                                waba_ids.push(id.to_owned());
+                                            }
+                                        }
+                                    }
+                                    Err(e) => warn!(
+                                        "[OAuth Callback] Could not fetch {edge} for business {bid}: {}",
+                                        err_msg(e)
+                                    ),
                                 }
                             }
                         }
-                        Err(e) => warn!(
-                            "[OAuth Callback] Could not fetch {edge} for business {bid}: {}",
-                            err_msg(e)
-                        ),
                     }
+                    Err(e) => warn!(
+                        "[OAuth Callback] me/businesses discovery failed: {}",
+                        err_msg(e)
+                    ),
                 }
             }
 
