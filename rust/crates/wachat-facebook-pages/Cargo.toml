@@ -34,6 +34,8 @@ sabnode-common = { path = "../common" }
 sabnode-auth = { path = "../auth" }
 sabnode-db = { path = "../db" }
 wachat-meta-client = { path = "../wachat-meta-client" }
+wachat-config = { path = "../wachat-config" }
+wachat-types = { path = "../wachat-types" }
 
 [lints]
 workspace = true

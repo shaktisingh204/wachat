@@ -21,6 +21,8 @@
 //! endpoints (`/debug_token`, `/oauth/access_token`) we still build the
 //! URL by hand so the TS-equivalent query-string form is preserved.
 
+use std::collections::HashSet;
+
 use axum::{
     Json,
     extract::{Path, Query, State},
@@ -33,7 +35,9 @@ use sabnode_db::mongo::MongoHandle;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use tracing::warn;
+use wachat_config::{phone as config_phone, project as config_project, register as config_register};
 use wachat_meta_client::{MetaClient, MetaError};
+use wachat_types::Project as WachatProject;
 
 use crate::dto::{
     AckResult, CreateLiveVideoBody, CreateLiveVideoResp, CtaResp, DebugTokenResp, DemographicsResp,
@@ -194,8 +198,9 @@ struct OAuthStateCookie {
     /// source of truth. Kept here so deserialisation tolerates the field.
     #[serde(default, rename = "userId")]
     _user_id: Option<String>,
-    /// `includeCatalog` is consumed by the TS WhatsApp branch (which is
-    /// not yet ported); keep the field so deserialisation accepts it.
+    /// `includeCatalog` also arrives top-level on [`OAuthCallbackBody`],
+    /// which is what the handler consumes; keep the cookie field so
+    /// deserialisation accepts it.
     #[serde(default, rename = "includeCatalog")]
     _include_catalog: Option<bool>,
 }
@@ -220,9 +225,13 @@ struct AccountsEnvelope {
 ///   fully ported. Tokens are exchanged short→long, the user document is
 ///   updated with the appropriate `metaSuiteAccessToken` /
 ///   `adManagerAccessToken`, and Pages are upserted into `projects`.
-/// * `whatsapp` branch — **not ported** in this slice; it depends on
-///   `_createProjectFromWaba`, which lives in another action file. The TS
-///   shim should keep handling that branch until that crate lands.
+/// * `whatsapp` branch — exchanges the code against the Embedded-Signup
+///   app (`NEXT_PUBLIC_META_ONBOARDING_APP_ID`), discovers WABAs via
+///   `me/businesses` → `{owned,client}_whatsapp_business_accounts`, and
+///   upserts one project per WABA through `wachat_config::project::
+///   manual_setup` (with best-effort phone sync + registration). The TS
+///   action currently short-circuits this state before calling the BFF;
+///   this arm exists so the route is complete once that shim is removed.
 /// * Webhook subscription (`handleSubscribeFacebookPageWebhook`) is
 ///   currently a best-effort no-op; the Pages slice surfaces successful
 ///   project upserts and lets the existing subscription flow run from TS.
@@ -268,7 +277,21 @@ pub async fn handle_facebook_oauth_callback(
             ..Default::default()
         });
     }
-    if cfg.facebook_app_id.is_empty() || cfg.facebook_app_secret.is_empty() {
+    // The WhatsApp onboarding dialog is initiated by the Embedded-Signup
+    // app, so its code must be exchanged against that app's credentials.
+    // Every other state uses the Meta-Suite app.
+    let (app_id, app_secret) = if body.state == "whatsapp" {
+        (
+            cfg.onboarding_app_id.as_str(),
+            cfg.onboarding_app_secret.as_str(),
+        )
+    } else {
+        (
+            cfg.facebook_app_id.as_str(),
+            cfg.facebook_app_secret.as_str(),
+        )
+    };
+    if app_id.is_empty() || app_secret.is_empty() {
         return Json(AckResult {
             error: Some(format!(
                 "Server is not configured for {} authentication. Please ensure credentials are set in your environment variables.",
@@ -286,9 +309,9 @@ pub async fn handle_facebook_oauth_callback(
     // ----- Step 1: short-lived token exchange -----
     let short_url = format!(
         "oauth/access_token?client_id={}&redirect_uri={}&client_secret={}&code={}",
-        urlencoding::encode(&cfg.facebook_app_id),
+        urlencoding::encode(app_id),
         urlencoding::encode(&redirect_uri),
-        urlencoding::encode(&cfg.facebook_app_secret),
+        urlencoding::encode(app_secret),
         urlencoding::encode(&body.code),
     );
     let short_resp: OauthTokenResponse = match s.meta.get_json(&short_url, "").await {
@@ -310,8 +333,8 @@ pub async fn handle_facebook_oauth_callback(
     // ----- Step 2: short→long exchange -----
     let long_url = format!(
         "oauth/access_token?grant_type=fb_exchange_token&client_id={}&client_secret={}&fb_exchange_token={}",
-        urlencoding::encode(&cfg.facebook_app_id),
-        urlencoding::encode(&cfg.facebook_app_secret),
+        urlencoding::encode(app_id),
+        urlencoding::encode(app_secret),
         urlencoding::encode(&short_token),
     );
     let long_resp: OauthTokenResponse = match s.meta.get_json(&long_url, "").await {
@@ -450,22 +473,180 @@ pub async fn handle_facebook_oauth_callback(
             })
         }
         "whatsapp" => {
-            // The WhatsApp branch in the TS module fans out into a
-            // multi-step WABA discovery + project creation flow that
-            // crosses this crate's scope. Persist the token so the next
-            // sync cycle can pick it up; surface a generic error so the
-            // shim falls back to the legacy TS implementation for the
-            // remainder of the work.
-            let _ = users
+            if users
                 .update_one(doc! { "_id": user_oid }, doc! { "$set": user_set })
-                .await;
-            // include_catalog is accepted for API parity; the Rust port
-            // doesn't use it yet.
-            let _ = body.include_catalog;
+                .await
+                .is_err()
+            {
+                return Json(AckResult {
+                    error: Some("Failed to persist long-lived token.".to_owned()),
+                    ..Default::default()
+                });
+            }
+
+            // ----- WABA discovery: me/businesses → owned/client WABAs -----
+            let businesses: AccountsEnvelope =
+                match s.meta.get_json("me/businesses", &long_token).await {
+                    Ok(r) => r,
+                    Err(e) => {
+                        return Json(AckResult {
+                            error: Some(err_msg(e)),
+                            ..Default::default()
+                        });
+                    }
+                };
+            if businesses.data.is_empty() {
+                return Json(AckResult {
+                    error: Some(
+                        "No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite."
+                            .to_owned(),
+                    ),
+                    ..Default::default()
+                });
+            }
+
+            let first_business_id = businesses
+                .data
+                .first()
+                .and_then(|b| b.get("id"))
+                .and_then(|v| v.as_str())
+                .map(str::to_owned);
+
+            let mut waba_ids: Vec<String> = Vec::new();
+            let mut seen = HashSet::new();
+            for business in &businesses.data {
+                let Some(bid) = business.get("id").and_then(|v| v.as_str()) else {
+                    continue;
+                };
+                // Owned covers WABAs created via Embedded Signup; client
+                // covers WABAs shared with the business by a partner.
+                for edge in [
+                    "owned_whatsapp_business_accounts",
+                    "client_whatsapp_business_accounts",
+                ] {
+                    let path = format!("{bid}/{edge}");
+                    match s.meta.get_json::<AccountsEnvelope>(&path, &long_token).await {
+                        Ok(r) => {
+                            for waba in r.data {
+                                if let Some(id) = waba.get("id").and_then(|v| v.as_str())
+                                    && seen.insert(id.to_owned())
+                                {
+                                    waba_ids.push(id.to_owned());
+                                }
+                            }
+                        }
+                        Err(e) => warn!(
+                            "[OAuth Callback] Could not fetch {edge} for business {bid}: {}",
+                            err_msg(e)
+                        ),
+                    }
+                }
+            }
+
+            if waba_ids.is_empty() {
+                return Json(AckResult {
+                    error: Some(
+                        "No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions."
+                            .to_owned(),
+                    ),
+                    ..Default::default()
+                });
+            }
+
+            // ----- One project per WABA (upsert keyed on (wabaId, userId)) -----
+            let mut created = 0usize;
+            let mut last_err: Option<String> = None;
+            for waba_id in &waba_ids {
+                let name_path = format!("{waba_id}?fields=name");
+                let name = match s.meta.get_json::<Value>(&name_path, &long_token).await {
+                    Ok(v) => v
+                        .get("name")
+                        .and_then(|n| n.as_str())
+                        .unwrap_or(waba_id)
+                        .to_owned(),
+                    Err(e) => {
+                        warn!(
+                            "[OAuth Callback] Could not fetch name for WABA {waba_id}: {}",
+                            err_msg(e)
+                        );
+                        waba_id.clone()
+                    }
+                };
+
+                let setup = config_project::ManualSetupBody {
+                    name,
+                    waba_id: waba_id.clone(),
+                    phone_number_id: None,
+                    access_token: long_token.clone(),
+                    business_id: if body.include_catalog {
+                        first_business_id.clone()
+                    } else {
+                        None
+                    },
+                    app_id: Some(app_id.to_owned()),
+                    include_catalog: Some(body.include_catalog),
+                };
+                let project_id =
+                    match config_project::manual_setup(&s.mongo, &user_oid, setup).await {
+                        Ok(p) => p.id,
+                        Err(e) => {
+                            warn!(
+                                "[OAuth Callback] Failed to upsert project for WABA {waba_id}: {e}"
+                            );
+                            last_err = Some(e.to_string());
+                            continue;
+                        }
+                    };
+                created += 1;
+
+                // Best-effort: pull phone numbers from Meta and register
+                // them so the project is usable straight after onboarding
+                // (parity with the TS `_createProjectFromWaba` flow).
+                let Ok(project_oid) = ObjectId::parse_str(&project_id) else {
+                    continue;
+                };
+                let projects = s.mongo.collection::<WachatProject>(PROJECTS_COLLECTION);
+                if let Ok(Some(project)) = projects.find_one(doc! { "_id": project_oid }).await {
+                    if let Err(e) = config_phone::sync_numbers(&s.mongo, &s.meta, &project).await {
+                        warn!("[OAuth Callback] Phone sync failed for project {project_id}: {e}");
+                        continue;
+                    }
+                    if let Ok(Some(project)) = projects.find_one(doc! { "_id": project_oid }).await
+                    {
+                        for phone in &project.phone_numbers {
+                            let Some(phone_id) = phone.id.as_deref() else {
+                                continue;
+                            };
+                            if let Err(e) = config_register::register(
+                                &s.meta,
+                                &project,
+                                phone_id,
+                                config_register::PinBody {
+                                    pin: "123456".to_owned(),
+                                },
+                            )
+                            .await
+                            {
+                                warn!("[OAuth Callback] Could not register phone {phone_id}: {e}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            if created == 0 {
+                return Json(AckResult {
+                    error: Some(last_err.unwrap_or_else(|| {
+                        "Could not create a project for any connected WhatsApp Business Account."
+                            .to_owned()
+                    })),
+                    ..Default::default()
+                });
+            }
+
             Json(AckResult {
-                error: Some(
-                    "WhatsApp OAuth handling is not implemented in the Rust BFF yet.".to_owned(),
-                ),
+                success: Some(true),
+                redirect_path: Some("/wachat".to_owned()),
                 ..Default::default()
             })
         }

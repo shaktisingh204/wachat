@@ -5,6 +5,8 @@ import { type WithId } from 'mongodb';
 
 import { rustClient, RustApiError } from '@/lib/rust-client';
 import { getProjectById } from '@/app/actions/project.actions';
+import { getErrorMessage } from '@/lib/utils';
+import { _createProjectFromWaba } from './whatsapp.actions';
 import type {
     Project,
     FacebookPage,
@@ -88,6 +90,18 @@ export async function handleFacebookOAuthCallback(
 
     cookieStore.delete('onboarding_state');
 
+    // Live WhatsApp onboarding runs through the Embedded-Signup app
+    // (`NEXT_PUBLIC_META_ONBOARDING_APP_ID`), not the Meta-Suite app the
+    // Rust BFF is configured with — and the Rust `whatsapp` arm is still a
+    // stub that returns "not implemented". Handle the whole branch here.
+    if (state === 'whatsapp') {
+        return handleWhatsAppOnboardingCallback(
+            code,
+            session.user._id.toString(),
+            parsed.includeCatalog === true,
+        );
+    }
+
     try {
         const res = await rustClient.wachatFacebookPages.handleFacebookOAuthCallback({
             code,
@@ -108,6 +122,133 @@ export async function handleFacebookOAuthCallback(
     } catch (e) {
         if (e instanceof RustApiError) return { success: false, error: e.message };
         throw e;
+    }
+}
+
+const META_GRAPH_BASE = 'https://graph.facebook.com/v24.0';
+
+async function metaGraphGet<T>(path: string, params: Record<string, string>): Promise<T> {
+    const url = new URL(`${META_GRAPH_BASE}/${path}`);
+    for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+    const res = await fetch(url, { cache: 'no-store' });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+        throw new Error(json?.error?.message || `Meta API request failed (${res.status})`);
+    }
+    return json as T;
+}
+
+/**
+ * WhatsApp branch of the OAuth callback (legacy flow restored): exchange the
+ * code for a long-lived token with the onboarding app, discover the user's
+ * WABAs via `me/businesses`, and create a WaChat project per WABA (which
+ * also syncs + registers its phone numbers).
+ */
+async function handleWhatsAppOnboardingCallback(
+    code: string,
+    userId: string,
+    includeCatalog: boolean,
+): Promise<{ success: boolean; error?: string; redirectPath?: string }> {
+    const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
+    const appSecret = process.env.META_ONBOARDING_APP_SECRET;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+        return { success: false, error: 'Server is not configured for authentication. NEXT_PUBLIC_APP_URL is not set.' };
+    }
+    if (!appId || !appSecret) {
+        return { success: false, error: 'Server is not configured for whatsapp authentication. Please ensure credentials are set in your environment variables.' };
+    }
+
+    try {
+        const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
+
+        const shortLived = await metaGraphGet<{ access_token?: string }>('oauth/access_token', {
+            client_id: appId,
+            redirect_uri: redirectUri,
+            client_secret: appSecret,
+            code,
+        });
+        if (!shortLived.access_token) {
+            return { success: false, error: 'Failed to obtain access token from Facebook.' };
+        }
+
+        const longLived = await metaGraphGet<{ access_token?: string }>('oauth/access_token', {
+            grant_type: 'fb_exchange_token',
+            client_id: appId,
+            client_secret: appSecret,
+            fb_exchange_token: shortLived.access_token,
+        });
+        const accessToken = longLived.access_token;
+        if (!accessToken) {
+            return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
+        }
+
+        // Mirror the Rust handler: keep the user-level long-lived token on
+        // the user document so sync cycles can reuse it.
+        try {
+            const { connectToDatabase } = await import('@/lib/mongodb');
+            const { ObjectId } = await import('mongodb');
+            const { db } = await connectToDatabase();
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(userId) },
+                { $set: { metaSuiteAccessToken: accessToken } },
+            );
+        } catch (e) {
+            console.warn(`[WhatsApp OAuth] Could not persist user token: ${getErrorMessage(e)}`);
+        }
+
+        const businesses = await metaGraphGet<{ data?: { id: string; name?: string }[] }>(
+            'me/businesses',
+            { access_token: accessToken },
+        );
+        if (!businesses.data || businesses.data.length === 0) {
+            return { success: false, error: 'No Meta Business Accounts found for your user. Please ensure your account is connected to a business in Meta Business Suite.' };
+        }
+
+        const wabaIds: string[] = [];
+        const seen = new Set<string>();
+        for (const business of businesses.data) {
+            // Owned covers WABAs created via Embedded Signup; client covers
+            // WABAs shared with the business by a partner.
+            for (const edge of ['owned_whatsapp_business_accounts', 'client_whatsapp_business_accounts'] as const) {
+                try {
+                    const wabas = await metaGraphGet<{ data?: { id: string }[] }>(
+                        `${business.id}/${edge}`,
+                        { access_token: accessToken },
+                    );
+                    for (const waba of wabas.data ?? []) {
+                        if (waba.id && !seen.has(waba.id)) {
+                            seen.add(waba.id);
+                            wabaIds.push(waba.id);
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`[WhatsApp OAuth] Could not fetch ${edge} for business ${business.id}: ${getErrorMessage(e)}`);
+                }
+            }
+        }
+
+        if (wabaIds.length === 0) {
+            return { success: false, error: 'No WhatsApp Business Accounts found for your user. Please ensure you have a WABA connected to your account in Meta Business Suite and have granted the necessary permissions.' };
+        }
+
+        const failures: string[] = [];
+        for (const wabaId of wabaIds) {
+            const result = await _createProjectFromWaba({ wabaId, appId, accessToken, includeCatalog, userId });
+            if (result.error) {
+                console.warn(`[WhatsApp OAuth] Failed to create project for WABA ${wabaId}: ${result.error}`);
+                failures.push(result.error);
+            }
+        }
+        if (failures.length === wabaIds.length) {
+            return { success: false, error: `Could not create a project for any connected WhatsApp Business Account. ${failures[0]}` };
+        }
+
+        revalidatePath('/wachat');
+        return { success: true, redirectPath: '/wachat' };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 

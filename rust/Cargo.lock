@@ -19333,7 +19333,9 @@ dependencies = [
  "tracing",
  "urlencoding",
  "utoipa",
+ "wachat-config",
  "wachat-meta-client",
+ "wachat-types",
 ]
 
 [[package]]

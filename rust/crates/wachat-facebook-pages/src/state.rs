@@ -29,6 +29,12 @@ pub struct FacebookAppConfig {
     pub facebook_app_id: String,
     /// `FACEBOOK_APP_SECRET`.
     pub facebook_app_secret: String,
+    /// `NEXT_PUBLIC_META_ONBOARDING_APP_ID` — the Embedded-Signup app that
+    /// initiates the WhatsApp onboarding OAuth dialog. The `whatsapp` state
+    /// must exchange its code against this app, not the Meta-Suite app.
+    pub onboarding_app_id: String,
+    /// `META_ONBOARDING_APP_SECRET`.
+    pub onboarding_app_secret: String,
     /// `NEXT_PUBLIC_APP_URL` — used to derive the redirect URI.
     pub app_url: String,
 }

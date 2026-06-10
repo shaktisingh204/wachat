@@ -402,6 +402,8 @@ async fn run() -> anyhow::Result<()> {
             .or_else(|_| std::env::var("FACEBOOK_APP_ID"))
             .unwrap_or_default(),
         facebook_app_secret: std::env::var("FACEBOOK_APP_SECRET").unwrap_or_default(),
+        onboarding_app_id: std::env::var("NEXT_PUBLIC_META_ONBOARDING_APP_ID").unwrap_or_default(),
+        onboarding_app_secret: std::env::var("META_ONBOARDING_APP_SECRET").unwrap_or_default(),
         app_url: std::env::var("NEXT_PUBLIC_APP_URL").unwrap_or_default(),
     };
     let fb_pages = WachatFacebookPagesState::new(mongo.clone(), meta.clone(), fb_app_config);
