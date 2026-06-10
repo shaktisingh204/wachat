@@ -1009,8 +1009,11 @@ pub async fn get_page_insights(
         }
     };
 
+    // Meta removed page_impressions (and page_fans) for ALL API versions on
+    // 2025-11-15; page_media_view is its replacement. Requesting a removed
+    // metric fails the whole call with "(#100) ... valid insights metric".
     let path =
-        format!("{page}/insights?metric=page_impressions,page_post_engagements&period=days_28");
+        format!("{page}/insights?metric=page_media_view,page_post_engagements&period=days_28");
     let v = match graph_get(&s.meta, &path, token).await {
         Ok(v) => v,
         Err(e) => {
@@ -1044,7 +1047,7 @@ pub async fn get_page_insights(
 
     Json(PageInsightsResp {
         insights: Some(PageInsightsCompact {
-            page_reach: pick("page_impressions"),
+            page_reach: pick("page_media_view"),
             post_engagement: pick("page_post_engagements"),
         }),
         ..Default::default()
@@ -1080,8 +1083,10 @@ pub async fn get_detailed_page_insights(
         }
     };
 
-    const DEFAULT_METRICS: &str =
-        "page_impressions,page_post_engagements,page_views_total,page_fans";
+    // page_impressions / page_fans were removed for all API versions on
+    // 2025-11-15 (page_media_view replaces impressions; followers come from
+    // page_follows). One removed metric fails the whole request.
+    const DEFAULT_METRICS: &str = "page_media_view,page_post_engagements,page_follows";
     let metrics = q.metrics.unwrap_or_else(|| DEFAULT_METRICS.to_owned());
     let period = q.period.unwrap_or_else(|| "days_28".to_owned());
 

@@ -392,10 +392,14 @@ function FacebookOverviewContent() {
 
   useEffect(() => {
     if (firstError) {
+      // (#200)-range and OAuth (#10/#190) errors are permission problems a
+      // reconnect can fix. (#100) is "invalid parameter" (e.g. a deprecated
+      // insights metric) — re-authorizing cannot fix it, so don't ask to.
       if (
-        firstError.includes("permission") ||
-        firstError.includes("(#100)") ||
-        firstError.includes("(#200)")
+        firstError.toLowerCase().includes("permission") ||
+        firstError.includes("(#200)") ||
+        firstError.includes("(#10)") ||
+        firstError.includes("(#190)")
       ) {
         setPermissionError(firstError);
       }

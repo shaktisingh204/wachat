@@ -374,9 +374,10 @@ pub async fn get_post_insights(
     Path((project_id, post_id)): Path<(String, String)>,
 ) -> Result<Json<DataListResponse>> {
     let token = load_token_for(&user, &s.mongo, &project_id).await?;
-    let path = format!(
-        "{post_id}/insights?metric=post_impressions,post_impressions_unique,post_engaged_users,post_clicks,post_clicks_unique,post_reactions_by_type_total,post_activity_by_action_type"
-    );
+    // post_impressions* were removed for all API versions on 2025-11-15
+    // (post_media_view replaces them); post_engaged_users / post_clicks* /
+    // post_activity_by_action_type were already removed in the 2024 wave.
+    let path = format!("{post_id}/insights?metric=post_media_view,post_reactions_by_type_total");
     fetch_data_array(&s, &token, &path).await
 }
 
@@ -471,9 +472,9 @@ pub async fn get_photo_insights(
     Path((project_id, photo_id)): Path<(String, String)>,
 ) -> Result<Json<DataListResponse>> {
     let token = load_token_for(&user, &s.mongo, &project_id).await?;
-    let path = format!(
-        "{photo_id}/insights?metric=post_impressions,post_impressions_unique,post_engaged_users,post_clicks"
-    );
+    // Same deprecation wave as post insights: only the media-view metric
+    // family survives for photos.
+    let path = format!("{photo_id}/insights?metric=post_media_view,post_reactions_by_type_total");
     fetch_data_array(&s, &token, &path).await
 }
 

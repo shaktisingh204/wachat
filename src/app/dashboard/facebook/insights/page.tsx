@@ -91,6 +91,13 @@ function metricTotal(s?: MetricSeries): number {
   return total;
 }
 
+/** Last daily value — for running-total metrics like page_follows where summing days is wrong. */
+function metricLatest(s?: MetricSeries): number {
+  const last = s?.values?.[s.values.length - 1]?.value;
+  const n = typeof last === 'number' ? last : Number(last);
+  return Number.isNaN(n) ? 0 : n;
+}
+
 export default function FacebookInsightsPage(): React.JSX.Element {
   const { activeProject } = useProject();
   const projectId = activeProject?._id?.toString() ?? '';
@@ -108,12 +115,13 @@ export default function FacebookInsightsPage(): React.JSX.Element {
       const [sumRes, detailRes] = await Promise.all([
         getPageInsights(projectId),
         getDetailedPageInsights(projectId, {
-          // page_impressions — still valid (total post impressions for the page)
-          // page_total_actions — valid replacement for deprecated page_post_engagements
-          // page_fans — valid (page likes / fan count growth); replaces deprecated page_fan_adds_unique
-          // page_posts_impressions — valid (impressions on page-owned post content)
-          metrics:
-            'page_impressions,page_total_actions,page_fans,page_posts_impressions',
+          // Meta removed page_impressions / page_fans / page_posts_impressions
+          // for ALL API versions on 2025-11-15. One removed metric fails the
+          // whole call with "(#100) ... valid insights metric".
+          // page_media_view — replacement for the impressions family
+          // page_total_actions — replacement for deprecated page_post_engagements
+          // page_follows — follower count (page_fans has no direct successor)
+          metrics: 'page_media_view,page_total_actions,page_follows',
           period: 'day',
           since,
           until,
@@ -133,8 +141,9 @@ export default function FacebookInsightsPage(): React.JSX.Element {
     refresh();
   }, [refresh]);
 
-  const impressions = useMemo(
-    () => pickMetric(series, ['page_impressions', 'page_posts_impressions']),
+  const views = useMemo(
+    // page_media_view replaces the removed page_impressions family
+    () => pickMetric(series, ['page_media_view']),
     [series],
   );
   const engagementSeries = useMemo(
@@ -142,31 +151,22 @@ export default function FacebookInsightsPage(): React.JSX.Element {
     () => pickMetric(series, ['page_total_actions']),
     [series],
   );
-  const pageViews = useMemo(
-    // page_views_total was deprecated in v18; fall back to page_posts_impressions
-    () => pickMetric(series, ['page_posts_impressions', 'page_impressions']),
-    [series],
-  );
-  const newFans = useMemo(
-    // page_fan_adds_unique was deprecated; page_fans gives cumulative fan count
-    () => pickMetric(series, ['page_fans']),
+  const followers = useMemo(
+    // page_fans was removed 2025-11-15; page_follows is the follower count
+    () => pickMetric(series, ['page_follows']),
     [series],
   );
 
   const chartData = useMemo(() => {
-    const primary = impressions ?? engagementSeries ?? pageViews;
+    const primary = views ?? engagementSeries;
     if (!primary?.values?.length) return [];
     return primary.values.map((v) => ({
       date: v.end_time ? format(new Date(v.end_time), 'MMM d') : '',
       value: typeof v.value === 'number' ? v.value : Number(v.value) || 0,
     }));
-  }, [impressions, engagementSeries, pageViews]);
+  }, [views, engagementSeries]);
 
-  const primaryLabel = impressions
-    ? 'Impressions'
-    : engagementSeries
-    ? 'Total actions'
-    : 'Post impressions';
+  const primaryLabel = views ? 'Views' : 'Total actions';
 
   if (!projectId) {
     return (
@@ -244,15 +244,15 @@ export default function FacebookInsightsPage(): React.JSX.Element {
           <>
             <StatCard
               icon={<Eye />}
-              label="Impressions"
-              value={(metricTotal(impressions) || 0).toLocaleString()}
+              label="Views"
+              value={(metricTotal(views) || 0).toLocaleString()}
               period={`last ${presetSince(preset).days} days`}
             />
             <StatCard
               icon={<Users />}
-              label="Reach"
+              label="Views (28d)"
               value={(summary?.pageReach ?? 0).toLocaleString()}
-              period="lifetime page reach"
+              period="Graph 28-day window"
             />
             <StatCard
               icon={<Heart />}
@@ -264,9 +264,9 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             />
             <StatCard
               icon={<Activity />}
-              label="Post impressions"
-              value={(metricTotal(pageViews) || 0).toLocaleString()}
-              period={`last ${presetSince(preset).days} days`}
+              label="Followers"
+              value={(metricLatest(followers) || 0).toLocaleString()}
+              period="current total"
             />
           </>
         )}
@@ -364,11 +364,11 @@ export default function FacebookInsightsPage(): React.JSX.Element {
                   </div>
                 </li>
               ))}
-              {newFans ? (
+              {followers ? (
                 <li className="flex items-center justify-between rounded-md border border-[var(--st-border)] px-3 py-2 text-sm">
-                  <span className="text-[var(--st-text)]">New fans</span>
+                  <span className="text-[var(--st-text)]">Followers</span>
                   <span className="font-medium text-[var(--st-text)]">
-                    {metricTotal(newFans).toLocaleString()}
+                    {metricLatest(followers).toLocaleString()}
                   </span>
                 </li>
               ) : null}
