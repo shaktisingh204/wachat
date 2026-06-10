@@ -2,13 +2,12 @@
 
 import {
   Alert,
-  Checkbox,
   Button,
   Badge,
   Skeleton,
   Input,
   Modal,
-  Select,
+  SelectField,
   EmptyState,
   Card,
   CardHeader,
@@ -36,6 +35,8 @@ import {
   Search,
   RefreshCw,
   Phone,
+  ShoppingBag,
+  Check,
 } from 'lucide-react';
 
 function cx(...a: Array<string | false | null | undefined>): string {
@@ -164,6 +165,146 @@ function ConfigError() {
   );
 }
 
+/**
+ * Looping preview for the "Without Catalog" option: a small chat exchange
+ * where bubbles pop in one after another. Decorative only.
+ */
+function ChatAnimPreview() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-16 flex-col justify-center gap-1.5 rounded-lg px-3 bg-[var(--st-bg-muted)] overflow-hidden"
+    >
+      <div className="st-cm-pop st-cm-d0 h-3 w-20 rounded-full rounded-bl-sm bg-[var(--st-border)]" />
+      <div className="st-cm-pop st-cm-d1 ml-auto h-3 w-24 rounded-full rounded-br-sm bg-[var(--st-text)]" />
+      <div className="st-cm-pop st-cm-d2 h-3 w-14 rounded-full rounded-bl-sm bg-[var(--st-border)]" />
+    </div>
+  );
+}
+
+/**
+ * Looping preview for the "With Catalog" option: product tiles pop in and
+ * a bag badge lands on the first one. Decorative only.
+ */
+function CatalogAnimPreview() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex h-16 items-center justify-center gap-2 rounded-lg px-3 bg-[var(--st-bg-muted)] overflow-hidden"
+    >
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={cx('st-cm-pop relative w-12 rounded-md border border-[var(--st-border)] bg-[var(--st-bg)] p-1', `st-cm-d${i}`)}
+        >
+          {i === 0 && (
+            <span className="st-cm-pop st-cm-d3 absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--st-text)]">
+              <ShoppingBag className="h-2.5 w-2.5 text-[var(--st-text-inverted)]" />
+            </span>
+          )}
+          <div className="h-5 rounded-sm bg-[var(--st-border)]" />
+          <div className="mt-1 h-1.5 w-3/4 rounded-full bg-[var(--st-border)]" />
+          <div className="mt-1 h-1.5 w-1/2 rounded-full bg-[var(--st-border)]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const CATALOG_MODES = [
+  {
+    includeCatalog: false,
+    title: 'Without Catalog',
+    description: 'Inbox, broadcasts, automations and chatbots.',
+    Preview: ChatAnimPreview,
+  },
+  {
+    includeCatalog: true,
+    title: 'With Catalog',
+    description: 'Everything in messaging, plus product catalog management.',
+    Preview: CatalogAnimPreview,
+  },
+];
+
+function CatalogModeSelector({
+  includeCatalog,
+  setIncludeCatalog,
+  idPrefix,
+}: {
+  includeCatalog: boolean;
+  setIncludeCatalog: (val: boolean) => void;
+  idPrefix: string;
+}) {
+  return (
+    <fieldset className="m-0 border-0 p-0">
+      <legend className="mb-2 text-sm font-medium">Choose what to connect</legend>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {CATALOG_MODES.map((mode) => {
+          const id = `${idPrefix}-${mode.includeCatalog ? 'with' : 'without'}-catalog`;
+          const selected = includeCatalog === mode.includeCatalog;
+          return (
+            <label
+              key={id}
+              htmlFor={id}
+              className={cx(
+                'relative flex cursor-pointer flex-col gap-2.5 rounded-xl border p-3',
+                'transition-[border-color,box-shadow,transform] duration-150 ease-out active:scale-[0.98]',
+                'has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[var(--st-text)] has-[:focus-visible]:ring-offset-2',
+                selected
+                  ? 'border-[var(--st-text)] shadow-[var(--st-shadow-md)]'
+                  : 'border-[var(--st-border)] hover:border-[var(--st-text-muted)]',
+              )}
+            >
+              <input
+                type="radio"
+                id={id}
+                name={`${idPrefix}-catalog-mode`}
+                className="sr-only"
+                checked={selected}
+                onChange={() => setIncludeCatalog(mode.includeCatalog)}
+              />
+              <span
+                aria-hidden="true"
+                className={cx(
+                  'absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full transition-[background-color,opacity] duration-150 ease-out',
+                  selected
+                    ? 'bg-[var(--st-text)] opacity-100'
+                    : 'border border-[var(--st-border)] bg-[var(--st-bg)] opacity-70',
+                )}
+              >
+                {selected && <Check className="h-3 w-3 text-[var(--st-text-inverted)]" />}
+              </span>
+              <mode.Preview />
+              <span>
+                <span className="block text-sm font-semibold">{mode.title}</span>
+                <span className="mt-0.5 block text-xs text-[var(--st-text-muted)]">{mode.description}</span>
+              </span>
+            </label>
+          );
+        })}
+      </div>
+      {/* Previews render their final (fully visible) state by default; the
+          loop only runs when the user allows motion. */}
+      <style>{`
+        @media (prefers-reduced-motion: no-preference) {
+          .st-cm-pop {
+            animation: st-cm-pop 5.4s cubic-bezier(0.23, 1, 0.32, 1) infinite both;
+          }
+          .st-cm-d0 { animation-delay: 0s; }
+          .st-cm-d1 { animation-delay: 0.7s; }
+          .st-cm-d2 { animation-delay: 1.4s; }
+          .st-cm-d3 { animation-delay: 2.1s; }
+        }
+        @keyframes st-cm-pop {
+          0% { opacity: 0; transform: translateY(5px) scale(0.96); }
+          8%, 80% { opacity: 1; transform: translateY(0) scale(1); }
+          90%, 100% { opacity: 0; transform: translateY(0) scale(1); }
+        }
+      `}</style>
+    </fieldset>
+  );
+}
+
 function SetupModal({
   open,
   onClose,
@@ -171,7 +312,7 @@ function SetupModal({
   configId,
   includeCatalog,
   setIncludeCatalog,
-  checkboxId,
+  idPrefix,
   description,
 }: {
   open: boolean;
@@ -180,7 +321,7 @@ function SetupModal({
   configId: string;
   includeCatalog: boolean;
   setIncludeCatalog: (val: boolean) => void;
-  checkboxId: string;
+  idPrefix: string;
   description: string;
 }) {
   return (
@@ -190,24 +331,13 @@ function SetupModal({
           <MessageCircle className="h-5 w-5 text-[var(--st-text-inverted)]" />
         </div>
 
-        <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} state="whatsapp" />
+        <CatalogModeSelector
+          includeCatalog={includeCatalog}
+          setIncludeCatalog={setIncludeCatalog}
+          idPrefix={idPrefix}
+        />
 
-        <div className="flex items-start gap-3 rounded-xl p-3 border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
-          <Checkbox
-            id={checkboxId}
-            checked={includeCatalog}
-            onChange={(e) => setIncludeCatalog(e.target.checked)}
-            className="mt-0.5"
-          />
-          <div>
-            <label htmlFor={checkboxId} className="text-sm font-medium cursor-pointer">
-              Include Catalog Management
-            </label>
-            <p className="text-xs mt-0.5 text-[var(--st-text-muted)]">
-              Grants permission to manage your WhatsApp product catalog
-            </p>
-          </div>
-        </div>
+        <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} state="whatsapp" />
 
         <div className="space-y-2">
           {TRUST.slice(0, 2).map((t) => (
@@ -258,7 +388,7 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
         configId={configId}
         includeCatalog={includeCatalog}
         setIncludeCatalog={setIncludeCatalog}
-        checkboxId="include-catalog"
+        idPrefix="setup-hero"
         description="You'll be redirected to Facebook to authorize access. It only takes a minute."
       />
     </div>
@@ -383,7 +513,7 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
             configId={configId}
             includeCatalog={includeCatalog}
             setIncludeCatalog={setIncludeCatalog}
-            checkboxId="include-catalog-2"
+            idPrefix="setup-cta"
             description="You'll be redirected to Facebook to authorize access."
           />
         </div>
@@ -478,7 +608,7 @@ function ConnectedAccounts() {
             />
           </div>
           <div className="flex gap-2">
-            <Select
+            <SelectField
               aria-label="Filter by status"
               value={statusFilter}
               onChange={(val) => setStatusFilter(val ?? 'all')}
@@ -486,7 +616,7 @@ function ConnectedAccounts() {
               placeholder="Status"
               className="w-[140px]"
             />
-            <Select
+            <SelectField
               aria-label="Sort accounts"
               value={sortBy}
               onChange={(val) => setSortBy((val as 'name' | 'lastSynced') ?? 'lastSynced')}
