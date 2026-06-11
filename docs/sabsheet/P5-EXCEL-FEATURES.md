@@ -21,6 +21,17 @@ ships server-side only and never bloats the client wasm:
 Import via the UI must source the file through **SabFiles** (`<SabFilePicker>`) per project policy —
 that picker wiring is part of the P5 chrome build; the server action + endpoint are ready for it.
 
+## Also landed (this round)
+
+- **Sort** (`SortRange`) and **Find & Replace** (`ReplaceAll`) as engine ops — numbers-before-text
+  ordering, case-insensitive replace; **2 Rust tests**.
+- **Multiple worksheets** — `SabEngine::sheet_list()` → wasm `sheetList()` → worker/client →
+  sheet-aware `SheetCanvas` (every read/edit targets the active sheet) → **sheet-tab strip**
+  (`chrome/sheet-tabs.tsx`: switch, add `+`, double-click rename; hidden sheets omitted).
+- **Row/column structural editing** — right-click a row/column header → insert / delete (uses the
+  engine's `InsertRows`/`DeleteRows`/`InsertColumns`/`DeleteColumns`; `GridRenderer.headerAt` hit-test).
+- All of the above work **offline** (they are local engine ops; the outbox syncs them on reconnect).
+
 ## Remaining P5/P6 (scoped, not built)
 
 These need either new engine wrapper work or new chrome, and are the bulk of "everything Excel does":
